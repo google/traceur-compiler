@@ -20253,7 +20253,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
   var TRANSFORMED = 5;
   var COMPLETE = 6;
   var ERROR = 7;
+  function noop() {}
   var CodeUnit = function CodeUnit(loaderHooks, normalizedName, type, state, name, referrerName, address) {
+    var $__329 = this;
     this.loaderHooks = loaderHooks;
     this.normalizedName = normalizedName;
     this.type = type;
@@ -20266,6 +20268,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
+    this.promise = new Promise((function(res, rej) {
+      $__329.resolve = res;
+      $__329.reject = rej;
+    }));
   };
   ($traceurRuntime.createClass)(CodeUnit, {
     get state() {
@@ -20299,35 +20305,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     normalizesTo: function() {
       return 'Normalizes to ' + this.normalizedName + '\n';
     },
-    addListener: function(callback, errback) {
-      if (!this.listeners) {
-        this.listeners = [];
-      }
-      this.listeners.push(callback, errback);
-      if (this.state >= COMPLETE) {
-        this.dispatchComplete(this.result);
-      }
-    },
-    dispatchError: function(value) {
-      this.dispatch_(value, 1);
-    },
-    dispatchComplete: function(value) {
-      this.dispatch_(value, 0);
-    },
-    dispatch_: function(value, error) {
-      var listeners = this.listeners;
-      if (!listeners) {
-        return;
-      }
-      listeners = listeners.concat();
-      this.listeners = [];
-      for (var i = error; i < listeners.length; i += 2) {
-        var f = listeners[i];
-        if (f) {
-          f(value);
-        }
-      }
-    },
     transform: function() {
       return this.loaderHooks.transform(this);
     },
@@ -20338,6 +20315,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
   var PreCompiledCodeUnit = function PreCompiledCodeUnit(loaderHooks, normalizedName, name, referrerName, address, module) {
     $traceurRuntime.superCall(this, $PreCompiledCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, 'module', COMPLETE, name, referrerName, address]);
     this.result = module;
+    this.resolve(this.result);
   };
   var $PreCompiledCodeUnit = PreCompiledCodeUnit;
   ($traceurRuntime.createClass)(PreCompiledCodeUnit, {}, {}, CodeUnit);
@@ -20372,39 +20350,48 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       var referrerName = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
       var address = arguments[2];
       var type = arguments[3] !== (void 0) ? arguments[3]: 'script';
+      var codeUnit = this.load_(name, referrerName, address, type);
+      return codeUnit.promise.then((function() {
+        return codeUnit;
+      }));
+    },
+    load_: function(name, referrerName, address, type) {
+      var $__329 = this;
       var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
       if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
         return codeUnit;
       }
       codeUnit.state = LOADING;
-      var loader = this;
       var translate = this.translateHook;
       var url = this.loaderHooks.locate(codeUnit);
-      codeUnit.abort = this.loadTextFile(url, function(text) {
+      codeUnit.abort = this.loadTextFile(url, (function(text) {
         codeUnit.text = translate(text);
         codeUnit.state = LOADED;
-        loader.handleCodeUnitLoaded(codeUnit);
-      }, function() {
+        $__329.handleCodeUnitLoaded(codeUnit);
+      }), (function() {
         codeUnit.state = ERROR;
-        loader.handleCodeUnitLoadError(codeUnit);
-      });
+        $__329.handleCodeUnitLoadError(codeUnit);
+      }));
       return codeUnit;
     },
     module: function(code, referrerName, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', null, referrerName, address);
       this.cache.set({}, codeUnit);
-      return codeUnit;
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     define: function(normalizedName, code, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', normalizedName, null, address);
       var key = this.getKey(normalizedName, 'module');
       this.cache.set(key, codeUnit);
-      return codeUnit;
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     script: function(code, referrerName, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', null, referrerName, address);
       this.cache.set({}, codeUnit);
-      return codeUnit;
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     get options() {
       return this.loaderHooks.options;
@@ -20471,7 +20458,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;
-      codeUnit.dispatchError(message);
+      codeUnit.reject(message);
     },
     abortAll: function(errorMessage) {
       this.cache.values().forEach((function(codeUnit) {
@@ -20481,7 +20468,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
         }
       }));
       this.cache.values().forEach((function(codeUnit) {
-        codeUnit.dispatchError(codeUnit.error || errorMessage);
+        codeUnit.reject(codeUnit.error || errorMessage);
       }));
     },
     analyze: function() {
@@ -20532,7 +20519,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
         for (var i = 0; i < dependencies.length; i++) {
           var codeUnit = dependencies[i];
           if (codeUnit.state == ERROR) {
-            codeUnit.dispatchError(phase);
+            codeUnit.reject(phase);
           }
         }
         return true;
@@ -20567,7 +20554,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
           codeUnit.error = ex;
           this.reporter.reportError(null, String(ex));
           this.abortAll();
-          codeUnit.dispatchError(codeUnit.error);
+          codeUnit.reject(codeUnit.error);
           return;
         }
         codeUnit.result = result;
@@ -20579,7 +20566,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
           continue;
         }
         codeUnit.state = COMPLETE;
-        codeUnit.dispatchComplete(codeUnit.result);
+        codeUnit.resolve(codeUnit.result);
       }
     }
   }, {});
@@ -20616,34 +20603,21 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
           referrerName = $__334.referrerName,
           address = $__334.address;
       var $__332 = this;
-      return new Promise((function(resolve, reject) {
-        var codeUnit = $__332.internalLoader_.load(name, referrerName, address, 'module');
-        codeUnit.addListener(function() {
-          resolve(System.get(codeUnit.normalizedName));
-        }, reject);
+      return this.internalLoader_.load(name, referrerName, address, 'module').then((function(codeUnit) {
+        return $__332.get(codeUnit.normalizedName);
       }));
     },
     module: function(source) {
       var $__334 = arguments[1] !== (void 0) ? arguments[1]: {},
           referrerName = $__334.referrerName,
           address = $__334.address;
-      var $__332 = this;
-      return new Promise((function(resolve, reject) {
-        var codeUnit = $__332.internalLoader_.module (source, referrerName, address);
-        codeUnit.addListener(resolve, reject);
-        $__332.internalLoader_.handleCodeUnitLoaded(codeUnit);
-      }));
+      return this.internalLoader_.module (source, referrerName, address);
     },
     define: function(normalizedName, source) {
-      var $__334 = arguments[2],
+      var $__334 = arguments[2] !== (void 0) ? arguments[2]: {},
           address = $__334.address,
           metadata = $__334.metadata;
-      var $__332 = this;
-      return new Promise((function(resolve, reject) {
-        var codeUnit = $__332.internalLoader_.define(normalizedName, source, address, metadata);
-        codeUnit.addListener(resolve, reject);
-        $__332.internalLoader_.handleCodeUnitLoaded(codeUnit);
-      }));
+      return this.internalLoader_.define(normalizedName, source, address, metadata);
     },
     get: function(normalizedName) {
       return this.loaderHooks_.get(normalizedName);
@@ -20866,26 +20840,19 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/TraceurLo
   var $TraceurLoader = TraceurLoader;
   ($traceurRuntime.createClass)(TraceurLoader, {
     loadAsScript: function(filename) {
-      var $__342 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__342.referrerName,
-          address = $__342.address;
-      var $__340 = this;
-      return new Promise((function(resolve, reject) {
-        var name = filename.replace(/\.js$/, '');
-        var codeUnit = $__340.internalLoader_.load(name, referrerName, address, 'script');
-        codeUnit.addListener(resolve, reject);
+      var $__341 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__341.referrerName,
+          address = $__341.address;
+      var name = filename.replace(/\.js$/, '');
+      return this.internalLoader_.load(name, referrerName, address, 'script').then((function(codeUnit) {
+        return codeUnit.result;
       }));
     },
     script: function(source) {
-      var $__342 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__342.referrerName,
-          address = $__342.address;
-      var $__340 = this;
-      return new Promise((function(resolve, reject) {
-        var codeUnit = $__340.internalLoader_.script(source, null, referrerName, address);
-        codeUnit.addListener(resolve, reject);
-        $__340.internalLoader_.handleCodeUnitLoaded(codeUnit);
-      }));
+      var $__341 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__341.referrerName,
+          address = $__341.address;
+      return this.internalLoader_.script(source, null, referrerName, address);
     },
     semVerRegExp_: function() {
       return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;

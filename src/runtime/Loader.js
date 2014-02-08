@@ -30,13 +30,8 @@ export class Loader {
    * @return {Promise.<Module>}
    */
   import(name, {referrerName, address} = {}) {
-    return new Promise((resolve, reject)  => {
-      var codeUnit = this.internalLoader_.load(name, referrerName,
-          address, 'module');
-      codeUnit.addListener(function() {
-        resolve(System.get(codeUnit.normalizedName));
-      }, reject);
-    });
+    return this.internalLoader_.load(name, referrerName, address, 'module').
+        then((codeUnit) => this.get(codeUnit.normalizedName));
   }
 
   /**
@@ -49,11 +44,7 @@ export class Loader {
    * @return {Promise.<Module>}
    */
   module(source, {referrerName, address} = {}) {
-    return new Promise((resolve, reject) => {
-      var codeUnit = this.internalLoader_.module(source, referrerName, address);
-      codeUnit.addListener(resolve, reject);
-      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-    });
+    return this.internalLoader_.module(source, referrerName, address);
   }
 
   /**
@@ -64,13 +55,9 @@ export class Loader {
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
    * @return {Promise} fulfilled with undefined.
    */
-  define(normalizedName, source, {address, metadata} = undefined) {
-    return new Promise((resolve, reject) => {
-      var codeUnit =
-          this.internalLoader_.define(normalizedName, source, address, metadata);
-      codeUnit.addListener(resolve, reject);
-      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-    });
+  define(normalizedName, source, {address, metadata} = {}) {
+    return this.internalLoader_.define(normalizedName, source, address,
+                                       metadata);
   }
 
   get(normalizedName) {

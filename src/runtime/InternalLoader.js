@@ -54,6 +54,10 @@ class CodeUnit {
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
+    this.promise = new Promise((res, rej) => {
+      this.resolve = res;
+      this.reject = rej;
+    });
   }
 
   get state() {
@@ -97,44 +101,6 @@ class CodeUnit {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
-  /**
-   * Adds callback for COMPLETE and ERROR.
-   */
-  addListener(callback, errback) {
-    if (!this.listeners) {
-      this.listeners = [];
-    }
-    this.listeners.push(callback, errback);
-    if (this.state >= COMPLETE) {
-      this.dispatchComplete(this.result);
-    }
-  }
-
-  dispatchError(value) {
-    this.dispatch_(value, 1);
-  }
-
-  dispatchComplete(value) {
-    this.dispatch_(value, 0);
-  }
-
-  dispatch_(value, error) {
-    var listeners = this.listeners;
-    if (!listeners) {
-      return;
-    }
-    // Clone to prevent mutations during dispatch
-    listeners = listeners.concat();
-    this.listeners = [];
-
-    for (var i = error; i < listeners.length; i += 2) {
-      var f = listeners[i];
-      if (f) {
-        f(value);
-      }
-    }
-  }
-
   transform() {
     return this.loaderHooks.transform(this);
   }
@@ -154,6 +120,7 @@ class PreCompiledCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, 'module', COMPLETE,
         name, referrerName, address);
     this.result = module;
+    this.resolve(this.result);
   }
 }
 
@@ -184,7 +151,7 @@ class EvalCodeUnit extends CodeUnit {
   constructor(loaderHooks, code, type = 'script',
       normalizedName, referrerName, address) {
     super(loaderHooks, normalizedName, type,
-      LOADED, null, referrerName, address);
+        LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -211,22 +178,26 @@ export class InternalLoader {
 
   load(name, referrerName = this.loaderHooks.rootUrl(),
       address, type = 'script') {
+    var codeUnit = this.load_(name, referrerName, address, type);
+    return codeUnit.promise.then(() => codeUnit);
+  }
+
+  load_(name, referrerName, address, type) {
     var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
 
     codeUnit.state = LOADING;
-    var loader = this;
     var translate = this.translateHook;
     var url = this.loaderHooks.locate(codeUnit);
-    codeUnit.abort = this.loadTextFile(url, function(text) {
+    codeUnit.abort = this.loadTextFile(url, (text) => {
       codeUnit.text = translate(text);
       codeUnit.state = LOADED;
-      loader.handleCodeUnitLoaded(codeUnit);
-    }, function() {
+      this.handleCodeUnitLoaded(codeUnit);
+    }, () => {
       codeUnit.state = ERROR;
-      loader.handleCodeUnitLoadError(codeUnit);
+      this.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
   }
@@ -235,7 +206,8 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                       null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return codeUnit;
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   define(normalizedName, code, address) {
@@ -244,7 +216,8 @@ export class InternalLoader {
     var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
-    return codeUnit;
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   /**
@@ -255,7 +228,8 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return codeUnit;
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   get options() {
@@ -341,7 +315,7 @@ export class InternalLoader {
     this.reporter.reportError(null, message);
     this.abortAll(message);
     codeUnit.error = message;
-    codeUnit.dispatchError(message);
+    codeUnit.reject(message);
   }
 
   /**
@@ -356,7 +330,7 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error || errorMessage);
+      codeUnit.reject(codeUnit.error || errorMessage);
     });
   }
 
@@ -416,7 +390,7 @@ export class InternalLoader {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phase);
+          codeUnit.reject(phase);
         }
       }
       return true;
@@ -459,7 +433,7 @@ export class InternalLoader {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
         this.abortAll();
-        codeUnit.dispatchError(codeUnit.error);
+        codeUnit.reject(codeUnit.error);
         return;
       }
 
@@ -473,7 +447,7 @@ export class InternalLoader {
         continue;
       }
       codeUnit.state = COMPLETE;
-      codeUnit.dispatchComplete(codeUnit.result);
+      codeUnit.resolve(codeUnit.result);
     }
   }
 }
