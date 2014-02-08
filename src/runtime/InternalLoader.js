@@ -28,8 +28,6 @@ var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
 
-function noop() {}
-
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
@@ -56,29 +54,10 @@ class CodeUnit {
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
-    this.promise_ = null;
-    this.resolve_ = noop;
-    this.reject_ = noop;
-  }
-
-  ensurePromise_() {
-    if (!this.promise_) {
-      if (this.state >= COMPLETE) {
-        this.promise_ = Promise.resolve(this.result);
-      } else if (this.state === ERROR) {
-        this.promise_ = Promise.reject(this.error);
-      } else {
-        this.promise_ = new Promise((resolve, reject) => {
-          this.resolve_ = resolve;
-          this.reject_ = reject;
-        });
-      }
-    }
-  }
-
-  get promise() {
-    this.ensurePromise_();
-    return this.promise_;
+    this.promise = new Promise((res, rej) => {
+      this.resolve = res;
+      this.reject = rej;
+    });
   }
 
   get state() {
@@ -122,16 +101,6 @@ class CodeUnit {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
-  dispatchError(err) {
-    this.ensurePromise_();
-    this.reject_(err);
-  }
-
-  dispatchComplete() {
-    this.ensurePromise_();
-    this.resolve_(this.result);
-  }
-
   transform() {
     return this.loaderHooks.transform(this);
   }
@@ -151,6 +120,7 @@ class PreCompiledCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, 'module', COMPLETE,
         name, referrerName, address);
     this.result = module;
+    this.resolve(this.result);
   }
 }
 
@@ -181,7 +151,7 @@ class EvalCodeUnit extends CodeUnit {
   constructor(loaderHooks, code, type = 'script',
       normalizedName, referrerName, address) {
     super(loaderHooks, normalizedName, type,
-      LOADED, null, referrerName, address);
+        LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -345,7 +315,7 @@ export class InternalLoader {
     this.reporter.reportError(null, message);
     this.abortAll(message);
     codeUnit.error = message;
-    codeUnit.dispatchError(message);
+    codeUnit.reject(message);
   }
 
   /**
@@ -360,7 +330,7 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error || errorMessage);
+      codeUnit.reject(codeUnit.error || errorMessage);
     });
   }
 
@@ -420,7 +390,7 @@ export class InternalLoader {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phase);
+          codeUnit.reject(phase);
         }
       }
       return true;
@@ -463,7 +433,7 @@ export class InternalLoader {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
         this.abortAll();
-        codeUnit.dispatchError(codeUnit.error);
+        codeUnit.reject(codeUnit.error);
         return;
       }
 
@@ -477,7 +447,7 @@ export class InternalLoader {
         continue;
       }
       codeUnit.state = COMPLETE;
-      codeUnit.dispatchComplete();
+      codeUnit.resolve(codeUnit.result);
     }
   }
 }

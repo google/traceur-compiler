@@ -20255,6 +20255,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
   var ERROR = 7;
   function noop() {}
   var CodeUnit = function CodeUnit(loaderHooks, normalizedName, type, state, name, referrerName, address) {
+    var $__329 = this;
     this.loaderHooks = loaderHooks;
     this.normalizedName = normalizedName;
     this.type = type;
@@ -20267,30 +20268,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
-    this.promise_ = null;
-    this.resolve_ = noop;
-    this.reject_ = noop;
+    this.promise = new Promise((function(res, rej) {
+      $__329.resolve = res;
+      $__329.reject = rej;
+    }));
   };
   ($traceurRuntime.createClass)(CodeUnit, {
-    ensurePromise_: function() {
-      var $__329 = this;
-      if (!this.promise_) {
-        if (this.state >= COMPLETE) {
-          this.promise_ = Promise.resolve(this.result);
-        } else if (this.state === ERROR) {
-          this.promise_ = Promise.reject(this.error);
-        } else {
-          this.promise_ = new Promise((function(resolve, reject) {
-            $__329.resolve_ = resolve;
-            $__329.reject_ = reject;
-          }));
-        }
-      }
-    },
-    get promise() {
-      this.ensurePromise_();
-      return this.promise_;
-    },
     get state() {
       return this.state_;
     },
@@ -20322,14 +20305,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     normalizesTo: function() {
       return 'Normalizes to ' + this.normalizedName + '\n';
     },
-    dispatchError: function(err) {
-      this.ensurePromise_();
-      this.reject_(err);
-    },
-    dispatchComplete: function() {
-      this.ensurePromise_();
-      this.resolve_(this.result);
-    },
     transform: function() {
       return this.loaderHooks.transform(this);
     },
@@ -20340,6 +20315,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
   var PreCompiledCodeUnit = function PreCompiledCodeUnit(loaderHooks, normalizedName, name, referrerName, address, module) {
     $traceurRuntime.superCall(this, $PreCompiledCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, 'module', COMPLETE, name, referrerName, address]);
     this.result = module;
+    this.resolve(this.result);
   };
   var $PreCompiledCodeUnit = PreCompiledCodeUnit;
   ($traceurRuntime.createClass)(PreCompiledCodeUnit, {}, {}, CodeUnit);
@@ -20482,7 +20458,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;
-      codeUnit.dispatchError(message);
+      codeUnit.reject(message);
     },
     abortAll: function(errorMessage) {
       this.cache.values().forEach((function(codeUnit) {
@@ -20492,7 +20468,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
         }
       }));
       this.cache.values().forEach((function(codeUnit) {
-        codeUnit.dispatchError(codeUnit.error || errorMessage);
+        codeUnit.reject(codeUnit.error || errorMessage);
       }));
     },
     analyze: function() {
@@ -20543,7 +20519,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
         for (var i = 0; i < dependencies.length; i++) {
           var codeUnit = dependencies[i];
           if (codeUnit.state == ERROR) {
-            codeUnit.dispatchError(phase);
+            codeUnit.reject(phase);
           }
         }
         return true;
@@ -20578,7 +20554,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
           codeUnit.error = ex;
           this.reporter.reportError(null, String(ex));
           this.abortAll();
-          codeUnit.dispatchError(codeUnit.error);
+          codeUnit.reject(codeUnit.error);
           return;
         }
         codeUnit.result = result;
@@ -20590,7 +20566,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
           continue;
         }
         codeUnit.state = COMPLETE;
-        codeUnit.dispatchComplete();
+        codeUnit.resolve(codeUnit.result);
       }
     }
   }, {});
