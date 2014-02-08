@@ -102,7 +102,7 @@ suite('context test', function() {
   test('inline option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/only-export';
+    var inputFileName = './unit/node/resources/only-export';
 
     exec(executable + ' --out ' + tempFileName + ' --inline ' + inputFileName,
         function(error, stdout, stderr) {

@@ -19744,7 +19744,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/Fr
     if (transformOptions.annotations) append(AnnotationsTransformer);
     if (options.typeAssertions) append(TypeAssertionTransformer);
     if (transformOptions.modules) {
-      console.log('transformOptions.modules ' + transformOptions.modules);
       switch (transformOptions.modules) {
         case 'commonjs':
           append(CommonJsModuleTransformer);
