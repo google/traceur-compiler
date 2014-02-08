@@ -211,31 +211,55 @@ export class InternalLoader {
 
   load(name, referrerName = this.loaderHooks.rootUrl(),
       address, type = 'script') {
+    var codeUnit = this.load_(name, referrerName, address, type);
+    return new Promise((resolve, reject) => {
+      codeUnit.addListener(() => {
+        resolve(codeUnit);
+      }, reject);
+    });
+  }
+
+  load_(name, referrerName, address, type) {
     var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
 
     codeUnit.state = LOADING;
-    var loader = this;
     var translate = this.translateHook;
     var url = this.loaderHooks.locate(codeUnit);
-    codeUnit.abort = this.loadTextFile(url, function(text) {
+    codeUnit.abort = this.loadTextFile(url, (text) => {
       codeUnit.text = translate(text);
       codeUnit.state = LOADED;
-      loader.handleCodeUnitLoaded(codeUnit);
-    }, function() {
+      this.handleCodeUnitLoaded(codeUnit);
+    }, () => {
       codeUnit.state = ERROR;
-      loader.handleCodeUnitLoadError(codeUnit);
+      this.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
+  }
+
+  promiseFor(codeUnit) {
+    return new Promise((resolve, reject) => {
+      codeUnit.addListener(resolve, reject);
+    });
+  }
+
+  promiseForAlreadyLoaded(codeUnit) {
+    var p = new Promise((resolve, reject) => {
+      codeUnit.addListener(resolve, reject);
+    });
+    this.handleCodeUnitLoaded(codeUnit);
+    // ?
+    codeUnit.promise = p;
+    return p;
   }
 
   module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                       null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return codeUnit;
+    return this.promiseForAlreadyLoaded(codeUnit);
   }
 
   define(normalizedName, code, address) {
@@ -244,7 +268,7 @@ export class InternalLoader {
     var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
-    return codeUnit;
+    return this.promiseForAlreadyLoaded(codeUnit);
   }
 
   /**
@@ -255,7 +279,7 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return codeUnit;
+    return this.promiseForAlreadyLoaded(codeUnit);
   }
 
   get options() {
@@ -320,7 +344,7 @@ export class InternalLoader {
       return this.getCodeUnit_(name, referrerName, null, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
-      this.load(dependency.normalizedName, null, null, 'module');
+      this.load_(dependency.normalizedName, null, null, 'module');
     });
 
     if (this.areAll(PARSED)) {
