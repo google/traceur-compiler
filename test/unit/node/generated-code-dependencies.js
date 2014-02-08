@@ -80,7 +80,7 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var result = executeFileWithRuntime(tempFileName);
-          assert.equal(result, 'x');
+          assert.equal(global.result, 'x');
           done();
         });
   });
@@ -94,7 +94,22 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var result = executeFileWithRuntime(tempFileName);
-          assert.equal(result, 'x');
+          assert.equal(global.result, 'x');
+          done();
+        });
+  });
+
+  test('script option per file', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/iAmScript.js';
+    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var source = fs.readFileSync(tempFileName, 'utf-8');
+          // verify that the output is an assignment of a module.
+          var result = eval(source);
+          assert.equal(result, true);
           done();
         });
   });

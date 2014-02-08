@@ -59,7 +59,9 @@ export var options = {
       return true;
     });
     return value;
-  }
+  },
+  /** Names of files to be parsed as Script */
+  scripts: []
 };
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -157,7 +159,12 @@ function addOptions(flags) {
     (path) => {
       setOption('type-assertion-module', path);
       return path;
-    })
+    });
+  flags.option('--script <fileName>',
+    'Parse as Script (must precede modules)',
+    (fileName) => {
+      options.scripts.push(fileName);
+    });
 }
 
 /**

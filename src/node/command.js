@@ -28,7 +28,7 @@ flags.setMaxListeners(100);
 
 var traceur = require('./traceur.js');
 
-// The System object requires traceur, but we want it set for everything that 
+// The System object requires traceur, but we want it set for everything that
 // follows. The module sets global.System as a side-effect.
 require('./System.js');
 
@@ -147,7 +147,9 @@ function processArguments(argv) {
 var argv = processArguments(process.argv);
 flags.parse(argv);
 
-var includes = flags.args;
+
+var includes = traceur.options.scripts || [];
+includes = includes.concat(flags.args);
 
 if (!includes.length) {
   // TODO: Start trepl
