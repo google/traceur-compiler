@@ -99,6 +99,23 @@ suite('context test', function() {
         });
   });
 
+  test('inline option per file', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './test/unit/node/resources/only-export';
+
+    exec(executable + ' --out ' + tempFileName + ' --inline ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var source = fs.readFileSync(tempFileName, 'utf-8');
+          // verify that the output is an assignment of a module.
+          var equalSign = source.indexOf('=');
+          var result = eval(source.slice(equalSign + 1));
+          assert.equal(result.x, 6);
+          done();
+        });
+  });
+
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = resolve('test/unit/node/resources/compile-dir');

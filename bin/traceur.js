@@ -2210,6 +2210,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/options", functio
       setOption('type-assertion-module', path);
       return path;
     }));
+    flags.option('--inline <moduleName>', 'Compile module to IIFE', (function(moduleName) {
+      var inlines = options.inlines || [];
+      inlines.push(moduleName);
+      options.inlines = inlines;
+      console.log('options.inlines ' + options.inlines.length);
+    }));
   }
   function filterOption(dashedName) {
     var name = toCamelCase(dashedName);
@@ -19738,6 +19744,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/Fr
     if (transformOptions.annotations) append(AnnotationsTransformer);
     if (options.typeAssertions) append(TypeAssertionTransformer);
     if (transformOptions.modules) {
+      console.log('transformOptions.modules ' + transformOptions.modules);
       switch (transformOptions.modules) {
         case 'commonjs':
           append(CommonJsModuleTransformer);

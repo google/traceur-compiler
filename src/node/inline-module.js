@@ -96,13 +96,26 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   basePath = basePath.replace(/\\/g, '/');
 
+  var inlined = options.inlines && options.inlines.length;
+  var modulesOption = options.modules;
+
   var loadCount = 0;
   var elements = [];
   var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
   var loader = new TraceurLoader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.loadAsScript(filenames[loadCount],
+    if (inlined && loadCount < inlined)
+      options.modules = 'inline';
+    else
+      options.modules = modulesOption;
+
+    // TODO(jjb) remove this when we switch to only import next rev.
+    var loadFunction = loader.loadAsScript;
+    if (inlined && loadCount < inlined)
+      loadFunction = loader.import;
+
+    var codeUnit = loadFunction.call(loader, filenames[loadCount],
       {referrerName: referrerName}).then(
       function() {
         loadCount++;
