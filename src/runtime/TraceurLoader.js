@@ -39,12 +39,9 @@ export class TraceurLoader extends Loader {
    * @return {Promise} fulfilled with evaluation result.
    */
   loadAsScript(filename, {referrerName, address} = {}) {
-    return new Promise((resolve, reject) => {
-      var name = filename.replace(/\.js$/, '');
-      var codeUnit = this.internalLoader_.load(name, referrerName,
-          address, 'script');
-      codeUnit.addListener(resolve, reject);
-    });
+    var name = filename.replace(/\.js$/, '');
+    return this.internalLoader_.load(name, referrerName, address, 'script').
+        then((codeUnit) => codeUnit.result);
   }
 
   /**
@@ -63,12 +60,7 @@ export class TraceurLoader extends Loader {
 
    */
   script(source, {referrerName, address} = {}) {
-    return new Promise((resolve, reject) => {
-      var codeUnit =
-          this.internalLoader_.script(source, null, referrerName, address);
-      codeUnit.addListener(resolve, reject);
-      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-    });
+    return this.internalLoader_.script(source, null, referrerName, address);
   }
 
   semVerRegExp_() {
