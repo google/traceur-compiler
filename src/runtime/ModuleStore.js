@@ -190,7 +190,7 @@
   // Todo: Remove after the next npm publish, needed because the current
   // node_module/traceur generates calls to System.registerModule.
   global.System = {
-    registerModule: ModuleStore.registerModule,
+    register: ModuleStore.registerModule,
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
