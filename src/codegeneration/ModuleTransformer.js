@@ -56,6 +56,8 @@ export class ModuleTransformer extends TempVarTransformer {
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.moduleName = null;
+    this.depCnt = 0;
+    this.depNames = [];
   }
 
   getTempVarNameForModuleName(moduleName) {
@@ -71,6 +73,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   transformScript(tree) {
     this.moduleName = tree.moduleName;
+    this.isScript = true;
     return super.transformScript(tree);
   }
 
@@ -103,8 +106,9 @@ export class ModuleTransformer extends TempVarTransformer {
           `$traceurRuntime.ModuleStore.getAnonymousModule(
               ${functionExpression});`;
     }
+
     return parseStatements
-        `$traceurRuntime.ModuleStore.registerModule(${this.moduleName},
+        `$traceurRuntime.ModuleStore.registerModule(${this.moduleName}, ${this.depNames},
             ${functionExpression});`;
   }
 
@@ -195,11 +199,17 @@ export class ModuleTransformer extends TempVarTransformer {
   transformModuleSpecifier(tree) {
     assert(this.moduleName);
     var name = tree.token.processedValue;
+    // legacy support for scripts with modules
+    if (this.isScript) {
+      var normalizedName = System.normalize(name, this.moduleName);
+      if (this.moduleSpecifierKind_ === 'module')
+        return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
+      return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
+    }
+
     // import/module {x} from 'name' is relative to the current file.
-    var normalizedName = System.normalize(name, this.moduleName);
-    if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
+    this.depNames.push(name);
+    return parseExpression `System.get(arguments[${this.depCnt++}])`;
   }
 
   /**

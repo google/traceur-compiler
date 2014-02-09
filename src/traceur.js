@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {System} from './runtime/System';
-import {System} from './runtime/System';
 export var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
 
 export {options} from './options';
