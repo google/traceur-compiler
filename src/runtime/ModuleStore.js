@@ -39,15 +39,16 @@
   }
 
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
-    constructor(url, func) {
+    constructor(url, deps, func) {
       super(url, null);
       this.func = func;
+      this.deps = deps;
     }
 
     getUncoatedModule() {
       if (this.value_)
         return this.value_;
-      return this.value_ = this.func.call(global);
+      return this.value_ = this.func.apply(global, this.deps.map((name) => ModuleStore.normalize(name, this.url)));
     }
   }
 
@@ -120,7 +121,7 @@
     set(normalizedName, module) {
       normalizedName = String(normalizedName);  // Req. by spec., why?
       moduleInstantiators[normalizedName] =
-          new UncoatedModuleInstantiator(normalizedName, () => module);
+          new UncoatedModuleInstantiator(normalizedName, [], () => module);
       moduleInstances[normalizedName] = module;
     },
 
@@ -134,12 +135,17 @@
 
     // -- Non standard extensions to ModuleStore.
 
-    registerModule(name, func) {
+    registerModule(name, deps, func) {
+      // ensure that the global System is defined
+      if (typeof deps == 'function') {
+        func = deps;
+        deps = [];
+      }
       var normalizedName = ModuleStore.normalize(name);
       if (moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
       moduleInstantiators[normalizedName] =
-          new UncoatedModuleInstantiator(normalizedName, func);
+          new UncoatedModuleInstantiator(normalizedName, deps, func);
     },
 
     getAnonymousModule(func) {
@@ -184,7 +190,7 @@
   // Todo: Remove after the next npm publish, needed because the current
   // node_module/traceur generates calls to System.registerModule.
   global.System = {
-    registerModule: ModuleStore.registerModule,
+    register: ModuleStore.registerModule,
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
