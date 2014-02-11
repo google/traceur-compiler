@@ -15,7 +15,7 @@
 export {System} from './runtime/System';
 import {System} from './runtime/System';
 export var ModuleStore =
-  System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
+    System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
 
 export {options} from './options';
 

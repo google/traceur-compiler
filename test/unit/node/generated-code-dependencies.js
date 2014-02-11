@@ -79,7 +79,7 @@ suite('context test', function() {
     exec(executable + ' --out ' + tempFileName + ' -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          var result = executeFileWithRuntime(tempFileName);
+          executeFileWithRuntime(tempFileName);
           assert.equal(global.result, 'x');
           done();
         });
@@ -93,7 +93,7 @@ suite('context test', function() {
     exec(executable + ' --out ' + tempFileName + ' --modules=inline -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          var result = executeFileWithRuntime(tempFileName);
+          executeFileWithRuntime(tempFileName);
           assert.equal(global.result, 'x');
           done();
         });

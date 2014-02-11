@@ -123,21 +123,21 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
     var loadOptions = {referrerName: referrerName};
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
-      function() {
-        if (!loadAsScript && options.modules !== 'inline')
-          appendEvaluateModule(name, referrerName);
-        loadCount++;
-        if (loadCount < filenames.length) {
-          loadNext();
-        } else if (depTarget) {
-          callback(null);
-        } else {
-          var tree = allLoaded(basePath, reporter, elements);
-          callback(tree);
-        }
-      }, function(err) {
-        errback(err);
-      });
+        function() {
+          if (!loadAsScript && options.modules !== 'inline')
+            appendEvaluateModule(name, referrerName);
+          loadCount++;
+          if (loadCount < filenames.length) {
+            loadNext();
+          } else if (depTarget) {
+            callback(null);
+          } else {
+            var tree = allLoaded(basePath, reporter, elements);
+            callback(tree);
+          }
+        }, function(err) {
+          errback(err);
+        });
   }
 
   loadNext();
