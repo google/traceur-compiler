@@ -1,3 +1,2 @@
 import {x} from './reexport-x';
-
-var result = x;
+this.result = x;  // To verify execution, test this global value.

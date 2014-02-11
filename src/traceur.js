@@ -14,7 +14,8 @@
 
 export {System} from './runtime/System';
 import {System} from './runtime/System';
-export var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
+export var ModuleStore =
+    System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
 
 export {options} from './options';
 
@@ -78,6 +79,7 @@ import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
+import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {InlineModuleTransformer} from './codegeneration/InlineModuleTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
@@ -87,7 +89,6 @@ module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
   AmdTransformer,
-  AttachModuleNameTransformer,
   CloneTreeTransformer,
   CommonJsModuleTransformer,
   FromOptionsTransformer,
@@ -96,6 +97,8 @@ export var codegeneration = {
   ParseTreeFactory,
   ParseTreeTransformer,
   module: {
+    AttachModuleNameTransformer,
+    createModuleEvaluationStatement,
     ModuleSpecifierVisitor
   }
 };

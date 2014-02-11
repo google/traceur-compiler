@@ -21,7 +21,7 @@ var writeTreeToFile = require('./compiler.js').writeTreeToFile;
 var traceur = require('./traceur.js');
 var ErrorReporter = traceur.util.ErrorReporter;
 var AttachModuleNameTransformer =
-    traceur.codegeneration.AttachModuleNameTransformer;
+    traceur.codegeneration.module.AttachModuleNameTransformer;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
