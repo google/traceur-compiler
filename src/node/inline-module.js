@@ -105,10 +105,10 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   function appendEvaluateModule(name, referrerName) {
     var normalizedName =
-      traceur.ModuleStore.ModuleStore.normalize(name, referrerName);
+        traceur.ModuleStore.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
     var tree =
-        traceur.codegeneration.createModuleEvaluationStatement(normalizedName);
+        traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);
     elements.push(tree);
   }
 
@@ -121,8 +121,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
     else
       name = name.replace(/\.js$/,'');
 
-    var codeUnit = loadFunction.call(loader, name,
-      {referrerName: referrerName}).then(
+    var loadOptions = {referrerName: referrerName};
+    var codeUnit = loadFunction.call(loader, name, loadOptions).then(
       function() {
         if (!loadAsScript && options.modules !== 'inline')
           appendEvaluateModule(name, referrerName);

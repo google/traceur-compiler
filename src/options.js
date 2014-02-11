@@ -60,7 +60,7 @@ export var options = {
     });
     return value;
   },
-  /** Names of files to be parsed as Script */
+
   scripts: []
 };
 

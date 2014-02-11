@@ -20958,7 +20958,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
   var __moduleName = "traceur@0.0.20/src/traceur";
   var $__traceur_64_0_46_0_46_20_47_src_47_runtime_47_System__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/runtime/System");
   var System = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/runtime/System").System;
-  var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
+  var ModuleStore = System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
   var $__traceur_64_0_46_0_46_20_47_src_47_options__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options");
   var $__traceur_64_0_46_0_46_20_47_src_47_WebPageTranscoder__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/WebPageTranscoder");
   var ExportListBuilder = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportListBuilder").ExportListBuilder;
@@ -21018,16 +21018,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
   var ParseTreeFactory = $traceurRuntime.ModuleStore.get("traceur@0.0.20/src/codegeneration/ParseTreeFactory");
   var codegeneration = {
     AmdTransformer: AmdTransformer,
-    AttachModuleNameTransformer: AttachModuleNameTransformer,
     CloneTreeTransformer: CloneTreeTransformer,
     CommonJsModuleTransformer: CommonJsModuleTransformer,
-    createModuleEvaluationStatement: createModuleEvaluationStatement,
     FromOptionsTransformer: FromOptionsTransformer,
     InlineModuleTransformer: InlineModuleTransformer,
     ModuleTransformer: ModuleTransformer,
     ParseTreeFactory: ParseTreeFactory,
     ParseTreeTransformer: ParseTreeTransformer,
-    module: {ModuleSpecifierVisitor: ModuleSpecifierVisitor}
+    module: {
+      AttachModuleNameTransformer: AttachModuleNameTransformer,
+      createModuleEvaluationStatement: createModuleEvaluationStatement,
+      ModuleSpecifierVisitor: ModuleSpecifierVisitor
+    }
   };
   var Loader = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/runtime/Loader").Loader;
   var LoaderHooks = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/runtime/LoaderHooks").LoaderHooks;

@@ -14,6 +14,7 @@
 
 module traceur from './traceur';
 
+// Export traceur as a global property.
 this.traceur = traceur;
 
 // TODO(jjb):  import ModuleStore once we merge the static and dynamic modules.
