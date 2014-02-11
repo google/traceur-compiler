@@ -96,27 +96,48 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   basePath = basePath.replace(/\\/g, '/');
 
+  var scriptsCount = options.scripts.length;
+
   var loadCount = 0;
   var elements = [];
   var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
   var loader = new TraceurLoader(hooks);
 
+  function appendEvaluateModule(name, referrerName) {
+    var normalizedName =
+        traceur.ModuleStore.normalize(name, referrerName);
+    // Create tree for System.get('normalizedName');
+    var tree =
+        traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);
+    elements.push(tree);
+  }
+
   function loadNext() {
-    var codeUnit = loader.loadAsScript(filenames[loadCount],
-      {referrerName: referrerName}).then(
-      function() {
-        loadCount++;
-        if (loadCount < filenames.length) {
-          loadNext();
-        } else if (depTarget) {
-          callback(null);
-        } else {
-          var tree = allLoaded(basePath, reporter, elements);
-          callback(tree);
-        }
-      }, function(err) {
-        errback(err);
-      });
+    var loadAsScript = scriptsCount && (loadCount < scriptsCount);
+    var loadFunction = loader.import;
+    var name = filenames[loadCount];
+    if (loadAsScript)
+      loadFunction = loader.loadAsScript;
+    else
+      name = name.replace(/\.js$/,'');
+
+    var loadOptions = {referrerName: referrerName};
+    var codeUnit = loadFunction.call(loader, name, loadOptions).then(
+        function() {
+          if (!loadAsScript && options.modules !== 'inline')
+            appendEvaluateModule(name, referrerName);
+          loadCount++;
+          if (loadCount < filenames.length) {
+            loadNext();
+          } else if (depTarget) {
+            callback(null);
+          } else {
+            var tree = allLoaded(basePath, reporter, elements);
+            callback(tree);
+          }
+        }, function(err) {
+          errback(err);
+        });
   }
 
   loadNext();
