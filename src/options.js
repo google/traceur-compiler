@@ -157,7 +157,15 @@ function addOptions(flags) {
     (path) => {
       setOption('type-assertion-module', path);
       return path;
-    })
+    });
+  flags.option('--inline <moduleName>',
+    'Compile module to IIFE',
+    (moduleName) => {
+      var inlines = options.inlines || [];
+      inlines.push(moduleName);
+      options.inlines = inlines;
+      console.log('options.inlines ' + options.inlines.length);
+    });
 }
 
 /**
