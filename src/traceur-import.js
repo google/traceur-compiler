@@ -14,10 +14,7 @@
 
 module traceur from './traceur';
 
-if (typeof window !== 'undefined')
-	window.traceur = traceur;
-else if (typeof global !== 'undefined')
-	global.traceur = traceur;
+this.traceur = traceur;
 
 // TODO(jjb):  import ModuleStore once we merge the static and dynamic modules.
 $traceurRuntime.ModuleStore.set('traceur@', traceur);

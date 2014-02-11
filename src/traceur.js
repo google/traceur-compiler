@@ -84,7 +84,6 @@ import {InlineModuleTransformer} from './codegeneration/InlineModuleTransformer'
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
-import {parseStatement} from './codegeneration/PlaceholderParser';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
@@ -98,7 +97,6 @@ export var codegeneration = {
   ModuleTransformer,
   ParseTreeFactory,
   ParseTreeTransformer,
-  parseStatement,
   module: {
     ModuleSpecifierVisitor
   }

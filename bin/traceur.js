@@ -21015,7 +21015,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSpecifierVisitor").ModuleSpecifierVisitor;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/ModuleTransformer").ModuleTransformer;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
-  var parseStatement = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/PlaceholderParser").parseStatement;
   var ParseTreeFactory = $traceurRuntime.ModuleStore.get("traceur@0.0.20/src/codegeneration/ParseTreeFactory");
   var codegeneration = {
     AmdTransformer: AmdTransformer,
@@ -21028,7 +21027,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
     ModuleTransformer: ModuleTransformer,
     ParseTreeFactory: ParseTreeFactory,
     ParseTreeTransformer: ParseTreeTransformer,
-    parseStatement: parseStatement,
     module: {ModuleSpecifierVisitor: ModuleSpecifierVisitor}
   };
   var Loader = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/runtime/Loader").Loader;
@@ -21078,7 +21076,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur-import", 
   "use strict";
   var __moduleName = "traceur@0.0.20/src/traceur-import";
   var traceur = $traceurRuntime.ModuleStore.get("traceur@0.0.20/src/traceur");
-  if (typeof window !== 'undefined') window.traceur = traceur; else if (typeof global !== 'undefined') global.traceur = traceur;
+  this.traceur = traceur;
   $traceurRuntime.ModuleStore.set('traceur@', traceur);
   return {};
 });
