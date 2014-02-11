@@ -160,7 +160,7 @@ build/compiled-by-previous-traceur.js: \
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/' \
-	  $(RUNTIME_SRC) src/traceur-import $(TFLAGS)  $(SRC)
+	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
 
 build/node/%: node_modules/traceur/src/node/%
 	@mkdir -p build/node
