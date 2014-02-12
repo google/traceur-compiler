@@ -125,6 +125,25 @@ class PreCompiledCodeUnit extends CodeUnit {
 }
 
 /**
+ * CodeUnit coming from {@code Loader.register}.
+ */
+class BundledCodeUnit extends CodeUnit {
+  constructor(loaderHooks, normalizedName, name, referrerName, address,
+        deps, execute) {
+    super(loaderHooks, normalizedName, 'module', TRANSFORMED,
+        name, referrerName, address);
+    this.deps = deps;
+    this.execute = execute;
+  }
+  getModuleSpecifiers() {
+    return deps;
+  }
+  evaluate() {
+    return execute();  // does not seem right
+  }
+}
+
+/**
  * CodeUnit used for {@code Loader.load}.
  */
 class LoadCodeUnit extends CodeUnit {
@@ -136,7 +155,12 @@ class LoadCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, 'module', NOT_STARTED,
         name, referrerName, address);
   }
-
+  getModuleSpecifiers() {
+    return this.loaderHooks.getModuleSpecifiers(this);
+  }
+  evaluate() {
+    return this.loaderHooks.evaluateCodeUnit(this);
+  }
 }
 
 /**
@@ -153,6 +177,12 @@ class EvalCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, type,
         LOADED, null, referrerName, address);
     this.text = code;
+  }
+  getModuleSpecifiers() {
+    return this.loaderHooks.getModuleSpecifiers(this);
+  }
+  evaluate() {
+    return this.loaderHooks.evaluateCodeUnit(this);
   }
 }
 
@@ -188,17 +218,22 @@ export class InternalLoader {
       return codeUnit;
     }
 
-    codeUnit.state = LOADING;
-    var translate = this.translateHook;
-    var url = this.loaderHooks.locate(codeUnit);
-    codeUnit.abort = this.loadTextFile(url, (text) => {
-      codeUnit.text = translate(text);
-      codeUnit.state = LOADED;
-      this.handleCodeUnitLoaded(codeUnit);
-    }, () => {
-      codeUnit.state = ERROR;
-      this.handleCodeUnitLoadError(codeUnit);
-    });
+    if (codeUnit.state === LOADED) {
+      this.handleCodeUnitLoaded(codeUnit)
+    } else {
+      codeUnit.state = LOADING;
+      var translate = this.translateHook;
+      var url = this.loaderHooks.locate(codeUnit);
+      codeUnit.abort = this.loadTextFile(url, (text) => {
+        codeUnit.text = translate(text);
+        codeUnit.state = LOADED;
+        this.handleCodeUnitLoaded(codeUnit);
+      }, () => {
+        codeUnit.state = ERROR;
+        this.handleCodeUnitLoadError(codeUnit);
+      });
+    }
+
     return codeUnit;
   }
 
@@ -269,9 +304,16 @@ export class InternalLoader {
             name, referrerName, address, module);
         cacheObject.type = 'module';
       } else {
-        cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
-            name, referrerName, address);
-        cacheObject.type = type;
+        var bundledModule = this.loaderHooks.bundledModule(normalizedName);
+        if (bundledModule) {
+          cacheObject = new BundledCodeUnit(this.loaderHooks, normalizedName,
+              name, referrerName, address,
+              bundledModule.deps, bundledModule.execute);
+        } else {
+          cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
+              name, referrerName, address);
+          cacheObject.type = type;
+        }
       }
       this.cache.set(key, cacheObject);
     }
@@ -292,7 +334,7 @@ export class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var referrerName = codeUnit.normalizedName;
-    var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
+    var moduleSpecifiers = codeUnit.getModuleSpecifiers();
     if (!moduleSpecifiers) {
       this.abortAll(`No module specifiers in ${referrerName}`);
       return;
@@ -435,7 +477,7 @@ export class InternalLoader {
 
       var result;
       try {
-        result = this.loaderHooks.evaluateCodeUnit(codeUnit);
+        result = codeUnit.evaluate();
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));

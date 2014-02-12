@@ -21,6 +21,7 @@
   } = $traceurRuntime;
 
   var moduleInstantiators = Object.create(null);
+  var bundleStore = Object.create(null);
 
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
@@ -142,8 +143,26 @@
           new UncoatedModuleInstantiator(normalizedName, func);
     },
 
+    register(name, deps, func) {
+      if (!deps || !deps.length)
+        this.registerModule(name, func);
+      else
+        bundleStore[name] = {
+          deps: deps,
+          execute: func
+        };
+    },
+
     getAnonymousModule(func) {
       return new Module(func.call(global), liveModuleSentinel);
+    },
+
+    /**
+     * @param {string} normalizedName
+     * @return {Object|undefined} {deps, execute}
+     */
+    getBundledModule(name) {
+      return bundleStore[name];
     },
 
     /**
