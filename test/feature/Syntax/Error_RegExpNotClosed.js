@@ -1,4 +1,4 @@
 // Should not compile.
-// Error: :4:2: Expected '/' in regular expression literal
+// SyntaxError: feature/Syntax/Error_RegExpNotClosed.js:4:2: Expected '/' in regular expression literal
 
 /

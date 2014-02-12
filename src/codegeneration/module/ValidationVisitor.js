@@ -28,15 +28,15 @@ export class ValidationVisitor extends ModuleVisitor {
     var description = this.validatingModuleDescription_;
     if (description && !description.getExport(name)) {
       var moduleName = description.normalizedName;
-      this.reportError(tree, `'${name}' is not exported by '${moduleName}'`);
+      // TODO(arv): The spec is hard to reason about here.
+      throw new ReferenceError(`${tree.location.start}: '${name}' is not exported by '${moduleName}'`);
     }
   }
 
   checkImport_(tree, name) {
     var existingImport = this.moduleSymbol.getImport(name);
     if (existingImport) {
-      this.reportError(tree, `'${name}' was previously imported at ${
-          existingImport.location.start}`);
+      throw new ReferenceError(`${tree.location.start}: '${name}' was previously imported at ${existingImport.location.start}`);
     } else {
       this.moduleSymbol.addImport(name, tree);
     }

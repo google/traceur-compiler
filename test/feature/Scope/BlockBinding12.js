@@ -1,4 +1,3 @@
-// Should not compile.
 // Options: --block-binding
 // Error: inner is not defined
 
@@ -10,5 +9,6 @@ function testBlock() {
   var x = inner;
 }
 
-// ----------------------------------------------------------------------------
-
+assert.throws(() => {
+  testBlock();
+}, ReferenceError);

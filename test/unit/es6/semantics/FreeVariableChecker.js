@@ -22,47 +22,56 @@ suite('FreeVariableChecker.traceur.js', function() {
     traceur.options.reset();
   });
 
-  function compileAndReturnErrors(contents, name) {
+  function compile(contents, name) {
+    var name = 'code';
     var LoaderHooks = traceur.runtime.LoaderHooks;
     var TraceurLoader = traceur.runtime.TraceurLoader;
     var reporter = new traceur.util.ErrorReporter();
-    var errors = [];
-    reporter.reportMessageInternal = function() {
-      errors.push(arguments);
-    };
     var url = 'http://www.test.com/';
     var loaderHooks = new LoaderHooks(reporter, url);
     var loader = new TraceurLoader(loaderHooks);
-    loader.script(contents, url);
-    return errors;
+    return loader.script(contents, url);
   }
 
-  function assertErrorMessage(errors, expectedError, expectedErrorArg) {
-    assert.isTrue(errors.length > 0);
-    assert.equal(expectedError, errors[0][1]);
-    assert.equal(expectedErrorArg, errors[0][2][0]);
+  function assertCompileError(contents, expectedError) {
+    var ex;
+    try {
+      compile(contents, 'code');
+    } catch (e) {
+      ex = e;
+    }
+    assert.instanceOf(ex, ReferenceError);
+    assert.equal(ex.message, expectedError);
+    // assertErrorMessage(errors, expectedError, expectedErrorArg);
   }
 
-  function assertCompileError(contents, expectedError, expectedErrorArg) {
-    var errors = compileAndReturnErrors(contents, 'code');
-    assertErrorMessage(errors, expectedError, expectedErrorArg);
+  function makeCompileTest(code, name) {
+    return test('FreeVariables', function(done) {
+      traceur.options.experimental = true;
+      compile(code).then(function() {
+        done(new Error('Expected a ReferenceError for ' + name));
+      }, function(err) {
+        try {
+          assert.instanceOf(err, ReferenceError);
+          assert.isTrue(err.message.indexOf(name + ' is not defined') !== -1);
+        } catch(ex) {
+          done(ex);
+          return;
+        }
+        done();
+      });
+    });
   }
 
-  test('FreeVariables', function() {
-    traceur.options.experimental = true;
-    assertCompileError('var y = xxx;', '%s is not defined', 'xxx');
-    assertCompileError('xxx(1,2,3);', '%s is not defined', 'xxx');
-    assertCompileError('function foo() { return xxx; }', '%s is not defined', 'xxx');
-    assertCompileError('if (true) { console.log(yyy); }', '%s is not defined', 'yyy');
-    assertCompileError('function foo() { { let yyy = 5; }; return yyy; }',
-        '%s is not defined', 'yyy');
-    assertCompileError('xxx = 42;', '%s is not defined', 'xxx');
-    assertCompileError('xxx.y = 42;', '%s is not defined', 'xxx');
-    assertCompileError('fff(42);', '%s is not defined', 'fff');
-    assertCompileError('xxx.f(42);', '%s is not defined', 'xxx');
-    // TODO(jmesserly): we shouldn't be putting traceur into the global scope
-    // assertCompileError('traceur.runtime = {};', '%s is not defined', 'traceur');
-  });
+  makeCompileTest('var y = xxx;', 'xxx');
+  makeCompileTest('xxx(1,2,3);', 'xxx');
+  makeCompileTest('function foo() { return xxx; }', 'xxx');
+  makeCompileTest('if (true) { console.log(yyy); }', 'yyy');
+  makeCompileTest('function foo() { { let yyy = 5; }; return yyy; }', 'yyy');
+  makeCompileTest('xxx = 42;', 'xxx');
+  makeCompileTest('xxx.y = 42;', 'xxx');
+  makeCompileTest('fff(42);', 'fff');
+  makeCompileTest('xxx.f(42);', 'xxx');
 
   test('FreeVariables2', function() {
     // Make sure these don't cause an error
