@@ -71,9 +71,8 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformYieldExpression(tree) {
-    this.reporter.reportError(tree.location.start,
-        'Only \'a = yield b\' and \'var a = yield b\' currently supported.');
-    return tree;
+    throw new Error(`${tree.location.start}: Only 'a = yield b' and ` +
+        `'var a = yield b' currently supported.`);
   }
 
   /**
@@ -93,9 +92,8 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformAwaitStatement(tree) {
-    this.reporter.reportError(tree.location.start,
-        'Generator function may not have an await statement.');
-    return tree;
+    throw new Error(`${tree.location.start}: Generator function may not have ` +
+        `an await statement.`);
   }
 
   /**

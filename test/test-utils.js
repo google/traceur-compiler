@@ -53,7 +53,7 @@
         returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
         traceur.options.fromString(m[1]);
-      } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
+      } else if ((m = /\/\/ (\w*Error:\s*.+)/.exec(line))) {
         var errLine = m[1];
         var resolvedError = errLine.replace(reDirectoryResources, function(match, p1) {
           return '\'' + System.normalize(p1) + '\'';
@@ -109,15 +109,6 @@
     throw new chai.AssertionError(message);
   }
 
-  function runCode(code, name) {
-    try {
-      ('global', eval)(code);
-    } catch (e) {
-      fail('Error running compiled output for : ' + name + '\n' + e + '\n' +
-           code);
-    }
-  }
-
   function featureTest(name, url, loader) {
 
     teardown(function() {
@@ -126,7 +117,7 @@
 
     test(name, function(done) {
       traceur.options.debug = true;
-      traceur.options.freeVariableChecker = true;
+      // traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
       var reporter = new traceur.util.TestErrorReporter();
@@ -170,23 +161,66 @@
       }
 
       function handleSuccess(result) {
-        if (options.skip) {
-          done();
+        try {
+          if (options.skip) {
+            done();
+            return;
+          }
+
+          if (options.async)
+            return;
+
+          handleShouldCompile();
+        } catch (ex) {
+          done(ex);
           return;
         }
 
-        if (options.async)
-          return;
-
-        handleShouldCompile();
         done();
       }
 
+      function matchesError(expected, err) {
+        // SyntaxError: foo/bar/Error_SetAccessor.js:5:9: 'identifier' expected
+        var parts = expected.match(/(\w*Error):\s*(.*)/);
+        var name = parts[1];
+        var message = parts[2];
+        return (err instanceof global[name]) && err.message.indexOf(message) >= 0;
+      }
+
       function handleFailure(error) {
-        handleShouldCompile();
+        if (!options.shouldCompile) {
+          try {
+            assert.instanceOf(error, Error);
+
+            if (options.expectedErrors.length) {
+              var found = options.expectedErrors.some(function(expected) {
+                return matchesError(expected, error);
+              });
+              if (!found) {
+                fail('Missing expected error(s)\n:' + options.expectedErrors +
+                     '\nActual error:\n' + error);
+              }
+            }
+
+          } catch (ex) {
+            done(ex);
+            return;
+          }
+          done();
+          return;
+
+
+          // if (options.expectedErrors
+
+
+        }
+        // handleShouldCompile();
         // TODO(arv): Improve how errors are passed through the module loader.
-        if (options.shouldCompile)
-          throw reporter.errors[0];
+        if (options.shouldCompile) {
+          done(error);
+          return;
+        }
+
         done();
       }
 

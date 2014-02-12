@@ -15,6 +15,7 @@
 import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
+import {assert} from '../util/assert';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
 import {getUid} from '../util/uid';
 import {toSource} from '../outputgeneration/toSource';
@@ -56,8 +57,13 @@ class CodeUnit {
     this.dependencies = [];
     this.promise = new Promise((res, rej) => {
       this.resolve = res;
-      this.reject = rej;
+      this.reject_ = rej;
     });
+  }
+
+  reject(err) {
+    assert(err instanceof Error);
+    this.reject_(err);
   }
 
   get state() {
@@ -285,9 +291,14 @@ export class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var referrerName = codeUnit.normalizedName;
-    var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
-    if (!moduleSpecifiers) {
-      this.abortAll(`No module specifiers in ${referrerName}`);
+    var moduleSpecifiers;
+    try {
+      moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
+    } catch (ex) {
+      codeUnit.error = ex;
+      this.abortAll(ex);
+    // if (!moduleSpecifiers) {
+      // this.abortAll(new Error(`No module specifiers in ${referrerName}`));
       return;
     }
     codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
@@ -298,9 +309,13 @@ export class InternalLoader {
     });
 
     if (this.areAll(PARSED)) {
-      this.analyze();
-      this.transform();
-      this.evaluate();
+      try {
+        this.analyze();
+        this.transform();
+        this.evaluate();
+      } catch (ex) {
+        this.abortAll(ex);
+      }
     }
   }
 
@@ -313,15 +328,16 @@ export class InternalLoader {
         codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
     this.reporter.reportError(null, message);
-    this.abortAll(message);
-    codeUnit.error = message;
-    codeUnit.reject(message);
+    var error = new Error(message);
+    this.abortAll(error);
+    codeUnit.error = error;
+    codeUnit.reject(error);
   }
 
   /**
    * Aborts all loading code units.
    */
-  abortAll(errorMessage) {
+  abortAll(error) {
     this.cache.values().forEach((codeUnit) => {
       if (codeUnit.abort) {
         codeUnit.abort();
@@ -330,13 +346,14 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.reject(codeUnit.error || errorMessage);
+      codeUnit.reject(codeUnit.error || error);
     });
   }
 
   analyze() {
-    this.loaderHooks.analyzeDependencies(this.cache.values(), this);
-    this.checkForErrors(this.cache.values(), 'build-export-list');
+    return this.loaderHooks.analyzeDependencies(this.cache.values(), this);
+
+    // this.checkForErrors(this.cache.values(), 'build-export-list');
   }
 
   transform() {
@@ -346,15 +363,13 @@ export class InternalLoader {
   transformDependencies(dependencies, dependentName) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
-      if (codeUnit.state >= TRANSFORMED) {
+      if (codeUnit.state >= TRANSFORMED)
         continue;
-      }
+
       if (codeUnit.state === TRANSFORMING) {
         var cir = codeUnit.normalizedName;
         var cle = dependentName;
-        this.reporter.reportError(codeUnit.metadata.tree,
-            `Unsupported circular dependency between ${cir} and ${cle}`);
-        break;
+        throw new Error(`${codeUnit.metadata.tree.location.start}: Unsupported circular dependency between ${cir} and ${cle}`);
       }
       codeUnit.state = TRANSFORMING;
       this.transformCodeUnit(codeUnit);
@@ -390,7 +405,7 @@ export class InternalLoader {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state == ERROR) {
-          codeUnit.reject(phase);
+          codeUnit.reject(new Error(phase));
         }
       }
       return true;
@@ -432,7 +447,7 @@ export class InternalLoader {
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
-        this.abortAll();
+        this.abortAll(ex);
         codeUnit.reject(codeUnit.error);
         return;
       }

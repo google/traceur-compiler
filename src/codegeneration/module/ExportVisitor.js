@@ -40,8 +40,11 @@ export class ExportVisitor extends ModuleVisitor {
     var moduleSymbol = this.moduleSymbol;
     var existingExport = moduleSymbol.getExport(name);
     if (existingExport) {
-      this.reportError(tree, `Duplicate export. '${name}' was previously ` +
+      // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-resolveexport
+      throw new SyntaxError(`${tree.location.start}: Duplicate export. '${name}' was previously ` +
           `exported at ${existingExport.location.start}`);
+      // this.reportError(tree, `Duplicate export. '${name}' was previously ` +
+      //     `exported at ${existingExport.location.start}`);
     } else {
       moduleSymbol.addExport(name, tree);
     }

@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: :7:6: Unexpected token )
+// SyntaxError: feature/Syntax/Error_Arguments.js:7:6: Unexpected token )
 
 function f(x) {
 }

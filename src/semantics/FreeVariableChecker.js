@@ -73,8 +73,8 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    * @param {ErrorReporter} reporter
    */
   constructor(reporter) {
+    // TODO(arv): Remove reporter
     super();
-    this.reporter_ = reporter;
     /** Current scope (block, program) */
     this.scope_ = null;
     this.disableChecksLevel_ = 0;
@@ -236,7 +236,6 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     var scope = this.scope_;
 
     // Promote any unresolved references to the parent scope.
-    var errors = [];
     for (var name in scope.references) {
       if (!(name in scope.declarations)) {
         var location = scope.references[name];
@@ -249,24 +248,12 @@ export class FreeVariableChecker extends ParseTreeVisitor {
 
           // If we're at the top level scope, then issue an error for
           // remaining free variables.
-          errors.push([location.start, '%s is not defined', name]);
+          throw new ReferenceError(`${location.start}: ${name} is not defined`);
         } else if (!(name in scope.parent.references)) {
           scope.parent.references[name] = location;
         }
       }
     }
-
-    if (errors.length) {
-      // Issue errors in source order.
-      errors.sort((x, y) => x[0].offset - y[0].offset);
-      errors.forEach((e) => {
-        this.reportError_(...e);
-      });
-    }
-  }
-
-  reportError_(...args) {
-    this.reporter_.reportError(...args);
   }
 
   /**

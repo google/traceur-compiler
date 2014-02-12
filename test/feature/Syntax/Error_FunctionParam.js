@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: 'identifier' expected
+// SyntaxError: feature/Syntax/Error_FunctionParam.js:4:14: 'identifier' expected
 
 function f(x,) {
   return x;

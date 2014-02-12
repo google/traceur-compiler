@@ -98,16 +98,21 @@ export class LoaderHooks {
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
-    var parser = new Parser(file, reporter);
-    if (codeUnit.type == 'module')
-      codeUnit.metadata.tree = parser.parseModule();
-    else
-      codeUnit.metadata.tree = parser.parseScript();
+    var parser = new Parser(file);
+    // try {
+      if (codeUnit.type == 'module')
+        codeUnit.metadata.tree = parser.parseModule();
+      else
+        codeUnit.metadata.tree = parser.parseScript();
+    // } catch (ex) {
+    //   codeUnit.error = ex;
+    // }
 
     codeUnit.metadata.moduleSymbol =
-      new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
+        new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
 
-    return !reporter.hadError();
+    // return !reporter.hadError();
+    return true; //!codeUnit.error;
   }
 
   transform(codeUnit) {
@@ -197,7 +202,15 @@ export class LoaderHooks {
       }
     }
 
-    this.exportListBuilder_.buildExportList(deps, loader);
+    try {
+      this.exportListBuilder_.buildExportList(deps, loader);
+    } catch (ex) {
+      codeUnit.error = ex;
+      codeUnit.state = ERROR;
+      codeUnit.reject(ex);
+      throw ex;
+    }
+    return true;
   }
 
   get options() {

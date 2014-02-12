@@ -1,6 +1,6 @@
 // Should not compile.
-// Error: :6:17: ')' expected
-// Error: :6:12: Unexpected token ...
+// Options: --block-binding
+// SyntaxError: feature/ArrowFunctions/Error_SpreadNotLast.js:6:17: ')' expected
 
 {
   let f = (...xs, x) => xs;
