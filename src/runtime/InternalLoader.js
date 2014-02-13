@@ -144,18 +144,10 @@ class BundledCodeUnit extends CodeUnit {
 }
 
 /**
- * CodeUnit used for {@code Loader.load}.
+ * CodeUnit for sharing methods that just call back to loaderHooks
  */
-class LoadCodeUnit extends CodeUnit {
-  /**
-   * @param {InternalLoader} loader
-   * @param {string} normalizedName
-   */
-  constructor(loaderHooks, normalizedName, name, referrerName, address) {
-    super(loaderHooks, normalizedName, 'module', NOT_STARTED,
-        name, referrerName, address);
-  }
-  getModuleSpecifiers() {
+class HookedCodeUnit extends CodeUnit {
+    getModuleSpecifiers() {
     return this.loaderHooks.getModuleSpecifiers(this);
   }
   evaluate() {
@@ -164,9 +156,23 @@ class LoadCodeUnit extends CodeUnit {
 }
 
 /**
+ * CodeUnit used for {@code Loader.load}.
+ */
+class LoadCodeUnit extends HookedCodeUnit {
+  /**
+   * @param {InternalLoader} loader
+   * @param {string} normalizedName
+   */
+  constructor(loaderHooks, normalizedName, name, referrerName, address) {
+    super(loaderHooks, normalizedName, 'module', NOT_STARTED,
+        name, referrerName, address);
+  }
+}
+
+/**
  * CodeUnit used for {@code Loader.eval} and {@code Loader.module}.
  */
-class EvalCodeUnit extends CodeUnit {
+class EvalCodeUnit extends HookedCodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
@@ -177,12 +183,6 @@ class EvalCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, type,
         LOADED, null, referrerName, address);
     this.text = code;
-  }
-  getModuleSpecifiers() {
-    return this.loaderHooks.getModuleSpecifiers(this);
-  }
-  evaluate() {
-    return this.loaderHooks.evaluateCodeUnit(this);
   }
 }
 
