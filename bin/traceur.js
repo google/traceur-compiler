@@ -21013,6 +21013,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/traceur", functio
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/FromOptionsTransformer").FromOptionsTransformer;
   var InlineModuleTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/InlineModuleTransformer").InlineModuleTransformer;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/module/ModuleSpecifierVisitor").ModuleSpecifierVisitor;
+  var DirectExportVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/module/DirectExportVisitor").DirectExportVisitor;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/ModuleTransformer").ModuleTransformer;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
   var ParseTreeFactory = $traceurRuntime.ModuleStore.get("traceur@0.0.22/src/codegeneration/ParseTreeFactory");
@@ -21028,7 +21029,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/traceur", functio
     module: {
       AttachModuleNameTransformer: AttachModuleNameTransformer,
       createModuleEvaluationStatement: createModuleEvaluationStatement,
-      ModuleSpecifierVisitor: ModuleSpecifierVisitor
+      ModuleSpecifierVisitor: ModuleSpecifierVisitor,
+      DirectExportVisitor: DirectExportVisitor
     }
   };
   var Loader = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/runtime/Loader").Loader;
