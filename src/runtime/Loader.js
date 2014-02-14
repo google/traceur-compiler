@@ -73,5 +73,5 @@ export class Loader {
   }
 }
 
-export {LoaderHooks};
+export { LoaderHooks } from './LoaderHooks';
 

@@ -195,4 +195,6 @@
     return instantiator && instantiator.getUncoatedModule();
   };
 
+  global.Module = Module;
+
 })(typeof global !== 'undefined' ? global : this);

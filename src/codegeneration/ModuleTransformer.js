@@ -94,17 +94,15 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   wrapModule(statements) {
-    var functionExpression = parseExpression `function() {
+    var functionExpression = parseExpression `(function(__System, __Module) {
       ${statements}
-    }`;
+    }).call(this, System, Module)`;
 
     if (this.moduleName === null) {
-      return parseStatements
-          `$traceurRuntime.ModuleStore.getAnonymousModule(
-              ${functionExpression});`;
+      return parseStatements `(${functionExpression})();`;
     }
     return parseStatements
-        `$traceurRuntime.ModuleStore.registerModule(${this.moduleName},
+        `System.set(${this.moduleName},
             ${functionExpression});`;
   }
 
@@ -155,9 +153,9 @@ export class ModuleTransformer extends TempVarTransformer {
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
       });
       var args = createArgumentList(object, ...starIdents);
-      return parseStatement `return $traceurRuntime.exportStar(${args})`;
+      return parseStatement `return __Module($traceurRuntime.exportStar(${args}))`;
     }
-    return parseStatement `return ${object}`;
+    return parseStatement `return __Module(${object})`;
   }
 
   /**
@@ -198,8 +196,8 @@ export class ModuleTransformer extends TempVarTransformer {
     // import/module {x} from 'name' is relative to the current file.
     var normalizedName = System.normalize(name, this.moduleName);
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
+      return parseExpression `__System.get(${normalizedName})`;
+    return parseExpression `__System.get(${normalizedName})`;
   }
 
   /**
