@@ -115,6 +115,7 @@ suite('Loader.js', function() {
         assert.equal('A', module.arr[1]);
         assert.equal('B', module.arr[2]);
         assert.equal('C', module.arr[3]);
+        assert.isNull(Object.getPrototypeOf(module));
         done();
       }, function(error) {
         fail(error);
