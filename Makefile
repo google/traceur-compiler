@@ -33,7 +33,8 @@ UNIT_TESTS = \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
 	test/unit/system/ \
-	test/unit/util/
+	test/unit/util/ \
+	test/unit/tools
 
 TESTS = \
 	test/node-commonjs-test.js \
@@ -45,7 +46,8 @@ TESTS = \
 
 COMPILE_BEFORE_TEST = \
 	test/unit/semantics/FreeVariableChecker.generated.js \
-	test/unit/codegeneration/PlaceholderParser.generated.js
+	test/unit/codegeneration/PlaceholderParser.generated.js \
+	test/unit/tools/SourceMapRanger.generated.js
 
 
 MOCHA_OPTIONS = \
