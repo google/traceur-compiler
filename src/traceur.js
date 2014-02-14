@@ -79,13 +79,13 @@ import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
-import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
+import {DirectExportVisitor} from './codegeneration/module/DirectExportVisitor';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {InlineModuleTransformer} from './codegeneration/InlineModuleTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
-import {DirectExportVisitor} from './codegeneration/module/DirectExportVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
+import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
@@ -99,9 +99,9 @@ export var codegeneration = {
   ParseTreeTransformer,
   module: {
     AttachModuleNameTransformer,
-    createModuleEvaluationStatement,
     DirectExportVisitor,
-    ModuleSpecifierVisitor
+    ModuleSpecifierVisitor,
+    createModuleEvaluationStatement
   }
 };
 
