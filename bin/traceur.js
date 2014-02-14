@@ -15093,7 +15093,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/codegeneration/Am
   var $__136 = Object.freeze(Object.defineProperties(["__transpiledModule: true"], {raw: {value: Object.freeze(["__transpiledModule: true"])}})),
       $__137 = Object.freeze(Object.defineProperties(["function(", ") {\n      ", "\n    }"], {raw: {value: Object.freeze(["function(", ") {\n      ", "\n    }"])}})),
       $__138 = Object.freeze(Object.defineProperties(["", ".bind(", ")"], {raw: {value: Object.freeze(["", ".bind(", ")"])}})),
-      $__139 = Object.freeze(Object.defineProperties(["define(", ", ", ");"], {raw: {value: Object.freeze(["define(", ", ", ");"])}}));
+      $__139 = Object.freeze(Object.defineProperties(["define(", ", ", ", 'transpiled-module');"], {raw: {value: Object.freeze(["define(", ", ", ", 'transpiled-module');"])}}));
   var ModuleTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/ModuleTransformer").ModuleTransformer;
   var VAR = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/syntax/TokenType").VAR;
   var createBindingIdentifier = $traceurRuntime.getModuleImpl("traceur@0.0.22/src/codegeneration/ParseTreeFactory").createBindingIdentifier;

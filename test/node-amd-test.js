@@ -10,9 +10,9 @@ function onlyJsFiles(path) {
 
 function moduleFromSource(src) {
   var module;
-  var define = function(deps, factory) {
+  var define = function(deps, factory, isES6) {
     var output = factory();
-    module = output.__transpiledModule ? output : {default: output};
+    module = isES6 ? output : {default: output};
   }
   Function('define', src).call(global, define);
   return module;
