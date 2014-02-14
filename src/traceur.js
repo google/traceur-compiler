@@ -83,6 +83,7 @@ import {createModuleEvaluationStatement} from './codegeneration/module/createMod
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {InlineModuleTransformer} from './codegeneration/InlineModuleTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
+import {DirectExportVisitor} from './codegeneration/module/DirectExportVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
@@ -99,6 +100,7 @@ export var codegeneration = {
   module: {
     AttachModuleNameTransformer,
     createModuleEvaluationStatement,
+    DirectExportVisitor,
     ModuleSpecifierVisitor
   }
 };
