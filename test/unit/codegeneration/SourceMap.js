@@ -39,7 +39,7 @@ suite('SourceMap.js', function() {
     var testcases = [
       {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
       {generated: {line: 2, column: 0}, original: {line: 1, column: 17}},
-      {generated: {line: 3, column: 0}, original: {line: 1, column: 24}},
+      {generated: {line: 3, column: 0}, original: {line: 1, column: 26}},
       {generated: {line: 4, column: 0}, original: {line: 3, column: 0}},
       {generated: {line: 5, column: 0}, original: {line: 6, column: 0}}
     ];

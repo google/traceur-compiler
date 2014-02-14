@@ -59,9 +59,13 @@ export function renderSourceMap(source, sourceMap) {
       line: lineNo + 1,
       column: 0
     };
-    var position = consumer.originalPositionFor(generatedPosition);
-    var lineDotColumn = position.line + '.' + position.column;
-    return (lineNo + 1) + ': ' + line + ' -> ' + lineDotColumn;
+    var position_begin = consumer.originalPositionFor(generatedPosition);
+    generatedPosition.column = (line.length || 1) - 1;
+    var position_end = consumer.originalPositionFor(generatedPosition);
+    var lineDotColumn_begin = position_begin.line + '.' + position_begin.column;
+    var lineDotColumn_end = position_end.line + '.' + position_end.column;
+    return (lineNo + 1) + ': ' + line +
+        ' // ' + lineDotColumn_begin + ' - ' + lineDotColumn_end;
   });
   return 'SourceMap:\n' + lineNumberTable.join('\n');
 }
