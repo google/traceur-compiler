@@ -29,10 +29,18 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.outputLineCount_ = 1;
   }
 
-  write_(value) {
-    if (this.currentLocation)
-      this.addMapping();
-    super.write_(value);
+  visitAny(tree) {
+    if (!tree) {
+      return;
+    }
+
+    if (tree.location)
+      this.addMapping(tree.location.start);
+
+    super(tree);
+
+    if (tree.location)
+      this.addMapping(tree.location.end);
   }
 
   writeCurrentln_() {
@@ -40,8 +48,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.outputLineCount_++;
   }
 
-  addMapping() {
-    var start = this.currentLocation.start;
+  addMapping(position) {
     var mapping = {
       generated: {
         line: this.outputLineCount_,
@@ -49,12 +56,13 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       },
       original: {
         // +1 because line is zero based
-        line: start.line + 1,
-        column: start.column
+        line: position.line + 1,
+        column: position.column
        },
-       source: start.source.name || '(anonymous)'
+       source: position.source.name || '(anonymous)'
     };
     this.sourceMapGenerator_.addMapping(mapping);
-    this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);
+    // This over-writes previous value each time.
+    this.sourceMapGenerator_.setSourceContent(position.source.name, position.source.contents);
   }
 }

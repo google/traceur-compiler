@@ -6344,7 +6344,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/outputgeneration/
         var column = tree.location.start.column;
         this.currentLineComment_ = ("Line: " + line + "." + column);
       }
-      this.currentLocation = tree.location;
       $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "visitAny", [tree]);
       if (tree === this.highlighted_) {
         this.write_('\x1B[0m');
@@ -7154,29 +7153,32 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/outputgeneration/
   };
   var $ParseTreeMapWriter = ParseTreeMapWriter;
   ($traceurRuntime.createClass)(ParseTreeMapWriter, {
-    write_: function(value) {
-      if (this.currentLocation) this.addMapping();
-      $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
+    visitAny: function(tree) {
+      if (!tree) {
+        return;
+      }
+      if (tree.location) this.addMapping(tree.location.start);
+      $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "visitAny", [tree]);
+      if (tree.location) this.addMapping(tree.location.end);
     },
     writeCurrentln_: function() {
       $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "writeCurrentln_", []);
       this.outputLineCount_++;
     },
-    addMapping: function() {
-      var start = this.currentLocation.start;
+    addMapping: function(position) {
       var mapping = {
         generated: {
           line: this.outputLineCount_,
           column: this.currentLine_.length
         },
         original: {
-          line: start.line + 1,
-          column: start.column
+          line: position.line + 1,
+          column: position.column
         },
-        source: start.source.name || '(anonymous)'
+        source: position.source.name || '(anonymous)'
       };
       this.sourceMapGenerator_.addMapping(mapping);
-      this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);
+      this.sourceMapGenerator_.setSourceContent(position.source.name, position.source.contents);
     }
   }, {}, ParseTreeWriter);
   return {get ParseTreeMapWriter() {
