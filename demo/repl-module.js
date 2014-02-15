@@ -206,12 +206,6 @@ document.querySelector('.option-button').addEventListener('click',
       optionsDiv.hidden = !optionsDiv.hidden;
     });
 
-document.querySelector('.source-button').addEventListener('click',
-    function(event) {
-      var source = document.querySelector('.source-button');
-      window.open(source.getAttribute('href'));
-    });
-
 var codeCur = 0;
 var code = 'UUDDLRLRBA'.split('').map(function(k) {
   return {'U': 38, 'D': 40, 'L': 37, 'R': 39, 'A': 65, 'B': 66}[k];

@@ -74,20 +74,26 @@ pre,
 }
 
 .options-area {
-  align-self: center;
   position: relative;
   height: 25px;
 }
 
 .repl-button {
   background: black;
-  border: 0;
   border-radius: 5px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+  border: 0;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, .5);
   color: white;
+  display: inline-block;
   font: 13px/20px 'Droid Sans', sans-serif;
-  height: 25px;
   margin: 0;
+  padding: 4px 10px;
+  position: relative;
+  text-decoration: none;
+}
+
+.menu-container {
+  position: relative;
 }
 
 .options {
@@ -96,10 +102,10 @@ pre,
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
   color: white;
   font: 13px/20px 'Droid Sans', sans-serif;
+  margin-top: -5px;
   padding: 10px;
   position: absolute;
-  right: 10px;
-  top: 50px;
+  right: 0;
   width: 32ex;
   z-index: 10;
 }
@@ -130,25 +136,24 @@ pre,
   -webkit-transition: color 1s ease-in-out;
   transition: color 1s ease-in-out
 }
+
 .vbox {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
+
 .hbox {
+  align-items: center;
   display: flex;
   flex-direction: row;
-  width: 100%;
   flex: 1;
   justify-content: space-around;
+  width: 100%;
 }
 
 .stretch {
   flex: 2;
-}
-
-.center {
-  align-self: center;
 }
 
 </style>
@@ -156,9 +161,20 @@ pre,
 <body>
 
 <div class='hbox'>
-  <button class="repl-button source-button center" href="http://github.com/google/traceur-compiler">Source</button>
-  <h1 class="center">Traceur Transcoding Demo</h1>
-  <button class="repl-button option-button center">Options</button>
+  <a class="repl-button" href="http://github.com/google/traceur-compiler" target="_blank">Source</a>
+  <h1>Traceur Transcoding Demo</h1>
+  <div class="menu-container">
+    <button class="repl-button option-button">Options</button>
+    <div class="options" hidden>
+      <label><input class="eval" type="checkbox" checked>Evaluate</label>
+      <label><input class="output" type="checkbox" checked>Show generated code</label>
+      <label><input class="show-all-toggle" type="checkbox">Show all options</label>
+      <hr>
+      <div class="traceur-options"></div>
+      <button class="reset-all">Reset All Options</button>
+      <button class="all-off">All Options Off</button>
+    </div>
+  </div>
 </div>
 
 <div class='hbox'>
@@ -168,16 +184,6 @@ pre,
 <div class='hbox'>
   <pre class="error"></pre>
   <pre class="source-map"></pre>
-</div>
-
-<div class="options" hidden>
-  <label><input class="eval" type="checkbox" checked>Evaluate</label>
-  <label><input class="output" type="checkbox" checked>Show generated code</label>
-  <label><input class="show-all-toggle" type="checkbox">Show all options</label>
-  <hr>
-  <div class="traceur-options"></div>
-  <button class="reset-all">Reset All Options</button>
-  <button class="all-off">All Options Off</button>
 </div>
 
 <script>
