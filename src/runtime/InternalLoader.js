@@ -222,11 +222,14 @@ export class InternalLoader {
 
   /**
    * @param {string} code, source to be compiled as 'Script'
-   * @param {string} name,  ModuleSpecifier-like name, not normalized.
+   * @param {string=} name,  ModuleSpecifier-like name, not normalized.
+   * @param {string=} referrerName,  normalized name of container
+   * @param {string=} address, URL
    */
-  script(code, referrerName, address) {
+  script(code, name, referrerName, address) {
+    var normalizedName = System.normalize(name || '', referrerName, address);
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
-                                    null, referrerName, address);
+                                    normalizedName, referrerName, address);
     this.cache.set({}, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit.promise;
