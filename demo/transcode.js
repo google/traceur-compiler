@@ -48,7 +48,7 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
     onFailure(reporter.errors);
   }
   var loader = new Loader(loaderHooks);
-  loader.module(contents, {}, onSuccess, reportErrors);
+  loader.module(contents, {}).then(onSuccess, reportErrors);
 }
 
 export function renderSourceMap(source, sourceMap) {

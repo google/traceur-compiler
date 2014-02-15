@@ -191,10 +191,10 @@
       }
 
       if (/\.module\.js$/.test(url)) {
-        moduleLoader.import(url.replace(/\.js$/,''), {},
-            handleSuccess, handleFailure);
+        moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
+            handleFailure);
       } else {
-        moduleLoader.loadAsScript(url, {}, handleSuccess, handleFailure);
+        moduleLoader.loadAsScript(url, {}).then(handleSuccess, handleFailure);
       }
     });
   }

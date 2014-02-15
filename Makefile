@@ -1,10 +1,9 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/ModuleStore.js \
-  src/runtime/polyfill-import.js
+  src/runtime/ModuleStore.js
 SRC = \
-  $(RUNTIME_SRC) \
+  src/runtime/polyfill-import.js \
   src/traceur-import.js
 TPL_GENSRC = \
   src/outputgeneration/SourceMapIntegration.js
@@ -20,6 +19,7 @@ PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
 
 SRC_ALL = $(shell find src/ -type f -name "*.js")
+RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 
 TFLAGS = --
 
@@ -138,8 +138,9 @@ initbench:
 bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
-bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' $(TFLAGS) $^
+bin/traceur-runtime.js: $(RUNTIME_SRC) $(SRC)
+	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -149,7 +150,8 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/' \
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
@@ -157,7 +159,8 @@ build/compiled-by-previous-traceur.js: \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/' $(TFLAGS) $(SRC)
+	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/' \
+	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
 
 build/node/%: node_modules/traceur/src/node/%
 	@mkdir -p build/node
@@ -167,10 +170,10 @@ build/previous-commit-traceur.js:
 	cp node_modules/traceur/bin/traceur.js $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
-	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
+	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 self: build/previous-commit-traceur.js force
-	./traceur-build --debug --out bin/traceur.js $(TFLAGS) $(SRC)
+	./traceur-build --debug --out bin/traceur.js $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 $(TPL_GENSRC_DEPS): | node_modules
 

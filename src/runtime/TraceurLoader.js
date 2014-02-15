@@ -34,20 +34,14 @@ export class TraceurLoader extends Loader {
    * This function is the same as import(), with one exception: the text of
    * the initial load is parsed to goal 'Script' rather than 'Module'
    *
-   * On success, pass the result of evaluating the script to the success
-   * callback.
    * @param {string} name, relative path to js file.
+   * @param {Object} referrerName and address passed to normalize.
+   * @return {Promise} fulfilled with evaluation result.
    */
-  loadAsScript(filename,
-       {referrerName, address} = {},
-       callback = (result) => {},
-       errback = (ex) => { throw ex; }) {
+  loadAsScript(filename, {referrerName, address} = {}) {
     var name = filename.replace(/\.js$/, '');
-    var codeUnit = this.internalLoader_.load(name, referrerName,
-        address, 'script');
-    codeUnit.addListener(function(result) {
-      callback(result);
-    }, errback);
+    return this.internalLoader_.load(name, referrerName, address, 'script').
+        then((codeUnit) => codeUnit.result);
   }
 
   /**
@@ -61,19 +55,12 @@ export class TraceurLoader extends Loader {
    * that is not already loaded, a SyntaxError is thrown.
    *
    * @param {string} source The source code to eval.
-   * @return {*} The completion value of evaluating the code.
+   * @param {Object} referrerName and address passed to normalize.
+   * @return {Promise} fulfilled with evaluation result.
+
    */
-  script(source,
-      {referrerName, address} = {},
-      callback = (result) => {},
-      errback = (ex) => { throw ex; }) {
-    try {
-      var codeUnit =
-          this.internalLoader_.script(source, null, referrerName, address);
-      callback(codeUnit.result);
-    } catch (ex) {
-      errback(ex);
-    }
+  script(source, {referrerName, address} = {}) {
+    return this.internalLoader_.script(source, null, referrerName, address);
   }
 
   semVerRegExp_() {

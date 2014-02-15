@@ -31,6 +31,7 @@ import {ConditionalState} from './ConditionalState';
 import {FallThroughState} from './FallThroughState';
 import {FinallyFallThroughState} from './FinallyFallThroughState';
 import {FinallyState} from './FinallyState';
+import {FindVisitor} from '../FindVisitor';
 import {ParseTreeTransformer} from '../ParseTreeTransformer';
 import {assert} from '../../util/assert';
 import {
@@ -73,6 +74,18 @@ class LabelState {
     this.name = name;
     this.continueState = continueState;
     this.fallThroughState = fallThroughState;
+  }
+}
+
+class NeedsStateMachine extends FindVisitor {
+  visitBreakStatement(tree) {
+    this.found = tree.name !== null;
+  }
+  visitContinueStatement(tree) {
+    this.found = tree.name !== null;
+  }
+  visitStateMachine(tree) {
+    this.found = true;
   }
 }
 
@@ -144,10 +157,27 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformBlock(tree) {
+    var labels = this.getLabels_();
+    var label = this.clearCurrentLabel_();
+
     // NOTE: tree may contain state machines already ...
     var transformedTree = super.transformBlock(tree);
     var machine = this.transformStatementList_(transformedTree.statements);
-    return machine == null ? transformedTree : machine;
+
+    if (machine === null)
+      return transformedTree;
+
+    if (label) {
+      var states = [];
+      for (var i = 0; i < machine.states.length; i++) {
+        var state = machine.states[i];
+        states.push(state.transformBreakOrContinue(labels));
+      }
+      machine = new StateMachine(machine.startState, machine.fallThroughState,
+                                 states, machine.exceptionBlocks);
+    }
+
+    return machine;
   }
 
   transformFunctionBody(tree) {
@@ -193,15 +223,9 @@ export class CPSTransformer extends ParseTreeTransformer {
   needsStateMachine_(statements) {
     if (statements instanceof Array) {
       for (var i = 0; i < statements.length; i++) {
-        switch (statements[i].type) {
-          case STATE_MACHINE:
-            return true;
-          case BREAK_STATEMENT:
-          case CONTINUE_STATEMENT:
-            if (statements[i].name)
-              return true;
-            break;
-        }
+        var visitor = new NeedsStateMachine(statements[i]);
+        if (visitor.found)
+          return true;
       }
       return false;
     }

@@ -48,10 +48,10 @@ export class BreakState extends State {
 
   /**
    * @param {Object} labelSet
-   * @param {number} breakState
+   * @param {number=} breakState
    * @return {State}
    */
-  transformBreak(labelSet, breakState) {
+  transformBreak(labelSet, breakState = undefined) {
     if (this.label == null)
       return new FallThroughState(this.id, breakState, []);
 
@@ -65,11 +65,12 @@ export class BreakState extends State {
 
   /**
    * @param {Object} labelSet
-   * @param {number} breakState
-   * @param {number} continueState
+   * @param {number=} breakState
+   * @param {number=} continueState
    * @return {State}
    */
-  transformBreakOrContinue(labelSet, breakState, continueState) {
+  transformBreakOrContinue(labelSet, breakState = undefined,
+                           continueState = undefined) {
     return this.transformBreak(labelSet, breakState);
   }
 }

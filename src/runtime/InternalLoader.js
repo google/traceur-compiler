@@ -17,8 +17,7 @@ import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
 import {getUid} from '../util/uid';
-
-// TODO(arv): I stripped the resolvers to make this simpler for now.
+import {toSource} from '../outputgeneration/toSource';
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -55,6 +54,10 @@ class CodeUnit {
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
+    this.promise = new Promise((res, rej) => {
+      this.resolve = res;
+      this.reject = rej;
+    });
   }
 
   get state() {
@@ -98,44 +101,6 @@ class CodeUnit {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
-  /**
-   * Adds callback for COMPLETE and ERROR.
-   */
-  addListener(callback, errback) {
-    if (!this.listeners) {
-      this.listeners = [];
-    }
-    this.listeners.push(callback, errback);
-    if (this.state >= COMPLETE) {
-      this.dispatchComplete(this.result);
-    }
-  }
-
-  dispatchError(value) {
-    this.dispatch_(value, 1);
-  }
-
-  dispatchComplete(value) {
-    this.dispatch_(value, 0);
-  }
-
-  dispatch_(value, error) {
-    var listeners = this.listeners;
-    if (!listeners) {
-      return;
-    }
-    // Clone to prevent mutations during dispatch
-    listeners = listeners.concat();
-    this.listeners = [];
-
-    for (var i = error; i < listeners.length; i += 2) {
-      var f = listeners[i];
-      if (f) {
-        f(value);
-      }
-    }
-  }
-
   transform() {
     return this.loaderHooks.transform(this);
   }
@@ -155,6 +120,7 @@ class PreCompiledCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, 'module', COMPLETE,
         name, referrerName, address);
     this.result = module;
+    this.resolve(this.result);
   }
 }
 
@@ -185,7 +151,7 @@ class EvalCodeUnit extends CodeUnit {
   constructor(loaderHooks, code, type = 'script',
       normalizedName, referrerName, address) {
     super(loaderHooks, normalizedName, type,
-      LOADED, null, referrerName, address);
+        LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -212,22 +178,26 @@ export class InternalLoader {
 
   load(name, referrerName = this.loaderHooks.rootUrl(),
       address, type = 'script') {
+    var codeUnit = this.load_(name, referrerName, address, type);
+    return codeUnit.promise.then(() => codeUnit);
+  }
+
+  load_(name, referrerName, address, type) {
     var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
 
     codeUnit.state = LOADING;
-    var loader = this;
     var translate = this.translateHook;
     var url = this.loaderHooks.locate(codeUnit);
-    codeUnit.abort = this.loadTextFile(url, function(text) {
+    codeUnit.abort = this.loadTextFile(url, (text) => {
       codeUnit.text = translate(text);
       codeUnit.state = LOADED;
-      loader.handleCodeUnitLoaded(codeUnit);
-    }, function() {
+      this.handleCodeUnitLoaded(codeUnit);
+    }, () => {
       codeUnit.state = ERROR;
-      loader.handleCodeUnitLoadError(codeUnit);
+      this.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
   }
@@ -236,7 +206,8 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                       null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return codeUnit;
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   define(normalizedName, code, address) {
@@ -245,7 +216,8 @@ export class InternalLoader {
     var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
-    return codeUnit;
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   /**
@@ -256,9 +228,8 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     null, referrerName, address);
     this.cache.set({}, codeUnit);
-    // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
-    return codeUnit;
+    return codeUnit.promise;
   }
 
   get options() {
@@ -344,7 +315,7 @@ export class InternalLoader {
     this.reporter.reportError(null, message);
     this.abortAll(message);
     codeUnit.error = message;
-    codeUnit.dispatchError(message);
+    codeUnit.reject(message);
   }
 
   /**
@@ -359,17 +330,74 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error || errorMessage);
+      codeUnit.reject(codeUnit.error || errorMessage);
     });
   }
 
   analyze() {
     this.loaderHooks.analyzeDependencies(this.cache.values(), this);
+    this.checkForErrors(this.cache.values(), 'build-export-list');
   }
 
   transform() {
-    this.loaderHooks.transformDependencies(this.cache.values());
+    this.transformDependencies(this.cache.values());
   }
+
+  transformDependencies(dependencies, dependentName) {
+    for (var i = 0; i < dependencies.length; i++) {
+      var codeUnit = dependencies[i];
+      if (codeUnit.state >= TRANSFORMED) {
+        continue;
+      }
+      if (codeUnit.state === TRANSFORMING) {
+        var cir = codeUnit.normalizedName;
+        var cle = dependentName;
+        this.reporter.reportError(codeUnit.metadata.tree,
+            `Unsupported circular dependency between ${cir} and ${cle}`);
+        break;
+      }
+      codeUnit.state = TRANSFORMING;
+      this.transformCodeUnit(codeUnit);
+      codeUnit.instantiate();
+    }
+    this.checkForErrors(dependencies, 'transform');
+  }
+
+  transformCodeUnit(codeUnit) {
+    this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
+    if (codeUnit.state === ERROR)
+      return;
+    var metadata = codeUnit.metadata;
+    metadata.transformedTree = codeUnit.transform();
+    codeUnit.state = TRANSFORMED;
+    var filename = codeUnit.url || codeUnit.normalizedName;
+    [metadata.transcoded, metadata.sourceMap] =
+        toSource(metadata.transformedTree, this.options, filename);
+    if (codeUnit.url && metadata.transcoded)
+      metadata.transcoded += '//# sourceURL=' + codeUnit.url;
+  }
+
+  checkForErrors(dependencies, phase) {
+    if (this.reporter.hadError()) {
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        if (codeUnit.state >= COMPLETE) {
+          continue;
+        }
+        codeUnit.state = ERROR;
+      }
+
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        if (codeUnit.state == ERROR) {
+          codeUnit.reject(phase);
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
 
   orderDependencies(codeUnit) {
     // Order the dependencies.
@@ -405,7 +433,7 @@ export class InternalLoader {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
         this.abortAll();
-        codeUnit.dispatchError(codeUnit.error);
+        codeUnit.reject(codeUnit.error);
         return;
       }
 
@@ -419,7 +447,7 @@ export class InternalLoader {
         continue;
       }
       codeUnit.state = COMPLETE;
-      codeUnit.dispatchComplete(codeUnit.result);
+      codeUnit.resolve(codeUnit.result);
     }
   }
 }
