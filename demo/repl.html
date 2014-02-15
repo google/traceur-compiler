@@ -144,7 +144,6 @@ pre,
 }
 
 .hbox {
-  align-items: center;
   display: flex;
   flex-direction: row;
   flex: 1;
@@ -156,11 +155,15 @@ pre,
   flex: 2;
 }
 
+.hbox.center {
+  align-items: center;
+}
+
 </style>
 </head>
 <body>
 
-<div class='hbox'>
+<div class='hbox center'>
   <a class="repl-button" href="http://github.com/google/traceur-compiler" target="_blank">Source</a>
   <h1>Traceur Transcoding Demo</h1>
   <div class="menu-container">
@@ -181,6 +184,7 @@ pre,
   <textarea class="input" hidden></textarea>
   <textarea class="output" hidden></textarea>
 </div>
+
 <div class='hbox'>
   <pre class="error"></pre>
   <pre class="source-map"></pre>
