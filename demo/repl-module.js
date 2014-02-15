@@ -182,7 +182,7 @@ function rebuildOptions() {
   createOptions();
 }
 
-document.querySelector('.all-on').addEventListener('click',
+document.querySelector('.reset-all').addEventListener('click',
     function() {
       traceurOptions.reset();
       rebuildOptions();
