@@ -35,18 +35,17 @@ if (location.host === 'traceur-compiler.googlecode.com') {
 
 html, body {
   margin: 0;
+  font-family: 'Lucida Grande', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .CodeMirror-scroll {
   border: 1px solid #ddd;
   height: auto;
   min-height: 300px;
-}
-
-.output-wrapper {
-  position: absolute;
-  right: 0;
-  top: 0;
 }
 
 html.hide-output .output-wrapper {
@@ -74,30 +73,41 @@ pre,
   color: red;
 }
 
-.option-button {
-  background: black;
-  border: 0;
-  border-bottom-left-radius: 5px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
-  color: white;
-  font: 13px/20px 'Droid Sans', sans-serif;
+.options-area {
+  position: relative;
   height: 25px;
+}
+
+.repl-button {
+  background: black;
+  border-radius: 5px;
+  border: 0;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, .5);
+  color: white;
+  display: inline-block;
+  font: 13px/20px 'Droid Sans', sans-serif;
   margin: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
+  padding: 4px 10px;
+  position: relative;
+  text-decoration: none;
+}
+
+.menu-container {
+  position: relative;
 }
 
 .options {
   background: black;
-  border-radius: 5px 0 5px 5px;
+  border-radius: 5px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
   color: white;
   font: 13px/20px 'Droid Sans', sans-serif;
+  margin-top: -5px;
   padding: 10px;
   position: absolute;
   right: 0;
-  top: 20px;
+  width: 32ex;
+  z-index: 10;
 }
 
 .options label {
@@ -127,23 +137,53 @@ pre,
   transition: color 1s ease-in-out
 }
 
+.vbox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.hbox {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.stretch {
+  flex: 2;
+}
+
 </style>
 </head>
 <body>
-<textarea class="input"></textarea>
-<pre class="error"></pre>
 
-<textarea class="output"></textarea>
-<pre class="source-map"></pre>
-<button class="option-button">Options</button>
-<div class="options" hidden>
-<label><input class="eval" type="checkbox" checked>Evaluate</label>
-<label><input class="output" type="checkbox" checked>Show generated code</label>
-<label><input class="show-all-toggle" type="checkbox">Show all options</label>
-<hr>
-<div class="traceur-options"></div>
-<button class="all-on">All Options On</button>
-<button class="all-off">All Options Off</button>
+<div class='hbox'>
+  <a class="repl-button" href="http://github.com/google/traceur-compiler" target="_blank">Source</a>
+  <h1>Traceur Transcoding Demo</h1>
+  <div class="menu-container">
+    <button class="repl-button option-button">Options</button>
+    <div class="options" hidden>
+      <label><input class="eval" type="checkbox" checked>Evaluate</label>
+      <label><input class="output" type="checkbox" checked>Show generated code</label>
+      <label><input class="show-all-toggle" type="checkbox">Show all options</label>
+      <hr>
+      <div class="traceur-options"></div>
+      <button class="reset-all">Reset All Options</button>
+      <button class="all-off">All Options Off</button>
+    </div>
+  </div>
+</div>
+
+<div class='hbox'>
+  <textarea class="input" hidden></textarea>
+  <textarea class="output" hidden></textarea>
+</div>
+<div class='hbox'>
+  <pre class="error"></pre>
+  <pre class="source-map"></pre>
 </div>
 
 <script>
