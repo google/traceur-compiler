@@ -19,9 +19,8 @@ import {ParseTreeWriter} from './ParseTreeWriter';
  */
 export class ParseTreeMapWriter extends ParseTreeWriter {
   /**
-   * @param {ParseTree} highlighted
-   * @param {boolean} showLineNumbers
    * @param {SourceMapGenerator} sourceMapGenerator
+   * @param {Object} options for ParseTreeWriter
    */
   constructor(sourceMapGenerator, options = undefined) {
     super(options);
@@ -52,7 +51,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
         line: start.line + 1,
         column: start.column
        },
-       source: start.source.name || '(anonymous)'
+       source: start.source.name
     };
     this.sourceMapGenerator_.addMapping(mapping);
     this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);

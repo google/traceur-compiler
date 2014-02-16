@@ -248,7 +248,7 @@
    * @return {string}
    */
   function joinAndCanonicalizePath(parts) {
-    var path = parts[ComponentIndex.PATH];
+    var path = parts[ComponentIndex.PATH] || '';
     path = removeDotSegments(path.replace(/\/\//.g, '/'));
     parts[ComponentIndex.PATH] = path;
 

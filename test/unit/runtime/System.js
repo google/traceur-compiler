@@ -40,6 +40,10 @@ suite('System.js', function() {
     // not relative
     assert.equal(System.normalize('d/e/f', refererName), 'd/e/f');
 
+    // Empty string should not throw.
+    // TODO(jjb): what is the correct result?
+    assert.equal(System.normalize(''), '.');
+
     try {
       assert.equal(System.normalize(undefined, refererName), 'should throw');
     } catch(e) {

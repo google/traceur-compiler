@@ -490,7 +490,7 @@
     return leadingSlash + out.join('/') + trailingSlash;
   }
   function joinAndCanonicalizePath(parts) {
-    var path = parts[ComponentIndex.PATH];
+    var path = parts[ComponentIndex.PATH] || '';
     path = removeDotSegments(path.replace(/\/\//.g, '/'));
     parts[ComponentIndex.PATH] = path;
     return buildFromEncodedParts(parts[ComponentIndex.SCHEME], parts[ComponentIndex.USER_INFO], parts[ComponentIndex.DOMAIN], parts[ComponentIndex.PORT], parts[ComponentIndex.PATH], parts[ComponentIndex.QUERY_DATA], parts[ComponentIndex.FRAGMENT]);
@@ -7173,7 +7173,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/outputgeneration/
           line: start.line + 1,
           column: start.column
         },
-        source: start.source.name || '(anonymous)'
+        source: start.source.name
       };
       this.sourceMapGenerator_.addMapping(mapping);
       this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);
@@ -20396,9 +20396,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/runtime/InternalL
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit.promise;
     },
-    script: function(code, referrerName, address) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', null, referrerName, address);
-      this.cache.set({}, codeUnit);
+    script: function(code, name, referrerName, address) {
+      var normalizedName = System.normalize(name || '', referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName, referrerName, address);
+      var key = {};
+      if (name) key = this.getKey(normalizedName, 'script');
+      this.cache.set(key, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit.promise;
     },
@@ -20871,9 +20874,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/runtime/TraceurLo
     },
     script: function(source) {
       var $__343 = arguments[1] !== (void 0) ? arguments[1]: {},
+          name = $__343.name,
           referrerName = $__343.referrerName,
           address = $__343.address;
-      return this.internalLoader_.script(source, null, referrerName, address);
+      return this.internalLoader_.script(source, name, referrerName, address);
     },
     semVerRegExp_: function() {
       return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
