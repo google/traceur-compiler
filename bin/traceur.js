@@ -20399,7 +20399,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.22/src/runtime/InternalL
     script: function(code, name, referrerName, address) {
       var normalizedName = System.normalize(name || '', referrerName, address);
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName, referrerName, address);
-      this.cache.set({}, codeUnit);
+      var key = {};
+      if (name) key = this.getKey(normalizedName, 'script');
+      this.cache.set(key, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit.promise;
     },

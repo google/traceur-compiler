@@ -230,7 +230,11 @@ export class InternalLoader {
     var normalizedName = System.normalize(name || '', referrerName, address);
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     normalizedName, referrerName, address);
-    this.cache.set({}, codeUnit);
+    var key = {};
+    if (name)
+      key = this.getKey(normalizedName, 'script');
+
+    this.cache.set(key, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit.promise;
   }
