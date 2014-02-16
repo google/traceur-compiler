@@ -55,12 +55,12 @@ export class TraceurLoader extends Loader {
    * that is not already loaded, a SyntaxError is thrown.
    *
    * @param {string} source The source code to eval.
-   * @param {Object} referrerName and address passed to normalize.
+   * @param {Object} name, referrerName and address passed to normalize.
    * @return {Promise} fulfilled with evaluation result.
 
    */
-  script(source, {referrerName, address} = {}) {
-    return this.internalLoader_.script(source, null, referrerName, address);
+  script(source, {name, referrerName, address} = {}) {
+    return this.internalLoader_.script(source, name, referrerName, address);
   }
 
   semVerRegExp_() {

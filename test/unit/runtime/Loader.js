@@ -81,11 +81,30 @@ suite('Loader.js', function() {
     });
   });
 
-  test('LoaderEval', function(done) {
+  test('Loader.Script', function(done) {
     getLoader().script('(function(x = 42) { return x; })()', {}).then(
       function(result) {
         assert.equal(42, result);
         done();
+      });
+  });
+
+  test('Loader.Script.Named', function(done) {
+    var loader = getLoader();
+    loader.options.sourceMaps = true;
+    var name = '43';
+    loader.script('(function(x = 43) { return x; })()', {name: name}).then(
+      function(result) {
+        try {
+          loader.options.sourceMaps = false;
+          var normalizedName = System.normalize(name);
+          var sourceMap = loader.sourceMap(normalizedName, 'script');
+          assert(sourceMap);
+          assert.equal(43, result);
+          done();
+        } catch (ex) {
+          done(ex);
+        }
       });
   });
 
