@@ -138,9 +138,9 @@ initbench:
 bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
-bin/traceur-runtime.js: $(RUNTIME_SRC) $(SRC)
+bin/traceur-runtime.js: $(RUNTIME_SRC) src/runtime/polyfill-import.js
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) src/runtime/polyfill-import.js
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
