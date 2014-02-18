@@ -99,6 +99,21 @@ suite('context test', function() {
         });
   });
 
+  test('compiled modules relocatable', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-another-x.js');
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=relocatable -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          executeFileWithRuntime(tempFileName);
+          assert.equal(global.result, 17);
+          done();
+        });
+  });
+
+
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');

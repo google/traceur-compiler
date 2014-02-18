@@ -35,6 +35,7 @@ import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
+import {RelocatableModuleTransformer} from './RelocatableModuleTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {SpreadTransformer} from './SpreadTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
@@ -87,6 +88,9 @@ export class FromOptionsTransformer extends MultiTransformer {
           break;
         case 'inline':
           append(InlineModuleTransformer);
+          break;
+        case 'relocatable':
+          append(RelocatableModuleTransformer);
           break;
         default:
           append(ModuleTransformer);

@@ -145,13 +145,14 @@
     bundleStore: Object.create(null),
 
     register(name, deps, func) {
-      if (!deps || !deps.length)
+      if (!deps || !deps.length) {
         this.registerModule(name, func);
-      else
+      } else {
         this.bundleStore[name] = {
           deps: deps,
           execute: func
         };
+      }
     },
 
     getAnonymousModule(func) {

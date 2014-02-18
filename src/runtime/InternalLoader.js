@@ -28,6 +28,8 @@ var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
 
+var global = this;
+
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
@@ -136,10 +138,14 @@ class BundledCodeUnit extends CodeUnit {
     this.execute = execute;
   }
   getModuleSpecifiers() {
-    return deps;
+    return this.deps;
   }
   evaluate() {
-    return execute();  // does not seem right
+    var normalizedNames =
+        this.deps.map( (name) => this.loaderHooks.normalize(name) );
+    var module = this.execute.apply(global, normalizedNames);
+    System.set(this.normalizedName, module);
+    return module;
   }
 }
 
@@ -214,13 +220,16 @@ export class InternalLoader {
 
   load_(name, referrerName, address, type) {
     var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
-    if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
+    if (codeUnit.state === ERROR) {
       return codeUnit;
     }
 
-    if (codeUnit.state === LOADED) {
+    if (codeUnit.state === TRANSFORMED) {
       this.handleCodeUnitLoaded(codeUnit)
     } else {
+      if (codeUnit.state !== NOT_STARTED)
+        return codeUnit;
+
       codeUnit.state = LOADING;
       var translate = this.translateHook;
       var url = this.loaderHooks.locate(codeUnit);
@@ -304,7 +313,7 @@ export class InternalLoader {
             name, referrerName, address, module);
         cacheObject.type = 'module';
       } else {
-        var bundledModule = this.loaderHooks.bundledModule(normalizedName);
+        var bundledModule = this.loaderHooks.bundledModule(name);
         if (bundledModule) {
           cacheObject = new BundledCodeUnit(this.loaderHooks, normalizedName,
               name, referrerName, address,
@@ -448,7 +457,7 @@ export class InternalLoader {
   }
 
 
-  orderDependencies(codeUnit) {
+  orderDependencies() {
     // Order the dependencies.
     var visited = new ObjectMap();
     var ordered = [];
@@ -467,7 +476,7 @@ export class InternalLoader {
   }
 
   evaluate() {
-    var dependencies = this.orderDependencies(codeUnit);
+    var dependencies = this.orderDependencies();
 
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
