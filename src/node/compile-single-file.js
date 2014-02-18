@@ -26,7 +26,7 @@ var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
 
-function compileSingleFile(inputFilePath, outputFilePath) {
+function compileSingleFile(inputFilePath, outputFilePath, sourceMaps) {
   return fs.read(inputFilePath).then(function(contents) {
     var reporter = new ErrorReporter();
     var sourceFile = new SourceFile(inputFilePath, contents);
@@ -40,7 +40,7 @@ function compileSingleFile(inputFilePath, outputFilePath) {
     var transformed = transformer.transform(tree);
 
     if (!reporter.hadError()) {
-      writeTreeToFile(transformed, outputFilePath);
+      writeTreeToFile(transformed, outputFilePath, sourceMaps);
     }
   });
 }
@@ -49,13 +49,13 @@ function onlyJsFiles(path, stat) {
   return stat.isFile() && /\.js$/.test(path) || false;
 }
 
-function compileAllJsFilesInDir(inputDir, outputDir) {
+function compileAllJsFilesInDir(inputDir, outputDir, sourceMaps) {
   inputDir = path.normalize(inputDir);
   outputDir = path.normalize(outputDir);
   fs.listTree(inputDir, onlyJsFiles).then(function(files) {
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      compileSingleFile(inputFilePath, outputFilePath).done();
+      compileSingleFile(inputFilePath, outputFilePath, sourceMaps).done();
     });
   }).done();
 }
