@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "Experimental ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -45,7 +45,7 @@
     "rsvp": "3.0.3",
     "requirejs": "~2.1.9",
     "semver": "2.2.1",
-    "traceur": "0.0.21"
+    "traceur": "0.0.22"
   },
   "subdomain": "traceur"
 }
