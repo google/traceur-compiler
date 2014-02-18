@@ -39,6 +39,7 @@ TESTS = \
 	test/node-commonjs-test.js \
 	test/node-amd-test.js \
 	test/node-feature-test.js \
+	test/node-api-test.js \
 	$(RUNTIME_TESTS) \
 	$(UNIT_TESTS)
 
