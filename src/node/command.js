@@ -173,7 +173,7 @@ if (out) {
     compileToDirectory(out, includes, flags.sourceMaps);
 } else if (dir) {
   var compileAllJsFilesInDir = require('./compile-single-file.js').compileAllJsFilesInDir;
-  compileAllJsFilesInDir(dir, includes[0]);
+  compileAllJsFilesInDir(dir, includes[0], flags.sourceMaps);
 }
 else {
   interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
