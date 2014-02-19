@@ -24,12 +24,12 @@ import {
 import scopeContainsThis from './scopeContainsThis';
 
 /**
- * @fileoverview Transform a module to a 'relocatable' format:
+ * @fileoverview Transform a module to a 'instantiate' format:
  * System.register(localName, [deps], function(normalizedNames) {});
  * where [deps] are unnormalized (module-specifier-like) names.
  */
 
-export class RelocatableModuleTransformer extends ModuleTransformer {
+export class InstantiateModuleTransformer extends ModuleTransformer {
 
   constructor(identifierGenerator) {
     super(identifierGenerator);

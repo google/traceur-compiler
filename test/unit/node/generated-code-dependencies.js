@@ -99,12 +99,12 @@ suite('context test', function() {
         });
   });
 
-  test('compiled modules relocatable', function(done) {
+  test('compiled modules instantiate', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-another-x.js');
 
-    exec(executable + ' --out ' + tempFileName + ' --modules=relocatable -- ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' --modules=instantiate -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);

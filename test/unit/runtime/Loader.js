@@ -234,10 +234,10 @@ suite('Loader.js', function() {
     });
   });
 
-  test('LoaderDefine.Relocatable', function(done) {
+  test('LoaderDefine.Instantiate', function(done) {
       var loader = getLoader();
-      loader.options.modules = 'relocatable';
-      var name = './test_relocatable';
+      loader.options.modules = 'instantiate';
+      var name = './test_instantiate';
       var src = 'export {name as a} from \'./test_a\';\n' +
       'export var dd = 8;\n';
       loader.define(name, src).then(function() {

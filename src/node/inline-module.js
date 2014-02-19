@@ -121,7 +121,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
-      if (options.modules !== 'inline' && options.modules !== 'relocatable')
+      if (options.modules !== 'inline' && options.modules !== 'instantiate')
         doEvaluateModule = true;
     }
 
