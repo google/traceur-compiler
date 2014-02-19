@@ -131,7 +131,7 @@ class PreCompiledCodeUnit extends CodeUnit {
  */
 class BundledCodeUnit extends CodeUnit {
   constructor(loaderHooks, normalizedName, name, referrerName, address,
-        deps, execute) {
+      deps, execute) {
     super(loaderHooks, normalizedName, 'module', TRANSFORMED,
         name, referrerName, address);
     this.deps = deps;

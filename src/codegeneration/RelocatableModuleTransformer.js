@@ -14,7 +14,7 @@
 
 
 import {assert} from '../util/assert';
-import {createBindingIdentifier} from './ParseTreeFactory';
+import {createIdentifierExpression} from './ParseTreeFactory';
 import globalThis from './globalThis';
 import {ModuleTransformer} from './ModuleTransformer';
 import {
@@ -54,8 +54,9 @@ export class RelocatableModuleTransformer extends ModuleTransformer {
   }
 
   /**
+   * For
    *  import {foo} from './foo';
-   * transcodes to
+   * transcode the './foo' part to
    *  System.get(tempVar);
    * where tempVar is a function argument.
    * @param {ModuleSpecifier} tree
@@ -66,7 +67,7 @@ export class RelocatableModuleTransformer extends ModuleTransformer {
     var name = tree.token.processedValue;
     var localName = this.getTempIdentifier();
     this.dependencies.push({path: tree.token, local: localName});
-    var localIdentifier = createBindingIdentifier(localName);
+    var localIdentifier = createIdentifierExpression(localName);
 
     if (this.moduleSpecifierKind_ === 'module')
       return parseExpression `$traceurRuntime.ModuleStore.get(${localIdentifier})`;

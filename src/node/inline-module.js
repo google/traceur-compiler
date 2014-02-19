@@ -114,17 +114,21 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   function loadNext() {
     var loadAsScript = scriptsCount && (loadCount < scriptsCount);
+    var doEvaluateModule = false;
     var loadFunction = loader.import;
     var name = filenames[loadCount];
-    if (loadAsScript)
+    if (loadAsScript) {
       loadFunction = loader.loadAsScript;
-    else
+    } else {
       name = name.replace(/\.js$/,'');
+      if (options.modules !== 'inline' && options.modules !== 'relocatable')
+        doEvaluateModule = true;
+    }
 
     var loadOptions = {referrerName: referrerName};
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {
-          if (!loadAsScript && options.modules !== 'inline')
+          if (doEvaluateModule)
             appendEvaluateModule(name, referrerName);
           loadCount++;
           if (loadCount < filenames.length) {
