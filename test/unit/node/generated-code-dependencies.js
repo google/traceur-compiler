@@ -108,6 +108,7 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
+          var module = System.get('test/unit/node/resources/import-another-x');
           assert.equal(global.result, 17);
           done();
         });
