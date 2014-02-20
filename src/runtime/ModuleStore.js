@@ -142,6 +142,19 @@
           new UncoatedModuleInstantiator(normalizedName, func);
     },
 
+    bundleStore: Object.create(null),
+
+    register(name, deps, func) {
+      if (!deps || !deps.length) {
+        this.registerModule(name, func);
+      } else {
+        this.bundleStore[name] = {
+          deps: deps,
+          execute: func
+        };
+      }
+    },
+
     getAnonymousModule(func) {
       return new Module(func.call(global), liveModuleSentinel);
     },

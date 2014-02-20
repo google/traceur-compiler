@@ -204,4 +204,8 @@ export class LoaderHooks {
     return options;
   }
 
+  bundledModule(name) {
+    return this.moduleStore_.bundleStore[name];
+  }
+
 }
