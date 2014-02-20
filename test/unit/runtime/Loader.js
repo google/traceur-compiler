@@ -26,6 +26,8 @@ suite('Loader.js', function() {
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
+    var loader = getLoader();
+    loader.options.modules = true;
     System.baseURL = baseURL;
   });
 
@@ -229,6 +231,35 @@ suite('Loader.js', function() {
     }, function(error) {
       fail(error);
       done();
+    });
+  });
+
+  test('LoaderDefine.Instantiate', function(done) {
+    var loader = getLoader();
+    loader.options.modules = 'instantiate';
+    var name = './test_instantiate';
+    var src = 'export {name as a} from \'./test_a\';\n' +
+    'export var dd = 8;\n';
+    loader.define(name, src).then(function() {
+      try {
+        return loader.import(name);
+      } catch (ex) {
+        done(ex);
+      }
+    }, function(error) {
+      fail(error);
+      done();
+    }).then(function(mod) {
+      try {
+        assert.equal(8, mod.dd);
+        done();
+      } catch (ex) {
+        done(ex);
+      }
+    },
+    function(error) {
+      fail(error);
+      done(error);
     });
   });
 

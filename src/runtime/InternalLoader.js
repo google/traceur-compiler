@@ -28,6 +28,8 @@ var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
 
+var global = this;
+
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
@@ -125,9 +127,44 @@ class PreCompiledCodeUnit extends CodeUnit {
 }
 
 /**
+ * CodeUnit coming from {@code Loader.register}.
+ */
+class BundledCodeUnit extends CodeUnit {
+  constructor(loaderHooks, normalizedName, name, referrerName, address,
+      deps, execute) {
+    super(loaderHooks, normalizedName, 'module', TRANSFORMED,
+        name, referrerName, address);
+    this.deps = deps;
+    this.execute = execute;
+  }
+  getModuleSpecifiers() {
+    return this.deps;
+  }
+  evaluate() {
+    var normalizedNames =
+        this.deps.map((name) => this.loaderHooks.normalize(name));
+    var module = this.execute.apply(global, normalizedNames);
+    System.set(this.normalizedName, module);
+    return module;
+  }
+}
+
+/**
+ * CodeUnit for sharing methods that just call back to loaderHooks
+ */
+class HookedCodeUnit extends CodeUnit {
+  getModuleSpecifiers() {
+    return this.loaderHooks.getModuleSpecifiers(this);
+  }
+  evaluate() {
+    return this.loaderHooks.evaluateCodeUnit(this);
+  }
+}
+
+/**
  * CodeUnit used for {@code Loader.load}.
  */
-class LoadCodeUnit extends CodeUnit {
+class LoadCodeUnit extends HookedCodeUnit {
   /**
    * @param {InternalLoader} loader
    * @param {string} normalizedName
@@ -136,13 +173,12 @@ class LoadCodeUnit extends CodeUnit {
     super(loaderHooks, normalizedName, 'module', NOT_STARTED,
         name, referrerName, address);
   }
-
 }
 
 /**
  * CodeUnit used for {@code Loader.eval} and {@code Loader.module}.
  */
-class EvalCodeUnit extends CodeUnit {
+class EvalCodeUnit extends HookedCodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
@@ -184,21 +220,29 @@ export class InternalLoader {
 
   load_(name, referrerName, address, type) {
     var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
-    if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
+    if (codeUnit.state === ERROR) {
       return codeUnit;
     }
 
-    codeUnit.state = LOADING;
-    var translate = this.translateHook;
-    var url = this.loaderHooks.locate(codeUnit);
-    codeUnit.abort = this.loadTextFile(url, (text) => {
-      codeUnit.text = translate(text);
-      codeUnit.state = LOADED;
-      this.handleCodeUnitLoaded(codeUnit);
-    }, () => {
-      codeUnit.state = ERROR;
-      this.handleCodeUnitLoadError(codeUnit);
-    });
+    if (codeUnit.state === TRANSFORMED) {
+      this.handleCodeUnitLoaded(codeUnit)
+    } else {
+      if (codeUnit.state !== NOT_STARTED)
+        return codeUnit;
+
+      codeUnit.state = LOADING;
+      var translate = this.translateHook;
+      var url = this.loaderHooks.locate(codeUnit);
+      codeUnit.abort = this.loadTextFile(url, (text) => {
+        codeUnit.text = translate(text);
+        codeUnit.state = LOADED;
+        this.handleCodeUnitLoaded(codeUnit);
+      }, () => {
+        codeUnit.state = ERROR;
+        this.handleCodeUnitLoadError(codeUnit);
+      });
+    }
+
     return codeUnit;
   }
 
@@ -269,9 +313,16 @@ export class InternalLoader {
             name, referrerName, address, module);
         cacheObject.type = 'module';
       } else {
-        cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
-            name, referrerName, address);
-        cacheObject.type = type;
+        var bundledModule = this.loaderHooks.bundledModule(name);
+        if (bundledModule) {
+          cacheObject = new BundledCodeUnit(this.loaderHooks, normalizedName,
+              name, referrerName, address,
+              bundledModule.deps, bundledModule.execute);
+        } else {
+          cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
+              name, referrerName, address);
+          cacheObject.type = type;
+        }
       }
       this.cache.set(key, cacheObject);
     }
@@ -292,7 +343,7 @@ export class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var referrerName = codeUnit.normalizedName;
-    var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
+    var moduleSpecifiers = codeUnit.getModuleSpecifiers();
     if (!moduleSpecifiers) {
       this.abortAll(`No module specifiers in ${referrerName}`);
       return;
@@ -406,7 +457,7 @@ export class InternalLoader {
   }
 
 
-  orderDependencies(codeUnit) {
+  orderDependencies() {
     // Order the dependencies.
     var visited = new ObjectMap();
     var ordered = [];
@@ -425,7 +476,7 @@ export class InternalLoader {
   }
 
   evaluate() {
-    var dependencies = this.orderDependencies(codeUnit);
+    var dependencies = this.orderDependencies();
 
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
@@ -435,7 +486,7 @@ export class InternalLoader {
 
       var result;
       try {
-        result = this.loaderHooks.evaluateCodeUnit(codeUnit);
+        result = codeUnit.evaluate();
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
