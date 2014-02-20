@@ -20307,6 +20307,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/Loader", 
     },
     normalize: function(name, referrerName, referrerAddress) {
       return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+    },
+    locate: function(load) {
+      return this.loaderHooks_.locate(load);
+    },
+    fetch: function(load) {
+      return this.loaderHooks_.fetch(load);
+    },
+    translate: function(load) {
+      return this.loaderHooks_.translate(load);
+    },
+    instantiate: function(load) {
+      return this.loaderHooks_.instantiate(load);
     }
   }, {});
   ;
