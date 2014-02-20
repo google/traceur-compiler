@@ -142,7 +142,7 @@ class BundledCodeUnit extends CodeUnit {
   }
   evaluate() {
     var normalizedNames =
-        this.deps.map( (name) => this.loaderHooks.normalize(name) );
+        this.deps.map((name) => this.loaderHooks.normalize(name));
     var module = this.execute.apply(global, normalizedNames);
     System.set(this.normalizedName, module);
     return module;
@@ -153,7 +153,7 @@ class BundledCodeUnit extends CodeUnit {
  * CodeUnit for sharing methods that just call back to loaderHooks
  */
 class HookedCodeUnit extends CodeUnit {
-    getModuleSpecifiers() {
+  getModuleSpecifiers() {
     return this.loaderHooks.getModuleSpecifiers(this);
   }
   evaluate() {
