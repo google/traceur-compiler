@@ -79,7 +79,7 @@ function allLoaded(url, reporter, elements) {
 function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   // The caller needs to do a chdir.
-  var basePath = './';
+  var basePath = path.resolve('./') + '/';
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
   if (referrerName) {
@@ -124,7 +124,6 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
       if (options.modules !== 'inline' && options.modules !== 'instantiate')
         doEvaluateModule = true;
     }
-
     var loadOptions = {referrerName: referrerName};
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {
