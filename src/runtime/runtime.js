@@ -44,6 +44,15 @@
     };
   }
 
+  // ### Primitive value types
+  var types = {
+    void: function voidType() {},
+    any: function any() {},
+    string: function string() {},
+    number: function number() {},
+    boolean: function boolean() {}
+  };
+
   var method = nonEnum;
 
   // ### Symbols
@@ -572,6 +581,7 @@
     superSet: superSet,
     toObject: toObject,
     toProperty: toProperty,
+    type: types,
     typeof: typeOf,
   };
 
