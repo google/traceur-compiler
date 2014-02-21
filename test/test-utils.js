@@ -124,7 +124,7 @@
       traceur.options.reset();
     });
 
-    test(name, function(done) {
+    (/^Only/.test(name) ? test.only : test)(name, function(done) {
       traceur.options.debug = true;
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
