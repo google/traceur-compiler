@@ -53,7 +53,7 @@ export class ModuleTransformer extends TempVarTransformer {
    */
   constructor(identifierGenerator) {
     super(identifierGenerator);
-    this.exportVisitor_ = new DirectExportVisitor();
+    this.exportVisitor = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.moduleName = null;
   }
@@ -139,7 +139,7 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   getExportProperties() {
-    return this.exportVisitor_.namedExports.map((exp) => {
+    return this.exportVisitor.namedExports.map((exp) => {
       // export_name: {get: function() { return export_name },
       return this.getGetterExport(exp);
     });
@@ -148,8 +148,8 @@ export class ModuleTransformer extends TempVarTransformer {
   createExportStatement() {
     var object = createObjectLiteralExpression(this.getExportProperties());
 
-    if (this.exportVisitor_.starExports.length) {
-      var starExports = this.exportVisitor_.starExports;
+    if (this.exportVisitor.starExports.length) {
+      var starExports = this.exportVisitor.starExports;
       var starIdents = starExports.map((moduleSpecifier) => {
         return createIdentifierExpression(
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
@@ -164,11 +164,11 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {boolean}
    */
   hasExports() {
-    return this.exportVisitor_.hasExports();
+    return this.exportVisitor.hasExports();
   }
 
   transformExportDeclaration(tree) {
-    this.exportVisitor_.visitAny(tree);
+    this.exportVisitor.visitAny(tree);
     return this.transformAny(tree.declaration);
   }
 

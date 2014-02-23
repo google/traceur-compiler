@@ -13970,7 +13970,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/Mo
       parseStatements = $__111.parseStatements;
   var ModuleTransformer = function ModuleTransformer(identifierGenerator) {
     $traceurRuntime.superCall(this, $ModuleTransformer.prototype, "constructor", [identifierGenerator]);
-    this.exportVisitor_ = new DirectExportVisitor();
+    this.exportVisitor = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.moduleName = null;
   };
@@ -14029,15 +14029,15 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/Mo
     },
     getExportProperties: function() {
       var $__109 = this;
-      return this.exportVisitor_.namedExports.map((function(exp) {
+      return this.exportVisitor.namedExports.map((function(exp) {
         return $__109.getGetterExport(exp);
       }));
     },
     createExportStatement: function() {
       var $__109 = this;
       var object = createObjectLiteralExpression(this.getExportProperties());
-      if (this.exportVisitor_.starExports.length) {
-        var starExports = this.exportVisitor_.starExports;
+      if (this.exportVisitor.starExports.length) {
+        var starExports = this.exportVisitor.starExports;
         var starIdents = starExports.map((function(moduleSpecifier) {
           return createIdentifierExpression($__109.getTempVarNameForModuleSpecifier(moduleSpecifier));
         }));
@@ -14047,10 +14047,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/Mo
       return parseStatement($__105, object);
     },
     hasExports: function() {
-      return this.exportVisitor_.hasExports();
+      return this.exportVisitor.hasExports();
     },
     transformExportDeclaration: function(tree) {
-      this.exportVisitor_.visitAny(tree);
+      this.exportVisitor.visitAny(tree);
       return this.transformAny(tree.declaration);
     },
     transformExportDefault: function(tree) {
@@ -14216,7 +14216,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/Am
   ($traceurRuntime.createClass)(AmdTransformer, {
     getExportProperties: function() {
       var properties = $traceurRuntime.superCall(this, $AmdTransformer.prototype, "getExportProperties", []);
-      if (this.exportVisitor_.hasExports()) properties.push(parsePropertyDefinition($__120));
+      if (this.exportVisitor.hasExports()) properties.push(parsePropertyDefinition($__120));
       return properties;
     },
     wrapModule: function(statements) {
@@ -18023,7 +18023,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/No
       if (tree.args.length === 1) this.visitList(tree.args);
     },
     visitLiteralExpression: function(tree) {
-      this.found = tree.literalToken.value.slice(1, - 1);
+      this.found = tree.literalToken.processedValue;
     }
   }, {}, ParseTreeVisitor);
   var NodeModuleTransformer = function NodeModuleTransformer() {
@@ -18040,9 +18040,11 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/No
       return new ExportDefault(null, createMemberExpression('module', 'exports'));
     },
     transformModule: function(tree) {
-      tree.scriptItemList.unshift(this.moduleDeclarationStatement());
-      tree.scriptItemList.push(this.exportExpression());
-      this.exportVisitor_.addExport('default', this.exportExpression());
+      var scriptItemList = tree.scriptItemList.slice(0);
+      scriptItemList.unshift(this.moduleDeclarationStatement());
+      scriptItemList.push(this.exportExpression());
+      this.exportVisitor.addExport('default', this.exportExpression());
+      tree = new Module(tree.location, scriptItemList, tree.moduleName);
       tree = $traceurRuntime.superCall(this, $NodeModuleTransformer.prototype, "transformModule", [tree]);
       return tree;
     },
@@ -19000,7 +19002,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/codegeneration/Fr
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        case 'node':
+        case 'nodeToES6':
           append(NodeModuleTransformer);
         default:
           append(ModuleTransformer);

@@ -119,7 +119,7 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/node-module.js');
 
-    exec(executable + ' --out ' + tempFileName + ' --modules=node -- ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' --modules=nodeToES6 -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);

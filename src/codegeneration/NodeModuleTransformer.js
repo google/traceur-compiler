@@ -59,7 +59,7 @@ class SingleArgumentLiteralFinder extends ParseTreeVisitor {
   }
 
   visitLiteralExpression(tree) {
-    this.found = tree.literalToken.value.slice(1, -1);
+    this.found = tree.literalToken.processedValue;
   }
 }
 
@@ -75,15 +75,16 @@ export class NodeModuleTransformer extends ModuleTransformer {
   }
 
   exportExpression(tree) {
-    return new ExportDefault(null, createMemberExpression('module','exports'));
+    return new ExportDefault(null, createMemberExpression('module', 'exports'));
   }
 
   transformModule(tree) {
-    tree.scriptItemList.unshift(this.moduleDeclarationStatement());
-    tree.scriptItemList.push(this.exportExpression());
-    this.exportVisitor_.addExport('default', this.exportExpression());
+    var scriptItemList = tree.scriptItemList.slice(0);
+    scriptItemList.unshift(this.moduleDeclarationStatement());
+    scriptItemList.push(this.exportExpression());
+    this.exportVisitor.addExport('default', this.exportExpression());
+    tree = new Module(tree.location, scriptItemList, tree.moduleName);
     tree = super(tree);
-
     return tree;
   }
 
@@ -93,7 +94,8 @@ export class NodeModuleTransformer extends ModuleTransformer {
       if (name) {
         // import/module {x} from 'name' is relative to the current file.
         var normalizedName = System.normalize(name, this.moduleName);
-        return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
+        return parseExpression
+            `$traceurRuntime.ModuleStore.get(${normalizedName})`;
       }
     }
     // Do not recurse

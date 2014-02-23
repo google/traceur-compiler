@@ -93,7 +93,7 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        case 'node':
+        case 'nodeToES6':
           append(NodeModuleTransformer);
         default:
           append(ModuleTransformer);
