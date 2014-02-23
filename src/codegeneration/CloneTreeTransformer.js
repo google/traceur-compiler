@@ -46,7 +46,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformBindingIdentifier(tree) {
-    return new BindingIdentifier(tree.location, tree.identifierToken);
+    return new BindingIdentifier(tree.metadata, tree.identifierToken);
   }
 
   /**
@@ -54,7 +54,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformBreakStatement(tree) {
-    return new BreakStatement(tree.location, tree.name);
+    return new BreakStatement(tree.metadata, tree.name);
   }
 
   /**
@@ -62,7 +62,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformContinueStatement(tree) {
-    return new ContinueStatement(tree.location, tree.name);
+    return new ContinueStatement(tree.metadata, tree.name);
   }
 
   /**
@@ -70,7 +70,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformDebuggerStatement(tree) {
-    return new DebuggerStatement(tree.location);
+    return new DebuggerStatement(tree.metadata);
   }
 
   /**
@@ -78,7 +78,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformEmptyStatement(tree) {
-    return new EmptyStatement(tree.location);
+    return new EmptyStatement(tree.metadata);
   }
 
   /**
@@ -86,7 +86,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformExportSpecifier(tree) {
-    return new ExportSpecifier(tree.location, tree.lhs, tree.rhs);
+    return new ExportSpecifier(tree.metadata, tree.lhs, tree.rhs);
   }
 
   /**
@@ -94,7 +94,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformExportStar(tree) {
-    return new ExportStar(tree.location);
+    return new ExportStar(tree.metadata);
   }
 
   /**
@@ -102,7 +102,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformIdentifierExpression(tree) {
-    return new IdentifierExpression(tree.location, tree.identifierToken);
+    return new IdentifierExpression(tree.metadata, tree.identifierToken);
   }
 
   /**
@@ -110,7 +110,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformImportSpecifier(tree) {
-    return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
+    return new ImportSpecifier(tree.metadata, tree.lhs, tree.rhs);
   }
 
   /**
@@ -132,7 +132,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformLiteralExpression(tree) {
-    return new LiteralExpression(tree.location, tree.literalToken);
+    return new LiteralExpression(tree.metadata, tree.literalToken);
   }
 
   /**
@@ -140,7 +140,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    return new ModuleSpecifier(tree.location, tree.token);
+    return new ModuleSpecifier(tree.metadata, tree.token);
   }
 
   /**
@@ -148,7 +148,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformPredefinedType(tree) {
-    return new PredefinedType(tree.location, tree.typeToken);
+    return new PredefinedType(tree.metadata, tree.typeToken);
   }
 
   /**
@@ -156,7 +156,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformPropertyNameShorthand(tree) {
-    return new PropertyNameShorthand(tree.location, tree.name);
+    return new PropertyNameShorthand(tree.metadata, tree.name);
   }
 
   /**
@@ -164,7 +164,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformTemplateLiteralPortion(tree) {
-    return new TemplateLiteralPortion(tree.location, tree.value);
+    return new TemplateLiteralPortion(tree.metadata, tree.value);
   }
 
   /**
@@ -172,7 +172,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformSuperExpression(tree) {
-    return new SuperExpression(tree.location);
+    return new SuperExpression(tree.metadata);
   }
 
   /**
@@ -180,7 +180,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformThisExpression(tree) {
-    return new ThisExpression(tree.location);
+    return new ThisExpression(tree.metadata);
   }
 }
 

@@ -39,7 +39,7 @@ export class RestParameterTransformer extends ParameterTransformer {
     var transformed = super(tree);
     if (hasRestParameter(transformed)) {
       var parametersWithoutRestParam = new FormalParameterList(
-          transformed.location,
+          transformed.metadata,
           transformed.parameters.slice(0, -1));
 
       var startIndex = transformed.parameters.length - 1;

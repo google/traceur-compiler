@@ -33,11 +33,11 @@ export class AttachModuleNameTransformer extends ParseTreeTransformer {
   }
 
   transformModule(tree) {
-    return new Module(tree.location, tree.scriptItemList, this.moduleName_);
+    return new Module(tree.metadata, tree.scriptItemList, this.moduleName_);
   }
 
   transformScript(tree) {
-    return new Script(tree.location, tree.scriptItemList, this.moduleName_);
+    return new Script(tree.metadata, tree.scriptItemList, this.moduleName_);
   }
 }
 

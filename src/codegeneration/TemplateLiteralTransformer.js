@@ -95,10 +95,10 @@ function maybeAddEmptyStringAtEnd(elements, items) {
 function createRawStringArray(elements) {
   var items = [];
   for (var i = 0; i < elements.length; i += 2) {
-    var str = replaceRaw(JSON.stringify(elements[i].value.value));
-    var loc = elements[i].location;
-    var expr = new LiteralExpression(loc, new LiteralToken(STRING,
-                                                           str, loc));
+    var element = elements[i];
+    var str = replaceRaw(JSON.stringify(element.value.value));
+    var expr = new LiteralExpression(
+        element.metadata, new LiteralToken(STRING, str, element.location));
     items.push(expr);
   }
   maybeAddEmptyStringAtEnd(elements, items);
@@ -107,8 +107,8 @@ function createRawStringArray(elements) {
 
 function createCookedStringLiteralExpression(tree) {
   var str = cookString(tree.value.value);
-  var loc = tree.location;
-  return new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
+  return new LiteralExpression(
+      tree.metadata, new LiteralToken(STRING, str, tree.location));
 }
 
 function createCookedStringArray(elements) {
@@ -260,9 +260,8 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
     // convert to ("a" + b + "c" + d + "")
     var length = tree.elements.length;
     if (length === 0) {
-      var loc = tree.location;
-      return new LiteralExpression(loc, new LiteralToken(STRING,
-                                                         '""', loc));
+      return new LiteralExpression(
+          tree.metadata, new LiteralToken(STRING, '""', tree.location));
     }
 
     var firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;

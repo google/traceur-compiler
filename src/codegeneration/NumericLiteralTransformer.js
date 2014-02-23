@@ -36,14 +36,14 @@ export class NumericLiteralTransformer extends ParseTreeTransformer {
   transformLiteralExpression(tree) {
     var token = tree.literalToken;
     if (needsTransform(token))
-      return new LiteralExpression(tree.location, transformToken(token));
+      return new LiteralExpression(tree.metadata, transformToken(token));
     return tree;
   }
 
   transformLiteralPropertyName(tree) {
     var token = tree.literalToken;
     if (needsTransform(token))
-      return new LiteralPropertyName(tree.location, transformToken(token));
+      return new LiteralPropertyName(tree.metadata, transformToken(token));
     return tree;
   }
 }

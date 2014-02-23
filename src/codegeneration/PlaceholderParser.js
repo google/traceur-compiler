@@ -34,6 +34,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {SourceFile} from '../syntax/SourceFile';
 import {IDENTIFIER} from '../syntax/TokenType';
+import asMetadata from '../util/asMetadata';
 import {
   createArrayLiteralExpression,
   createBindingIdentifier,
@@ -217,7 +218,7 @@ function convertValueToExpression(value) {
   if (value instanceof IdentifierToken)
     return createIdentifierExpression(value);
   if (value instanceof LiteralToken)
-    return new LiteralExpression(value.location, value);
+    return new LiteralExpression(asMetadata(value.location), value);
   if (Array.isArray(value)) {
     if (value[0] instanceof ParseTree) {
       if (value.length === 1)

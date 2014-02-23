@@ -23,6 +23,7 @@ import {
   SpreadPatternElement
 } from '../syntax/trees/ParseTrees';
 import {EQUAL} from '../syntax/TokenType';
+import asMetadata from '../util/asMetadata';
 
 /**
  * @fileoverview This transformer is used by the parser to transform a
@@ -47,37 +48,37 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
     var bindingElement = this.transformAny(tree.left);
     if (bindingElement instanceof BindingElement)
       bindingElement = bindingElement.binding;
-    return new BindingElement(tree.location, bindingElement, tree.right);
+    return new BindingElement(tree.metadata, bindingElement, tree.right);
   }
 
   transformArrayLiteralExpression(tree) {
     var elements = this.transformList(tree.elements);
-    return new ArrayPattern(tree.location, elements);
+    return new ArrayPattern(tree.metadata, elements);
   }
 
   transformCoverInitialisedName(tree) {
     // TODO(arv): Should be AssignmentElement.
-    return new BindingElement(tree.location,
-        new BindingIdentifier(tree.name.location, tree.name),
+    return new BindingElement(tree.metadata,
+        new BindingIdentifier(asMetadata(tree.name.location), tree.name),
         this.transformAny(tree.initialiser));
   }
 
   transformObjectLiteralExpression(tree) {
     var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
-    return new ObjectPattern(tree.location, propertyNameAndValues);
+    return new ObjectPattern(tree.metadata, propertyNameAndValues);
   }
 
   transformPropertyNameAssignment(tree) {
-    return new ObjectPatternField(tree.location, tree.name,
+    return new ObjectPatternField(tree.metadata, tree.name,
                                   this.transformAny(tree.value));
   }
 
   transformPropertyNameShorthand(tree) {
-    return new IdentifierExpression(tree.location, tree.name);
+    return new IdentifierExpression(tree.metadata, tree.name);
   }
 
   transformSpreadExpression(tree) {
-    return new SpreadPatternElement(tree.location, tree.expression);
+    return new SpreadPatternElement(tree.metadata, tree.expression);
   }
 
   transformSyntaxErrorTree(tree) {

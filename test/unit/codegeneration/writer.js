@@ -23,33 +23,33 @@ suite('writer.js', function() {
 
   test('WriteStatement', function() {
     var tree = new trees.Script(
-      'loc',
+      null,
       [new trees.VariableStatement(
-        'loc',
+        null,
         new trees.VariableDeclarationList(
-          'loc',
+          null,
           'var',
           [new trees.VariableDeclaration(
-            'loc',
-            new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
             null,
-            new trees.LiteralExpression('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]
+            new trees.IdentifierExpression(null, new IdentifierToken(null, 'x')),
+            null,
+            new trees.LiteralExpression(null, new LiteralToken(TokenType.NUMBER, '1', null)))]
         )
       ),
       new trees.IfStatement(
-        'loc',
+        null,
         new trees.BinaryOperator(
-          'loc',
-          new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
-          new Token(TokenType.CLOSE_ANGLE, 'loc'),
-          new trees.LiteralExpression('loc', new LiteralToken(TokenType.NUMBER, '0', 'loc'))
+          null,
+          new trees.IdentifierExpression(null, new IdentifierToken(null, 'x')),
+          new Token(TokenType.CLOSE_ANGLE, null),
+          new trees.LiteralExpression(null, new LiteralToken(TokenType.NUMBER, '0', null))
         ),
         new trees.Block(
-          'loc',
+          null,
           [new trees.PostfixExpression(
-            'loc',
-            new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
-            new Token(TokenType.PLUS_PLUS, 'loc')
+            null,
+            new trees.IdentifierExpression(null, new IdentifierToken(null, 'x')),
+            new Token(TokenType.PLUS_PLUS, null)
           )]
         ),
         null

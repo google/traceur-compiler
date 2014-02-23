@@ -36,12 +36,12 @@ export class MakeStrictTransformer extends ParseTreeTransformer {
     if (hasUseStrict(tree.scriptItemList))
       return tree;
 
-    return new Script(tree.location, prepend(tree.scriptItemList));
+    return new Script(tree.metadata, prepend(tree.scriptItemList));
   }
   transformFunctionBody(tree) {
     if (hasUseStrict(tree.statements))
       return tree;
-    return new FunctionBody(tree.location, prepend(tree.statements));
+    return new FunctionBody(tree.metadata, prepend(tree.statements));
   }
 
   static transformTree(tree) {

@@ -84,7 +84,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformVariableDeclaration(tree) {
     if (tree.typeAnnotation) {
-      tree = new VariableDeclaration(tree.location, tree.lvalue,
+      tree = new VariableDeclaration(tree.metadata, tree.lvalue,
           tree.typeAnnotation,
           this.assertType_(tree.initialiser, tree.typeAnnotation));
     }
@@ -163,7 +163,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     tree = super(tree);
     var expression = this.assertType_(tree.expression, this.returnType_);
     if (tree.expression !== expression)
-      return new ReturnStatement(tree.location, expression);
+      return new ReturnStatement(tree.metadata, expression);
     return tree;
   }
 
@@ -201,7 +201,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
             [new ImportSpecifier(null, createIdentifierToken('assert'), null)]),
         new ModuleSpecifier(null,
             createStringLiteralToken(options.typeAssertionModule)));
-    tree = new Ctor(tree.location,
+    tree = new Ctor(tree.metadata,
                     [importStatement, ...tree.scriptItemList],
                     tree.moduleName);
     return tree;

@@ -270,7 +270,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.body);
     var parameter = this.transformAny(tree.parameter);
-    var parameterList = new FormalParameterList(parameter.location,
+    var parameterList = new FormalParameterList(parameter.metadata,
                                                 [parameter]);
     var func = createFunctionExpression(parameterList, body);
     return this.createProperty_(tree.name,
@@ -282,7 +282,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyMethodAssignment(tree) {
-    var func = new FunctionExpression(tree.location, null, tree.isGenerator,
+    var func = new FunctionExpression(tree.metadata, null, tree.isGenerator,
         this.transformAny(tree.formalParameterList), tree.typeAnnotation, [],
         this.transformAny(tree.functionBody));
     if (!this.needsAdvancedTransform) {
@@ -309,7 +309,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,
         {
-          value: new IdentifierExpression(tree.location, tree.name.identifierToken),
+          value: new IdentifierExpression(tree.metadata, tree.name.identifierToken),
           configurable: true,
           enumerable: false,
           writable: true

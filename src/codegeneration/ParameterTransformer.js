@@ -74,7 +74,7 @@ export class ParameterTransformer extends TempVarTransformer {
     statements = prependStatements(transformedTree.statements,
                                    ...statements);
 
-    return new FunctionBody(transformedTree.location, statements);
+    return new FunctionBody(transformedTree.metadata, statements);
   }
 
   get parameterStatements() {

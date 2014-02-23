@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+import {ParseTree} from '../syntax/trees/ParseTree';
+
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   AS,
@@ -203,6 +206,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     // set background color to red if tree is highlighted
     if (tree === this.highlighted_) {
       this.write_('\x1B[41m');
+    }
+
+    if (tree.location === undefined) {
+      console.error(tree instanceof ParseTree);
+      console.error(tree);
     }
 
     if (tree.location !== null &&
