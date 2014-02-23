@@ -201,6 +201,7 @@ export class PlaceholderParser {
     var errorReporter = new MutedErrorReporter();
     var parser = new Parser(file, errorReporter);
     var tree = doParse(parser);
+    // To debug internal errors, see MutedErrorReporter.
     if (errorReporter.hadError() || !tree || !parser.isAtEnd())
       throw new Error(`Internal error trying to parse:\n\n${source}`);
     return tree;

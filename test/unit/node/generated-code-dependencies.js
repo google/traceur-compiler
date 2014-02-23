@@ -114,6 +114,21 @@ suite('context test', function() {
         });
   });
 
+ test('compiled modules node', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/node-module.js');
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=node -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          executeFileWithRuntime(tempFileName);
+          var module = System.get('test/unit/node/resources/node-module');
+          assert(module);
+          assert(typeof module.default === 'function');
+          done();
+        });
+  });
 
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');

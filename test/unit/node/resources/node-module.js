@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from './ErrorReporter';
+var fs = require('fs');
 
-/**
- * An error reporter that doesn't output errors; it just records
- * whether an error occurred.
- *
- * <p>{@code MutedErrorReporter} instances are used by the parser to
- * observe whether speculative parses fail before committing to
- * parsing them.
- */
-export class MutedErrorReporter extends ErrorReporter {
-  reportMessageInternal(location, format, args) {
-    // For debugging use: super.reportMessageInternal(location, format, args);
-    // message.dropOn(floor);
-  }
+function testNode(callback) {
+  fs.readFile('./node-module.js', 'utf8', function(err, data) {
+    if (!data)
+      throw new Error('node-module test fails');
+    callback();
+  });
 }
+
+module.exports = testNode;

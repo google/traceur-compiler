@@ -29,6 +29,7 @@ import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {InlineModuleTransformer} from './InlineModuleTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
+import {NodeModuleTransformer} from './NodeModuleTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {ObjectMap} from '../util/ObjectMap';
@@ -92,6 +93,8 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
+        case 'node':
+          append(NodeModuleTransformer);
         default:
           append(ModuleTransformer);
       }
