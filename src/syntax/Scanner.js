@@ -155,7 +155,7 @@ for (var i = 0; i < 128; i++) {
       i === 0x20;  // Space
 }
 
-function isWhitespace(code) {
+export function isWhitespace(code) {
   if (code < 128)
     return isWhitespaceArray[code];
   switch (code) {
@@ -221,7 +221,7 @@ for (var i = 0; i < 128; i++) {
   isIdentifierPartArray[i] = isIdentifierStart(i) || isDecimalDigit(i);
 }
 
-function isIdentifierPart(code) {
+export function isIdentifierPart(code) {
   return code < 128 ? isIdentifierPartArray[code] :
       inTable(idStartTable, code) || inTable(idContinueTable, code) ||
       code === 8204 || code === 8205;  // <ZWNJ>, <ZWJ>
