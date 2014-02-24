@@ -46,8 +46,13 @@ COMPILE_BEFORE_TEST = \
 	test/unit/semantics/FreeVariableChecker.generated.js \
 	test/unit/codegeneration/PlaceholderParser.generated.js
 
+
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
+
+ifdef ONLY
+	MOCHA_OPTIONS := $(MOCHA_OPTIONS) --grep $(ONLY)
+endif
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -83,7 +88,7 @@ test/amd: test/amd-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-amd-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-feature-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(MOCHAX) test/node-feature-test.js
 
 test-list: test/test-list.js
 
