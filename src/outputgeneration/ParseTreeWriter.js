@@ -208,11 +208,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_('\x1B[41m');
     }
 
-    if (tree.location === undefined) {
-      console.error(tree instanceof ParseTree);
-      console.error(tree);
-    }
-
     if (tree.location !== null &&
         tree.location.start !== null && this.showLineNumbers_) {
         var line = tree.location.start.line + 1;

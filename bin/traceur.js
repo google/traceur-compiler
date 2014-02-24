@@ -5447,10 +5447,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/outputgeneration/
       if (tree === this.highlighted_) {
         this.write_('\x1B[41m');
       }
-      if (tree.location === undefined) {
-        console.error(tree instanceof ParseTree);
-        console.error(tree);
-      }
       if (tree.location !== null && tree.location.start !== null && this.showLineNumbers_) {
         var line = tree.location.start.line + 1;
         var column = tree.location.start.column;
