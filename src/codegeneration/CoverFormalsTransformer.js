@@ -57,14 +57,14 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
 
   transformCoverFormals(tree) {
     var expressions = this.transformList(tree.expressions).map((expression) => {
-      return new FormalParameter(expression.location, expression, null, []);
+      return new FormalParameter(expression.metadata, expression, null, []);
     });
-    return new FormalParameterList(tree.location, expressions);
+    return new FormalParameterList(tree.metadata, expressions);
   }
 
   transformIdentifierExpression(tree) {
-    return new BindingElement(tree.location,
-        new BindingIdentifier(tree.location, tree.identifierToken),
+    return new BindingElement(tree.metadata,
+        new BindingIdentifier(tree.metadata, tree.identifierToken),
         null);
   }
 
@@ -76,7 +76,7 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
     var bindingElement = this.transformAny(tree.left);
     if (bindingElement instanceof BindingElement)
       bindingElement = bindingElement.binding;
-    return new BindingElement(tree.location,
+    return new BindingElement(tree.metadata,
                               bindingElement,
                               tree.right);
   }
@@ -97,32 +97,32 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
             'Unexpected token ...');
     }
 
-    return new BindingElement(tree.location,
-                              new ArrayPattern(tree.location, elements),
+    return new BindingElement(tree.metadata,
+                              new ArrayPattern(tree.metadata, elements),
                               null);
   }
 
   transformObjectLiteralExpression(tree) {
     var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
 
-    return new BindingElement(tree.location,
-        new ObjectPattern(tree.location, propertyNameAndValues), null);
+    return new BindingElement(tree.metadata,
+        new ObjectPattern(tree.metadata, propertyNameAndValues), null);
   }
 
   transformCoverInitialisedName(tree) {
-    return new BindingElement(tree.location,
-                              new BindingIdentifier(tree.location, tree.name),
+    return new BindingElement(tree.metadata,
+                              new BindingIdentifier(tree.metadata, tree.name),
                               tree.initialiser);
   }
 
   transformPropertyNameAssignment(tree) {
-    return new ObjectPatternField(tree.location, tree.name,
+    return new ObjectPatternField(tree.metadata, tree.name,
                                   this.transformAny(tree.value));
   }
 
   transformPropertyNameShorthand(tree) {
-    return new BindingElement(tree.location,
-                              new BindingIdentifier(tree.location, tree.name),
+    return new BindingElement(tree.metadata,
+                              new BindingIdentifier(tree.metadata, tree.name),
                               null);
   }
 
@@ -133,12 +133,12 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
           'identifier expected');
 
     var bindingIdentifier =
-        new BindingIdentifier(tree.expression.location,
+        new BindingIdentifier(tree.expression.metadata,
                               tree.expression.identifierToken);
 
     if (this.inArrayPattern_)
-      return new SpreadPatternElement(tree.location, bindingIdentifier);
-    return new RestParameter(tree.location, bindingIdentifier);
+      return new SpreadPatternElement(tree.metadata, bindingIdentifier);
+    return new RestParameter(tree.metadata, bindingIdentifier);
   }
 
   transformSyntaxErrorTree(tree) {
@@ -156,7 +156,7 @@ export function toParenExpression(tree) {
   var length = expressions.length;
 
   if (length === 0)
-    throw new CoverFormalsTransformerError(tree.location,
+    throw new CoverFormalsTransformerError(tree.metadata,
         'Unexpected token )');
 
   for (var i = 0; i < length; i++) {
@@ -167,12 +167,12 @@ export function toParenExpression(tree) {
 
   var expression;
   if (expressions.length > 1) {
-    expression = new CommaExpression(expressions[0].location,
+    expression = new CommaExpression(expressions[0].metadata,
                                      expressions);
   } else  {
     expression = expressions[0];
   }
-  return new ParenExpression(tree.location, expression);
+  return new ParenExpression(tree.metadata, expression);
 }
 
 /**

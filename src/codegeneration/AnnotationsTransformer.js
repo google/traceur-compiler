@@ -126,7 +126,7 @@ class AnnotationsScope {
     scope.annotations.push(...tree.annotations);
     var declaration = this.transformAny(tree.declaration);
     if (declaration !== tree.declaration || tree.annotations.length > 0)
-      tree = new ExportDeclaration(tree.location, declaration, []);
+      tree = new ExportDeclaration(tree.metadata, declaration, []);
     return this.appendMetadata_(tree);
   }
 
@@ -146,7 +146,7 @@ class AnnotationsScope {
         scope.constructorParameters));
 
     if (tree.annotations.length > 0) {
-      tree = new ClassDeclaration(tree.location, tree.name,
+      tree = new ClassDeclaration(tree.metadata, tree.name,
           tree.superClass, tree.elements, []);
     }
     return this.appendMetadata_(tree);
@@ -164,7 +164,7 @@ class AnnotationsScope {
 
     tree = super(tree);
     if (tree.annotations.length > 0) {
-      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionDeclaration(tree.metadata, tree.name, tree.isGenerator,
           tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
     }
     return this.appendMetadata_(tree);
@@ -172,7 +172,7 @@ class AnnotationsScope {
 
   transformFormalParameter(tree) {
     if (tree.annotations.length > 0) {
-      tree = new FormalParameter(tree.location, tree.parameter,
+      tree = new FormalParameter(tree.metadata, tree.parameter,
           tree.typeAnnotation, []);
     }
     return super(tree);
@@ -188,7 +188,7 @@ class AnnotationsScope {
         []));
 
     if (tree.annotations.length > 0) {
-      tree = new GetAccessor(tree.location, tree.isStatic, tree.name,
+      tree = new GetAccessor(tree.metadata, tree.isStatic, tree.name,
           tree.typeAnnotation, [], tree.body);
     }
     return super(tree);
@@ -205,7 +205,7 @@ class AnnotationsScope {
 
     var parameter = this.transformAny(tree.parameter);
     if (parameter !== tree.parameter || tree.annotations.length > 0) {
-      tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
+      tree = new SetAccessor(tree.metadata, tree.isStatic, tree.name,
           parameter, [], tree.body);
     }
     return super(tree);
@@ -228,7 +228,7 @@ class AnnotationsScope {
     var formalParameters = this.transformAny(tree.formalParameterList);
     if (formalParameters !== tree.formalParameterList ||
         tree.annotations.length > 0) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+      tree = new PropertyMethodAssignment(tree.metadata, tree.isStatic,
           tree.isGenerator, tree.name, formalParameters,
           tree.typeAnnotation, [], tree.functionBody);
     }

@@ -103,6 +103,6 @@ export class DefaultParametersTransformer extends ParameterTransformer {
     if (!changed)
       return tree;
 
-    return new FormalParameterList(tree.location, parameters);
+    return new FormalParameterList(tree.metadata, parameters);
   }
 }

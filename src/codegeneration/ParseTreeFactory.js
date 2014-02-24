@@ -411,7 +411,7 @@ export function createBindingIdentifier(identifier) {
   else if (identifier.type === ParseTreeType.BINDING_IDENTIFIER)
     return identifier;
   else if (identifier.type === ParseTreeType.IDENTIFIER_EXPRESSION)
-    return new BindingIdentifier(identifier.location,
+    return new BindingIdentifier(identifier.metadata,
                                  identifier.identifierToken);
   return new BindingIdentifier(null, identifier);
 }

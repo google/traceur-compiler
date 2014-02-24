@@ -26,8 +26,8 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
  */
 export class PropertyNameShorthandTransformer extends ParseTreeTransformer {
   transformPropertyNameShorthand(tree) {
-    return new PropertyNameAssignment(tree.location,
-        new LiteralPropertyName(tree.location, tree.name),
-        new IdentifierExpression(tree.location, tree.name));
+    return new PropertyNameAssignment(tree.metadata,
+        new LiteralPropertyName(tree.metadata, tree.name),
+        new IdentifierExpression(tree.metadata, tree.name));
   }
 }

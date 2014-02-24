@@ -1,7 +1,7 @@
 {
   "Annotation": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "ParseTree"
@@ -11,24 +11,24 @@
     ]
   },
   "AnonBlock": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "statements": [
       "Array.<ParseTree>"
     ]
   },
   "ArgumentList": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "args": [
       "Array.<ParseTree>"
     ]
   },
   "ArrayComprehension": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "comprehensionList": [
       "Array.<ParseTree>"
@@ -38,24 +38,24 @@
     ]
   },
   "ArrayLiteralExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "elements": [
       "Array.<ParseTree>"
     ]
   },
   "ArrayPattern": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "elements": [
       "Array.<ParseTree>"
     ]
   },
   "ArrowFunctionExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "formalParameters": [
       "FormalParameterList"
@@ -65,8 +65,8 @@
     ]
   },
   "AwaitStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "identifier": [
       "IdentifierToken"
@@ -76,8 +76,8 @@
     ]
   },
   "BinaryOperator": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "left": [
       "ParseTree"
@@ -90,8 +90,8 @@
     ]
   },
   "BindingElement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "binding": [
       "BindingIdentifier",
@@ -103,32 +103,32 @@
     ]
   },
   "BindingIdentifier": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "identifierToken": [
       "IdentifierToken"
     ]
   },
   "Block": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "statements": [
       "Array.<ParseTree>"
     ]
   },
   "BreakStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "IdentifierToken"
     ]
   },
   "CallExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -138,8 +138,8 @@
     ]
   },
   "CaseClause": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
@@ -149,8 +149,8 @@
     ]
   },
   "Catch": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "binding": [
       "ParseTree"
@@ -160,8 +160,8 @@
     ]
   },
   "ClassDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "BindingIdentifier"
@@ -177,8 +177,8 @@
     ]
   },
   "ClassExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "BindingIdentifier"
@@ -194,16 +194,16 @@
     ]
   },
   "CommaExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expressions": [
       "Array.<ParseTree>"
     ]
   },
   "ComprehensionFor": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "left": [
       "ParseTree"
@@ -213,24 +213,24 @@
     ]
   },
   "ComprehensionIf": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "ComputedPropertyName": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "ConditionalExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "condition": [
       "ParseTree"
@@ -243,24 +243,24 @@
     ]
   },
   "ContinueStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "IdentifierToken"
     ]
   },
   "CoverFormals": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expressions": [
       "Array.<ParseTree>"
     ]
   },
   "CoverInitialisedName": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "Token"
@@ -273,21 +273,21 @@
     ]
   },
   "DebuggerStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ]
   },
   "DefaultClause": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "statements": [
       "Array.<ParseTree>"
     ]
   },
   "DoWhileStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "body": [
       "ParseTree"
@@ -297,13 +297,13 @@
     ]
   },
   "EmptyStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ]
   },
   "ExportDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "declaration": [
       "ParseTree"
@@ -313,16 +313,16 @@
     ]
   },
   "ExportDefault": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "ExportSpecifier": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "lhs": [
       "IdentifierToken"
@@ -332,37 +332,37 @@
     ]
   },
   "ExportSpecifierSet": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "specifiers": [
       "Array.<ExportSpecifier>"
     ]
   },
   "ExportStar": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ]
   },
   "ExpressionStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "Finally": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "block": [
       "Block"
     ]
   },
   "ForInStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "initialiser": [
       "ParseTree"
@@ -375,8 +375,8 @@
     ]
   },
   "ForOfStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "initialiser": [
       "ParseTree"
@@ -389,8 +389,8 @@
     ]
   },
   "ForStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "initialiser": [
       "ParseTree"
@@ -406,8 +406,8 @@
     ]
   },
   "FormalParameter": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "parameter": [
       "BindingElement",
@@ -421,16 +421,16 @@
     ]
   },
   "FormalParameterList": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "parameters": [
       "Array.<FormalParameter>"
     ]
   },
   "FunctionBody": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "statements": [
       "Array.<ParseTree>"
@@ -438,8 +438,8 @@
   },
   "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
   "FunctionDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "BindingIdentifier"
@@ -461,8 +461,8 @@
     ]
   },
   "FunctionExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "BindingIdentifier"
@@ -484,8 +484,8 @@
     ]
   },
   "GeneratorComprehension": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "comprehensionList": [
       "Array.<ParseTree>"
@@ -495,8 +495,8 @@
     ]
   },
   "GetAccessor": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "isStatic": [
       "boolean"
@@ -515,16 +515,16 @@
     ]
   },
   "IdentifierExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "identifierToken": [
       "IdentifierToken"
     ]
   },
   "IfStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "condition": [
       "ParseTree"
@@ -537,16 +537,16 @@
     ]
   },
   "ImportedBinding": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "binding": [
       "ParseTree"
     ]
   },
   "ImportDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "importClause": [
       "ParseTree"
@@ -556,8 +556,8 @@
     ]
   },
   "ImportSpecifier": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "lhs": [
       "IdentifierToken"
@@ -567,8 +567,8 @@
     ]
   },
   "ImportSpecifierSet": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "specifiers": [
       "Array.<ImportSpecifier>",
@@ -576,8 +576,8 @@
     ]
   },
   "LabelledStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "IdentifierToken"
@@ -587,24 +587,24 @@
     ]
   },
   "LiteralExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "literalToken": [
       "Token"
     ]
   },
   "LiteralPropertyName": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "literalToken": [
       "Token"
     ]
   },
   "MemberExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -614,8 +614,8 @@
     ]
   },
   "MemberLookupExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -625,8 +625,8 @@
     ]
   },
   "Module": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
@@ -636,8 +636,8 @@
     ]
   },
   "ModuleDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "identifier": [
       "IdentifierToken"
@@ -647,16 +647,16 @@
     ]
   },
   "ModuleSpecifier": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "token": [
       "Token"
     ]
   },
   "NamedExport": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "moduleSpecifier": [
       "ParseTree"
@@ -666,8 +666,8 @@
     ]
   },
   "NewExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -677,24 +677,24 @@
     ]
   },
   "ObjectLiteralExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "propertyNameAndValues": [
       "Array.<ParseTree>"
     ]
   },
   "ObjectPattern": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "fields": [
       "Array.<ParseTree>"
     ]
   },
   "ObjectPatternField": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "ParseTree"
@@ -704,16 +704,16 @@
     ]
   },
   "ParenExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "PostfixExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -723,16 +723,16 @@
     ]
   },
   "PredefinedType": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "typeToken": [
       "Token"
     ]
   },
   "Script": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
@@ -742,8 +742,8 @@
     ]
   },
   "PropertyMethodAssignment": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "isStatic": [
       "boolean"
@@ -768,8 +768,8 @@
     ]
   },
   "PropertyNameAssignment": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "ParseTree"
@@ -779,32 +779,32 @@
     ]
   },
   "PropertyNameShorthand": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "name": [
       "IdentifierToken"
     ]
   },
   "RestParameter": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "identifier": [
       "BindingIdentifier"
     ]
   },
   "ReturnStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "SetAccessor": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "isStatic": [
       "boolean"
@@ -823,29 +823,29 @@
     ]
   },
   "SpreadExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "SpreadPatternElement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "lvalue": [
       "ParseTree"
     ]
   },
   "SuperExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ]
   },
   "SwitchStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
@@ -855,8 +855,8 @@
     ]
   },
   "SyntaxErrorTree": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "nextToken": [
       "Token"
@@ -866,8 +866,8 @@
     ]
   },
   "TemplateLiteralExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operand": [
       "ParseTree"
@@ -877,37 +877,37 @@
     ]
   },
   "TemplateLiteralPortion": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "value": [
       "Token"
     ]
   },
   "TemplateSubstitution": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
     ]
   },
   "ThisExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ]
   },
   "ThrowStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "value": [
       "ParseTree"
     ]
   },
   "TryStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "body": [
       "Block"
@@ -920,8 +920,8 @@
     ]
   },
   "TypeName": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "moduleName": [
       "TypeName"
@@ -931,8 +931,8 @@
     ]
   },
   "UnaryExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "operator": [
       "Token"
@@ -942,8 +942,8 @@
     ]
   },
   "VariableDeclaration": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "lvalue": [
       "ParseTree"
@@ -956,8 +956,8 @@
     ]
   },
   "VariableDeclarationList": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "declarationType": [
       "TokenType"
@@ -967,16 +967,16 @@
     ]
   },
   "VariableStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "declarations": [
       "VariableDeclarationList"
     ]
   },
   "WhileStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "condition": [
       "ParseTree"
@@ -986,8 +986,8 @@
     ]
   },
   "WithStatement": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"
@@ -997,8 +997,8 @@
     ]
   },
   "YieldExpression": {
-    "location": [
-      "SourceRange"
+    "metadata": [
+      "Object"
     ],
     "expression": [
       "ParseTree"

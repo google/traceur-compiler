@@ -33,7 +33,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformVariableDeclaration(tree) {
     if (tree.typeAnnotation) {
-      tree = new VariableDeclaration(tree.location, tree.lvalue, null,
+      tree = new VariableDeclaration(tree.metadata, tree.lvalue, null,
           tree.initialiser);
     }
     return super.transformVariableDeclaration(tree);
@@ -45,7 +45,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFormalParameter(tree) {
     if (tree.typeAnnotation !== null)
-      return new FormalParameter(tree.location, tree.parameter, null, []);
+      return new FormalParameter(tree.metadata, tree.parameter, null, []);
     return tree;
   }
 
@@ -55,7 +55,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFunctionDeclaration(tree) {
     if (tree.typeAnnotation) {
-      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionDeclaration(tree.metadata, tree.name, tree.isGenerator,
           tree.formalParameterList, null, tree.annotations, tree.functionBody);
     }
 
@@ -68,7 +68,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFunctionExpression(tree) {
     if (tree.typeAnnotation) {
-      tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionExpression(tree.metadata, tree.name, tree.isGenerator,
           tree.formalParameterList, null, tree.annotations, tree.functionBody);
     }
 
@@ -81,7 +81,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformPropertyMethodAssignment(tree) {
     if (tree.typeAnnotation) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+      tree = new PropertyMethodAssignment(tree.metadata, tree.isStatic,
           tree.isGenerator, tree.name, tree.formalParameterList, null,
           tree.annotations, tree.functionBody);
     }
@@ -95,7 +95,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformGetAccessor(tree) {
     if (tree.typeAnnotation) {
-      tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null,
+      tree = new GetAccessor(tree.metadata, tree.isStatic, tree.name, null,
           tree.annotations, tree.body);
     }
 

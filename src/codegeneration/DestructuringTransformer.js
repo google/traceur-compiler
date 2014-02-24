@@ -362,7 +362,7 @@ export class DestructuringTransformer extends ParameterTransformer {
 
     this.popTempVarState();
 
-    return new constr(tree.location, initialiser, collection, body);
+    return new constr(tree.metadata, initialiser, collection, body);
   }
 
   transformBindingElement(tree) {
@@ -402,7 +402,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     var kind = options.blockBinding ? LET : VAR;
     var binding = this.desugarBinding_(tree.binding, statements, kind);
     statements.push(...body.statements);
-    return new Catch(tree.location, binding, createBlock(statements));
+    return new Catch(tree.metadata, binding, createBlock(statements));
   }
 
   /**

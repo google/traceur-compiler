@@ -90,7 +90,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
     statements = this.wrapModule(statements);
 
-    return new Script(tree.location, statements);
+    return new Script(tree.metadata, statements);
   }
 
   wrapModule(statements) {
@@ -215,7 +215,7 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformImportedBinding(tree) {
-    var bindingElement = new BindingElement(tree.location, tree.binding, null);
+    var bindingElement = new BindingElement(tree.metadata, tree.binding, null);
     var name = new LiteralPropertyName(null, createIdentifierToken('default'));
     return new ObjectPattern(null,
         [new ObjectPatternField(null, name, bindingElement)]);
@@ -250,12 +250,14 @@ export class ModuleTransformer extends TempVarTransformer {
 
   transformImportSpecifier(tree) {
     if (tree.rhs) {
-      var binding = new BindingIdentifier(tree.location, tree.rhs);
-      var bindingElement = new BindingElement(tree.location, binding, null);
-      var name = new LiteralPropertyName(tree.lhs.location, tree.lhs);
-      return new ObjectPatternField(tree.location, name, bindingElement);
+      var binding = new BindingIdentifier(tree.metadata, tree.rhs);
+      var bindingElement = new BindingElement(tree.metadata, binding, null);
+      var name = new LiteralPropertyName(tree.metadata, tree.lhs);
+      return new ObjectPatternField(tree.metadata, name, bindingElement);
     }
-    return new BindingElement(tree.location,
+    return new BindingElement(tree.metadata,
         createBindingIdentifier(tree.lhs), null);
   }
 }
+
+

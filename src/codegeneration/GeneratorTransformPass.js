@@ -396,7 +396,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
       return tree;
 
     return new GetAccessor(
-        tree.location,
+        tree.metadata,
         tree.isStatic,
         tree.name,
         tree.typeAnnotation,
@@ -414,7 +414,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
       return tree;
 
     return new SetAccessor(
-        tree.location,
+        tree.metadata,
         tree.isStatic,
         tree.name,
         tree.parameter,

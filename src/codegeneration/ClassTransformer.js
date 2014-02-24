@@ -207,7 +207,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!hasConstructor) {
       func = this.getDefaultConstructor_(tree, internalName);
     } else {
-      func = new FunctionExpression(tree.location, tree.name, false,
+      func = new FunctionExpression(tree.metadata, tree.name, false,
                                     constructorParams, null, [],
                                     constructorBody);
     }
@@ -319,7 +319,7 @@ export class ClassTransformer extends TempVarTransformer{
     }
 
     var isStatic = false;
-    return new PropertyMethodAssignment(tree.location, isStatic,
+    return new PropertyMethodAssignment(tree.metadata, isStatic,
         tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation,
         tree.annotations, functionBody);
   }
@@ -329,7 +329,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
-    return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation,
+    return new GetAccessor(tree.metadata, false, tree.name, tree.typeAnnotation,
                            tree.annotations, body);
   }
 
@@ -338,7 +338,7 @@ export class ClassTransformer extends TempVarTransformer{
     var body = this.transformSuperInFunctionBody_(tree, tree.body, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
-    return new SetAccessor(tree.location, false, tree.name, parameter,
+    return new SetAccessor(tree.metadata, false, tree.name, parameter,
                            tree.annotations, body);
   }
 
@@ -376,7 +376,7 @@ export class ClassTransformer extends TempVarTransformer{
       constructorBody = createFunctionBody([]);
     }
 
-    return new FunctionExpression(tree.location, tree.name, false,
+    return new FunctionExpression(tree.metadata, tree.name, false,
                                   constructorParams, null, [], constructorBody);
   }
 }

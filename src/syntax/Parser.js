@@ -58,6 +58,7 @@ import {
   Token,
   isAssignmentOperator
 } from './Token';
+import asMetadata from '../util/asMetadata';
 import {
   parseOptions,
   options
@@ -310,7 +311,7 @@ var Initialiser = {
  * XTree this.parseX_() {
  *   var start = this.getTreeStartLocation_();
  *   parse X grammar element and its children
- *   return new XTree(this.getTreeLocation_(start), children);
+ *   return new XTree(this.getMetadata_(start), children);
  * }
  *
  * this.parseX_() methods must consume at least 1 token - even in error cases.
@@ -373,7 +374,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseScriptItemList_();
     this.eat_(END_OF_FILE);
-    return new Script(this.getTreeLocation_(start), scriptItemList);
+    return new Script(this.getMetadata_(start), scriptItemList);
   }
 
   // ScriptItemList :
@@ -428,7 +429,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
-    return new Module(this.getTreeLocation_(start), scriptItemList);
+    return new Module(this.getMetadata_(start), scriptItemList);
   }
 
   parseModuleItemList_() {
@@ -448,7 +449,7 @@ export class Parser {
     //   StringLiteral
     var start = this.getTreeStartLocation_();
     var token = this.eat_(STRING);
-    return new ModuleSpecifier(this.getTreeLocation_(start), token);
+    return new ModuleSpecifier(this.getMetadata_(start), token);
   }
 
   // ClassDeclaration
@@ -474,7 +475,7 @@ export class Parser {
     }
     var moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
-    return new ImportDeclaration(this.getTreeLocation_(start),
+    return new ImportDeclaration(this.getMetadata_(start),
         importClause, moduleSpecifier);
   }
 
@@ -498,11 +499,11 @@ export class Parser {
       }
       this.eat_(CLOSE_CURLY);
 
-      return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
+      return new ImportSpecifierSet(this.getMetadata_(start), specifiers);
     }
 
     var binding = this.parseBindingIdentifier_();
-    return new ImportedBinding(this.getTreeLocation_(start), binding);
+    return new ImportedBinding(this.getMetadata_(start), binding);
   }
 
   // ImportSpecifier ::= IdentifierName ("as" Identifier)?
@@ -523,7 +524,7 @@ export class Parser {
       rhs = this.eatId_();
     }
 
-    return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
+    return new ImportSpecifier(this.getMetadata_(start), lhs, rhs);
   }
 
   // export  VariableStatement
@@ -564,7 +565,7 @@ export class Parser {
       default:
         return this.parseUnexpectedToken_(type);
     }
-    return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
+    return new ExportDeclaration(this.getMetadata_(start), exportTree,
                                  annotations);
   }
 
@@ -574,7 +575,7 @@ export class Parser {
     this.eat_(DEFAULT);
     var expression = this.parseAssignmentExpression();
     this.eatPossibleImplicitSemiColon_();
-    return new ExportDefault(this.getTreeLocation_(start), expression);
+    return new ExportDefault(this.getMetadata_(start), expression);
   }
 
   parseNamedExport_() {
@@ -590,13 +591,13 @@ export class Parser {
       expression = this.parseFromModuleSpecifierOpt_(false);
     } else {
       this.eat_(STAR);
-      specifierSet = new ExportStar(this.getTreeLocation_(start));
+      specifierSet = new ExportStar(this.getMetadata_(start));
       expression = this.parseFromModuleSpecifierOpt_(true);
     }
 
     this.eatPossibleImplicitSemiColon_();
 
-    return new NamedExport(this.getTreeLocation_(start), expression,
+    return new NamedExport(this.getMetadata_(start), expression,
                              specifierSet);
   }
 
@@ -622,7 +623,7 @@ export class Parser {
     }
     this.eat_(CLOSE_CURLY);
 
-    return new ExportSpecifierSet(this.getTreeLocation_(start), specifiers);
+    return new ExportSpecifierSet(this.getMetadata_(start), specifiers);
   }
 
   // ExportSpecifier :
@@ -639,7 +640,7 @@ export class Parser {
       this.eatId_(AS);
       rhs = this.eatIdName_();
     }
-    return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
+    return new ExportSpecifier(this.getMetadata_(start), lhs, rhs);
   }
 
   peekId_(type) {
@@ -675,7 +676,7 @@ export class Parser {
     var elements = this.parseClassElements_();
     this.eat_(CLOSE_CURLY);
     this.strictMode_ = strictMode;
-    return new constr(this.getTreeLocation_(start), name, superClass,
+    return new constr(this.getMetadata_(start), name, superClass,
                       elements, annotations);
   }
 
@@ -735,7 +736,7 @@ export class Parser {
   parseLiteralPropertyName_() {
     var start = this.getTreeStartLocation_();
     var token = this.nextToken_();
-    return new LiteralPropertyName(this.getTreeLocation_(start), token);
+    return new LiteralPropertyName(this.getMetadata_(start), token);
   }
 
   // ComputedPropertyName :
@@ -746,7 +747,7 @@ export class Parser {
     var expression = this.parseAssignmentExpression();
     this.eat_(CLOSE_SQUARE);
 
-    return new ComputedPropertyName(this.getTreeLocation_(start), expression);
+    return new ComputedPropertyName(this.getMetadata_(start), expression);
   }
 
   parseStatement() {
@@ -858,7 +859,7 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
-    return new ctor(this.getTreeLocation_(start), name, isGenerator,
+    return new ctor(this.getMetadata_(start), name, isGenerator,
                     formalParameterList, typeAnnotation, annotations,
                     functionBody);
   }
@@ -911,7 +912,7 @@ export class Parser {
       }
     }
 
-    return new FormalParameterList(this.getTreeLocation_(start), formals);
+    return new FormalParameterList(this.getMetadata_(start), formals);
   }
 
   peekFormalParameter_(type) {
@@ -924,8 +925,8 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var initialiser = this.parseBindingElementInitialiser_(initialiserAllowed);
 
-    return new FormalParameter(this.getTreeLocation_(start),
-        new BindingElement(this.getTreeLocation_(start), binding, initialiser),
+    return new FormalParameter(this.getMetadata_(start),
+        new BindingElement(this.getMetadata_(start), binding, initialiser),
         typeAnnotation, this.popAnnotations_());
   }
 
@@ -933,7 +934,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var restParameter = this.parseRestParameter_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start), restParameter,
+    return new FormalParameter(this.getMetadata_(start), restParameter,
         typeAnnotation, this.popAnnotations_());
   }
 
@@ -941,7 +942,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
-    return new RestParameter(this.getTreeLocation_(start), id);
+    return new RestParameter(this.getMetadata_(start), id);
   }
 
   /**
@@ -965,7 +966,7 @@ export class Parser {
     this.allowYield_ = allowYield;
 
     this.eat_(CLOSE_CURLY);
-    return new FunctionBody(this.getTreeLocation_(start), result);
+    return new FunctionBody(this.getMetadata_(start), result);
   }
 
   parseStatements() {
@@ -1005,7 +1006,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var operand = this.parseAssignmentExpression();
-    return new SpreadExpression(this.getTreeLocation_(start), operand);
+    return new SpreadExpression(this.getMetadata_(start), operand);
   }
 
   // 12.1 Block
@@ -1018,7 +1019,7 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     var result = this.parseStatementList_(false);
     this.eat_(CLOSE_CURLY);
-    return new Block(this.getTreeLocation_(start), result);
+    return new Block(this.getMetadata_(start), result);
   }
 
   // 12.2 Variable Statement
@@ -1031,7 +1032,7 @@ export class Parser {
     var declarations = this.parseVariableDeclarationList_();
     this.checkInitialisers_(declarations);
     this.eatPossibleImplicitSemiColon_();
-    return new VariableStatement(this.getTreeLocation_(start), declarations);
+    return new VariableStatement(this.getMetadata_(start), declarations);
   }
 
   /**
@@ -1068,7 +1069,7 @@ export class Parser {
                                                        initialiser));
     }
     return new VariableDeclarationList(
-        this.getTreeLocation_(start), type, declarations);
+        this.getMetadata_(start), type, declarations);
   }
 
   /**
@@ -1107,7 +1108,7 @@ export class Parser {
     else if (lvalue.isPattern() && initRequired)
       this.reportError_('destructuring must have an initialiser');
 
-    return new VariableDeclaration(this.getTreeLocation_(start), lvalue,
+    return new VariableDeclaration(this.getMetadata_(start), lvalue,
         typeAnnotation, initialiser);
   }
 
@@ -1129,7 +1130,7 @@ export class Parser {
   parseEmptyStatement_() {
     var start = this.getTreeStartLocation_();
     this.eat_(SEMI_COLON);
-    return new EmptyStatement(this.getTreeLocation_(start));
+    return new EmptyStatement(this.getMetadata_(start));
   }
 
   // Expression Statement and Module declaration.
@@ -1147,7 +1148,7 @@ export class Parser {
       // 12.12 Labelled Statement
       if (this.eatIf_(COLON)) {
         var statement = this.parseStatement();
-        return new LabelledStatement(this.getTreeLocation_(start), nameToken,
+        return new LabelledStatement(this.getMetadata_(start), nameToken,
                                      statement);
       }
 
@@ -1162,7 +1163,7 @@ export class Parser {
           this.eatId_(FROM);
           var moduleSpecifier = this.parseModuleSpecifier_();
           this.eatPossibleImplicitSemiColon_();
-          return new ModuleDeclaration(this.getTreeLocation_(start), name,
+          return new ModuleDeclaration(this.getMetadata_(start), name,
                                        moduleSpecifier);
         }
 
@@ -1171,7 +1172,7 @@ export class Parser {
     }
 
     this.eatPossibleImplicitSemiColon_();
-    return new ExpressionStatement(this.getTreeLocation_(start), expression);
+    return new ExpressionStatement(this.getMetadata_(start), expression);
   }
 
   // 12.5 If Statement
@@ -1190,7 +1191,7 @@ export class Parser {
     if (this.eatIf_(ELSE)) {
       elseClause = this.parseStatement();
     }
-    return new IfStatement(this.getTreeLocation_(start), condition, ifClause, elseClause);
+    return new IfStatement(this.getMetadata_(start), condition, ifClause, elseClause);
   }
 
   // 12.6 Iteration Statements
@@ -1209,7 +1210,7 @@ export class Parser {
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     this.eatPossibleImplicitSemiColon_();
-    return new DoWhileStatement(this.getTreeLocation_(start), body, condition);
+    return new DoWhileStatement(this.getMetadata_(start), body, condition);
   }
 
   // 12.6.2 The while Statement
@@ -1224,7 +1225,7 @@ export class Parser {
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new WhileStatement(this.getTreeLocation_(start), condition, body);
+    return new WhileStatement(this.getMetadata_(start), condition, body);
   }
 
   // 12.6.3 The for Statement
@@ -1325,7 +1326,7 @@ export class Parser {
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForOfStatement(this.getTreeLocation_(start), initialiser, collection, body);
+    return new ForOfStatement(this.getMetadata_(start), initialiser, collection, body);
   }
 
   /**
@@ -1402,7 +1403,7 @@ export class Parser {
     }
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForStatement(this.getTreeLocation_(start), initialiser, condition, increment, body);
+    return new ForStatement(this.getMetadata_(start), initialiser, condition, increment, body);
   }
 
   // 12.6.4 The for-in Statement
@@ -1417,7 +1418,7 @@ export class Parser {
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForInStatement(this.getTreeLocation_(start), initialiser, collection, body);
+    return new ForInStatement(this.getMetadata_(start), initialiser, collection, body);
   }
 
   // 12.7 The continue Statement
@@ -1433,7 +1434,7 @@ export class Parser {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
-    return new ContinueStatement(this.getTreeLocation_(start), name);
+    return new ContinueStatement(this.getMetadata_(start), name);
   }
 
   // 12.8 The break Statement
@@ -1449,7 +1450,7 @@ export class Parser {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
-    return new BreakStatement(this.getTreeLocation_(start), name);
+    return new BreakStatement(this.getMetadata_(start), name);
   }
 
   //12.9 The return Statement
@@ -1465,7 +1466,7 @@ export class Parser {
       expression = this.parseExpression();
     }
     this.eatPossibleImplicitSemiColon_();
-    return new ReturnStatement(this.getTreeLocation_(start), expression);
+    return new ReturnStatement(this.getMetadata_(start), expression);
   }
 
   // Harmony: The yield Statement
@@ -1488,7 +1489,7 @@ export class Parser {
       expression = this.parseAssignmentExpression();
     }
     return new YieldExpression(
-        this.getTreeLocation_(start), expression, isYieldFor);
+        this.getMetadata_(start), expression, isYieldFor);
   }
 
   // Harmony?: The await Statement
@@ -1508,7 +1509,7 @@ export class Parser {
     }
     var expression = this.parseExpression();
     this.eatPossibleImplicitSemiColon_();
-    return new AwaitStatement(this.getTreeLocation_(start), identifier, expression);
+    return new AwaitStatement(this.getMetadata_(start), identifier, expression);
   }
 
   // 12.10 The with Statement
@@ -1526,7 +1527,7 @@ export class Parser {
     var expression = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new WithStatement(this.getTreeLocation_(start), expression, body);
+    return new WithStatement(this.getMetadata_(start), expression, body);
   }
 
   // 12.11 The switch Statement
@@ -1543,7 +1544,7 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     var caseClauses = this.parseCaseClauses_();
     this.eat_(CLOSE_CURLY);
-    return new SwitchStatement(this.getTreeLocation_(start), expression, caseClauses);
+    return new SwitchStatement(this.getMetadata_(start), expression, caseClauses);
   }
 
   /**
@@ -1562,7 +1563,7 @@ export class Parser {
           var expression = this.parseExpression();
           this.eat_(COLON);
           var statements = this.parseCaseStatementsOpt_();
-          result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
+          result.push(new CaseClause(this.getMetadata_(start), expression, statements));
           break;
         case DEFAULT:
           if (foundDefaultClause) {
@@ -1572,7 +1573,7 @@ export class Parser {
           }
           this.nextToken_();
           this.eat_(COLON);
-          result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
+          result.push(new DefaultClause(this.getMetadata_(start), this.parseCaseStatementsOpt_()));
           break;
         default:
           return result;
@@ -1612,7 +1613,7 @@ export class Parser {
       value = this.parseExpression();
     }
     this.eatPossibleImplicitSemiColon_();
-    return new ThrowStatement(this.getTreeLocation_(start), value);
+    return new ThrowStatement(this.getMetadata_(start), value);
   }
 
   // 12.14 Try Statement
@@ -1635,7 +1636,7 @@ export class Parser {
     if (catchBlock == null && finallyBlock == null) {
       this.reportError_("'catch' or 'finally' expected.");
     }
-    return new TryStatement(this.getTreeLocation_(start), body, catchBlock, finallyBlock);
+    return new TryStatement(this.getMetadata_(start), body, catchBlock, finallyBlock);
   }
 
   /**
@@ -1661,7 +1662,7 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
     this.eat_(CLOSE_PAREN);
     var catchBody = this.parseBlock_();
-    catchBlock = new Catch(this.getTreeLocation_(start), binding,
+    catchBlock = new Catch(this.getMetadata_(start), binding,
                            catchBody);
     return catchBlock;
   }
@@ -1674,7 +1675,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(FINALLY);
     var finallyBlock = this.parseBlock_();
-    return new Finally(this.getTreeLocation_(start), finallyBlock);
+    return new Finally(this.getMetadata_(start), finallyBlock);
   }
 
   // 12.15 The Debugger Statement
@@ -1687,7 +1688,7 @@ export class Parser {
     this.eat_(DEBUGGER);
     this.eatPossibleImplicitSemiColon_();
 
-    return new DebuggerStatement(this.getTreeLocation_(start));
+    return new DebuggerStatement(this.getMetadata_(start));
   }
 
   // 11.1 Primary Expressions
@@ -1754,7 +1755,7 @@ export class Parser {
   parseSuperExpression_() {
     var start = this.getTreeStartLocation_();
     this.eat_(SUPER);
-    return new SuperExpression(this.getTreeLocation_(start));
+    return new SuperExpression(this.getMetadata_(start));
   }
 
   /**
@@ -1764,7 +1765,7 @@ export class Parser {
   parseThisExpression_() {
     var start = this.getTreeStartLocation_();
     this.eat_(THIS);
-    return new ThisExpression(this.getTreeLocation_(start));
+    return new ThisExpression(this.getMetadata_(start));
   }
 
   peekBindingIdentifier_(type) {
@@ -1774,7 +1775,7 @@ export class Parser {
   parseBindingIdentifier_() {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatId_();
-    return new BindingIdentifier(this.getTreeLocation_(start), identifier);
+    return new BindingIdentifier(this.getMetadata_(start), identifier);
   }
 
   /**
@@ -1784,7 +1785,7 @@ export class Parser {
   parseIdentifierExpression_() {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatId_();
-    return new IdentifierExpression(this.getTreeLocation_(start), identifier);
+    return new IdentifierExpression(this.getMetadata_(start), identifier);
   }
 
   /**
@@ -1795,7 +1796,7 @@ export class Parser {
   parseIdentifierNameExpression_() {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatIdName_();
-    return new IdentifierExpression(this.getTreeLocation_(start), identifier);
+    return new IdentifierExpression(this.getMetadata_(start), identifier);
   }
 
   /**
@@ -1805,7 +1806,7 @@ export class Parser {
   parseLiteralExpression_() {
     var start = this.getTreeStartLocation_();
     var literal = this.nextLiteralToken_();
-    return new LiteralExpression(this.getTreeLocation_(start), literal);
+    return new LiteralExpression(this.getMetadata_(start), literal);
   }
 
   /**
@@ -1823,7 +1824,7 @@ export class Parser {
   parseRegularExpressionLiteral_() {
     var start = this.getTreeStartLocation_();
     var literal = this.nextRegularExpressionLiteralToken_();
-    return new LiteralExpression(this.getTreeLocation_(start), literal);
+    return new LiteralExpression(this.getMetadata_(start), literal);
   }
 
   peekSpread_(type) {
@@ -1887,7 +1888,7 @@ export class Parser {
         this.eat_(COMMA);
     }
     this.eat_(CLOSE_SQUARE);
-    return new ArrayLiteralExpression(this.getTreeLocation_(start), elements);
+    return new ArrayLiteralExpression(this.getMetadata_(start), elements);
   }
 
   /**
@@ -1920,7 +1921,7 @@ export class Parser {
     var list = this.parseComprehensionList_();
     var expression = this.parseAssignmentExpression();
     this.eat_(CLOSE_SQUARE);
-    return new ArrayComprehension(this.getTreeLocation_(start),
+    return new ArrayComprehension(this.getMetadata_(start),
                                   list, expression);
   }
 
@@ -1950,7 +1951,7 @@ export class Parser {
     this.eatId_(OF);
     var iterator = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    return new ComprehensionFor(this.getTreeLocation_(start), left, iterator);
+    return new ComprehensionFor(this.getMetadata_(start), left, iterator);
   }
 
   parseComprehensionIf_() {
@@ -1959,7 +1960,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var expression = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    return new ComprehensionIf(this.getTreeLocation_(start), expression);
+    return new ComprehensionIf(this.getMetadata_(start), expression);
   }
 
   // 11.1.4 Object Literal Expression
@@ -1979,7 +1980,7 @@ export class Parser {
         break;
     }
     this.eat_(CLOSE_CURLY);
-    return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
+    return new ObjectLiteralExpression(this.getMetadata_(start), result);
   }
 
   /**
@@ -2008,7 +2009,7 @@ export class Parser {
 
     if (this.eatIf_(COLON)) {
       var value = this.parseAssignmentExpression();
-      return new PropertyNameAssignment(this.getTreeLocation_(start), name,
+      return new PropertyNameAssignment(this.getMetadata_(start), name,
                                         value);
     }
 
@@ -2032,11 +2033,11 @@ export class Parser {
           token = this.nextToken_();
           var expr = this.parseAssignmentExpression();
           return this.coverInitialisedName_ =
-              new CoverInitialisedName(this.getTreeLocation_(start),
+              new CoverInitialisedName(this.getMetadata_(start),
                                        nameLiteral, token, expr);
         }
 
-        return new PropertyNameShorthand(this.getTreeLocation_(start),
+        return new PropertyNameShorthand(this.getMetadata_(start),
                                          nameLiteral);
       }
     }
@@ -2070,7 +2071,8 @@ export class Parser {
         type = this.peekType_();
         switch (type) {
           case OPEN_PAREN:
-            var name = new LiteralPropertyName(start, staticToken);
+            var name =
+                new LiteralPropertyName(this.getMetadata_(start), staticToken);
             return this.parseMethod_(start, isStatic, isGenerator, name,
                                      annotations);
 
@@ -2105,7 +2107,7 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
-    return new PropertyMethodAssignment(this.getTreeLocation_(start),
+    return new PropertyMethodAssignment(this.getMetadata_(start),
         isStatic, isGenerator, name, formalParameterList, typeAnnotation,
         annotations, functionBody);
   }
@@ -2139,7 +2141,7 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
-    return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
+    return new GetAccessor(this.getMetadata_(start), isStatic, name,
                            typeAnnotation, annotations, body);
   }
 
@@ -2150,7 +2152,7 @@ export class Parser {
     var parameter = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
     var body = this.parseFunctionBody_(isGenerator, parameter);
-    return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
+    return new SetAccessor(this.getMetadata_(start), isStatic, name,
                            parameter, annotations, body);
   }
 
@@ -2205,8 +2207,8 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start),
-        new BindingElement(this.getTreeLocation_(start), binding, null),
+    return new FormalParameter(this.getMetadata_(start),
+        new BindingElement(this.getMetadata_(start), binding, null),
         typeAnnotation, this.popAnnotations_());
   }
 
@@ -2229,7 +2231,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.reportError_(message);
     var token = this.nextToken_();
-    return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
+    return new SyntaxErrorTree(this.getMetadata_(start), token, message);
   }
 
   /**
@@ -2303,7 +2305,7 @@ export class Parser {
       while (this.eatIf_(COMMA)) {
         exprs.push(this.parseAssignmentExpression(expressionIn));
       }
-      return new CommaExpression(this.getTreeLocation_(start), exprs);
+      return new CommaExpression(this.getMetadata_(start), exprs);
     }
     return result;
   }
@@ -2367,7 +2369,7 @@ export class Parser {
       var operator = this.nextToken_();
       var right = this.parseAssignmentExpression(expressionIn);
 
-      return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      return new BinaryOperator(this.getMetadata_(start), left, operator, right);
     }
 
     left = this.toParenExpression_(left);
@@ -2413,7 +2415,7 @@ export class Parser {
         var expression =
             this.transformLeftHandSideExpression_(tree.expression);
         if (expression !== tree.expression)
-          return new ParenExpression(tree.location, expression);
+          return new ParenExpression(tree.metadata, expression);
     }
     return tree;
   }
@@ -2440,7 +2442,7 @@ export class Parser {
       var left = this.parseAssignmentExpression();
       this.eat_(COLON);
       var right = this.parseAssignmentExpression(expressionIn);
-      return new ConditionalExpression(this.getTreeLocation_(start), condition, left, right);
+      return new ConditionalExpression(this.getMetadata_(start), condition, left, right);
     }
     return condition;
   }
@@ -2448,7 +2450,7 @@ export class Parser {
   newBinaryOperator_(start, left, operator, right) {
     left = this.toParenExpression_(left);
     right = this.toParenExpression_(right);
-    return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+    return new BinaryOperator(this.getMetadata_(start), left, operator, right);
   }
 
   // 11.11 Logical OR
@@ -2708,7 +2710,7 @@ export class Parser {
       var operator = this.nextToken_();
       var operand = this.parseUnaryExpression_();
       operand = this.toParenExpression_(operand);
-      return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
+      return new UnaryExpression(this.getMetadata_(start), operator, operand);
     }
     return this.parsePostfixExpression_();
   }
@@ -2745,7 +2747,7 @@ export class Parser {
     while (this.peekPostfixOperator_(this.peekType_())) {
       operand = this.toParenExpression_(operand);
       var operator = this.nextToken_();
-      operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
+      operand = new PostfixExpression(this.getMetadata_(start), operand, operator);
     }
     return operand;
   }
@@ -2789,7 +2791,7 @@ export class Parser {
           case OPEN_PAREN:
             operand = this.toParenExpression_(operand);
             var args = this.parseArguments_();
-            operand = new CallExpression(this.getTreeLocation_(start),
+            operand = new CallExpression(this.getMetadata_(start),
                                          operand, args);
             break;
 
@@ -2798,7 +2800,7 @@ export class Parser {
             this.nextToken_();
             var member = this.parseExpression();
             this.eat_(CLOSE_SQUARE);
-            operand = new MemberLookupExpression(this.getTreeLocation_(start),
+            operand = new MemberLookupExpression(this.getMetadata_(start),
                                                  operand, member);
             break;
 
@@ -2806,7 +2808,7 @@ export class Parser {
             operand = this.toParenExpression_(operand);
             this.nextToken_();
             var memberName = this.eatIdName_();
-            operand = new MemberExpression(this.getTreeLocation_(start),
+            operand = new MemberExpression(this.getMetadata_(start),
                                            operand, memberName);
             break;
 
@@ -2847,7 +2849,7 @@ export class Parser {
           this.nextToken_();
           var member = this.parseExpression();
           this.eat_(CLOSE_SQUARE);
-          operand = new MemberLookupExpression(this.getTreeLocation_(start),
+          operand = new MemberLookupExpression(this.getMetadata_(start),
                                                operand, member);
           break;
 
@@ -2856,7 +2858,7 @@ export class Parser {
           this.nextToken_();
           var name;
           name = this.eatIdName_();
-          operand = new MemberExpression(this.getTreeLocation_(start),
+          operand = new MemberExpression(this.getMetadata_(start),
                                          operand, name);
           break;
 
@@ -2890,7 +2892,7 @@ export class Parser {
       if (this.peek_(OPEN_PAREN)) {
         args = this.parseArguments_();
       }
-      return new NewExpression(this.getTreeLocation_(start), operand, args);
+      return new NewExpression(this.getMetadata_(start), operand, args);
     } else {
       return this.parseMemberExpressionNoNew_();
     }
@@ -2923,7 +2925,7 @@ export class Parser {
     }
 
     this.eat_(CLOSE_PAREN);
-    return new ArgumentList(this.getTreeLocation_(start), args);
+    return new ArgumentList(this.getMetadata_(start), args);
   }
 
   parseArgument_() {
@@ -2968,16 +2970,18 @@ export class Parser {
   parseArrowFunction_(start, tree) {
     var formals;
     if (tree.type === IDENTIFIER_EXPRESSION) {
-      var id = new BindingIdentifier(tree.location, tree.identifierToken);
-      var formals = new FormalParameterList(this.getTreeLocation_(start),
-          [new FormalParameter(id.location, new BindingElement(id.location, id, null), null, [])]);
+      var id = new BindingIdentifier(tree.metadata, tree.identifierToken);
+      var formals = new FormalParameterList(this.getMetadata_(start), [
+        new FormalParameter(id.metadata,
+        new BindingElement(id.metadata, id, null), null, [])
+      ]);
     } else {
       formals = this.toFormalParameters_(tree);
     }
 
     this.eat_(ARROW);
     var body = this.parseConciseBody_();
-    return new ArrowFunctionExpression(this.getTreeLocation_(start),
+    return new ArrowFunctionExpression(this.getMetadata_(start),
                                        formals, body);
   }
 
@@ -3009,7 +3013,7 @@ export class Parser {
     }
 
     this.eat_(CLOSE_PAREN);
-    return new CoverFormals(this.getTreeLocation_(start), expressions);
+    return new CoverFormals(this.getMetadata_(start), expressions);
   }
 
   transformCoverFormals_(f, tree) {
@@ -3021,7 +3025,7 @@ export class Parser {
       if (!(ex instanceof CoverFormalsTransformerError))
         throw ex;
       this.reportError_(ex.location, ex.message);
-      return new SyntaxErrorTree(ex.location, null, ex.message);
+      return new SyntaxErrorTree(asMetadata(ex.location), null, ex.message);
     }
   }
 
@@ -3096,7 +3100,7 @@ export class Parser {
     var comprehensionList = this.parseComprehensionList_();
     var expression = this.parseAssignmentExpression();
     this.eat_(CLOSE_PAREN);
-    return new GeneratorComprehension(this.getTreeLocation_(start),
+    return new GeneratorComprehension(this.getMetadata_(start),
                                       comprehensionList,
                                       expression);
   }
@@ -3182,7 +3186,7 @@ export class Parser {
       }
     }
     this.eat_(CLOSE_SQUARE);
-    return new ArrayPattern(this.getTreeLocation_(start), elements);
+    return new ArrayPattern(this.getMetadata_(start), elements);
   }
 
   /**
@@ -3234,7 +3238,7 @@ export class Parser {
 
     var binding = this.parseBindingElementBinding_();
     var initialiser = this.parseBindingElementInitialiser_(initialiser);
-    return new BindingElement(this.getTreeLocation_(start), binding,
+    return new BindingElement(this.getMetadata_(start), binding,
         initialiser);
   }
 
@@ -3261,7 +3265,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var identifier = this.parseBindingIdentifier_();
-    return new SpreadPatternElement(this.getTreeLocation_(start), identifier);
+    return new SpreadPatternElement(this.getMetadata_(start), identifier);
   }
 
   /**
@@ -3284,7 +3288,7 @@ export class Parser {
         break;
     }
     this.eat_(CLOSE_CURLY);
-    return new ObjectPattern(this.getTreeLocation_(start), elements);
+    return new ObjectPattern(this.getMetadata_(start), elements);
   }
 
   /**
@@ -3311,7 +3315,7 @@ export class Parser {
       this.eat_(COLON);
       var binding = this.parseBindingElement_();
       // TODO(arv): Rename ObjectPatternField to BindingProperty
-      return new ObjectPatternField(this.getTreeLocation_(start),
+      return new ObjectPatternField(this.getMetadata_(start),
                                     name, binding);
     }
 
@@ -3319,11 +3323,11 @@ export class Parser {
     if (this.strictMode_ && token.isStrictKeyword())
         this.reportReservedIdentifier_(token);
 
-    var binding = new BindingIdentifier(name.location, token);
+    var binding = new BindingIdentifier(name.metadata, token);
     var initialiser = null;
     if (this.peek_(EQUAL))
       initialiser = this.parseInitialiser_();
-    return new BindingElement(this.getTreeLocation_(start), binding,
+    return new BindingElement(this.getMetadata_(start), binding,
                               initialiser);
   }
 
@@ -3371,31 +3375,34 @@ export class Parser {
         operand.location.start : this.getTreeStartLocation_();
 
     var token = this.nextToken_();
-    var elements = [new TemplateLiteralPortion(token.location, token)];
+    var elements = [
+      new TemplateLiteralPortion(asMetadata(token.location), token)
+    ];
 
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
-      return new TemplateLiteralExpression(this.getTreeLocation_(start),
+      return new TemplateLiteralExpression(this.getMetadata_(start),
                                         operand, elements);
     }
 
     // `abc${
     var expression = this.parseExpression();
-    elements.push(new TemplateSubstitution(expression.location, expression));
+    elements.push(new TemplateSubstitution(expression.metadata, expression));
 
     while (expression.type !== SYNTAX_ERROR_TREE) {
       token = this.nextTemplateLiteralToken_();
       if (token.type === ERROR || token.type === END_OF_FILE)
         break;
 
-      elements.push(new TemplateLiteralPortion(token.location, token));
+      elements.push(
+          new TemplateLiteralPortion(asMetadata(token.location), token));
       if (token.type === TEMPLATE_TAIL)
         break;
 
       expression = this.parseExpression();
-      elements.push(new TemplateSubstitution(expression.location, expression));
+      elements.push(new TemplateSubstitution(expression.metadata, expression));
     }
 
-    return new TemplateLiteralExpression(this.getTreeLocation_(start),
+    return new TemplateLiteralExpression(this.getMetadata_(start),
                                       operand, elements);
   }
 
@@ -3435,7 +3442,7 @@ export class Parser {
         break;
       case VOID:
         var token = this.nextToken_();
-        return new PredefinedType(this.getTreeLocation_(start), token);
+        return new PredefinedType(this.getMetadata_(start), token);
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
@@ -3477,7 +3484,7 @@ export class Parser {
       case 'boolean':
       case 'string':
         var token = this.nextToken_();
-        return new PredefinedType(this.getTreeLocation_(start), token);
+        return new PredefinedType(this.getMetadata_(start), token);
       default:
         return this.parseTypeName_();
     }
@@ -3499,11 +3506,11 @@ export class Parser {
    */
   parseTypeName_() {
     var start = this.getTreeStartLocation_();
-    var typeName = new TypeName(this.getTreeLocation_(start), null,
+    var typeName = new TypeName(this.getMetadata_(start), null,
         this.eatId_());
     while (this.eatIf_(PERIOD)) {
       var memberName = this.eatIdName_();
-      typeName = new TypeName(this.getTreeLocation_(start), typeName,
+      typeName = new TypeName(this.getMetadata_(start), typeName,
       memberName);
     }
     return typeName;
@@ -3550,7 +3557,7 @@ export class Parser {
     if (this.peek_(OPEN_PAREN))
       args = this.parseArguments_();
 
-    return new Annotation(this.getTreeLocation_(start), expression, args);
+    return new Annotation(this.getMetadata_(start), expression, args);
   }
 
   /**
@@ -3641,7 +3648,7 @@ export class Parser {
       } else {
         // Use an identifier token instead because it is treated as such and
         // this simplifies the transformers.
-        return new IdentifierToken(token.location, token.type);
+        return new IdentifierToken(asMetadata(token.location), token.type);
       }
     } else {
       this.reportExpectedError_(token, expected || 'identifier');
@@ -3663,7 +3670,7 @@ export class Parser {
         this.reportExpectedError_(t, 'identifier');
         return null;
       }
-      return new IdentifierToken(t.location, t.type);
+      return new IdentifierToken(asMetadata(t.location), t.type);
     }
     return t;
   }
@@ -3731,13 +3738,28 @@ export class Parser {
   }
 
   /**
-   * Returns a SourceRange for a parse tree that starts at {start} and ends at the current location.
+   * Returns a SourceRange for a parse tree that starts at {start} and ends at
+   * the current location.
    *
+   * @param {SourcePosition} start
    * @return {SourceRange}
    * @private
    */
   getTreeLocation_(start) {
     return new SourceRange(start, this.getTreeEndLocation_());
+  }
+
+  /**
+   * Returns an object used as metadata where the location field has been set
+   * to the SourceRange for a parse tree that starts at {start} and ends at the
+   * current location.
+   *
+   * @param {SourcePosition} start
+   * @return { {location: SourceRange} }
+   * @private
+   */
+  getMetadata_(start) {
+    return asMetadata(this.getTreeLocation_(start));
   }
 
   handleComment(range) {
