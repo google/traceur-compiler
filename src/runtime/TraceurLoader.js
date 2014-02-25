@@ -113,4 +113,13 @@ export class TraceurLoader extends Loader {
   sourceMap(normalizedName, type) {
     return this.internalLoader_.sourceMap(normalizedName, type);
   }
+
+  /**
+   * @param {string} normalized name of module
+   * @param {Array<string>} unnormalized dependency names.
+   * @param {Function<Array<string>>} factory takes array of normalized names.
+   */
+  register(normalizedName, deps, factoryFunction) {
+    $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+  }
 }
