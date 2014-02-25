@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {createMemberExpression} from './ParseTreeFactory';
-import {ModuleTransformer} from './ModuleTransformer';
+import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';
 import {parseExpression, parseStatement} from './PlaceholderParser';
 import {
   ExportDefault,
@@ -59,19 +59,20 @@ class SingleArgumentLiteralFinder extends ParseTreeVisitor {
   }
 
   visitLiteralExpression(tree) {
-    this.found = tree.literalToken.processedValue;
+    this.found = tree.literalToken;
   }
 }
 
-export class NodeModuleTransformer extends ModuleTransformer {
-  constructor() {
+export class NodeModuleTransformer extends InstantiateModuleTransformer {
+  constructor(identifierGenerator) {
     this.requireFinder_ = new RequireIdentifierFinder();
     this.literalFinder_ = new SingleArgumentLiteralFinder();
-    super();
+    super(identifierGenerator);
   }
 
   moduleDeclarationStatement() {
-    return parseStatement `var module = {};`;
+    // TODO(jjb): http://nodejs.org/api/modules.html#modules_the_module_object
+    return parseStatement `var module = {exports: {}};`;
   }
 
   exportExpression(tree) {
@@ -90,12 +91,11 @@ export class NodeModuleTransformer extends ModuleTransformer {
 
   transformCallExpression(tree) {
     if (this.requireFinder_.findIn(tree.operand)) {
-      var name = this.literalFinder_.findIn(tree.args);
-      if (name) {
-        // import/module {x} from 'name' is relative to the current file.
-        var normalizedName = System.normalize(name, this.moduleName);
+      var token = this.literalFinder_.findIn(tree.args);
+      if (token) {
+        var localName = this.addDependency(token);
         return parseExpression
-            `$traceurRuntime.ModuleStore.get(${normalizedName})`;
+            `$traceurRuntime.ModuleStore.get(${localName})`;
       }
     }
     // Do not recurse

@@ -12,15 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var fs = require('fs');
-var theFive = require('./another-node-module.js');
-
-function testNode(callback) {
-  fs.readFile('./node-module.js', 'utf8', function(err, data) {
-    if (!data)
-      throw new Error('node-module test fails');
-    callback(theFive);
-  });
-}
-
-module.exports = testNode;
+var foo = 5;
+module.exports = foo;

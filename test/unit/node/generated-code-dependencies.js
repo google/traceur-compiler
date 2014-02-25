@@ -19,6 +19,7 @@ suite('context test', function() {
   var path = require('path');
   var uuid = require('node-uuid');
   var exec = require('child_process').exec;
+  var debug_output = false;
 
   var tempFileName;
 
@@ -43,6 +44,8 @@ suite('context test', function() {
     loader.script(source, fileName);
     assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
     var output = loaderHooks.transcoded;
+    if (debug_output)
+      console.log('output ' + output);
 
     var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
@@ -103,7 +106,7 @@ suite('context test', function() {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-another-x.js');
-
+debug_output = true;
     exec(executable + ' --out ' + tempFileName + ' --modules=instantiate -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
@@ -114,19 +117,29 @@ suite('context test', function() {
         });
   });
 
- test('compiled modules node', function(done) {
+ test('compiled modules nodeToES6', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/node-module.js');
-
+    debug_output = true;
     exec(executable + ' --out ' + tempFileName + ' --modules=nodeToES6 -- ' + inputFileName,
         function(error, stdout, stderr) {
+          console.log('stdout: ' + stdout);
+          console.log('stderr: ' + stderr);
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
-          var module = System.get('test/unit/node/resources/node-module');
-          assert(module);
-          assert(typeof module.default === 'function');
-          done();
+          System.import('test/unit/node/resources/node-module').then(function() {
+            console.log('module ' + Object.keys(module).join(','))
+            assert(module);
+            assert(typeof module.default === 'function');
+            var testNode = module.default;
+            testNode(function (theFive) {
+              assertEqual(theFive, 5);
+              done();
+            });
+          }).catch(function(ex) {
+            done(ex);
+          });
         });
   });
 

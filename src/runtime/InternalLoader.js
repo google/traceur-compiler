@@ -136,6 +136,8 @@ class BundledCodeUnit extends CodeUnit {
         name, referrerName, address);
     this.deps = deps;
     this.execute = execute;
+    console.log('BundledCodeUnit ' + name)
+    console.trace();
   }
   getModuleSpecifiers() {
     return this.deps;
@@ -143,6 +145,8 @@ class BundledCodeUnit extends CodeUnit {
   evaluate() {
     var normalizedNames =
         this.deps.map((name) => this.loaderHooks.normalize(name));
+    console.log('BundledCodeUnit.evaluate '  + this.normalizedName)
+    console.trace();
     var module = this.execute.apply(global, normalizedNames);
     System.set(this.normalizedName, module);
     return module;

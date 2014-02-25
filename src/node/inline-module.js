@@ -97,6 +97,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   basePath = basePath.replace(/\\/g, '/');
 
   var scriptsCount = options.scripts.length;
+  var noEvaluationOptions = ['inline', 'instantiate', 'nodeToES6'];
 
   var loadCount = 0;
   var elements = [];
@@ -121,7 +122,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
-      if (options.modules !== 'inline' && options.modules !== 'instantiate')
+      if (noEvaluationOptions.indexOf(options.modules) === -1)
         doEvaluateModule = true;
     }
 

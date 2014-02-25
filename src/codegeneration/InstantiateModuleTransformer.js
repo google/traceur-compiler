@@ -53,22 +53,24 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         `$traceurRuntime.ModuleStore.register(${this.moduleName}, ${depPaths}, ${func});`;
   }
 
+  addDependency(token) {
+    var localName = this.getTempIdentifier();
+    this.dependencies.push({path: token, local: localName});
+    return createIdentifierExpression(localName);
+  }
+
   /**
    * For
    *  import {foo} from './foo';
    * transcode the './foo' part to
    *  System.get(tempVar);
-   * where tempVar is a function argument.
+   * where tempVar is an argument to the factory function.
    * @param {ModuleSpecifier} tree
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
     assert(this.moduleName);
-    var name = tree.token.processedValue;
-    var localName = this.getTempIdentifier();
-    this.dependencies.push({path: tree.token, local: localName});
-    var localIdentifier = createIdentifierExpression(localName);
-
+    var localIdentifier = this.addDependency(tree.token);
     if (this.moduleSpecifierKind_ === 'module')
       return parseExpression `$traceurRuntime.ModuleStore.get(${localIdentifier})`;
     return parseExpression `$traceurRuntime.getModuleImpl(${localIdentifier})`;
