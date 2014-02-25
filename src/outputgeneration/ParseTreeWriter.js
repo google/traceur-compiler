@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  BLOCK,
+  IF_STATEMENT,
+  POSTFIX_EXPRESSION,
+  UNARY_EXPRESSION
+} from '../syntax/trees/ParseTreeType';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   AS,
@@ -23,6 +29,10 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
+import {
+  isIdentifierPart,
+  isWhitespace
+} from '../syntax/Scanner';
 
 import {
   AMPERSAND,
@@ -159,26 +169,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.currentLine_ = '';
 
     /**
-     * @type {string}
-     * @private
+     * @private {string}
      */
     this.currentLineComment_ = null;
 
     /**
-     * @type {number}
-     * @private
+     * @private {number}
      */
     this.indentDepth_ = 0;
 
     /**
-     * @type {string|Token|TokenType}
-     * @private
-     */
-    this.lastToken_ = null;
-
-    /**
-     * @type {TypeAnnotation}
-     * @private
+     * @private {TypeAnnotation}
      */
     this.currentParameterTypeAnnotation_ = null;
   }
@@ -277,7 +278,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameters);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.write_(ARROW);
+    this.writeSpace_();
     this.visitAny(tree.functionBody);
   }
 
@@ -287,9 +290,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitAwaitStatement(tree) {
     this.write_(AWAIT);
     if (tree.identifier !== null) {
+      this.writeSpace_();
       this.write_(tree.identifier);
+      this.writeSpace_();
       this.write_(EQUAL);
     }
+    this.writeSpace_();
     this.visitAny(tree.expression);
     this.write_(SEMI_COLON);
   }
@@ -298,9 +304,24 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {BinaryOperator} tree
    */
   visitBinaryOperator(tree) {
-    this.visitAny(tree.left);
-    this.write_(tree.operator);
-    this.visitAny(tree.right);
+    var left = tree.left;
+    this.visitAny(left);
+    var operator = tree.operator;
+    if (left.type === POSTFIX_EXPRESSION &&
+        requiresSpaceBetween(left.operator.type, operator.type)) {
+      this.writeRequiredSpace_();
+    } else {
+      this.writeSpace_();
+    }
+    this.write_(operator);
+    var right = tree.right;
+    if (right.type === UNARY_EXPRESSION &&
+        requiresSpaceBetween(operator.type, right.operator.type)) {
+      this.writeRequiredSpace_();
+    } else {
+      this.writeSpace_();
+    }
+    this.visitAny(right);
   }
 
   /**
@@ -313,7 +334,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.binding);
     this.writeTypeAnnotation_(typeAnnotation);
     if (tree.initialiser) {
+      this.writeSpace_();
       this.write_(EQUAL);
+      this.writeSpace_();
       this.visitAny(tree.initialiser);
     }
   }
@@ -340,6 +363,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitBreakStatement(tree) {
     this.write_(BREAK);
     if (tree.name !== null) {
+      this.writeSpace_();
       this.write_(tree.name);
     }
     this.write_(SEMI_COLON);
@@ -358,6 +382,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitCaseClause(tree) {
     this.write_(CASE);
+    this.writeSpace_();
     this.visitAny(tree.expression);
     this.write_(COLON);
     this.indentDepth_++;
@@ -370,20 +395,26 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitCatch(tree) {
     this.write_(CATCH);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.binding);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.visitAny(tree.catchBody);
   }
 
   visitClassShared_(tree) {
     this.writeAnnotations_(tree.annotations);
     this.write_(CLASS);
+    this.writeSpace_();
     this.visitAny(tree.name);
     if (tree.superClass !== null) {
+      this.writeSpace_();
       this.write_(EXTENDS);
+      this.writeSpace_();
       this.visitAny(tree.superClass);
     }
+    this.writeSpace_();
     this.write_(OPEN_CURLY);
     this.writelnList_(tree.elements);
     this.write_(CLOSE_CURLY);
@@ -412,18 +443,24 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitComprehensionFor(tree) {
     this.write_(FOR);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.left);
+    this.writeSpace_();
     this.write_(OF);
+    this.writeSpace_();
     this.visitAny(tree.iterator);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
   }
 
   visitComprehensionIf(tree) {
     this.write_(IF);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.expression);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
   }
 
   visitComputedPropertyName(tree) {
@@ -437,9 +474,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitConditionalExpression(tree) {
     this.visitAny(tree.condition);
+    this.writeSpace_();
     this.write_(QUESTION);
+    this.writeSpace_();
     this.visitAny(tree.left);
+    this.writeSpace_();
     this.write_(COLON);
+    this.writeSpace_();
     this.visitAny(tree.right);
   }
 
@@ -449,6 +490,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitContinueStatement(tree) {
     this.write_(CONTINUE);
     if (tree.name !== null) {
+      this.writeSpace_();
       this.write_(tree.name);
     }
     this.write_(SEMI_COLON);
@@ -478,8 +520,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitDoWhileStatement(tree) {
     this.write_(DO);
-    this.visitAny(tree.body);
+    this.visitAnyBlockOrIndent_(tree.body);
+    this.writeSpace_();
     this.write_(WHILE);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.condition);
     this.write_(CLOSE_PAREN);
@@ -499,11 +543,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitExportDeclaration(tree) {
     this.writeAnnotations_(tree.annotations);
     this.write_(EXPORT);
+    this.writeSpace_();
     this.visitAny(tree.declaration);
   }
 
   visitExportDefault(tree) {
     this.write_(DEFAULT);
+    this.writeSpace_();
     this.visitAny(tree.expression);
     this.write_(SEMI_COLON);
   }
@@ -514,7 +560,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitNamedExport(tree) {
     this.visitAny(tree.specifierSet);
     if (tree.moduleSpecifier) {
+      this.writeSpace_();
       this.write_(FROM);
+      this.writeSpace_();
       this.visitAny(tree.moduleSpecifier);
     }
     this.write_(SEMI_COLON);
@@ -526,7 +574,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitExportSpecifier(tree) {
     this.write_(tree.lhs);
     if (tree.rhs) {
+      this.writeSpace_();
       this.write_(AS);
+      this.writeSpace_();
       this.write_(tree.rhs);
     }
   }
@@ -560,6 +610,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitFinally(tree) {
     this.write_(FINALLY);
+    this.writeSpace_();
     this.visitAny(tree.block);
   }
 
@@ -568,12 +619,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitForOfStatement(tree) {
     this.write_(FOR);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.initialiser);
+    this.writeSpace_();
     this.write_(OF);
+    this.writeSpace_();
     this.visitAny(tree.collection);
     this.write_(CLOSE_PAREN);
-    this.visitAny(tree.body);
+    this.visitAnyBlockOrIndent_(tree.body);
   }
 
   /**
@@ -581,12 +635,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitForInStatement(tree) {
     this.write_(FOR);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.initialiser);
+    this.writeSpace_();
     this.write_(IN);
+    this.writeSpace_();
     this.visitAny(tree.collection);
     this.write_(CLOSE_PAREN);
-    this.visitAny(tree.body);
+    this.visitAnyBlockOrIndent_(tree.body);
   }
 
   /**
@@ -594,14 +651,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitForStatement(tree) {
     this.write_(FOR);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.initialiser);
     this.write_(SEMI_COLON);
+    this.writeSpace_();
     this.visitAny(tree.condition);
     this.write_(SEMI_COLON);
+    this.writeSpace_();
     this.visitAny(tree.increment);
     this.write_(CLOSE_PAREN);
-    this.visitAny(tree.body);
+    this.visitAnyBlockOrIndent_(tree.body);
   }
 
   /**
@@ -617,6 +677,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
         first = false;
       } else {
         this.write_(COMMA);
+        this.writeSpace_();
       }
 
       this.visitAny(parameter);
@@ -659,14 +720,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitFunction_(tree) {
     this.writeAnnotations_(tree.annotations);
     this.write_(FUNCTION);
-    if (tree.isGenerator) {
+    if (tree.isGenerator)
       this.write_(STAR);
+
+    if (tree.name) {
+      this.writeSpace_();
+      this.visitAny(tree.name);
     }
-    this.visitAny(tree.name);
+
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
     this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.writeSpace_();
     this.visitAny(tree.functionBody);
   }
 
@@ -682,12 +748,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitGetAccessor(tree) {
     this.writeAnnotations_(tree.annotations);
-    if (tree.isStatic)
+    if (tree.isStatic) {
       this.write_(STATIC);
+      this.writeSpace_();
+    }
     this.write_(GET);
+    this.writeSpace_();
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.body);
   }
@@ -704,14 +774,46 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitIfStatement(tree) {
     this.write_(IF);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.condition);
     this.write_(CLOSE_PAREN);
-    this.visitAny(tree.ifClause);
+    this.visitAnyBlockOrIndent_(tree.ifClause);
     if (tree.elseClause) {
+      if (tree.ifClause.type === BLOCK)
+        this.writeSpace_();
       this.write_(ELSE);
-      this.visitAny(tree.elseClause);
+      if (tree.elseClause.type === IF_STATEMENT) {
+        this.writeSpace_();
+        this.visitAny(tree.elseClause);
+      } else {
+        this.visitAnyBlockOrIndent_(tree.elseClause);
+      }
     }
+  }
+
+  /**
+   * Called for the block of if, for etc.
+   */
+  visitAnyBlockOrIndent_(tree) {
+    if (tree.type === BLOCK) {
+      this.writeSpace_();
+      this.visitAny(tree);
+    } else {
+      this.visitAnyIndented_(tree);
+    }
+  }
+
+  visitAnyIndented_(tree, indent = 1) {
+      if (this.prettyPrint_) {
+        this.indentDepth_ += indent;
+        this.writeln_();
+      }
+      this.visitAny(tree);
+      if (this.prettyPrint_) {
+        this.indentDepth_ -= indent;
+        this.writeln_();
+      }
   }
 
   /**
@@ -719,9 +821,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
+    this.writeSpace_();
     if (this.importClause) {
       this.visitAny(tree.importClause);
+      this.writeSpace_();
       this.write_(FROM);
+      this.writeSpace_();
     }
     this.visitAny(tree.moduleSpecifier);
     this.write_(SEMI_COLON);
@@ -733,7 +838,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitImportSpecifier(tree) {
     this.write_(tree.lhs);
     if (tree.rhs !== null) {
+      this.writeSpace_();
       this.write_(AS);
+      this.writeSpace_();
       this.write_(tree.rhs);
     }
   }
@@ -754,6 +861,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitLabelledStatement(tree) {
     this.write_(tree.name);
     this.write_(COLON);
+    this.writeSpace_();
     this.visitAny(tree.statement);
   }
 
@@ -815,8 +923,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleDeclaration(tree) {
     this.write_(MODULE);
+    this.writeSpace_();
     this.write_(tree.identifier);
+    this.writeSpace_();
     this.write_(FROM);
+    this.writeSpace_();
     this.visitAny(tree.expression);
     this.write_(SEMI_COLON);
   }
@@ -826,6 +937,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitNewExpression(tree) {
     this.write_(NEW);
+    this.writeSpace_();
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
   }
@@ -859,6 +971,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.name);
     if (tree.element !== null) {
       this.write_(COLON);
+      this.writeSpace_();
       this.visitAny(tree.element);
     }
   }
@@ -877,6 +990,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitPostfixExpression(tree) {
     this.visitAny(tree.operand);
+    if (tree.operand.type === POSTFIX_EXPRESSION &&
+        tree.operand.operator.type === tree.operator.type) {
+      this.writeRequiredSpace_();
+    }
     this.write_(tree.operator);
   }
 
@@ -899,14 +1016,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitPropertyMethodAssignment(tree) {
     this.writeAnnotations_(tree.annotations);
-    if (tree.isStatic)
+    if (tree.isStatic) {
       this.write_(STATIC);
+      this.writeSpace_();
+    }
+
     if (tree.isGenerator)
       this.write_(STAR);
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.functionBody);
   }
@@ -917,6 +1038,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitPropertyNameAssignment(tree) {
     this.visitAny(tree.name);
     this.write_(COLON);
+    this.writeSpace_();
     this.visitAny(tree.value);
   }
 
@@ -934,6 +1056,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitTemplateLiteralExpression(tree) {
     // Template Literals have important whitespace semantics.
     this.visitAny(tree.operand);
+    this.writeSpace_();
     this.writeRaw_(BACK_QUOTE);
     this.visitList(tree.elements);
     this.writeRaw_(BACK_QUOTE);
@@ -961,6 +1084,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitReturnStatement(tree) {
     this.write_(RETURN);
+    this.writeSpace_(tree.expression);
     this.visitAny(tree.expression);
     this.write_(SEMI_COLON);
   }
@@ -979,13 +1103,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitSetAccessor(tree) {
     this.writeAnnotations_(tree.annotations);
-    if (tree.isStatic)
+    if (tree.isStatic){
       this.write_(STATIC);
+      this.writeSpace_();
+    }
     this.write_(SET);
+    this.writeSpace_();
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.visitAny(tree.parameter);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.visitAny(tree.body);
   }
 
@@ -1024,9 +1152,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitSwitchStatement(tree) {
     this.write_(SWITCH);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.expression);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.write_(OPEN_CURLY);
     this.writelnList_(tree.caseClauses);
     this.write_(CLOSE_CURLY);
@@ -1044,6 +1174,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitThrowStatement(tree) {
     this.write_(THROW);
+    this.writeSpace_();
     this.visitAny(tree.value);
     this.write_(SEMI_COLON);
   }
@@ -1053,9 +1184,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitTryStatement(tree) {
     this.write_(TRY);
+    this.writeSpace_();
     this.visitAny(tree.body);
-    this.visitAny(tree.catchBlock);
-    this.visitAny(tree.finallyBlock);
+    if (tree.catchBlock) {
+      this.writeSpace_();
+      this.visitAny(tree.catchBlock);
+    }
+    if (tree.finallyBlock) {
+      this.writeSpace_();
+      this.visitAny(tree.finallyBlock);
+    }
   }
 
   /**
@@ -1073,8 +1211,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {UnaryExpression} tree
    */
   visitUnaryExpression(tree) {
-    this.write_(tree.operator);
-    this.visitAny(tree.operand);
+    var op = tree.operator;
+    this.write_(op);
+    var operand = tree.operand;
+    if (operand.type === UNARY_EXPRESSION &&
+        requiresSpaceBetween(op.type, operand.operator.type)) {
+      this.writeRequiredSpace_();
+    }
+    this.visitAny(operand);
   }
 
   /**
@@ -1082,6 +1226,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclarationList(tree) {
     this.write_(tree.declarationType);
+    this.writeSpace_();
     this.writeList_(tree.declarations, COMMA, true, 2);
   }
 
@@ -1092,7 +1237,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.lvalue);
     this.writeTypeAnnotation_(tree.typeAnnotation);
     if (tree.initialiser !== null) {
+      this.writeSpace_();
       this.write_(EQUAL);
+      this.writeSpace_();
       this.visitAny(tree.initialiser);
     }
   }
@@ -1110,10 +1257,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitWhileStatement(tree) {
     this.write_(WHILE);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.condition);
     this.write_(CLOSE_PAREN);
-    this.visitAny(tree.body);
+    this.visitAnyBlockOrIndent_(tree.body);
   }
 
   /**
@@ -1121,9 +1269,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitWithStatement(tree) {
     this.write_(WITH);
+    this.writeSpace_();
     this.write_(OPEN_PAREN);
     this.visitAny(tree.expression);
     this.write_(CLOSE_PAREN);
+    this.writeSpace_();
     this.visitAny(tree.body);
   }
 
@@ -1132,14 +1282,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitYieldExpression(tree) {
     this.write_(YIELD);
-    if (tree.isYieldFor) {
+    if (tree.isYieldFor)
       this.write_(STAR);
+
+    if (tree.expression) {
+      this.writeSpace_();
+      this.visitAny(tree.expression);
     }
-    this.visitAny(tree.expression);
   }
 
   writeCurrentln_() {
-      this.result_ += this.currentLine_ + NEW_LINE;
+    this.result_ += this.currentLine_ + NEW_LINE;
   }
 
   writeln_() {
@@ -1187,6 +1340,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       } else {
         if (delimiter !== null) {
           this.write_(delimiter);
+          if (!writeNewLine)
+            this.writeSpace_();
         }
         if (writeNewLine) {
           if (i === 1)
@@ -1205,8 +1360,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   writeRaw_(value) {
-    if (value !== null)
-      this.currentLine_ += value;
+    this.currentLine_ += value;
   }
 
   /**
@@ -1214,14 +1368,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   write_(value) {
-    if (value === CLOSE_CURLY) {
+    if (value === CLOSE_CURLY)
       this.indentDepth_--;
-    }
 
     if (value !== null) {
       if (this.prettyPrint_) {
         if (!this.currentLine_) {
-          this.lastToken_ = '';
           for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
             this.currentLine_ += '  ';
           }
@@ -1229,18 +1381,26 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       }
       if (this.needsSpace_(value))
         this.currentLine_ += ' ';
-      this.lastToken_ = value;
       this.currentLine_ += value;
     }
 
-    if (value === OPEN_CURLY) {
+    if (value === OPEN_CURLY)
       this.indentDepth_++;
-    }
+  }
+
+  writeSpace_(useSpace = this.prettyPrint_) {
+    if (useSpace && !endsWithSpace(this.currentLine_))
+      this.currentLine_ += ' ';
+  }
+
+  writeRequiredSpace_() {
+    this.writeSpace_(true);
   }
 
   writeTypeAnnotation_(typeAnnotation) {
     if (typeAnnotation !== null) {
       this.write_(COLON);
+      this.writeSpace_();
       this.visitAny(typeAnnotation);
     }
   }
@@ -1259,197 +1419,32 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {string|Token|TokenType} token
-   */
-  isIdentifierNameOrNumber_(token) {
-    if (token instanceof Token) {
-      if (token.isKeyword())
-        return true;
-
-      switch (token.type) {
-        case IDENTIFIER:
-        case NUMBER:
-          return true;
-      }
-    }
-
-    var value = token.toString();
-    // We have some contextual keywords like get, set etc.
-    switch (value) {
-      case AS:
-      case FROM:
-      case GET:
-      case OF:
-      case MODULE:
-      case SET:
-        return true;
-    }
-
-    return !!getKeywordType(value);
-  }
-
-  /**
    * @param {string|Token|TokenType} value
    */
   needsSpace_(token) {
-    if (!this.lastToken_)
+    var line = this.currentLine_;
+    if (!line)
       return false;
 
-    // Prevent the next token from being interpreted as regular expression
-    // flags.
-    if (this.lastToken_.type === REGULAR_EXPRESSION &&
-        this.isIdentifierNameOrNumber_(token)) {
-      return true;
-    }
+    var lastCode = line.charCodeAt(line.length - 1);
+    if (isWhitespace(lastCode))
+      return false;
 
-    var value = token.toString();
-    var lastValue = this.lastToken_.toString();
+    var firstCode = token.toString().charCodeAt(0);
 
-    switch (value) {
-      case CLOSE_CURLY:
-      case CLOSE_PAREN:
-      case CLOSE_SQUARE:
-      case COLON:  // Prioritize formatting of object literal over
-                             // conditional expression.
-      case COMMA:
-      case PERIOD:
-      case SEMI_COLON:
-        return false;
-      case CATCH:
-      case ELSE:
-      case FINALLY:
-      case WHILE:
-        return this.prettyPrint_;
-
-      case OPEN_CURLY:
-        switch (lastValue) {
-          case OPEN_CURLY:
-          case OPEN_PAREN:
-          case OPEN_SQUARE:
-            return false;
-        }
-        return this.prettyPrint_;
-    }
-
-    switch (lastValue) {
-      case OPEN_CURLY:
-      case OPEN_PAREN:
-      case OPEN_SQUARE:
-        return false;
-
-      case CATCH:
-      case COLON:
-      case COMMA:
-      case DO:
-      case FINALLY:
-      case FOR:
-      case IF:
-      case SEMI_COLON:
-      case SWITCH:
-      case TRY:
-      case WHILE:
-      case WITH:
-        return this.prettyPrint_;
-
-      case CASE:
-      case CLASS:
-      case CONST:
-      case DELETE:
-      case ELSE:
-      case ENUM:
-      case EXPORT:
-      case EXTENDS:
-      case IMPLEMENTS:
-      case IMPORT:
-      case IN:
-      case INSTANCEOF:
-      case INTERFACE:
-      case LET:
-      case NEW:
-      case PACKAGE:
-      case PRIVATE:
-      case PROTECTED:
-      case PUBLIC:
-      case RETURN:
-      case STATIC:
-      case THROW:
-      case TYPEOF:
-      case VAR:
-      case VOID:
-      case YIELD:
-
-      case FROM:
-      case OF:
-      case MODULE:
-        return this.prettyPrint_ || this.isIdentifierNameOrNumber_(token);
-    }
-
-    if ((lastValue == PLUS || lastValue == PLUS_PLUS) &&
-        (value == PLUS || value == PLUS_PLUS) ||
-        (lastValue == MINUS || lastValue == MINUS_MINUS) &&
-        (value == MINUS || value == MINUS_MINUS)) {
-      return true;
-    }
-
-    if (this.spaceArround_(lastValue) || this.spaceArround_(value))
-      return true;
-
-    if (this.isIdentifierNameOrNumber_(token)) {
-      // This should really line break and indent until ;
-      if (lastValue === CLOSE_PAREN)
-        return this.prettyPrint_;
-
-      return this.isIdentifierNameOrNumber_(this.lastToken_);
-    }
-
-    return false;
+    return isIdentifierPart(firstCode) &&
+        // /m is treated as regexp flag
+        (isIdentifierPart(lastCode) || lastCode === 47);
   }
+}
 
-  /**
-   * @param {string} value
-   * @return {boolean} Whether we want spaces around the value if we are pretty
-   *     printing.
-   * @private
-   */
-  spaceArround_(value) {
-    switch (value) {
-      case AMPERSAND:
-      case AMPERSAND_EQUAL:
-      case AND:
-      case ARROW:
-      case AWAIT:
-      case BAR:
-      case BAR_EQUAL:
-      case CARET_EQUAL:
-      case CLOSE_ANGLE:
-      case EQUAL:
-      case EQUAL_EQUAL:
-      case EQUAL_EQUAL_EQUAL:
-      case GREATER_EQUAL:
-      case LEFT_SHIFT:
-      case LEFT_SHIFT_EQUAL:
-      case LESS_EQUAL:
-      case MINUS:
-      case MINUS_EQUAL:
-      case NOT_EQUAL:
-      case NOT_EQUAL_EQUAL:
-      case OPEN_ANGLE:
-      case OR:
-      case PERCENT:
-      case PERCENT_EQUAL:
-      case PLUS:
-      case PLUS_EQUAL:
-      case QUESTION:
-      case RIGHT_SHIFT:
-      case RIGHT_SHIFT_EQUAL:
-      case SLASH:
-      case SLASH_EQUAL:
-      case STAR:
-      case STAR_EQUAL:
-      case UNSIGNED_RIGHT_SHIFT:
-      case UNSIGNED_RIGHT_SHIFT_EQUAL:
-        return this.prettyPrint_;
-    }
-    return false;
-  }
+function requiresSpaceBetween(first, second) {
+  return (first === MINUS || first === MINUS_MINUS) &&
+      (second === MINUS || second === MINUS_MINUS) ||
+      (first === PLUS || first === PLUS_PLUS) &&
+      (second === PLUS || second === PLUS_PLUS);
+}
+
+function endsWithSpace(s) {
+  return isWhitespace(s.charCodeAt(s.length - 1));
 }
