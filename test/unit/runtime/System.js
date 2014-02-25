@@ -97,19 +97,4 @@ suite('System.js', function() {
     throw new Error('Expected throw before this statement');
   });
 
-  test('System.hookAPI', function(done) {
-    // API testing only, function testing in Loader tests.
-    var load = {
-      metadata: { },
-      normalizedName: System.normalize('./test_module')
-    }
-    var url = System.locate(load);
-    assert.equal(url, 'test_module.js');
-    System.fetch(url).then(function(text) {
-      console.log(text)
-      done();
-    }, function(err) {
-      done(err);
-    })
-  });
 });

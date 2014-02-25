@@ -119,7 +119,13 @@ export class LoaderHooks {
     return transformer.transform(transformedTree);
   }
 
-  fetch({address}, callback, errback) {
+  fetch(load) {
+    return new Promise((resolve, reject) => {
+      this.fileLoader.load(load.metadata.address, resolve, reject);
+    });
+  }
+
+  fetch_({address}, callback, errback) {
     this.fileLoader.load(address, callback, errback);
   }
 

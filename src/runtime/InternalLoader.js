@@ -209,7 +209,7 @@ export class InternalLoader {
   }
 
   loadTextFile(url, callback, errback) {
-    return this.loaderHooks.fetch({address: url}, callback, errback);
+    return this.loaderHooks.fetch_({address: url}, callback, errback);
   }
 
   load(name, referrerName = this.loaderHooks.rootUrl(),
