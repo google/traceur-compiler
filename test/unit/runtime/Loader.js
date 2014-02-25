@@ -405,20 +405,25 @@ suite('Loader.js', function() {
 
     // API testing only, function testing in Loader tests.
     var load = {
-      metadata: { },
+      metadata: {},
       normalizedName: System.normalize('./test_module')
-    }
+    };
 
-    var url = load.metadata.address = System.locate(load);
+    var url = load.address = System.locate(load);
     assert(/test\/unit\/runtime\/test_module.js$/.test(url));
     System.fetch(load).then(function(text) {
-      assert(text && typeof text === 'string')
+      assert(typeof text === 'string');
+      load.source = text;
+      return load;
+    }).then(System.translate.bind(System)).then(function(source) {
+      assert(source === load.source);
+      return load;
+    }).then(System.instantiate.bind(System)).then(function(nada) {
+      assert(typeof nada === 'undefined');
       done();
     }).catch(function(err) {
       done(err);
     });
-
-    //TODO(jjb): finish and test translate and instantiate
   });
 
 
