@@ -100,9 +100,8 @@
       if(/[^\.]\/\.\.\//.test(name)) {
         throw new Error('module name embeds /../: ' + name);
       }
-      if (name[0] === '.' && refererName) {
+      if (name[0] === '.' && refererName)
         return resolveUrl(refererName, name);
-      }
       return canonicalizeUrl(name);
     },
 
