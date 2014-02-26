@@ -22,6 +22,13 @@ export class TraceurLoader extends Loader {
    * @param {!Object=} loaderHooks
    */
   constructor(loaderHooks) {
+    if (loaderHooks.translateSynchronous) {
+      loaderHooks.translate = function(load) {
+        return new Promise((resolve, reject) => {
+          resolve(loaderHooks.translateSynchronous(load));
+        });
+      }
+    }
     super(loaderHooks);
   }
 

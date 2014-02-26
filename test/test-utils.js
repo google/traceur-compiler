@@ -118,7 +118,7 @@
     }
   }
 
-  function featureTest(name, url, loader) {
+  function featureTest(name, url, fileLoader) {
 
     teardown(function() {
       traceur.options.reset();
@@ -131,11 +131,12 @@
 
       var reporter = new traceur.util.TestErrorReporter();
       var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', loader);
+      var loaderHooks = new LoaderHooks(reporter, './', fileLoader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
-      loaderHooks.translate = function(source) {
+      loaderHooks.translateSynchronous = function(load) {
+        var source = load.source;
         // Only top level file can set options.
         if (!options)
           options = parseProlog(source);
