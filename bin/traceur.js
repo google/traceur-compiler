@@ -627,9 +627,15 @@
         enumerable: true
       });
     }));
+    Object.defineProperty(coatedModule, '__module', {get: function() {
+        return true;
+      }});
     Object.preventExtensions(coatedModule);
     return coatedModule;
   }
+  Module.isModule = function(module) {
+    return !!module.__module;
+  };
   var ModuleStore = {
     normalize: function(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -706,6 +712,7 @@
     setupGlobals(global);
   };
   $traceurRuntime.ModuleStore = ModuleStore;
+  $traceurRuntime.Module = Module;
   global.System = {
     register: ModuleStore.register.bind(ModuleStore),
     get: ModuleStore.get,
@@ -20606,6 +20613,9 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
     },
     register: function(normalizedName, deps, factoryFunction) {
       $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+    },
+    get Module() {
+      return $traceurRuntime.Module;
     }
   }, {}, Loader);
   return {get TraceurLoader() {

@@ -122,4 +122,9 @@ export class TraceurLoader extends Loader {
   register(normalizedName, deps, factoryFunction) {
     $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
   }
+
+  // Until we hear from es-discuss on the location of Module, use System.Module.
+  get Module() {
+    return $traceurRuntime.Module;
+  }
 }

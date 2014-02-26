@@ -97,4 +97,10 @@ suite('System.js', function() {
     throw new Error('Expected throw before this statement');
   });
 
+  test('Module.isModule', function() {
+    var store = $traceurRuntime.ModuleStore;
+    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
+    assert(System.Module.isModule(polyfills));
+  });
+
 });
