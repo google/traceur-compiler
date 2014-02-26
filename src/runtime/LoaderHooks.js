@@ -94,7 +94,7 @@ export class LoaderHooks {
     assert(!codeUnit.metadata.tree);
     var reporter = this.reporter;
     var normalizedName = codeUnit.normalizedName;
-    var program = codeUnit.text;
+    var program = codeUnit.source;
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
@@ -119,12 +119,22 @@ export class LoaderHooks {
     return transformer.transform(transformedTree);
   }
 
-  fetch({address}, callback, errback) {
-    this.fileLoader.load(address, callback, errback);
+  fetch(load) {
+    return new Promise((resolve, reject) => {
+      this.fileLoader.load(load.address, resolve, reject);
+    });
+  }
+
+  translate(load) {
+    return new Promise((resolve, reject) => {
+      resolve(load.source);
+    });
   }
 
   instantiate({name, metadata, address, source, sourceMap}) {
-    return undefined;
+    return new Promise((resolve, reject) => {
+      resolve(undefined);
+    });
   }
 
   locate(load) {

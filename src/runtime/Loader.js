@@ -71,6 +71,22 @@ export class Loader {
   normalize(name, referrerName, referrerAddress) {
     return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
   }
+
+  locate(load) {
+    return this.loaderHooks_.locate(load);
+  }
+
+  fetch(load) {
+    return this.loaderHooks_.fetch(load);
+  }
+
+  translate(load) {
+    return this.loaderHooks_.translate(load);
+  }
+
+  instantiate(load) {
+    return this.loaderHooks_.instantiate(load);
+  }
 }
 
 export {LoaderHooks};

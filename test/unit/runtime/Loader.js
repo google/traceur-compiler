@@ -399,4 +399,32 @@ suite('Loader.js', function() {
 
   });
 
+  test('System.hookAPI', function(done) {
+    // TODO(jjb): should be global System.
+    var System = getLoader();
+
+    // API testing only, function testing in Loader tests.
+    var load = {
+      metadata: {},
+      normalizedName: System.normalize('./test_module')
+    };
+
+    var url = load.address = System.locate(load);
+    assert(/test\/unit\/runtime\/test_module.js$/.test(url));
+    System.fetch(load).then(function(text) {
+      assert.typeOf(text, 'string');
+      load.source = text;
+      return load;
+    }).then(System.translate.bind(System)).then(function(source) {
+      assert.equal(source, load.source);
+      return load;
+    }).then(System.instantiate.bind(System)).then(function(nada) {
+      assert.typeOf(nada, 'undefined');
+      done();
+    }).catch(function(err) {
+      done(err);
+    });
+  });
+
+
 });
