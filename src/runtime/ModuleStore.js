@@ -86,10 +86,8 @@
         enumerable: true
       });
     });
-    // es-discuss:
-    // On Feb 21, 2014, at 12:08 PM, David Herman wrote:
-    // I think it should be Module.isModule.
-    Object.defineProperty(coatedModule, 'isModule', {
+
+    Object.defineProperty(coatedModule, '__module', {
       // by default: not configurable, writable, nor enumerable.
       get: function() {
         return true;
@@ -97,6 +95,13 @@
     });
     Object.preventExtensions(coatedModule);
     return coatedModule;
+  }
+
+  // es-discuss:
+  // On Feb 21, 2014, at 12:08 PM, David Herman wrote:
+  // I think it should be Module.isModule.
+  Module.isModule = function(module) {
+    return !!module.__module;
   }
 
   var ModuleStore = {
@@ -202,6 +207,7 @@
     setupGlobals(global);
   };
   $traceurRuntime.ModuleStore = ModuleStore;
+  $traceurRuntime.Module = Module;
 
   global.System = {
     register: ModuleStore.register.bind(ModuleStore),
