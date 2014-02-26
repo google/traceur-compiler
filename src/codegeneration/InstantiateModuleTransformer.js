@@ -50,7 +50,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       func = parseExpression `${func}.bind(${globalThis()})`;
 
     return parseStatements
-        `$traceurRuntime.ModuleStore.register(${this.moduleName}, ${depPaths}, ${func});`;
+        `System.register(${this.moduleName}, ${depPaths}, ${func});`;
   }
 
   /**

@@ -104,8 +104,7 @@ export class ModuleTransformer extends TempVarTransformer {
               ${functionExpression});`;
     }
     return parseStatements
-        `$traceurRuntime.ModuleStore.registerModule(${this.moduleName},
-            ${functionExpression});`;
+        `System.register(${this.moduleName}, [], ${functionExpression});`;
   }
 
   /**
