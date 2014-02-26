@@ -122,4 +122,12 @@ export class TraceurLoader extends Loader {
   register(normalizedName, deps, factoryFunction) {
     $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
   }
+
+  get baseURL() {
+    return this.loaderHooks_.baseURL;
+  }
+
+  set baseURL(value) {
+    this.loaderHooks_.baseURL = value;
+  }
 }
