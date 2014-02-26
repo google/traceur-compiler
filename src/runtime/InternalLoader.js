@@ -371,7 +371,7 @@ export class InternalLoader {
     this.reporter.reportError(null, message);
     this.abortAll(message);
     codeUnit.error = message;
-    codeUnit.reject(message);
+    codeUnit.reject(new Error(message));
   }
 
   /**
@@ -386,7 +386,7 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.reject(codeUnit.error || errorMessage);
+      codeUnit.reject(new Error(codeUnit.error || errorMessage));
     });
   }
 
