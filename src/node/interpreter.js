@@ -22,17 +22,11 @@ function interpret(filename, argv, flags) {
   // Interpret the filename argument as a platform-independent,
   // normalized module name.
   var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
+  System.import(moduleName).then(function() {
 
-  // TODO(jjb): Should be system loader.
-  function getLoader() {
-    var LoaderHooks = traceur.runtime.LoaderHooks;
-    var reporter = new traceur.util.ErrorReporter();
-    // Load dependencies as relative to the argument.
-    var loaderHooks = new LoaderHooks(reporter, moduleName, nodeLoader);
-    return new traceur.runtime.TraceurLoader(loaderHooks);
-  }
-  global.SystemLoader = getLoader();
-  global.SystemLoader.import(moduleName);
+  }).catch(function(err) {
+    console.error(err);
+  });
 }
 
 module.exports = interpret;

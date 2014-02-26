@@ -206,7 +206,7 @@ export class InternalLoader {
     this.sync_ = false;
   }
 
-  load(name, referrerName = this.loaderHooks.rootUrl(),
+  load(name, referrerName = this.loaderHooks.baseURL,
       address, type = 'script') {
     var codeUnit = this.load_(name, referrerName, address, type);
     return codeUnit.promise.then(() => codeUnit);

@@ -54,4 +54,10 @@ suite('url.js', function() {
     assert.equal('b', removeDotSegments('a/./../b'));
     assert.equal('b/', removeDotSegments('a/./../b/'));
   });
+
+  test('resolveUrl', function() {
+    var resolveUrl =
+        $traceurRuntime.ModuleStore.getForTesting('src/util/url').resolveUrl;
+    assert.equal('/a/b/c/d', resolveUrl('/a/b/x/y/', '../../c/d'));
+  });
 });

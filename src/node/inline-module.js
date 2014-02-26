@@ -78,10 +78,10 @@ function allLoaded(url, reporter, elements) {
  */
 function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
-  // The caller needs to do a chdir.
-  var basePath = './';
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
+
+  var basePath;
   if (referrerName) {
     // The compile occurs two directories down from current directory,
     // in src/node.  Thus the names will appear as eg ../src/x.
@@ -92,8 +92,9 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
     // The basePath will replace options.referrer in our final filename.
     // Since we are in src/node, we need to back up two directories.
     basePath = path.join(__dirname, '../../');
+  } else {
+    basePath = path.resolve('./') + '/';
   }
-
   basePath = basePath.replace(/\\/g, '/');
 
   var scriptsCount = options.scripts.length;
@@ -124,7 +125,6 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
       if (options.modules !== 'inline' && options.modules !== 'instantiate')
         doEvaluateModule = true;
     }
-
     var loadOptions = {referrerName: referrerName};
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {

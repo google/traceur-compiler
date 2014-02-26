@@ -19701,11 +19701,11 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
   var COMPLETE = 6;
   var ERROR = 7;
   var identifierGenerator = new UniqueIdentifierGenerator();
-  var LoaderHooks = function LoaderHooks(reporter, rootUrl) {
+  var LoaderHooks = function LoaderHooks(reporter, baseURL) {
     var fileLoader = arguments[2] !== (void 0) ? arguments[2] : webLoader;
     var moduleStore = arguments[3] !== (void 0) ? arguments[3] : $traceurRuntime.ModuleStore;
     this.reporter = reporter;
-    this.rootUrl_ = rootUrl;
+    this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
     this.exportListBuilder_ = new ExportListBuilder(this.reporter);
@@ -19724,8 +19724,11 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
       else
         return normalizedName;
     },
-    rootUrl: function() {
-      return this.rootUrl_;
+    get baseURL() {
+      return this.baseURL_;
+    },
+    set baseURL(value) {
+      this.baseURL_ = String(value);
     },
     getModuleSpecifiers: function(codeUnit) {
       if (!this.parse(codeUnit))
@@ -19796,7 +19799,7 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
       if (isAbsolute(asJS))
         return asJS;
       var baseURL = load.metadata && load.metadata.baseURL;
-      baseURL = baseURL || this.rootUrl();
+      baseURL = baseURL || this.baseURL;
       if (baseURL) {
         load.metadata.baseURL = baseURL;
         return resolveUrl(baseURL, asJS);
@@ -19808,8 +19811,11 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
       if (load.metadata.locateMap) {
         trace += this.locateMapTrace(load);
       }
-      if (load.metadata.baseURL) {
-        trace += this.baseURLTrace(load);
+      var base = load.metadata.baseURL || this.baseURL;
+      if (base) {
+        trace += this.baseURLTrace(base);
+      } else {
+        trace += 'No baseURL\n';
       }
       return trace;
     },
@@ -19817,8 +19823,8 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
       var map = load.metadata.locateMap;
       return ("LoaderHooks.locate found \'" + map.pattern + "\' -> \'" + map.replacement + "\'\n");
     },
-    baseURLTrace: function(load) {
-      return 'LoaderHooks.locate resolved against \'' + load.metadata.baseURL + '\'\n';
+    baseURLTrace: function(base) {
+      return 'LoaderHooks.locate resolved against base \'' + base + '\'\n';
     },
     evaluateCodeUnit: function(codeUnit) {
       var result = ('global', eval)(codeUnit.metadata.transcoded);
@@ -20014,7 +20020,7 @@ System.register("traceur@0.0.25/src/runtime/InternalLoader", [], function() {
   };
   ($traceurRuntime.createClass)(InternalLoader, {
     load: function(name) {
-      var referrerName = arguments[1] !== (void 0) ? arguments[1] : this.loaderHooks.rootUrl();
+      var referrerName = arguments[1] !== (void 0) ? arguments[1] : this.loaderHooks.baseURL;
       var address = arguments[2];
       var type = arguments[3] !== (void 0) ? arguments[3] : 'script';
       var codeUnit = this.load_(name, referrerName, address, type);
@@ -20606,6 +20612,12 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
     },
     register: function(normalizedName, deps, factoryFunction) {
       $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+    },
+    get baseURL() {
+      return this.loaderHooks_.baseURL;
+    },
+    set baseURL(value) {
+      this.loaderHooks_.baseURL = value;
     }
   }, {}, Loader);
   return {get TraceurLoader() {
