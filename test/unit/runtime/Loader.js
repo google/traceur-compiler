@@ -412,14 +412,14 @@ suite('Loader.js', function() {
     var url = load.address = System.locate(load);
     assert(/test\/unit\/runtime\/test_module.js$/.test(url));
     System.fetch(load).then(function(text) {
-      assert(typeof text === 'string');
+      assert.typeOf(text, 'string');
       load.source = text;
       return load;
     }).then(System.translate.bind(System)).then(function(source) {
-      assert(source === load.source);
+      assert.equal(source, load.source);
       return load;
     }).then(System.instantiate.bind(System)).then(function(nada) {
-      assert(typeof nada === 'undefined');
+      assert.typeOf(nada, 'undefined');
       done();
     }).catch(function(err) {
       done(err);

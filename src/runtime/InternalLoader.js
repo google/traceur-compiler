@@ -236,7 +236,7 @@ export class InternalLoader {
         return codeUnit;
       }).catch((err) => {
         codeUnit.state = ERROR;
-        codeUnit.abort = function(){}
+        codeUnit.abort = function() {};
         this.handleCodeUnitLoadError(codeUnit);
       });
     }

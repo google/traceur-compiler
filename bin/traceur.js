@@ -19687,9 +19687,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/LoaderHoo
   var SourceFile = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/syntax/SourceFile").SourceFile;
   var systemjs = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/runtime/system-map").systemjs;
   var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/codegeneration/UniqueIdentifierGenerator").UniqueIdentifierGenerator;
-  var $__315 = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/util/url"),
-      isAbsolute = $__315.isAbsolute,
-      resolveUrl = $__315.resolveUrl;
+  var $__316 = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/util/url"),
+      isAbsolute = $__316.isAbsolute,
+      resolveUrl = $__316.resolveUrl;
   var webLoader = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/runtime/webLoader").webLoader;
   var assert = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/util/assert").assert;
   var NOT_STARTED = 0;
@@ -19739,7 +19739,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/LoaderHoo
       assert(!codeUnit.metadata.tree);
       var reporter = this.reporter;
       var normalizedName = codeUnit.normalizedName;
-      var program = codeUnit.text;
+      var program = codeUnit.source;
       var url = codeUnit.url || normalizedName;
       var file = new SourceFile(url, program);
       var parser = new Parser(file, reporter);
@@ -19756,9 +19756,16 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/LoaderHoo
       transformer = new FromOptionsTransformer(this.reporter, identifierGenerator);
       return transformer.transform(transformedTree);
     },
-    fetch: function($__315, callback, errback) {
-      var address = $__315.address;
-      this.fileLoader.load(address, callback, errback);
+    fetch: function(load) {
+      var $__314 = this;
+      return new Promise((function(resolve, reject) {
+        $__314.fileLoader.load(load.address, resolve, reject);
+      }));
+    },
+    translate: function(load) {
+      return new Promise((function(resolve, reject) {
+        resolve(load.source);
+      }));
     },
     instantiate: function($__316) {
       var name = $__316.name,
@@ -19766,7 +19773,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/LoaderHoo
           address = $__316.address,
           source = $__316.source,
           sourceMap = $__316.sourceMap;
-      return undefined;
+      return new Promise((function(resolve, reject) {
+        resolve(undefined);
+      }));
     },
     locate: function(load) {
       load.url = this.locate_(load);
@@ -19938,9 +19947,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
     transform: function() {
       return this.loaderHooks.transform(this);
     },
-    instantiate: function() {
-      if (this.loaderHooks.instantiate(this))
-        throw new Error('instantiate() with factory return not implemented.');
+    instantiate: function(load) {
+      return this.loaderHooks.instantiate(this);
     }
   }, {});
   var PreCompiledCodeUnit = function PreCompiledCodeUnit(loaderHooks, normalizedName, name, referrerName, address, module) {
@@ -19993,7 +20001,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
     var referrerName = arguments[4];
     var address = arguments[5];
     $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, type, LOADED, null, referrerName, address]);
-    this.text = code;
+    this.source = code;
   };
   var $EvalCodeUnit = EvalCodeUnit;
   ($traceurRuntime.createClass)(EvalCodeUnit, {}, {}, HookedCodeUnit);
@@ -20003,12 +20011,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
-    this.translateHook = loaderHooks.translate || defaultTranslate;
   };
   ($traceurRuntime.createClass)(InternalLoader, {
-    loadTextFile: function(url, callback, errback) {
-      return this.loaderHooks.fetch({address: url}, callback, errback);
-    },
     load: function(name) {
       var referrerName = arguments[1] !== (void 0) ? arguments[1] : this.loaderHooks.rootUrl();
       var address = arguments[2];
@@ -20030,14 +20034,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
         if (codeUnit.state !== NOT_STARTED)
           return codeUnit;
         codeUnit.state = LOADING;
-        var translate = this.translateHook;
-        var url = this.loaderHooks.locate(codeUnit);
-        codeUnit.abort = this.loadTextFile(url, (function(text) {
-          codeUnit.text = translate(text);
+        codeUnit.address = this.loaderHooks.locate(codeUnit);
+        this.loaderHooks.fetch(codeUnit).then((function(text) {
+          codeUnit.source = text;
+          return codeUnit;
+        })).then(this.loaderHooks.translate.bind(this.loaderHooks)).then((function(source) {
+          codeUnit.source = source;
           codeUnit.state = LOADED;
           $__320.handleCodeUnitLoaded(codeUnit);
-        }), (function() {
+          return codeUnit;
+        })).catch((function(err) {
           codeUnit.state = ERROR;
+          codeUnit.abort = function() {};
           $__320.handleCodeUnitLoadError(codeUnit);
         }));
       }
@@ -20132,7 +20140,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
       }
     },
     handleCodeUnitLoadError: function(codeUnit) {
-      var message = ("Failed to load '" + codeUnit.url + "'.\n") + codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+      var message = ("Failed to load '" + codeUnit.address + "'.\n") + codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;
@@ -20182,10 +20190,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
       var metadata = codeUnit.metadata;
       metadata.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
-      var filename = codeUnit.url || codeUnit.normalizedName;
+      var filename = codeUnit.address || codeUnit.normalizedName;
       ($__322 = toSource(metadata.transformedTree, this.options, filename), metadata.transcoded = $__322[0], metadata.sourceMap = $__322[1], $__322);
-      if (codeUnit.url && metadata.transcoded)
-        metadata.transcoded += '//# sourceURL=' + codeUnit.url;
+      if (codeUnit.address && metadata.transcoded)
+        metadata.transcoded += '//# sourceURL=' + codeUnit.address;
     },
     checkForErrors: function(dependencies, phase) {
       if (this.reporter.hadError()) {
@@ -20238,7 +20246,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
           return;
         }
         codeUnit.result = result;
-        codeUnit.text = null;
+        codeUnit.source = null;
       }
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
@@ -20250,9 +20258,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/InternalL
       }
     }
   }, {});
-  function defaultTranslate(source) {
-    return source;
-  }
   var SystemLoaderHooks = LoaderHooks;
   var internals = {
     CodeUnit: CodeUnit,
@@ -20307,6 +20312,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/Loader", 
     },
     normalize: function(name, referrerName, referrerAddress) {
       return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+    },
+    locate: function(load) {
+      return this.loaderHooks_.locate(load);
+    },
+    fetch: function(load) {
+      return this.loaderHooks_.fetch(load);
+    },
+    translate: function(load) {
+      return this.loaderHooks_.translate(load);
+    },
+    instantiate: function(load) {
+      return this.loaderHooks_.instantiate(load);
     }
   }, {});
   ;
@@ -20532,6 +20549,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.24/src/runtime/TraceurLo
   var InternalLoader = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/runtime/InternalLoader").InternalLoader;
   var Loader = $traceurRuntime.getModuleImpl("traceur@0.0.24/src/runtime/Loader").Loader;
   var TraceurLoader = function TraceurLoader(loaderHooks) {
+    if (loaderHooks.translateSynchronous) {
+      loaderHooks.translate = function(load) {
+        return new Promise((function(resolve, reject) {
+          resolve(loaderHooks.translateSynchronous(load));
+        }));
+      };
+    }
     $traceurRuntime.superCall(this, $TraceurLoader.prototype, "constructor", [loaderHooks]);
   };
   var $TraceurLoader = TraceurLoader;
