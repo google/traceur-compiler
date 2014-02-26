@@ -55,6 +55,10 @@ function nested(value):Boolean {
   return square(value) > 0;
 }
 
+function returnVoid(x): void {
+  return x;
+}
+
 assert.equal(1, returnType());
 assert.equal(1, multipleReturnPaths(true));
 assert.equal(2, multipleReturnPaths(false));
@@ -69,4 +73,5 @@ assert.isTrue(returnWithinDoWhileLoop(5));
 assert.isFalse(returnWithinDoWhileLoop(20));
 assert.equal(0, returnExpression(0));
 assert.equal(2, returnExpression(4));
+assert.equal(undefined, returnVoid());
 assert.throw(throwsAssertion, chai.AssertionError);
