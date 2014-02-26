@@ -273,7 +273,7 @@ class AnnotationsScope {
     parameters = parameters.map((param) => {
       var metadata = [];
       if (param.typeAnnotation)
-        metadata.push(createIdentifierExpression(param.typeAnnotation.name.value));
+        metadata.push(this.transformAny(param.typeAnnotation));
       if (param.annotations && param.annotations.length > 0)
         metadata.push(...this.transformAnnotations_(param.annotations));
       if (metadata.length > 0) {

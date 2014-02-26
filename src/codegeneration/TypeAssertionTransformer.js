@@ -27,7 +27,9 @@ import {
   VariableDeclaration
 } from '../syntax/trees/ParseTrees';
 import {
+  createArgumentList,
   createExpressionStatement,
+  createIdentifierExpression,
   createIdentifierToken,
   createStringLiteralToken
 } from './ParseTreeFactory';
@@ -41,15 +43,17 @@ import {options} from '../options';
 /**
  * Inserts runtime type assertions for type annotations.
  *
- *   function test(a:Number):Number {
- *     return a * 10;
+ *   function test(a:number):number {
+ *     var b:number = 10;
+ *     return a * b;
  *   }
  *
  *   =>
  *
- *   function test(a:Number):Number {
- *     assert.type(a, Number);
- *     return assert.type(a * 10, Number);
+ *   function test(a) {
+ *     assert.argumentTypes(a, $traceurRuntime.type.number);
+ *     assert.type(b, $traceurRuntime.type.number);
+ *     return assert.returnType((a * 10), $traceurRuntime.type.number);
  *   }
  */
 export class TypeAssertionTransformer extends ParameterTransformer {
@@ -59,6 +63,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   constructor(identifierGenerator) {
     super(identifierGenerator);
     this.returnTypeStack_ = [];
+    this.parametersStack_ = [];
     this.assertionAdded_ = false;
   }
 
@@ -83,12 +88,35 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformVariableDeclaration(tree) {
-    if (tree.typeAnnotation) {
-      tree = new VariableDeclaration(tree.location, tree.lvalue,
-          tree.typeAnnotation,
-          this.assertType_(tree.initialiser, tree.typeAnnotation));
+    if (tree.typeAnnotation && tree.initialiser) {
+      var assert = parseExpression `assert.type(${tree.initialiser}, ${tree.typeAnnotation})`;
+      tree = new VariableDeclaration(tree.location, tree.lvalue, tree.typeAnnotation, assert);
+
+      this.assertionAdded_ = true;
     }
     return super(tree);
+  }
+
+  transformFormalParameterList(tree) {
+
+    // because param lists can be nested
+    this.parametersStack_.push({
+      atLeastOneParameterTyped: false,
+      arguments: []
+    });
+
+    var transformed = super(tree);
+    var params = this.parametersStack_.pop();
+
+    if (params.atLeastOneParameterTyped) {
+      var argumentList = createArgumentList(params.arguments);
+      var assertStatement = parseStatement `assert.argumentTypes(${argumentList})`;
+
+      this.parameterStatements.push(assertStatement);
+      this.assertionAdded_ = true;
+    }
+
+    return transformed;
   }
 
   /**
@@ -96,19 +124,20 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformFormalParameter(tree) {
-    if (tree.typeAnnotation !== null) {
-      switch (tree.parameter.type) {
-        case BINDING_ELEMENT:
-          this.transformBindingElementParameter_(tree.parameter,
-                                                 tree.typeAnnotation);
-          break;
+    var transformed = super(tree);
 
-        case REST_PARAMETER:
-          // NYI
-          break;
-      }
+    switch (transformed.parameter.type) {
+      case BINDING_ELEMENT:
+        this.transformBindingElementParameter_(transformed.parameter,
+                                               transformed.typeAnnotation);
+        break;
+
+      case REST_PARAMETER:
+        // NYI
+        break;
     }
-    return super(tree);
+
+    return transformed;
   }
 
   /**
@@ -161,35 +190,32 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformReturnStatement(tree) {
     tree = super(tree);
-    var expression = this.assertType_(tree.expression, this.returnType_);
-    if (tree.expression !== expression)
-      return new ReturnStatement(tree.location, expression);
+
+    if (this.returnType_ && tree.expression) {
+      this.assertionAdded_ = true;
+      return parseStatement `return assert.returnType((${tree.expression}), ${this.returnType_})`;
+    }
+
     return tree;
   }
 
-  transformBindingElementParameter_(tree, typeAnnotation) {
-    if (!tree.binding.isPattern()) {
-        this.pushParameterAssertion_(tree, typeAnnotation);
-        return;
+  transformBindingElementParameter_(element, typeAnnotation) {
+    if (!element.binding.isPattern()) {
+      if (typeAnnotation) {
+        this.paramTypes_.atLeastOneParameterTyped = true;
+      } else {
+        typeAnnotation = parseExpression `$traceurRuntime.type.any`;
+      }
+
+      this.paramTypes_.arguments.push(createIdentifierExpression(element.binding.identifierToken), typeAnnotation);
+      return;
     }
 
     // NYI
   }
 
-  pushParameterAssertion_(element, typeAnnotation) {
-    this.parameterStatements.push(createExpressionStatement(
-        this.assertType_(element.binding.identifierToken, typeAnnotation)));
-  }
-
   pushReturnType_(typeAnnotation) {
-    this.returnTypeStack_.push(typeAnnotation);
-  }
-
-  assertType_(expression, typeAnnotation) {
-    if (expression === null || typeAnnotation === null)
-      return expression;
-    this.assertionAdded_ = true;
-    return parseExpression `assert.type(${expression}, ${typeAnnotation.name})`;
+    this.returnTypeStack_.push(this.transformAny(typeAnnotation));
   }
 
   prependAssertionImport_(tree, Ctor) {
@@ -215,5 +241,9 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     return this.returnTypeStack_.length > 0 ?
         this.returnTypeStack_[this.returnTypeStack_.length - 1] :
         null;
+  }
+
+  get paramTypes_() {
+    return this.parametersStack_[this.parametersStack_.length - 1];
   }
 }
