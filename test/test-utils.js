@@ -193,14 +193,10 @@
 
       if (/\.module\.js$/.test(url)) {
         moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
-            handleFailure).catch(function(ex) {
-              done(ex);
-            });
+            handleFailure).catch(done);
       } else {
         moduleLoader.loadAsScript(url, {}).then(handleSuccess,
-          handleFailure).catch(function(ex) {
-            done(ex);
-          });
+          handleFailure).catch(done);
       }
     });
   }

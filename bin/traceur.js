@@ -639,9 +639,8 @@
       if (/[^\.]\/\.\.\//.test(name)) {
         throw new Error('module name embeds /../: ' + name);
       }
-      if (name[0] === '.' && refererName) {
+      if (name[0] === '.' && refererName)
         return resolveUrl(refererName, name);
-      }
       return canonicalizeUrl(name);
     },
     get: function(normalizedName) {
@@ -19728,6 +19727,9 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
     get baseURL() {
       return this.baseURL_;
     },
+    set baseURL(value) {
+      this.baseURL_ = String(value);
+    },
     getModuleSpecifiers: function(codeUnit) {
       if (!this.parse(codeUnit))
         return;
@@ -20613,6 +20615,9 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
     },
     get baseURL() {
       return this.loaderHooks_.baseURL;
+    },
+    set baseURL(value) {
+      this.loaderHooks_.baseURL = value;
     }
   }, {}, Loader);
   return {get TraceurLoader() {

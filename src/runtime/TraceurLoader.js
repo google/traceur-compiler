@@ -126,4 +126,8 @@ export class TraceurLoader extends Loader {
   get baseURL() {
     return this.loaderHooks_.baseURL;
   }
+
+  set baseURL(value) {
+    this.loaderHooks_.baseURL = value;
+  }
 }

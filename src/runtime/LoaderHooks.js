@@ -76,6 +76,10 @@ export class LoaderHooks {
     return this.baseURL_;
   }
 
+  set baseURL(value) {
+    this.baseURL_ = String(value);
+  }
+
   getModuleSpecifiers(codeUnit) {
     // Parse
     if (!this.parse(codeUnit))

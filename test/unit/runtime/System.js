@@ -97,4 +97,12 @@ suite('System.js', function() {
     throw new Error('Expected throw before this statement');
   });
 
+  test('System.baseURL.setter', function() {
+    var testing = 'testing';
+    assert.notEqual(System.baseURL, testing);
+    System.baseURL = testing;
+    assert.equal(System.baseURL, testing);
+    // reset in teardown.
+  });
+
 });
