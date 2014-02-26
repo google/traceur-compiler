@@ -100,7 +100,7 @@ suite('System.js', function() {
   test('Module.isModule', function() {
     var store = $traceurRuntime.ModuleStore;
     var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
-    assert(polyfills.isModule)
+    assert(polyfills.isModule);
   });
 
 });
