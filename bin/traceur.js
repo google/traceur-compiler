@@ -627,6 +627,9 @@
         enumerable: true
       });
     }));
+    Object.defineProperty(coatedModule, 'isModule', {get: function() {
+        return true;
+      }});
     Object.preventExtensions(coatedModule);
     return coatedModule;
   }

@@ -86,6 +86,15 @@
         enumerable: true
       });
     });
+    // es-discuss:
+    // On Feb 21, 2014, at 12:08 PM, David Herman wrote:
+    // I think it should be Module.isModule.
+    Object.defineProperty(coatedModule, 'isModule', {
+      // by default: not configurable, writable, nor enumerable.
+      get: function() {
+        return true;
+      }
+    });
     Object.preventExtensions(coatedModule);
     return coatedModule;
   }
