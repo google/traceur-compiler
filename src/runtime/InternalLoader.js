@@ -50,6 +50,7 @@ class CodeUnit {
     this.name_ = name;
     this.referrerName_ = referrerName;
     this.address_ = address;
+    this.url = InternalLoader.uniqueName(normalizedName, address);
     this.uid = getUid();
     this.state_ = state || NOT_STARTED;
     this.error = null;
@@ -191,6 +192,8 @@ class EvalCodeUnit extends HookedCodeUnit {
   }
 }
 
+var uniqueNameCount = 0;
+
 /**
  * The internal implementation of the code loader.
  */
@@ -285,10 +288,13 @@ export class InternalLoader {
     return this.loaderHooks.options;
   }
 
-  sourceMap(normalizedName, type) {
+  sourceMapInfo(normalizedName, type) {
     var key = this.getKey(normalizedName, type);
     var codeUnit = this.cache.get(key);
-    return codeUnit && codeUnit.metadata && codeUnit.metadata.sourceMap;
+    return {
+      sourceMap: codeUnit && codeUnit.metadata && codeUnit.metadata.sourceMap,
+      url: codeUnit && codeUnit.url
+    };
   }
 
   getKey(url, type) {
@@ -506,6 +512,15 @@ export class InternalLoader {
       codeUnit.resolve(codeUnit.result);
     }
   }
+
+  static uniqueName(normalizedName, referrerAddress) {
+    var importerAddress = referrerAddress || System.baseURL;
+    if (!importerAddress)
+      throw new Error('The System.baseURL is an empty string');
+    var path = normalizedName || String(uniqueNameCount++);
+    return resolveUrl(importerAddress, path);
+  }
+
 }
 
 // jjb I don't understand why this is needed.

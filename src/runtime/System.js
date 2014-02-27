@@ -22,17 +22,17 @@ import {webLoader} from './webLoader';
 var url;
 var fileLoader;
 if (typeof window !== 'undefined' && window.location) {
-	url = window.location.href;
-	fileLoader = webLoader;
-} // else the node app will override System.
+  url = window.location.href;
+  fileLoader = webLoader;
+}
 
 var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
 export var System = new TraceurLoader(loaderHooks);
 
 if (typeof window !== 'undefined')
-	window.System = System;
+  window.System = System;
 if (typeof global !== 'undefined')
-	global.System = System;
+  global.System = System;
 
 System.map = System.semverMap(__moduleName);
 

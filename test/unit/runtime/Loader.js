@@ -38,6 +38,7 @@ suite('Loader.js', function() {
     // Windows file paths.
     url = __filename.replace(/\\/g, '/');
     fileLoader = require('../../../src/node/nodeLoader.js');
+    System = require('../../../src/node/System.js');
   } else {
     url = traceur.util.resolveUrl(window.location.href,
                                   'unit/runtime/modules.js');
@@ -99,8 +100,8 @@ suite('Loader.js', function() {
       function(result) {
         loader.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
-        var sourceMap = loader.sourceMap(normalizedName, 'script');
-        assert(sourceMap);
+        var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'script');
+        assert(sourceMapInfo.sourceMap);
         assert.equal(43, result);
         done();
       }).catch(done);
@@ -291,11 +292,11 @@ suite('Loader.js', function() {
     loader.options.sourceMaps = true;
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {}).then(function() {
-      var sourceMap = loader.sourceMap(normalizedName, 'module');
-      assert(sourceMap);
+      var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'module');
+      assert(sourceMapInfo.sourceMap);
       var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-      var consumer = new SourceMapConsumer(sourceMap);
-      var sourceContent = consumer.sourceContentFor(normalizedName);
+      var consumer = new SourceMapConsumer(sourceMapInfo.sourceMap);
+      var sourceContent = consumer.sourceContentFor(sourceMapInfo.url);
       assert.equal(sourceContent, src);
       done();
     }).catch(done);
