@@ -16,6 +16,8 @@
 import {InternalLoader} from '../runtime/InternalLoader';
 import {Loader} from '../runtime/Loader';
 
+var version = __moduleName.slice(0, __moduleName.indexOf('/'));
+
 export class TraceurLoader extends Loader {
 
   /**
@@ -84,7 +86,7 @@ export class TraceurLoader extends Loader {
     var version = normalizedName.slice(0, slash);
     var at = version.indexOf('@');
     if (at !== -1) {
-      var semver = normalizedName.slice(at + 1, slash);
+      var semver = version.slice(at + 1);
       var m = this.semVerRegExp_().exec(semver);
       if (m) {
         var major = m[1];
@@ -97,6 +99,10 @@ export class TraceurLoader extends Loader {
       }
     }
     return map;
+  }
+
+  get version() {
+    return version;
   }
 
   /**
