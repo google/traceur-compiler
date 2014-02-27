@@ -105,4 +105,8 @@ suite('System.js', function() {
     // reset in teardown.
   });
 
+  test('System.version', function() {
+    assert(System.version);
+  })
+
 });
