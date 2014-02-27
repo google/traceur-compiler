@@ -80,7 +80,7 @@ suite('Loader.js', function() {
     System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.options, module.options);
       done();
-    });
+    }).catch(done);
   });
 
   test('Loader.Script', function(done) {
@@ -88,7 +88,7 @@ suite('Loader.js', function() {
       function(result) {
         assert.equal(42, result);
         done();
-      });
+      }).catch(done);
   });
 
   test('Loader.Script.Named', function(done) {
@@ -97,17 +97,13 @@ suite('Loader.js', function() {
     var name = '43';
     loader.script('(function(x = 43) { return x; })()', {name: name}).then(
       function(result) {
-        try {
-          loader.options.sourceMaps = false;
-          var normalizedName = System.normalize(name);
-          var sourceMap = loader.sourceMap(normalizedName, 'script');
-          assert(sourceMap);
-          assert.equal(43, result);
-          done();
-        } catch (ex) {
-          done(ex);
-        }
-      });
+        loader.options.sourceMaps = false;
+        var normalizedName = System.normalize(name);
+        var sourceMap = loader.sourceMap(normalizedName, 'script');
+        assert(sourceMap);
+        assert.equal(43, result);
+        done();
+      }).catch(done);
   });
 
   test('Loader.Script.Fail', function(done) {
@@ -119,7 +115,7 @@ suite('Loader.js', function() {
       }, function(ex) {
         assert(ex);
         done();
-      });
+      }).catch(done);
   });
 
   test('LoaderModule', function(done) {
@@ -138,10 +134,7 @@ suite('Loader.js', function() {
         assert.equal('C', module.arr[3]);
         assert.isNull(Object.getPrototypeOf(module));
         done();
-      }, function(error) {
-        fail(error);
-        done();
-      });
+      }).catch(done);
   });
 
   test('LoaderModuleWithSubdir', function(done) {
@@ -155,10 +148,7 @@ suite('Loader.js', function() {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
         done();
-      }, function(error) {
-        fail(error);
-        done();
-      });
+      }).catch(done);
   });
 
   test('LoaderModuleFail', function(done) {
@@ -176,12 +166,12 @@ suite('Loader.js', function() {
         fail('Should not have succeeded');
         done();
       }, function(error) {
-        // We should probably get some meaningful error here.
+        // TODO(jjb): We should probably get some meaningful error here.
 
         //assert.isTrue(reporter.hadError());
         assert.isTrue(true);
         done();
-      });
+      }).catch(done);
   });
 
   test('LoaderLoad', function(done) {
@@ -190,10 +180,7 @@ suite('Loader.js', function() {
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
       done();
-    }, function(error) {
-      fail(error);
-      done();
-    });
+    }).catch(done);
   });
 
   test('LoaderLoad.Fail', function(done) {
@@ -204,7 +191,7 @@ suite('Loader.js', function() {
     }, function(error) {
       assert(error);
       done();
-    });
+    }).catch(done);
   });
 
   test('LoaderLoadWithReferrer', function(done) {
@@ -215,10 +202,7 @@ suite('Loader.js', function() {
         assert.equal('B', result[1]);
         assert.equal('C', result[2]);
         done();
-      }, function(error) {
-        fail(error);
-        done();
-      });
+      }).catch(done);
   });
 
   test('LoaderImport', function(done) {
@@ -228,10 +212,7 @@ suite('Loader.js', function() {
       assert.equal('B', mod.b);
       assert.equal('C', mod.c);
       done();
-    }, function(error) {
-      fail(error);
-      done();
-    });
+    }).catch(done);
   });
 
   test('LoaderDefine.Instantiate', function(done) {
@@ -241,26 +222,11 @@ suite('Loader.js', function() {
     var src = 'export {name as a} from \'./test_a\';\n' +
     'export var dd = 8;\n';
     loader.define(name, src).then(function() {
-      try {
-        return loader.import(name);
-      } catch (ex) {
-        done(ex);
-      }
-    }, function(error) {
-      fail(error);
-      done();
+      return loader.import(name);
     }).then(function(mod) {
-      try {
         assert.equal(8, mod.dd);
         done();
-      } catch (ex) {
-        done(ex);
-      }
-    },
-    function(error) {
-      fail(error);
-      done(error);
-    });
+    }).catch(done);
   });
 
   test('LoaderImport.Fail', function(done) {
@@ -271,7 +237,7 @@ suite('Loader.js', function() {
     }, function(error) {
       assert(error);
       done();
-    });
+    }).catch(done);
   });
 
   test('LoaderImportWithReferrer', function(done) {
@@ -282,10 +248,7 @@ suite('Loader.js', function() {
         assert.equal('B', mod.b);
         assert.equal('C', mod.c);
         done();
-      }, function(error) {
-        fail(error);
-        done();
-      });
+      }).catch(done);
   });
 
   test('Loader.define', function(done) {
@@ -294,18 +257,17 @@ suite('Loader.js', function() {
       assert.equal(6, mod.currentSideEffect());  // starting value.
       var src = 'export {name as a} from \'./test_a\';\n' +
         'export var d = 4;\n' + 'this.sideEffect++;';
-      getLoader().define(name, src, {}).then(function() {
-          assert.equal(6, mod.currentSideEffect());  // no change
-          var definedModule = System.get(name);
-          assert.equal(7, mod.currentSideEffect());  // module body evaluated
-          assert.equal(4, definedModule.d);  // define does exports
-          assert.equal('A', definedModule.a);  // define does imports
-          done();
-        }, function(error) {
-          fail(error);
-          done();
-        });
-    });
+      return getLoader().define(name, src, {}).then(function() {
+        return mod;
+      });
+    }).then(function(mod) {
+      assert.equal(6, mod.currentSideEffect());  // no change
+      var definedModule = System.get(name);
+      assert.equal(7, mod.currentSideEffect());  // module body evaluated
+      assert.equal(4, definedModule.d);  // define does exports
+      assert.equal('A', definedModule.a);  // define does imports
+      done();
+    }).catch(done);
   });
 
   test('Loader.define.Fail', function(done) {
@@ -320,7 +282,7 @@ suite('Loader.js', function() {
           assert(error);
           done();
         });
-    });
+    }).catch(done);
   });
 
   test('Loader.defineWithSourceMap', function(done) {
@@ -329,18 +291,14 @@ suite('Loader.js', function() {
     loader.options.sourceMaps = true;
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {}).then(function() {
-        var sourceMap = loader.sourceMap(normalizedName, 'module');
-        assert(sourceMap);
-        var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-        var consumer = new SourceMapConsumer(sourceMap);
-        var sourceContent = consumer.sourceContentFor(normalizedName);
-        assert.equal(sourceContent, src);
-        done();
-      }, function(error) {
-        fail(error);
-        done();
-      }
-    );
+      var sourceMap = loader.sourceMap(normalizedName, 'module');
+      assert(sourceMap);
+      var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
+      var consumer = new SourceMapConsumer(sourceMap);
+      var sourceContent = consumer.sourceContentFor(normalizedName);
+      assert.equal(sourceContent, src);
+      done();
+    }).catch(done);
   });
 
   test('System.semverMap', function() {
@@ -393,10 +351,8 @@ suite('Loader.js', function() {
 
     loader.module(src, {}, function (mod) {
       assert(mod);
-    }, function(err) {
-      throw new Error('AnonModuleSourceMap FAILED ');
-    });
-
+      done();
+    }).catch(done);
   });
 
   test('System.hookAPI', function(done) {
@@ -421,9 +377,7 @@ suite('Loader.js', function() {
     }).then(System.instantiate.bind(System)).then(function(nada) {
       assert.typeOf(nada, 'undefined');
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
 

@@ -20150,7 +20150,7 @@ System.register("traceur@0.0.25/src/runtime/InternalLoader", [], function() {
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;
-      codeUnit.reject(message);
+      codeUnit.reject(new Error(message));
     },
     abortAll: function(errorMessage) {
       this.cache.values().forEach((function(codeUnit) {
@@ -20160,7 +20160,7 @@ System.register("traceur@0.0.25/src/runtime/InternalLoader", [], function() {
         }
       }));
       this.cache.values().forEach((function(codeUnit) {
-        codeUnit.reject(codeUnit.error || errorMessage);
+        codeUnit.reject(new Error(codeUnit.error || errorMessage));
       }));
     },
     analyze: function() {
