@@ -355,8 +355,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // transform nested functions
     var body = super.transformFunctionBody(tree);
 
-    if (isGenerator ||
-        (options.unstarredGenerators || transformOptions.deferredFunctions)) {
+    if (isGenerator || transformOptions.deferredFunctions) {
       finder = new YieldFinder(tree);
       if (!(finder.hasYield || isGenerator || finder.hasAwait))
         return body;

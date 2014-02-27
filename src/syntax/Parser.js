@@ -351,7 +351,7 @@ export class Parser {
      * @type {boolean}
      * @private
      */
-    this.allowYield_ = options.unstarredGenerators;
+    this.allowYield_ = false;
 
     /**
      * Keeps track of whether we are currently in strict mode parsing or not.
@@ -954,7 +954,7 @@ export class Parser {
 
     var allowYield = this.allowYield_;
     var strictMode = this.strictMode_;
-    this.allowYield_ = isGenerator || options.unstarredGenerators;
+    this.allowYield_ = isGenerator;
 
     var result = this.parseStatementList_(!strictMode);
 

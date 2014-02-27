@@ -295,7 +295,6 @@ addBoolOption('debug');
 addBoolOption('freeVariableChecker');
 addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
-addBoolOption('unstarredGenerators');
 addBoolOption('validate');
 
 defaultValues.referrer = '';
