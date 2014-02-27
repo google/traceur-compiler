@@ -20554,6 +20554,7 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
   var __moduleName = "traceur@0.0.25/src/runtime/TraceurLoader";
   var InternalLoader = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/runtime/InternalLoader").InternalLoader;
   var Loader = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/runtime/Loader").Loader;
+  var version = __moduleName.slice(0, __moduleName.indexOf('/'));
   var TraceurLoader = function TraceurLoader(loaderHooks) {
     if (loaderHooks.translateSynchronous) {
       loaderHooks.translate = function(load) {
@@ -20590,7 +20591,7 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
       var version = normalizedName.slice(0, slash);
       var at = version.indexOf('@');
       if (at !== -1) {
-        var semver = normalizedName.slice(at + 1, slash);
+        var semver = version.slice(at + 1);
         var m = this.semVerRegExp_().exec(semver);
         if (m) {
           var major = m[1];
@@ -20603,6 +20604,9 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
         }
       }
       return map;
+    },
+    get version() {
+      return version;
     },
     get options() {
       return this.internalLoader_.options;
