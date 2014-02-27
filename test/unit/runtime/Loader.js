@@ -80,9 +80,7 @@ suite('Loader.js', function() {
     System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.options, module.options);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('Loader.Script', function(done) {
@@ -90,9 +88,7 @@ suite('Loader.js', function() {
       function(result) {
         assert.equal(42, result);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('Loader.Script.Named', function(done) {
@@ -107,9 +103,7 @@ suite('Loader.js', function() {
         assert(sourceMap);
         assert.equal(43, result);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('Loader.Script.Fail', function(done) {
@@ -121,9 +115,7 @@ suite('Loader.js', function() {
       }, function(ex) {
         assert(ex);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('LoaderModule', function(done) {
@@ -142,9 +134,7 @@ suite('Loader.js', function() {
         assert.equal('C', module.arr[3]);
         assert.isNull(Object.getPrototypeOf(module));
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('LoaderModuleWithSubdir', function(done) {
@@ -158,9 +148,7 @@ suite('Loader.js', function() {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('LoaderModuleFail', function(done) {
@@ -183,9 +171,7 @@ suite('Loader.js', function() {
         //assert.isTrue(reporter.hadError());
         assert.isTrue(true);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('LoaderLoad', function(done) {
@@ -194,9 +180,7 @@ suite('Loader.js', function() {
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('LoaderLoad.Fail', function(done) {
@@ -207,9 +191,7 @@ suite('Loader.js', function() {
     }, function(error) {
       assert(error);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('LoaderLoadWithReferrer', function(done) {
@@ -220,9 +202,7 @@ suite('Loader.js', function() {
         assert.equal('B', result[1]);
         assert.equal('C', result[2]);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('LoaderImport', function(done) {
@@ -232,9 +212,7 @@ suite('Loader.js', function() {
       assert.equal('B', mod.b);
       assert.equal('C', mod.c);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('LoaderDefine.Instantiate', function(done) {
@@ -248,9 +226,7 @@ suite('Loader.js', function() {
     }).then(function(mod) {
         assert.equal(8, mod.dd);
         done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('LoaderImport.Fail', function(done) {
@@ -261,9 +237,7 @@ suite('Loader.js', function() {
     }, function(error) {
       assert(error);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('LoaderImportWithReferrer', function(done) {
@@ -274,9 +248,7 @@ suite('Loader.js', function() {
         assert.equal('B', mod.b);
         assert.equal('C', mod.c);
         done();
-      }).catch(function(err) {
-        done(err);
-      });
+      }).catch(done);
   });
 
   test('Loader.define', function(done) {
@@ -295,9 +267,7 @@ suite('Loader.js', function() {
       assert.equal(4, definedModule.d);  // define does exports
       assert.equal('A', definedModule.a);  // define does imports
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('Loader.define.Fail', function(done) {
@@ -312,9 +282,7 @@ suite('Loader.js', function() {
           assert(error);
           done();
         });
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('Loader.defineWithSourceMap', function(done) {
@@ -330,9 +298,7 @@ suite('Loader.js', function() {
       var sourceContent = consumer.sourceContentFor(normalizedName);
       assert.equal(sourceContent, src);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('System.semverMap', function() {
@@ -386,9 +352,7 @@ suite('Loader.js', function() {
     loader.module(src, {}, function (mod) {
       assert(mod);
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
   test('System.hookAPI', function(done) {
@@ -413,9 +377,7 @@ suite('Loader.js', function() {
     }).then(System.instantiate.bind(System)).then(function(nada) {
       assert.typeOf(nada, 'undefined');
       done();
-    }).catch(function(err) {
-      done(err);
-    });
+    }).catch(done);
   });
 
 
