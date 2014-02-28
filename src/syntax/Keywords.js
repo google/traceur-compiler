@@ -36,7 +36,7 @@ var keywords = [
   'import',
   'in',
   'instanceof',
-  'let',
+  'let',  // should be in strictKeywords
   'new',
   'return',
   'super',

@@ -8598,7 +8598,8 @@ System.register("traceur@0.0.25/src/syntax/ParseTreeValidator", [], function() {
       STAR_EQUAL = $__43.STAR_EQUAL,
       STRING = $__43.STRING,
       UNSIGNED_RIGHT_SHIFT = $__43.UNSIGNED_RIGHT_SHIFT,
-      UNSIGNED_RIGHT_SHIFT_EQUAL = $__43.UNSIGNED_RIGHT_SHIFT_EQUAL;
+      UNSIGNED_RIGHT_SHIFT_EQUAL = $__43.UNSIGNED_RIGHT_SHIFT_EQUAL,
+      YIELD = $__43.YIELD;
   var $__43 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTreeType"),
       ARRAY_PATTERN = $__43.ARRAY_PATTERN,
       BINDING_ELEMENT = $__43.BINDING_ELEMENT,
@@ -12019,9 +12020,6 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       return new ReturnStatement(this.getTreeLocation_(start), expression);
     },
     parseYieldExpression_: function() {
-      if (!this.allowYield_) {
-        return this.parseSyntaxError_("'yield' expressions are only allowed inside 'function*'");
-      }
       var start = this.getTreeStartLocation_();
       this.eat_(YIELD);
       var expression = null;
@@ -12354,14 +12352,18 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
         if (nameLiteral.value === SET && this.peekPropertyName_(type)) {
           return this.parseSetAccessor_(start, isStatic, []);
         }
-        if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER) {
+        if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER || !this.strictMode_ && nameLiteral.type === YIELD) {
           if (this.peek_(EQUAL)) {
             token = this.nextToken_();
             var expr = this.parseAssignmentExpression();
             return this.coverInitialisedName_ = new CoverInitialisedName(this.getTreeLocation_(start), nameLiteral, token, expr);
           }
+          if (nameLiteral.type === YIELD)
+            nameLiteral = new IdentifierToken(nameLiteral.location, YIELD);
           return new PropertyNameShorthand(this.getTreeLocation_(start), nameLiteral);
         }
+        if (this.strictMode_ && nameLiteral.isStrictKeyword())
+          this.reportReservedIdentifier_(nameLiteral);
       }
       if (name.type === COMPUTED_PROPERTY_NAME)
         token = this.peekToken_();
