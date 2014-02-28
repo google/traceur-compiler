@@ -44,16 +44,24 @@ html, body {
 .CodeMirror {
   border: 1px solid #ddd;
   height: auto;
+  width: -webkit-calc(50% - 15px);
+  width: calc(50% - 15px);
+  font-family:  'Droid Sans Mono', sans-serif;
+  margin: 5px;
+}
+
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
   min-height: 300px;
+}
+
+.output-wrapper {
+  overflow: hidden;
 }
 
 html.hide-output .output-wrapper {
   display: none;
-}
-
-.CodeMirror {
-  width: -webkit-calc(50% - 15px);
-  width: calc(50% - 15px);
 }
 
 html.hide-output .CodeMirror {
@@ -62,13 +70,6 @@ html.hide-output .CodeMirror {
 }
 
 h1 {
-  margin: 5px;
-}
-
-textarea,
-pre,
-.CodeMirror {
-  font: 12px 'Droid Sans Mono', sans-serif;
   margin: 5px;
 }
 
