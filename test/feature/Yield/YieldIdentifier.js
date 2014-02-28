@@ -22,4 +22,8 @@
   };
   assert.equal(o.yield, 1);
 
+  function h(yield) {
+    return yield * yield;
+  }
+  assert.equal(h(3), 9);
 })();

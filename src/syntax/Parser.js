@@ -1478,10 +1478,12 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(YIELD);
     var expression = null;
-    var isYieldFor = this.eatIf_(STAR);
-    if (isYieldFor || !this.peekImplicitSemiColon_(this.peekType_())) {
+    var isYieldFor = false;
+    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+      isYieldFor = this.eatIf_(STAR);
       expression = this.parseAssignmentExpression();
     }
+
     return new YieldExpression(
         this.getTreeLocation_(start), expression, isYieldFor);
   }

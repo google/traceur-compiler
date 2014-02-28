@@ -8598,8 +8598,7 @@ System.register("traceur@0.0.25/src/syntax/ParseTreeValidator", [], function() {
       STAR_EQUAL = $__43.STAR_EQUAL,
       STRING = $__43.STRING,
       UNSIGNED_RIGHT_SHIFT = $__43.UNSIGNED_RIGHT_SHIFT,
-      UNSIGNED_RIGHT_SHIFT_EQUAL = $__43.UNSIGNED_RIGHT_SHIFT_EQUAL,
-      YIELD = $__43.YIELD;
+      UNSIGNED_RIGHT_SHIFT_EQUAL = $__43.UNSIGNED_RIGHT_SHIFT_EQUAL;
   var $__43 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTreeType"),
       ARRAY_PATTERN = $__43.ARRAY_PATTERN,
       BINDING_ELEMENT = $__43.BINDING_ELEMENT,
@@ -12023,8 +12022,9 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       var start = this.getTreeStartLocation_();
       this.eat_(YIELD);
       var expression = null;
-      var isYieldFor = this.eatIf_(STAR);
-      if (isYieldFor || !this.peekImplicitSemiColon_(this.peekType_())) {
+      var isYieldFor = false;
+      if (!this.peekImplicitSemiColon_(this.peekType_())) {
+        isYieldFor = this.eatIf_(STAR);
         expression = this.parseAssignmentExpression();
       }
       return new YieldExpression(this.getTreeLocation_(start), expression, isYieldFor);
