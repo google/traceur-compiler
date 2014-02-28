@@ -1480,7 +1480,6 @@ System.register("traceur@0.0.25/src/options", [], function() {
   addBoolOption('freeVariableChecker');
   addBoolOption('sourceMaps');
   addBoolOption('typeAssertions');
-  addBoolOption('unstarredGenerators');
   addBoolOption('validate');
   defaultValues.referrer = '';
   options.referrer = null;
@@ -11330,7 +11329,7 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
     var errorReporter = arguments[1] !== (void 0) ? arguments[1] : new SyntaxErrorReporter();
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this);
-    this.allowYield_ = options.unstarredGenerators;
+    this.allowYield_ = false;
     this.strictMode_ = false;
     this.coverInitialisedName_ = null;
     this.annotations_ = [];
@@ -11718,7 +11717,7 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       this.eat_(OPEN_CURLY);
       var allowYield = this.allowYield_;
       var strictMode = this.strictMode_;
-      this.allowYield_ = isGenerator || options.unstarredGenerators;
+      this.allowYield_ = isGenerator;
       var result = this.parseStatementList_(!strictMode);
       if (!strictMode && this.strictMode_ && params)
         StrictParams.visit(params, this.errorReporter_);
@@ -18214,7 +18213,7 @@ System.register("traceur@0.0.25/src/codegeneration/GeneratorTransformPass", [], 
     transformBody_: function(tree, isGenerator) {
       var finder;
       var body = $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionBody", [tree]);
-      if (isGenerator || (options.unstarredGenerators || transformOptions.deferredFunctions)) {
+      if (isGenerator || transformOptions.deferredFunctions) {
         finder = new YieldFinder(tree);
         if (!(finder.hasYield || isGenerator || finder.hasAwait))
           return body;
