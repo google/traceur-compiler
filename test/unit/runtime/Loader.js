@@ -344,13 +344,13 @@ suite('Loader.js', function() {
     System.map = originalMap;
   });
 
-  test('AnonModuleSourceMap', function() {
+  test('AnonModuleSourceMap', function(done) {
     var src = "  import {name} from './test_a';";
 
     var loader = getLoader();
     loader.options.sourceMap = true;
 
-    loader.module(src, {}, function (mod) {
+    loader.module(src, {}).then(function (mod) {
       assert(mod);
       done();
     }).catch(done);
