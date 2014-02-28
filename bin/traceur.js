@@ -12019,14 +12019,12 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       return new ReturnStatement(this.getTreeLocation_(start), expression);
     },
     parseYieldExpression_: function() {
-      if (!this.allowYield_) {
-        return this.parseSyntaxError_("'yield' expressions are only allowed inside 'function*'");
-      }
       var start = this.getTreeStartLocation_();
       this.eat_(YIELD);
       var expression = null;
-      var isYieldFor = this.eatIf_(STAR);
-      if (isYieldFor || !this.peekImplicitSemiColon_(this.peekType_())) {
+      var isYieldFor = false;
+      if (!this.peekImplicitSemiColon_(this.peekType_())) {
+        isYieldFor = this.eatIf_(STAR);
         expression = this.parseAssignmentExpression();
       }
       return new YieldExpression(this.getTreeLocation_(start), expression, isYieldFor);
@@ -12354,14 +12352,18 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
         if (nameLiteral.value === SET && this.peekPropertyName_(type)) {
           return this.parseSetAccessor_(start, isStatic, []);
         }
-        if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER) {
+        if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER || !this.strictMode_ && nameLiteral.type === YIELD) {
           if (this.peek_(EQUAL)) {
             token = this.nextToken_();
             var expr = this.parseAssignmentExpression();
             return this.coverInitialisedName_ = new CoverInitialisedName(this.getTreeLocation_(start), nameLiteral, token, expr);
           }
+          if (nameLiteral.type === YIELD)
+            nameLiteral = new IdentifierToken(nameLiteral.location, YIELD);
           return new PropertyNameShorthand(this.getTreeLocation_(start), nameLiteral);
         }
+        if (this.strictMode_ && nameLiteral.isStrictKeyword())
+          this.reportReservedIdentifier_(nameLiteral);
       }
       if (name.type === COMPUTED_PROPERTY_NAME)
         token = this.peekToken_();

@@ -1475,18 +1475,15 @@ export class Parser {
    * @private
    */
   parseYieldExpression_() {
-    if (!this.allowYield_) {
-      return this.parseSyntaxError_(
-          "'yield' expressions are only allowed inside 'function*'");
-    }
-
     var start = this.getTreeStartLocation_();
     this.eat_(YIELD);
     var expression = null;
-    var isYieldFor = this.eatIf_(STAR);
-    if (isYieldFor || !this.peekImplicitSemiColon_(this.peekType_())) {
+    var isYieldFor = false;
+    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+      isYieldFor = this.eatIf_(STAR);
       expression = this.parseAssignmentExpression();
     }
+
     return new YieldExpression(
         this.getTreeLocation_(start), expression, isYieldFor);
   }
@@ -2026,7 +2023,8 @@ export class Parser {
       }
 
       if (parseOptions.propertyNameShorthand &&
-          nameLiteral.type === IDENTIFIER) {
+          nameLiteral.type === IDENTIFIER ||
+          !this.strictMode_ && nameLiteral.type === YIELD) {
 
         if (this.peek_(EQUAL)) {
           token = this.nextToken_();
@@ -2036,9 +2034,15 @@ export class Parser {
                                        nameLiteral, token, expr);
         }
 
+        if (nameLiteral.type === YIELD)
+          nameLiteral = new IdentifierToken(nameLiteral.location, YIELD);
+
         return new PropertyNameShorthand(this.getTreeLocation_(start),
                                          nameLiteral);
       }
+
+      if (this.strictMode_ && nameLiteral.isStrictKeyword())
+        this.reportReservedIdentifier_(nameLiteral);
     }
 
     if (name.type === COMPUTED_PROPERTY_NAME)
@@ -3317,7 +3321,7 @@ export class Parser {
 
     var token = name.literalToken;
     if (this.strictMode_ && token.isStrictKeyword())
-        this.reportReservedIdentifier_(token);
+      this.reportReservedIdentifier_(token);
 
     var binding = new BindingIdentifier(name.location, token);
     var initialiser = null;
