@@ -320,61 +320,90 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     // a yield within the body of a 'for' statement
     var loopBodyMachine = result.body;
-
-    var incrementState = loopBodyMachine.fallThroughState;
-    var conditionState =
-        result.increment == null && result.condition != null ?
-            incrementState :
-            this.allocateState();
-    var startState =
-        result.initialiser == null ?
-            (result.condition == null ?
-                loopBodyMachine.startState : conditionState) :
-            this.allocateState();
+    var bodyFallThroughState = loopBodyMachine.fallThroughState;
     var fallThroughState = this.allocateState();
 
+    var startId;
+    var initialiserStartId =
+        result.initialiser ? this.allocateState() : State.INVALID_STATE;
+    var conditionStartId =
+        result.increment ? this.allocateState() : bodyFallThroughState;
+    var loopStartId = loopBodyMachine.startState;
+    var incrementStartId = bodyFallThroughState;
+
     var states = [];
-    if (result.initialiser != null) {
+
+    if (result.initialiser) {
+      startId = initialiserStartId;
+      var initialiserFallThroughId;
+      if (result.condition)
+        initialiserFallThroughId = conditionStartId;
+      else
+        initialiserFallThroughId = loopStartId;
+
       states.push(
           new FallThroughState(
-              startState,
-              conditionState,
+              initialiserStartId,
+              initialiserFallThroughId,
               createStatementList(
                   createExpressionStatement(result.initialiser))));
     }
-    if (result.condition != null) {
+
+    if (result.condition) {
+      if (!result.initialiser)
+        startId = conditionStartId;
+
       states.push(
-          new ConditionalState(
-              conditionState,
-              loopBodyMachine.startState,
+        new ConditionalState(
+              conditionStartId,
+              loopStartId,
               fallThroughState,
               result.condition));
-    } else {
-      // alternative is to renumber the loopBodyMachine.fallThrough to
-      // loopBodyMachine.start
-      states.push(
-          new FallThroughState(
-              conditionState,
-              loopBodyMachine.startState,
-              createStatementList()));
     }
-    if (result.increment != null) {
+
+    if (result.increment) {
+      var incrementFallThroughId;
+      if (result.condition)
+        incrementFallThroughId = conditionStartId;
+      else
+        incrementFallThroughId = loopStartId;
+
       states.push(
           new FallThroughState(
-              incrementState,
-              conditionState,
+              incrementStartId,
+              incrementFallThroughId,
               createStatementList(
                   createExpressionStatement(result.increment))));
     }
 
-    this.addLoopBodyStates_(loopBodyMachine, incrementState, fallThroughState,
+    // loop body
+    if (!result.initialiser && !result.condition)
+      startId = loopStartId;
+
+    var continueId;
+    if (result.increment)
+      continueId = incrementStartId;
+    else if (result.condition)
+      continueId = conditionStartId;
+    else
+      continueId = loopStartId;
+
+    if (!result.increment && !result.condition) {
+      // Need to loop back.
+      loopBodyMachine =
+          loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState,
+                                         loopBodyMachine.startState);
+    }
+
+    // loopBodyMachine, continueState, breakState, labels, states
+    this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughState,
                             labels, states);
 
-    var machine = new StateMachine(startState, fallThroughState, states,
+    var machine = new StateMachine(startId, fallThroughState, states,
                                   loopBodyMachine.exceptionBlocks);
 
     if (label)
-      machine = machine.replaceStateId(incrementState, label.continueState);
+      machine = machine.replaceStateId(continueId, label.continueState);
 
     return machine;
   }

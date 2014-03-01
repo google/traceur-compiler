@@ -17310,26 +17310,52 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       if (result.body.type != STATE_MACHINE)
         return result;
       var loopBodyMachine = result.body;
-      var incrementState = loopBodyMachine.fallThroughState;
-      var conditionState = result.increment == null && result.condition != null ? incrementState : this.allocateState();
-      var startState = result.initialiser == null ? (result.condition == null ? loopBodyMachine.startState : conditionState) : this.allocateState();
+      var bodyFallThroughState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
+      var startId;
+      var initialiserStartId = result.initialiser ? this.allocateState() : State.INVALID_STATE;
+      var conditionStartId = result.increment ? this.allocateState() : bodyFallThroughState;
+      var loopStartId = loopBodyMachine.startState;
+      var incrementStartId = bodyFallThroughState;
       var states = [];
-      if (result.initialiser != null) {
-        states.push(new FallThroughState(startState, conditionState, createStatementList(createExpressionStatement(result.initialiser))));
+      if (result.initialiser) {
+        startId = initialiserStartId;
+        var initialiserFallThroughId;
+        if (result.condition)
+          initialiserFallThroughId = conditionStartId;
+        else
+          initialiserFallThroughId = loopStartId;
+        states.push(new FallThroughState(initialiserStartId, initialiserFallThroughId, createStatementList(createExpressionStatement(result.initialiser))));
       }
-      if (result.condition != null) {
-        states.push(new ConditionalState(conditionState, loopBodyMachine.startState, fallThroughState, result.condition));
-      } else {
-        states.push(new FallThroughState(conditionState, loopBodyMachine.startState, createStatementList()));
+      if (result.condition) {
+        if (!result.initialiser)
+          startId = conditionStartId;
+        states.push(new ConditionalState(conditionStartId, loopStartId, fallThroughState, result.condition));
       }
-      if (result.increment != null) {
-        states.push(new FallThroughState(incrementState, conditionState, createStatementList(createExpressionStatement(result.increment))));
+      if (result.increment) {
+        var incrementFallThroughId;
+        if (result.condition)
+          incrementFallThroughId = conditionStartId;
+        else
+          incrementFallThroughId = loopStartId;
+        states.push(new FallThroughState(incrementStartId, incrementFallThroughId, createStatementList(createExpressionStatement(result.increment))));
       }
-      this.addLoopBodyStates_(loopBodyMachine, incrementState, fallThroughState, labels, states);
-      var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      if (!result.initialiser && !result.condition)
+        startId = loopStartId;
+      var continueId;
+      if (result.increment)
+        continueId = incrementStartId;
+      else if (result.condition)
+        continueId = conditionStartId;
+      else
+        continueId = loopStartId;
+      if (!result.increment && !result.condition) {
+        loopBodyMachine = loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState, loopBodyMachine.startState);
+      }
+      this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughState, labels, states);
+      var machine = new StateMachine(startId, fallThroughState, states, loopBodyMachine.exceptionBlocks);
       if (label)
-        machine = machine.replaceStateId(incrementState, label.continueState);
+        machine = machine.replaceStateId(continueId, label.continueState);
       return machine;
     },
     transformForInStatement: function(tree) {
@@ -18056,7 +18082,7 @@ System.register("traceur@0.0.25/src/codegeneration/GeneratorTransformPass", [], 
   "use strict";
   var __moduleName = "traceur@0.0.25/src/codegeneration/GeneratorTransformPass";
   var $__257 = Object.freeze(Object.defineProperties(["\n          if ($ctx.action === 'throw') {\n            $ctx.action = 'next';\n            throw $ctx.sent;\n          }"], {raw: {value: Object.freeze(["\n          if ($ctx.action === 'throw') {\n            $ctx.action = 'next';\n            throw $ctx.sent;\n          }"])}})),
-      $__258 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          while (true) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          while (true) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
+      $__258 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          for (;;) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          for (;;) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
   var AsyncTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/generator/AsyncTransformer").AsyncTransformer;
   var ForInTransformPass = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/generator/ForInTransformPass").ForInTransformPass;
   var $__260 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTrees"),
