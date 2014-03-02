@@ -258,7 +258,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     //
     // let (g = EXPR) {
     //   let received = void 0, send = true;
-    //   while (true) {
+    //   for (;;) {
     //     let next = send ? g.next(received) : g.throw(received);
     //     if (next.done)
     //       break;
@@ -287,7 +287,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
           // send = true; // roughly equivalent
           $ctx.action = 'next';
 
-          while (true) {
+          for (;;) {
             ${next} = ${g}[$ctx.action]($ctx.sent);
             if (${next}.done) {
               $ctx.sent = ${next}.value;
