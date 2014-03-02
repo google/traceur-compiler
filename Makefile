@@ -72,7 +72,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error
+	test-interpret-absolute test-inline-module-error test-interpret-throw
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -97,6 +97,9 @@ test/test-list.js: force
 
 test-interpret: test/unit/runtime/test_interpret.js
 	./traceur $^
+
+test-interpret-throw: test/unit/runtime/throwsError.js
+	./traceur $^ 2>&1 | wc -l | grep '11'
 
 test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
 	./traceur $^
