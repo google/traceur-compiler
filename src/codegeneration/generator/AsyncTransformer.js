@@ -188,13 +188,15 @@ export class AsyncTransformer extends CPSTransformer {
         // break;
         createBreakStatement());
   }
-}
 
-/**
- * @param {ErrorReporter} reporter
- * @param {Block} body
- * @return {Block}
- */
-AsyncTransformer.transformAsyncBody = function(reporter, body) {
-  return new AsyncTransformer(reporter).transformAsyncBody(body);
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   * @param {Block} body
+   * @return {Block}
+   */
+  static transformAsyncBody(identifierGenerator, reporter, body) {
+    return new AsyncTransformer(identifierGenerator, reporter).
+        transformAsyncBody(body);
+  }
 };
