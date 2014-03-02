@@ -17310,13 +17310,13 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       if (result.body.type != STATE_MACHINE)
         return result;
       var loopBodyMachine = result.body;
-      var bodyFallThroughState = loopBodyMachine.fallThroughState;
-      var fallThroughState = this.allocateState();
+      var bodyFallThroughId = loopBodyMachine.fallThroughState;
+      var fallThroughId = this.allocateState();
       var startId;
       var initialiserStartId = result.initialiser ? this.allocateState() : State.INVALID_STATE;
-      var conditionStartId = result.increment ? this.allocateState() : bodyFallThroughState;
+      var conditionStartId = result.increment ? this.allocateState() : bodyFallThroughId;
       var loopStartId = loopBodyMachine.startState;
-      var incrementStartId = bodyFallThroughState;
+      var incrementStartId = bodyFallThroughId;
       var states = [];
       if (result.initialiser) {
         startId = initialiserStartId;
@@ -17330,7 +17330,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       if (result.condition) {
         if (!result.initialiser)
           startId = conditionStartId;
-        states.push(new ConditionalState(conditionStartId, loopStartId, fallThroughState, result.condition));
+        states.push(new ConditionalState(conditionStartId, loopStartId, fallThroughId, result.condition));
       }
       if (result.increment) {
         var incrementFallThroughId;
@@ -17352,8 +17352,8 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       if (!result.increment && !result.condition) {
         loopBodyMachine = loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState, loopBodyMachine.startState);
       }
-      this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughState, labels, states);
-      var machine = new StateMachine(startId, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId, labels, states);
+      var machine = new StateMachine(startId, fallThroughId, states, loopBodyMachine.exceptionBlocks);
       if (label)
         machine = machine.replaceStateId(continueId, label.continueState);
       return machine;

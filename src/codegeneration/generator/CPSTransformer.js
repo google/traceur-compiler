@@ -320,16 +320,16 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     // a yield within the body of a 'for' statement
     var loopBodyMachine = result.body;
-    var bodyFallThroughState = loopBodyMachine.fallThroughState;
-    var fallThroughState = this.allocateState();
+    var bodyFallThroughId = loopBodyMachine.fallThroughState;
+    var fallThroughId = this.allocateState();
 
     var startId;
     var initialiserStartId =
         result.initialiser ? this.allocateState() : State.INVALID_STATE;
     var conditionStartId =
-        result.increment ? this.allocateState() : bodyFallThroughState;
+        result.increment ? this.allocateState() : bodyFallThroughId;
     var loopStartId = loopBodyMachine.startState;
-    var incrementStartId = bodyFallThroughState;
+    var incrementStartId = bodyFallThroughId;
 
     var states = [];
 
@@ -357,7 +357,7 @@ export class CPSTransformer extends ParseTreeTransformer {
         new ConditionalState(
               conditionStartId,
               loopStartId,
-              fallThroughState,
+              fallThroughId,
               result.condition));
     }
 
@@ -389,17 +389,19 @@ export class CPSTransformer extends ParseTreeTransformer {
       continueId = loopStartId;
 
     if (!result.increment && !result.condition) {
-      // Need to loop back.
+      // If we had either increment or condition, that would take the loop
+      // body's fall through ID as its ID. If we have neither we need to change
+      // the loop body's fall through ID to loop back to the loop body's start
+      // ID.
       loopBodyMachine =
           loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState,
                                          loopBodyMachine.startState);
     }
 
-    // loopBodyMachine, continueState, breakState, labels, states
-    this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughState,
+    this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId,
                             labels, states);
 
-    var machine = new StateMachine(startId, fallThroughState, states,
+    var machine = new StateMachine(startId, fallThroughId, states,
                                   loopBodyMachine.exceptionBlocks);
 
     if (label)
