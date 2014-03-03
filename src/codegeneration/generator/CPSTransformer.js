@@ -32,7 +32,7 @@ import {FallThroughState} from './FallThroughState';
 import {FinallyFallThroughState} from './FinallyFallThroughState';
 import {FinallyState} from './FinallyState';
 import {FindVisitor} from '../FindVisitor';
-import {ParseTreeTransformer} from '../ParseTreeTransformer';
+import {TempVarTransformer} from '../TempVarTransformer';
 import {assert} from '../../util/assert';
 import {
   parseExpression,
@@ -87,6 +87,9 @@ class NeedsStateMachine extends FindVisitor {
   visitStateMachine(tree) {
     this.found = true;
   }
+  visitYieldExpression(tee) {
+    this.found = true;
+  }
 }
 
 /**
@@ -132,14 +135,15 @@ class NeedsStateMachine extends FindVisitor {
  * across the entire function body. The state machine merge process may need to
  * perform state id substitution on states of the merged state machines.
  */
-export class CPSTransformer extends ParseTreeTransformer {
+export class CPSTransformer extends TempVarTransformer {
   /**
    * @param {ErrorReporter} reporter
    */
-  constructor(reporter) {
-    super();
+  constructor(identifierGenerator, reporter) {
+    super(identifierGenerator);
     this.reporter = reporter;
     this.stateAllocator_ = new StateAllocator();
+    this.machineVariables_ = Object.create(null);
     this.labelSet_ = Object.create(null);
     this.currentLabel_ = null;
   }
@@ -181,6 +185,8 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   transformFunctionBody(tree) {
+    this.pushTempVarState();
+
     // NOTE: tree may contain state machines already ...
     var oldLabels = this.clearLabels_();
 
@@ -188,6 +194,8 @@ export class CPSTransformer extends ParseTreeTransformer {
     var machine = this.transformStatementList_(transformedTree.statements);
 
     this.restoreLabels_(oldLabels);
+
+    this.popTempVarState();
     return machine == null ? transformedTree : machine;
   }
 
@@ -809,8 +817,7 @@ export class CPSTransformer extends ParseTreeTransformer {
         if (declaration.initialiser != null) {
           expressions.push(
               createAssignmentExpression(
-                  id(
-                      this.transformAny(declaration.lvalue)),
+                  id(this.transformAny(declaration.lvalue)),
                   this.transformAny(declaration.initialiser)));
         }
       }
@@ -824,7 +831,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       }
     }
     // let/const - just transform for now
-    return super.transformVariableDeclarationList(tree);
+    return super(tree);
   }
 
   /**
@@ -894,6 +901,10 @@ export class CPSTransformer extends ParseTreeTransformer {
     }`;
   }
 
+  addMachineVariable(name) {
+    this.machineVariables_[name] = true;
+  }
+
   //   var $ctx.state = machine.startState,
   //   ... lifted local variables ...
   //   ... caught exception variables ...
@@ -913,6 +924,10 @@ export class CPSTransformer extends ParseTreeTransformer {
     for (var i = 0; i < allCatchStates.length; i++) {
       liftedIdentifiers[allCatchStates[i].identifier] = true;
     }
+
+    Object.keys(this.machineVariables_).forEach((name) => {
+      liftedIdentifiers[name] = true;
+    });
 
     // Sort identifiers to produce a stable output order
     var liftedIdentifierList = Object.keys(liftedIdentifiers).sort();

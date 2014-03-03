@@ -47,20 +47,12 @@ import {
   createVariableStatement,
   createYieldStatement
 } from './ParseTreeFactory';
+import isYieldAssign from './generator/isYieldAssign';
 import {
   transformOptions,
   options
 } from '../options';
 
-/**
- * @param {BinaryOperator} tree
- * @return {boolean}
- */
-function isYieldAssign(tree) {
-  return tree.operator.type === EQUAL &&
-      tree.right.type === YIELD_EXPRESSION &&
-      tree.left.isLeftHandSideExpression();
-}
 
 var id = createIdentifierExpression;
 
@@ -108,28 +100,12 @@ class YieldFinder extends ParseTreeVisitor {
   visitGetAccessor(tree) {}
 }
 
-var throwClose;
-
 class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
-  }
-
-  get throwClose() {
-    // Initialise unless already cached.
-    if (!throwClose) {
-      // Inserted after every simple yield expression in order to handle
-      // 'throw'. No extra action is needed to handle 'next'.
-      throwClose = parseStatement `
-          if ($ctx.action === 'throw') {
-            $ctx.action = 'next';
-            throw $ctx.sent;
-          }`;
-    }
-    return throwClose;
   }
 
   /**
@@ -153,20 +129,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
     }
 
     switch (e.type) {
-      case BINARY_OPERATOR:
-        if (isYieldAssign(e))
-          return this.factorAssign_(e.left, e.right, createAssignmentStatement);
-
-        break;
       case COMMA_EXPRESSION:
         ex = e.expressions;
         if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
           return this.factorAssign_(ex[0].left, ex[0].right, commaWrap);
-
-      case YIELD_EXPRESSION:
-        if (e.isYieldFor)
-          return this.transformYieldForExpression_(e);
-        return createBlock(tree, this.throwClose);
     }
 
     return tree;
@@ -230,75 +196,9 @@ class YieldExpressionTransformer extends TempVarTransformer {
    * @return {ParseTree} { yield ...; wrap($yieldSent) }
    */
   factor_(expression, wrap) {
-    if (expression.isYieldFor)
-      return createBlock(
-          this.transformYieldForExpression_(expression),
-          wrap(createMemberExpression('$ctx', 'sent')));
-
     return createBlock([
         createExpressionStatement(expression),
-        this.throwClose,
         wrap(createMemberExpression('$ctx', 'sent'))]);
-  }
-
-  /**
-   * Turns "yield* E" into what is essentially, a generator-specific ForOf.
-   * @param {YieldExpression} tree Must be a 'yield *'.
-   * @return {ParseTree}
-   * @private
-   */
-  transformYieldForExpression_(tree) {
-    var g = id(this.getTempIdentifier());
-    var next = id(this.getTempIdentifier());
-
-    // http://wiki.ecmascript.org/doku.php?id=harmony:generators
-    // Updated on es-discuss
-    //
-    // The expression yield* <<expr>> is equivalent to:
-    //
-    // let (g = EXPR) {
-    //   let received = void 0, send = true;
-    //   for (;;) {
-    //     let next = send ? g.next(received) : g.throw(received);
-    //     if (next.done)
-    //       break;
-    //     try {
-    //       received = yield next.value;  // ***
-    //       send = true;
-    //     } catch (e) {
-    //       received = e;
-    //       send = false;
-    //     }
-    //   }
-    //   next.value;
-    // }
-
-    return parseStatement `
-        {
-          var ${g} = ${tree.expression}[Symbol.iterator]();
-          var ${next};
-
-          // TODO: Should 'yield *' handle non-generator iterators? A strict
-          // interpretation of harmony:generators would indicate 'no', but
-          // 'yes' seems makes more sense from a language-user's perspective.
-
-          // received = void 0;
-          $ctx.sent = void 0;
-          // send = true; // roughly equivalent
-          $ctx.action = 'next';
-
-          for (;;) {
-            ${next} = ${g}[$ctx.action]($ctx.sent);
-            if (${next}.done) {
-              $ctx.sent = ${next}.value;
-              break;
-            }
-            // Normally, this would go through transformYieldForExpression_
-            // which would rethrow and we would catch it and set up the states
-            // again.
-            ${createYieldStatement(createMemberExpression(next, 'value'))};
-          }
-        }`;
   }
 }
 
@@ -376,11 +276,14 @@ export class GeneratorTransformPass extends TempVarTransformer {
                                               this.reporter_).
             transformAny(body);
 
-        body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
-                                                           body);
+        body = GeneratorTransformer.transformGeneratorBody(
+            this.identifierGenerator,
+            this.reporter_,
+            body);
       }
     } else if (transformOptions.deferredFunctions) {
-      body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
+      body = AsyncTransformer.transformAsyncBody(
+          this.identifierGenerator, this.reporter_, body);
     }
     return body;
   }
