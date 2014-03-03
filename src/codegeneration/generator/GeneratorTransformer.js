@@ -84,8 +84,9 @@ export class GeneratorTransformer extends CPSTransformer {
             this.transformAny(expression)),
         fallThroughState);
 
-    // The yield we generate in yield for should not be followed by the throw
-    // close state since the inner iterator neee handle this case.
+    // The yield expression we generated for the yield-for expression should not
+    // be followed by the ThrowCloseState since the inner iterator need to
+    // handle the throw case.
     if (this.inYieldFor_)
       return machine;
 
@@ -168,11 +169,12 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   transformYieldAssign_(tree) {
     var machine = this.transformYieldExpression_(tree.right);
+    var left = this.transformAny(tree.left);
     var statement = new ExpressionStatement(
         tree.location,
         new BinaryOperator(
             tree.location,
-            tree.left,
+            left,
             tree.operator,
             parseExpression `$ctx.sent`));
     var assignMachine = this.statementToStateMachine_(statement);
