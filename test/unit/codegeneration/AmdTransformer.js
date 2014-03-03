@@ -38,7 +38,7 @@ suite('AmdTransformer.js', function() {
       transformer.dependencies.push({path: './bar', local: '__dep1'});
 
       assertEqualIgnoringWhiteSpaces(
-          'define(["./foo", "./bar"], function(__dep0, __dep1) {"CODE";});',
+          'define(["./foo","./bar"],function(__dep0,__dep1){"CODE";});',
           writeArray(transformer.wrapModule([str('CODE')])));
     });
   });
