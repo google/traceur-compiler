@@ -12,7 +12,7 @@ function moduleFromSource(src) {
   var module;
   var define = function(deps, factory) {
     var output = factory();
-    module = output.__transpiledModule ? output : {default: output};
+    module = output.__esModule ? output : {default: output};
   }
   Function('define', src).call(global, define);
   return module;
