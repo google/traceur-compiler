@@ -44,8 +44,11 @@ export class AmdTransformer extends ModuleTransformer {
 
   moduleProlog() {
     // insert the default handling after the "use strict" and __moduleName lines
-    var locals = this.dependencies.map((dep) => createIdentifierExpression(dep.local)).map((local) => {
-      return parseStatement `if (!${local} || !${local}.__esModule) ${local} = { 'default': ${local} }`
+    var locals = this.dependencies.map((dep) => {
+      var local = createIdentifierExpression(dep.local);
+      return parseStatement
+          `if (!${local} || !${local}.__esModule)
+            ${local} = { 'default': ${local} }`;
     });
     return super().concat(locals);
   }

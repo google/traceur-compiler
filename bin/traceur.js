@@ -14509,7 +14509,7 @@ System.register("traceur@0.0.25/src/codegeneration/AmdTransformer", [], function
   "use strict";
   var __moduleName = "traceur@0.0.25/src/codegeneration/AmdTransformer";
   var $__120 = Object.freeze(Object.defineProperties(["__esModule: true"], {raw: {value: Object.freeze(["__esModule: true"])}})),
-      $__121 = Object.freeze(Object.defineProperties(["if (!", " || !", ".__esModule) ", " = { 'default': ", " }"], {raw: {value: Object.freeze(["if (!", " || !", ".__esModule) ", " = { 'default': ", " }"])}})),
+      $__121 = Object.freeze(Object.defineProperties(["if (!", " || !", ".__esModule)\n            ", " = { 'default': ", " }"], {raw: {value: Object.freeze(["if (!", " || !", ".__esModule)\n            ", " = { 'default': ", " }"])}})),
       $__122 = Object.freeze(Object.defineProperties(["function(", ") {\n      ", "\n    }"], {raw: {value: Object.freeze(["function(", ") {\n      ", "\n    }"])}})),
       $__123 = Object.freeze(Object.defineProperties(["", ".bind(", ")"], {raw: {value: Object.freeze(["", ".bind(", ")"])}})),
       $__124 = Object.freeze(Object.defineProperties(["define(", ", ", ");"], {raw: {value: Object.freeze(["define(", ", ", ");"])}}));
@@ -14539,8 +14539,7 @@ System.register("traceur@0.0.25/src/codegeneration/AmdTransformer", [], function
     },
     moduleProlog: function() {
       var locals = this.dependencies.map((function(dep) {
-        return createIdentifierExpression(dep.local);
-      })).map((function(local) {
+        var local = createIdentifierExpression(dep.local);
         return parseStatement($__121, local, local, local, local);
       }));
       return $traceurRuntime.superCall(this, $AmdTransformer.prototype, "moduleProlog", []).concat(locals);
