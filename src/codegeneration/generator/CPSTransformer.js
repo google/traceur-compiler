@@ -18,9 +18,7 @@ import {
   BREAK_STATEMENT,
   CASE_CLAUSE,
   CONTINUE_STATEMENT,
-  STATE_MACHINE,
-  VARIABLE_DECLARATION_LIST,
-  VARIABLE_STATEMENT
+  STATE_MACHINE
 } from '../../syntax/trees/ParseTreeType';
 import {
   CaseClause,
@@ -46,16 +44,12 @@ import {
   SwitchClause,
   SwitchState
 } from './SwitchState';
-import {VAR} from '../../syntax/TokenType';
 import {TryState} from './TryState';
 import {
   createAssignStateStatement,
-  createAssignmentExpression,
   createBreakStatement,
   createCaseClause,
-  createCommaExpression,
   createDefaultClause,
-  createEmptyStatement,
   createExpressionStatement,
   createFunctionBody,
   createIdentifierExpression as id,
@@ -63,11 +57,8 @@ import {
   createNumberLiteral,
   createStatementList,
   createSwitchStatement,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement
 } from '../ParseTreeFactory';
-import {variablesInBlock} from '../../semantics/VariableBinder';
+import HoistVariablesTransformer from '../HoistVariablesTransformer';
 
 class LabelState {
   constructor(name, continueState, fallThroughState) {
@@ -89,6 +80,16 @@ class NeedsStateMachine extends FindVisitor {
   }
   visitYieldExpression(tee) {
     this.found = true;
+  }
+}
+
+class HoistVariables extends HoistVariablesTransformer {
+  /**
+   * Override to not inject the hoisted variables. We will manually inject them
+   * later.
+   */
+  prependVariables(statements) {
+    return statements;
   }
 }
 
@@ -143,9 +144,9 @@ export class CPSTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.reporter = reporter;
     this.stateAllocator_ = new StateAllocator();
-    this.machineVariables_ = Object.create(null);
     this.labelSet_ = Object.create(null);
     this.currentLabel_ = null;
+    this.hoistVariablesTransformer_ = new HoistVariables();
   }
 
   /** @return {number} */
@@ -716,6 +717,8 @@ export class CPSTransformer extends TempVarTransformer {
       var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
       var catchStart = this.allocateState();
 
+      this.addMachineVariable(exceptionName);
+
       var states = [
         ...tryMachine.states,
         new FallThroughState(
@@ -776,62 +779,6 @@ export class CPSTransformer extends TempVarTransformer {
     }
 
     return tryMachine;
-  }
-
-  /**
-   * Local variables are lifted out of moveNext to the enclosing function in
-   * the generated code.  Because of this there's no good way to codegen block
-   * scoped let/const variables where there is a yield in the scope of the
-   * block scoped variable.
-   *
-   * @param {VariableStatement} tree
-   * @return {ParseTree}
-   */
-  transformVariableStatement(tree) {
-    var declarations = this.transformVariableDeclarationList(tree.declarations);
-    if (declarations == tree.declarations) {
-      return tree;
-    }
-    if (declarations == null) {
-      return createEmptyStatement();
-    }
-    if (declarations.type == VARIABLE_DECLARATION_LIST) {
-      // let/const - just transform for now
-      return createVariableStatement(declarations);
-    }
-    return createExpressionStatement(declarations);
-  }
-
-  /**
-   * This is the initialiser of a for loop. Convert into an expression
-   * containing the initialisers.
-   *
-   * @param {VariableDeclarationList} tree
-   * @return {ParseTree}
-   */
-  transformVariableDeclarationList(tree) {
-    if (tree.declarationType == VAR) {
-      var expressions = [];
-      for (var i = 0; i < tree.declarations.length; i++) {
-        var declaration = tree.declarations[i];
-        if (declaration.initialiser != null) {
-          expressions.push(
-              createAssignmentExpression(
-                  id(this.transformAny(declaration.lvalue)),
-                  this.transformAny(declaration.initialiser)));
-        }
-      }
-      var list = expressions;
-      if (list.length == 0) {
-        return null;
-      } else if (list.length == 1) {
-        return list[0];
-      } else {
-        return createCommaExpression(expressions);
-      }
-    }
-    // let/const - just transform for now
-    return super(tree);
   }
 
   /**
@@ -902,53 +849,22 @@ export class CPSTransformer extends TempVarTransformer {
   }
 
   addMachineVariable(name) {
-    this.machineVariables_[name] = true;
+    this.hoistVariablesTransformer_.addVariable(name);
   }
 
-  //   var $ctx.state = machine.startState,
-  //   ... lifted local variables ...
-  //   ... caught exception variables ...
-  /**
-   * @param {Block} tree
-   * @param {StateMachine} machine
-   * @return {Array.<ParseTree>}
-   */
-  getMachineVariables(tree, machine) {
-    // Lift locals ...
-    var liftedIdentifiers = variablesInBlock(tree, true);
-
-    // ... and caught exceptions
-    // TODO: This changes the scope of caught exception variables from 'let' to
-    // 'var'. Fix this once we have 'let' bindings in V8.
-    var allCatchStates = machine.allCatchStates();
-    for (var i = 0; i < allCatchStates.length; i++) {
-      liftedIdentifiers[allCatchStates[i].identifier] = true;
-    }
-
-    Object.keys(this.machineVariables_).forEach((name) => {
-      liftedIdentifiers[name] = true;
-    });
-
-    // Sort identifiers to produce a stable output order
-    var liftedIdentifierList = Object.keys(liftedIdentifiers).sort();
-    if (liftedIdentifierList.length === 0)
-      return [];
-
-    var declarations = liftedIdentifierList.map((liftedIdentifier) => {
-      return createVariableDeclaration(liftedIdentifier, null);
-    });
-
-    return [
-      createVariableStatement(createVariableDeclarationList(VAR, declarations))
-    ];
-  }
 
   transformCpsFunctionBody(tree, runtimeMethod) {
     var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
     var hasArguments = alphaRenamedTree !== tree;
 
+    // We hoist all the variables. They are not even inserted at the top in this
+    // call but added later, since we use the same set of variable names for the
+    // machine generated variables.
+    var hoistedTree =
+        this.hoistVariablesTransformer_.transformAny(alphaRenamedTree);
+
     // transform to a state machine
-    var maybeMachine = this.transformAny(alphaRenamedTree);
+    var maybeMachine = this.transformAny(hoistedTree);
     if (this.reporter.hadError())
       return tree;
 
@@ -970,7 +886,9 @@ export class CPSTransformer extends TempVarTransformer {
         replaceStateId(machine.fallThroughState, State.END_STATE).
         replaceStateId(machine.startState, State.START_STATE);
 
-    var statements = this.getMachineVariables(tree, machine);
+    var statements = [];
+    if (this.hoistVariablesTransformer_.hasVariables())
+      statements.push(this.hoistVariablesTransformer_.getVariableStatement());
     if (hasArguments)
       statements.push(parseStatement `var $arguments = arguments;`);
     statements.push(parseStatement
@@ -1198,26 +1116,21 @@ export class CPSTransformer extends TempVarTransformer {
     }
   }
 
+  transformVariableDeclarationList(tree) {
+    // The only declarations left are const/let.
+    this.reporter.reportError(
+        tree.location && tree.location.start,
+        'traceur: const/let declaration may not be ' +
+        'in a block containing a yield.');
+    return tree;
+  }
+
   /**
    * transforms break/continue statements and their parents to state machines
    * @param {ParseTree} maybeTransformedStatement
    * @return {ParseTree}
    */
   maybeTransformStatement_(maybeTransformedStatement) {
-    // Check for block scoped variables in a block containing a yield. There's
-    // no way to codegen that with a precompiler but could be implemented
-    // directly in a VM.
-    if (maybeTransformedStatement.type == VARIABLE_STATEMENT &&
-        maybeTransformedStatement.declarations.
-            declarationType != VAR) {
-      this.reporter.reportError(
-          maybeTransformedStatement.location != null ?
-              maybeTransformedStatement.location.start :
-              null,
-          'traceur: const/let declaration may not be ' +
-          'in a block containing a yield.');
-    }
-
     // transform break/continue statements and their parents to state machines
     var breakContinueTransformed =
         new BreakContinueTransformer(this.stateAllocator_).
