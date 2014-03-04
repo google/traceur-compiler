@@ -223,7 +223,7 @@ export class SuperTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  reportError_(tree, ...args) {
-    this.reporter_.reportError(tree.location.start, ...args);
+  reportError_(tree, message) {
+    this.reporter_.reportError(tree.location.start, message);
   }
 }
