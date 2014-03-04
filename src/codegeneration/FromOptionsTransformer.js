@@ -146,15 +146,15 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.types)
       append(TypeTransformer);
 
-    // generator must come after for of and rest parameters
-    if (transformOptions.generators || transformOptions.deferredFunctions)
-      append(GeneratorTransformPass);
-
     if (transformOptions.spread)
       append(SpreadTransformer);
 
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
+
+    // generator must come after for of and rest parameters
+    if (transformOptions.generators || transformOptions.deferredFunctions)
+      append(GeneratorTransformPass);
 
     if (transformOptions.symbols) {
       append(SymbolTransformer);
