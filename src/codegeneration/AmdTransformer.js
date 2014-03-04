@@ -14,7 +14,10 @@
 
 import {ModuleTransformer} from './ModuleTransformer';
 import {VAR} from '../syntax/TokenType';
-import {createBindingIdentifier} from './ParseTreeFactory';
+import {
+  createBindingIdentifier,
+  createIdentifierExpression
+} from './ParseTreeFactory';
 import globalThis from './globalThis';
 import {
   parseExpression,
@@ -35,8 +38,19 @@ export class AmdTransformer extends ModuleTransformer {
     var properties = super();
 
     if (this.exportVisitor_.hasExports())
-      properties.push(parsePropertyDefinition `__transpiledModule: true`);
+      properties.push(parsePropertyDefinition `__esModule: true`);
     return properties;
+  }
+
+  moduleProlog() {
+    // insert the default handling after the "use strict" and __moduleName lines
+    var locals = this.dependencies.map((dep) => {
+      var local = createIdentifierExpression(dep.local);
+      return parseStatement
+          `if (!${local} || !${local}.__esModule)
+            ${local} = { 'default': ${local} }`;
+    });
+    return super().concat(locals);
   }
 
   wrapModule(statements) {
