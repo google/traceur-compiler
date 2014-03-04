@@ -1120,8 +1120,8 @@ export class CPSTransformer extends TempVarTransformer {
     // The only declarations left are const/let.
     this.reporter.reportError(
         tree.location && tree.location.start,
-        'traceur: const/let declaration may not be ' +
-        'in a block containing a yield.');
+        'Traceur: const/let declarations in a block containing a yield are ' +
+        'not yet implemented');
     return tree;
   }
 

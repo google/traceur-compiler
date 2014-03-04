@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+
 import {
   AnonBlock,
   FunctionBody,
@@ -23,18 +21,42 @@ import {
   VariableDeclarationList,
   VariableStatement
 } from '../syntax/trees/ParseTrees';
+import {
+  BINDING_IDENTIFIER,
+  VARIABLE_DECLARATION_LIST
+} from '../syntax/trees/ParseTreeType';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {VAR} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createAssignmentExpression,
   createCommaExpression,
   createExpressionStatement,
   createIdentifierExpression as id,
-  createVariableDeclaration,
-  createVariableStatement
+  createVariableDeclaration
 } from './ParseTreeFactory';
 import {prependStatements} from './PrependStatements';
 
+/**
+ * Hoists variables to the top of the function body. This only transforms the
+ * current function scope. This does not yet handle destructuring so
+ * destructuring should have been transformed away earlier.
+ *
+ *   function f() {
+ *     foo();
+ *     var x = 1, y, z = 2;
+ *     for (var w in obj) {}
+ *   }
+ *
+ * =>
+ *
+ *   function f() {
+ *     var x, y, z, w;
+ *     foo();
+ *     x = 1, z = 2;
+ *     for (w in obj) {}
+ *   }
+ */
 class HoistVariablesTransformer extends ParseTreeTransformer {
   constructor() {
     super();
@@ -91,10 +113,9 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     if (declarations === null)
       return new AnonBlock(null, []);
 
-    if (declarations.type === VARIABLE_DECLARATION_LIST) {
-      // let/const - just transform for now
-      return createVariableStatement(declarations);
-    }
+    // let/const are not hoisted. Just return a variable statement.
+    if (declarations.type === VARIABLE_DECLARATION_LIST)
+      return new VariableStatement(tree.location, declarations);
 
     return createExpressionStatement(declarations);
   }
@@ -105,6 +126,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
       var declarations = this.transformList(tree.declarations);
       for (var i = 0; i < declarations.length; i++) {
         var declaration = declarations[i];
+        assert(declaration.lvalue.type === BINDING_IDENTIFIER);
         // This only works if destructuring has been taken care off already.
         var idToken = declaration.lvalue.identifierToken;
         this.addVariable(idToken.value);

@@ -16822,7 +16822,6 @@ System.register("traceur@0.0.25/src/codegeneration/generator/AwaitState", [], fu
 System.register("traceur@0.0.25/src/codegeneration/HoistVariablesTransformer", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.25/src/codegeneration/HoistVariablesTransformer";
-  var VARIABLE_DECLARATION_LIST = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTreeType").VARIABLE_DECLARATION_LIST;
   var $__201 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTrees"),
       AnonBlock = $__201.AnonBlock,
       FunctionBody = $__201.FunctionBody,
@@ -16830,15 +16829,18 @@ System.register("traceur@0.0.25/src/codegeneration/HoistVariablesTransformer", [
       ForOfStatement = $__201.ForOfStatement,
       VariableDeclarationList = $__201.VariableDeclarationList,
       VariableStatement = $__201.VariableStatement;
+  var $__201 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/trees/ParseTreeType"),
+      BINDING_IDENTIFIER = $__201.BINDING_IDENTIFIER,
+      VARIABLE_DECLARATION_LIST = $__201.VARIABLE_DECLARATION_LIST;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
   var VAR = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/syntax/TokenType").VAR;
+  var assert = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/util/assert").assert;
   var $__201 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/ParseTreeFactory"),
       createAssignmentExpression = $__201.createAssignmentExpression,
       createCommaExpression = $__201.createCommaExpression,
       createExpressionStatement = $__201.createExpressionStatement,
       id = $__201.createIdentifierExpression,
-      createVariableDeclaration = $__201.createVariableDeclaration,
-      createVariableStatement = $__201.createVariableStatement;
+      createVariableDeclaration = $__201.createVariableDeclaration;
   var prependStatements = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/PrependStatements").prependStatements;
   var HoistVariablesTransformer = function HoistVariablesTransformer() {
     $traceurRuntime.superCall(this, $HoistVariablesTransformer.prototype, "constructor", []);
@@ -16884,9 +16886,8 @@ System.register("traceur@0.0.25/src/codegeneration/HoistVariablesTransformer", [
         return tree;
       if (declarations === null)
         return new AnonBlock(null, []);
-      if (declarations.type === VARIABLE_DECLARATION_LIST) {
-        return createVariableStatement(declarations);
-      }
+      if (declarations.type === VARIABLE_DECLARATION_LIST)
+        return new VariableStatement(tree.location, declarations);
       return createExpressionStatement(declarations);
     },
     transformVariableDeclarationList: function(tree) {
@@ -16895,6 +16896,7 @@ System.register("traceur@0.0.25/src/codegeneration/HoistVariablesTransformer", [
         var declarations = this.transformList(tree.declarations);
         for (var i = 0; i < declarations.length; i++) {
           var declaration = declarations[i];
+          assert(declaration.lvalue.type === BINDING_IDENTIFIER);
           var idToken = declaration.lvalue.identifierToken;
           this.addVariable(idToken.value);
           if (declaration.initialiser !== null) {
@@ -17793,7 +17795,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       }
     },
     transformVariableDeclarationList: function(tree) {
-      this.reporter.reportError(tree.location && tree.location.start, 'traceur: const/let declaration may not be ' + 'in a block containing a yield.');
+      this.reporter.reportError(tree.location && tree.location.start, 'Traceur: const/let declarations in a block containing a yield are ' + 'not yet implemented');
       return tree;
     },
     maybeTransformStatement_: function(maybeTransformedStatement) {
