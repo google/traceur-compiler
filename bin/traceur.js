@@ -14226,7 +14226,7 @@ System.register("traceur@0.0.25/src/codegeneration/module/DirectExportVisitor", 
 System.register("traceur@0.0.25/src/codegeneration/ModuleTransformer", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.25/src/codegeneration/ModuleTransformer";
-  var $__95 = Object.freeze(Object.defineProperties(["\"use strict\";var __moduleName = ", ";"], {raw: {value: Object.freeze(["\"use strict\";var __moduleName = ", ";"])}})),
+  var $__95 = Object.freeze(Object.defineProperties(["var __moduleName = ", ";"], {raw: {value: Object.freeze(["var __moduleName = ", ";"])}})),
       $__96 = Object.freeze(Object.defineProperties(["function() {\n      ", "\n    }"], {raw: {value: Object.freeze(["function() {\n      ", "\n    }"])}})),
       $__97 = Object.freeze(Object.defineProperties(["$traceurRuntime.ModuleStore.getAnonymousModule(\n              ", ");"], {raw: {value: Object.freeze(["$traceurRuntime.ModuleStore.getAnonymousModule(\n              ", ");"])}})),
       $__98 = Object.freeze(Object.defineProperties(["System.register(", ", [], ", ");"], {raw: {value: Object.freeze(["System.register(", ", [], ", ");"])}})),
@@ -14259,6 +14259,7 @@ System.register("traceur@0.0.25/src/codegeneration/ModuleTransformer", [], funct
       createIdentifierToken = $__107.createIdentifierToken,
       createMemberExpression = $__107.createMemberExpression,
       createObjectLiteralExpression = $__107.createObjectLiteralExpression,
+      createUseStrictDirective = $__107.createUseStrictDirective,
       createVariableStatement = $__107.createVariableStatement;
   var $__107 = $traceurRuntime.getModuleImpl("traceur@0.0.25/src/codegeneration/PlaceholderParser"),
       parseExpression = $__107.parseExpression,
@@ -14295,7 +14296,10 @@ System.register("traceur@0.0.25/src/codegeneration/ModuleTransformer", [], funct
       return new Script(tree.location, statements);
     },
     moduleProlog: function() {
-      return parseStatements($__95, this.moduleName);
+      var statements = [createUseStrictDirective()];
+      if (this.moduleName)
+        statements.push(parseStatement($__95, this.moduleName));
+      return statements;
     },
     wrapModule: function(statements) {
       var functionExpression = parseExpression($__96, statements);
