@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from './ErrorReporter';
+import {
+  ErrorReporter,
+  format
+} from './ErrorReporter';
 
 /**
  * An error reporter that is used with the tests. It doesn't output anything
@@ -23,8 +26,8 @@ export class TestErrorReporter extends ErrorReporter {
     this.errors = [];
   }
 
-  reportMessageInternal(location, format, args) {
-    this.errors.push(ErrorReporter.format(location, format, args));
+  reportMessageInternal(location, message) {
+    this.errors.push(format(location, message));
   }
 
   hasMatchingError(expected) {

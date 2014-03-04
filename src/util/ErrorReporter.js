@@ -23,22 +23,21 @@ export class ErrorReporter {
 
   /**
    * @param {SourcePosition} location
-   * @param {string} format
+   * @param {string} message
    */
-  reportError(location, format, ...args) {
+  reportError(location, message) {
     this.hadError_ = true;
-    this.reportMessageInternal(location, format, args);
+    this.reportMessageInternal(location, message);
   }
 
   /**
    * @param {SourcePosition} location
-   * @param {string} format
-   * @param {Array} args
+   * @param {string} message
    */
-  reportMessageInternal(location, format, args) {
+  reportMessageInternal(location, message) {
     if (location)
-      format = `${location}: ${format}`;
-    console.error(format, ...args);
+      message = `${location}: ${message}`;
+    console.error(message);
   }
 
   hadError() {

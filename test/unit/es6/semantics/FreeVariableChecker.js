@@ -37,31 +37,30 @@ suite('FreeVariableChecker.traceur.js', function() {
     return errors;
   }
 
-  function assertErrorMessage(errors, expectedError, expectedErrorArg) {
+  function assertErrorMessage(errors, expectedError) {
     assert.isTrue(errors.length > 0);
     assert.equal(expectedError, errors[0][1]);
-    assert.equal(expectedErrorArg, errors[0][2][0]);
   }
 
-  function assertCompileError(contents, expectedError, expectedErrorArg) {
+  function assertCompileError(contents, expectedError) {
     var errors = compileAndReturnErrors(contents, 'code');
-    assertErrorMessage(errors, expectedError, expectedErrorArg);
+    assertErrorMessage(errors, expectedError);
   }
 
   test('FreeVariables', function() {
     traceur.options.experimental = true;
-    assertCompileError('var y = xxx;', '%s is not defined', 'xxx');
-    assertCompileError('xxx(1,2,3);', '%s is not defined', 'xxx');
-    assertCompileError('function foo() { return xxx; }', '%s is not defined', 'xxx');
-    assertCompileError('if (true) { console.log(yyy); }', '%s is not defined', 'yyy');
+    assertCompileError('var y = xxx;', 'xxx is not defined');
+    assertCompileError('xxx(1,2,3);', 'xxx is not defined');
+    assertCompileError('function foo() { return xxx; }', 'xxx is not defined');
+    assertCompileError('if (true) { console.log(yyy); }', 'yyy is not defined');
     assertCompileError('function foo() { { let yyy = 5; }; return yyy; }',
-        '%s is not defined', 'yyy');
-    assertCompileError('xxx = 42;', '%s is not defined', 'xxx');
-    assertCompileError('xxx.y = 42;', '%s is not defined', 'xxx');
-    assertCompileError('fff(42);', '%s is not defined', 'fff');
-    assertCompileError('xxx.f(42);', '%s is not defined', 'xxx');
+        'yyy is not defined');
+    assertCompileError('xxx = 42;', 'xxx is not defined');
+    assertCompileError('xxx.y = 42;', 'xxx is not defined');
+    assertCompileError('fff(42);', 'fff is not defined');
+    assertCompileError('xxx.f(42);', 'xxx is not defined');
     // TODO(jmesserly): we shouldn't be putting traceur into the global scope
-    // assertCompileError('traceur.runtime = {};', '%s is not defined', 'traceur');
+    // assertCompileError('traceur.runtime = {};', 'traceur is not defined');
   });
 
   test('FreeVariables2', function() {
