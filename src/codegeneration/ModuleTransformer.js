@@ -37,7 +37,8 @@ import {
   createIdentifierToken,
   createMemberExpression,
   createObjectLiteralExpression,
-  createVariableStatement
+  createUseStrictDirective,
+  createVariableStatement,
 } from './ParseTreeFactory';
 import {
   parseExpression,
@@ -91,7 +92,10 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   moduleProlog() {
-    return parseStatements `"use strict";var __moduleName = ${this.moduleName};`;
+    var statements = [createUseStrictDirective()];
+    if (this.moduleName)
+      statements.push(parseStatement `var __moduleName = ${this.moduleName};`);
+    return statements;
   }
 
   wrapModule(statements) {
