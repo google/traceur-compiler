@@ -25,7 +25,8 @@ function interpret(filename, argv, flags) {
   System.import(moduleName).then(function() {
 
   }).catch(function(err) {
-    console.error(err);
+    console.error(err.stack || err);
+    process.exit(8);
   });
 }
 

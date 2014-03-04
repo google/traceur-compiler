@@ -1,0 +1,2 @@
+./traceur test/unit/runtime/throwsError.js 2>&1 | wc -l
+      11
