@@ -3834,16 +3834,15 @@ export class Parser {
    * @return {void}
    * @private
    */
-  reportError_(var_args) {
-    if (arguments.length == 1) {
-      this.errorReporter_.reportError(this.scanner_.getPosition(),
-                                      arguments[0]);
+  reportError_(...args) {
+    if (args.length == 1) {
+      this.errorReporter_.reportError(this.scanner_.getPosition(), args[0]);
     } else {
-      var location = arguments[0];
+      var location = args[0];
       if (location instanceof Token) {
         location = location.location;
       }
-      this.errorReporter_.reportError(location.start, arguments[1]);
+      this.errorReporter_.reportError(location.start, args[1]);
     }
   }
 

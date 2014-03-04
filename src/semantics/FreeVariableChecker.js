@@ -249,7 +249,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
 
           // If we're at the top level scope, then issue an error for
           // remaining free variables.
-          errors.push([location.start, '%s is not defined', name]);
+          errors.push([location.start, `${name} is not defined`]);
         } else if (!(name in scope.parent.references)) {
           scope.parent.references[name] = location;
         }
@@ -259,14 +259,14 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     if (errors.length) {
       // Issue errors in source order.
       errors.sort((x, y) => x[0].offset - y[0].offset);
-      errors.forEach((e) => {
-        this.reportError_(...e);
+      errors.forEach((args) => {
+        this.reportError_(...args);
       });
     }
   }
 
-  reportError_(...args) {
-    this.reporter_.reportError(...args);
+  reportError_(location, message) {
+    this.reporter_.reportError(location, message);
   }
 
   /**

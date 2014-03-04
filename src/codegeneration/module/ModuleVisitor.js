@@ -106,11 +106,10 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   /**
    * @param {ParseTree} tree
-   * @param {string} format
-   * @param {...Object} args
+   * @param {string} message
    * @return {void}
    */
-  reportError(tree, format, ...args) {
-    this.reporter.reportError(tree.location.start, format, ...args);
+  reportError(tree, message) {
+    this.reporter.reportError(tree.location.start, message);
   }
 }
