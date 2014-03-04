@@ -26,6 +26,7 @@ function interpret(filename, argv, flags) {
 
   }).catch(function(err) {
     console.error(err.stack || err);
+    process.exit(8);
   });
 }
 
