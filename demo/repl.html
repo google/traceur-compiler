@@ -25,9 +25,9 @@ if (location.host === 'traceur-compiler.googlecode.com') {
       location.hash);
 }
 </script>
-<link rel="stylesheet" href="../third_party/codemirror2/lib/codemirror.css">
-<script src="../third_party/codemirror2/lib/codemirror.js"></script>
-<script src="../third_party/codemirror2/mode/javascript/javascript.js"></script>
+<link rel="stylesheet" href="../third_party/codemirror-3.22/lib/codemirror.css">
+<script src="../third_party/codemirror-3.22/lib/codemirror.js"></script>
+<script src="../third_party/codemirror-3.22/mode/javascript/javascript.js"></script>
 <script src="../bin/traceur.js"></script>
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans">
 <style>
@@ -41,19 +41,27 @@ html, body {
   box-sizing: border-box;
 }
 
-.CodeMirror-scroll {
+.CodeMirror {
   border: 1px solid #ddd;
   height: auto;
+  width: -webkit-calc(50% - 15px);
+  width: calc(50% - 15px);
+  font-family:  'Droid Sans Mono', sans-serif;
+  margin: 5px;
+}
+
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
   min-height: 300px;
+}
+
+.output-wrapper {
+  overflow: hidden;
 }
 
 html.hide-output .output-wrapper {
   display: none;
-}
-
-.CodeMirror {
-  width: -webkit-calc(50% - 15px);
-  width: calc(50% - 15px);
 }
 
 html.hide-output .CodeMirror {
@@ -62,13 +70,6 @@ html.hide-output .CodeMirror {
 }
 
 h1 {
-  margin: 5px;
-}
-
-textarea,
-pre,
-.CodeMirror {
-  font: 12px 'Droid Sans Mono', sans-serif;
   margin: 5px;
 }
 
