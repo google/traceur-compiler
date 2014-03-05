@@ -132,28 +132,28 @@ suite('context test', function() {
 
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputDir = resolve('test/unit/node/resources/compile-dir');
-    var outDir = resolve('test/unit/node/resources/compile-amd');
+    var inputDir = './unit/node/resources/compile-dir';
+    var outDir = './unit/node/resources/compile-amd';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd', function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var __moduleName = \"../../test/unit/node/resources/compile-dir/file\";\n  if (!$__0 || !$__0.__esModule)\n    $__0 = {'default': $__0};\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __esModule: true\n  };\n});\n");
-      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var __moduleName = \"../../test/unit/node/resources/compile-dir/dep\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __esModule: true\n  };\n});\n");
+      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var __moduleName = \"./unit/node/resources/compile-dir/file\";\n  if (!$__0 || !$__0.__esModule)\n    $__0 = {'default': $__0};\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __esModule: true\n  };\n});\n");
+      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var __moduleName = \"./unit/node/resources/compile-dir/dep\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __esModule: true\n  };\n});\n");
       done();
     });
   });
 
   test('compile module dir option CommonJS', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputDir = resolve('test/unit/node/resources/compile-dir');
-    var outDir = resolve('test/unit/node/resources/compile-cjs');
+    var inputDir = './unit/node/resources/compile-dir';
+    var outDir = './unit/node/resources/compile-cjs';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"../../test/unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {get p() {\n    return p;\n  }};\n");
-      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"../../test/unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {get q() {\n    return q;\n  }};\n");
+      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {get p() {\n    return p;\n  }};\n");
+      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {get q() {\n    return q;\n  }};\n");
       done();
     });
   })
