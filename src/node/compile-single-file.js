@@ -32,8 +32,10 @@ function compileSingleFile(inputFilePath, outputFilePath) {
     var sourceFile = new SourceFile(inputFilePath, contents);
     var parser = new Parser(sourceFile, reporter);
     var tree = parser.parseModule();
-    var moduleName = inputFilePath.replace(/\.js$/, '');
-    moduleName = path.relative(__dirname, moduleName).replace(/\\/g,'/');
+    var moduleName = inputFilePath.replace(/\.js$/, '').replace(/\\/g,'/');
+    // Module naming uses ./ to signal relative names.
+    if (moduleName[0] !== '/')
+      moduleName = './' + moduleName;
     var transformer = new AttachModuleNameTransformer(moduleName);
     tree = transformer.transformAny(tree);
     transformer = new FromOptionsTransformer(reporter);
