@@ -22,10 +22,11 @@ traceurOptions.sourceMaps = false;
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
 var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
-  onChange: debouncedCompile,
-  onCursorActivity: debouncedCompile.delay,
   lineNumbers: true
 });
+input.on('change', debouncedCompile);
+input.on('cursorActivity', debouncedCompile.delay);
+
 var outputCheckbox = document.querySelector('input.output');
 var output = CodeMirror.fromTextArea(
     document.querySelector('textarea.output'), {
