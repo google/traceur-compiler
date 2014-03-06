@@ -69,8 +69,6 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.dependencies.push({path: tree.token, local: localName});
     var localIdentifier = createIdentifierExpression(localName);
 
-    if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `$traceurRuntime.ModuleStore.get(${localIdentifier})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${localIdentifier})`;
+    return parseExpression `$traceurRuntime.ModuleStore.get(${localIdentifier})`;
   }
 }
