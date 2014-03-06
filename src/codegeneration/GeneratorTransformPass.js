@@ -33,13 +33,14 @@ import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
+import {YieldFinder} from './YieldFinder';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
   createBlock,
   createCommaExpression,
   createExpressionStatement,
-  createIdentifierExpression,
+  createIdentifierExpression as id,
   createReturnStatement,
   createMemberExpression,
   createVariableDeclaration,
@@ -53,8 +54,6 @@ import {
   options
 } from '../options';
 
-
-var id = createIdentifierExpression;
 
 /**
  * Can tell you if function body contains a yield statement. Does not search

@@ -41,6 +41,7 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
+import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
