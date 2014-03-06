@@ -201,6 +201,7 @@
     normalize: ModuleStore.normalize,
   };
 
+  // TODO(jjb): remove after next npm release
   $traceurRuntime.getModuleImpl = function(name) {
     var instantiator = getUncoatedModuleInstantiator(name);
     return instantiator && instantiator.getUncoatedModule();
