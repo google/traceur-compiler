@@ -30,14 +30,15 @@ suite('ExplodeExpressionTransformer.js', function() {
   var counter = 0;
   var transformer;
 
-  ExplodeExpressionTransformer.prototype.addTempVar = function() {
+  function stubAddTempVar() {
     var s = '$' + counter++;
     return id(s);
-  };
+  }
 
   setup(function() {
     counter = 0;
     transformer = new ExplodeExpressionTransformer(null);
+    transformer.addTempVar = stubAddTempVar;
   });
 
   function parseExpression(content) {
