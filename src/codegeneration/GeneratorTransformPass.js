@@ -54,51 +54,6 @@ import {
   options
 } from '../options';
 
-
-/**
- * Can tell you if function body contains a yield statement. Does not search
- * into nested functions.
- */
-class YieldFinder extends ParseTreeVisitor {
-  /**
-   * @param {ParseTree} tree
-   */
-  constructor(tree) {
-    this.hasYield = false;
-    this.hasYieldFor = false;
-    this.hasForIn = false;
-    this.hasAwait = false;
-    this.visitAny(tree);
-  }
-
-  /** @return {boolean} */
-  hasAnyGenerator() {
-    return this.hasYield || this.hasAwait;
-  }
-
-  visitYieldExpression(tree) {
-    this.hasYield = true;
-    this.hasYieldFor = tree.isYieldFor;
-  }
-
-  /** @param {AwaitStatement} tree */
-  visitAwaitStatement(tree) {
-    this.hasAwait = true;
-  }
-
-  /** @param {ForInStatement} tree */
-  visitForInStatement(tree) {
-    this.hasForIn = true;
-    super.visitForInStatement(tree);
-  }
-
-  // don't visit function children or bodies
-  visitFunctionDeclaration(tree) {}
-  visitFunctionExpression(tree) {}
-  visitSetAccessor(tree) {}
-  visitGetAccessor(tree) {}
-}
-
 class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator

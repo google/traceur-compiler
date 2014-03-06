@@ -18717,34 +18717,6 @@ System.register("traceur@0.0.25/src/codegeneration/GeneratorTransformPass", [], 
   var $__264 = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/options"),
       transformOptions = $__264.transformOptions,
       options = $__264.options;
-  var YieldFinder = function YieldFinder(tree) {
-    this.hasYield = false;
-    this.hasYieldFor = false;
-    this.hasForIn = false;
-    this.hasAwait = false;
-    this.visitAny(tree);
-  };
-  var $YieldFinder = YieldFinder;
-  ($traceurRuntime.createClass)(YieldFinder, {
-    hasAnyGenerator: function() {
-      return this.hasYield || this.hasAwait;
-    },
-    visitYieldExpression: function(tree) {
-      this.hasYield = true;
-      this.hasYieldFor = tree.isYieldFor;
-    },
-    visitAwaitStatement: function(tree) {
-      this.hasAwait = true;
-    },
-    visitForInStatement: function(tree) {
-      this.hasForIn = true;
-      $traceurRuntime.superCall(this, $YieldFinder.prototype, "visitForInStatement", [tree]);
-    },
-    visitFunctionDeclaration: function(tree) {},
-    visitFunctionExpression: function(tree) {},
-    visitSetAccessor: function(tree) {},
-    visitGetAccessor: function(tree) {}
-  }, {}, ParseTreeVisitor);
   var YieldExpressionTransformer = function YieldExpressionTransformer(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $YieldExpressionTransformer.prototype, "constructor", [identifierGenerator]);
   };
