@@ -28,18 +28,15 @@ suite('ExplodeExpressionTransformer.js', function() {
       getForTesting('src/outputgeneration/TreeWriter').write;
 
   var counter = 0;
-  var tempVars = [];
   var transformer;
 
   ExplodeExpressionTransformer.prototype.addTempVar = function() {
     var s = '$' + counter++;
-    tempVars.push(s);
     return id(s);
   };
 
   setup(function() {
     counter = 0;
-    tempVars = [];
     transformer = new ExplodeExpressionTransformer(null);
   });
 
