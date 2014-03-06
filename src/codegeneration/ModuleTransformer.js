@@ -201,9 +201,7 @@ export class ModuleTransformer extends TempVarTransformer {
     var name = tree.token.processedValue;
     // import/module {x} from 'name' is relative to the current file.
     var normalizedName = System.normalize(name, this.moduleName);
-    if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
+    return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
   }
 
   /**
