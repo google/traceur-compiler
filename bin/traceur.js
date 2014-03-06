@@ -18940,7 +18940,7 @@ System.register("traceur@0.0.25/src/codegeneration/InstantiateModuleTransformer"
   var $__266 = Object.freeze(Object.defineProperties(["function(", ") {\n      ", "\n    }"], {raw: {value: Object.freeze(["function(", ") {\n      ", "\n    }"])}})),
       $__267 = Object.freeze(Object.defineProperties(["", ".bind(", ")"], {raw: {value: Object.freeze(["", ".bind(", ")"])}})),
       $__268 = Object.freeze(Object.defineProperties(["System.register(", ", ", ", ", ");"], {raw: {value: Object.freeze(["System.register(", ", ", ", ", ");"])}})),
-      $__269 = Object.freeze(Object.defineProperties(["$traceurRuntime.ModuleStore.get(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.ModuleStore.get(", ")"])}}));
+      $__269 = Object.freeze(Object.defineProperties(["System.get(", ")"], {raw: {value: Object.freeze(["System.get(", ")"])}}));
   var assert = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/util/assert").assert;
   var createIdentifierExpression = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/ParseTreeFactory").createIdentifierExpression;
   var globalThis = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/globalThis").default;
