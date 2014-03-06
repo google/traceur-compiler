@@ -49,6 +49,12 @@ flags.on('longhelp', function() {
   process.exit();
 });
 
+flags.option('-v, --version', 'Show version and exit');
+flags.on('version', function() {
+  console.log(System.version);
+  process.exit();
+});
+
 flags.on('--help', function() {
   console.log('  Examples:');
   console.log('');

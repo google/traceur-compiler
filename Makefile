@@ -122,6 +122,9 @@ test/unit/runtime/traceur-runtime: \
 	test/unit/runtime/traceur-runtime.js bin/traceur-runtime.js
 	node $<
 
+test-version:
+	./traceur -v | grep 'traceur@[0-9]*\.[0-9*\.[0-9]*'
+
 boot: clean build
 
 clean: wikiclean
