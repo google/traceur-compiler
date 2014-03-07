@@ -18458,15 +18458,6 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var expressions = $traceurRuntime.spread(getExpressions(expression), [result]);
       return createCommaExpression(expressions);
     },
-    transformClassExpression: function(tree) {
-      return tree;
-    },
-    transformFunctionExpression: function(tree) {
-      return tree;
-    },
-    transformArrowFunctionExpression: function(tree) {
-      return tree;
-    },
     createCommaExpressionBuilder: function() {
       return new CommaExpressionBuilder(this.addTempVar());
     }

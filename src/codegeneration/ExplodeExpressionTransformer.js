@@ -743,18 +743,6 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformClassExpression(tree) {
-    return tree;
-  }
-
-  transformFunctionExpression(tree) {
-    return tree;
-  }
-
-  transformArrowFunctionExpression(tree) {
-    return tree;
-  }
-
   createCommaExpressionBuilder() {
     return new CommaExpressionBuilder(this.addTempVar());
   }
