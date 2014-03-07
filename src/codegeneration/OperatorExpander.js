@@ -17,30 +17,6 @@ import {
   SUPER_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {
-  AMPERSAND,
-  AMPERSAND_EQUAL,
-  BAR,
-  BAR_EQUAL,
-  CARET,
-  CARET_EQUAL,
-  LEFT_SHIFT,
-  LEFT_SHIFT_EQUAL,
-  MINUS,
-  MINUS_EQUAL,
-  PERCENT,
-  PERCENT_EQUAL,
-  PLUS,
-  PLUS_EQUAL,
-  RIGHT_SHIFT,
-  RIGHT_SHIFT_EQUAL,
-  SLASH,
-  SLASH_EQUAL,
-  STAR,
-  STAR_EQUAL,
-  UNSIGNED_RIGHT_SHIFT,
-  UNSIGNED_RIGHT_SHIFT_EQUAL
-} from '../syntax/TokenType';
-import {
   createAssignmentExpression,
   createBinaryOperator,
   createCommaExpression,
@@ -50,39 +26,10 @@ import {
   createOperatorToken,
   createParenExpression
 } from './ParseTreeFactory';
+import assignmentOperatorToBinaryOperator from
+  './assignmentOperatorToBinaryOperator';
 
-/**
- * Returns the binary operator that the assignment operator should use. For
- * example *= should use *.
- */
-function getBinaryOperator(type) {
-  switch (type) {
-    case STAR_EQUAL:
-      return STAR;
-    case SLASH_EQUAL:
-      return SLASH;
-    case PERCENT_EQUAL:
-      return PERCENT;
-    case PLUS_EQUAL:
-      return PLUS;
-    case MINUS_EQUAL:
-      return MINUS;
-    case LEFT_SHIFT_EQUAL:
-      return LEFT_SHIFT;
-    case RIGHT_SHIFT_EQUAL:
-      return RIGHT_SHIFT;
-    case UNSIGNED_RIGHT_SHIFT_EQUAL:
-      return UNSIGNED_RIGHT_SHIFT;
-    case AMPERSAND_EQUAL:
-      return AMPERSAND;
-    case CARET_EQUAL:
-      return CARET;
-    case BAR_EQUAL:
-      return BAR;
-    default:
-      throw Error('unreachable');
-  }
-}
+// TODO(arv): Have this use ExplodeExpressionTransformer
 
 /**
  * Normalizes member lookup expressions with += etc.
@@ -115,7 +62,8 @@ export function expandMemberLookupExpression(tree, tempVarTransformer) {
         createMemberLookupExpression(tmp1, tmp2),
         createBinaryOperator(
             createMemberLookupExpression(tmp1, tmp2),
-            createOperatorToken(getBinaryOperator(tree.operator.type)),
+            createOperatorToken(
+                assignmentOperatorToBinaryOperator(tree.operator.type)),
             tree.right))
   );
   return createParenExpression(createCommaExpression(expressions));
@@ -151,7 +99,8 @@ export function expandMemberExpression(tree, tempVarTransformer) {
           createMemberExpression(tmp, tree.left.memberName),
           createBinaryOperator(
               createMemberExpression(tmp, tree.left.memberName),
-              createOperatorToken(getBinaryOperator(tree.operator.type)),
+              createOperatorToken(
+                  assignmentOperatorToBinaryOperator(tree.operator.type)),
               tree.right)));
   return createParenExpression(createCommaExpression(expressions));
 }
