@@ -17877,39 +17877,35 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       this.popTempVarState();
       return machine == null ? transformedTree : machine;
     },
-    transformStatementList_: function(someTransformed) {
+    transformStatementList_: function(trees) {
+      var groups = [];
+      var newMachine;
+      for (var i = 0; i < trees.length; i++) {
+        if (trees[i].type === STATE_MACHINE) {
+          groups.push(trees[i]);
+        } else if (needsStateMachine(trees[i])) {
+          newMachine = this.ensureTransformed_(trees[i]);
+          groups.push(newMachine);
+        } else {
+          var last = groups[groups.length - 1];
+          if (!(last instanceof Array))
+            groups.push(last = []);
+          last.push(trees[i]);
+        }
+      }
+      if (groups.length === 1 && groups[0] instanceof Array)
+        return null;
       var machine = null;
-      for (var i = 0; i < someTransformed.length; i++) {
-        var tree = someTransformed[i];
-        var statements = [];
-        while (i < someTransformed.length && someTransformed[i].type !== STATE_MACHINE && !needsStateMachine(someTransformed[i])) {
-          statements.push(someTransformed[i]);
-          i++;
+      for (var i = 0; i < groups.length; i++) {
+        if (groups[i] instanceof Array) {
+          newMachine = this.statementsToStateMachine_(groups[i]);
+        } else {
+          newMachine = groups[i];
         }
-        if (i === someTransformed.length && !machine)
-          return null;
-        if (statements.length) {
-          var newMachine = this.statementsToStateMachine_(statements);
-          statements = [];
-          if (machine)
-            machine = machine.append(newMachine);
-          else
-            machine = newMachine;
-        }
-        if (i >= someTransformed.length)
-          break;
-        if (someTransformed[i].type === STATE_MACHINE) {
-          if (machine)
-            machine = machine.append(someTransformed[i]);
-          else
-            machine = someTransformed[i];
-        } else if (someTransformed[i]) {
-          newMachine = this.ensureTransformed_(someTransformed[i]);
-          if (machine)
-            machine = machine.append(newMachine);
-          else
-            machine = newMachine;
-        }
+        if (i === 0)
+          machine = newMachine;
+        else
+          machine = machine.append(newMachine);
       }
       return machine;
     },

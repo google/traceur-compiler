@@ -206,57 +206,50 @@ export class CPSTransformer extends TempVarTransformer {
   }
 
   /**
-   * @param {Array.<ParseTree>} someTransformed
+   * @param {Array.<ParseTree>} trees This may already contain StateMachine
+   *     trees.
    * @return {StateMachine}
    */
-  transformStatementList_(someTransformed) {
-    // We only need to return a state machine if the block contains a yield
-    // which has been converted to a state machine or contains a break or
-    // continue.
+  transformStatementList_(trees) {
+    // We only need to return a state machine if trees already contains one or
+    // more state machines or if there is a statement that must be converted
+    // to a state machine because it contains a yield (or break, continue).
+    //
+    // This is done in two passes. The first pass just gathers the statements
+    // that can go into the same state for the final state machine.
 
-    // We ensure that consecutive statements that do not need a state machine
-    // are folded into a single state machine when they need to be turned into
-    // a state machine because there are break/yield/continue.
+    var groups = [];
+    var newMachine;
+    for (var i = 0; i < trees.length; i++) {
+      if (trees[i].type === STATE_MACHINE) {
+        groups.push(trees[i]);
+      } else if (needsStateMachine(trees[i])) {
+        newMachine = this.ensureTransformed_(trees[i]);
+        groups.push(newMachine);
+      } else {
+        // Accumulate trees.
+        var last = groups[groups.length - 1];
+        if (!(last instanceof Array))
+          groups.push(last = []);
+        last.push(trees[i])
+      }
+    }
+
+    if (groups.length === 1 && groups[0] instanceof Array)
+      return null;
 
     var machine = null;
-    for (var i = 0; i < someTransformed.length; i++) {
-      var tree = someTransformed[i];
-      var statements = [];
-      while (i < someTransformed.length &&
-          someTransformed[i].type !== STATE_MACHINE &&
-          !needsStateMachine(someTransformed[i])) {
-        statements.push(someTransformed[i]);
-        i++;
+
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i] instanceof Array) {
+        newMachine = this.statementsToStateMachine_(groups[i]);
+      } else {
+        newMachine = groups[i];
       }
-
-      if (i === someTransformed.length && !machine)
-        return null;
-
-      if (statements.length) {
-        var newMachine = this.statementsToStateMachine_(statements);
-        statements = [];
-
-        if (machine)
-          machine = machine.append(newMachine);
-        else
-          machine = newMachine;
-      }
-
-      if (i >= someTransformed.length)
-        break;
-
-      if (someTransformed[i].type === STATE_MACHINE) {
-        if (machine)
-          machine = machine.append(someTransformed[i]);
-        else
-          machine = someTransformed[i];
-      } else if (someTransformed[i]) {
-        newMachine = this.ensureTransformed_(someTransformed[i]);
-        if (machine)
-          machine = machine.append(newMachine);
-        else
-          machine = newMachine;
-      }
+      if (i === 0)
+        machine = newMachine;
+      else
+        machine = machine.append(newMachine);
     }
 
     return machine;
