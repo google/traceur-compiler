@@ -213,8 +213,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.currentLineComment_ = `Line: ${line}.${column}`;
     }
 
-    this.currentLocation = tree.location;
-
     super.visitAny(tree);
 
     // set background color to normal

@@ -38,10 +38,10 @@ suite('SourceMap.js', function() {
 
     var testcases = [
       {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
-      {generated: {line: 2, column: 0}, original: {line: 1, column: 17}},
-      {generated: {line: 3, column: 0}, original: {line: 1, column: 24}},
+      {generated: {line: 2, column: 0}, original: {line: 1, column: 15}},
+      {generated: {line: 3, column: 0}, original: {line: 1, column: 26}},
       {generated: {line: 4, column: 0}, original: {line: 3, column: 0}},
-      {generated: {line: 5, column: 0}, original: {line: 6, column: 0}}
+      {generated: {line: 5, column: 1}, original: {line: 6, column: 0}}
     ];
 
     var generator = new SourceMapGenerator({file: filename});
@@ -54,9 +54,10 @@ suite('SourceMap.js', function() {
       var actual = consumer.originalPositionFor(testcase.generated);
       var shouldBeTrue = actual.line === testcase.original.line;
       assert.isTrue(shouldBeTrue, caseNumber + ' Line mismatch ' + actual.line);
-      shouldBeTrue = actual.column === testcase.original.column;
+      var expected = testcase.original.column;
+      shouldBeTrue = actual.column === expected;
       assert.isTrue(shouldBeTrue,
-                    caseNumber + ' Column mismatch ' + actual.column);
+          caseNumber + ' Column mismatch ' + actual.column + ' vs ' + expected);
     });
 
     var sourceContent = consumer.sourceContentFor(filename);
