@@ -29,7 +29,7 @@ import {ConditionalState} from './ConditionalState';
 import {FallThroughState} from './FallThroughState';
 import {FinallyFallThroughState} from './FinallyFallThroughState';
 import {FinallyState} from './FinallyState';
-import {FindVisitor} from '../FindVisitor';
+import {FindInFunctionScope} from '../FindInFunctionScope';
 import {TempVarTransformer} from '../TempVarTransformer';
 import {assert} from '../../util/assert';
 import {
@@ -68,12 +68,12 @@ class LabelState {
   }
 }
 
-class NeedsStateMachine extends FindVisitor {
+class NeedsStateMachine extends FindInFunctionScope {
   visitBreakStatement(tree) {
-    this.found = tree.name !== null;
+    this.found = true;
   }
   visitContinueStatement(tree) {
-    this.found = tree.name !== null;
+    this.found = true;
   }
   visitStateMachine(tree) {
     this.found = true;
@@ -81,6 +81,11 @@ class NeedsStateMachine extends FindVisitor {
   visitYieldExpression(tee) {
     this.found = true;
   }
+}
+
+function needsStateMachine(tree) {
+  var visitor = new NeedsStateMachine(tree);
+  return visitor.found;
 }
 
 class HoistVariables extends HoistVariablesTransformer {
@@ -205,24 +210,56 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {StateMachine}
    */
   transformStatementList_(someTransformed) {
-    // This block has undergone some transformation but may only be variable
-    // transforms. We only need to return a state machine if the block contains
-    // a yield which has been converted to a state machine or contains a break
-    // or continue.
-    if (!this.needsStateMachine_(someTransformed)) {
-      return null;
+    // We only need to return a state machine if the block contains a yield
+    // which has been converted to a state machine or contains a break or
+    // continue.
+
+    // We ensure that consecutive statements that do not need a state machine
+    // are folded into a single state machine when they need to be turned into
+    // a state machine because there are break/yield/continue.
+
+    var machine = null;
+    for (var i = 0; i < someTransformed.length; i++) {
+      var tree = someTransformed[i];
+      var statements = [];
+      while (i < someTransformed.length &&
+          someTransformed[i].type !== STATE_MACHINE &&
+          !needsStateMachine(someTransformed[i])) {
+        statements.push(someTransformed[i]);
+        i++;
+      }
+
+      if (i === someTransformed.length && !machine)
+        return null;
+
+      if (statements.length) {
+        var newMachine = this.statementsToStateMachine_(statements);
+        statements = [];
+
+        if (machine)
+          machine = machine.append(newMachine);
+        else
+          machine = newMachine;
+      }
+
+      if (i >= someTransformed.length)
+        break;
+
+      if (someTransformed[i].type === STATE_MACHINE) {
+        if (machine)
+          machine = machine.append(someTransformed[i]);
+        else
+          machine = someTransformed[i];
+      } else if (someTransformed[i]) {
+        newMachine = this.ensureTransformed_(someTransformed[i]);
+        if (machine)
+          machine = machine.append(newMachine);
+        else
+          machine = newMachine;
+      }
     }
 
-    // this block contains at least 1 yield statement which has been
-    // transformed into a StateMachine. Transform all remaining statements into
-    // StateMachines then sequence them together.
-    var currentMachine = this.ensureTransformed_(someTransformed[0]);
-    for (var index = 1; index < someTransformed.length; index++) {
-      currentMachine = currentMachine.append(
-          this.ensureTransformed_(someTransformed[index]));
-    }
-
-    return currentMachine;
+    return machine;
   }
 
   /**
@@ -232,21 +269,14 @@ export class CPSTransformer extends TempVarTransformer {
   needsStateMachine_(statements) {
     if (statements instanceof Array) {
       for (var i = 0; i < statements.length; i++) {
-        var visitor = new NeedsStateMachine(statements[i]);
-        if (visitor.found)
+        if (needsStateMachine(statements[i]))
           return true;
       }
       return false;
     }
 
     assert(statements instanceof SwitchStatement);
-    for (var i = 0; i < statements.caseClauses.length; i++) {
-      var clause = statements.caseClauses[i];
-      if (this.needsStateMachine_(clause.statements)) {
-        return true;
-      }
-    }
-    return false;
+    return needsStateMachine(statements);
   }
 
   /**
@@ -604,7 +634,7 @@ export class CPSTransformer extends TempVarTransformer {
     var labels = this.getLabels_();
 
     var result = super.transformSwitchStatement(tree);
-    if (!this.needsStateMachine_(result))
+    if (!needsStateMachine(result))
       return result;
 
     // a yield within a switch statement
@@ -851,7 +881,6 @@ export class CPSTransformer extends TempVarTransformer {
   addMachineVariable(name) {
     this.hoistVariablesTransformer_.addVariable(name);
   }
-
 
   transformCpsFunctionBody(tree, runtimeMethod) {
     var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');

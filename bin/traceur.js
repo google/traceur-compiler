@@ -17776,7 +17776,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
   var FallThroughState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FallThroughState").FallThroughState;
   var FinallyFallThroughState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FinallyFallThroughState").FinallyFallThroughState;
   var FinallyState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FinallyState").FinallyState;
-  var FindVisitor = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/FindVisitor").FindVisitor;
+  var FindInFunctionScope = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/FindInFunctionScope").FindInFunctionScope;
   var TempVarTransformer = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/TempVarTransformer").TempVarTransformer;
   var assert = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/util/assert").assert;
   var $__232 = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/PlaceholderParser"),
@@ -17815,10 +17815,10 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
   var $NeedsStateMachine = NeedsStateMachine;
   ($traceurRuntime.createClass)(NeedsStateMachine, {
     visitBreakStatement: function(tree) {
-      this.found = tree.name !== null;
+      this.found = true;
     },
     visitContinueStatement: function(tree) {
-      this.found = tree.name !== null;
+      this.found = true;
     },
     visitStateMachine: function(tree) {
       this.found = true;
@@ -17826,7 +17826,11 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
     visitYieldExpression: function(tee) {
       this.found = true;
     }
-  }, {}, FindVisitor);
+  }, {}, FindInFunctionScope);
+  function needsStateMachine(tree) {
+    var visitor = new NeedsStateMachine(tree);
+    return visitor.found;
+  }
   var HoistVariables = function HoistVariables() {
     $traceurRuntime.defaultSuperCall(this, $HoistVariables.prototype, arguments);
   };
@@ -17874,32 +17878,51 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       return machine == null ? transformedTree : machine;
     },
     transformStatementList_: function(someTransformed) {
-      if (!this.needsStateMachine_(someTransformed)) {
-        return null;
+      var machine = null;
+      for (var i = 0; i < someTransformed.length; i++) {
+        var tree = someTransformed[i];
+        var statements = [];
+        while (i < someTransformed.length && someTransformed[i].type !== STATE_MACHINE && !needsStateMachine(someTransformed[i])) {
+          statements.push(someTransformed[i]);
+          i++;
+        }
+        if (i === someTransformed.length && !machine)
+          return null;
+        if (statements.length) {
+          var newMachine = this.statementsToStateMachine_(statements);
+          statements = [];
+          if (machine)
+            machine = machine.append(newMachine);
+          else
+            machine = newMachine;
+        }
+        if (i >= someTransformed.length)
+          break;
+        if (someTransformed[i].type === STATE_MACHINE) {
+          if (machine)
+            machine = machine.append(someTransformed[i]);
+          else
+            machine = someTransformed[i];
+        } else if (someTransformed[i]) {
+          newMachine = this.ensureTransformed_(someTransformed[i]);
+          if (machine)
+            machine = machine.append(newMachine);
+          else
+            machine = newMachine;
+        }
       }
-      var currentMachine = this.ensureTransformed_(someTransformed[0]);
-      for (var index = 1; index < someTransformed.length; index++) {
-        currentMachine = currentMachine.append(this.ensureTransformed_(someTransformed[index]));
-      }
-      return currentMachine;
+      return machine;
     },
     needsStateMachine_: function(statements) {
       if (statements instanceof Array) {
         for (var i = 0; i < statements.length; i++) {
-          var visitor = new NeedsStateMachine(statements[i]);
-          if (visitor.found)
+          if (needsStateMachine(statements[i]))
             return true;
         }
         return false;
       }
       assert(statements instanceof SwitchStatement);
-      for (var i = 0; i < statements.caseClauses.length; i++) {
-        var clause = statements.caseClauses[i];
-        if (this.needsStateMachine_(clause.statements)) {
-          return true;
-        }
-      }
-      return false;
+      return needsStateMachine(statements);
     },
     transformCaseClause: function(tree) {
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformCaseClause", [tree]);
@@ -18084,7 +18107,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
     transformSwitchStatement: function(tree) {
       var labels = this.getLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
-      if (!this.needsStateMachine_(result))
+      if (!needsStateMachine(result))
         return result;
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
