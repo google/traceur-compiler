@@ -29,6 +29,8 @@ import {
 import assignmentOperatorToBinaryOperator from
   './assignmentOperatorToBinaryOperator';
 
+// TODO(arv): Have this use ExplodeExpressionTransformer
+
 /**
  * Normalizes member lookup expressions with += etc.
  *

@@ -71,6 +71,8 @@ suite('ExplodeExpressionTransformer.js', function() {
 
   testExplode('ParenExpression', '(1)', '(1)');
   testExplode('ParenExpression', '(a.b)', '$0 = a.b, $0');
+  testExplode('ParenExpression', '(a.b + c.d).e',
+      '$0 = a.b, $1 = c.d, $2 = $0 + $1, $3 = $2.e, $3');
 
   testExplode('BinaryExpression', '1 + 2', '1 + 2');
   testExplode('BinaryExpression', '(1 + 2) * 3', '(1 + 2) * 3');

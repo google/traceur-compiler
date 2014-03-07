@@ -18191,16 +18191,16 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var operand = tree.operand;
       var tmp = this.addTempVar();
       var operator = tree.operator.type === PLUS_PLUS ? PLUS : MINUS;
-      var expressions = [createAssignmentExpression(tmp, operand), createAssignmentExpression(operand, new BinaryOperator(null, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp];
+      var expressions = [createAssignmentExpression(tmp, operand), createAssignmentExpression(operand, new BinaryOperator(tree.location, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp];
       return createCommaExpression(expressions);
     },
     transformPostfixMemberExpression: function(tree) {
       var memberName = tree.operand.memberName;
       var operand = this.transformAny(tree.operand.operand);
       var tmp = this.addTempVar();
-      var memberExpression = new MemberExpression(null, getResult(operand), memberName);
+      var memberExpression = new MemberExpression(tree.operand.location, getResult(operand), memberName);
       var operator = tree.operator.type === PLUS_PLUS ? PLUS : MINUS;
-      var expressions = $traceurRuntime.spread(getExpressions(operand), [createAssignmentExpression(tmp, memberExpression), createAssignmentExpression(memberExpression, new BinaryOperator(null, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp]);
+      var expressions = $traceurRuntime.spread(getExpressions(operand), [createAssignmentExpression(tmp, memberExpression), createAssignmentExpression(memberExpression, new BinaryOperator(tree.location, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp]);
       return createCommaExpression(expressions);
     },
     transformPostfixMemberLookupExpression: function(tree) {
@@ -18209,18 +18209,21 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var tmp = this.addTempVar();
       var memberLookupExpression = new MemberLookupExpression(null, getResult(operand), getResult(memberExpression));
       var operator = tree.operator.type === PLUS_PLUS ? PLUS : MINUS;
-      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(memberExpression), [createAssignmentExpression(tmp, memberLookupExpression), createAssignmentExpression(memberLookupExpression, new BinaryOperator(null, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp]);
+      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(memberExpression), [createAssignmentExpression(tmp, memberLookupExpression), createAssignmentExpression(memberLookupExpression, new BinaryOperator(tree.location, tmp, createOperatorToken(operator), createNumberLiteral(1))), tmp]);
       return createCommaExpression(expressions);
     },
     transformYieldExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
-      return this.newCommaExpressionBuilder().add(expression).build(new YieldExpression(tree.location, getResult(expression), tree.isYieldFor));
+      return this.createCommaExpressionBuilder().add(expression).build(new YieldExpression(tree.location, getResult(expression), tree.isYieldFor));
     },
     transformParenExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression === tree.expression)
         return tree;
-      return expression;
+      var result = getResult(expression);
+      if (result.type === IDENTIFIER_EXPRESSION)
+        return expression;
+      return this.createCommaExpressionBuilder().add(expression).build(result);
     },
     transformCommaExpression: function(tree) {
       var expressions = this.transformList(tree.expressions);
@@ -18234,12 +18237,12 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
     },
     transformMemberExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
-      return this.newCommaExpressionBuilder().add(operand).build(new MemberExpression(tree.location, getResult(operand), tree.memberName));
+      return this.createCommaExpressionBuilder().add(operand).build(new MemberExpression(tree.location, getResult(operand), tree.memberName));
     },
     transformMemberLookupExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       var memberExpression = this.transformAny(tree.memberExpression);
-      return this.newCommaExpressionBuilder().add(operand).add(memberExpression).build(new MemberLookupExpression(tree.location, getResult(operand), getResult(memberExpression)));
+      return this.createCommaExpressionBuilder().add(operand).add(memberExpression).build(new MemberLookupExpression(tree.location, getResult(operand), getResult(memberExpression)));
     },
     transformBinaryOperator: function(tree) {
       if (tree.operator.isAssignmentOperator())
@@ -18271,7 +18274,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var right = this.transformAny(tree.right);
       var tmp = this.addTempVar();
       var binop = createOperatorToken(assignmentOperatorToBinaryOperator(tree.operator.type));
-      var expressions = $traceurRuntime.spread(getExpressions(right), [createAssignmentExpression(tmp, new BinaryOperator(null, left, binop, getResult(right))), createAssignmentExpression(left, tmp), tmp]);
+      var expressions = $traceurRuntime.spread(getExpressions(right), [createAssignmentExpression(tmp, new BinaryOperator(tree.location, left, binop, getResult(right))), createAssignmentExpression(left, tmp), tmp]);
       return createCommaExpression(expressions);
     },
     transformAssignMemberExpression: function(tree) {
@@ -18288,7 +18291,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var memberExpression = new MemberExpression(left.location, getResult(operand), left.memberName);
       var tmp2 = this.addTempVar();
       var binop = createOperatorToken(assignmentOperatorToBinaryOperator(tree.operator.type));
-      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(right), [createAssignmentExpression(tmp, memberExpression), createAssignmentExpression(tmp2, new BinaryOperator(null, tmp, binop, getResult(right))), createAssignmentExpression(memberExpression, tmp2), tmp2]);
+      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(right), [createAssignmentExpression(tmp, memberExpression), createAssignmentExpression(tmp2, new BinaryOperator(tree.location, tmp, binop, getResult(right))), createAssignmentExpression(memberExpression, tmp2), tmp2]);
       return createCommaExpression(expressions);
     },
     transformAssignMemberLookupExpression: function(tree) {
@@ -18307,14 +18310,14 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var memberLookupExpression = new MemberLookupExpression(left.location, getResult(operand), getResult(memberExpression));
       var tmp2 = this.addTempVar();
       var binop = createOperatorToken(assignmentOperatorToBinaryOperator(tree.operator.type));
-      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(memberExpression), getExpressions(right), [createAssignmentExpression(tmp, memberLookupExpression), createAssignmentExpression(tmp2, new BinaryOperator(null, tmp, binop, getResult(right))), createAssignmentExpression(memberLookupExpression, tmp2), tmp2]);
+      var expressions = $traceurRuntime.spread(getExpressions(operand), getExpressions(memberExpression), getExpressions(right), [createAssignmentExpression(tmp, memberLookupExpression), createAssignmentExpression(tmp2, new BinaryOperator(tree.location, tmp, binop, getResult(right))), createAssignmentExpression(memberLookupExpression, tmp2), tmp2]);
       return createCommaExpression(expressions);
     },
     transformArrayLiteralExpression: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements === tree.elements)
         return tree;
-      var builder = this.newCommaExpressionBuilder();
+      var builder = this.createCommaExpressionBuilder();
       var results = [];
       for (var i = 0; i < elements.length; i++) {
         builder.add(elements[i]);
@@ -18326,7 +18329,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
       if (propertyNameAndValues === tree.propertyNameAndValues)
         return tree;
-      var builder = this.newCommaExpressionBuilder();
+      var builder = this.createCommaExpressionBuilder();
       var results = [];
       for (var i = 0; i < propertyNameAndValues.length; i++) {
         if (propertyNameAndValues[i].type === PROPERTY_NAME_ASSIGNMENT) {
@@ -18343,7 +18346,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
       var elements = this.transformList(tree.elements);
       if (!operand && operand === tree.operand && elements === tree.elements)
         return tree;
-      var builder = this.newCommaExpressionBuilder();
+      var builder = this.createCommaExpressionBuilder();
       if (operand)
         builder.add(operand);
       var results = [];
@@ -18372,7 +18375,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
     transformCallAndNew_: function(tree, ctor) {
       var operand = this.transformAny(tree.operand);
       var args = this.transformAny(tree.args);
-      var builder = this.newCommaExpressionBuilder().add(operand);
+      var builder = this.createCommaExpressionBuilder().add(operand);
       var argResults = [];
       args.args.forEach((function(arg) {
         builder.add(arg);
@@ -18464,7 +18467,7 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
     transformArrowFunctionExpression: function(tree) {
       return tree;
     },
-    newCommaExpressionBuilder: function() {
+    createCommaExpressionBuilder: function() {
       return new CommaExpressionBuilder(this.addTempVar());
     }
   }, {}, ParseTreeTransformer);
