@@ -29,21 +29,19 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.isFirstMapping_ = true;
   }
 
-  /*
-   * We get control when we enter and exit an AST branch and when
-   * we write tokens. eg:
-   * if {
-   *  stmt;
-   * }
-   * enter write-if write-open newline
-   *   enter write-stmt exit newline
-   * write-close exit newline
-   * We want at least one source map record for every output line.
-   * Each record covers characters from the line/col to the next record.
-   * Debuggers tend to be line-oriented. Thus we want the first record on
-   * each line to start at the first column so no record spans lines.
-   *
-   */
+  //
+  // We get control when we enter and exit an AST branch and when
+  // we write tokens. eg:
+  // if {
+  //  stmt;
+  // }
+  // enter write-if write-open newline
+  //   enter write-stmt exit newline
+  // write-close exit newline
+  // We want at least one source map record for every output line.
+  // Each record covers characters from the line/col to the next record.
+  // Debuggers tend to be line-oriented. Thus we want the first record on
+  // each line to start at the first column so no record spans lines.
 
   visitAny(tree) {
     if (!tree) {
@@ -88,7 +86,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.generated_ = {
       line: this.outputLineCount_,
       column: this.currentLine_.length
-    }
+    };
     this.flushMappings();
   }
 

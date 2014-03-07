@@ -62,10 +62,10 @@ export function renderSourceMap(source, sourceMap) {
     var positionBegin = consumer.originalPositionFor(generatedPosition);
     generatedPosition.column = (line.length || 1) - 1;
     var positionEnd = consumer.originalPositionFor(generatedPosition);
-    var lineDotColumn_begin = positionBegin.line + '.' + positionBegin.column;
-    var lineDotColumn_end = positionEnd.line + '.' + positionEnd.column;
+    var lineDotColumnBegin = positionBegin.line + '.' + positionBegin.column;
+    var lineDotColumnEnd = positionEnd.line + '.' + positionEnd.column;
     return (lineNo + 1) + ': ' + line +
-        ' // ' + lineDotColumn_begin + ' - ' + lineDotColumn_end;
+        ' // ' + lineDotColumnBegin + ' - ' + lineDotColumnEnd;
   });
   return 'SourceMap:\n' + lineNumberTable.join('\n');
 }
