@@ -6621,7 +6621,6 @@ System.register("traceur@0.0.25/src/outputgeneration/ParseTreeWriter", [], funct
         var column = tree.location.start.column;
         this.currentLineComment_ = ("Line: " + line + "." + column);
       }
-      this.currentLocation = tree.location;
       $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "visitAny", [tree]);
       if (tree === this.highlighted_) {
         this.write_('\x1B[0m');
@@ -7453,33 +7452,97 @@ System.register("traceur@0.0.25/src/outputgeneration/ParseTreeMapWriter", [], fu
     $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "constructor", [options]);
     this.sourceMapGenerator_ = sourceMapGenerator;
     this.outputLineCount_ = 1;
+    this.isFirstMapping_ = true;
   };
   var $ParseTreeMapWriter = ParseTreeMapWriter;
   ($traceurRuntime.createClass)(ParseTreeMapWriter, {
-    write_: function(value) {
-      if (this.currentLocation)
-        this.addMapping();
-      $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
+    visitAny: function(tree) {
+      if (!tree) {
+        return;
+      }
+      if (tree.location)
+        this.enterBranch(tree.location);
+      $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "visitAny", [tree]);
+      if (tree.location)
+        this.exitBranch(tree.location);
     },
     writeCurrentln_: function() {
       $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "writeCurrentln_", []);
+      this.flushMappings();
       this.outputLineCount_++;
+      this.generated_ = {
+        line: this.outputLineCount_,
+        column: 1
+      };
+      this.flushMappings();
+    },
+    write_: function(value) {
+      if (this.entered_) {
+        this.generate();
+        $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
+        this.generate();
+      } else {
+        this.generate();
+        $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
+        this.generate();
+      }
+    },
+    generate: function() {
+      this.generated_ = {
+        line: this.outputLineCount_,
+        column: this.currentLine_.length
+      };
+      this.flushMappings();
+    },
+    enterBranch: function(location) {
+      this.originate(location.start);
+      this.entered_ = true;
+    },
+    exitBranch: function(location) {
+      this.originate(location.end);
+      this.entered_ = false;
+    },
+    originate: function(position) {
+      var line = position.line + 1;
+      if (this.original_ && this.original_.line !== line)
+        this.flushMappings();
+      this.original_ = {
+        line: line,
+        column: position.column || 0
+      };
+      if (position.source.name !== this.sourceName_) {
+        this.sourceName_ = position.source.name;
+        this.sourceMapGenerator_.setSourceContent(position.source.name, position.source.contents);
+      }
+      this.flushMappings();
+    },
+    flushMappings: function() {
+      if (this.original_ && this.generated_) {
+        this.addMapping();
+        this.original_ = null;
+        this.generated_ = null;
+      }
+    },
+    isSame: function(lhs, rhs) {
+      return lhs.line === rhs.line && lhs.column === rhs.column;
+    },
+    isSameMapping: function() {
+      if (!this.previousMapping_)
+        return false;
+      if (this.isSame(this.previousMapping_.generated, this.generated_) && this.isSame(this.previousMapping_.original, this.original_))
+        return true;
+      ;
     },
     addMapping: function() {
-      var start = this.currentLocation.start;
+      if (this.isSameMapping())
+        return;
       var mapping = {
-        generated: {
-          line: this.outputLineCount_,
-          column: this.currentLine_.length
-        },
-        original: {
-          line: start.line + 1,
-          column: start.column
-        },
-        source: start.source.name
+        generated: this.generated_,
+        original: this.original_,
+        source: this.sourceName_
       };
       this.sourceMapGenerator_.addMapping(mapping);
-      this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);
+      this.previousMapping_ = mapping;
     }
   }, {}, ParseTreeWriter);
   return {get ParseTreeMapWriter() {
