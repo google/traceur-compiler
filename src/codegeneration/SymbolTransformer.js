@@ -12,19 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer';
 import {MEMBER_LOOKUP_EXPRESSION} from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
-  DELETE,
   EQUAL,
   IN
 } from '../syntax/TokenType';
-import {
-  createArgumentList,
-  createIdentifierExpression
-} from './ParseTreeFactory';
-import {expandMemberLookupExpression} from './OperatorExpander';
+import {createParenExpression} from './ParseTreeFactory';
 import {parseExpression} from './PlaceholderParser';
+
+class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
+  transformArrowFunctionExpression(tree) {
+    return tree;
+  }
+  transformClassExpression(tree) {
+    return tree;
+  }
+  transformFunctionBody(tree) {
+    return tree;
+  }
+}
 
 /**
  * This transformer is used with symbol values to ensure that symbols can be
@@ -54,10 +62,9 @@ export class SymbolTransformer extends TempVarTransformer {
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
         tree.operator.isAssignmentOperator()) {
 
-      // TODO(arv): Use ExplodeExpressionTransformer.
       if (tree.operator.type !== EQUAL) {
-        tree = expandMemberLookupExpression(tree, this);
-        return this.transformAny(tree);
+        var exploded = new ExplodeSymbolExpression(this).transformAny(tree);
+        return this.transformAny(createParenExpression(exploded));
       }
 
       var operand = this.transformAny(tree.left.operand);
