@@ -29,16 +29,16 @@ class C extends B {
     super();
   }
   set x(value) {
-    super.x = value;
+    assert.equal(super.x = value, value);
   }
   set v(value) {
     return super.x.v = value;
   }
   inc(val) {
-    super.z += val;
+    assert.equal(super.z += val, 4);
   }
   incLookup(val) {
-    super['z'] += val;
+    assert.equal(super['z'] += val, 9);
   }
 }
 
