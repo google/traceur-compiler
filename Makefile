@@ -72,7 +72,8 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error test-interpret-throw
+	test-interpret-absolute test-inline-module-error test-interpret-throw \
+	test-version
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
