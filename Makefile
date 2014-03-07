@@ -72,7 +72,8 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error test-interpret-throw
+	test-interpret-absolute test-inline-module-error test-interpret-throw \
+	test-version
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -121,6 +122,9 @@ test/unit/%.generated.js: test/unit/es6/%.js
 test/unit/runtime/traceur-runtime: \
 	test/unit/runtime/traceur-runtime.js bin/traceur-runtime.js
 	node $<
+
+test-version:
+	./traceur -v | grep 'traceur@[0-9]*\.[0-9*\.[0-9]*'
 
 boot: clean build
 
