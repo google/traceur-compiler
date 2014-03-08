@@ -128,7 +128,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
   }
 
   addTempVar() {
-    var tmpId = this.tempVarTransformer_.getTempIdentifier();
+    var tmpId = this.tempVarTransformer_.addTempVar();
     return id(tmpId);
   }
 
