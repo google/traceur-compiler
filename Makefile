@@ -230,6 +230,37 @@ bin/traceur.ugly.js: bin/traceur.js
 updateSemver: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
+# --- Targets that push upstream.
+
+git-upstream-checkout: # make sure we are on up-to-date upstream repo
+	git fetch upstream
+	git checkout -b upstream_master upstream/master
+
+git-update-version: git-upstream-checkout updateSemver test
+	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
+	git push upstream upstream_master:master
+
+git-tag: git-update-version
+	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	git push --tags upstream upstream_master:master
+
+git-gh-rebase: git-tag
+	git checkout -b upstream_gh_pages upstream/gh-pages
+	git rebase upstream_master
+	$(MAKE) clean
+	$(MAKE) test
+	./traceur -v | xargs -I VERSION git commit -a -m "Rebase; commit binaries for VERSION"
+	git push upstream upstream_gh_pages:gh-pages
+
+git-update-publish: git-gh-rebase
+	git checkout upstream_master
+	npm publish
+	git checkout master
+	git branch -D upstream_master
+	git branch -D upstream_gh_pages
+
+# ---
+
 prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
