@@ -16103,9 +16103,9 @@ System.register("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer"
 System.register("traceur@0.0.25/src/codegeneration/SuperTransformer", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.25/src/codegeneration/SuperTransformer";
-  var $__153 = Object.freeze(Object.defineProperties(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"])}})),
-      $__154 = Object.freeze(Object.defineProperties(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"])}})),
-      $__155 = Object.freeze(Object.defineProperties(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"])}}));
+  var $__153 = Object.freeze(Object.defineProperties(["$traceurRuntime.superCall(", ", ", ", ", ",\n                                   ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superCall(", ", ", ", ", ",\n                                   ", ")"])}})),
+      $__154 = Object.freeze(Object.defineProperties(["$traceurRuntime.superGet(", ", ", ", ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superGet(", ", ", ", ", ")"])}})),
+      $__155 = Object.freeze(Object.defineProperties(["$traceurRuntime.superSet(", ", ", ", ", ",\n                                    ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superSet(", ", ", ", ", ",\n                                    ", ")"])}}));
   var ExplodeExpressionTransformer = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/ExplodeExpressionTransformer").ExplodeExpressionTransformer;
   var $__157 = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/syntax/trees/ParseTrees"),
       FunctionDeclaration = $__157.FunctionDeclaration,
@@ -17776,7 +17776,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
   var FallThroughState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FallThroughState").FallThroughState;
   var FinallyFallThroughState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FinallyFallThroughState").FinallyFallThroughState;
   var FinallyState = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/generator/FinallyState").FinallyState;
-  var FindVisitor = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/FindVisitor").FindVisitor;
+  var FindInFunctionScope = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/FindInFunctionScope").FindInFunctionScope;
   var TempVarTransformer = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/TempVarTransformer").TempVarTransformer;
   var assert = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/util/assert").assert;
   var $__232 = $traceurRuntime.ModuleStore.get("traceur@0.0.25/src/codegeneration/PlaceholderParser"),
@@ -17815,10 +17815,10 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
   var $NeedsStateMachine = NeedsStateMachine;
   ($traceurRuntime.createClass)(NeedsStateMachine, {
     visitBreakStatement: function(tree) {
-      this.found = tree.name !== null;
+      this.found = true;
     },
     visitContinueStatement: function(tree) {
-      this.found = tree.name !== null;
+      this.found = true;
     },
     visitStateMachine: function(tree) {
       this.found = true;
@@ -17826,7 +17826,11 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
     visitYieldExpression: function(tee) {
       this.found = true;
     }
-  }, {}, FindVisitor);
+  }, {}, FindInFunctionScope);
+  function needsStateMachine(tree) {
+    var visitor = new NeedsStateMachine(tree);
+    return visitor.found;
+  }
   var HoistVariables = function HoistVariables() {
     $traceurRuntime.defaultSuperCall(this, $HoistVariables.prototype, arguments);
   };
@@ -17873,33 +17877,48 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
       this.popTempVarState();
       return machine == null ? transformedTree : machine;
     },
-    transformStatementList_: function(someTransformed) {
-      if (!this.needsStateMachine_(someTransformed)) {
+    transformStatementList_: function(trees) {
+      var groups = [];
+      var newMachine;
+      for (var i = 0; i < trees.length; i++) {
+        if (trees[i].type === STATE_MACHINE) {
+          groups.push(trees[i]);
+        } else if (needsStateMachine(trees[i])) {
+          newMachine = this.ensureTransformed_(trees[i]);
+          groups.push(newMachine);
+        } else {
+          var last = groups[groups.length - 1];
+          if (!(last instanceof Array))
+            groups.push(last = []);
+          last.push(trees[i]);
+        }
+      }
+      if (groups.length === 1 && groups[0] instanceof Array)
         return null;
+      var machine = null;
+      for (var i = 0; i < groups.length; i++) {
+        if (groups[i] instanceof Array) {
+          newMachine = this.statementsToStateMachine_(groups[i]);
+        } else {
+          newMachine = groups[i];
+        }
+        if (i === 0)
+          machine = newMachine;
+        else
+          machine = machine.append(newMachine);
       }
-      var currentMachine = this.ensureTransformed_(someTransformed[0]);
-      for (var index = 1; index < someTransformed.length; index++) {
-        currentMachine = currentMachine.append(this.ensureTransformed_(someTransformed[index]));
-      }
-      return currentMachine;
+      return machine;
     },
     needsStateMachine_: function(statements) {
       if (statements instanceof Array) {
         for (var i = 0; i < statements.length; i++) {
-          var visitor = new NeedsStateMachine(statements[i]);
-          if (visitor.found)
+          if (needsStateMachine(statements[i]))
             return true;
         }
         return false;
       }
       assert(statements instanceof SwitchStatement);
-      for (var i = 0; i < statements.caseClauses.length; i++) {
-        var clause = statements.caseClauses[i];
-        if (this.needsStateMachine_(clause.statements)) {
-          return true;
-        }
-      }
-      return false;
+      return needsStateMachine(statements);
     },
     transformCaseClause: function(tree) {
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformCaseClause", [tree]);
@@ -18084,7 +18103,7 @@ System.register("traceur@0.0.25/src/codegeneration/generator/CPSTransformer", []
     transformSwitchStatement: function(tree) {
       var labels = this.getLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
-      if (!this.needsStateMachine_(result))
+      if (!needsStateMachine(result))
         return result;
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
