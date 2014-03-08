@@ -211,12 +211,8 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {StateMachine}
    */
   transformStatementList_(trees) {
-    // We only need to return a state machine if trees already contains one or
-    // more state machines or if there is a statement that must be converted
-    // to a state machine because it contains a yield (or break, continue).
-    //
-    // This is done in two passes. The first pass just gathers the statements
-    // that can go into the same state for the final state machine.
+    // If we need one or more machines, we want to aggregate the machines andany
+    // free statements into one state machine.
 
     var groups = [];
     var newMachine;
