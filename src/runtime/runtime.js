@@ -354,7 +354,7 @@
     var descriptor = superDescriptor(homeObject, name);
     if (descriptor && descriptor.set) {
       descriptor.set.call(self, value);
-      return;
+      return value;
     }
     throw $TypeError("super has no setter '" + name + "'.");
   }

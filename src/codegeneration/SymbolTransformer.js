@@ -54,6 +54,7 @@ export class SymbolTransformer extends TempVarTransformer {
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
         tree.operator.isAssignmentOperator()) {
 
+      // TODO(arv): Use ExplodeExpressionTransformer.
       if (tree.operator.type !== EQUAL) {
         tree = expandMemberLookupExpression(tree, this);
         return this.transformAny(tree);
