@@ -104,11 +104,9 @@ function classCall(func, object, staticObject, superClass) {
 export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter) {
+  constructor(identifierGenerator) {
     super(identifierGenerator);
-    this.reporter_ = reporter;
     this.strictCount_ = 0;
     this.state_ = null;
   }
@@ -347,8 +345,7 @@ export class ClassTransformer extends TempVarTransformer{
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
-    var superTransformer = new SuperTransformer(this, this.reporter_,
-                                                internalName, methodTree,
+    var superTransformer = new SuperTransformer(this, internalName, methodTree,
                                                 thisName);
     // ref_1: the inner transformFunctionBody call is key to proper super nesting.
     var transformedTree =

@@ -12220,8 +12220,6 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       switch (this.peekType_()) {
         case CLASS:
           return parseOptions.classes ? this.parseClassExpression_() : this.parseSyntaxError_('Unexpected reserved word');
-        case SUPER:
-          return this.parseSuperExpression_();
         case THIS:
           return this.parseThisExpression_();
         case IDENTIFIER:
@@ -12882,21 +12880,15 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
           switch (this.peekType_()) {
             case OPEN_PAREN:
               operand = this.toParenExpression_(operand);
-              var args = this.parseArguments_();
-              operand = new CallExpression(this.getTreeLocation_(start), operand, args);
+              operand = this.parseCallExpression_(start, operand);
               break;
             case OPEN_SQUARE:
               operand = this.toParenExpression_(operand);
-              this.nextToken_();
-              var member = this.parseExpression();
-              this.eat_(CLOSE_SQUARE);
-              operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
+              operand = this.parseMemberLookupExpression_(start, operand);
               break;
             case PERIOD:
               operand = this.toParenExpression_(operand);
-              this.nextToken_();
-              var memberName = this.eatIdName_();
-              operand = new MemberExpression(this.getTreeLocation_(start), operand, memberName);
+              operand = this.parseMemberExpression_(start, operand);
               break;
             case NO_SUBSTITUTION_TEMPLATE:
             case TEMPLATE_HEAD:
@@ -12915,26 +12907,19 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
     parseMemberExpressionNoNew_: function() {
       var start = this.getTreeStartLocation_();
       var operand;
-      if (this.peekType_() === FUNCTION) {
+      if (this.peek_(FUNCTION))
         operand = this.parseFunctionExpression_();
-      } else {
+      else
         operand = this.parsePrimaryExpression_();
-      }
       loop: while (true) {
         switch (this.peekType_()) {
           case OPEN_SQUARE:
             operand = this.toParenExpression_(operand);
-            this.nextToken_();
-            var member = this.parseExpression();
-            this.eat_(CLOSE_SQUARE);
-            operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
+            operand = this.parseMemberLookupExpression_(start, operand);
             break;
           case PERIOD:
             operand = this.toParenExpression_(operand);
-            this.nextToken_();
-            var name;
-            name = this.eatIdName_();
-            operand = new MemberExpression(this.getTreeLocation_(start), operand, name);
+            operand = this.parseMemberExpression_(start, operand);
             break;
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
@@ -12949,19 +12934,52 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
       }
       return operand;
     },
+    parseMemberExpression_: function(start, operand) {
+      this.nextToken_();
+      var name = this.eatIdName_();
+      return new MemberExpression(this.getTreeLocation_(start), operand, name);
+    },
+    parseMemberLookupExpression_: function(start, operand) {
+      this.nextToken_();
+      var member = this.parseExpression();
+      this.eat_(CLOSE_SQUARE);
+      return new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
+    },
+    parseCallExpression_: function(start, operand) {
+      var args = this.parseArguments_();
+      return new CallExpression(this.getTreeLocation_(start), operand, args);
+    },
     parseNewExpression_: function() {
-      if (this.peek_(NEW)) {
-        var start = this.getTreeStartLocation_();
-        this.eat_(NEW);
-        var operand = this.parseNewExpression_();
-        operand = this.toParenExpression_(operand);
-        var args = null;
-        if (this.peek_(OPEN_PAREN)) {
-          args = this.parseArguments_();
-        }
-        return new NewExpression(this.getTreeLocation_(start), operand, args);
-      } else {
-        return this.parseMemberExpressionNoNew_();
+      var operand;
+      switch (this.peekType_()) {
+        case NEW:
+          var start = this.getTreeStartLocation_();
+          this.eat_(NEW);
+          if (this.peek_(SUPER))
+            operand = this.parseSuperExpression_();
+          else
+            operand = this.toParenExpression_(this.parseNewExpression_());
+          var args = null;
+          if (this.peek_(OPEN_PAREN)) {
+            args = this.parseArguments_();
+          }
+          return new NewExpression(this.getTreeLocation_(start), operand, args);
+        case SUPER:
+          operand = this.parseSuperExpression_();
+          var type = this.peekType_();
+          switch (type) {
+            case OPEN_SQUARE:
+              return this.parseMemberLookupExpression_(start, operand);
+            case PERIOD:
+              return this.parseMemberExpression_(start, operand);
+            case OPEN_PAREN:
+              return this.parseCallExpression_(start, operand);
+            default:
+              return this.parseUnexpectedToken_(type);
+          }
+          break;
+        default:
+          return this.parseMemberExpressionNoNew_();
       }
     },
     parseArguments_: function() {
@@ -16143,9 +16161,8 @@ System.register("traceur@0.0.25/src/codegeneration/SuperTransformer", [], functi
       return tree;
     }
   }, {}, ExplodeExpressionTransformer);
-  var SuperTransformer = function SuperTransformer(tempVarTransformer, reporter, protoName, methodTree, thisName) {
+  var SuperTransformer = function SuperTransformer(tempVarTransformer, protoName, methodTree, thisName) {
     this.tempVarTransformer_ = tempVarTransformer;
-    this.reporter_ = reporter;
     this.protoName_ = protoName;
     this.method_ = methodTree;
     this.superCount_ = 0;
@@ -16263,13 +16280,6 @@ System.register("traceur@0.0.25/src/codegeneration/SuperTransformer", [], functi
         return this.transformAny(exploded);
       }
       return null;
-    },
-    transformSuperExpression: function(tree) {
-      this.reportError_(tree, '"super" may only be used on the LHS of a member ' + 'access expression before a call (TODO wording)');
-      return tree;
-    },
-    reportError_: function(tree, message) {
-      this.reporter_.reportError(tree.location.start, message);
     }
   }, {}, ParseTreeTransformer);
   function hasSuperMemberExpression(tree) {
@@ -16331,9 +16341,8 @@ System.register("traceur@0.0.25/src/codegeneration/ClassTransformer", [], functi
     }
     return parseExpression($__159, func, object, staticObject);
   }
-  var ClassTransformer = function ClassTransformer(identifierGenerator, reporter) {
+  var ClassTransformer = function ClassTransformer(identifierGenerator) {
     $traceurRuntime.superCall(this, $ClassTransformer.prototype, "constructor", [identifierGenerator]);
-    this.reporter_ = reporter;
     this.strictCount_ = 0;
     this.state_ = null;
   };
@@ -16500,7 +16509,7 @@ System.register("traceur@0.0.25/src/codegeneration/ClassTransformer", [], functi
       this.pushTempVarState();
       var thisName = this.getTempIdentifier();
       var thisDecl = createVariableStatement(VAR, thisName, createThisExpression());
-      var superTransformer = new SuperTransformer(this, this.reporter_, internalName, methodTree, thisName);
+      var superTransformer = new SuperTransformer(this, internalName, methodTree, thisName);
       var transformedTree = superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
       if (superTransformer.hasSuper)
         this.state_.hasSuper = true;
