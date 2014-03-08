@@ -56,13 +56,13 @@ export class SymbolTransformer extends TempVarTransformer {
       var object = this.transformAny(tree.right);
       // name in object
       // =>
-      return parseExpression `$traceurRuntime.toProperty(${name}) in ${object}`;
+      return parseExpression
+          `$traceurRuntime.toProperty(${name}) in ${object}`;
     }
 
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
         tree.operator.isAssignmentOperator()) {
 
-      // TODO(arv): Use ExplodeExpressionTransformer.
       if (tree.operator.type !== EQUAL) {
         var exploded = new ExplodeSymbolExpression(this).transformAny(tree);
         return this.transformAny(createParenExpression(exploded));
@@ -87,11 +87,8 @@ export class SymbolTransformer extends TempVarTransformer {
 
     // operand[memberExpr]
     // =>
-
     return parseExpression
         `${operand}[$traceurRuntime.toProperty(${memberExpression})]`;
 
   }
-
-  // TODO(arv): operand[memberExpression]++ etc.
 }
