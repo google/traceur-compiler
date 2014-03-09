@@ -27,12 +27,14 @@ if (typeof window !== 'undefined' && window.location) {
 }
 
 var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
-export var System = new TraceurLoader(loaderHooks);
+var traceurLoader = new TraceurLoader(loaderHooks);
 
 if (typeof window !== 'undefined')
-  window.System = System;
+  window.System = traceurLoader;
 if (typeof global !== 'undefined')
-  global.System = System;
+  global.System = traceurLoader;
 
-System.map = System.semverMap(__moduleName);
+export { traceurLoader as System }
+
+traceurLoader.map = traceurLoader.semverMap(__moduleName);
 

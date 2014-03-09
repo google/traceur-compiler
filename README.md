@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/google/traceur-compiler.png)](https://travis-ci.org/google/traceur-compiler)
 
+<img src="logo/tc.png" alt="Traceur logo" width="200px">
 ## What is Traceur?
 
 Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to
