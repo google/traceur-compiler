@@ -49,10 +49,34 @@ flags.on('longhelp', function() {
   process.exit();
 });
 
+// Caling process.exit when there is still characters to be flushed to stdout
+// makes Windows drop those characters. We therefor wait until the buffer is
+// empty before really exiting.
+// Since this makes exiting async we need to manually keep track
+var shouldExit = false;
+
+function processExit() {
+  shouldExit = true;
+  var draining = 0;
+  function exit() {
+    if (!draining--)
+      process.exit();
+  }
+  if (process.stdout.bufferSize) {
+    draining += 1;
+    process.stdout.once('drain', exit);
+  }
+  if (process.stderr.bufferSize) {
+    draining += 1;
+    process.stderr.once('drain', exit);
+  }
+  exit();
+}
+
 flags.option('-v, --version', 'Show version and exit');
 flags.on('version', function() {
-  console.log(System.version);
-  process.exit();
+  process.stdout.write(System.version);
+  processExit();
 });
 
 flags.on('--help', function() {
@@ -157,12 +181,13 @@ flags.parse(argv);
 var includes = traceur.options.scripts || [];
 includes = includes.concat(flags.args);
 
-if (!includes.length) {
+if (!shouldExit && !includes.length) {
   // TODO: Start trepl
   console.error('\n  Error: At least one input file is needed');
   flags.help();
   process.exit(1);
 }
+
 
 var interpret = require('./interpreter.js');
 var compiler = require('./compiler.js');
@@ -171,16 +196,18 @@ var compileToDirectory = compiler.compileToDirectory;
 
 var out = flags.out;
 var dir = flags.dir;
-if (out) {
-  var isSingleFileCompile = /\.js$/.test(out);
-  if (isSingleFileCompile)
-    compileToSingleFile(out, includes, flags.sourceMaps);
-  else
-    compileToDirectory(out, includes, flags.sourceMaps);
-} else if (dir) {
-  var compileAllJsFilesInDir = require('./compile-single-file.js').compileAllJsFilesInDir;
-  compileAllJsFilesInDir(dir, includes[0]);
-}
-else {
-  interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
+if (!shouldExit) {
+  if (out) {
+    var isSingleFileCompile = /\.js$/.test(out);
+    if (isSingleFileCompile)
+      compileToSingleFile(out, includes, flags.sourceMaps);
+    else
+      compileToDirectory(out, includes, flags.sourceMaps);
+  } else if (dir) {
+    var compileAllJsFilesInDir = require('./compile-single-file.js').compileAllJsFilesInDir;
+    compileAllJsFilesInDir(dir, includes[0]);
+  }
+  else {
+    interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
+  }
 }
