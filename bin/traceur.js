@@ -12907,10 +12907,11 @@ System.register("traceur@0.0.25/src/syntax/Parser", [], function() {
     parseMemberExpressionNoNew_: function() {
       var start = this.getTreeStartLocation_();
       var operand;
-      if (this.peek_(FUNCTION))
+      if (this.peekType_() === FUNCTION) {
         operand = this.parseFunctionExpression_();
-      else
+      } else {
         operand = this.parsePrimaryExpression_();
+      }
       loop: while (true) {
         switch (this.peekType_()) {
           case OPEN_SQUARE:

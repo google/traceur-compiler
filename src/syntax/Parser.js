@@ -2827,10 +2827,11 @@ export class Parser {
   parseMemberExpressionNoNew_() {
     var start = this.getTreeStartLocation_();
     var operand;
-    if (this.peek_(FUNCTION))
+    if (this.peekType_() === FUNCTION) {
       operand = this.parseFunctionExpression_();
-    else
+    } else {
       operand = this.parsePrimaryExpression_();
+    }
 
     loop: while (true) {
       switch (this.peekType_()) {
