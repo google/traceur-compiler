@@ -232,19 +232,25 @@ updateSemver: # unless the package.json has been manually edited.
 
 # --- Targets that push upstream.
 
+# We start with a clean repo and an 'upstream' remote like github sets up.
+
 git-upstream-checkout: # make sure we are on up-to-date upstream repo
 	git fetch upstream
 	git checkout -b upstream_master upstream/master
+	$(MAKE) clean # sync to the npm version specified on master
+
+# Now we are on version N with N-1 in npm
 
 git-update-version: git-upstream-checkout updateSemver test
 	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	git push upstream upstream_master:master
-
-git-tag: git-update-version
 	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
+	git push upstream upstream_master:master
+	npm publish
 
-git-gh-rebase: git-tag
+# master was updated with version N+1, npm to version N
+
+git-gh-rebase: git-update-version
 	git checkout -b upstream_gh_pages upstream/gh-pages
 	git rebase upstream_master
 	$(MAKE) clean
@@ -253,8 +259,6 @@ git-gh-rebase: git-tag
 	git push upstream upstream_gh_pages:gh-pages
 
 git-update-publish: git-gh-rebase
-	git checkout upstream_master
-	npm publish
 	git checkout master
 	git branch -D upstream_master
 	git branch -D upstream_gh_pages
