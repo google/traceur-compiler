@@ -1698,8 +1698,6 @@ export class Parser {
         return parseOptions.classes ?
             this.parseClassExpression_() :
             this.parseSyntaxError_('Unexpected reserved word');
-      case SUPER:
-        return this.parseSuperExpression_();
       case THIS:
         return this.parseThisExpression_();
       case IDENTIFIER:
@@ -2792,26 +2790,17 @@ export class Parser {
         switch (this.peekType_()) {
           case OPEN_PAREN:
             operand = this.toParenExpression_(operand);
-            var args = this.parseArguments_();
-            operand = new CallExpression(this.getTreeLocation_(start),
-                                         operand, args);
+            operand = this.parseCallExpression_(start, operand);
             break;
 
           case OPEN_SQUARE:
             operand = this.toParenExpression_(operand);
-            this.nextToken_();
-            var member = this.parseExpression();
-            this.eat_(CLOSE_SQUARE);
-            operand = new MemberLookupExpression(this.getTreeLocation_(start),
-                                                 operand, member);
+            operand = this.parseMemberLookupExpression_(start, operand);
             break;
 
           case PERIOD:
             operand = this.toParenExpression_(operand);
-            this.nextToken_();
-            var memberName = this.eatIdName_();
-            operand = new MemberExpression(this.getTreeLocation_(start),
-                                           operand, memberName);
+            operand = this.parseMemberExpression_(start, operand);
             break;
 
           case NO_SUBSTITUTION_TEMPLATE:
@@ -2848,20 +2837,12 @@ export class Parser {
       switch (this.peekType_()) {
         case OPEN_SQUARE:
           operand = this.toParenExpression_(operand);
-          this.nextToken_();
-          var member = this.parseExpression();
-          this.eat_(CLOSE_SQUARE);
-          operand = new MemberLookupExpression(this.getTreeLocation_(start),
-                                               operand, member);
+          operand = this.parseMemberLookupExpression_(start, operand);
           break;
 
         case PERIOD:
           operand = this.toParenExpression_(operand);
-          this.nextToken_();
-          var name;
-          name = this.eatIdName_();
-          operand = new MemberExpression(this.getTreeLocation_(start),
-                                         operand, name);
+          operand = this.parseMemberExpression_(start, operand);
           break;
 
         case NO_SUBSTITUTION_TEMPLATE:
@@ -2879,24 +2860,63 @@ export class Parser {
     return operand;
   }
 
+  parseMemberExpression_(start, operand) {
+    this.nextToken_();
+    var name = this.eatIdName_();
+    return new MemberExpression(this.getTreeLocation_(start), operand, name);
+  }
+
+  parseMemberLookupExpression_(start, operand) {
+    this.nextToken_();
+    var member = this.parseExpression();
+    this.eat_(CLOSE_SQUARE);
+    return new MemberLookupExpression(this.getTreeLocation_(start), operand,
+                                      member);
+  }
+
+  parseCallExpression_(start, operand) {
+    var args = this.parseArguments_();
+    return new CallExpression(this.getTreeLocation_(start), operand, args);
+  }
+
   // 11.2 New Expression
   /**
    * @return {ParseTree}
    * @private
    */
   parseNewExpression_() {
-    if (this.peek_(NEW)) {
-      var start = this.getTreeStartLocation_();
-      this.eat_(NEW);
-      var operand = this.parseNewExpression_();
-      operand = this.toParenExpression_(operand);
-      var args = null;
-      if (this.peek_(OPEN_PAREN)) {
-        args = this.parseArguments_();
-      }
-      return new NewExpression(this.getTreeLocation_(start), operand, args);
-    } else {
-      return this.parseMemberExpressionNoNew_();
+    var operand;
+    switch (this.peekType_()) {
+      case NEW:
+        var start = this.getTreeStartLocation_();
+        this.eat_(NEW);
+        if (this.peek_(SUPER))
+          operand = this.parseSuperExpression_();
+        else
+          operand = this.toParenExpression_(this.parseNewExpression_());
+        var args = null;
+        if (this.peek_(OPEN_PAREN)) {
+          args = this.parseArguments_();
+        }
+        return new NewExpression(this.getTreeLocation_(start), operand, args);
+
+      case SUPER:
+        operand = this.parseSuperExpression_();
+        var type = this.peekType_();
+        switch (type) {
+          case OPEN_SQUARE:
+            return this.parseMemberLookupExpression_(start, operand);
+          case PERIOD:
+            return this.parseMemberExpression_(start, operand);
+          case OPEN_PAREN:
+            return this.parseCallExpression_(start, operand);
+          default:
+            return this.parseUnexpectedToken_(type);
+        }
+        break;
+
+      default:
+        return this.parseMemberExpressionNoNew_();
     }
   }
 

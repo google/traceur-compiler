@@ -64,14 +64,12 @@ class ExplodeSuperExpression extends ExplodeExpressionTransformer {
 export class SuperTransformer extends ParseTreeTransformer {
   /**
    * @param {TempVarTransformer} tempVarTransformer
-   * @param {ErrorReporter} reporter
    * @param {ParseTree} protoName
    * @param {ParseTree} methodTree
    * @param {string} thisName The name of the saved 'this' var
    */
-  constructor(tempVarTransformer, reporter, protoName, methodTree, thisName) {
+  constructor(tempVarTransformer, protoName, methodTree, thisName) {
     this.tempVarTransformer_ = tempVarTransformer;
-    this.reporter_ = reporter;
     this.protoName_ = protoName;
     this.method_ = methodTree;
     this.superCount_ = 0;
@@ -250,20 +248,6 @@ export class SuperTransformer extends ParseTreeTransformer {
     }
 
     return null;
-  }
-
-  /**
-   * @param {SuperExpression} tree
-   * @return {ParseTree}
-   */
-  transformSuperExpression(tree) {
-    this.reportError_(tree, '"super" may only be used on the LHS of a member '+
-                            'access expression before a call (TODO wording)');
-    return tree;
-  }
-
-  reportError_(tree, message) {
-    this.reporter_.reportError(tree.location.start, message);
   }
 }
 
