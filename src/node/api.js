@@ -21,6 +21,8 @@
 
 var path = require('path');
 var traceur = require('./traceur.js');
+var AttachModuleNameTransformer =
+    traceur.codegeneration.module.AttachModuleNameTransformer;
 var ErrorReporter = traceur.util.TestErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
@@ -58,7 +60,8 @@ function compile(content, options) {
   options = merge({
     modules: 'commonjs',
     filename: '<unknown file>',
-    sourceMap: false
+    sourceMap: false,
+    cwd: process.cwd()
   }, options || {});
 
   traceurOptions.reset();
@@ -68,7 +71,11 @@ function compile(content, options) {
   var sourceFile = new SourceFile(options.filename, content);
   var parser = new Parser(sourceFile, errorReporter);
   var tree = parser.parseModule();
-  var transformer = new FromOptionsTransformer(errorReporter);
+  var moduleName = options.filename.replace(/\.js$/, '');
+  moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
+  var transformer = new AttachModuleNameTransformer(moduleName);
+  tree = transformer.transformAny(tree);
+  transformer = new FromOptionsTransformer(errorReporter);
   var transformedTree = transformer.transform(tree);
 
   if (errorReporter.hadError()) {
