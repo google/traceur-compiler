@@ -20470,7 +20470,12 @@ System.register("traceur@0.0.25/src/runtime/LoaderHooks", [], function() {
     },
     locate_: function(load) {
       var normalizedModuleName = load.normalizedName;
-      var asJS = normalizedModuleName + '.js';
+      var asJS;
+      if (load.type === 'script') {
+        asJS = normalizedModuleName;
+      } else {
+        asJS = normalizedModuleName + '.js';
+      }
       if (options.referrer) {
         if (asJS.indexOf(options.referrer) === 0) {
           asJS = asJS.slice(options.referrer.length);
@@ -21262,11 +21267,10 @@ System.register("traceur@0.0.25/src/runtime/TraceurLoader", [], function() {
   };
   var $TraceurLoader = TraceurLoader;
   ($traceurRuntime.createClass)(TraceurLoader, {
-    loadAsScript: function(filename) {
+    loadAsScript: function(name) {
       var $__342 = arguments[1] !== (void 0) ? arguments[1] : {},
           referrerName = $__342.referrerName,
           address = $__342.address;
-      var name = filename.replace(/\.js$/, '');
       return this.internalLoader_.load(name, referrerName, address, 'script').then((function(codeUnit) {
         return codeUnit.result;
       }));

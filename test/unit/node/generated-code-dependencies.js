@@ -123,7 +123,20 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
-          // verify that the output is an assignment of a module.
+          var result = eval(source);
+          assert.equal(result, true);
+          done();
+        });
+  });
+
+  test('script option loads .es file', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/iAmScriptAlso.es';
+    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var source = fs.readFileSync(tempFileName, 'utf-8');
           var result = eval(source);
           assert.equal(result, true);
           done();
