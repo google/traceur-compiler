@@ -152,8 +152,8 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {get p() {\n    return p;\n  }};\n");
-      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {get q() {\n    return q;\n  }};\n");
+      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {\n  get p() {\n    return p;\n  },\n  __esModule: true\n};\n");
+      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {\n  get q() {\n    return q;\n  },\n  __esModule: true\n};\n");
       done();
     });
   })

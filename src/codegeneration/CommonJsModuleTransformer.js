@@ -18,6 +18,7 @@ import {assert} from '../util/assert';
 import globalThis from './globalThis';
 import {
   parseExpression,
+  parsePropertyDefinition,
   parseStatement,
   parseStatements
 } from './PlaceholderParser';
@@ -51,5 +52,13 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
 
   transformModuleSpecifier(tree) {
     return parseExpression `require(${tree.token})`;
+  }
+
+  getExportProperties() {
+    var properties = super();
+
+    if (this.exportVisitor_.hasExports())
+      properties.push(parsePropertyDefinition `__esModule: true`);
+    return properties;
   }
 }
