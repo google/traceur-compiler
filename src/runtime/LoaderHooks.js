@@ -147,7 +147,13 @@ export class LoaderHooks {
 
   locate_(load) {
     var normalizedModuleName = load.normalizedName;
-    var asJS = normalizedModuleName + '.js';
+    var asJS;
+    if (load.type === 'script') {
+      asJS = normalizedModuleName;
+    } else {
+      asJS = normalizedModuleName + '.js';
+    }
+
     if (options.referrer) {
       if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
