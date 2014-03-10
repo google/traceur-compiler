@@ -238,16 +238,23 @@ git-upstream-checkout: # make sure we are on up-to-date upstream repo
 	git fetch upstream
 	-git branch -D upstream_master
 	git checkout -b upstream_master upstream/master
-	$(MAKE) clean # sync to the npm version specified on master
 
-# Now we are on version N with N-1 in npm
+# Now we are on version N with N-1 in npm, update
 
-git-update-version: git-upstream-checkout updateSemver test
+npm-publish: git-upstream-checkout
+	$(MAKE) clean # sync to the npm version N-1
+	$(MAKE) test  # build version N
+	npm publish   # Publish built version N
+
+update-version-number: npm-publish updateSemver
+	$(MAKE) clean # sync to the npm version N after update
+	$(MAKE) test  # build version N+1
+
+git-update-version: update-version-number
 	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
 	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
-	git push upstream upstream_master:master
-	npm publish
+	git push upstream upstream_master:master  # Push source for version N+1
 
 # master was updated with version N+1, npm to version N
 
@@ -255,13 +262,13 @@ git-gh-rebase: git-update-version
 	-git branch -D upstream_gh_pages
 	git checkout -b upstream_gh_pages upstream/gh-pages
 	git rebase upstream_master
-	$(MAKE) clean
-	$(MAKE) test
 	./traceur -v | xargs -I VERSION git commit -a -m "Rebase; commit binaries for VERSION"
-	git push upstream upstream_gh_pages:gh-pages
+	git push -f upstream upstream_gh_pages:gh-pages
 
 git-update-publish: git-gh-rebase
 	git checkout master
+	-git branch -D upstream_master  # clean up
+	-git branch -D upstream_gh_pages
 
 # ---
 
