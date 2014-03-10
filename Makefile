@@ -236,6 +236,7 @@ updateSemver: # unless the package.json has been manually edited.
 
 git-upstream-checkout: # make sure we are on up-to-date upstream repo
 	git fetch upstream
+	-git branch -D upstream_master
 	git checkout -b upstream_master upstream/master
 	$(MAKE) clean # sync to the npm version specified on master
 
@@ -251,6 +252,7 @@ git-update-version: git-upstream-checkout updateSemver test
 # master was updated with version N+1, npm to version N
 
 git-gh-rebase: git-update-version
+	-git branch -D upstream_gh_pages
 	git checkout -b upstream_gh_pages upstream/gh-pages
 	git rebase upstream_master
 	$(MAKE) clean
@@ -260,8 +262,6 @@ git-gh-rebase: git-update-version
 
 git-update-publish: git-gh-rebase
 	git checkout master
-	git branch -D upstream_master
-	git branch -D upstream_gh_pages
 
 # ---
 
