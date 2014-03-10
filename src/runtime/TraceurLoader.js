@@ -47,8 +47,7 @@ export class TraceurLoader extends Loader {
    * @param {Object} referrerName and address passed to normalize.
    * @return {Promise} fulfilled with evaluation result.
    */
-  loadAsScript(filename, {referrerName, address} = {}) {
-    var name = filename.replace(/\.js$/, '');
+  loadAsScript(name, {referrerName, address} = {}) {
     return this.internalLoader_.load(name, referrerName, address, 'script').
         then((codeUnit) => codeUnit.result);
   }
