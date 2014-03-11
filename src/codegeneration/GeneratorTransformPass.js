@@ -33,7 +33,7 @@ import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
-import {YieldFinder} from './YieldFinder';
+import {YieldFinder} from './generator/YieldFinder';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
@@ -41,7 +41,6 @@ import {
   createCommaExpression,
   createExpressionStatement,
   createIdentifierExpression as id,
-  createReturnStatement,
   createMemberExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
@@ -109,12 +108,6 @@ class YieldExpressionTransformer extends TempVarTransformer {
     if (isYieldVarAssign(tdd[0]))
       return this.factorAssign_(tdd[0].lvalue, tdd[0].initialiser, varWrap);
 
-    return tree;
-  }
-
-  transformReturnStatement(tree) {
-    if (tree.expression && tree.expression.type === YIELD_EXPRESSION)
-      return this.factor_(tree.expression, createReturnStatement);
     return tree;
   }
 

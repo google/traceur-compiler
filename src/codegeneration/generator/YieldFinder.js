@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 
 /**
  * Can tell you if function body contains a yield statement. Does not search
