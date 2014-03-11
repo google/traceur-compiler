@@ -18333,12 +18333,11 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
     expressionToStateMachine_: function(tree) {
       var commaExpression = new ExplodeExpressionTransformer(this).transformAny(tree);
       var statements = new NormalizeCommaExpressionToStatementTransformer().transformAny(commaExpression).statements;
-      var lastStatement = statements[statements.length - 1];
+      var lastStatement = statements.pop();
       assert(lastStatement.type === EXPRESSION_STATEMENT);
       var expression = lastStatement.expression;
-      var machineStatements = statements.slice(0, -1);
-      machineStatements = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformList", [machineStatements]);
-      var machine = this.transformStatementList_(machineStatements);
+      statements = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformList", [statements]);
+      var machine = this.transformStatementList_(statements);
       return {
         expression: expression,
         machine: machine

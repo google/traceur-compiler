@@ -1217,13 +1217,12 @@ export class CPSTransformer extends TempVarTransformer {
     var {statements} = new NormalizeCommaExpressionToStatementTransformer().
         transformAny(commaExpression);
 
-    var lastStatement = statements[statements.length - 1];
+    var lastStatement = statements.pop();
     assert(lastStatement.type === EXPRESSION_STATEMENT);
     var expression = lastStatement.expression;
 
-    var machineStatements = statements.slice(0, -1);
-    machineStatements = super.transformList(machineStatements);
-    var machine = this.transformStatementList_(machineStatements);
+    statements = super.transformList(statements);
+    var machine = this.transformStatementList_(statements);
 
     return {expression, machine};
   }
