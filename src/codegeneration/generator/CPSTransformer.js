@@ -17,19 +17,27 @@ import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
   BREAK_STATEMENT,
   CASE_CLAUSE,
+  CONDITIONAL_EXPRESSION,
   CONTINUE_STATEMENT,
+  EXPRESSION_STATEMENT,
+  PAREN_EXPRESSION,
   STATE_MACHINE
 } from '../../syntax/trees/ParseTreeType';
 import {
+  AnonBlock,
+  Block,
   CaseClause,
+  IfStatement,
   SwitchStatement
 } from '../../syntax/trees/ParseTrees';
 import {CatchState} from './CatchState';
 import {ConditionalState} from './ConditionalState';
+import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
 import {FallThroughState} from './FallThroughState';
 import {FinallyFallThroughState} from './FinallyFallThroughState';
 import {FinallyState} from './FinallyState';
 import {FindInFunctionScope} from '../FindInFunctionScope';
+import {ParseTreeTransformer} from '../ParseTreeTransformer';
 import {TempVarTransformer} from '../TempVarTransformer';
 import {assert} from '../../util/assert';
 import {
@@ -867,6 +875,12 @@ export class CPSTransformer extends TempVarTransformer {
     }`;
   }
 
+  addTempVar() {
+    var name = this.getTempIdentifier();
+    this.addMachineVariable(name);
+    return name;
+  }
+
   addMachineVariable(name) {
     this.hoistVariablesTransformer_.addVariable(name);
   }
@@ -1196,4 +1210,65 @@ export class CPSTransformer extends TempVarTransformer {
 
     return this.transformStatementList_(maybeTransformedStatements);
   }
+
+  expressionToStateMachine_(tree) {
+    var commaExpression = new ExplodeExpressionTransformer(this).
+        transformAny(tree);
+    var {statements} = new NormalizeCommaExpressionToStatementTransformer().
+        transformAny(commaExpression);
+
+    var lastStatement = statements[statements.length - 1];
+    assert(lastStatement.type === EXPRESSION_STATEMENT);
+    var expression = lastStatement.expression;
+
+    var machineStatements = statements.slice(0, -1);
+    machineStatements = super.transformList(machineStatements);
+    var machine = this.transformStatementList_(machineStatements);
+
+    return {expression, machine};
+  }
+}
+
+/**
+ * Transformer for transforming a normalized comma expression as returned by the
+ * ExplodeExpressionTransformer into a set of expression statements and if
+ * statements.
+ */
+class NormalizeCommaExpressionToStatementTransformer extends
+    ParseTreeTransformer {
+
+  transformCommaExpression(tree) {
+    var statements = tree.expressions.map((expr) => {
+      if (expr.type === CONDITIONAL_EXPRESSION)
+        return this.transformAny(expr);
+      return createExpressionStatement(expr);
+    });
+    return new AnonBlock(tree.location, statements);
+  }
+
+  transformConditionalExpression(tree) {
+    // a ? b : c
+    // =>
+    // $0 = a, $0 ? ($1 = b, $2 = $1) : ($3 = c, $2 = $3), $2
+    // =>
+    // $0 = a;
+    // if ($0) {
+    //   $1 = b;
+    //   $2 = $1;
+    // } else {
+    //  $3 = c;
+    //  $2 = $3;
+    // }
+    // $2
+    var ifBlock = this.transformAny(tree.left);
+    var elseBlock = this.transformAny(tree.right);
+    return new IfStatement(tree.location, tree.condition,
+        anonBlockToBlock(ifBlock), anonBlockToBlock(elseBlock));
+  }
+}
+
+function anonBlockToBlock(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return anonBlockToBlock(tree.expression);
+  return new Block(tree.location, tree.statements);
 }

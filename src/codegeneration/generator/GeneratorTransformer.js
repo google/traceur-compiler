@@ -21,6 +21,7 @@ import {
   BinaryOperator,
   ExpressionStatement
 } from '../../syntax/trees/ParseTrees'
+import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
 import {FallThroughState} from './FallThroughState';
 import {ReturnState} from './ReturnState';
 import {State} from './State';
@@ -41,7 +42,7 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
+import scopeContainsYield from './scopeContainsYield';
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -60,6 +61,13 @@ export class GeneratorTransformer extends CPSTransformer {
     super(identifierGenerator, reporter);
     this.inYieldFor_ = false;
   }
+
+  expressionNeedsStateMachine_(tree) {
+    if (tree === null)
+      return false;
+    return scopeContainsYield(tree);
+  }
+
 
   /**
    * Simple form yield expressions (direct children of an ExpressionStatement)
@@ -235,14 +243,27 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformReturnStatement(tree) {
+    var expression, machine;
+
+    if (this.expressionNeedsStateMachine_(tree.expression)) {
+      ({expression, machine} =
+          this.expressionToStateMachine_(tree.expression));
+    } else {
+      expression = tree.expression;
+    }
+
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
-    return this.stateToStateMachine_(
+    var returnMachine = this.stateToStateMachine_(
         new ReturnState(
             startState,
             fallThroughState,
-            this.transformAny(tree.expression)),
+            this.transformAny(expression)),
         fallThroughState);
+
+    if (machine)
+      return machine.append(returnMachine);
+    return returnMachine
   }
 
   /**
