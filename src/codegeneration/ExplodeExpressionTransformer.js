@@ -88,12 +88,8 @@ class CommaExpressionBuilder {
     this.expressions = [];
   }
   add(tree) {
-    if (tree.type === COMMA_EXPRESSION) {
+    if (tree.type === COMMA_EXPRESSION)
       this.expressions.push(...getExpressions(tree));
-    } else {
-      assert(tree.type === LITERAL_EXPRESSION ||
-             tree.type === IDENTIFIER_EXPRESSION);
-    }
     return this;
   }
   build(tree) {

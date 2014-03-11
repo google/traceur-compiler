@@ -210,6 +210,10 @@ export class GeneratorTransformer extends CPSTransformer {
     if (isYieldAssign(expression))
       return this.transformYieldAssign_(expression);
 
+    if (this.expressionNeedsStateMachine_(expression)) {
+       return this.expressionToStateMachine_(expression).machine;
+    }
+
     return super.transformExpressionStatement(tree);
   }
 
