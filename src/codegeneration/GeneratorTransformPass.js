@@ -53,102 +53,6 @@ import {
   options
 } from '../options';
 
-class YieldExpressionTransformer extends TempVarTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator, reporter) {
-    super(identifierGenerator);
-  }
-
-  /**
-   * @param {ExpressionStatement} tree
-   * @return {ParseTree}
-   */
-  transformExpressionStatement(tree) {
-    var e = tree.expression, ex;
-
-    // Inside EXPRESSION_STATEMENT, we should always be able to safely remove
-    // parens from BINARY_OPERATOR and COMMA_EXPRESSION. This will need to be
-    // revisited if the switch afterwards ever supports more than that.
-    while (e.type === PAREN_EXPRESSION) {
-      e = e.expression;
-    }
-
-    function commaWrap(lhs, rhs) {
-      return createExpressionStatement(
-          createCommaExpression(
-              [createAssignmentExpression(lhs, rhs), ...ex.slice(1)]));
-    }
-
-    switch (e.type) {
-      case COMMA_EXPRESSION:
-        ex = e.expressions;
-        if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
-          return this.factorAssign_(ex[0].left, ex[0].right, commaWrap);
-    }
-
-    return tree;
-  }
-
-  transformVariableStatement(tree) {
-    var tdd = tree.declarations.declarations;
-
-    function isYieldVarAssign(tree) {
-      return tree.initialiser && tree.initialiser.type === YIELD_EXPRESSION;
-    }
-
-    function varWrap(lhs, rhs) {
-      return createVariableStatement(
-          createVariableDeclarationList(
-              tree.declarations.declarationType,
-              [createVariableDeclaration(lhs, rhs), ...tdd.slice(1)]));
-    }
-
-    if (isYieldVarAssign(tdd[0]))
-      return this.factorAssign_(tdd[0].lvalue, tdd[0].initialiser, varWrap);
-
-    return tree;
-  }
-
-  /**
-   * Factor out a simple yield assignment into a simple yield expression and a
-   * wrapped $yieldSent assignment.
-   * @param {ParseTree} lhs The assignment target.
-   * @param {ParseTree} rhs The yield expression.
-   * @param {Function} wrap A function that returns a ParseTree wrapping lhs
-   *     and $yieldSent properly for its intended context.
-   * @return {ParseTree} { yield ...; wrap(lhs, $yieldSent) }
-   */
-  factorAssign_(lhs, rhs, wrap) {
-    return this.factor_(rhs, (ident) => {
-      return wrap(lhs, ident);
-    });
-  }
-
-  /**
-   * Factor out a nested yield expression into a simple yield expression and a
-   * wrapped $yieldSent statement.
-   *
-   *   return yield expr
-   *
-   * becomes
-   *
-   *   yield expr;
-   *   return $yieldSent
-   *
-   * @param {ParseTree} expression The yield expression.
-   * @param {Function} wrap A function that returns a ParseTree wrapping lhs
-   *     and $yieldSent properly for its intended context.
-   * @return {ParseTree} { yield ...; wrap($yieldSent) }
-   */
-  factor_(expression, wrap) {
-    return createBlock([
-        createExpressionStatement(expression),
-        wrap(createMemberExpression('$ctx', 'sent'))]);
-  }
-}
-
 /**
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
@@ -219,10 +123,6 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
-        body = new YieldExpressionTransformer(this.identifierGenerator,
-                                              this.reporter_).
-            transformAny(body);
-
         body = GeneratorTransformer.transformGeneratorBody(
             this.identifierGenerator,
             this.reporter_,

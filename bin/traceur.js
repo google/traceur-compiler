@@ -15788,11 +15788,8 @@ System.register("traceur@0.0.29/src/codegeneration/ExplodeExpressionTransformer"
   ($traceurRuntime.createClass)(CommaExpressionBuilder, {
     add: function(tree) {
       var $__152;
-      if (tree.type === COMMA_EXPRESSION) {
+      if (tree.type === COMMA_EXPRESSION)
         ($__152 = this.expressions).push.apply($__152, $traceurRuntime.toObject(getExpressions(tree)));
-      } else {
-        assert(tree.type === LITERAL_EXPRESSION || tree.type === IDENTIFIER_EXPRESSION);
-      }
       return this;
     },
     build: function(tree) {
@@ -18793,6 +18790,9 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
         return this.transformYieldExpression_(expression);
       if (isYieldAssign(expression))
         return this.transformYieldAssign_(expression);
+      if (this.expressionNeedsStateMachine_(expression)) {
+        return this.expressionToStateMachine_(expression).machine;
+      }
       return $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "transformExpressionStatement", [tree]);
     },
     transformAwaitStatement: function(tree) {
@@ -18882,49 +18882,6 @@ System.register("traceur@0.0.29/src/codegeneration/GeneratorTransformPass", [], 
   var $__266 = System.get("traceur@0.0.29/src/options"),
       transformOptions = $__266.transformOptions,
       options = $__266.options;
-  var YieldExpressionTransformer = function YieldExpressionTransformer(identifierGenerator, reporter) {
-    $traceurRuntime.superCall(this, $YieldExpressionTransformer.prototype, "constructor", [identifierGenerator]);
-  };
-  var $YieldExpressionTransformer = YieldExpressionTransformer;
-  ($traceurRuntime.createClass)(YieldExpressionTransformer, {
-    transformExpressionStatement: function(tree) {
-      var e = tree.expression,
-          ex;
-      while (e.type === PAREN_EXPRESSION) {
-        e = e.expression;
-      }
-      function commaWrap(lhs, rhs) {
-        return createExpressionStatement(createCommaExpression($traceurRuntime.spread([createAssignmentExpression(lhs, rhs)], ex.slice(1))));
-      }
-      switch (e.type) {
-        case COMMA_EXPRESSION:
-          ex = e.expressions;
-          if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
-            return this.factorAssign_(ex[0].left, ex[0].right, commaWrap);
-      }
-      return tree;
-    },
-    transformVariableStatement: function(tree) {
-      var tdd = tree.declarations.declarations;
-      function isYieldVarAssign(tree) {
-        return tree.initialiser && tree.initialiser.type === YIELD_EXPRESSION;
-      }
-      function varWrap(lhs, rhs) {
-        return createVariableStatement(createVariableDeclarationList(tree.declarations.declarationType, $traceurRuntime.spread([createVariableDeclaration(lhs, rhs)], tdd.slice(1))));
-      }
-      if (isYieldVarAssign(tdd[0]))
-        return this.factorAssign_(tdd[0].lvalue, tdd[0].initialiser, varWrap);
-      return tree;
-    },
-    factorAssign_: function(lhs, rhs, wrap) {
-      return this.factor_(rhs, (function(ident) {
-        return wrap(lhs, ident);
-      }));
-    },
-    factor_: function(expression, wrap) {
-      return createBlock([createExpressionStatement(expression), wrap(createMemberExpression('$ctx', 'sent'))]);
-    }
-  }, {}, TempVarTransformer);
   var GeneratorTransformPass = function GeneratorTransformPass(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "constructor", [identifierGenerator]);
     this.reporter_ = reporter;
@@ -18959,7 +18916,6 @@ System.register("traceur@0.0.29/src/codegeneration/GeneratorTransformPass", [], 
       }
       if (finder.hasYield || isGenerator) {
         if (transformOptions.generators) {
-          body = new YieldExpressionTransformer(this.identifierGenerator, this.reporter_).transformAny(body);
           body = GeneratorTransformer.transformGeneratorBody(this.identifierGenerator, this.reporter_, body);
         }
       } else if (transformOptions.deferredFunctions) {
