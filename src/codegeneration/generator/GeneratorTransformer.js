@@ -62,7 +62,7 @@ export class GeneratorTransformer extends CPSTransformer {
     this.inYieldFor_ = false;
   }
 
-  expressionNeedsStateMachine_(tree) {
+  expressionNeedsStateMachine(tree) {
     if (tree === null)
       return false;
     return scopeContainsYield(tree);
@@ -78,8 +78,8 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   transformYieldExpression_(tree) {
     var expression, machine;
-    if (this.expressionNeedsStateMachine_(tree.expression)) {
-      ({expression, machine} = this.expressionToStateMachine_(tree.expression));
+    if (this.expressionNeedsStateMachine(tree.expression)) {
+      ({expression, machine} = this.expressionToStateMachine(tree.expression));
     } else {
       expression = this.transformAny(tree.expression);
       if (!expression)
@@ -221,8 +221,8 @@ export class GeneratorTransformer extends CPSTransformer {
     if (isYieldAssign(expression))
       return this.transformYieldAssign_(expression);
 
-    if (this.expressionNeedsStateMachine_(expression)) {
-       return this.expressionToStateMachine_(expression).machine;
+    if (this.expressionNeedsStateMachine(expression)) {
+       return this.expressionToStateMachine(expression).machine;
     }
 
     return super.transformExpressionStatement(tree);
@@ -260,8 +260,8 @@ export class GeneratorTransformer extends CPSTransformer {
   transformReturnStatement(tree) {
     var expression, machine;
 
-    if (this.expressionNeedsStateMachine_(tree.expression))
-      ({expression, machine} = this.expressionToStateMachine_(tree.expression));
+    if (this.expressionNeedsStateMachine(tree.expression))
+      ({expression, machine} = this.expressionToStateMachine(tree.expression));
     else
       expression = tree.expression;
 
