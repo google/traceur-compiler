@@ -646,9 +646,16 @@ export class CPSTransformer extends TempVarTransformer {
   transformSwitchStatement(tree) {
     var labels = this.getLabels_();
 
-    var result = super.transformSwitchStatement(tree);
-    if (!needsStateMachine(result))
-      return result;
+    var expression, machine, caseClauses;
+    if (this.expressionNeedsStateMachine(tree.expression)) {
+      ({expression, machine} = this.expressionToStateMachine(tree.expression));
+      caseClauses = this.transformList(tree.caseClauses);
+    } else {
+      var result = super.transformSwitchStatement(tree);
+      if (!needsStateMachine(result))
+        return result;
+      ({expression, caseClauses} = result);
+    }
 
     // a yield within a switch statement
     var startState = this.allocateState();
@@ -659,8 +666,8 @@ export class CPSTransformer extends TempVarTransformer {
     var tryStates = [];
     var hasDefault = false;
 
-    for (var index = result.caseClauses.length - 1; index >= 0; index--) {
-      var clause = result.caseClauses[index];
+    for (var index = caseClauses.length - 1; index >= 0; index--) {
+      var clause = caseClauses[index];
       if (clause.type == CASE_CLAUSE) {
         var caseClause = clause;
         nextState =
@@ -682,10 +689,13 @@ export class CPSTransformer extends TempVarTransformer {
       clauses.push(new SwitchClause(null, fallThroughState));
     }
     states.push(
-        new SwitchState(startState, result.expression, clauses.reverse()));
+        new SwitchState(startState, expression, clauses.reverse()));
 
-    return new StateMachine(startState, fallThroughState, states.reverse(),
-                            tryStates);
+    var switchMachine = new StateMachine(startState, fallThroughState,
+        states.reverse(), tryStates);
+    if (machine)
+      switchMachine = machine.append(switchMachine);
+    return switchMachine;
   }
 
   /**
