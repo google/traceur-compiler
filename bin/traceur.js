@@ -18109,10 +18109,21 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       return result;
     },
     transformSwitchStatement: function(tree) {
+      var $__232,
+          $__233;
       var labels = this.getLabels_();
-      var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
-      if (!needsStateMachine(result))
-        return result;
+      var expression,
+          machine,
+          caseClauses;
+      if (this.expressionNeedsStateMachine(tree.expression)) {
+        (($__232 = this.expressionToStateMachine(tree.expression), expression = $__232.expression, machine = $__232.machine, $__232));
+        caseClauses = this.transformList(tree.caseClauses);
+      } else {
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
+        if (!needsStateMachine(result))
+          return result;
+        (($__233 = result, expression = $__233.expression, caseClauses = $__233.caseClauses, $__233));
+      }
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
       var nextState = fallThroughState;
@@ -18120,8 +18131,8 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var clauses = [];
       var tryStates = [];
       var hasDefault = false;
-      for (var index = result.caseClauses.length - 1; index >= 0; index--) {
-        var clause = result.caseClauses[index];
+      for (var index = caseClauses.length - 1; index >= 0; index--) {
+        var clause = caseClauses[index];
         if (clause.type == CASE_CLAUSE) {
           var caseClause = clause;
           nextState = this.addSwitchClauseStates_(nextState, fallThroughState, labels, caseClause.statements, states, tryStates);
@@ -18136,8 +18147,11 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       if (!hasDefault) {
         clauses.push(new SwitchClause(null, fallThroughState));
       }
-      states.push(new SwitchState(startState, result.expression, clauses.reverse()));
-      return new StateMachine(startState, fallThroughState, states.reverse(), tryStates);
+      states.push(new SwitchState(startState, expression, clauses.reverse()));
+      var switchMachine = new StateMachine(startState, fallThroughState, states.reverse(), tryStates);
+      if (machine)
+        switchMachine = machine.append(switchMachine);
+      return switchMachine;
     },
     addSwitchClauseStates_: function(nextState, fallThroughState, labels, statements, states, tryStates) {
       var $__234;
