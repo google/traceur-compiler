@@ -162,6 +162,11 @@ export class CPSTransformer extends TempVarTransformer {
     this.hoistVariablesTransformer_ = new HoistVariables();
   }
 
+  expressionNeedsStateMachine(tree) {
+    // TODO(arv): Implement this for the async transformer.
+    return false;
+  }
+
   /** @return {number} */
   allocateState() {
     return this.stateAllocator_.allocateState();
@@ -470,16 +475,25 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformIfStatement(tree) {
-    var result = super.transformIfStatement(tree);
-    if (result.ifClause.type != STATE_MACHINE &&
-        (result.elseClause == null ||
-         result.elseClause.type != STATE_MACHINE)) {
-      return result;
+    var machine, expression, ifClause, elseClause;
+
+    if (this.expressionNeedsStateMachine(tree.condition)) {
+      ({expression, machine} = this.expressionToStateMachine(tree.condition));
+      ifClause = this.transformAny(tree.ifClause);
+      elseClause = this.transformAny(tree.elseClause);
+    } else {
+      var result = super(tree);
+      ({ifClause, elseClause} = result);
+      if (ifClause.type === STATE_MACHINE ||
+          elseClause !== null && elseClause.type === STATE_MACHINE) {
+        expression = result.condition;
+      } else {
+        return result;
+      }
     }
 
-    // if containing a yield
-    var ifClause = this.ensureTransformed_(result.ifClause);
-    var elseClause = this.ensureTransformed_(result.elseClause);
+    ifClause = this.ensureTransformed_(ifClause);
+    elseClause = this.ensureTransformed_(elseClause);
 
     var startState = this.allocateState();
     var fallThroughState = ifClause.fallThroughState;
@@ -497,7 +511,7 @@ export class CPSTransformer extends TempVarTransformer {
             startState,
             ifState,
             elseState,
-            result.condition));
+            expression));
     states.push(...ifClause.states);
     exceptionBlocks.push(...ifClause.exceptionBlocks);
     if (elseClause != null) {
@@ -512,9 +526,11 @@ export class CPSTransformer extends TempVarTransformer {
                                     fallThroughState));
     }
 
-
-    return new StateMachine(startState, fallThroughState, states,
-                            exceptionBlocks);
+    var ifMachine = new StateMachine(startState, fallThroughState, states,
+                                     exceptionBlocks);
+    if (machine)
+      ifMachine = machine.append(ifMachine);
+    return ifMachine;
   }
 
   /**
@@ -1211,7 +1227,7 @@ export class CPSTransformer extends TempVarTransformer {
     return this.transformStatementList_(maybeTransformedStatements);
   }
 
-  expressionToStateMachine_(tree) {
+  expressionToStateMachine(tree) {
     var commaExpression = new ExplodeExpressionTransformer(this).
         transformAny(tree);
     var {statements} = new NormalizeCommaExpressionToStatementTransformer().
