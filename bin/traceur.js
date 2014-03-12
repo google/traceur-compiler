@@ -18743,19 +18743,29 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       return scopeContainsYield(tree);
     },
     transformYieldExpression_: function(tree) {
-      var expression = this.transformAny(tree.expression);
-      if (!expression)
-        expression = createUndefinedExpression();
+      var $__264;
+      var expression,
+          machine;
+      if (this.expressionNeedsStateMachine_(tree.expression)) {
+        (($__264 = this.expressionToStateMachine_(tree.expression), expression = $__264.expression, machine = $__264.machine, $__264));
+      } else {
+        expression = this.transformAny(tree.expression);
+        if (!expression)
+          expression = createUndefinedExpression();
+      }
       if (tree.isYieldFor)
-        return this.transformYieldForExpression_(expression);
+        return this.transformYieldForExpression_(expression, machine);
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
-      var machine = this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(expression)), fallThroughState);
+      var yieldMachine = this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(expression)), fallThroughState);
+      if (machine)
+        yieldMachine = machine.append(yieldMachine);
       if (this.inYieldFor_)
-        return machine;
-      return machine.append(this.createThrowCloseState_());
+        return yieldMachine;
+      return yieldMachine.append(this.createThrowCloseState_());
     },
     transformYieldForExpression_: function(expression) {
+      var machine = arguments[1];
       var gName = this.getTempIdentifier();
       this.addMachineVariable(gName);
       var g = id(gName);
@@ -18767,8 +18777,10 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       this.inYieldFor_ = true;
       statements = this.transformList(statements);
       this.inYieldFor_ = wasInYieldFor;
-      var machine = this.transformStatementList_(statements);
-      return machine;
+      var yieldMachine = this.transformStatementList_(statements);
+      if (machine)
+        yieldMachine = machine.append(yieldMachine);
+      return yieldMachine;
     },
     transformYieldExpression: function(tree) {
       this.reporter.reportError(tree.location.start, 'Only \'a = yield b\' and \'var a = yield b\' currently supported.');
@@ -18811,11 +18823,10 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       var $__264;
       var expression,
           machine;
-      if (this.expressionNeedsStateMachine_(tree.expression)) {
+      if (this.expressionNeedsStateMachine_(tree.expression))
         (($__264 = this.expressionToStateMachine_(tree.expression), expression = $__264.expression, machine = $__264.machine, $__264));
-      } else {
+      else
         expression = tree.expression;
-      }
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
       var returnMachine = this.stateToStateMachine_(new ReturnState(startState, fallThroughState, this.transformAny(expression)), fallThroughState);

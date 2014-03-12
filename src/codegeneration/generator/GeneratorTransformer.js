@@ -77,32 +77,40 @@ export class GeneratorTransformer extends CPSTransformer {
    * @private
    */
   transformYieldExpression_(tree) {
-    var expression = this.transformAny(tree.expression);
-    if (!expression)
-      expression = createUndefinedExpression();
+    var expression, machine;
+    if (this.expressionNeedsStateMachine_(tree.expression)) {
+      ({expression, machine} = this.expressionToStateMachine_(tree.expression));
+    } else {
+      expression = this.transformAny(tree.expression);
+      if (!expression)
+        expression = createUndefinedExpression();
+    }
 
     if (tree.isYieldFor)
-      return this.transformYieldForExpression_(expression);
+      return this.transformYieldForExpression_(expression, machine);
 
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
-    var machine = this.stateToStateMachine_(
+    var yieldMachine = this.stateToStateMachine_(
         new YieldState(
             startState,
             fallThroughState,
             this.transformAny(expression)),
         fallThroughState);
 
+    if (machine)
+      yieldMachine = machine.append(yieldMachine);
+
     // The yield expression we generated for the yield-for expression should not
     // be followed by the ThrowCloseState since the inner iterator need to
     // handle the throw case.
     if (this.inYieldFor_)
-      return machine;
+      return yieldMachine;
 
-    return machine.append(this.createThrowCloseState_());
+    return yieldMachine.append(this.createThrowCloseState_());
   }
 
-  transformYieldForExpression_(expression) {
+  transformYieldForExpression_(expression, machine = undefined) {
     var gName = this.getTempIdentifier();
     this.addMachineVariable(gName);
     var g = id(gName);
@@ -155,12 +163,15 @@ export class GeneratorTransformer extends CPSTransformer {
     this.inYieldFor_ = true;
     statements = this.transformList(statements);
     this.inYieldFor_ = wasInYieldFor;
-    var machine = this.transformStatementList_(statements);
+    var yieldMachine = this.transformStatementList_(statements);
+
+    if (machine)
+      yieldMachine = machine.append(yieldMachine);
 
     // TODO(arv): Another option is to build up the statemachine for this here
     // instead of builing the code and transforming the code into
 
-    return machine;
+    return yieldMachine;
   }
 
   /**
@@ -249,12 +260,10 @@ export class GeneratorTransformer extends CPSTransformer {
   transformReturnStatement(tree) {
     var expression, machine;
 
-    if (this.expressionNeedsStateMachine_(tree.expression)) {
-      ({expression, machine} =
-          this.expressionToStateMachine_(tree.expression));
-    } else {
+    if (this.expressionNeedsStateMachine_(tree.expression))
+      ({expression, machine} = this.expressionToStateMachine_(tree.expression));
+    else
       expression = tree.expression;
-    }
 
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
