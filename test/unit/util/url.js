@@ -59,5 +59,6 @@ suite('url.js', function() {
     var resolveUrl =
         $traceurRuntime.ModuleStore.getForTesting('src/util/url').resolveUrl;
     assert.equal('/a/b/c/d', resolveUrl('/a/b/x/y/', '../../c/d'));
+    assert.equal('/a/b/c/d', resolveUrl('/a/b/x/y/', '../../////c/d'));
   });
 });

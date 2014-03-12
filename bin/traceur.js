@@ -532,7 +532,7 @@
   }
   function joinAndCanonicalizePath(parts) {
     var path = parts[ComponentIndex.PATH] || '';
-    path = removeDotSegments(path.replace(/\/\//.g, '/'));
+    path = removeDotSegments(path);
     parts[ComponentIndex.PATH] = path;
     return buildFromEncodedParts(parts[ComponentIndex.SCHEME], parts[ComponentIndex.USER_INFO], parts[ComponentIndex.DOMAIN], parts[ComponentIndex.PORT], parts[ComponentIndex.PATH], parts[ComponentIndex.QUERY_DATA], parts[ComponentIndex.FRAGMENT]);
   }
