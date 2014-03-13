@@ -842,23 +842,40 @@ export class CPSTransformer extends TempVarTransformer {
     var labels = this.getLabels_();
     var label = this.clearCurrentLabel_();
 
-    var result = super.transformWhileStatement(tree);
-    if (result.body.type != STATE_MACHINE)
-      return result;
+    var expression, machine, body;
+    if (this.expressionNeedsStateMachine(tree.condition)) {
+      ({expression, machine} = this.expressionToStateMachine(tree.condition));
+      body = this.transformAny(tree.body);
+    } else {
+      var result = super.transformWhileStatement(tree);
+      if (result.body.type != STATE_MACHINE)
+        return result;
+      body = result.body;
+      expression = result.condition;
+    }
+
 
     // a yield within a while loop
-    var loopBodyMachine = result.body;
+    var loopBodyMachine = this.ensureTransformed_(body);
     var startState = loopBodyMachine.fallThroughState;
     var fallThroughState = this.allocateState();
 
     var states = [];
+    var conditionStart = startState;
+    if (machine) {
+      machine = machine.replaceStateId(machine.startState, startState);
+      conditionStart = machine.fallThroughState;
+
+      // An expression cannot generate exceptionBlocks.
+      states.push(...machine.states);
+    }
 
     states.push(
         new ConditionalState(
-            startState,
+            conditionStart,
             loopBodyMachine.startState,
             fallThroughState,
-            result.condition));
+            expression));
 
     this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState,
                             labels, states);
