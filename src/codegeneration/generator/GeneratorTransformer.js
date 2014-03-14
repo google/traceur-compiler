@@ -59,7 +59,7 @@ export class GeneratorTransformer extends CPSTransformer {
 
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator, reporter);
-    this.inYieldFor_ = false;
+    this.addMaybeThrow_ = true;
   }
 
   expressionNeedsStateMachine(tree) {
@@ -104,7 +104,7 @@ export class GeneratorTransformer extends CPSTransformer {
     // The yield expression we generated for the yield-for expression should not
     // be followed by the ThrowCloseState since the inner iterator need to
     // handle the throw case.
-    if (this.inYieldFor_)
+    if (!this.addMaybeThrow_)
       return yieldMachine;
 
     return yieldMachine.append(this.createThrowCloseState_());
@@ -149,7 +149,7 @@ export class GeneratorTransformer extends CPSTransformer {
         $ctx.action = 'next';
 
         for (;;) {
-          ${next} = ${g}[$ctx.action]($ctx.sent);
+          ${next} = ${g}[$ctx.action]($ctx.sentIgnoreThrow);
           if (${next}.done) {
             $ctx.sent = ${next}.value;
             break;
@@ -159,11 +159,11 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // The yield above should not be treated the same way as a normal yield.
     // See comment in transformYieldExpression_.
-    var wasInYieldFor = this.inYieldFor_;
-    this.inYieldFor_ = true;
+    var wasAddMaybeThrow = this.addMaybeThrow_;
+    this.addMaybeThrow_ = false;
     statements = this.transformList(statements);
-    this.inYieldFor_ = wasInYieldFor;
     var yieldMachine = this.transformStatementList_(statements);
+    this.addMaybeThrow_ = wasAddMaybeThrow;
 
     if (machine)
       yieldMachine = machine.append(yieldMachine);
@@ -188,25 +188,27 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {BinaryOperator} tree
    */
   transformYieldAssign_(tree) {
+    var wasAddMaybeThrow = this.addMaybeThrow_;
+    this.addMaybeThrow_ = false;
     var machine = this.transformYieldExpression_(tree.right);
     var left = this.transformAny(tree.left);
+    var sentExpression = tree.right.isYieldFor ?
+        parseExpression `$ctx.sentIgnoreThrow` :
+        parseExpression `$ctx.sent`;
     var statement = new ExpressionStatement(
         tree.location,
         new BinaryOperator(
             tree.location,
             left,
             tree.operator,
-            parseExpression `$ctx.sent`));
+            sentExpression));
     var assignMachine = this.statementToStateMachine_(statement);
+    this.addMaybeThrow_ = wasAddMaybeThrow;
     return machine.append(assignMachine);
   }
 
   createThrowCloseState_() {
-    return this.statementToStateMachine_(parseStatement `
-        if ($ctx.action === 'throw') {
-          $ctx.action = 'next';
-          throw $ctx.sent;
-        }`);
+    return this.statementToStateMachine_(parseStatement `$ctx.maybeThrow()`);
   }
 
   /**
