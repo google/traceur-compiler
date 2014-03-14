@@ -15,6 +15,7 @@
 import {
   BLOCK,
   IF_STATEMENT,
+  LITERAL_EXPRESSION,
   POSTFIX_EXPRESSION,
   UNARY_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
@@ -882,6 +883,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitMemberExpression(tree) {
     this.visitAny(tree.operand);
+    // If we have `1 .memberName` we need to ensure we add a space or the
+    // generated code will not be valid.
+    if (tree.operand.type === LITERAL_EXPRESSION &&
+        tree.operand.literalToken.type === NUMBER) {
+      if (!/\.|e|E/.test(tree.operand.literalToken.value))
+        this.writeRequiredSpace_();
+    }
     this.write_(PERIOD);
     this.write_(tree.memberName);
   }

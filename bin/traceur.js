@@ -6459,6 +6459,7 @@ System.register("traceur@0.0.29/src/outputgeneration/ParseTreeWriter", [], funct
   var $__35 = System.get("traceur@0.0.29/src/syntax/trees/ParseTreeType"),
       BLOCK = $__35.BLOCK,
       IF_STATEMENT = $__35.IF_STATEMENT,
+      LITERAL_EXPRESSION = $__35.LITERAL_EXPRESSION,
       POSTFIX_EXPRESSION = $__35.POSTFIX_EXPRESSION,
       UNARY_EXPRESSION = $__35.UNARY_EXPRESSION;
   var ParseTreeVisitor = System.get("traceur@0.0.29/src/syntax/ParseTreeVisitor").ParseTreeVisitor;
@@ -7078,6 +7079,10 @@ System.register("traceur@0.0.29/src/outputgeneration/ParseTreeWriter", [], funct
     },
     visitMemberExpression: function(tree) {
       this.visitAny(tree.operand);
+      if (tree.operand.type === LITERAL_EXPRESSION && tree.operand.literalToken.type === NUMBER) {
+        if (!/\.|e|E/.test(tree.operand.literalToken.value))
+          this.writeRequiredSpace_();
+      }
       this.write_(PERIOD);
       this.write_(tree.memberName);
     },
