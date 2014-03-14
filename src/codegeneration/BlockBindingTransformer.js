@@ -563,7 +563,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return createExpressionStatement(
           createAssignmentExpression(
               createIdentifierExpression(tree.name.identifierToken),
-              new FunctionExpression(tree.location, null, tree.isGenerator,
+              new FunctionExpression(tree.location, null, tree.functionKind,
                                      formalParameterList, tree.typeAnnotation,
                                      tree.annotations, body)));
     }
@@ -573,7 +573,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return tree;
     }
 
-    return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+    return new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
                                    formalParameterList, tree.typeAnnotation,
                                    tree.annotations, body);
   }

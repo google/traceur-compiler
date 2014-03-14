@@ -282,7 +282,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyMethodAssignment(tree) {
-    var func = new FunctionExpression(tree.location, null, tree.isGenerator,
+    var func = new FunctionExpression(tree.location, null, tree.functionKind,
         this.transformAny(tree.formalParameterList), tree.typeAnnotation, [],
         this.transformAny(tree.functionBody));
     if (!this.needsAdvancedTransform) {

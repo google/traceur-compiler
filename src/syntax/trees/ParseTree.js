@@ -26,6 +26,7 @@ import {
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
   ARROW_FUNCTION_EXPRESSION,
+  AWAIT_EXPRESSION,
   AWAIT_STATEMENT,
   BINARY_OPERATOR,
   BINDING_ELEMENT,
@@ -183,11 +184,12 @@ export class ParseTree {
   }
 
   /** @return {boolean} */
-  isArrowFunctionExpression() {
+  isAssignmentExpression() {
     switch (this.type) {
       case ARRAY_COMPREHENSION:
       case ARRAY_LITERAL_EXPRESSION:
       case ARROW_FUNCTION_EXPRESSION:
+      case AWAIT_EXPRESSION:
       case BINARY_OPERATOR:
       case CALL_EXPRESSION:
       case CLASS_EXPRESSION:
@@ -253,13 +255,13 @@ export class ParseTree {
 
   /** @return {boolean} */
   isExpression() {
-    return this.isArrowFunctionExpression() ||
+    return this.isAssignmentExpression() ||
         this.type == COMMA_EXPRESSION;
   }
 
   /** @return {boolean} */
   isAssignmentOrSpread() {
-    return this.isArrowFunctionExpression() ||
+    return this.isAssignmentExpression() ||
         this.type == SPREAD_EXPRESSION;
   }
 

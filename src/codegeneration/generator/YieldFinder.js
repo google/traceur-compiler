@@ -45,6 +45,11 @@ export class YieldFinder extends ParseTreeVisitor {
     this.hasAwait = true;
   }
 
+  /** @param {AwaitExpression} tree */
+  visitAwaitExpression(tree) {
+    this.hasAwait = true;
+  }
+
   /** @param {ForInStatement} tree */
   visitForInStatement(tree) {
     this.hasForIn = true;

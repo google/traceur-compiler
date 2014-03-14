@@ -22,6 +22,7 @@ import {
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   AS,
+  ASYNC,
   FROM,
   GET,
   OF,
@@ -281,6 +282,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(ARROW);
     this.writeSpace_();
     this.visitAny(tree.functionBody);
+  }
+
+  /**
+   * @param {AwaitExpression} tree
+   */
+  visitAwaitExpression(tree) {
+    this.write_(AWAIT);
+    this.writeSpace_();
+    this.visitAny(tree.expression);
   }
 
   /**
@@ -718,9 +728,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitFunction_(tree) {
     this.writeAnnotations_(tree.annotations);
+    if (tree.isAsync)
+      this.write_(tree.functionKind);
     this.write_(FUNCTION);
     if (tree.isGenerator)
-      this.write_(STAR);
+      this.write_(tree.functionKind);
 
     if (tree.name) {
       this.writeSpace_();

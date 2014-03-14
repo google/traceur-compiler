@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2012 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {YieldFinder} from './YieldFinder'
+import {ParseTree} from './ParseTree';
+import {
+  IDENTIFIER,
+  STAR
+} from '../TokenType';
+import {ASYNC} from '../PredefinedName';
 
-function scopeContainsYield(tree) {
-  var visitor = new YieldFinder(tree);
-  return visitor.hasYield || visitor.hasYieldFor || visitor.hasAwait;
+export class FunctionBaseTree extends ParseTree {
+  get isGenerator() {
+    return this.functionKind !== null && this.functionKind.type === STAR;
+  }
+
+  get isAsync() {
+    return this.functionKind !== null &&
+        this.functionKind.type === IDENTIFIER &&
+        this.functionKind.value === ASYNC;
+  }
 }
-
-export default scopeContainsYield;

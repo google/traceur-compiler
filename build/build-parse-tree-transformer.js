@@ -78,7 +78,7 @@ function printTransformBody(name, tree, trees) {
   var fieldNames = Object.keys(tree);
   fieldNames.forEach(
     function(fieldName) {
-      if (fieldName == 'location') {
+      if (fieldName === 'location' || fieldName === 'extends') {
         return;
       }
       var fieldType = tree[fieldName][0];

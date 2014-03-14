@@ -22,7 +22,10 @@ import {GeneratorTransformer} from './generator/GeneratorTransformer';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {parseStatement} from './PlaceholderParser';
 import {TempVarTransformer} from './TempVarTransformer';
-import {EQUAL} from '../syntax/TokenType';
+import {
+  EQUAL,
+  STAR
+} from '../syntax/TokenType';
 import {
   BINARY_OPERATOR,
   COMMA_EXPRESSION,
@@ -47,11 +50,18 @@ import {
   createVariableStatement,
   createYieldStatement
 } from './ParseTreeFactory';
-import isYieldAssign from './generator/isYieldAssign';
 import {
   transformOptions,
   options
 } from '../options';
+
+function isAsync(functionKind) {
+  return functionKind !== null && functionKind.value === 'async';
+}
+
+function isGenerator(functionKind) {
+  return functionKind !== null && functionKind.type === STAR;
+}
 
 /**
  * This pass just finds function bodies with yields in them and passes them
@@ -84,14 +94,14 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   transformFunction_(tree, constructor) {
-    var body = this.transformBody_(tree.functionBody, tree.isGenerator);
+    var body = this.transformBody_(tree.functionBody, tree.functionKind);
     if (body === tree.functionBody)
       return tree;
 
     // The generator has been transformed away.
-    var isGenerator = false;
+    var functionKind = null;
 
-    return new constructor(null, tree.name, isGenerator,
+    return new constructor(null, tree.name, functionKind,
                            tree.formalParameterList, tree.typeAnnotation,
                            tree.annotations, body);
   }
@@ -100,35 +110,38 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @param {FunctionBody} tree
    * @return {FunctionBody}
    */
-  transformBody_(tree, isGenerator) {
+  transformBody_(tree, functionKind) {
     var finder;
 
     // transform nested functions
     var body = super.transformFunctionBody(tree);
 
-    if (isGenerator || transformOptions.deferredFunctions) {
+    if (transformOptions.generators && isGenerator(functionKind) ||
+        transformOptions.asyncFunctions && isAsync(functionKind) ||
+        transformOptions.deferredFunctions) {
+      // TODO(arv): Once deferredFunctions is gone the only thing we care about
+      // is wether we need the ForInTransformPass below.
       finder = new YieldFinder(tree);
-      if (!(finder.hasYield || isGenerator || finder.hasAwait))
+      if (!functionKind && !finder.hasAwait)
         return body;
-    } else if (!isGenerator) {
+    } else {
       return body;
     }
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
-    if (finder.hasForIn &&
-        (transformOptions.generators || transformOptions.deferredFunctions)) {
+    if (finder.hasForIn) {
       body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
     }
 
-    if (finder.hasYield || isGenerator) {
-      if (transformOptions.generators) {
-        body = GeneratorTransformer.transformGeneratorBody(
-            this.identifierGenerator,
-            this.reporter_,
-            body);
-      }
-    } else if (transformOptions.deferredFunctions) {
+    if (transformOptions.generators && isGenerator(functionKind)) {
+      body = GeneratorTransformer.transformGeneratorBody(
+          this.identifierGenerator,
+          this.reporter_,
+          body);
+
+    } else if (transformOptions.asyncFunctions && isAsync(functionKind) ||
+               transformOptions.deferredFunctions && finder.hasAwait) {
       body = AsyncTransformer.transformAsyncBody(
           this.identifierGenerator, this.reporter_, body);
     }
@@ -140,7 +153,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformGetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
+    var body = this.transformBody_(tree.body, null);
     if (body === tree.body)
       return tree;
 
@@ -158,7 +171,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformSetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
+    var body = this.transformBody_(tree.body, null);
     if (body === tree.body)
       return tree;
 
