@@ -325,7 +325,7 @@ export class CPSTransformer extends TempVarTransformer {
                             labels, states);
 
     if (machine) {
-      machine = machine.replaceStateId(machine.startState, conditionState);
+      machine = machine.replaceStartState(conditionState);
       conditionState = machine.fallThroughState;
       states.push(...machine.states);
     }
@@ -369,89 +369,158 @@ export class CPSTransformer extends TempVarTransformer {
   transformForStatement(tree) {
     var labels = this.getLabels_();
     var label = this.clearCurrentLabel_();
+    var tmp;
 
-    var result = super.transformForStatement(tree);
-    if (result.body.type != STATE_MACHINE)
-      return result;
+    var initialiser = null, initialiserMachine;
+    if (tree.initialiser) {
+      if (this.expressionNeedsStateMachine(tree.initialiser)) {
+        tmp = this.expressionToStateMachine(tree.initialiser);
+        initialiser = tmp.expression;
+        initialiserMachine = tmp.machine;
+      } else {
+        initialiser = this.transformAny(tree.initialiser);
+      }
+    }
+
+    var condition = null, conditionMachine;
+    if (tree.condition) {
+      if (this.expressionNeedsStateMachine(tree.condition)) {
+        tmp = this.expressionToStateMachine(tree.condition);
+        condition = tmp.expression;
+        conditionMachine = tmp.machine;
+      } else {
+        condition = this.transformAny(tree.condition);
+      }
+    }
+
+    var increment = null, incrementMachine;
+    if (tree.increment) {
+      if (this.expressionNeedsStateMachine(tree.increment)) {
+        tmp = this.expressionToStateMachine(tree.increment);
+        increment = tmp.expression;
+        incrementMachine = tmp.machine;
+      } else {
+        increment = this.transformAny(tree.increment);
+      }
+    }
+
+    var body = this.transformAny(tree.body);
+
+    if (initialiser === tree.initialiser && condition === tree.condition &&
+        increment === tree.increment && body === tree.body) {
+      return tree;
+    }
+
+    if (!initialiserMachine && !conditionMachine && !incrementMachine &&
+        body.type !== STATE_MACHINE) {
+      return new ForStatement(tree.location, initialiser, condition,
+          increment, body);
+    }
 
     // a yield within the body of a 'for' statement
-    var loopBodyMachine = result.body;
+    var loopBodyMachine = this.ensureTransformed_(body);
     var bodyFallThroughId = loopBodyMachine.fallThroughState;
     var fallThroughId = this.allocateState();
 
     var startId;
     var initialiserStartId =
-        result.initialiser ? this.allocateState() : State.INVALID_STATE;
+        initialiser ? this.allocateState() : State.INVALID_STATE;
     var conditionStartId =
-        result.increment ? this.allocateState() : bodyFallThroughId;
+        increment ? this.allocateState() : bodyFallThroughId;
     var loopStartId = loopBodyMachine.startState;
     var incrementStartId = bodyFallThroughId;
 
     var states = [];
 
-    if (result.initialiser) {
+    if (initialiser) {
       startId = initialiserStartId;
       var initialiserFallThroughId;
-      if (result.condition)
+      if (condition)
         initialiserFallThroughId = conditionStartId;
       else
         initialiserFallThroughId = loopStartId;
 
+     var tmpId = initialiserStartId;
+
+      if (initialiserMachine) {
+        initialiserMachine =
+            initialiserMachine.replaceStartState(initialiserStartId);
+        tmpId = initialiserMachine.fallThroughState;
+        states.push(...initialiserMachine.states);
+      }
+
       states.push(
           new FallThroughState(
-              initialiserStartId,
+              tmpId,
               initialiserFallThroughId,
               createStatementList(
-                  createExpressionStatement(result.initialiser))));
+                  createExpressionStatement(initialiser))));
     }
 
-    if (result.condition) {
-      if (!result.initialiser)
+    if (condition) {
+      if (!initialiser)
         startId = conditionStartId;
+
+      var tmpId = conditionStartId;
+
+      if (conditionMachine) {
+        conditionMachine =
+            conditionMachine.replaceStartState(conditionStartId);
+        tmpId = conditionMachine.fallThroughState;
+        states.push(...conditionMachine.states);
+      }
 
       states.push(
         new ConditionalState(
-              conditionStartId,
+              tmpId,
               loopStartId,
               fallThroughId,
-              result.condition));
+              condition));
     }
 
-    if (result.increment) {
+    if (increment) {
       var incrementFallThroughId;
-      if (result.condition)
+      if (condition)
         incrementFallThroughId = conditionStartId;
       else
         incrementFallThroughId = loopStartId;
 
+      var tmpId = incrementStartId;
+
+      if (incrementMachine) {
+        incrementMachine =
+            incrementMachine.replaceStartState(incrementStartId);
+        tmpId = incrementMachine.fallThroughState;
+        states.push(...incrementMachine.states);
+      }
+
       states.push(
           new FallThroughState(
-              incrementStartId,
+              tmpId,
               incrementFallThroughId,
               createStatementList(
-                  createExpressionStatement(result.increment))));
+                  createExpressionStatement(increment))));
     }
 
     // loop body
-    if (!result.initialiser && !result.condition)
+    if (!initialiser && !condition)
       startId = loopStartId;
 
     var continueId;
-    if (result.increment)
+    if (increment)
       continueId = incrementStartId;
-    else if (result.condition)
+    else if (condition)
       continueId = conditionStartId;
     else
       continueId = loopStartId;
 
-    if (!result.increment && !result.condition) {
+    if (!increment && !condition) {
       // If we had either increment or condition, that would take the loop
       // body's fall through ID as its ID. If we have neither we need to change
       // the loop body's fall through ID to loop back to the loop body's start
       // ID.
       loopBodyMachine =
-          loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState,
-                                         loopBodyMachine.startState);
+          loopBodyMachine.replaceFallThroughState(loopBodyMachine.startState);
     }
 
     this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId,
@@ -606,8 +675,8 @@ export class CPSTransformer extends TempVarTransformer {
     if (result === tree.statement) {
       result = tree;
     } else if (result.type === STATE_MACHINE) {
-      result = result.replaceStateId(result.startState, startState);
-      result = result.replaceStateId(result.fallThroughState, fallThroughState);
+      result = result.replaceStartState(startState);
+      result = result.replaceFallThroughState(fallThroughState);
     }
 
     this.restoreLabels_(oldLabels);
@@ -877,7 +946,7 @@ export class CPSTransformer extends TempVarTransformer {
     var states = [];
     var conditionStart = startState;
     if (machine) {
-      machine = machine.replaceStateId(machine.startState, startState);
+      machine = machine.replaceStartState(startState);
       conditionStart = machine.fallThroughState;
 
       // An expression cannot generate exceptionBlocks.
@@ -972,8 +1041,8 @@ export class CPSTransformer extends TempVarTransformer {
 
     // Clean up start and end states.
     machine = machine.
-        replaceStateId(machine.fallThroughState, State.END_STATE).
-        replaceStateId(machine.startState, State.START_STATE);
+        replaceFallThroughState(State.END_STATE).
+        replaceStartState(State.START_STATE);
 
     var statements = [];
     if (this.hoistVariablesTransformer_.hasVariables())

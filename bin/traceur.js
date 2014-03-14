@@ -17242,6 +17242,12 @@ System.register("traceur@0.0.29/src/syntax/trees/StateMachine", [], function() {
     replaceStateId: function(oldState, newState) {
       return new $StateMachine(State.replaceStateId(this.startState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), State.replaceAllStates(this.states, oldState, newState), State.replaceAllStates(this.exceptionBlocks, oldState, newState));
     },
+    replaceStartState: function(newState) {
+      return this.replaceStateId(this.startState, newState);
+    },
+    replaceFallThroughState: function(newState) {
+      return this.replaceStateId(this.fallThroughState, newState);
+    },
     append: function(nextMachine) {
       var states = $traceurRuntime.spread(this.states);
       for (var i = 0; i < nextMachine.states.length; i++) {
@@ -17945,7 +17951,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var states = [];
       this.addLoopBodyStates_(loopBodyMachine, conditionState, fallThroughState, labels, states);
       if (machine) {
-        machine = machine.replaceStateId(machine.startState, conditionState);
+        machine = machine.replaceStartState(conditionState);
         conditionState = machine.fallThroughState;
         ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
       }
@@ -17962,53 +17968,110 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       }
     },
     transformForStatement: function(tree) {
+      var $__234;
       var labels = this.getLabels_();
       var label = this.clearCurrentLabel_();
-      var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformForStatement", [tree]);
-      if (result.body.type != STATE_MACHINE)
-        return result;
-      var loopBodyMachine = result.body;
+      var tmp;
+      var initialiser = null,
+          initialiserMachine;
+      if (tree.initialiser) {
+        if (this.expressionNeedsStateMachine(tree.initialiser)) {
+          tmp = this.expressionToStateMachine(tree.initialiser);
+          initialiser = tmp.expression;
+          initialiserMachine = tmp.machine;
+        } else {
+          initialiser = this.transformAny(tree.initialiser);
+        }
+      }
+      var condition = null,
+          conditionMachine;
+      if (tree.condition) {
+        if (this.expressionNeedsStateMachine(tree.condition)) {
+          tmp = this.expressionToStateMachine(tree.condition);
+          condition = tmp.expression;
+          conditionMachine = tmp.machine;
+        } else {
+          condition = this.transformAny(tree.condition);
+        }
+      }
+      var increment = null,
+          incrementMachine;
+      if (tree.increment) {
+        if (this.expressionNeedsStateMachine(tree.increment)) {
+          tmp = this.expressionToStateMachine(tree.increment);
+          increment = tmp.expression;
+          incrementMachine = tmp.machine;
+        } else {
+          increment = this.transformAny(tree.increment);
+        }
+      }
+      var body = this.transformAny(tree.body);
+      if (initialiser === tree.initialiser && condition === tree.condition && increment === tree.increment && body === tree.body) {
+        return tree;
+      }
+      if (!initialiserMachine && !conditionMachine && !incrementMachine && body.type !== STATE_MACHINE) {
+        return new ForStatement(tree.location, initialiser, condition, increment, body);
+      }
+      var loopBodyMachine = this.ensureTransformed_(body);
       var bodyFallThroughId = loopBodyMachine.fallThroughState;
       var fallThroughId = this.allocateState();
       var startId;
-      var initialiserStartId = result.initialiser ? this.allocateState() : State.INVALID_STATE;
-      var conditionStartId = result.increment ? this.allocateState() : bodyFallThroughId;
+      var initialiserStartId = initialiser ? this.allocateState() : State.INVALID_STATE;
+      var conditionStartId = increment ? this.allocateState() : bodyFallThroughId;
       var loopStartId = loopBodyMachine.startState;
       var incrementStartId = bodyFallThroughId;
       var states = [];
-      if (result.initialiser) {
+      if (initialiser) {
         startId = initialiserStartId;
         var initialiserFallThroughId;
-        if (result.condition)
+        if (condition)
           initialiserFallThroughId = conditionStartId;
         else
           initialiserFallThroughId = loopStartId;
-        states.push(new FallThroughState(initialiserStartId, initialiserFallThroughId, createStatementList(createExpressionStatement(result.initialiser))));
+        var tmpId = initialiserStartId;
+        if (initialiserMachine) {
+          initialiserMachine = initialiserMachine.replaceStartState(initialiserStartId);
+          tmpId = initialiserMachine.fallThroughState;
+          ($__234 = states).push.apply($__234, $traceurRuntime.toObject(initialiserMachine.states));
+        }
+        states.push(new FallThroughState(tmpId, initialiserFallThroughId, createStatementList(createExpressionStatement(initialiser))));
       }
-      if (result.condition) {
-        if (!result.initialiser)
+      if (condition) {
+        if (!initialiser)
           startId = conditionStartId;
-        states.push(new ConditionalState(conditionStartId, loopStartId, fallThroughId, result.condition));
+        var tmpId = conditionStartId;
+        if (conditionMachine) {
+          conditionMachine = conditionMachine.replaceStartState(conditionStartId);
+          tmpId = conditionMachine.fallThroughState;
+          ($__234 = states).push.apply($__234, $traceurRuntime.toObject(conditionMachine.states));
+        }
+        states.push(new ConditionalState(tmpId, loopStartId, fallThroughId, condition));
       }
-      if (result.increment) {
+      if (increment) {
         var incrementFallThroughId;
-        if (result.condition)
+        if (condition)
           incrementFallThroughId = conditionStartId;
         else
           incrementFallThroughId = loopStartId;
-        states.push(new FallThroughState(incrementStartId, incrementFallThroughId, createStatementList(createExpressionStatement(result.increment))));
+        var tmpId = incrementStartId;
+        if (incrementMachine) {
+          incrementMachine = incrementMachine.replaceStartState(incrementStartId);
+          tmpId = incrementMachine.fallThroughState;
+          ($__234 = states).push.apply($__234, $traceurRuntime.toObject(incrementMachine.states));
+        }
+        states.push(new FallThroughState(tmpId, incrementFallThroughId, createStatementList(createExpressionStatement(increment))));
       }
-      if (!result.initialiser && !result.condition)
+      if (!initialiser && !condition)
         startId = loopStartId;
       var continueId;
-      if (result.increment)
+      if (increment)
         continueId = incrementStartId;
-      else if (result.condition)
+      else if (condition)
         continueId = conditionStartId;
       else
         continueId = loopStartId;
-      if (!result.increment && !result.condition) {
-        loopBodyMachine = loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState, loopBodyMachine.startState);
+      if (!increment && !condition) {
+        loopBodyMachine = loopBodyMachine.replaceFallThroughState(loopBodyMachine.startState);
       }
       this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId, labels, states);
       var machine = new StateMachine(startId, fallThroughId, states, loopBodyMachine.exceptionBlocks);
@@ -18096,8 +18159,8 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       if (result === tree.statement) {
         result = tree;
       } else if (result.type === STATE_MACHINE) {
-        result = result.replaceStateId(result.startState, startState);
-        result = result.replaceStateId(result.fallThroughState, fallThroughState);
+        result = result.replaceStartState(startState);
+        result = result.replaceFallThroughState(fallThroughState);
       }
       this.restoreLabels_(oldLabels);
       return result;
@@ -18242,7 +18305,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var states = [];
       var conditionStart = startState;
       if (machine) {
-        machine = machine.replaceStateId(machine.startState, startState);
+        machine = machine.replaceStartState(startState);
         conditionStart = machine.fallThroughState;
         ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
       }
@@ -18286,7 +18349,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       } else {
         machine = new StateMachine(maybeMachine.startState, maybeMachine.fallThroughState, this.removeEmptyStates(maybeMachine.states), maybeMachine.exceptionBlocks);
       }
-      machine = machine.replaceStateId(machine.fallThroughState, State.END_STATE).replaceStateId(machine.startState, State.START_STATE);
+      machine = machine.replaceFallThroughState(State.END_STATE).replaceStartState(State.START_STATE);
       var statements = [];
       if (this.hoistVariablesTransformer_.hasVariables())
         statements.push(this.hoistVariablesTransformer_.getVariableStatement());
