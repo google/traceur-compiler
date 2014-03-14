@@ -6459,6 +6459,7 @@ System.register("traceur@0.0.29/src/outputgeneration/ParseTreeWriter", [], funct
   var $__35 = System.get("traceur@0.0.29/src/syntax/trees/ParseTreeType"),
       BLOCK = $__35.BLOCK,
       IF_STATEMENT = $__35.IF_STATEMENT,
+      LITERAL_EXPRESSION = $__35.LITERAL_EXPRESSION,
       POSTFIX_EXPRESSION = $__35.POSTFIX_EXPRESSION,
       UNARY_EXPRESSION = $__35.UNARY_EXPRESSION;
   var ParseTreeVisitor = System.get("traceur@0.0.29/src/syntax/ParseTreeVisitor").ParseTreeVisitor;
@@ -7078,6 +7079,10 @@ System.register("traceur@0.0.29/src/outputgeneration/ParseTreeWriter", [], funct
     },
     visitMemberExpression: function(tree) {
       this.visitAny(tree.operand);
+      if (tree.operand.type === LITERAL_EXPRESSION && tree.operand.literalToken.type === NUMBER) {
+        if (!/\.|e|E/.test(tree.operand.literalToken.value))
+          this.writeRequiredSpace_();
+      }
       this.write_(PERIOD);
       this.write_(tree.memberName);
     },
@@ -17919,18 +17924,35 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       return machine == null ? result : new CaseClause(null, result.expression, createStatementList(machine));
     },
     transformDoWhileStatement: function(tree) {
+      var $__234;
+      var $__232,
+          $__233;
       var labels = this.getLabels_();
       var label = this.clearCurrentLabel_();
-      var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformDoWhileStatement", [tree]);
-      if (result.body.type != STATE_MACHINE)
-        return result;
-      var loopBodyMachine = result.body;
+      var machine,
+          condition,
+          body;
+      if (this.expressionNeedsStateMachine(tree.condition)) {
+        (($__232 = this.expressionToStateMachine(tree.condition), machine = $__232.machine, condition = $__232.expression, $__232));
+        body = this.transformAny(tree.body);
+      } else {
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformDoWhileStatement", [tree]);
+        (($__233 = result, condition = $__233.condition, body = $__233.body, $__233));
+        if (body.type != STATE_MACHINE)
+          return result;
+      }
+      var loopBodyMachine = this.ensureTransformed_(body);
       var startState = loopBodyMachine.startState;
       var conditionState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
       var states = [];
       this.addLoopBodyStates_(loopBodyMachine, conditionState, fallThroughState, labels, states);
-      states.push(new ConditionalState(conditionState, startState, fallThroughState, result.condition));
+      if (machine) {
+        machine = machine.replaceStateId(machine.startState, conditionState);
+        conditionState = machine.fallThroughState;
+        ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
+      }
+      states.push(new ConditionalState(conditionState, startState, fallThroughState, condition));
       var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
       if (label)
         machine = machine.replaceStateId(conditionState, label.continueState);
@@ -18065,19 +18087,17 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var $__232,
           $__233;
       var machine,
-          expression,
+          condition,
           ifClause,
           elseClause;
       if (this.expressionNeedsStateMachine(tree.condition)) {
-        (($__232 = this.expressionToStateMachine(tree.condition), expression = $__232.expression, machine = $__232.machine, $__232));
+        (($__232 = this.expressionToStateMachine(tree.condition), machine = $__232.machine, condition = $__232.expression, $__232));
         ifClause = this.transformAny(tree.ifClause);
         elseClause = this.transformAny(tree.elseClause);
       } else {
         var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformIfStatement", [tree]);
-        (($__233 = result, ifClause = $__233.ifClause, elseClause = $__233.elseClause, $__233));
-        if (ifClause.type === STATE_MACHINE || elseClause !== null && elseClause.type === STATE_MACHINE) {
-          expression = result.condition;
-        } else {
+        (($__233 = result, condition = $__233.condition, ifClause = $__233.ifClause, elseClause = $__233.elseClause, $__233));
+        if (ifClause.type !== STATE_MACHINE && (elseClause === null || elseClause.type !== STATE_MACHINE)) {
           return result;
         }
       }
@@ -18089,7 +18109,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var elseState = elseClause == null ? fallThroughState : elseClause.startState;
       var states = [];
       var exceptionBlocks = [];
-      states.push(new ConditionalState(startState, ifState, elseState, expression));
+      states.push(new ConditionalState(startState, ifState, elseState, condition));
       ($__234 = states).push.apply($__234, $traceurRuntime.toObject(ifClause.states));
       ($__234 = exceptionBlocks).push.apply($__234, $traceurRuntime.toObject(ifClause.exceptionBlocks));
       if (elseClause != null) {
@@ -18260,21 +18280,21 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
     },
     transformWhileStatement: function(tree) {
       var $__234;
-      var $__232;
+      var $__232,
+          $__233;
       var labels = this.getLabels_();
       var label = this.clearCurrentLabel_();
-      var expression,
+      var condition,
           machine,
           body;
       if (this.expressionNeedsStateMachine(tree.condition)) {
-        (($__232 = this.expressionToStateMachine(tree.condition), expression = $__232.expression, machine = $__232.machine, $__232));
+        (($__232 = this.expressionToStateMachine(tree.condition), machine = $__232.machine, condition = $__232.expression, $__232));
         body = this.transformAny(tree.body);
       } else {
         var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWhileStatement", [tree]);
-        if (result.body.type != STATE_MACHINE)
+        (($__233 = result, condition = $__233.condition, body = $__233.body, $__233));
+        if (body.type !== STATE_MACHINE)
           return result;
-        body = result.body;
-        expression = result.condition;
       }
       var loopBodyMachine = this.ensureTransformed_(body);
       var startState = loopBodyMachine.fallThroughState;
@@ -18286,7 +18306,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
         conditionStart = machine.fallThroughState;
         ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
       }
-      states.push(new ConditionalState(conditionStart, loopBodyMachine.startState, fallThroughState, expression));
+      states.push(new ConditionalState(conditionStart, loopBodyMachine.startState, fallThroughState, condition));
       this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState, labels, states);
       var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
       if (label)
