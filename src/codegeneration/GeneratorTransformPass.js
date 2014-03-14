@@ -106,7 +106,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // transform nested functions
     var body = super.transformFunctionBody(tree);
 
-    if (isGenerator || transformOptions.deferredFunctions) {
+    if (isGenerator || transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
       finder = new YieldFinder(tree);
       if (!(finder.hasYield || isGenerator || finder.hasAwait))
         return body;
@@ -117,7 +117,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
     if (finder.hasForIn &&
-        (transformOptions.generators || transformOptions.deferredFunctions)) {
+        (transformOptions.generators || transformOptions.deferredFunctions || transformOptions.asyncFunctions)) {
       body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
     }
 
@@ -128,7 +128,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
             this.reporter_,
             body);
       }
-    } else if (transformOptions.deferredFunctions) {
+    } else if (transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
       body = AsyncTransformer.transformAsyncBody(
           this.identifierGenerator, this.reporter_, body);
     }

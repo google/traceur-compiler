@@ -14,10 +14,9 @@
 
 import {YieldFinder} from './YieldFinder'
 
-function scopeContainsYield(tree) {
+function scopeContainsAwait(tree) {
   var visitor = new YieldFinder(tree);
-  // TODO(arv): hasAwait should not be here.
-  return visitor.hasYield || visitor.hasYieldFor || visitor.hasAwait;
+  return visitor.hasAwait;
 }
 
-export default scopeContainsYield;
+export default scopeContainsAwait;

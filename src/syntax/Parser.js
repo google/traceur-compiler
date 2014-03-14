@@ -180,6 +180,7 @@ import {
   ArrayLiteralExpression,
   ArrayPattern,
   ArrowFunctionExpression,
+  AwaitExpression,
   AwaitStatement,
   BinaryOperator,
   BindingElement,
@@ -352,6 +353,9 @@ export class Parser {
      * @private
      */
     this.allowYield_ = false;
+
+    // TODO(arv): This should be tied to `async function f() {`
+    this.allowAwait_ = true;
 
     /**
      * Keeps track of whether we are currently in strict mode parsing or not.
@@ -790,8 +794,9 @@ export class Parser {
           return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
         break;
       case AWAIT:
-        if (parseOptions.deferredFunctions)
+        if (parseOptions.deferredFunctions && !parseOptions.asyncFunctions)
           return this.parseAwaitStatement_();
+
         break;
       case CLASS:
         if (parseOptions.classes)
@@ -2706,6 +2711,19 @@ export class Parser {
    */
   parseUnaryExpression_() {
     var start = this.getTreeStartLocation_();
+
+    // TODO(arv): This should be peekId_
+    if (this.peek_(AWAIT) &&
+        parseOptions.asyncFunctions && !parseOptions.deferredFunctions) {
+      this.eat_(AWAIT);
+      // no newline?
+      // var operand = this.parseAssignmentExpression();
+
+      var operand = this.parseUnaryExpression_();
+      operand = this.toParenExpression_(operand);
+      return new AwaitExpression(this.getTreeLocation_(start), operand);
+    }
+
     if (this.peekUnaryOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var operand = this.parseUnaryExpression_();

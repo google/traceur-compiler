@@ -284,6 +284,7 @@ addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
+addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);

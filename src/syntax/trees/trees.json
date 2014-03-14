@@ -64,6 +64,14 @@
       "ParseTree"
     ]
   },
+  "AwaitExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
   "AwaitStatement": {
     "location": [
       "SourceRange"

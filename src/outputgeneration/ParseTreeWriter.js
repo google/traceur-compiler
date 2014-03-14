@@ -284,6 +284,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {AwaitExpression} tree
+   */
+  visitAwaitExpression(tree) {
+    this.write_(AWAIT);
+    this.writeSpace_();
+    this.visitAny(tree.expression);
+  }
+
+  /**
    * @param {AwaitStatement} tree
    */
   visitAwaitStatement(tree) {
