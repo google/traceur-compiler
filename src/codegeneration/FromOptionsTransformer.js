@@ -42,7 +42,6 @@ import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer';
-import {TypeofTransformer} from './TypeofTransformer';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
@@ -156,10 +155,8 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.generators || transformOptions.deferredFunctions)
       append(GeneratorTransformPass);
 
-    if (transformOptions.symbols) {
+    if (transformOptions.symbols)
       append(SymbolTransformer);
-      append(TypeofTransformer);
-    }
 
     // Issue errors for any unbound variables
     if (options.freeVariableChecker) {
