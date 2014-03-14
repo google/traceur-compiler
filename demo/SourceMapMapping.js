@@ -16,7 +16,7 @@ import {SourceMapConsumer}
     from '../src/outputgeneration/SourceMapIntegration';
 
 
-export class SourceMapRanger {
+export class SourceMapMapping {
   /**
    * @param {SourceMapConsumer} consumer
    */
@@ -115,7 +115,7 @@ export class SourceMapRanger {
 
 }
 
-export class OriginalSourceMapRanger extends SourceMapRanger {
+export class OriginalSourceMapMapping extends SourceMapMapping {
   /**
    * @param {SourceMapConsumer} consumer
    * @param {string} which source to iterate
@@ -137,7 +137,7 @@ export class OriginalSourceMapRanger extends SourceMapRanger {
   }
 }
 
-export class GeneratedSourceMapRanger extends SourceMapRanger {
+export class GeneratedSourceMapMapping extends SourceMapMapping {
   /**
    * @param {SourceMapConsumer} consumer
    * @param {string} which source to iterate

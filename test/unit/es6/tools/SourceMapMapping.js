@@ -13,32 +13,36 @@
 // limitations under the License.
 
 
-System.options.sourceMaps = true;
-
 import {SourceMapConsumer}
     from '../../../../src/outputgeneration/SourceMapIntegration';
-import {OriginalSourceMapRanger} from '../../../../demo/SourceMapRanger';
+import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
 
-var testModuleName = System.normalize('./unit/runtime/test_a');
-System.import(testModuleName).then(() => {
+System.options.sourceMaps = true;
+var testModuleName = System.normalize('./test/unit/runtime/test_a');
+var whenSourceMapMapping = System.import(testModuleName).then(() => {
   var mapInfo = System.sourceMapInfo(testModuleName, 'module');
   if (!mapInfo || !mapInfo.sourceMap)
     throw new Error('No source map');
   var consumer = new SourceMapConsumer(mapInfo.sourceMap);
-  var sourceMapRanger = new OriginalSourceMapRanger(consumer);
+  var sourceMapMapping = new OriginalSourceMapMapping(consumer);
+  return sourceMapMapping;
+}).catch(function(ex) {
+  console.error(ex.stack || ex);
+});
 
-  suite('SourceMapRanger', function() {
-    var columnsByLine = [
-      [0, 0, 1, 3, 4, 4],
-      [0, 0, 1, 3, 4, 4]
-    ];
+suite('SourceMapMapping', function() {
+  var columnsByLine = [
+    [0, 0, 1, 3, 4, 4],
+    [0, 0, 1, 3, 4, 4]
+  ];
 
-    test('columnIndexGreaterOrEqual', function(){
+  test('columnIndexGreaterOrEqual', function(done){
+    whenSourceMapMapping.then((sourceMapMapping) => {
       var columns = columnsByLine[0];
       var indexGE = [0, 2, 3, 3, 4, 5, undefined];
       for (var i = 0; i < 7; i++) {
         var testColumn = i;
-        var index = sourceMapRanger.columnIndexGreaterOrEqual(columns, testColumn);
+        var index = sourceMapMapping.columnIndexGreaterOrEqual(columns, testColumn);
         if (testColumn <= columns[columns.length  - 1]) {
           assert(testColumn <= columns[index]);
           assert((columns[index - 1] || columns[0]) <= testColumn);
@@ -46,9 +50,12 @@ System.import(testModuleName).then(() => {
           assert(typeof index === 'undefined');
         }
       }
+      done();
     });
+  });
 
-    test('testNextPosition', function () {
+  test('testNextPosition', function (done) {
+    whenSourceMapMapping.then((sourceMapMapping) => {
       // The .line values are indexes into columnsByLine, becuase we have
       // one source line per array entry. The .column values are indexes into
       // (fictious) source, as are the value in columnsByLine.
@@ -71,12 +78,11 @@ System.import(testModuleName).then(() => {
         {line: 1, column: 4},
       ];
       testPositions.forEach(function(pos, index) {
-        var actual = sourceMapRanger.nextPosition_(pos, columnsByLine);
+        var actual = sourceMapMapping.nextPosition_(pos, columnsByLine);
         assert(expectedPositions[index].line === actual.line);
         assert(expectedPositions[index].column === actual.column);
       });
+      done();
     });
   });
-}).catch(function(ex) {
-  console.error(ex.stack || ex);
 });

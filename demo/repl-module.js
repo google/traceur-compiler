@@ -14,9 +14,9 @@
 
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
 import {
-  GeneratedSourceMapRanger,
-  OriginalSourceMapRanger
-} from './SourceMapRanger';
+  GeneratedSourceMapMapping,
+  OriginalSourceMapMapping
+} from './SourceMapMapping';
 import {SourceMapConsumer}
     from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {transcode, renderSourceMap} from './transcode';
@@ -107,8 +107,8 @@ function updateSourceMapVisualization(url) {
   // update on compile.
   var consumer = compilationResults.sourceMapConsumer;
   var url = compilationResults.sourceMapURL;
-  var originalMap = new OriginalSourceMapRanger(consumer, url);
-  var generatedMap = new GeneratedSourceMapRanger(consumer, url);
+  var originalMap = new OriginalSourceMapMapping(consumer, url);
+  var generatedMap = new GeneratedSourceMapMapping(consumer, url);
 
   var codeMirrorPosition = input.getCursor();
   var originalPosition = {
