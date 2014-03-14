@@ -416,7 +416,8 @@
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
 
-  var END_STATE = -3;
+  var END_STATE = -2;
+  var RETHROW_STATE = -3;
 
   function addIterator(object) {
     // This needs the non native defineProperty to handle symbols correctly.
@@ -445,7 +446,7 @@
           }
         }
         if (finallyFallThrough === null)
-          finallyFallThrough = -3;
+          finallyFallThrough = RETHROW_STATE;
 
         this.tryStack_.push({
           finally: finallyState,
@@ -459,6 +460,26 @@
     },
     popTry: function() {
       this.tryStack_.pop();
+    },
+    end: function() {
+      switch (this.state) {
+        case END_STATE:
+          return this.endState_();
+        case RETHROW_STATE:
+          this.rethrowState_();
+        default:
+          throw new Error(
+              'Traceur compiler bug: invalid state in state machine: ' +
+              this.state);
+      }
+    },
+    endState_: function() {
+      // The context object itself is used as a sentinel for ending the state
+      // machine.
+      return this;
+    },
+    rethrowState_: function() {
+      throw this.storedException;
     }
   };
 
@@ -512,7 +533,12 @@
       ctx.reject = reject;
     });
   }
-  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
+  var p = Object.create(GeneratorContext.prototype);
+  p.endState_ = function() {};
+  p.rethrowState_ = function() {
+    this.reject(this.storedException);
+  };
+  AsyncFunctionContext.prototype = p;
 
   function asyncWrap(innerFunction, self) {
     var moveNext = getMoveNext(innerFunction, self);
