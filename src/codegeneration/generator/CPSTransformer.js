@@ -301,12 +301,20 @@ export class CPSTransformer extends TempVarTransformer {
     var labels = this.getLabels_();
     var label = this.clearCurrentLabel_();
 
-    var result = super.transformDoWhileStatement(tree);
-    if (result.body.type != STATE_MACHINE)
-      return result;
+    var machine, condition, body;
+    if (this.expressionNeedsStateMachine(tree.condition)) {
+      ({machine, expression: condition} =
+          this.expressionToStateMachine(tree.condition));
+      body = this.transformAny(tree.body);
+    } else {
+      var result = super(tree);
+      ({condition, body} = result);
+      if (body.type != STATE_MACHINE)
+        return result;
+    }
 
     // a yield within a do/while loop
-    var loopBodyMachine = result.body;
+    var loopBodyMachine = this.ensureTransformed_(body);
     var startState = loopBodyMachine.startState;
     var conditionState = loopBodyMachine.fallThroughState;
     var fallThroughState = this.allocateState();
@@ -315,12 +323,19 @@ export class CPSTransformer extends TempVarTransformer {
 
     this.addLoopBodyStates_(loopBodyMachine, conditionState, fallThroughState,
                             labels, states);
+
+    if (machine) {
+      machine = machine.replaceStateId(machine.startState, conditionState);
+      conditionState = machine.fallThroughState;
+      states.push(...machine.states);
+    }
+
     states.push(
         new ConditionalState(
             conditionState,
             startState,
             fallThroughState,
-            result.condition));
+            condition));
 
     var machine = new StateMachine(startState, fallThroughState, states,
                                    loopBodyMachine.exceptionBlocks);
@@ -475,19 +490,18 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformIfStatement(tree) {
-    var machine, expression, ifClause, elseClause;
+    var machine, condition, ifClause, elseClause;
 
     if (this.expressionNeedsStateMachine(tree.condition)) {
-      ({expression, machine} = this.expressionToStateMachine(tree.condition));
+      ({machine, expression: condition} =
+          this.expressionToStateMachine(tree.condition));
       ifClause = this.transformAny(tree.ifClause);
       elseClause = this.transformAny(tree.elseClause);
     } else {
       var result = super(tree);
-      ({ifClause, elseClause} = result);
-      if (ifClause.type === STATE_MACHINE ||
-          elseClause !== null && elseClause.type === STATE_MACHINE) {
-        expression = result.condition;
-      } else {
+      ({condition, ifClause, elseClause} = result);
+      if (ifClause.type !== STATE_MACHINE &&
+          (elseClause === null || elseClause.type !== STATE_MACHINE)) {
         return result;
       }
     }
@@ -511,7 +525,7 @@ export class CPSTransformer extends TempVarTransformer {
             startState,
             ifState,
             elseState,
-            expression));
+            condition));
     states.push(...ifClause.states);
     exceptionBlocks.push(...ifClause.exceptionBlocks);
     if (elseClause != null) {
@@ -842,16 +856,16 @@ export class CPSTransformer extends TempVarTransformer {
     var labels = this.getLabels_();
     var label = this.clearCurrentLabel_();
 
-    var expression, machine, body;
+    var condition, machine, body;
     if (this.expressionNeedsStateMachine(tree.condition)) {
-      ({expression, machine} = this.expressionToStateMachine(tree.condition));
+      ({machine, expression: condition} =
+          this.expressionToStateMachine(tree.condition));
       body = this.transformAny(tree.body);
     } else {
       var result = super.transformWhileStatement(tree);
-      if (result.body.type != STATE_MACHINE)
+      ({condition,body} = result);
+      if (body.type !== STATE_MACHINE)
         return result;
-      body = result.body;
-      expression = result.condition;
     }
 
 
@@ -875,7 +889,7 @@ export class CPSTransformer extends TempVarTransformer {
             conditionStart,
             loopBodyMachine.startState,
             fallThroughState,
-            expression));
+            condition));
 
     this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState,
                             labels, states);
