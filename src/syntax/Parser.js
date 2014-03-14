@@ -2712,13 +2712,11 @@ export class Parser {
   parseUnaryExpression_() {
     var start = this.getTreeStartLocation_();
 
-    // TODO(arv): This should be peekId_
+    // TODO(arv): This should be peekId_ since await should not be a keyword.
     if (this.peek_(AWAIT) &&
         parseOptions.asyncFunctions && !parseOptions.deferredFunctions) {
       this.eat_(AWAIT);
       // no newline?
-      // var operand = this.parseAssignmentExpression();
-
       var operand = this.parseUnaryExpression_();
       operand = this.toParenExpression_(operand);
       return new AwaitExpression(this.getTreeLocation_(start), operand);

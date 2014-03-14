@@ -47,7 +47,6 @@ import {
   createVariableStatement,
   createYieldStatement
 } from './ParseTreeFactory';
-import isYieldAssign from './generator/isYieldAssign';
 import {
   transformOptions,
   options

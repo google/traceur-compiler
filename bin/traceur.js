@@ -19157,7 +19157,6 @@ System.register("traceur@0.0.29/src/codegeneration/GeneratorTransformPass", [], 
       createVariableDeclarationList = $__269.createVariableDeclarationList,
       createVariableStatement = $__269.createVariableStatement,
       createYieldStatement = $__269.createYieldStatement;
-  var isYieldAssign = System.get("traceur@0.0.29/src/codegeneration/generator/isYieldAssign").default;
   var $__269 = System.get("traceur@0.0.29/src/options"),
       transformOptions = $__269.transformOptions,
       options = $__269.options;
