@@ -17245,6 +17245,9 @@ System.register("traceur@0.0.29/src/syntax/trees/StateMachine", [], function() {
     replaceStartState: function(newState) {
       return this.replaceStateId(this.startState, newState);
     },
+    replaceFallThroughState: function(newState) {
+      return this.replaceStateId(this.fallThroughState, newState);
+    },
     append: function(nextMachine) {
       var states = $traceurRuntime.spread(this.states);
       for (var i = 0; i < nextMachine.states.length; i++) {
@@ -17948,7 +17951,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var states = [];
       this.addLoopBodyStates_(loopBodyMachine, conditionState, fallThroughState, labels, states);
       if (machine) {
-        machine = machine.replaceStateId(machine.startState, conditionState);
+        machine = machine.replaceStartState(conditionState);
         conditionState = machine.fallThroughState;
         ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
       }
@@ -18068,7 +18071,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       else
         continueId = loopStartId;
       if (!increment && !condition) {
-        loopBodyMachine = loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState, loopBodyMachine.startState);
+        loopBodyMachine = loopBodyMachine.replaceFallThroughState(loopBodyMachine.startState);
       }
       this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId, labels, states);
       var machine = new StateMachine(startId, fallThroughId, states, loopBodyMachine.exceptionBlocks);
@@ -18156,8 +18159,8 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       if (result === tree.statement) {
         result = tree;
       } else if (result.type === STATE_MACHINE) {
-        result = result.replaceStateId(result.startState, startState);
-        result = result.replaceStateId(result.fallThroughState, fallThroughState);
+        result = result.replaceStartState(startState);
+        result = result.replaceFallThroughState(fallThroughState);
       }
       this.restoreLabels_(oldLabels);
       return result;
@@ -18302,7 +18305,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       var states = [];
       var conditionStart = startState;
       if (machine) {
-        machine = machine.replaceStateId(machine.startState, startState);
+        machine = machine.replaceStartState(startState);
         conditionStart = machine.fallThroughState;
         ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
       }
@@ -18346,7 +18349,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       } else {
         machine = new StateMachine(maybeMachine.startState, maybeMachine.fallThroughState, this.removeEmptyStates(maybeMachine.states), maybeMachine.exceptionBlocks);
       }
-      machine = machine.replaceStateId(machine.fallThroughState, State.END_STATE).replaceStateId(machine.startState, State.START_STATE);
+      machine = machine.replaceFallThroughState(State.END_STATE).replaceStartState(State.START_STATE);
       var statements = [];
       if (this.hoistVariablesTransformer_.hasVariables())
         statements.push(this.hoistVariablesTransformer_.getVariableStatement());

@@ -325,7 +325,7 @@ export class CPSTransformer extends TempVarTransformer {
                             labels, states);
 
     if (machine) {
-      machine = machine.replaceStateId(machine.startState, conditionState);
+      machine = machine.replaceStartState(conditionState);
       conditionState = machine.fallThroughState;
       states.push(...machine.states);
     }
@@ -520,8 +520,7 @@ export class CPSTransformer extends TempVarTransformer {
       // the loop body's fall through ID to loop back to the loop body's start
       // ID.
       loopBodyMachine =
-          loopBodyMachine.replaceStateId(loopBodyMachine.fallThroughState,
-                                         loopBodyMachine.startState);
+          loopBodyMachine.replaceFallThroughState(loopBodyMachine.startState);
     }
 
     this.addLoopBodyStates_(loopBodyMachine, continueId, fallThroughId,
@@ -676,8 +675,8 @@ export class CPSTransformer extends TempVarTransformer {
     if (result === tree.statement) {
       result = tree;
     } else if (result.type === STATE_MACHINE) {
-      result = result.replaceStateId(result.startState, startState);
-      result = result.replaceStateId(result.fallThroughState, fallThroughState);
+      result = result.replaceStartState(startState);
+      result = result.replaceFallThroughState(fallThroughState);
     }
 
     this.restoreLabels_(oldLabels);
@@ -947,7 +946,7 @@ export class CPSTransformer extends TempVarTransformer {
     var states = [];
     var conditionStart = startState;
     if (machine) {
-      machine = machine.replaceStateId(machine.startState, startState);
+      machine = machine.replaceStartState(startState);
       conditionStart = machine.fallThroughState;
 
       // An expression cannot generate exceptionBlocks.
@@ -1042,8 +1041,8 @@ export class CPSTransformer extends TempVarTransformer {
 
     // Clean up start and end states.
     machine = machine.
-        replaceStateId(machine.fallThroughState, State.END_STATE).
-        replaceStateId(machine.startState, State.START_STATE);
+        replaceFallThroughState(State.END_STATE).
+        replaceStartState(State.START_STATE);
 
     var statements = [];
     if (this.hoistVariablesTransformer_.hasVariables())
