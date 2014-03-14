@@ -18204,16 +18204,34 @@ System.register("traceur@0.0.29/src/codegeneration/generator/CPSTransformer", []
       return tryMachine;
     },
     transformWhileStatement: function(tree) {
+      var $__234;
+      var $__232;
       var labels = this.getLabels_();
       var label = this.clearCurrentLabel_();
-      var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWhileStatement", [tree]);
-      if (result.body.type != STATE_MACHINE)
-        return result;
-      var loopBodyMachine = result.body;
+      var expression,
+          machine,
+          body;
+      if (this.expressionNeedsStateMachine(tree.condition)) {
+        (($__232 = this.expressionToStateMachine(tree.condition), expression = $__232.expression, machine = $__232.machine, $__232));
+        body = this.transformAny(tree.body);
+      } else {
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWhileStatement", [tree]);
+        if (result.body.type != STATE_MACHINE)
+          return result;
+        body = result.body;
+        expression = result.condition;
+      }
+      var loopBodyMachine = this.ensureTransformed_(body);
       var startState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
       var states = [];
-      states.push(new ConditionalState(startState, loopBodyMachine.startState, fallThroughState, result.condition));
+      var conditionStart = startState;
+      if (machine) {
+        machine = machine.replaceStateId(machine.startState, startState);
+        conditionStart = machine.fallThroughState;
+        ($__234 = states).push.apply($__234, $traceurRuntime.toObject(machine.states));
+      }
+      states.push(new ConditionalState(conditionStart, loopBodyMachine.startState, fallThroughState, expression));
       this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState, labels, states);
       var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
       if (label)
