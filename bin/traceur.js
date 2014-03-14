@@ -18823,7 +18823,7 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
   var scopeContainsYield = System.get("traceur@0.0.29/src/codegeneration/generator/scopeContainsYield").default;
   var GeneratorTransformer = function GeneratorTransformer(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "constructor", [identifierGenerator, reporter]);
-    this.addMaybeThrow_ = true;
+    this.shouldAppendThrowCloseState_ = true;
   };
   var $GeneratorTransformer = GeneratorTransformer;
   ($traceurRuntime.createClass)(GeneratorTransformer, {
@@ -18850,9 +18850,9 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       var yieldMachine = this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(expression)), fallThroughState);
       if (machine)
         yieldMachine = machine.append(yieldMachine);
-      if (!this.addMaybeThrow_)
-        return yieldMachine;
-      return yieldMachine.append(this.createThrowCloseState_());
+      if (this.shouldAppendThrowCloseState_)
+        yieldMachine = yieldMachine.append(this.createThrowCloseState_());
+      return yieldMachine;
     },
     transformYieldForExpression_: function(expression) {
       var machine = arguments[1];
@@ -18863,11 +18863,11 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       this.addMachineVariable(nextName);
       var next = id(nextName);
       var statements = parseStatements($__258, g, expression, next, g, next, next, createYieldStatement(createMemberExpression(next, 'value')));
-      var wasAddMaybeThrow = this.addMaybeThrow_;
-      this.addMaybeThrow_ = false;
+      var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+      this.shouldAppendThrowCloseState_ = false;
       statements = this.transformList(statements);
       var yieldMachine = this.transformStatementList_(statements);
-      this.addMaybeThrow_ = wasAddMaybeThrow;
+      this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
       if (machine)
         yieldMachine = machine.append(yieldMachine);
       return yieldMachine;
@@ -18877,14 +18877,14 @@ System.register("traceur@0.0.29/src/codegeneration/generator/GeneratorTransforme
       return tree;
     },
     transformYieldAssign_: function(tree) {
-      var wasAddMaybeThrow = this.addMaybeThrow_;
-      this.addMaybeThrow_ = false;
+      var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+      this.shouldAppendThrowCloseState_ = false;
       var machine = this.transformYieldExpression_(tree.right);
       var left = this.transformAny(tree.left);
       var sentExpression = tree.right.isYieldFor ? parseExpression($__259) : parseExpression($__260);
       var statement = new ExpressionStatement(tree.location, new BinaryOperator(tree.location, left, tree.operator, sentExpression));
       var assignMachine = this.statementToStateMachine_(statement);
-      this.addMaybeThrow_ = wasAddMaybeThrow;
+      this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
       return machine.append(assignMachine);
     },
     createThrowCloseState_: function() {
