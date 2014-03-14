@@ -431,7 +431,7 @@
     this.GState = ST_NEWBORN;
     this.storedException = undefined;
     this.finallyFallThrough = undefined;
-    this.sent = undefined;
+    this.sent_ = undefined;
     this.returnValue = undefined;
     this.tryStack_ = [];
   }
@@ -460,6 +460,22 @@
     },
     popTry: function() {
       this.tryStack_.pop();
+    },
+    get sent() {
+      this.maybeThrow();
+      return this.sent_;
+    },
+    set sent(v) {
+      this.sent_ = v;
+    },
+    get sentIgnoreThrow() {
+      return this.sent_;
+    },
+    maybeThrow: function() {
+      if (this.action === 'throw') {
+        this.action = 'next';
+        throw this.sent_;
+      }
     },
     end: function() {
       switch (this.state) {
