@@ -18289,18 +18289,21 @@ System.register("traceur@0.0.30/src/codegeneration/generator/CPSTransformer", []
     },
     transformTryStatement: function(tree) {
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformTryStatement", [tree]);
-      if (result.body.type != STATE_MACHINE && (result.catchBlock == null || result.catchBlock.catchBody.type != STATE_MACHINE)) {
+      var $__232 = result,
+          body = $__232.body,
+          catchBlock = $__232.catchBlock,
+          finallyBlock = $__232.finallyBlock;
+      if (body.type != STATE_MACHINE && (catchBlock == null || catchBlock.catchBody.type != STATE_MACHINE) && (finallyBlock == null || finallyBlock.block.type != STATE_MACHINE)) {
         return result;
       }
       var outerCatchState = this.allocateState();
       var outerFinallyState = this.allocateState();
-      var pushTryState = this.statementToStateMachine_(parseStatement($__220, (result.catchBlock && outerCatchState), (result.finallyBlock && outerFinallyState)));
-      var tryMachine = this.ensureTransformed_(result.body);
+      var pushTryState = this.statementToStateMachine_(parseStatement($__220, (catchBlock && outerCatchState), (finallyBlock && outerFinallyState)));
+      var tryMachine = this.ensureTransformed_(body);
       tryMachine = pushTryState.append(tryMachine);
-      if (result.catchBlock !== null) {
+      if (catchBlock !== null) {
         var popTry = this.statementToStateMachine_(parseStatement($__221));
         tryMachine = tryMachine.append(popTry);
-        var catchBlock = result.catchBlock;
         var exceptionName = catchBlock.binding.identifierToken.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
         var catchStart = this.allocateState();
@@ -18310,8 +18313,7 @@ System.register("traceur@0.0.30/src/codegeneration/generator/CPSTransformer", []
         tryMachine = new StateMachine(tryMachine.startState, tryMachine.fallThroughState, states, [new CatchState(exceptionName, catchStart, tryMachine.fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
         tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
       }
-      if (result.finallyBlock != null) {
-        var finallyBlock = result.finallyBlock;
+      if (finallyBlock != null) {
         var finallyMachine = this.ensureTransformed_(finallyBlock.block);
         var popTry = this.statementToStateMachine_(parseStatement($__223));
         finallyMachine = popTry.append(finallyMachine);
@@ -18979,14 +18981,6 @@ System.register("traceur@0.0.30/src/codegeneration/generator/GeneratorTransforme
     transformAwaitStatement: function(tree) {
       this.reporter.reportError(tree.location.start, 'Generator function may not have an await statement.');
       return tree;
-    },
-    transformFinally: function(tree) {
-      var result = $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "transformFinally", [tree]);
-      if (result.block.type != STATE_MACHINE) {
-        return result;
-      }
-      this.reporter.reportError(tree.location.start, 'yield or return not permitted from within a finally block.');
-      return result;
     },
     transformReturnStatement: function(tree) {
       var $__263;

@@ -809,12 +809,12 @@ export class CPSTransformer extends TempVarTransformer {
    */
   transformTryStatement(tree) {
     var result = super.transformTryStatement(tree);
-    if (result.body.type != STATE_MACHINE &&
-        (result.catchBlock == null ||
-         result.catchBlock.catchBody.type != STATE_MACHINE)) {
+    var {body, catchBlock, finallyBlock} = result;
+    if (body.type != STATE_MACHINE &&
+        (catchBlock == null || catchBlock.catchBody.type != STATE_MACHINE) &&
+        (finallyBlock == null || finallyBlock.block.type != STATE_MACHINE)) {
       return result;
     }
-    // NOTE: yield inside finally caught in FinallyBlock transform methods
 
     // We inject a pushTry at the beginning of the try block and popTry at the
     // end as well as popTry at the beginning of catch and finally.
@@ -837,18 +837,17 @@ export class CPSTransformer extends TempVarTransformer {
 
     var pushTryState = this.statementToStateMachine_(
         parseStatement `$ctx.pushTry(
-            ${result.catchBlock && outerCatchState},
-            ${result.finallyBlock && outerFinallyState});`);
+            ${catchBlock && outerCatchState},
+            ${finallyBlock && outerFinallyState});`);
 
-    var tryMachine = this.ensureTransformed_(result.body);
+    var tryMachine = this.ensureTransformed_(body);
     tryMachine = pushTryState.append(tryMachine);
 
-    if (result.catchBlock !== null) {
+    if (catchBlock !== null) {
       var popTry = this.statementToStateMachine_(
           parseStatement `$ctx.popTry();`);
       tryMachine = tryMachine.append(popTry);
 
-      var catchBlock = result.catchBlock;
       var exceptionName = catchBlock.binding.identifierToken.value;
       var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
       var catchStart = this.allocateState();
@@ -884,8 +883,7 @@ export class CPSTransformer extends TempVarTransformer {
       tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
     }
 
-    if (result.finallyBlock != null) {
-      var finallyBlock = result.finallyBlock;
+    if (finallyBlock != null) {
       var finallyMachine = this.ensureTransformed_(finallyBlock.block);
 
       var popTry = this.statementToStateMachine_(
