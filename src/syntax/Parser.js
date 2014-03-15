@@ -2030,6 +2030,13 @@ export class Parser {
         return this.parseSetAccessor_(start, isStatic, []);
       }
 
+      if (parseOptions.asyncFunctions && nameLiteral.value === ASYNC &&
+          this.peekPropertyName_(type)) {
+        var async = nameLiteral;
+        var name = this.parsePropertyName_();
+        return this.parseMethod_(start, isStatic, async, name, []);
+      }
+
       if (parseOptions.propertyNameShorthand &&
           nameLiteral.type === IDENTIFIER ||
           !this.strictMode_ && nameLiteral.type === YIELD) {
@@ -2104,9 +2111,7 @@ export class Parser {
   }
 
   parseGeneratorMethod_(start, isStatic, annotations) {
-    // TODO(arv): Pass token through
-    var functionKind = new Token(STAR, null);
-    this.eat_(STAR);
+    var functionKind = this.eat_(STAR);
     var name = this.parsePropertyName_();
     return this.parseMethod_(start, isStatic, functionKind, name, annotations);
   }

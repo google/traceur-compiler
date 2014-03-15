@@ -12539,6 +12539,11 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
         if (nameLiteral.value === SET && this.peekPropertyName_(type)) {
           return this.parseSetAccessor_(start, isStatic, []);
         }
+        if (parseOptions.asyncFunctions && nameLiteral.value === ASYNC && this.peekPropertyName_(type)) {
+          var async = nameLiteral;
+          var name = this.parsePropertyName_();
+          return this.parseMethod_(start, isStatic, async, name, []);
+        }
         if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER || !this.strictMode_ && nameLiteral.type === YIELD) {
           if (this.peek_(EQUAL)) {
             token = this.nextToken_();
@@ -12584,8 +12589,7 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
       }
     },
     parseGeneratorMethod_: function(start, isStatic, annotations) {
-      var functionKind = new Token(STAR, null);
-      this.eat_(STAR);
+      var functionKind = this.eat_(STAR);
       var name = this.parsePropertyName_();
       return this.parseMethod_(start, isStatic, functionKind, name, annotations);
     },
