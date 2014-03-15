@@ -236,24 +236,10 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformAwaitStatement(tree) {
+    // TODO(arv): This should be handled in the parser... change to throw.
     this.reporter.reportError(tree.location.start,
         'Generator function may not have an await statement.');
     return tree;
-  }
-
-  /**
-   * @param {Finally} tree
-   * @return {ParseTree}
-   */
-  transformFinally(tree) {
-    var result = super.transformFinally(tree);
-    if (result.block.type != STATE_MACHINE) {
-      return result;
-    }
-    // TODO: Is 'return' allowed inside 'finally'?
-    this.reporter.reportError(tree.location.start,
-        'yield or return not permitted from within a finally block.');
-    return result;
   }
 
   /**
