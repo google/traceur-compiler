@@ -312,6 +312,9 @@
       return this;
     }));
   }
+  function getInternalError(state) {
+    return new Error('Traceur compiler bug: invalid state in state machine: ' + state);
+  }
   function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
@@ -364,18 +367,12 @@
     end: function() {
       switch (this.state) {
         case END_STATE:
-          return this.endState_();
+          return this;
         case RETHROW_STATE:
-          this.rethrowState_();
+          throw this.storedException;
         default:
-          throw new Error('Traceur compiler bug: invalid state in state machine: ' + this.state);
+          throw getInternalError(this.state);
       }
-    },
-    endState_: function() {
-      return this;
-    },
-    rethrowState_: function() {
-      throw this.storedException;
     }
   };
   function getNextOrThrow(ctx, moveNext, action) {
@@ -425,12 +422,17 @@
       ctx.reject = reject;
     });
   }
-  var p = Object.create(GeneratorContext.prototype);
-  p.endState_ = function() {};
-  p.rethrowState_ = function() {
-    this.reject(this.storedException);
+  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
+  AsyncFunctionContext.prototype.end = function() {
+    switch (this.state) {
+      case END_STATE:
+        return;
+      case RETHROW_STATE:
+        this.reject(this.storedException);
+      default:
+        this.reject(getInternalError(this.state));
+    }
   };
-  AsyncFunctionContext.prototype = p;
   function asyncWrap(innerFunction, self) {
     var moveNext = getMoveNext(innerFunction, self);
     var ctx = new AsyncFunctionContext();
