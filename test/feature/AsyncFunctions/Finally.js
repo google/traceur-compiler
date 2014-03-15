@@ -1,4 +1,4 @@
-// Options: --deferred-functions
+// Options: --async-functions
 // Async.
 
 var finallyVisited = false;
@@ -11,7 +11,7 @@ var v;
 
 function test() {
   try {
-    await v = p;
+    v = await p;
   } finally {
     finallyVisited = true;
   }

@@ -274,7 +274,7 @@ addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
 addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
 addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
-addFeatureOption('generators', ON_BY_DEFAULT); // 13.4, incomplete
+addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
 addFeatureOption('modules', ON_BY_DEFAULT);    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
@@ -303,3 +303,17 @@ options.referrer = null;
 
 defaultValues.typeAssertionModule = null;
 options.typeAssertionModule = null;
+
+var {deferredFunctions} = options;
+Object.defineProperty(options, 'deferredFunctions', {
+  get: function() {
+    return deferredFunctions;
+  },
+  set: function(v) {
+    if (v) {
+      console.warn(
+          'deferredFunctions is deprecated. Use asyncFunctions instead');
+    }
+    deferredFunctions = v;
+  }
+});

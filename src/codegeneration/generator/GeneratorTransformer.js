@@ -14,8 +14,9 @@
 
 import {CPSTransformer} from './CPSTransformer';
 import {
+  BINARY_OPERATOR,
   STATE_MACHINE,
-  YIELD_EXPRESSION
+  YIELD_EXPRESSION,
 } from '../../syntax/trees/ParseTreeType';
 import {
   BinaryOperator,
@@ -26,6 +27,7 @@ import {FallThroughState} from './FallThroughState';
 import {ReturnState} from './ReturnState';
 import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
+import {YieldFinder} from './YieldFinder'
 import {YieldState} from './YieldState';
 import {
   createAssignStateStatement,
@@ -36,13 +38,27 @@ import {
   createUndefinedExpression,
   createYieldStatement
 } from '../ParseTreeFactory';
-import isYieldAssign from './isYieldAssign';
 import {
   parseExpression,
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import scopeContainsYield from './scopeContainsYield';
+
+/**
+ * @param {ParseTree} tree Expression tree
+ * @return {boolean}
+ */
+function isYieldAssign(tree) {
+  return tree.type === BINARY_OPERATOR &&
+      tree.operator.isAssignmentOperator() &&
+      tree.right.type === YIELD_EXPRESSION &&
+      tree.left.isLeftHandSideExpression();
+}
+
+function scopeContainsYield(tree) {
+  var visitor = new YieldFinder(tree);
+  return visitor.hasYield || visitor.hasYieldFor;
+}
 
 /**
  * Desugars generator function bodies. Generator function bodies contain

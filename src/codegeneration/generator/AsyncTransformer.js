@@ -23,6 +23,7 @@ import {EndState} from './EndState';
 import {FallThroughState} from './FallThroughState';
 import {
   AWAIT_EXPRESSION,
+  BINARY_OPERATOR,
   STATE_MACHINE
 } from '../../syntax/trees/ParseTreeType';
 import {
@@ -36,6 +37,7 @@ import {
   EQUAL,
   VAR
 } from '../../syntax/TokenType';
+import {YieldFinder} from './YieldFinder'
 import {
   createAssignStateStatement,
   createBreakStatement,
@@ -43,8 +45,22 @@ import {
   createStatementList,
   createUndefinedExpression
 } from '../ParseTreeFactory';
-import isAwaitAssign from './isAwaitAssign';
-import scopeContainsAwait from './scopeContainsAwait';
+
+/**
+ * @param {ParseTree} tree Expression tree
+ * @return {boolean}
+ */
+function isAwaitAssign(tree) {
+  return tree.type === BINARY_OPERATOR &&
+      tree.operator.isAssignmentOperator() &&
+      tree.right.type === AWAIT_EXPRESSION &&
+      tree.left.isLeftHandSideExpression();
+}
+
+function scopeContainsAwait(tree) {
+  var visitor = new YieldFinder(tree);
+  return visitor.hasAwait;
+}
 
 /**
  * Desugars async function bodies. Async function bodies contain 'async' statements.

@@ -1,4 +1,4 @@
-// Options: --deferred-functions
+// Options: --async-functions
 // Async.
 
 function asyncComplete(self, arg) {
@@ -13,7 +13,7 @@ var value;
 
 function A() {
   assert.equal(this, self);
-  await value = asyncComplete(this, arguments[0]);
+  var value = await asyncComplete(this, arguments[0]);
   assert.deepEqual([self, obj], value);
   done();
 }
