@@ -28,7 +28,6 @@ import {VAR} from '../../syntax/TokenType';
 import {
   createAssignStateStatement,
   createBreakStatement,
-  createReturnStatement,
   createStatementList,
   createUndefinedExpression
 } from '../ParseTreeFactory';
@@ -156,12 +155,6 @@ export class AsyncTransformer extends CPSTransformer {
     return this.transformCpsFunctionBody(tree, runtimeFunction);
   }
 
-  /** @return {Array.<ParseTree>} */
-  machineEndStatements() {
-    // return;
-    return createStatementList(createReturnStatement(null));
-  }
-
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
@@ -173,19 +166,6 @@ export class AsyncTransformer extends CPSTransformer {
     return createStatementList(
         this.createCompleteTask_(createUndefinedExpression()),
         createAssignStateStatement(machineEndState),
-        createBreakStatement());
-  }
-
-  /**
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineRethrowStatements(machineEndState) {
-    return createStatementList(
-        parseStatement `$ctx.reject($ctx.storedException)`,
-        // $ctx.state = machineEndState
-        createAssignStateStatement(machineEndState),
-        // break;
         createBreakStatement());
   }
 

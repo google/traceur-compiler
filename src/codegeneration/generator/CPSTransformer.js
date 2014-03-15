@@ -1168,25 +1168,8 @@ export class CPSTransformer extends TempVarTransformer {
     // add finally fallthrough dispatch states
     this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
 
-    // $ctx is used as a sentinel for ending the statemachine.
-    // case machineEndState: return $ctx;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(machineEndState),
-            this.machineEndStatements()));
+    cases.push(createDefaultClause(parseStatements `return $ctx.end()`));
 
-    // add top level rethrow exception state
-    // case rethrow:
-    //   throw $ctx.storedException;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(rethrowState),
-            this.machineRethrowStatements(machineEndState)));
-
-    // default: throw "traceur compiler bug invalid state in state machine";
-    cases.push(createDefaultClause(parseStatements
-        `throw 'traceur compiler bug: invalid state in state machine: ' +
-            $ctx.state;`));
     return cases;
   }
 
