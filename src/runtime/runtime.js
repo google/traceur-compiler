@@ -416,7 +416,8 @@
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
 
-  var END_STATE = -3;
+  var END_STATE = -2;
+  var RETHROW_STATE = -3;
 
   function addIterator(object) {
     // This needs the non native defineProperty to handle symbols correctly.
@@ -425,12 +426,17 @@
     }));
   }
 
+  function getInternalError(state) {
+    return new Error('Traceur compiler bug: invalid state in state machine: ' +
+                      state);
+  }
+
   function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
     this.storedException = undefined;
     this.finallyFallThrough = undefined;
-    this.sent = undefined;
+    this.sent_ = undefined;
     this.returnValue = undefined;
     this.tryStack_ = [];
   }
@@ -445,7 +451,7 @@
           }
         }
         if (finallyFallThrough === null)
-          finallyFallThrough = -3;
+          finallyFallThrough = RETHROW_STATE;
 
         this.tryStack_.push({
           finally: finallyState,
@@ -459,6 +465,32 @@
     },
     popTry: function() {
       this.tryStack_.pop();
+    },
+    get sent() {
+      this.maybeThrow();
+      return this.sent_;
+    },
+    set sent(v) {
+      this.sent_ = v;
+    },
+    get sentIgnoreThrow() {
+      return this.sent_;
+    },
+    maybeThrow: function() {
+      if (this.action === 'throw') {
+        this.action = 'next';
+        throw this.sent_;
+      }
+    },
+    end: function() {
+      switch (this.state) {
+        case END_STATE:
+          return this;
+        case RETHROW_STATE:
+          throw this.storedException;
+        default:
+          throw getInternalError(this.state);
+      }
     }
   };
 
@@ -513,6 +545,16 @@
     });
   }
   AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
+  AsyncFunctionContext.prototype.end = function() {
+    switch (this.state) {
+      case END_STATE:
+        return;
+      case RETHROW_STATE:
+        this.reject(this.storedException);
+      default:
+        this.reject(getInternalError(this.state));
+    }
+  };
 
   function asyncWrap(innerFunction, self) {
     var moveNext = getMoveNext(innerFunction, self);

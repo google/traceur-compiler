@@ -15,6 +15,7 @@
 import {AlphaRenamer} from '../AlphaRenamer';
 import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
+  BLOCK,
   BREAK_STATEMENT,
   CASE_CLAUSE,
   CONDITIONAL_EXPRESSION,
@@ -809,12 +810,12 @@ export class CPSTransformer extends TempVarTransformer {
    */
   transformTryStatement(tree) {
     var result = super.transformTryStatement(tree);
-    if (result.body.type != STATE_MACHINE &&
-        (result.catchBlock == null ||
-         result.catchBlock.catchBody.type != STATE_MACHINE)) {
+    var {body, catchBlock, finallyBlock} = result;
+    if (body.type != STATE_MACHINE &&
+        (catchBlock == null || catchBlock.catchBody.type != STATE_MACHINE) &&
+        (finallyBlock == null || finallyBlock.block.type != STATE_MACHINE)) {
       return result;
     }
-    // NOTE: yield inside finally caught in FinallyBlock transform methods
 
     // We inject a pushTry at the beginning of the try block and popTry at the
     // end as well as popTry at the beginning of catch and finally.
@@ -837,18 +838,17 @@ export class CPSTransformer extends TempVarTransformer {
 
     var pushTryState = this.statementToStateMachine_(
         parseStatement `$ctx.pushTry(
-            ${result.catchBlock && outerCatchState},
-            ${result.finallyBlock && outerFinallyState});`);
+            ${catchBlock && outerCatchState},
+            ${finallyBlock && outerFinallyState});`);
 
-    var tryMachine = this.ensureTransformed_(result.body);
+    var tryMachine = this.ensureTransformed_(body);
     tryMachine = pushTryState.append(tryMachine);
 
-    if (result.catchBlock !== null) {
+    if (catchBlock !== null) {
       var popTry = this.statementToStateMachine_(
           parseStatement `$ctx.popTry();`);
       tryMachine = tryMachine.append(popTry);
 
-      var catchBlock = result.catchBlock;
       var exceptionName = catchBlock.binding.identifierToken.value;
       var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
       var catchStart = this.allocateState();
@@ -884,8 +884,7 @@ export class CPSTransformer extends TempVarTransformer {
       tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
     }
 
-    if (result.finallyBlock != null) {
-      var finallyBlock = result.finallyBlock;
+    if (finallyBlock != null) {
       var finallyMachine = this.ensureTransformed_(finallyBlock.block);
 
       var popTry = this.statementToStateMachine_(
@@ -1111,7 +1110,12 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {StateMachine}
    */
   statementToStateMachine_(statement) {
-    return this.statementsToStateMachine_([statement]);
+    var statements;
+    if (statement.type === BLOCK)
+      statements = statement.statements;
+    else
+      statements = [statement];
+    return this.statementsToStateMachine_(statements);
   }
 
   /**
@@ -1168,25 +1172,8 @@ export class CPSTransformer extends TempVarTransformer {
     // add finally fallthrough dispatch states
     this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
 
-    // $ctx is used as a sentinel for ending the statemachine.
-    // case machineEndState: return $ctx;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(machineEndState),
-            this.machineEndStatements()));
+    cases.push(createDefaultClause(parseStatements `return $ctx.end()`));
 
-    // add top level rethrow exception state
-    // case rethrow:
-    //   throw $ctx.storedException;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(rethrowState),
-            this.machineRethrowStatements(machineEndState)));
-
-    // default: throw "traceur compiler bug invalid state in state machine";
-    cases.push(createDefaultClause(parseStatements
-        `throw 'traceur compiler bug: invalid state in state machine: ' +
-            $ctx.state;`));
     return cases;
   }
 

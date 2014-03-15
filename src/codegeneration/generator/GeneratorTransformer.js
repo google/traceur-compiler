@@ -59,7 +59,7 @@ export class GeneratorTransformer extends CPSTransformer {
 
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator, reporter);
-    this.inYieldFor_ = false;
+    this.shouldAppendThrowCloseState_ = true;
   }
 
   expressionNeedsStateMachine(tree) {
@@ -104,10 +104,10 @@ export class GeneratorTransformer extends CPSTransformer {
     // The yield expression we generated for the yield-for expression should not
     // be followed by the ThrowCloseState since the inner iterator need to
     // handle the throw case.
-    if (this.inYieldFor_)
-      return yieldMachine;
+    if (this.shouldAppendThrowCloseState_)
+      yieldMachine = yieldMachine.append(this.createThrowCloseState_());
 
-    return yieldMachine.append(this.createThrowCloseState_());
+    return yieldMachine;
   }
 
   transformYieldForExpression_(expression, machine = undefined) {
@@ -149,7 +149,7 @@ export class GeneratorTransformer extends CPSTransformer {
         $ctx.action = 'next';
 
         for (;;) {
-          ${next} = ${g}[$ctx.action]($ctx.sent);
+          ${next} = ${g}[$ctx.action]($ctx.sentIgnoreThrow);
           if (${next}.done) {
             $ctx.sent = ${next}.value;
             break;
@@ -159,17 +159,18 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // The yield above should not be treated the same way as a normal yield.
     // See comment in transformYieldExpression_.
-    var wasInYieldFor = this.inYieldFor_;
-    this.inYieldFor_ = true;
+    var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+    this.shouldAppendThrowCloseState_ = false;
     statements = this.transformList(statements);
-    this.inYieldFor_ = wasInYieldFor;
     var yieldMachine = this.transformStatementList_(statements);
+    this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
 
     if (machine)
       yieldMachine = machine.append(yieldMachine);
 
     // TODO(arv): Another option is to build up the statemachine for this here
-    // instead of builing the code and transforming the code into
+    // instead of builing the code and transforming the code into a state
+    // machine.
 
     return yieldMachine;
   }
@@ -188,25 +189,27 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {BinaryOperator} tree
    */
   transformYieldAssign_(tree) {
+    var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+    this.shouldAppendThrowCloseState_ = false;
     var machine = this.transformYieldExpression_(tree.right);
     var left = this.transformAny(tree.left);
+    var sentExpression = tree.right.isYieldFor ?
+        parseExpression `$ctx.sentIgnoreThrow` :
+        parseExpression `$ctx.sent`;
     var statement = new ExpressionStatement(
         tree.location,
         new BinaryOperator(
             tree.location,
             left,
             tree.operator,
-            parseExpression `$ctx.sent`));
+            sentExpression));
     var assignMachine = this.statementToStateMachine_(statement);
+    this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
     return machine.append(assignMachine);
   }
 
   createThrowCloseState_() {
-    return this.statementToStateMachine_(parseStatement `
-        if ($ctx.action === 'throw') {
-          $ctx.action = 'next';
-          throw $ctx.sent;
-        }`);
+    return this.statementToStateMachine_(parseStatement `$ctx.maybeThrow()`);
   }
 
   /**
@@ -233,24 +236,10 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformAwaitStatement(tree) {
+    // TODO(arv): This should be handled in the parser... change to throw.
     this.reporter.reportError(tree.location.start,
         'Generator function may not have an await statement.');
     return tree;
-  }
-
-  /**
-   * @param {Finally} tree
-   * @return {ParseTree}
-   */
-  transformFinally(tree) {
-    var result = super.transformFinally(tree);
-    if (result.block.type != STATE_MACHINE) {
-      return result;
-    }
-    // TODO: Is 'return' allowed inside 'finally'?
-    this.reporter.reportError(tree.location.start,
-        'yield or return not permitted from within a finally block.');
-    return result;
   }
 
   /**
@@ -304,21 +293,8 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineRethrowStatements(machineEndState) {
-    return parseStatements `throw $ctx.storedException`;
-  }
-
-  /**
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
   machineFallThroughStatements(machineEndState) {
     return createStatementList(createAssignStateStatement(machineEndState));
-  }
-
-  /** @return {Array.<ParseTree>} */
-  machineEndStatements() {
-    return parseStatements `return $ctx`;
   }
 
   /**

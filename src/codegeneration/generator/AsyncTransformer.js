@@ -40,7 +40,6 @@ import {
   createAssignStateStatement,
   createBreakStatement,
   createOperatorToken,
-  createReturnStatement,
   createStatementList,
   createUndefinedExpression
 } from '../ParseTreeFactory';
@@ -140,25 +139,10 @@ export class AsyncTransformer extends CPSTransformer {
 
     //  case errbackState:
     //    throw $ctx.err;
-    states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(
-        parseStatement `throw $ctx.err`)));
+    states.push(new FallThroughState(errbackState, fallThroughState,
+        parseStatements `throw $ctx.err`));
 
     return new StateMachine(createTaskState, fallThroughState, states, []);
-  }
-
-  /**
-   * @param {Finally} tree
-   * @return {ParseTree}
-   */
-  transformFinally(tree) {
-    var result = super.transformFinally(tree);
-    if (result.block.type != STATE_MACHINE) {
-      return result;
-    }
-    // TODO: is this a reasonable restriction?
-    this.reporter.reportError(tree.location.start,
-        'await not permitted within a finally block.');
-    return result;
   }
 
   /**
@@ -219,12 +203,6 @@ export class AsyncTransformer extends CPSTransformer {
     return this.transformCpsFunctionBody(tree, runtimeFunction);
   }
 
-  /** @return {Array.<ParseTree>} */
-  machineEndStatements() {
-    // return;
-    return createStatementList(createReturnStatement(null));
-  }
-
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
@@ -236,19 +214,6 @@ export class AsyncTransformer extends CPSTransformer {
     return createStatementList(
         this.createCompleteTask_(createUndefinedExpression()),
         createAssignStateStatement(machineEndState),
-        createBreakStatement());
-  }
-
-  /**
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineRethrowStatements(machineEndState) {
-    return createStatementList(
-        parseStatement `$ctx.reject($ctx.storedException)`,
-        // $ctx.state = machineEndState
-        createAssignStateStatement(machineEndState),
-        // break;
         createBreakStatement());
   }
 
