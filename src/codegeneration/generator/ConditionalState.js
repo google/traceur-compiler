@@ -17,6 +17,7 @@ import {
   createBlock,
   createIfStatement
 } from '../ParseTreeFactory';
+import {parseStatements} from '../PlaceholderParser';
 
 export class ConditionalState extends State {
   /**
@@ -55,9 +56,21 @@ export class ConditionalState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    return [
-      createIfStatement(this.condition,
-          createBlock(State.generateJump(enclosingFinally, this.ifState)),
-          createBlock(State.generateJump(enclosingFinally, this.elseState)))];
+    // In case the jump goes through a finally we need to also ensure that we
+    // set $ctx.finallyFallThrough which requires us to use an if statement.
+    if (State.isFinallyExit(enclosingFinally, this.ifState) ||
+        State.isFinallyExit(enclosingFinally, this.elseState)) {
+      return [
+        createIfStatement(this.condition,
+            createBlock(State.generateJump(enclosingFinally, this.ifState)),
+            createBlock(State.generateJump(enclosingFinally, this.elseState)))
+      ];
+    }
+
+    // For the simpler and more common case we just use a conditional
+    // expression.
+    return parseStatements
+        `$ctx.state = (${this.condition}) ? ${this.ifState} : ${this.elseState};
+        break`;
   }
 }

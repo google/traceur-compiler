@@ -15,6 +15,7 @@
 import {AlphaRenamer} from '../AlphaRenamer';
 import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
+  BLOCK,
   BREAK_STATEMENT,
   CASE_CLAUSE,
   CONDITIONAL_EXPRESSION,
@@ -1111,7 +1112,12 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {StateMachine}
    */
   statementToStateMachine_(statement) {
-    return this.statementsToStateMachine_([statement]);
+    var statements;
+    if (statement.type === BLOCK)
+      statements = statement.statements;
+    else
+      statements = [statement];
+    return this.statementsToStateMachine_(statements);
   }
 
   /**
