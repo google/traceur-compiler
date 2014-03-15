@@ -446,13 +446,14 @@
   },
   "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
   "FunctionDeclaration": {
+    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],
     "name": [
       "BindingIdentifier"
     ],
-    "isGenerator": [
+    "functionKind": [
       "boolean"
     ],
     "formalParameterList": [
@@ -469,13 +470,14 @@
     ]
   },
   "FunctionExpression": {
+    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],
     "name": [
       "BindingIdentifier"
     ],
-    "isGenerator": [
+    "functionKind": [
       "boolean"
     ],
     "formalParameterList": [
@@ -750,13 +752,14 @@
     ]
   },
   "PropertyMethodAssignment": {
+    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],
     "isStatic": [
       "boolean"
     ],
-    "isGenerator": [
+    "functionKind": [
       "boolean"
     ],
     "name": [

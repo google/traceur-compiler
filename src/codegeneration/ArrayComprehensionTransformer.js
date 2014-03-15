@@ -57,9 +57,9 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
     var tempVarsStatatement = parseStatement `var ${index} = 0, ${result} = [];`;
     var statement = parseStatement `${result}[${index}++] = ${expression};`;
     var returnStatement = parseStatement `return ${result};`;
-    var isGenerator = false;
+    var functionKind = null;
 
-    var result = this.transformComprehension(tree, statement, isGenerator,
+    var result = this.transformComprehension(tree, statement, functionKind,
                                              tempVarsStatatement,
                                              returnStatement);
     this.popTempVarState();
