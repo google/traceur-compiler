@@ -11835,12 +11835,26 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
     parseFunctionExpression_: function() {
       return this.parseFunction_(FunctionExpression);
     },
+    parseAsyncFunctionDeclaration_: function(asyncToken) {
+      return this.parseAsyncFunction_(asyncToken, FunctionDeclaration);
+    },
+    parseAsyncFunctionExpression_: function(asyncToken) {
+      return this.parseAsyncFunction_(asyncToken, FunctionExpression);
+    },
+    parseAsyncFunction_: function(asyncToken, ctor) {
+      var start = asyncToken.location.start;
+      this.eat_(FUNCTION);
+      return this.parseFunction2_(start, asyncToken, ctor);
+    },
     parseFunction_: function(ctor) {
       var start = this.getTreeStartLocation_();
       this.eat_(FUNCTION);
       var functionKind = null;
       if (parseOptions.generators && this.peek_(STAR))
         functionKind = this.eat_(STAR);
+      return this.parseFunction2_(start, functionKind, ctor);
+    },
+    parseFunction2_: function(start, functionKind, ctor) {
       var name = null;
       var annotations = [];
       if (ctor === FunctionDeclaration || this.peekBindingIdentifier_(this.peekType_())) {
@@ -11905,13 +11919,16 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
       var start = this.getTreeStartLocation_();
       this.eat_(OPEN_CURLY);
       var allowYield = this.allowYield_;
+      var allowAwait = this.allowAwait_;
       var strictMode = this.strictMode_;
-      this.allowYield_ = functionKind !== null;
+      this.allowYield_ = functionKind && functionKind.type === STAR;
+      this.allowAwait_ = functionKind && functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
       var result = this.parseStatementList_(!strictMode);
       if (!strictMode && this.strictMode_ && params)
         StrictParams.visit(params, this.errorReporter_);
       this.strictMode_ = strictMode;
       this.allowYield_ = allowYield;
+      this.allowAwait_ = allowAwait;
       this.eat_(CLOSE_CURLY);
       return new FunctionBody(this.getTreeLocation_(start), result);
     },
@@ -12027,6 +12044,11 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
             this.eatPossibleImplicitSemiColon_();
             return new ModuleDeclaration(this.getTreeLocation_(start), name, moduleSpecifier);
           }
+        }
+        if (nameToken.value === ASYNC && parseOptions.asyncFunctions) {
+          var token = this.peekTokenNoLineTerminator_();
+          if (token !== null && token.type === FUNCTION)
+            return this.parseAsyncFunctionDeclaration_(token);
         }
       }
       this.eatPossibleImplicitSemiColon_();
@@ -12355,7 +12377,15 @@ System.register("traceur@0.0.31/src/syntax/Parser", [], function() {
         case THIS:
           return this.parseThisExpression_();
         case IDENTIFIER:
-          return this.parseIdentifierExpression_();
+          var identifier = this.parseIdentifierExpression_();
+          if (parseOptions.asyncFunctions && identifier.identifierToken.value === ASYNC) {
+            var token = this.peekTokenNoLineTerminator_();
+            if (token && token.type === FUNCTION) {
+              var asyncToken = identifier.identifierToken;
+              return this.parseAsyncFunctionExpression_(asyncToken);
+            }
+          }
+          return identifier;
         case NUMBER:
         case STRING:
         case TRUE:

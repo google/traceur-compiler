@@ -846,13 +846,30 @@ export class Parser {
     return this.parseFunction_(FunctionExpression);
   }
 
+  parseAsyncFunctionDeclaration_(asyncToken) {
+    return this.parseAsyncFunction_(asyncToken, FunctionDeclaration);
+  }
+
+  parseAsyncFunctionExpression_(asyncToken) {
+    return this.parseAsyncFunction_(asyncToken, FunctionExpression);
+  }
+
+  parseAsyncFunction_(asyncToken, ctor) {
+    var start = asyncToken.location.start;
+    this.eat_(FUNCTION);
+    return this.parseFunction2_(start, asyncToken, ctor);
+  }
+
   parseFunction_(ctor) {
     var start = this.getTreeStartLocation_();
     this.eat_(FUNCTION);
     var functionKind = null;
     if (parseOptions.generators && this.peek_(STAR))
       functionKind = this.eat_(STAR);
+    return this.parseFunction2_(start, functionKind, ctor);
+  }
 
+  parseFunction2_(start, functionKind, ctor) {
     var name = null;
     var annotations = [];
     if (ctor === FunctionDeclaration ||
@@ -962,9 +979,12 @@ export class Parser {
     this.eat_(OPEN_CURLY);
 
     var allowYield = this.allowYield_;
+    var allowAwait = this.allowAwait_;
     var strictMode = this.strictMode_;
-    // FIXME
-    this.allowYield_ = functionKind !== null;
+    // TODO(arv): Track down functionKind === undefined.
+    this.allowYield_ = functionKind && functionKind.type === STAR;
+    this.allowAwait_ = functionKind  &&
+        functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
 
     var result = this.parseStatementList_(!strictMode);
 
@@ -973,6 +993,7 @@ export class Parser {
 
     this.strictMode_ = strictMode;
     this.allowYield_ = allowYield;
+    this.allowAwait_ = allowAwait;
 
     this.eat_(CLOSE_CURLY);
     return new FunctionBody(this.getTreeLocation_(start), result);
@@ -1177,6 +1198,13 @@ export class Parser {
         }
 
         // Fall through.
+      }
+
+      // async function declaration
+      if (nameToken.value === ASYNC && parseOptions.asyncFunctions) {
+        var token = this.peekTokenNoLineTerminator_();
+        if (token !== null && token.type === FUNCTION)
+          return this.parseAsyncFunctionDeclaration_(token);
       }
     }
 
@@ -1711,7 +1739,16 @@ export class Parser {
       case THIS:
         return this.parseThisExpression_();
       case IDENTIFIER:
-        return this.parseIdentifierExpression_();
+        var identifier = this.parseIdentifierExpression_();
+        if (parseOptions.asyncFunctions &&
+            identifier.identifierToken.value === ASYNC) {
+          var token = this.peekTokenNoLineTerminator_();
+          if (token && token.type === FUNCTION) {
+            var asyncToken = identifier.identifierToken;
+            return this.parseAsyncFunctionExpression_(asyncToken);
+          }
+        }
+        return identifier;
       case NUMBER:
       case STRING:
       case TRUE:
