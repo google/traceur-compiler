@@ -20846,10 +20846,11 @@ System.register("traceur@0.0.31/src/runtime/InterceptOutputLoaderHooks", [], fun
   };
   var $InterceptOutputLoaderHooks = InterceptOutputLoaderHooks;
   ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__327) {
-      var metadata = $__327.metadata;
+      var metadata = $__327.metadata,
+          url = $__327.url;
       this.sourceMap = metadata.sourceMap;
       this.transcoded = metadata.transcoded;
-      this.onTranscoded(metadata);
+      this.onTranscoded(metadata, url);
       return undefined;
     }}, {}, LoaderHooks);
   return {get InterceptOutputLoaderHooks() {

@@ -19,6 +19,7 @@ src/syntax/trees/ParseTreeType.js
 src/syntax/trees/ParseTrees.js
 test/unit/codegeneration/PlaceholderParser.generated.js
 test/unit/semantics/FreeVariableChecker.generated.js
+test/unit/tools/SourceMapMapping.generated.js
 test/unit/node/resources/compile-amd
 test/unit/node/resources/compile-cjs
 test/amd-compiled
