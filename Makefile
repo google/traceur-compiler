@@ -93,7 +93,7 @@ test/amd: test/amd-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-amd-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(MOCHAX) test/node-feature-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(MOCHAX) $(RUNTIME_TESTS) test/node-feature-test.js
 
 test-list: test/test-list.js
 
