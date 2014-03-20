@@ -1345,6 +1345,7 @@ System.register("traceur@0.0.32/src/options", [], function() {
   var transformOptions = Object.create(null);
   var defaultValues = Object.create(null);
   var experimentalOptions = Object.create(null);
+  var moduleOptions = ['amd', 'commonjs', 'instantiate', 'inline', 'register'];
   var options = {
     set experimental(v) {
       v = coerceOptionValue(v);
@@ -1367,6 +1368,18 @@ System.register("traceur@0.0.32/src/options", [], function() {
         return true;
       }));
       return value;
+    },
+    modules_: 'register',
+    get modules() {
+      return this.modules_;
+    },
+    set modules(value) {
+      if (typeof value === 'boolean' && !value)
+        value = 'register';
+      if (moduleOptions.indexOf(value) === -1) {
+        throw new Error('Invalid \'modules\' option \'' + value + '\', not in ' + moduleOptions.join(', '));
+      }
+      this.modules_ = value;
     },
     scripts: []
   };
@@ -1486,7 +1499,7 @@ System.register("traceur@0.0.32/src/options", [], function() {
       enumerable: true,
       configurable: true
     });
-    var defaultValue = kind === ON_BY_DEFAULT;
+    var defaultValue = options[name] || kind === ON_BY_DEFAULT;
     options[name] = defaultValue;
     defaultValues[name] = defaultValue;
   }
@@ -20321,8 +20334,11 @@ System.register("traceur@0.0.32/src/codegeneration/FromOptionsTransformer", [], 
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        default:
+        case 'register':
           append(ModuleTransformer);
+          break;
+        default:
+          throw new Error('Invalid modules transform option');
       }
     }
     if (transformOptions.arrowFunctions)
