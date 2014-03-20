@@ -23,6 +23,7 @@ var parseProlog = testUtil.parseProlog;
 var featureSuite = testUtil.featureSuite;
 var testList = require('./test-list.js').testList;
 var nodeLoader = require('../src/node/nodeLoader.js');
+var System = require('../src/node/System.js');
 
 process.chdir('test');
 
