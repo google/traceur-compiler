@@ -47,6 +47,9 @@ COMPILE_BEFORE_TEST = \
 	test/unit/semantics/FreeVariableChecker.generated.js \
 	test/unit/codegeneration/PlaceholderParser.generated.js
 
+# test files in directories named es6 are transcoded before loading into mocha
+TESTS_IN_ES6 = $(shell find . -type f | grep "/es6/" | sed -e 's/es6\///;s/\.js$$/.generated.js/')
+
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
 
@@ -73,10 +76,10 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	test-interpret-absolute test-inline-module-error test-interpret-throw \
-	test-version test/unit/tools/SourceMapMapping
+	test-version tests-in-es6
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
-test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
+tests-in-es6: src/node/System.js $(TESTS_IN_ES6)
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
