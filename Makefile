@@ -129,7 +129,7 @@ test/unit/runtime/traceur-runtime: \
 	node $<
 
 test-version:
-	./traceur -v | grep 'traceur@[0-9]*\.[0-9*\.[0-9]*'
+	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
 boot: clean build
 
