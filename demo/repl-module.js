@@ -13,11 +13,17 @@
 // limitations under the License.
 
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
-import {options as traceurOptions} from 'traceur@0.0/src/options';
+import {
+  GeneratedSourceMapMapping,
+  OriginalSourceMapMapping
+} from './SourceMapMapping';
+import {SourceMapConsumer}
+    from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {transcode, renderSourceMap} from './transcode';
-
-// Do not show source maps by default.
-traceurOptions.sourceMaps = false;
+import {options as traceurOptions} from 'traceur@0.0/src/options';
+import {
+  setOptionsFromSource
+} from './replOptions';
 
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
@@ -25,7 +31,7 @@ var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
   lineNumbers: true
 });
 input.on('change', debouncedCompile);
-input.on('cursorActivity', debouncedCompile.delay);
+input.on('cursorActivity', onInputCursorActivity);
 
 var outputCheckbox = document.querySelector('input.output');
 var output = CodeMirror.fromTextArea(
@@ -75,22 +81,70 @@ function debounced(func, tmin, tmax) {
   return debouncedFunc;
 }
 
-function setOptionsFromSource(source) {
-  var re = /^\/\/ Options:\s*(.+)$/mg;
-  var optionLines = source.match(re);
-  if (optionLines) {
-    optionLines.forEach(function(line) {
-      re.lastIndex = 0;
-      var m = re.exec(line);
-      try {
-        traceurOptions.fromString(m[1]);
-      } catch (ex) {
-        // Ignore unknown options.
-      }
-    });
-    createOptions();
-  }
+function onInputCursorActivity() {
+  debouncedCompile.delay();
+  updateSourceMapVisualization();
 }
+
+var markingOptions = {
+  className: 'sourceMapRange',
+  startStyle: 'sourceMapRangeLeft',
+  endStyle: 'sourceMapRangeRight',
+};
+
+var currentSource;
+var generatedMarker;
+var sourceMapOutput = document.querySelector('.source-map');
+
+function updateSourceMapVisualization(url) {
+  if (!traceurOptions.sourceMaps)
+    return;
+  if (url)
+    currentSource = url;
+  if (!currentSource)
+    return;
+
+  // update on compile.
+  var consumer = compilationResults.sourceMapConsumer;
+  var url = compilationResults.sourceMapURL;
+  var originalMap = new OriginalSourceMapMapping(consumer, url);
+  var generatedMap = new GeneratedSourceMapMapping(consumer, url);
+
+  var codeMirrorPosition = input.getCursor();
+  var originalPosition = {
+    line: codeMirrorPosition.line + 1,
+    column: codeMirrorPosition.ch,
+    source: currentSource
+  }
+
+  var originalRange = originalMap.rangeFrom(originalPosition);
+  var generatedRange =
+      generatedMap.rangeFrom(originalMap.mapPositionFor(originalPosition));
+
+  var generatedBeginCM = {
+    line: generatedRange[0].line - 1,
+    ch: generatedRange[0].column
+  };
+  var generatedEndCM = {
+    line: generatedRange[1].line - 1,
+    ch: generatedRange[1].column
+  }
+  if (generatedMarker)
+    generatedMarker.clear();
+
+  generatedMarker =
+      output.markText(generatedBeginCM, generatedEndCM, markingOptions);
+}
+
+function showPosition(position) {
+  return position.line + '.' + position.column;
+}
+
+function showRange(range) {
+   return showPosition(range[0]) + ' - ' + showPosition(range[1]);
+}
+
+var compilationResults = {};
 
 function compile() {
   hasError = false;
@@ -102,7 +156,7 @@ function compile() {
     history.replaceState(null, document.title,
                          '#' + encodeURIComponent(contents));
 
-  setOptionsFromSource(contents);
+  setOptionsFromSource(contents, compile);
 
   errorElement.hidden = true;
   function onSuccess(mod) {
@@ -114,133 +168,17 @@ function compile() {
      errorElement.textContent = errors.join('\n');
   }
 
-  function onTranscoded(metadata) {
+  function onTranscoded(metadata, url) {
     output.setValue(metadata.transcoded);
-    var sourceMap = metadata.sourceMap;
-    if (sourceMap) {
-      var renderedMap = renderSourceMap(metadata.transcoded, sourceMap);
-      sourceMapElement.textContent = renderedMap;
-    } else {
-      sourceMapElement.textContent = '';
+    compilationResults = metadata;
+    if (metadata.sourceMap) {
+      compilationResults.sourceMapConsumer =
+          new SourceMapConsumer(metadata.sourceMap);
+      compilationResults.sourceMapURL = url;
+      updateSourceMapVisualization(url);
     }
   }
 
   if (transcode)
     transcode(contents, onSuccess, onFailure, onTranscoded);
-}
-
-function createOptionRow(name) {
-  var label = document.createElement('label');
-  label.textContent = name;
-  var cb = label.insertBefore(document.createElement('input'),
-                              label.firstChild);
-  cb.type = 'checkbox';
-  var checked = traceurOptions[name];
-  cb.checked = checked;
-  cb.indeterminate = checked === null;
-  cb.onclick = function() {
-    traceurOptions[name] = cb.checked;
-    createOptions();
-    compile();
-  };
-  return label;
-}
-
-var extraOptions = [
-  'experimental',
-  'debug',
-  'sourceMaps',
-  'freeVariableChecker',
-  'validate'
-];
-
-var showAllOpts = false;
-var allOptsLength = Object.keys(traceurOptions).length;
-var showMax = allOptsLength;
-
-function createOptions() {
-  var optionsDiv = document.querySelector('.traceur-options');
-  optionsDiv.textContent = '';
-  if (showAllOpts) {
-    var i = 0;
-    Object.keys(traceurOptions).forEach(function(name) {
-      if (i++ >= showMax || extraOptions.lastIndexOf(name) >= 0)
-        return;
-      optionsDiv.appendChild(createOptionRow(name));
-    });
-    optionsDiv.appendChild(document.createElement('hr'));
-  }
-  extraOptions.forEach(function(name) {
-    optionsDiv.appendChild(createOptionRow(name));
-  });
-}
-
-createOptions();
-
-function rebuildOptions() {
-  var optionsDiv = document.querySelector('.traceur-options');
-  optionsDiv.innerHTML = '';
-  createOptions();
-}
-
-document.querySelector('.reset-all').addEventListener('click',
-    function() {
-      traceurOptions.reset();
-      rebuildOptions();
-    });
-
-document.querySelector('.all-off').addEventListener('click',
-    function() {
-      traceurOptions.reset(true);
-      rebuildOptions();
-    });
-
-document.querySelector('.show-all-toggle').addEventListener('click',
-    function() {
-      showAllOpts = !showAllOpts;
-      rebuildOptions();
-    });
-
-document.querySelector('.option-button').addEventListener('click',
-    function() {
-      var optionsDiv = document.querySelector('.options');
-      optionsDiv.hidden = !optionsDiv.hidden;
-    });
-
-var codeCur = 0;
-var code = 'UUDDLRLRBA'.split('').map(function(k) {
-  return {'U': 38, 'D': 40, 'L': 37, 'R': 39, 'A': 65, 'B': 66}[k];
-});
-
-document.addEventListener('keyup', function(e) {
-  if (e.keyCode !== code[codeCur++])
-    codeCur = +(e.keyCode === code[0]);
-  if (codeCur === code.length) {
-    var optionsDiv = document.querySelector('.options');
-    optionsDiv.hidden = false;
-    optionsDiv.classList.add('god0');
-    window.setInterval(updateTransition, 500);
-    showAllOpts = !showAllOpts;
-    showMax = 0;
-    rebuildAnimate();
-  }
-})
-
-function rebuildAnimate() {
-  if (showMax++ >= allOptsLength)
-    return;
-  rebuildOptions();
-  var optionsDiv = document.querySelector('.options');
-  setTimeout(rebuildAnimate, 1000);
-}
-
-function updateTransition() {
-  var optionsDiv;
-  for (var i = 0; i < 2; i++) {
-    if (optionsDiv = document.querySelector('.god' + i)) {
-      optionsDiv.classList.remove('god' + i);
-      optionsDiv.classList.add('god' + (i + 1) % 2);
-      break;
-    }
-  }
 }

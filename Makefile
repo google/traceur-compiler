@@ -47,7 +47,6 @@ COMPILE_BEFORE_TEST = \
 	test/unit/semantics/FreeVariableChecker.generated.js \
 	test/unit/codegeneration/PlaceholderParser.generated.js
 
-
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
 
@@ -74,11 +73,15 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	test-interpret-absolute test-inline-module-error test-interpret-throw \
-	test-version
+	test-version test/unit/tools/SourceMapMapping
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
+
+test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
+	rm -r -f test/unit/tools # only used for generated files currently.
 
 test/unit/%-run: test/unit/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
@@ -253,7 +256,7 @@ update-version-number: npm-publish updateSemver
 
 git-update-version: update-version-number
 	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	./traceur -v | sed 's/traceur@//' | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
 
