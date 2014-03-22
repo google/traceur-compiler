@@ -27,7 +27,7 @@ suite('Loader.js', function() {
   teardown(function() {
     assert.isFalse(reporter.hadError());
     var loader = getLoader();
-    loader.options.modules = true;
+    loader.options.modules = 'register';
     System.baseURL = baseURL;
   });
 
