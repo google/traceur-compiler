@@ -14,7 +14,6 @@
 
 suite('api.js', function() {
 
-
   setup(function() {
     traceur.options.reset();
   });
