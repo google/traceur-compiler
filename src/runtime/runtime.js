@@ -34,7 +34,9 @@
   var $getPrototypeOf = $Object.getPrototypeOf;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
   var $toString = $Object.prototype.toString;
-
+  var $preventExtensions = Object.preventExtensions;
+  var $seal = Object.seal;
+	
   function nonEnum(value) {
     return {
       configurable: true,
@@ -143,7 +145,7 @@
     $defineProperty(this, symbolDataProperty, {value: this});
     $defineProperty(this, symbolInternalProperty, {value: key});
     $defineProperty(this, symbolDescriptionProperty, {value: description});
-    $freeze(this);
+    freeze(this);
     symbolValues[key] = this;
   }
   $defineProperty(SymbolValue.prototype, 'constructor', nonEnum(Symbol));
@@ -155,9 +157,10 @@
     value: Symbol.prototype.valueOf,
     enumerable: false
   });
-  $freeze(SymbolValue.prototype);
+  freeze(SymbolValue.prototype);
 
   Symbol.iterator = Symbol();
+  Symbol.hashSymbol = Symbol();
 
   function toProperty(name) {
     if (isSymbol(name))
@@ -231,6 +234,34 @@
     return object;
   }
 
+  function defineHashObject(object) {
+	var hashObj = {};
+	if (!object[Symbol.hashSymbol]) {
+	  defineProperty(object, Symbol.hashSymbol, {
+		configurable: false,
+		enumerable: false,
+		writable: false,
+		value: hashObj
+	  });
+	}
+	return hashObj;
+  }
+  
+  function freeze(object) {
+    defineHashObject(object);
+	return $freeze.apply(this, arguments);
+  }
+  
+  function preventExtensions(object) {
+    defineHashObject(object);
+	return $preventExtensions.apply(this, arguments);
+  }
+	
+  function seal(object) {
+    defineHashObject(object);
+    return $seal.apply(this, arguments);
+  }
+  
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
     $defineProperty(Object, 'getOwnPropertyNames',
@@ -239,6 +270,12 @@
                     {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
+	$defineProperty(Object, 'freeze',
+                    {value: freeze});
+	$defineProperty(Object, 'preventExtensions',
+                    {value: preventExtensions});
+	$defineProperty(Object, 'seal',
+                    {value: seal});
 
     Object.getOwnPropertySymbols = getOwnPropertySymbols;
 
@@ -258,7 +295,10 @@
       var props = $getOwnPropertyNames(source);
       var p, length = props.length;
       for (p = 0; p < length; p++) {
-        target[props[p]] = source[props[p]];
+		var name = props[p];
+	    if (symbolValues[name] === Symbol.hashSymbol)
+		  continue;
+        target[name] = source[name];
       }
       return target;
     }
@@ -270,6 +310,9 @@
       var props = $getOwnPropertyNames(source);
       var p, descriptor, length = props.length;
       for (p = 0; p < length; p++) {
+	    var name = props[p];
+	    if (symbolValues[name] === Symbol.hashSymbol)
+		  continue;
         descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
       }
@@ -283,6 +326,9 @@
     for (var i = 1; i < arguments.length; i++) {
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
+	    var name = names[j];
+	    if (symbolValues[name] === Symbol.hashSymbol)
+		  continue;
         (function(mod, name) {
           $defineProperty(object, name, {
             get: function() { return mod[name]; },
@@ -625,6 +671,7 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
+	defineHashObject: defineHashObject
   };
 
 })(typeof global !== 'undefined' ? global : this);
