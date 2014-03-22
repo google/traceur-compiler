@@ -129,7 +129,7 @@ test/unit/runtime/traceur-runtime: \
 	node $<
 
 test-version:
-	./traceur -v | grep 'traceur@[0-9]*\.[0-9*\.[0-9]*'
+	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
 boot: clean build
 
@@ -257,7 +257,7 @@ update-version-number: npm-publish updateSemver
 
 git-update-version: update-version-number
 	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	./traceur -v | sed 's/traceur@//' | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
 
