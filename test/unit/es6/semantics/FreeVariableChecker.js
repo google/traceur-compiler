@@ -15,6 +15,7 @@
 suite('FreeVariableChecker.traceur.js', function() {
 
   setup(function() {
+    traceur.options.reset();
     traceur.options.freeVariableChecker = true;
   });
 
@@ -33,7 +34,7 @@ suite('FreeVariableChecker.traceur.js', function() {
     var url = 'http://www.test.com/';
     var loaderHooks = new LoaderHooks(reporter, url);
     var loader = new TraceurLoader(loaderHooks);
-    loader.script(contents, url);
+    loader.script(contents, {name: name, address: url});
     return errors;
   }
 

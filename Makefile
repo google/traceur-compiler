@@ -72,9 +72,10 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error test-interpret-throw \
+	test-interpret-absolute test-inline-module-error \
 	test-version test/unit/tools/SourceMapMapping
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
+	$(MAKE) test-interpret-throw
 
 test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
