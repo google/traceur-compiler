@@ -12031,6 +12031,13 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
     },
     parseFallThroughStatement_: function(allowScriptItem) {
       var start = this.getTreeStartLocation_();
+      if (parseOptions.asyncFunctions && this.peekPredefinedString_(ASYNC) && this.peek_(FUNCTION, 1)) {
+        var asyncToken = this.eatId_();
+        var functionToken = this.peekTokenNoLineTerminator_();
+        if (functionToken !== null)
+          return this.parseAsyncFunctionDeclaration_(asyncToken);
+        return new IdentifierExpression(this.getTreeLocation_(start), asyncToken);
+      }
       var expression = this.parseExpression();
       if (expression.type === IDENTIFIER_EXPRESSION) {
         var nameToken = expression.identifierToken;
@@ -12047,11 +12054,6 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
             this.eatPossibleImplicitSemiColon_();
             return new ModuleDeclaration(this.getTreeLocation_(start), name, moduleSpecifier);
           }
-        }
-        if (nameToken.value === ASYNC && parseOptions.asyncFunctions) {
-          var token = this.peekTokenNoLineTerminator_();
-          if (token !== null && token.type === FUNCTION)
-            return this.parseAsyncFunctionDeclaration_(token);
         }
       }
       this.eatPossibleImplicitSemiColon_();

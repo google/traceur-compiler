@@ -1170,6 +1170,18 @@ export class Parser {
    */
   parseFallThroughStatement_(allowScriptItem) {
     var start = this.getTreeStartLocation_();
+
+    // async [no line terminator] function ...
+    if (parseOptions.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
+        this.peek_(FUNCTION, 1)) {
+      var asyncToken = this.eatId_();
+      var functionToken = this.peekTokenNoLineTerminator_();
+      if (functionToken !== null)
+        return this.parseAsyncFunctionDeclaration_(asyncToken);
+      return new IdentifierExpression(this.getTreeLocation_(start),
+                                       asyncToken);
+    }
+
     var expression = this.parseExpression();
 
     if (expression.type === IDENTIFIER_EXPRESSION) {
@@ -1198,13 +1210,6 @@ export class Parser {
         }
 
         // Fall through.
-      }
-
-      // async function declaration
-      if (nameToken.value === ASYNC && parseOptions.asyncFunctions) {
-        var token = this.peekTokenNoLineTerminator_();
-        if (token !== null && token.type === FUNCTION)
-          return this.parseAsyncFunctionDeclaration_(token);
       }
     }
 
