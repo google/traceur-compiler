@@ -54,7 +54,7 @@ function printVisitTree(name, tree, trees) {
 function printVisitBody(name, tree, trees) {
   Object.keys(tree).forEach(
     function(fieldName) {
-      if (fieldName == 'location') {
+      if (fieldName === 'location' || fieldName === 'extends') {
         return;
       }
       var fieldType = tree[fieldName][0];

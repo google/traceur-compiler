@@ -164,7 +164,7 @@ class AnnotationsScope {
 
     tree = super(tree);
     if (tree.annotations.length > 0) {
-      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
           tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
     }
     return this.appendMetadata_(tree);
@@ -229,7 +229,7 @@ class AnnotationsScope {
     if (formalParameters !== tree.formalParameterList ||
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
-          tree.isGenerator, tree.name, formalParameters,
+          tree.functionKind, tree.name, formalParameters,
           tree.typeAnnotation, [], tree.functionBody);
     }
     return super(tree);
