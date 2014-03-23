@@ -29,6 +29,7 @@ export var transformOptions = Object.create(null);
 
 var defaultValues = Object.create(null);
 var experimentalOptions = Object.create(null);
+var moduleOptions = ['amd', 'commonjs', 'instantiate', 'inline', 'register'];
 
 export var options = {
 
@@ -59,6 +60,22 @@ export var options = {
       return true;
     });
     return value;
+  },
+
+  modules_: 'register',
+
+  get modules() {
+    return this.modules_;
+  },
+
+  set modules(value) {
+    if (typeof value === 'boolean' && !value)
+      value = 'register';
+    if (moduleOptions.indexOf(value) === -1) {
+      throw new Error('Invalid \'modules\' option \'' + value + '\', not in ' +
+        moduleOptions.join(', '));
+    }
+    this.modules_ = value;
   },
 
   scripts: []
@@ -252,7 +269,7 @@ function addFeatureOption(name, kind) {
     configurable: true
   });
 
-  var defaultValue = kind === ON_BY_DEFAULT;
+  var defaultValue = options[name] || kind === ON_BY_DEFAULT;
   options[name] = defaultValue;
   defaultValues[name] = defaultValue;
 }

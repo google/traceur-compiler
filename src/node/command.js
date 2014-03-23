@@ -75,7 +75,7 @@ function processExit() {
 
 flags.option('-v, --version', 'Show version and exit');
 flags.on('version', function() {
-  process.stdout.write(System.version);
+  process.stdout.write(System.version.split('@')[1]);
   processExit();
 });
 

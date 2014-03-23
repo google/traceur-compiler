@@ -11,7 +11,7 @@ suite('node public api', function() {
       filename: path,
 
       // build ES6 style modules rather then cjs
-      modules: true,
+      modules: 'register',
 
       // cwd is this test directory
       cwd: __dirname,

@@ -72,9 +72,10 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error test-interpret-throw \
+	test-interpret-absolute test-inline-module-error \
 	test-version test/unit/tools/SourceMapMapping
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
+	$(MAKE) test-interpret-throw
 
 test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
@@ -128,7 +129,7 @@ test/unit/runtime/traceur-runtime: \
 	node $<
 
 test-version:
-	./traceur -v | grep 'traceur@[0-9]*\.[0-9*\.[0-9]*'
+	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
 boot: clean build
 
@@ -256,7 +257,7 @@ update-version-number: npm-publish updateSemver
 
 git-update-version: update-version-number
 	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	./traceur -v | sed 's/traceur@//' | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
 

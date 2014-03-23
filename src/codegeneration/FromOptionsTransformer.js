@@ -96,8 +96,12 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        default:
+        case 'register':
           append(ModuleTransformer);
+          break;
+        default:
+          // The options processing should prevent us from getting here.
+          throw new Error('Invalid modules transform option');
       }
     }
 
