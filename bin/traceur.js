@@ -3353,6 +3353,7 @@ System.register("traceur@0.0.32/src/syntax/trees/FunctionBaseTree", [], function
   var $__21 = System.get("traceur@0.0.32/src/syntax/TokenType"),
       IDENTIFIER = $__21.IDENTIFIER,
       STAR = $__21.STAR;
+  var ASYNC = System.get("traceur@0.0.32/src/syntax/PredefinedName").ASYNC;
   var FunctionBaseTree = function FunctionBaseTree() {
     $traceurRuntime.defaultSuperCall(this, $FunctionBaseTree.prototype, arguments);
   };
@@ -3362,7 +3363,7 @@ System.register("traceur@0.0.32/src/syntax/trees/FunctionBaseTree", [], function
       return this.functionKind !== null && this.functionKind.type === STAR;
     },
     get isAsync() {
-      return this.functionKind !== null && this.functionKind.type === IDENTIFIER && this.functionKind.value === 'async';
+      return this.functionKind !== null && this.functionKind.type === IDENTIFIER && this.functionKind.value === ASYNC;
     }
   }, {}, ParseTree);
   return {get FunctionBaseTree() {
@@ -12044,14 +12045,16 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
     },
     parseFallThroughStatement_: function(allowScriptItem) {
       var start = this.getTreeStartLocation_();
+      var expression;
       if (parseOptions.asyncFunctions && this.peekPredefinedString_(ASYNC) && this.peek_(FUNCTION, 1)) {
         var asyncToken = this.eatId_();
         var functionToken = this.peekTokenNoLineTerminator_();
         if (functionToken !== null)
           return this.parseAsyncFunctionDeclaration_(asyncToken);
-        return new IdentifierExpression(this.getTreeLocation_(start), asyncToken);
+        expression = new IdentifierExpression(this.getTreeLocation_(start), asyncToken);
+      } else {
+        expression = this.parseExpression();
       }
-      var expression = this.parseExpression();
       if (expression.type === IDENTIFIER_EXPRESSION) {
         var nameToken = expression.identifierToken;
         if (this.eatIf_(COLON)) {

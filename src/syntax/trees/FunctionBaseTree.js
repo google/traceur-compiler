@@ -17,6 +17,7 @@ import {
   IDENTIFIER,
   STAR
 } from '../TokenType';
+import {ASYNC} from '../PredefinedName';
 
 export class FunctionBaseTree extends ParseTree {
   get isGenerator() {
@@ -26,6 +27,6 @@ export class FunctionBaseTree extends ParseTree {
   get isAsync() {
     return this.functionKind !== null &&
         this.functionKind.type === IDENTIFIER &&
-        this.functionKind.value === 'async';
+        this.functionKind.value === ASYNC;
   }
 }

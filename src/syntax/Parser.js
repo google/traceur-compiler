@@ -977,7 +977,7 @@ export class Parser {
     var strictMode = this.strictMode_;
 
     this.allowYield_ = functionKind && functionKind.type === STAR;
-    this.allowAwait_ = functionKind  &&
+    this.allowAwait_ = functionKind &&
         functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
 
     var result = this.parseStatementList_(!strictMode);
@@ -1164,6 +1164,7 @@ export class Parser {
    */
   parseFallThroughStatement_(allowScriptItem) {
     var start = this.getTreeStartLocation_();
+    var expression;
 
     // async [no line terminator] function ...
     if (parseOptions.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
@@ -1172,11 +1173,12 @@ export class Parser {
       var functionToken = this.peekTokenNoLineTerminator_();
       if (functionToken !== null)
         return this.parseAsyncFunctionDeclaration_(asyncToken);
-      return new IdentifierExpression(this.getTreeLocation_(start),
-                                       asyncToken);
-    }
 
-    var expression = this.parseExpression();
+      expression = new IdentifierExpression(this.getTreeLocation_(start),
+                                            asyncToken);
+    } else {
+      expression = this.parseExpression();
+    }
 
     if (expression.type === IDENTIFIER_EXPRESSION) {
       var nameToken = expression.identifierToken;

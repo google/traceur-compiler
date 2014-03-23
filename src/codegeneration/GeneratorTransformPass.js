@@ -140,7 +140,6 @@ export class GeneratorTransformPass extends TempVarTransformer {
           this.reporter_,
           body);
 
-    // TODO(arv): When all functions add the funciton kind remove transformOptions.asyncFunctions.
     } else if (transformOptions.asyncFunctions && isAsync(functionKind) ||
                transformOptions.deferredFunctions && finder.hasAwait) {
       body = AsyncTransformer.transformAsyncBody(

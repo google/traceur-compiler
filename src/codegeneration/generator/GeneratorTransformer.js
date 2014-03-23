@@ -16,7 +16,7 @@ import {CPSTransformer} from './CPSTransformer';
 import {
   BINARY_OPERATOR,
   STATE_MACHINE,
-  YIELD_EXPRESSION,
+  YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
 import {
   BinaryOperator,
