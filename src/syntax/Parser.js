@@ -348,19 +348,13 @@ export class Parser {
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this);
 
-    /**
-     * Keeps track of whether we currently allow yield expressions.
-     * @type {boolean}
-     * @private
-     */
+    // yield is only allowed inside a generator and await is only allowed
+    // inside an async function.
     this.allowYield_ = false;
-
-    // TODO(arv): This should be tied to `async function f() {`
-    this.allowAwait_ = true;
+    this.allowAwait_ = false;
 
     /**
      * Keeps track of whether we are currently in strict mode parsing or not.
-     * @type {boolean}
      */
     this.strictMode_ = false;
 
@@ -981,7 +975,7 @@ export class Parser {
     var allowYield = this.allowYield_;
     var allowAwait = this.allowAwait_;
     var strictMode = this.strictMode_;
-    // TODO(arv): Track down functionKind === undefined.
+
     this.allowYield_ = functionKind && functionKind.type === STAR;
     this.allowAwait_ = functionKind  &&
         functionKind.type === IDENTIFIER && functionKind.value === ASYNC;

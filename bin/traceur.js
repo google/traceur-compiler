@@ -11532,7 +11532,7 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this);
     this.allowYield_ = false;
-    this.allowAwait_ = true;
+    this.allowAwait_ = false;
     this.strictMode_ = false;
     this.coverInitialisedName_ = null;
     this.annotations_ = [];
