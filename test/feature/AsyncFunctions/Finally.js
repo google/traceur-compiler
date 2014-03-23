@@ -9,7 +9,7 @@ var p = new Promise((r) => {
 });
 var v;
 
-function test() {
+async function test() {
   try {
     v = await p;
   } finally {

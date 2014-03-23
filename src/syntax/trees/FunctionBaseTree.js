@@ -20,11 +20,10 @@ import {
 
 export class FunctionBaseTree extends ParseTree {
   get isGenerator() {
-    // return this.functionKind;
     return this.functionKind !== null && this.functionKind.type === STAR;
   }
 
-  getIsAsync() {
+  get isAsync() {
     return this.functionKind !== null &&
         this.functionKind.type === IDENTIFIER &&
         this.functionKind.value === 'async';

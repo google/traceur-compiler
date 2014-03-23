@@ -1,7 +1,7 @@
 // Options: --async-functions
 // Async.
 
-function asyncThrow(e) {
+async function asyncThrow(e) {
   if (true)
     throw e;
   await asyncYield();
@@ -17,7 +17,7 @@ function asyncTimeout(ms) {
   });
 }
 
-(function() {
+(async function() {
   var value;
   try {
     value = await asyncThrow(1);

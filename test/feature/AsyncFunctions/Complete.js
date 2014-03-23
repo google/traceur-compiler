@@ -9,7 +9,7 @@ function asyncComplete() {
 
 // ----------------------------------------------------------------------------
 
-(function() {
+(async function() {
   var value = await asyncComplete();
   assert.equal('complete', value);
   done();

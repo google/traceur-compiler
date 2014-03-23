@@ -3348,7 +3348,7 @@ System.register("traceur@0.0.32/src/syntax/trees/FunctionBaseTree", [], function
     get isGenerator() {
       return this.functionKind !== null && this.functionKind.type === STAR;
     },
-    getIsAsync: function() {
+    get isAsync() {
       return this.functionKind !== null && this.functionKind.type === IDENTIFIER && this.functionKind.value === 'async';
     }
   }, {}, ParseTree);
@@ -6574,6 +6574,7 @@ System.register("traceur@0.0.32/src/outputgeneration/ParseTreeWriter", [], funct
   var ParseTreeVisitor = System.get("traceur@0.0.32/src/syntax/ParseTreeVisitor").ParseTreeVisitor;
   var $__38 = System.get("traceur@0.0.32/src/syntax/PredefinedName"),
       AS = $__38.AS,
+      ASYNC = $__38.ASYNC,
       FROM = $__38.FROM,
       GET = $__38.GET,
       OF = $__38.OF,
@@ -7072,9 +7073,11 @@ System.register("traceur@0.0.32/src/outputgeneration/ParseTreeWriter", [], funct
     },
     visitFunction_: function(tree) {
       this.writeAnnotations_(tree.annotations);
+      if (tree.isAsync)
+        this.write_(tree.functionKind);
       this.write_(FUNCTION);
       if (tree.isGenerator)
-        this.write_(STAR);
+        this.write_(tree.functionKind);
       if (tree.name) {
         this.writeSpace_();
         this.visitAny(tree.name);
@@ -19231,6 +19234,12 @@ System.register("traceur@0.0.32/src/codegeneration/GeneratorTransformPass", [], 
   var $__267 = System.get("traceur@0.0.32/src/options"),
       transformOptions = $__267.transformOptions,
       options = $__267.options;
+  function isAsync(functionKind) {
+    return functionKind !== null && functionKind.value === 'async';
+  }
+  function isGenerator(functionKind) {
+    return functionKind !== null && functionKind.type === STAR;
+  }
   var GeneratorTransformPass = function GeneratorTransformPass(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "constructor", [identifierGenerator]);
     this.reporter_ = reporter;
@@ -19253,35 +19262,31 @@ System.register("traceur@0.0.32/src/codegeneration/GeneratorTransformPass", [], 
     transformBody_: function(tree, functionKind) {
       var finder;
       var body = $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionBody", [tree]);
-      if (functionKind || transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
+      if (transformOptions.generators && isGenerator(functionKind) || transformOptions.asyncFunctions && isAsync(functionKind) || transformOptions.deferredFunctions) {
         finder = new YieldFinder(tree);
         if (!functionKind && !finder.hasAwait)
           return body;
-      } else if (!functionKind) {
+      } else {
         return body;
       }
-      if (finder.hasForIn && (transformOptions.generators || transformOptions.deferredFunctions || transformOptions.asyncFunctions)) {
+      if (finder.hasForIn) {
         body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
       }
-      var isGenerator = functionKind && functionKind.type === STAR;
-      var isAsyncFunction = functionKind && functionKind.type !== STAR;
-      if (isGenerator) {
-        if (transformOptions.generators) {
-          body = GeneratorTransformer.transformGeneratorBody(this.identifierGenerator, this.reporter_, body);
-        }
-      } else if (isAsyncFunction || transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
+      if (transformOptions.generators && isGenerator(functionKind)) {
+        body = GeneratorTransformer.transformGeneratorBody(this.identifierGenerator, this.reporter_, body);
+      } else if (transformOptions.asyncFunctions && isAsync(functionKind) || transformOptions.deferredFunctions && finder.hasAwait) {
         body = AsyncTransformer.transformAsyncBody(this.identifierGenerator, this.reporter_, body);
       }
       return body;
     },
     transformGetAccessor: function(tree) {
-      var body = this.transformBody_(tree.body);
+      var body = this.transformBody_(tree.body, null);
       if (body === tree.body)
         return tree;
       return new GetAccessor(tree.location, tree.isStatic, tree.name, tree.typeAnnotation, tree.annotations, body);
     },
     transformSetAccessor: function(tree) {
-      var body = this.transformBody_(tree.body);
+      var body = this.transformBody_(tree.body, null);
       if (body === tree.body)
         return tree;
       return new SetAccessor(tree.location, tree.isStatic, tree.name, tree.parameter, tree.annotations, body);

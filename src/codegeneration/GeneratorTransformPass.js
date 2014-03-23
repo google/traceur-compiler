@@ -55,6 +55,14 @@ import {
   options
 } from '../options';
 
+function isAsync(functionKind) {
+  return functionKind !== null && functionKind.value === 'async';
+}
+
+function isGenerator(functionKind) {
+  return functionKind !== null && functionKind.type === STAR;
+}
+
 /**
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
@@ -108,35 +116,33 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // transform nested functions
     var body = super.transformFunctionBody(tree);
 
-    // TODO(arv): When all functions add the funciton kind remove transformOptions.asyncFunctions.
-    if (functionKind || transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
+    if (transformOptions.generators && isGenerator(functionKind) ||
+        transformOptions.asyncFunctions && isAsync(functionKind) ||
+        transformOptions.deferredFunctions) {
+      // TODO(arv): Once deferredFunctions is gone the only thing we care about
+      // is wether we need the ForInTransformPass below.
       finder = new YieldFinder(tree);
       if (!functionKind && !finder.hasAwait)
         return body;
-    } else if (!functionKind) {
+    } else {
       return body;
     }
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
-    if (finder.hasForIn &&
-        (transformOptions.generators || transformOptions.deferredFunctions || transformOptions.asyncFunctions)) {
+    if (finder.hasForIn) {
       body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
     }
 
-    var isGenerator = functionKind && functionKind.type === STAR;
-    var isAsyncFunction = functionKind && functionKind.type !== STAR;
-
-    if (isGenerator) {
-      if (transformOptions.generators) {
-        body = GeneratorTransformer.transformGeneratorBody(
-            this.identifierGenerator,
-            this.reporter_,
-            body);
-      }
+    if (transformOptions.generators && isGenerator(functionKind)) {
+      body = GeneratorTransformer.transformGeneratorBody(
+          this.identifierGenerator,
+          this.reporter_,
+          body);
 
     // TODO(arv): When all functions add the funciton kind remove transformOptions.asyncFunctions.
-    } else if (isAsyncFunction || transformOptions.deferredFunctions || transformOptions.asyncFunctions) {
+    } else if (transformOptions.asyncFunctions && isAsync(functionKind) ||
+               transformOptions.deferredFunctions && finder.hasAwait) {
       body = AsyncTransformer.transformAsyncBody(
           this.identifierGenerator, this.reporter_, body);
     }
@@ -148,7 +154,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformGetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
+    var body = this.transformBody_(tree.body, null);
     if (body === tree.body)
       return tree;
 
@@ -166,7 +172,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformSetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
+    var body = this.transformBody_(tree.body, null);
     if (body === tree.body)
       return tree;
 
