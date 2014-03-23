@@ -210,14 +210,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {AwaitStatement} tree
-   */
-  visitAwaitStatement(tree) {
-    this.checkVisit_(tree.expression.isExpression(), tree.expression,
-        'await must be expression');
-  }
-
-  /**
    * @param {BinaryOperator} tree
    */
   visitBinaryOperator(tree) {

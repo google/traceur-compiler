@@ -304,7 +304,6 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('symbols', EXPERIMENTAL);
-addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('annotations', EXPERIMENTAL);
 
@@ -320,17 +319,3 @@ options.referrer = null;
 
 defaultValues.typeAssertionModule = null;
 options.typeAssertionModule = null;
-
-var {deferredFunctions} = options;
-Object.defineProperty(options, 'deferredFunctions', {
-  get: function() {
-    return deferredFunctions;
-  },
-  set: function(v) {
-    if (v) {
-      console.warn(
-          'deferredFunctions is deprecated. Use asyncFunctions instead');
-    }
-    deferredFunctions = v;
-  }
-});

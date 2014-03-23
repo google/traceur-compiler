@@ -294,22 +294,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {AwaitStatement} tree
-   */
-  visitAwaitStatement(tree) {
-    this.write_(AWAIT);
-    if (tree.identifier !== null) {
-      this.writeSpace_();
-      this.write_(tree.identifier);
-      this.writeSpace_();
-      this.write_(EQUAL);
-    }
-    this.writeSpace_();
-    this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
-  }
-
-  /**
    * @param {BinaryOperator} tree
    */
   visitBinaryOperator(tree) {
@@ -1041,6 +1025,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     if (tree.isGenerator)
       this.write_(STAR);
+
+    if (tree.isAsync)
+      this.write_(ASYNC);
+
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);

@@ -72,17 +72,6 @@
       "ParseTree"
     ]
   },
-  "AwaitStatement": {
-    "location": [
-      "SourceRange"
-    ],
-    "identifier": [
-      "IdentifierToken"
-    ],
-    "expression": [
-      "ParseTree"
-    ]
-  },
   "BinaryOperator": {
     "location": [
       "SourceRange"
@@ -454,7 +443,7 @@
       "BindingIdentifier"
     ],
     "functionKind": [
-      "boolean"
+      "Token"
     ],
     "formalParameterList": [
       "FormalParameterList"
@@ -478,7 +467,7 @@
       "BindingIdentifier"
     ],
     "functionKind": [
-      "boolean"
+      "Token"
     ],
     "formalParameterList": [
       "FormalParameterList"

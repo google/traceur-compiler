@@ -182,7 +182,6 @@ import {
   ArrayPattern,
   ArrowFunctionExpression,
   AwaitExpression,
-  AwaitStatement,
   BinaryOperator,
   BindingElement,
   BindingIdentifier,
@@ -787,11 +786,6 @@ export class Parser {
       case AT:
         if (parseOptions.annotations)
           return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
-        break;
-      case AWAIT:
-        if (parseOptions.deferredFunctions && !parseOptions.asyncFunctions)
-          return this.parseAwaitStatement_();
-
         break;
       case CLASS:
         if (parseOptions.classes)
@@ -1525,26 +1519,6 @@ export class Parser {
 
     return new YieldExpression(
         this.getTreeLocation_(start), expression, isYieldFor);
-  }
-
-  // Harmony?: The await Statement
-  // TODO: await should be an expression, not a statement
-  // await[ identifier = ] expression;
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseAwaitStatement_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(AWAIT);
-    var identifier = null;
-    if (this.peek_(IDENTIFIER) && this.peek_(EQUAL, 1)) {
-      identifier = this.eatId_();
-      this.eat_(EQUAL);
-    }
-    var expression = this.parseExpression();
-    this.eatPossibleImplicitSemiColon_();
-    return new AwaitStatement(this.getTreeLocation_(start), identifier, expression);
   }
 
   // 12.10 The with Statement
@@ -2771,8 +2745,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
 
     // TODO(arv): This should be peekId_ since await should not be a keyword.
-    if (this.peek_(AWAIT) &&
-        parseOptions.asyncFunctions && !parseOptions.deferredFunctions) {
+    // TODO(arv): Only when allowAwait_ is true.
+    if (this.allowAwait_ && this.peek_(AWAIT)) {
       this.eat_(AWAIT);
       // no newline?
       var operand = this.parseUnaryExpression_();

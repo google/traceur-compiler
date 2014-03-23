@@ -32,11 +32,11 @@ import {
   PAREN_EXPRESSION,
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
+import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
-import {YieldFinder} from './generator/YieldFinder';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
@@ -54,6 +54,12 @@ import {
   transformOptions,
   options
 } from '../options';
+
+class ForInFinder extends FindInFunctionScope {
+  visitForInStatement(tree) {
+    this.found = true;
+  }
+}
 
 function isAsync(functionKind) {
   return functionKind !== null && functionKind.value === 'async';
@@ -117,22 +123,16 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var body = super.transformFunctionBody(tree);
 
     if (transformOptions.generators && isGenerator(functionKind) ||
-        transformOptions.asyncFunctions && isAsync(functionKind) ||
-        transformOptions.deferredFunctions) {
-      // TODO(arv): Once deferredFunctions is gone the only thing we care about
-      // is wether we need the ForInTransformPass below.
-      finder = new YieldFinder(tree);
-      if (!functionKind && !finder.hasAwait)
-        return body;
+        transformOptions.asyncFunctions && isAsync(functionKind)) {
+      finder = new ForInFinder(tree);
     } else {
       return body;
     }
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
-    if (finder.hasForIn) {
+    if (finder.found)
       body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
-    }
 
     if (transformOptions.generators && isGenerator(functionKind)) {
       body = GeneratorTransformer.transformGeneratorBody(
@@ -140,8 +140,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
           this.reporter_,
           body);
 
-    } else if (transformOptions.asyncFunctions && isAsync(functionKind) ||
-               transformOptions.deferredFunctions && finder.hasAwait) {
+    } else if (transformOptions.asyncFunctions && isAsync(functionKind)) {
       body = AsyncTransformer.transformAsyncBody(
           this.identifierGenerator, this.reporter_, body);
     }

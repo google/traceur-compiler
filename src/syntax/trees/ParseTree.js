@@ -27,7 +27,6 @@ import {
   ARRAY_PATTERN,
   ARROW_FUNCTION_EXPRESSION,
   AWAIT_EXPRESSION,
-  AWAIT_STATEMENT,
   BINARY_OPERATOR,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
@@ -295,8 +294,6 @@ export class ParseTree {
       case THROW_STATEMENT:
       case TRY_STATEMENT:
       case DEBUGGER_STATEMENT:
-
-      case AWAIT_STATEMENT:  // Traceur extension.
         return true;
     }
 

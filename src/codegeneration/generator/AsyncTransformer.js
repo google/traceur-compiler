@@ -109,20 +109,6 @@ export class AsyncTransformer extends CPSTransformer {
                                 tree.operator);
   }
 
-  /**
-   * @param {AwaitStatement} tree
-   * @return {ParseTree}
-   */
-  transformAwaitStatement(tree) {
-    var left, operator;
-    if (tree.identifier) {
-      left = new IdentifierExpression(tree.identifier.location,
-                                      tree.identifier);
-      operator = createOperatorToken(EQUAL);
-    }
-    return this.transformAwait_(tree, tree.expression, left, operator);
-  }
-
   transformAwait_(tree, expression, left, operator) {
     var createTaskState = this.allocateState();
     var callbackState = this.allocateState();

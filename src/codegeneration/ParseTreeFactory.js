@@ -47,7 +47,6 @@ import {
   ArrayLiteralExpression,
   ArrayPattern,
   ArrowFunctionExpression,
-  AwaitStatement,
   BinaryOperator,
   BindingElement,
   BindingIdentifier,
