@@ -61,12 +61,9 @@ class ForInFinder extends FindInFunctionScope {
   }
 }
 
-function isAsync(functionKind) {
-  return functionKind !== null && functionKind.value === 'async';
-}
-
-function isGenerator(functionKind) {
-  return functionKind !== null && functionKind.type === STAR;
+function needsTransform(tree) {
+  return transformOptions.generators && tree.isGenerator() ||
+      transformOptions.asyncFunctions && tree.isAsyncFunction();
 }
 
 /**
@@ -88,6 +85,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
+    if (!needsTransform(tree))
+      return super(tree);
+
     return this.transformFunction_(tree, FunctionDeclaration);
   }
 
@@ -96,13 +96,35 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
+    if (!needsTransform(tree))
+      return super(tree);
+
     return this.transformFunction_(tree, FunctionExpression);
   }
 
   transformFunction_(tree, constructor) {
-    var body = this.transformBody_(tree.functionBody, tree.functionKind);
-    if (body === tree.functionBody)
-      return tree;
+    var body = super.transformFunctionBody(tree.functionBody);
+
+    // We need to transform for-in loops because the object key iteration
+    // cannot be interrupted.
+    var finder = new ForInFinder(body);
+    if (finder.found) {
+      body = new ForInTransformPass(this.identifierGenerator).
+          transformAny(body);
+    }
+
+    if (transformOptions.generators && tree.isGenerator()) {
+      body = GeneratorTransformer.transformGeneratorBody(
+          this.identifierGenerator,
+          this.reporter_,
+          body);
+
+    } else if (transformOptions.asyncFunctions && tree.isAsyncFunction()) {
+      body = AsyncTransformer.transformAsyncBody(
+          this.identifierGenerator,
+          this.reporter_,
+          body);
+    }
 
     // The generator has been transformed away.
     var functionKind = null;
@@ -110,76 +132,5 @@ export class GeneratorTransformPass extends TempVarTransformer {
     return new constructor(null, tree.name, functionKind,
                            tree.formalParameterList, tree.typeAnnotation,
                            tree.annotations, body);
-  }
-
-  /**
-   * @param {FunctionBody} tree
-   * @return {FunctionBody}
-   */
-  transformBody_(tree, functionKind) {
-    var finder;
-
-    // transform nested functions
-    var body = super.transformFunctionBody(tree);
-
-    if (transformOptions.generators && isGenerator(functionKind) ||
-        transformOptions.asyncFunctions && isAsync(functionKind)) {
-      finder = new ForInFinder(tree);
-    } else {
-      return body;
-    }
-
-    // We need to transform for-in loops because the object key iteration
-    // cannot be interrupted.
-    if (finder.found)
-      body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
-
-    if (transformOptions.generators && isGenerator(functionKind)) {
-      body = GeneratorTransformer.transformGeneratorBody(
-          this.identifierGenerator,
-          this.reporter_,
-          body);
-
-    } else if (transformOptions.asyncFunctions && isAsync(functionKind)) {
-      body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator, this.reporter_, body);
-    }
-    return body;
-  }
-
-  /**
-   * @param {GetAccessor} tree
-   * @return {ParseTree}
-   */
-  transformGetAccessor(tree) {
-    var body = this.transformBody_(tree.body, null);
-    if (body === tree.body)
-      return tree;
-
-    return new GetAccessor(
-        tree.location,
-        tree.isStatic,
-        tree.name,
-        tree.typeAnnotation,
-        tree.annotations,
-        body);
-  }
-
-  /**
-   * @param {SetAccessor} tree
-   * @return {ParseTree}
-   */
-  transformSetAccessor(tree) {
-    var body = this.transformBody_(tree.body, null);
-    if (body === tree.body)
-      return tree;
-
-    return new SetAccessor(
-        tree.location,
-        tree.isStatic,
-        tree.name,
-        tree.parameter,
-        tree.annotations,
-        body);
   }
 }
