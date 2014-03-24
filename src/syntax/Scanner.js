@@ -32,7 +32,6 @@ import {
   AND,
   ARROW,
   AT,
-  AWAIT,
   BACK_QUOTE,
   BANG,
   BAR,

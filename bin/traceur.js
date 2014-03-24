@@ -1558,7 +1558,6 @@ System.register("traceur@0.0.32/src/syntax/TokenType", [], function() {
   var AND = '&&';
   var ARROW = '=>';
   var AT = '@';
-  var AWAIT = 'await';
   var BACK_QUOTE = '`';
   var BANG = '!';
   var BAR = '|';
@@ -1676,9 +1675,6 @@ System.register("traceur@0.0.32/src/syntax/TokenType", [], function() {
     },
     get AT() {
       return AT;
-    },
-    get AWAIT() {
-      return AWAIT;
     },
     get BACK_QUOTE() {
       return BACK_QUOTE;
@@ -2418,6 +2414,7 @@ System.register("traceur@0.0.32/src/syntax/PredefinedName", [], function() {
   var ARRAY = 'Array';
   var AS = 'as';
   var ASYNC = 'async';
+  var AWAIT = 'await';
   var BIND = 'bind';
   var CALL = 'call';
   var CONFIGURABLE = 'configurable';
@@ -2473,6 +2470,9 @@ System.register("traceur@0.0.32/src/syntax/PredefinedName", [], function() {
     },
     get ASYNC() {
       return ASYNC;
+    },
+    get AWAIT() {
+      return AWAIT;
     },
     get BIND() {
       return BIND;
@@ -5413,7 +5413,7 @@ System.register("traceur@0.0.32/src/semantics/FreeVariableChecker", [], function
 System.register("traceur@0.0.32/src/syntax/Keywords", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.32/src/syntax/Keywords";
-  var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'null', 'true', 'false', 'await'];
+  var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'null', 'true', 'false'];
   var strictKeywords = ['implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield'];
   var keywordsByName = Object.create(null);
   var NORMAL_KEYWORD = 1;
@@ -5628,7 +5628,6 @@ System.register("traceur@0.0.32/src/syntax/Scanner", [], function() {
       AND = $__35.AND,
       ARROW = $__35.ARROW,
       AT = $__35.AT,
-      AWAIT = $__35.AWAIT,
       BACK_QUOTE = $__35.BACK_QUOTE,
       BANG = $__35.BANG,
       BAR = $__35.BAR,
@@ -6547,6 +6546,7 @@ System.register("traceur@0.0.32/src/outputgeneration/ParseTreeWriter", [], funct
   var $__37 = System.get("traceur@0.0.32/src/syntax/PredefinedName"),
       AS = $__37.AS,
       ASYNC = $__37.ASYNC,
+      AWAIT = $__37.AWAIT,
       FROM = $__37.FROM,
       GET = $__37.GET,
       OF = $__37.OF,
@@ -6563,7 +6563,6 @@ System.register("traceur@0.0.32/src/outputgeneration/ParseTreeWriter", [], funct
       AND = $__37.AND,
       ARROW = $__37.ARROW,
       AT = $__37.AT,
-      AWAIT = $__37.AWAIT,
       BACK_QUOTE = $__37.BACK_QUOTE,
       BANG = $__37.BANG,
       BAR = $__37.BAR,
@@ -11232,6 +11231,7 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
   var $__67 = System.get("traceur@0.0.32/src/syntax/PredefinedName"),
       AS = $__67.AS,
       ASYNC = $__67.ASYNC,
+      AWAIT = $__67.AWAIT,
       FROM = $__67.FROM,
       GET = $__67.GET,
       MODULE = $__67.MODULE,
@@ -11253,7 +11253,6 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
       AND = $__67.AND,
       ARROW = $__67.ARROW,
       AT = $__67.AT,
-      AWAIT = $__67.AWAIT,
       BACK_QUOTE = $__67.BACK_QUOTE,
       BANG = $__67.BANG,
       BAR = $__67.BAR,
@@ -12940,8 +12939,8 @@ System.register("traceur@0.0.32/src/syntax/Parser", [], function() {
     },
     parseUnaryExpression_: function() {
       var start = this.getTreeStartLocation_();
-      if (this.allowAwait_ && this.peek_(AWAIT)) {
-        this.eat_(AWAIT);
+      if (this.allowAwait_ && this.peekPredefinedString_(AWAIT)) {
+        this.eatId_();
         var operand = this.parseUnaryExpression_();
         operand = this.toParenExpression_(operand);
         return new AwaitExpression(this.getTreeLocation_(start), operand);

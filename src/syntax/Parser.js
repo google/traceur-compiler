@@ -45,6 +45,7 @@ import {
 import {
   AS,
   ASYNC,
+  AWAIT,
   FROM,
   GET,
   MODULE,
@@ -70,7 +71,6 @@ import {
   AND,
   ARROW,
   AT,
-  AWAIT,
   BACK_QUOTE,
   BANG,
   BAR,
@@ -2744,10 +2744,8 @@ export class Parser {
   parseUnaryExpression_() {
     var start = this.getTreeStartLocation_();
 
-    // TODO(arv): This should be peekId_ since await should not be a keyword.
-    // TODO(arv): Only when allowAwait_ is true.
-    if (this.allowAwait_ && this.peek_(AWAIT)) {
-      this.eat_(AWAIT);
+    if (this.allowAwait_ && this.peekPredefinedString_(AWAIT)) {
+      this.eatId_();
       // no newline?
       var operand = this.parseUnaryExpression_();
       operand = this.toParenExpression_(operand);

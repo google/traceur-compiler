@@ -23,6 +23,7 @@ import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   AS,
   ASYNC,
+  AWAIT,
   FROM,
   GET,
   OF,
@@ -42,7 +43,6 @@ import {
   AND,
   ARROW,
   AT,
-  AWAIT,
   BACK_QUOTE,
   BANG,
   BAR,

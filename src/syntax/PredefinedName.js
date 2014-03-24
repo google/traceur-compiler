@@ -19,6 +19,7 @@ export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
 export var AS = 'as';
 export var ASYNC = 'async';
+export var AWAIT = 'await';
 export var BIND = 'bind';
 export var CALL = 'call';
 export var CONFIGURABLE = 'configurable';
