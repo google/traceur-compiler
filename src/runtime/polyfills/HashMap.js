@@ -1,6 +1,6 @@
-﻿
-var hashSymbol = Symbol.hashSymbol; 
+﻿ 
 var defineHashObject = $traceurRuntime.defineHashObject;
+var getHashObject = $traceurRuntime.getHashObject;
 var getTimestamp = (function () {
 	  var current = 0;
 	  return function getTimestamp() {
@@ -80,7 +80,9 @@ function validateKey(key) {
 //       for fast delete and avoid from special DeletedObject constant
 export class HashMap {
 	constructor() {
-		this._id = hashMapCurrent++;
+		this._id = hashMapCurrent;
+		this._tsId = this._id+1;
+		hashMapCurrent+=2;
 		this._store = new HashStore();
 		//this._hashObjs = []; // [plainHash] == { this._id: plainHash } // { plainHash: { this._id: plainHash } } // for delete
 		this._clearTS = getTimestamp();
@@ -96,8 +98,8 @@ export class HashMap {
 	
 	_tryGetPlainHash(obj) {
 		var hashObj;
-		if (hashObj = obj[hashSymbol]) { // if object contains hashes
-			var data = hashObj[this._id];
+		if (hashObj = getHashObject(obj)) { // if object contains hashes
+			/*var data = hashObj[this._id];
 			if (data) {
 				if (data.timestamp > this._clearTS) {
 					var plainHash = data.value;
@@ -107,7 +109,12 @@ export class HashMap {
 				}
 			} else {
 				return undefined;
-			}
+			}*/
+			var timestamp = hashObj[this._tsId];
+			if (timestamp > this._clearTS) // false if timestamp === undefined
+				return hashObj[this._id];
+			else
+				return undefined;
 		} else if (Object.isExtensible(obj)) { // if object extensible and it doesnt contains hash object - it could not be in hashmap
 			return undefined;
 		} else {
@@ -121,53 +128,40 @@ export class HashMap {
 	
 	_getPlainHash(obj) {
 		var hashObj;
-		var plainHash;
-		if (hashObj = obj[hashSymbol]) {
-			var data = hashObj[this._id];
-			if (data) {
-				if (data.timestamp > this._clearTS) {
-					var plainHash = data.value;
-					return plainHash;
-				} else {
-				    var plainHash = this._currentHash++;
-					data.timestamp = getTimestamp();
-					data.value = plainHash;
-					return plainHash;
-				}
-			} else {
-				var plainHash = this._currentHash++;
-				hashObj[this._id] = {
-					value: plainHash,
-					timestamp: getTimestamp()
-				};
+		if (hashObj = getHashObject(obj)) {
+		
+			var timestamp = hashObj[this._tsId];
+			if (timestamp > this._clearTS)
+				return hashObj[this._id];
+			
+			hashObj[this._tsId] = getTimestamp();
+			return hashObj[this._id] = this._currentHash++;
+		
+		} else if (Object.isExtensible(obj)) { // if object extensible we may not check hash in store
+			
+			var hashObj = defineHashObject(obj);
+			hashObj[this._tsId] = getTimestamp();
+			return hashObj[this._id] = this._currentHash++;
+		
+		} else if (this.allowNonExtensibleObjects) {
+		
+			var plainHash = this._store.get(obj);
+			if (plainHash !== undefined) {
+				plainHash = this._currentHash++;
+				this._store.set(obj, plainHash);
 			}
+			return plainHash;
+			
 		} else {
-			if (Object.isExtensible(obj)) { // if object extensible we may not check hash in store
-				var plainHash = this._currentHash++;
-				var hashObj = defineHashObject(obj);
-				hashObj[this._id] = {
-					value: plainHash,
-					timestamp: getTimestamp()
-				};
-			} else {
-				if (this.allowNonExtensibleObjects) {
-					plainHash = this._store.get(obj);
-					if (plainHash !== undefined) {
-						plainHash = this._currentHash++;
-						this._store.set(obj, plainHash);
-					}
-				} else {
-					throw nonExtensibleError();
-				}
-			}
+			throw nonExtensibleError();
 		}
-		return plainHash;
 	}
 	
 	_deletePlainHash(obj) {
-		var hashObj = obj[hashSymbol];
+		var hashObj = getHashObject(obj);
 		if (hashObj) {
 			delete hashObj[this._id];
+			delete hashObj[this._tsId];
 		} else {
 			if (!this.allowNonExtensibleObjects)
 				throw nonExtensibleError();
@@ -191,9 +185,8 @@ export class HashMap {
 
 	set(key, value) {
 		validateKey(key);
-		var boxedIsNew = {};
 		var before = this._currentHash;
-		var plainHash = this._getPlainHash(key, boxedIsNew);
+		var plainHash = this._getPlainHash(key);
 		var after = this._currentHash;
 		
 		if (after > before) // if hash was added
@@ -203,7 +196,6 @@ export class HashMap {
 			throw new Error('Internal error in HashMap');
 			
 		this._container[plainHash] = value;
-		
 	}
 	
 	has(key) {
