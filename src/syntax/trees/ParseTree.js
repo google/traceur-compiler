@@ -14,11 +14,14 @@
 
 module ParseTreeType from './ParseTreeType';
 import {
+  IDENTIFIER,
+  STAR,
   STRING,
-  VAR
+  VAR,
 } from '../TokenType';
 import {Token} from '../Token';
 module utilJSON from '../../util/JSON';
+import {ASYNC} from '../PredefinedName';
 
 import {
   ARGUMENT_LIST,
@@ -359,6 +362,16 @@ export class ParseTree {
         return true;
     }
     return this.isStatement();
+  }
+
+  isGenerator() {
+    return this.functionKind !== null && this.functionKind.type === STAR;
+  }
+
+  isAsyncFunction() {
+    return this.functionKind !== null &&
+        this.functionKind.type === IDENTIFIER &&
+        this.functionKind.value === ASYNC;
   }
 
   getDirectivePrologueStringToken_() {

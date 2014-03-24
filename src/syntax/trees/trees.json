@@ -435,7 +435,6 @@
   },
   "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
   "FunctionDeclaration": {
-    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],
@@ -459,7 +458,6 @@
     ]
   },
   "FunctionExpression": {
-    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],
@@ -741,7 +739,6 @@
     ]
   },
   "PropertyMethodAssignment": {
-    "extends": "FunctionBaseTree",
     "location": [
       "SourceRange"
     ],

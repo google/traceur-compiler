@@ -712,10 +712,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitFunction_(tree) {
     this.writeAnnotations_(tree.annotations);
-    if (tree.isAsync)
+    if (tree.isAsyncFunction())
       this.write_(tree.functionKind);
     this.write_(FUNCTION);
-    if (tree.isGenerator)
+    if (tree.isGenerator())
       this.write_(tree.functionKind);
 
     if (tree.name) {
@@ -1023,10 +1023,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeSpace_();
     }
 
-    if (tree.isGenerator)
+    if (tree.isGenerator())
       this.write_(STAR);
 
-    if (tree.isAsync)
+    if (tree.isAsyncFunction())
       this.write_(ASYNC);
 
     this.visitAny(tree.name);
