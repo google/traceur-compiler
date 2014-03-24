@@ -904,6 +904,12 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
   var __moduleName = "traceur@0.0.31/src/runtime/polyfills/HashMap";
   var hashSymbol = Symbol.hashSymbol;
   var defineHashObject = $traceurRuntime.defineHashObject;
+  var getTimestamp = (function() {
+    var current = 0;
+    return function getTimestamp() {
+      return current++;
+    };
+  })();
   var HashStore = function HashStore() {
     this.clear();
   };
@@ -926,6 +932,15 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
       this.values_.splice(index, 1);
       delete this.index_[plainHash];
     },
+    deleteByKey: function(obj) {
+      var index = this.keys_.indexOf(obj);
+      if (index != -1) {
+        var plainHash = index;
+        this.keys_.splice(index, 1);
+        this.values_.splice(index, 1);
+        delete this.index_[plainHash];
+      }
+    },
     clear: function() {
       this.keys_ = [];
       this.values_ = [];
@@ -947,7 +962,7 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
   var HashMap = function HashMap() {
     this._id = hashMapCurrent++;
     this._store = new HashStore();
-    this._hashObjs = [];
+    this._clearTS = getTimestamp();
     this._container = [];
     this._size = 0;
     this.allowNonExtensibleObjects = false;
@@ -960,8 +975,17 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
     _tryGetPlainHash: function(obj) {
       var hashObj;
       if (hashObj = obj[hashSymbol]) {
-        var plainHash = hashObj[this._id];
-        return plainHash;
+        var data = hashObj[this._id];
+        if (data) {
+          if (data.timestamp > this._clearTS) {
+            var plainHash = data.value;
+            return plainHash;
+          } else {
+            return undefined;
+          }
+        } else {
+          return undefined;
+        }
       } else if (Object.isExtensible(obj)) {
         return undefined;
       } else {
@@ -972,32 +996,42 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
         }
       }
     },
-    _getPlainHash: function(obj, boxedIsNew) {
+    _getPlainHash: function(obj) {
       var hashObj;
       var plainHash;
-      boxedIsNew.value = false;
       if (hashObj = obj[hashSymbol]) {
-        plainHash = obj[hashSymbol][this._id];
-        if (plainHash === undefined) {
-          plainHash = this._currentHash++;
-          obj[hashSymbol][this._id] = plainHash;
-          boxedIsNew.value = true;
+        var data = hashObj[this._id];
+        if (data) {
+          if (data.timestamp > this._clearTS) {
+            var plainHash = data.value;
+            return plainHash;
+          } else {
+            var plainHash = this._currentHash++;
+            data.timestamp = getTimestamp();
+            data.value = plainHash;
+            return plainHash;
+          }
+        } else {
+          var plainHash = this._currentHash++;
+          hashObj[this._id] = {
+            value: plainHash,
+            timestamp: getTimestamp()
+          };
         }
-        this._hashObjs[plainHash] = hashObj;
       } else {
         if (Object.isExtensible(obj)) {
-          plainHash = this._currentHash++;
+          var plainHash = this._currentHash++;
           var hashObj = defineHashObject(obj);
-          hashObj[this._id] = plainHash;
-          boxedIsNew.value = true;
-          this._hashObjs[plainHash] = hashObj;
+          hashObj[this._id] = {
+            value: plainHash,
+            timestamp: getTimestamp()
+          };
         } else {
           if (this.allowNonExtensibleObjects) {
             plainHash = this._store.get(obj);
             if (plainHash !== undefined) {
               plainHash = this._currentHash++;
               this._store.set(obj, plainHash);
-              boxedIsNew.value = true;
             }
           } else {
             throw nonExtensibleError();
@@ -1006,16 +1040,15 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
       }
       return plainHash;
     },
-    _deletePlainHash: function(plainHash) {
-      var hashObj = this._hashObjs[plainHash];
+    _deletePlainHash: function(obj) {
+      var hashObj = obj[hashSymbol];
       if (hashObj) {
         delete hashObj[this._id];
-        delete this._hashObjs[plainHash];
       } else {
         if (!this.allowNonExtensibleObjects)
           throw nonExtensibleError();
         else {
-          this._store.delete(plainHash);
+          this._store.deleteByKey(obj);
         }
       }
     },
@@ -1032,8 +1065,10 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
     set: function(key, value) {
       validateKey(key);
       var boxedIsNew = {};
+      var before = this._currentHash;
       var plainHash = this._getPlainHash(key, boxedIsNew);
-      if (boxedIsNew.value)
+      var after = this._currentHash;
+      if (after > before)
         this._size++;
       if (plainHash === undefined)
         throw new Error('Internal error in HashMap');
@@ -1049,22 +1084,15 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
       var plainHash = this._tryGetPlainHash(key);
       if (plainHash !== undefined) {
         this._size--;
-        this._deletePlainHash(plainHash);
+        this._deletePlainHash(key);
         this._container[plainHash] = DeletedObject;
       }
     },
     clear: function() {
       var container = this._container;
       this._store.clear();
-      for (var i = 0,
-          len = container.length; i < len; i++) {
-        var plainHash = i;
-        var v = container[i];
-        if (v !== DeletedObject) {
-          this._deletePlainHash(plainHash);
-        }
-      }
       this._container = [];
+      this._clearTS = getTimestamp();
       this._size = 0;
     },
     values: function() {
