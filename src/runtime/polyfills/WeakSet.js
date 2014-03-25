@@ -1,11 +1,8 @@
 import {WeakMap} from './WeakMap';
 
-// private properties
-var wm = Symbol().toString();
-
 export class WeakSet {
   constructor(iterable, allowNonExtensibleObjects = false) {
-    this[wm] = new WeakMap();
+    this.weakmap_ = new WeakMap();
     this.allowNonExtensibleObjects = allowNonExtensibleObjects;
     if (iterable) {
       for(var value of iterable) {
@@ -15,26 +12,26 @@ export class WeakSet {
   }
   
   get allowNonExtensibleObjects() {
-    return this[wm].allowNonExtensibleObjects;
+    return this.weakmap_.allowNonExtensibleObjects;
   }
   
   set allowNonExtensibleObjects(v) {
-    this[wm].allowNonExtensibleObjects = v; // true makes map O(N) and leaky
+    this.weakmap_.allowNonExtensibleObjects = v; // true makes map O(N) and leaky
   }
 
   add(value) {
-    this[wm].set(value, true);
+    this.weakmap_.set(value, true);
   }
   
   has(value) {
-    return this[wm].has(value);
+    return this.weakmap_.has(value);
   }
   
   delete(value) {
-    this[wm].delete(value);
+    this.weakmap_.delete(value);
   }
   
   clear() {
-    this[wm].clear();
+    this.weakmap_.clear();
   }
 }

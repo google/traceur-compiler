@@ -1,11 +1,8 @@
 import {HashMap} from './HashMap';
 
-// private properties
-var hm = Symbol().toString();
-
 export class WeakMap {
   constructor(iterable, allowNonExtensibleObjects = false) {
-    this[hm] = new HashMap();
+    this.hashmap_ = new HashMap();
     this.allowNonExtensibleObjects = allowNonExtensibleObjects;
     if (iterable) {
       for(var [key, value] of iterable) {
@@ -15,30 +12,30 @@ export class WeakMap {
   }
   
   get allowNonExtensibleObjects() {
-    return this[hm].allowNonExtensibleObjects;
+    return this.hashmap_.allowNonExtensibleObjects;
   }
   
   set allowNonExtensibleObjects(v) {
-    this[hm].allowNonExtensibleObjects = v; // true makes map O(N) and leaky
+    this.hashmap_.allowNonExtensibleObjects = v; // true makes map O(N) and leaky
   }
 
   get(key, defaultValue) {
-    return this[hm].get(key, defaultValue);
+    return this.hashmap_.get(key, defaultValue);
   }
 
   set(key, value) {
-    this[hm].set(key, value);
+    this.hashmap_.set(key, value);
   }
   
   has(key) {
-    return this[hm].has(key);
+    return this.hashmap_.has(key);
   }
   
   delete(key) {
-    this[hm].delete(key);
+    this.hashmap_.delete(key);
   }
   
   clear() {
-    this[hm].clear();
+    this.hashmap_.clear();
   }
 }

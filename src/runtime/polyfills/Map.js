@@ -5,24 +5,20 @@ var global = this;
 
 function primitiveHash(p) {
   var hashStr = (typeof p) + ' ';
-    if (p === null) {
-        hashStr += 'null';
-    } else if (p === undefined) {
+  if (p === null) {
+    hashStr += 'null';
+  } else if (p === undefined) {
     hashStr += 'undefined';
   } else {
-        hashStr += p.toString();
-    }
-    return hashStr;
+    hashStr += p.toString();
+  }
+  return hashStr;
 }
-
-// private properties
-var hm = Symbol().toString();
-var pm = Symbol().toString();
 
 export class Map {
   constructor(iterable) {
-    this[hm] = new HashMap();
-    this[pm] = new PrimitivesMap();
+    this.hashmap_ = new HashMap();
+    this.primitivesmap_ = new PrimitivesMap();
     if (iterable) {
       for(var [key, value] of iterable) {
         this.set(key, value);
@@ -31,62 +27,62 @@ export class Map {
   }
   
   get allowNonExtensibleObjects() {
-    return this[hm].allowNonExtensibleObjects;
+    return this.hashmap_.allowNonExtensibleObjects;
   }
   
   set allowNonExtensibleObjects(v) {
-    this[hm].allowNonExtensibleObjects = v;
+    this.hashmap_.allowNonExtensibleObjects = v;
   }
   
   get size() {
-    return this[hm].size + this[pm].size;
+    return this.hashmap_.size + this.primitivesmap_.size;
   }
 
   get(key, defaultValue) {
     if (key instanceof Object)
-      return this[hm].get(key, [null, defaultValue])[1];
+      return this.hashmap_.get(key, [null, defaultValue])[1];
     else {
-      return this[pm].get(key, defaultValue);
+      return this.primitivesmap_.get(key, defaultValue);
     }
   }
 
   set(key, value) {
     if (key instanceof Object)
-      this[hm].set(key, [key, value]);
+      this.hashmap_.set(key, [key, value]);
     else {
-      this[pm].set(key, value);
+      this.primitivesmap_.set(key, value);
     }
   }
   
   has(key) {
     if (key instanceof Object)
-      return this[hm].has(key);
+      return this.hashmap_.has(key);
     else {
-      return this[pm].has(key);
+      return this.primitivesmap_.has(key);
     }
   }
   
   delete(key) {
     if (key instanceof Object)
-      this[hm].delete(key);
+      this.hashmap_.delete(key);
     else {
-      this[pm].delete(key);
+      this.primitivesmap_.delete(key);
     }
     
   }
   
   clear() {
-    this[hm].clear();
-    this[pm].clear();
+    this.hashmap_.clear();
+    this.primitivesmap_.clear();
   }
   
   entries() {
     return (function* () {
-      var vals = this[hm].values();
+      var vals = this.hashmap_.values();
       for(var entry of vals) {
         yield entry;
       }
-      for(var entry of this[pm]) {
+      for(var entry of this.primitivesmap_) {
         yield entry;
       }
     }).call(this);

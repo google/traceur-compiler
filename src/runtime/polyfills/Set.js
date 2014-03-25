@@ -2,12 +2,9 @@ import {Map} from './Map';
 
 var global = this;
 
-// private properties
-var m = Symbol().toString();
-
 export class Set {
   constructor(iterable, allowNonExtensibleObjects = false) {
-    this[m] = new Map();
+    this.map_ = new Map();
     this.allowNonExtensibleObjects = allowNonExtensibleObjects;
     if (iterable) {
       for(var value of iterable) {
@@ -17,36 +14,36 @@ export class Set {
   }
   
   get allowNonExtensibleObjects() {
-    return this[m].allowNonExtensibleObjects;
+    return this.map_.allowNonExtensibleObjects;
   }
   
   set allowNonExtensibleObjects(v) {
-    this[m].allowNonExtensibleObjects = v;
+    this.map_.allowNonExtensibleObjects = v;
   }
   
   get size() {
-    return this[m].size;
+    return this.map_.size;
   }
 
 
   add(value) {
-    this[m].set(value, value);
+    this.map_.set(value, value);
   }
   
   has(value) {
-    return this[m].has(value);
+    return this.map_.has(value);
   }
   
   delete(value) {
-    this[m].delete(value);
+    this.map_.delete(value);
   }
   
   clear() {
-    this[m].clear();
+    this.map_.clear();
   }
   
   entries() {
-    return this[m].entries();
+    return this.map_.entries();
   }
   
   values() {

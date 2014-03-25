@@ -5,17 +5,17 @@ var frozenKey = Object.freeze({});
 var sealedKey = Object.seal({});
 var preventedExtensionsKey = Object.preventExtensions({});
 
-t.set(objectKey, 				'value1');
-t.set(frozenKey, 				'value2');
-t.set(sealedKey, 				'value3');
-t.set(preventedExtensionsKey, 	'value4');
+t.set(objectKey, 'value1');
+t.set(frozenKey, 'value2');
+t.set(sealedKey, 'value3');
+t.set(preventedExtensionsKey, 'value4');
 
-assert.isTrue(t.get(objectKey)  === 'value1');
-assert.isTrue(t.get(frozenKey)  === 'value2');
-assert.isTrue(t.get(sealedKey)  === 'value3');
-assert.isTrue(t.get(preventedExtensionsKey)  === 'value4');
+assert.isTrue(t.get(objectKey) === 'value1');
+assert.isTrue(t.get(frozenKey) === 'value2');
+assert.isTrue(t.get(sealedKey) === 'value3');
+assert.isTrue(t.get(preventedExtensionsKey) === 'value4');
 
-assert.isTrue(t.get({})  === undefined);
+assert.isTrue(t.get({}) === undefined);
 
 assert.isTrue(!t.has({}));
 

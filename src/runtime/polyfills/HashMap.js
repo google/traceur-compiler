@@ -80,28 +80,28 @@ function validateKey(key) {
 //       for fast delete and avoid from special DeletedObject constant
 export class HashMap {
   constructor() {
-    this._id = hashMapCurrent;
-    this._tsId = this._id+1;
+    this.id_ = hashMapCurrent;
+    this.tsId_ = this.id_+1;
     hashMapCurrent+=2;
-    this._store = new HashStore();
-    //this._hashObjs = []; // [plainHash] == { this._id: plainHash } // { plainHash: { this._id: plainHash } } // for delete
-    this._clearTS = getTimestamp();
-    this._container = [];
-    this._size = 0;
+    this.store_ = new HashStore();
+    //this._hashObjs = []; // [plainHash] == { this.id_: plainHash } // { plainHash: { this.id_: plainHash } } // for delete
+    this.clearTS_ = getTimestamp();
+    this.container_ = [];
+    this.size_ = 0;
     this.allowNonExtensibleObjects = false;
-    this._currentHash = 0; // avoid 0 because of it falsy
+    this.currentHash_ = 0; // avoid 0 because of it falsy
   }
   
   get size() {
-    return this._size;
+    return this.size_;
   }
   
   _tryGetPlainHash(obj) {
     var hashObj;
     if (hashObj = getHashObject(obj)) { // if object contains hashes
-      var timestamp = hashObj[this._tsId];
-      if (timestamp > this._clearTS) // false if timestamp === undefined
-        return hashObj[this._id];
+      var timestamp = hashObj[this.tsId_];
+      if (timestamp > this.clearTS_) // false if timestamp === undefined
+        return hashObj[this.id_];
       else
         return undefined;
     } else if (Object.isExtensible(obj)) { // if object extensible and it doesnt contains hash object - it could not be in hashmap
@@ -110,7 +110,7 @@ export class HashMap {
       if (!this.allowNonExtensibleObjects)
         throw nonExtensibleError();
       else {
-        return this._store.get(obj);
+        return this.store_.get(obj);
       }
     }
   }
@@ -119,25 +119,25 @@ export class HashMap {
     var hashObj;
     if (hashObj = getHashObject(obj)) {
     
-      var timestamp = hashObj[this._tsId];
-      if (timestamp > this._clearTS)
-        return hashObj[this._id];
+      var timestamp = hashObj[this.tsId_];
+      if (timestamp > this.clearTS_)
+        return hashObj[this.id_];
       
-      hashObj[this._tsId] = getTimestamp();
-      return hashObj[this._id] = this._currentHash++;
+      hashObj[this.tsId_] = getTimestamp();
+      return hashObj[this.id_] = this.currentHash_++;
     
     } else if (Object.isExtensible(obj)) { // if object extensible we may not check hash in store
       
       var hashObj = defineHashObject(obj);
-      hashObj[this._tsId] = getTimestamp();
-      return hashObj[this._id] = this._currentHash++;
+      hashObj[this.tsId_] = getTimestamp();
+      return hashObj[this.id_] = this.currentHash_++;
     
     } else if (this.allowNonExtensibleObjects) {
     
-      var plainHash = this._store.get(obj);
+      var plainHash = this.store_.get(obj);
       if (plainHash !== undefined) {
-        plainHash = this._currentHash++;
-        this._store.set(obj, plainHash);
+        plainHash = this.currentHash_++;
+        this.store_.set(obj, plainHash);
       }
       return plainHash;
       
@@ -149,13 +149,13 @@ export class HashMap {
   _deletePlainHash(obj) {
     var hashObj = getHashObject(obj);
     if (hashObj) {
-      delete hashObj[this._id];
-      delete hashObj[this._tsId];
+      delete hashObj[this.id_];
+      delete hashObj[this.tsId_];
     } else {
       if (!this.allowNonExtensibleObjects)
         throw nonExtensibleError();
       else {
-        this._store.deleteByKey(obj);
+        this.store_.deleteByKey(obj);
       }
     }
   }
@@ -165,7 +165,8 @@ export class HashMap {
     var plainHash = this._tryGetPlainHash(key);
     
     var result;
-    if (plainHash !== undefined && ((result = this._container[plainHash]) !== DeletedObject)) {
+    if (plainHash !== undefined &&
+        ((result = this.container_[plainHash]) !== DeletedObject)) {
       return result;
     } else {
       return defaultValue;
@@ -174,45 +175,45 @@ export class HashMap {
 
   set(key, value) {
     validateKey(key);
-    var before = this._currentHash;
+    var before = this.currentHash_;
     var plainHash = this._getPlainHash(key);
-    var after = this._currentHash;
+    var after = this.currentHash_;
     
     if (after > before) // if hash was added
-      this._size++;
+      this.size_++;
     
     if (plainHash === undefined)
       throw new Error('Internal error in HashMap');
       
-    this._container[plainHash] = value;
+    this.container_[plainHash] = value;
   }
   
   has(key) {
     validateKey(key);
     var plainHash = this._tryGetPlainHash(key);
-    return plainHash !== undefined && this._container[plainHash] !== DeletedObject;
+    return plainHash !== undefined && this.container_[plainHash] !== DeletedObject;
   }
   
   delete(key) {
     validateKey(key);
     var plainHash = this._tryGetPlainHash(key);
     if (plainHash !== undefined) {
-      this._size--;
+      this.size_--;
       this._deletePlainHash(key);
-      this._container[plainHash] = DeletedObject;
+      this.container_[plainHash] = DeletedObject;
     }
   }
   
   clear() {
-    var container = this._container;
-    this._store.clear();
-    this._container = [];
-    this._clearTS = getTimestamp();
-    this._size = 0;
+    var container = this.container_;
+    this.store_.clear();
+    this.container_ = [];
+    this.clearTS_ = getTimestamp();
+    this.size_ = 0;
   }
   
   values() {
-    var container = this._container;
+    var container = this.container_;
     function* gen() {
       for (var i = 0, len = container.length; i < len; i++) {
         var v = container[i];

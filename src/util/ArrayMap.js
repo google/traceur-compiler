@@ -71,10 +71,10 @@ export class ArrayMap {
   
   forEach(callbackFn, thisArg) {
     for (var i = 0; i < this.keys_.length; i++) {
-		var key = this.keys_[i];
-		var value = this.values_[i];
-		var br = callbackFn.call(thisArg, key, value, this);
-		if (br !== undefined) break;
-	}
+      var key = this.keys_[i];
+      var value = this.values_[i];
+      var br = callbackFn.call(thisArg, key, value, this);
+      if (br !== undefined) break;
+    }
   }
 }

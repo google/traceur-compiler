@@ -44,27 +44,27 @@ assert.isTrue(t.has(null));
 
 var cnt = 0;
 for (var key of t) {
-	cnt++;
+  cnt++;
 }
 assert.isTrue(cnt === 9);
 
 var cnt = 0;
 for (var [key, value] of t.entries()) {
-	cnt++;
+  cnt++;
 }
-assert.isTrue(cnt  === 9);
+assert.isTrue(cnt === 9);
 
 var cnt = 0;
 for (var key of t.keys()) {
-	cnt++;
+  cnt++;
 }
-assert.isTrue(cnt  === 9);
+assert.isTrue(cnt === 9);
 
 var cnt = 0;
 for (var value of t.values()) {
-	cnt++;
+  cnt++;
 }
-assert.isTrue(cnt  === 9);
+assert.isTrue(cnt === 9);
 
 
 var t2 = new Set(t);
