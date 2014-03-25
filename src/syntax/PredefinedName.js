@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var ANY = 'any';
 export var $ARGUMENTS = '$arguments';
+export var ANY = 'any';
 export var APPLY = 'apply';
 export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
 export var AS = 'as';
+export var ASYNC = 'async';
+export var AWAIT = 'await';
 export var BIND = 'bind';
 export var CALL = 'call';
 export var CONFIGURABLE = 'configurable';

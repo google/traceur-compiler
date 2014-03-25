@@ -57,10 +57,7 @@ var keywords = [
   // 7.8 Literals
   'null',
   'true',
-  'false',
-
-  // Traceur Specific
-  'await'
+  'false'
 ];
 
 var strictKeywords = [

@@ -318,7 +318,7 @@ export class ClassTransformer extends TempVarTransformer{
 
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
-        tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation,
+        tree.functionKind, tree.name, formalParameterList, tree.typeAnnotation,
         tree.annotations, functionBody);
   }
 

@@ -49,7 +49,8 @@ suite('FreeVariableChecker.traceur.js', function() {
   }
 
   test('FreeVariables', function() {
-    traceur.options.experimental = true;
+    traceur.options.freeVariableChecker = true;
+    traceur.options.blockBinding = true;
     assertCompileError('var y = xxx;', 'xxx is not defined');
     assertCompileError('xxx(1,2,3);', 'xxx is not defined');
     assertCompileError('function foo() { return xxx; }', 'xxx is not defined');

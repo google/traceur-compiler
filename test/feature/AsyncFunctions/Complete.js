@@ -1,5 +1,5 @@
-// Should not compile.
-// Disabled by default.
+// Options: --async-functions
+// Async.
 
 function asyncComplete() {
   return new Promise((resolve) => {
@@ -9,8 +9,8 @@ function asyncComplete() {
 
 // ----------------------------------------------------------------------------
 
-(function() {
-  var value;
-  await value = asyncComplete();
+(async function() {
+  var value = await asyncComplete();
   assert.equal('complete', value);
+  done();
 })();
