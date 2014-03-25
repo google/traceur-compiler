@@ -14,6 +14,7 @@
 
 import {CPSTransformer} from './CPSTransformer';
 import {
+  BINARY_OPERATOR,
   STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
@@ -23,6 +24,7 @@ import {
 } from '../../syntax/trees/ParseTrees'
 import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
 import {FallThroughState} from './FallThroughState';
+import {FindInFunctionScope} from '../FindInFunctionScope'
 import {ReturnState} from './ReturnState';
 import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
@@ -36,13 +38,32 @@ import {
   createUndefinedExpression,
   createYieldStatement
 } from '../ParseTreeFactory';
-import isYieldAssign from './isYieldAssign';
 import {
   parseExpression,
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import scopeContainsYield from './scopeContainsYield';
+
+/**
+ * @param {ParseTree} tree Expression tree
+ * @return {boolean}
+ */
+function isYieldAssign(tree) {
+  return tree.type === BINARY_OPERATOR &&
+      tree.operator.isAssignmentOperator() &&
+      tree.right.type === YIELD_EXPRESSION &&
+      tree.left.isLeftHandSideExpression();
+}
+
+class YieldFinder extends FindInFunctionScope {
+  visitYieldExpression(tree) {
+    this.found = true;
+  }
+}
+
+function scopeContainsYield(tree) {
+  return new YieldFinder(tree).found;
+}
 
 /**
  * Desugars generator function bodies. Generator function bodies contain

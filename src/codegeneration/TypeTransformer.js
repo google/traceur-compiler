@@ -55,7 +55,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFunctionDeclaration(tree) {
     if (tree.typeAnnotation) {
-      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
           tree.formalParameterList, null, tree.annotations, tree.functionBody);
     }
 
@@ -68,7 +68,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFunctionExpression(tree) {
     if (tree.typeAnnotation) {
-      tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator,
+      tree = new FunctionExpression(tree.location, tree.name, tree.functionKind,
           tree.formalParameterList, null, tree.annotations, tree.functionBody);
     }
 
@@ -82,7 +82,7 @@ export class TypeTransformer extends ParseTreeTransformer {
   transformPropertyMethodAssignment(tree) {
     if (tree.typeAnnotation) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
-          tree.isGenerator, tree.name, tree.formalParameterList, null,
+          tree.functionKind, tree.name, tree.formalParameterList, null,
           tree.annotations, tree.functionBody);
     }
 

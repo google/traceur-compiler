@@ -291,7 +291,7 @@ addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
 addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
 addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
-addFeatureOption('generators', ON_BY_DEFAULT); // 13.4, incomplete
+addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
 addFeatureOption('modules', ON_BY_DEFAULT);    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
@@ -301,9 +301,9 @@ addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
+addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('symbols', EXPERIMENTAL);
-addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('annotations', EXPERIMENTAL);
 

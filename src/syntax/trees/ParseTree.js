@@ -14,11 +14,14 @@
 
 module ParseTreeType from './ParseTreeType';
 import {
+  IDENTIFIER,
+  STAR,
   STRING,
-  VAR
+  VAR,
 } from '../TokenType';
 import {Token} from '../Token';
 module utilJSON from '../../util/JSON';
+import {ASYNC} from '../PredefinedName';
 
 import {
   ARGUMENT_LIST,
@@ -26,7 +29,7 @@ import {
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
   ARROW_FUNCTION_EXPRESSION,
-  AWAIT_STATEMENT,
+  AWAIT_EXPRESSION,
   BINARY_OPERATOR,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
@@ -183,11 +186,12 @@ export class ParseTree {
   }
 
   /** @return {boolean} */
-  isArrowFunctionExpression() {
+  isAssignmentExpression() {
     switch (this.type) {
       case ARRAY_COMPREHENSION:
       case ARRAY_LITERAL_EXPRESSION:
       case ARROW_FUNCTION_EXPRESSION:
+      case AWAIT_EXPRESSION:
       case BINARY_OPERATOR:
       case CALL_EXPRESSION:
       case CLASS_EXPRESSION:
@@ -253,13 +257,13 @@ export class ParseTree {
 
   /** @return {boolean} */
   isExpression() {
-    return this.isArrowFunctionExpression() ||
+    return this.isAssignmentExpression() ||
         this.type == COMMA_EXPRESSION;
   }
 
   /** @return {boolean} */
   isAssignmentOrSpread() {
-    return this.isArrowFunctionExpression() ||
+    return this.isAssignmentExpression() ||
         this.type == SPREAD_EXPRESSION;
   }
 
@@ -293,8 +297,6 @@ export class ParseTree {
       case THROW_STATEMENT:
       case TRY_STATEMENT:
       case DEBUGGER_STATEMENT:
-
-      case AWAIT_STATEMENT:  // Traceur extension.
         return true;
     }
 
@@ -360,6 +362,16 @@ export class ParseTree {
         return true;
     }
     return this.isStatement();
+  }
+
+  isGenerator() {
+    return this.functionKind !== null && this.functionKind.type === STAR;
+  }
+
+  isAsyncFunction() {
+    return this.functionKind !== null &&
+        this.functionKind.type === IDENTIFIER &&
+        this.functionKind.value === ASYNC;
   }
 
   getDirectivePrologueStringToken_() {

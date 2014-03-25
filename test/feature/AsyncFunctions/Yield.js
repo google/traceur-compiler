@@ -1,4 +1,4 @@
-// Options: --deferred-functions
+// Options: --async-functions
 // Async.
 
 function asyncYield() {
@@ -11,7 +11,7 @@ function asyncTimeout(ms) {
   });
 }
 
-(function() {
+(async function() {
   await asyncYield();
   done();
 })();

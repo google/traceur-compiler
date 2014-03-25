@@ -17,12 +17,14 @@ import {FunctionExpression} from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   LET,
+  STAR,
   VAR
 } from '../syntax/TokenType';
 import {
   COMPREHENSION_FOR,
   COMPREHENSION_IF
-  } from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType';
+import {Token} from '../syntax/Token';
 import {
   createCallExpression,
   createEmptyParameterList,
@@ -86,7 +88,9 @@ export class ComprehensionTransformer extends TempVarTransformer {
     if (suffix)
       statements.push(suffix);
 
-    var func = new FunctionExpression(null, null, isGenerator,
+    var functionKind = isGenerator ? new Token(STAR, null) : null;
+
+    var func = new FunctionExpression(null, null, functionKind,
                                       createEmptyParameterList(), null, [],
                                       createFunctionBody(statements));
 
