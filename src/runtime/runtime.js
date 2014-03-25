@@ -34,7 +34,9 @@
   var $getPrototypeOf = $Object.getPrototypeOf;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
   var $toString = $Object.prototype.toString;
-
+  var $preventExtensions = Object.preventExtensions;
+  var $seal = Object.seal;
+	
   function nonEnum(value) {
     return {
       configurable: true,
@@ -143,7 +145,7 @@
     $defineProperty(this, symbolDataProperty, {value: this});
     $defineProperty(this, symbolInternalProperty, {value: key});
     $defineProperty(this, symbolDescriptionProperty, {value: description});
-    $freeze(this);
+    freeze(this);
     symbolValues[key] = this;
   }
   $defineProperty(SymbolValue.prototype, 'constructor', nonEnum(Symbol));
@@ -155,10 +157,56 @@
     value: Symbol.prototype.valueOf,
     enumerable: false
   });
-  $freeze(SymbolValue.prototype);
+  
+
+  //Symbol.hashSymbol = Symbol();
+  var hashProperty = newUniqueString();
+  
+  var hashObjectPropertyDescriptor = { // cached object
+	configurable: false,
+	enumerable: false,
+	writable: false,
+	value: undefined
+  };
+  function defineHashObject(object) {
+	//if (!$hasOwnProperty.call(object, hashProperty)) {
+	if (!object[hashProperty]) {
+	  var hashObj = {};
+	  hashObj.self = object; // need to avoid of slow hasOwnProperty (obj[hashProperty].self === obj faster equal to obj.hasOwnProperty(hashProperty))
+	  hashObjectPropertyDescriptor.value = hashObj;
+	  $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+	  return hashObj;
+	}
+  }
+  
+  function getHashObject(object) {
+    //if ($hasOwnProperty.call(object, hashProperty)) {
+	var hashObject = object[hashProperty];
+	if (hashObject && hashObject.self === object) {
+	  return hashObject;
+	} else {
+	  return undefined;
+	}
+  }
+  
+  function freeze(object) {
+    defineHashObject(object);
+	return $freeze.apply(this, arguments);
+  }
+  
+  function preventExtensions(object) {
+    defineHashObject(object);
+	return $preventExtensions.apply(this, arguments);
+  }
+	
+  function seal(object) {
+    defineHashObject(object);
+    return $seal.apply(this, arguments);
+  }
 
   Symbol.iterator = Symbol();
-
+  freeze(SymbolValue.prototype);
+  
   function toProperty(name) {
     if (isSymbol(name))
       return name[symbolInternalProperty];
@@ -171,7 +219,7 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
-      if (!symbolValues[name])
+      if (!symbolValues[name] && name !== hashProperty)
         rv.push(name);
     }
     return rv;
@@ -239,6 +287,12 @@
                     {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
+	$defineProperty(Object, 'freeze',
+                    {value: freeze});
+	$defineProperty(Object, 'preventExtensions',
+                    {value: preventExtensions});
+	$defineProperty(Object, 'seal',
+                    {value: seal});
 
     Object.getOwnPropertySymbols = getOwnPropertySymbols;
 
@@ -258,7 +312,10 @@
       var props = $getOwnPropertyNames(source);
       var p, length = props.length;
       for (p = 0; p < length; p++) {
-        target[props[p]] = source[props[p]];
+		var name = props[p];
+	    if (name === hashProperty)
+		  continue;
+        target[name] = source[name];
       }
       return target;
     }
@@ -270,6 +327,9 @@
       var props = $getOwnPropertyNames(source);
       var p, descriptor, length = props.length;
       for (p = 0; p < length; p++) {
+	    var name = props[p];
+	    if (name === hashProperty)
+		  continue;
         descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
       }
@@ -283,6 +343,9 @@
     for (var i = 1; i < arguments.length; i++) {
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
+	    var name = names[j];
+	    if (name === hashProperty)
+		  continue;
         (function(mod, name) {
           $defineProperty(object, name, {
             get: function() { return mod[name]; },
@@ -625,6 +688,8 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
+	defineHashObject: defineHashObject,
+	getHashObject: getHashObject
   };
 
 })(typeof global !== 'undefined' ? global : this);
