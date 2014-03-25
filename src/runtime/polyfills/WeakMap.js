@@ -1,7 +1,7 @@
 import {HashMap} from './HashMap';
 
 // private properties
-var hm = Symbol();
+var hm = Symbol().toString();
 
 export class WeakMap {
 	constructor(iterable, allowNonExtensibleObjects = false) {

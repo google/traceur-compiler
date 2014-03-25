@@ -91,9 +91,44 @@
     value: Symbol.prototype.valueOf,
     enumerable: false
   });
-  freeze(SymbolValue.prototype);
+  var hashProperty = newUniqueString();
+  var hashObjectPropertyDescriptor = {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: undefined
+  };
+  function defineHashObject(object) {
+    if (!object[hashProperty]) {
+      var hashObj = {};
+      hashObj.self = object;
+      hashObjectPropertyDescriptor.value = hashObj;
+      $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+      return hashObj;
+    }
+  }
+  function getHashObject(object) {
+    var hashObject = object[hashProperty];
+    if (hashObject && hashObject.self === object) {
+      return hashObject;
+    } else {
+      return undefined;
+    }
+  }
+  function freeze(object) {
+    defineHashObject(object);
+    return $freeze.apply(this, arguments);
+  }
+  function preventExtensions(object) {
+    defineHashObject(object);
+    return $preventExtensions.apply(this, arguments);
+  }
+  function seal(object) {
+    defineHashObject(object);
+    return $seal.apply(this, arguments);
+  }
   Symbol.iterator = Symbol();
-  Symbol.hashSymbol = Symbol();
+  freeze(SymbolValue.prototype);
   function toProperty(name) {
     if (isSymbol(name))
       return name[symbolInternalProperty];
@@ -104,7 +139,7 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
-      if (!symbolValues[name])
+      if (!symbolValues[name] && name !== hashProperty)
         rv.push(name);
     }
     return rv;
@@ -150,30 +185,6 @@
     $defineProperty(object, name, descriptor);
     return object;
   }
-  function defineHashObject(object) {
-    var hashObj = {};
-    if (!object[Symbol.hashSymbol]) {
-      defineProperty(object, Symbol.hashSymbol, {
-        configurable: false,
-        enumerable: false,
-        writable: false,
-        value: hashObj
-      });
-    }
-    return hashObj;
-  }
-  function freeze(object) {
-    defineHashObject(object);
-    return $freeze.apply(this, arguments);
-  }
-  function preventExtensions(object) {
-    defineHashObject(object);
-    return $preventExtensions.apply(this, arguments);
-  }
-  function seal(object) {
-    defineHashObject(object);
-    return $seal.apply(this, arguments);
-  }
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
     $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
@@ -195,7 +206,7 @@
           length = props.length;
       for (p = 0; p < length; p++) {
         var name = props[p];
-        if (symbolValues[name] === Symbol.hashSymbol)
+        if (name === hashProperty)
           continue;
         target[name] = source[name];
       }
@@ -209,7 +220,7 @@
           length = props.length;
       for (p = 0; p < length; p++) {
         var name = props[p];
-        if (symbolValues[name] === Symbol.hashSymbol)
+        if (name === hashProperty)
           continue;
         descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
@@ -223,7 +234,7 @@
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
         var name = names[j];
-        if (symbolValues[name] === Symbol.hashSymbol)
+        if (name === hashProperty)
           continue;
         (function(mod, name) {
           $defineProperty(object, name, {
@@ -533,7 +544,8 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    defineHashObject: defineHashObject
+    defineHashObject: defineHashObject,
+    getHashObject: getHashObject
   };
 })(typeof global !== 'undefined' ? global : this);
 (function() {
@@ -902,8 +914,8 @@ System.register("traceur@0.0.31/src/runtime/polyfills/ArrayIterator", [], functi
 System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.31/src/runtime/polyfills/HashMap";
-  var hashSymbol = Symbol.hashSymbol;
   var defineHashObject = $traceurRuntime.defineHashObject;
+  var getHashObject = $traceurRuntime.getHashObject;
   var getTimestamp = (function() {
     var current = 0;
     return function getTimestamp() {
@@ -960,7 +972,9 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
       throw keyIsNotObjectError();
   }
   var HashMap = function HashMap() {
-    this._id = hashMapCurrent++;
+    this._id = hashMapCurrent;
+    this._tsId = this._id + 1;
+    hashMapCurrent += 2;
     this._store = new HashStore();
     this._clearTS = getTimestamp();
     this._container = [];
@@ -974,18 +988,12 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
     },
     _tryGetPlainHash: function(obj) {
       var hashObj;
-      if (hashObj = obj[hashSymbol]) {
-        var data = hashObj[this._id];
-        if (data) {
-          if (data.timestamp > this._clearTS) {
-            var plainHash = data.value;
-            return plainHash;
-          } else {
-            return undefined;
-          }
-        } else {
+      if (hashObj = getHashObject(obj)) {
+        var timestamp = hashObj[this._tsId];
+        if (timestamp > this._clearTS)
+          return hashObj[this._id];
+        else
           return undefined;
-        }
       } else if (Object.isExtensible(obj)) {
         return undefined;
       } else {
@@ -998,52 +1006,32 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
     },
     _getPlainHash: function(obj) {
       var hashObj;
-      var plainHash;
-      if (hashObj = obj[hashSymbol]) {
-        var data = hashObj[this._id];
-        if (data) {
-          if (data.timestamp > this._clearTS) {
-            var plainHash = data.value;
-            return plainHash;
-          } else {
-            var plainHash = this._currentHash++;
-            data.timestamp = getTimestamp();
-            data.value = plainHash;
-            return plainHash;
-          }
-        } else {
-          var plainHash = this._currentHash++;
-          hashObj[this._id] = {
-            value: plainHash,
-            timestamp: getTimestamp()
-          };
+      if (hashObj = getHashObject(obj)) {
+        var timestamp = hashObj[this._tsId];
+        if (timestamp > this._clearTS)
+          return hashObj[this._id];
+        hashObj[this._tsId] = getTimestamp();
+        return hashObj[this._id] = this._currentHash++;
+      } else if (Object.isExtensible(obj)) {
+        var hashObj = defineHashObject(obj);
+        hashObj[this._tsId] = getTimestamp();
+        return hashObj[this._id] = this._currentHash++;
+      } else if (this.allowNonExtensibleObjects) {
+        var plainHash = this._store.get(obj);
+        if (plainHash !== undefined) {
+          plainHash = this._currentHash++;
+          this._store.set(obj, plainHash);
         }
+        return plainHash;
       } else {
-        if (Object.isExtensible(obj)) {
-          var plainHash = this._currentHash++;
-          var hashObj = defineHashObject(obj);
-          hashObj[this._id] = {
-            value: plainHash,
-            timestamp: getTimestamp()
-          };
-        } else {
-          if (this.allowNonExtensibleObjects) {
-            plainHash = this._store.get(obj);
-            if (plainHash !== undefined) {
-              plainHash = this._currentHash++;
-              this._store.set(obj, plainHash);
-            }
-          } else {
-            throw nonExtensibleError();
-          }
-        }
+        throw nonExtensibleError();
       }
-      return plainHash;
     },
     _deletePlainHash: function(obj) {
-      var hashObj = obj[hashSymbol];
+      var hashObj = getHashObject(obj);
       if (hashObj) {
         delete hashObj[this._id];
+        delete hashObj[this._tsId];
       } else {
         if (!this.allowNonExtensibleObjects)
           throw nonExtensibleError();
@@ -1064,9 +1052,8 @@ System.register("traceur@0.0.31/src/runtime/polyfills/HashMap", [], function() {
     },
     set: function(key, value) {
       validateKey(key);
-      var boxedIsNew = {};
       var before = this._currentHash;
-      var plainHash = this._getPlainHash(key, boxedIsNew);
+      var plainHash = this._getPlainHash(key);
       var after = this._currentHash;
       if (after > before)
         this._size++;
@@ -1391,8 +1378,8 @@ System.register("traceur@0.0.31/src/runtime/polyfills/Map", [], function() {
     }
     return hashStr;
   }
-  var hm = Symbol();
-  var pm = Symbol();
+  var hm = Symbol().toString();
+  var pm = Symbol().toString();
   var Map = function Map(iterable) {
     this[hm] = new HashMap();
     this[pm] = new PrimitivesMap();
@@ -1881,7 +1868,7 @@ System.register("traceur@0.0.31/src/runtime/polyfills/Set", [], function() {
   var __moduleName = "traceur@0.0.31/src/runtime/polyfills/Set";
   var Map = System.get("traceur@0.0.31/src/runtime/polyfills/Map").Map;
   var global = this;
-  var m = Symbol();
+  var m = Symbol().toString();
   var Set = function Set(iterable) {
     var allowNonExtensibleObjects = arguments[1] !== (void 0) ? arguments[1] : false;
     this[m] = new Map();
@@ -2224,7 +2211,7 @@ System.register("traceur@0.0.31/src/runtime/polyfills/WeakMap", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.31/src/runtime/polyfills/WeakMap";
   var HashMap = System.get("traceur@0.0.31/src/runtime/polyfills/HashMap").HashMap;
-  var hm = Symbol();
+  var hm = Symbol().toString();
   var WeakMap = function WeakMap(iterable) {
     var allowNonExtensibleObjects = arguments[1] !== (void 0) ? arguments[1] : false;
     this[hm] = new HashMap();
@@ -2272,7 +2259,7 @@ System.register("traceur@0.0.31/src/runtime/polyfills/WeakSet", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.31/src/runtime/polyfills/WeakSet";
   var WeakMap = System.get("traceur@0.0.31/src/runtime/polyfills/WeakMap").WeakMap;
-  var wm = Symbol();
+  var wm = Symbol().toString();
   var WeakSet = function WeakSet(iterable) {
     var allowNonExtensibleObjects = arguments[1] !== (void 0) ? arguments[1] : false;
     this[wm] = new WeakMap();

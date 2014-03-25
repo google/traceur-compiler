@@ -16,8 +16,8 @@ function primitiveHash(p) {
 }
 
 // private properties
-var hm = Symbol();
-var pm = Symbol();
+var hm = Symbol().toString();
+var pm = Symbol().toString();
 
 export class Map {
 	constructor(iterable) {

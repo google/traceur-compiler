@@ -1,7 +1,7 @@
 import {WeakMap} from './WeakMap';
 
 // private properties
-var wm = Symbol();
+var wm = Symbol().toString();
 
 export class WeakSet {
 	constructor(iterable, allowNonExtensibleObjects = false) {

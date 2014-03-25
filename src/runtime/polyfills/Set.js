@@ -3,7 +3,7 @@ import {Map} from './Map';
 var global = this;
 
 // private properties
-var m = Symbol();
+var m = Symbol().toString();
 
 export class Set {
 	constructor(iterable, allowNonExtensibleObjects = false) {
