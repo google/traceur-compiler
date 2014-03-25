@@ -746,7 +746,7 @@
       "boolean"
     ],
     "functionKind": [
-      "boolean"
+      "Token"
     ],
     "name": [
       "ParseTree"

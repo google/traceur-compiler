@@ -37,7 +37,7 @@ import {
   EQUAL,
   VAR
 } from '../../syntax/TokenType';
-import {YieldFinder} from './YieldFinder'
+import {FindInFunctionScope} from '../FindInFunctionScope'
 import {
   createAssignStateStatement,
   createBreakStatement,
@@ -58,9 +58,14 @@ function isAwaitAssign(tree) {
       tree.left.isLeftHandSideExpression();
 }
 
+class AwaitFinder extends FindInFunctionScope {
+  visitAwaitExpression(tree) {
+    this.found = true;
+  }
+}
+
 function scopeContainsAwait(tree) {
-  var visitor = new YieldFinder(tree);
-  return visitor.hasAwait;
+  return new AwaitFinder(tree).found;
 }
 
 /**

@@ -24,10 +24,10 @@ import {
 } from '../../syntax/trees/ParseTrees'
 import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
 import {FallThroughState} from './FallThroughState';
+import {FindInFunctionScope} from '../FindInFunctionScope'
 import {ReturnState} from './ReturnState';
 import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
-import {YieldFinder} from './YieldFinder'
 import {YieldState} from './YieldState';
 import {
   createAssignStateStatement,
@@ -55,9 +55,14 @@ function isYieldAssign(tree) {
       tree.left.isLeftHandSideExpression();
 }
 
+class YieldFinder extends FindInFunctionScope {
+  visitYieldExpression(tree) {
+    this.found = true;
+  }
+}
+
 function scopeContainsYield(tree) {
-  var visitor = new YieldFinder(tree);
-  return visitor.hasYield || visitor.hasYieldFor;
+  return new YieldFinder(tree).found;
 }
 
 /**
