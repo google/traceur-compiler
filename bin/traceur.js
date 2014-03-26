@@ -14614,17 +14614,12 @@ System.register("traceur@0.0.33/src/codegeneration/FindVisitor", [], function() 
   "use strict";
   var __moduleName = "traceur@0.0.33/src/codegeneration/FindVisitor";
   var ParseTreeVisitor = System.get("traceur@0.0.33/src/syntax/ParseTreeVisitor").ParseTreeVisitor;
-  var foundSentinel = {};
   var FindVisitor = function FindVisitor(tree) {
     var keepOnGoing = arguments[1];
     this.found_ = false;
+    this.shouldContinue_ = true;
     this.keepOnGoing_ = keepOnGoing;
-    try {
-      this.visitAny(tree);
-    } catch (ex) {
-      if (ex !== foundSentinel)
-        throw ex;
-    }
+    this.visitAny(tree);
   };
   ($traceurRuntime.createClass)(FindVisitor, {
     get found() {
@@ -14634,7 +14629,17 @@ System.register("traceur@0.0.33/src/codegeneration/FindVisitor", [], function() 
       if (v) {
         this.found_ = true;
         if (!this.keepOnGoing_)
-          throw foundSentinel;
+          this.shouldContinue_ = false;
+      }
+    },
+    visitAny: function(tree) {
+      this.shouldContinue_ && tree && tree.visit(this);
+    },
+    visitList: function(list) {
+      if (list) {
+        for (var i = 0; this.shouldContinue_ && i < list.length; i++) {
+          this.visitAny(list[i]);
+        }
       }
     }
   }, {}, ParseTreeVisitor);
