@@ -97,15 +97,15 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     return super(tree);
   }
 
-  transformFormalParameterList(tree) {
-
+  enterParameterList() {
     // because param lists can be nested
     this.parametersStack_.push({
       atLeastOneParameterTyped: false,
       arguments: []
     });
+  }
 
-    var transformed = super(tree);
+  leaveParameterList() {
     var params = this.parametersStack_.pop();
 
     if (params.atLeastOneParameterTyped) {
@@ -115,8 +115,29 @@ export class TypeAssertionTransformer extends ParameterTransformer {
       this.parameterStatements.push(assertStatement);
       this.assertionAdded_ = true;
     }
+  }
 
-    return transformed;
+  transformSetAccessor(tree) {
+    var oldIsInsideSetAccessor = this._isInsideSetAccessor;
+
+    this._isInsideSetAccessor = true;
+    this.enterParameterList();
+    tree = super(tree);
+    this._isInsideSetAccessor = oldIsInsideSetAccessor;
+
+    return tree;
+  }
+
+  transformFormalParameterList(tree) {
+    var oldIsInsideSetAccessor = this._isInsideSetAccessor;
+
+    this._isInsideSetAccessor = false;
+    this.enterParameterList();
+    tree = super(tree);
+    this._isInsideSetAccessor = oldIsInsideSetAccessor;
+    this.leaveParameterList();
+
+    return tree;
   }
 
   /**
@@ -135,6 +156,10 @@ export class TypeAssertionTransformer extends ParameterTransformer {
       case REST_PARAMETER:
         // NYI
         break;
+    }
+
+    if (this._isInsideSetAccessor) {
+      this.leaveParameterList();
     }
 
     return transformed;
