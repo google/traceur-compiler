@@ -2244,9 +2244,11 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start),
-        new BindingElement(this.getTreeLocation_(start), binding, null),
-        typeAnnotation, this.popAnnotations_());
+    return new FormalParameterList(this.getTreeLocation_(start), [
+      new FormalParameter(this.getTreeLocation_(start),
+          new BindingElement(this.getTreeLocation_(start), binding, null),
+          typeAnnotation, this.popAnnotations_())
+    ]);
   }
 
   /**

@@ -201,7 +201,7 @@ class AnnotationsScope {
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
         tree.annotations,
-        [tree.parameter]));
+        tree.parameter.parameters));
 
     var parameter = this.transformAny(tree.parameter);
     if (parameter !== tree.parameter || tree.annotations.length > 0) {

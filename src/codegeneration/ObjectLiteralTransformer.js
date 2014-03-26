@@ -270,8 +270,8 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.body);
     var parameter = this.transformAny(tree.parameter);
-    var parameterList = new FormalParameterList(parameter.location,
-                                                [parameter]);
+    var parameterList = parameter;//new FormalParameterList(parameter.location,
+                                    //            [parameter]);
     var func = createFunctionExpression(parameterList, body);
     return this.createProperty_(tree.name,
         {

@@ -12617,7 +12617,7 @@ System.register("traceur@0.0.33/src/syntax/Parser", [], function() {
       else
         binding = this.parseBindingIdentifier_();
       var typeAnnotation = this.parseTypeAnnotationOpt_();
-      return new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, null), typeAnnotation, this.popAnnotations_());
+      return new FormalParameterList(this.getTreeLocation_(start), [new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, null), typeAnnotation, this.popAnnotations_())]);
     },
     parsePrimaryExpressionStartingWithParen_: function() {
       var start = this.getTreeStartLocation_();
@@ -14889,7 +14889,7 @@ System.register("traceur@0.0.33/src/codegeneration/AnnotationsTransformer", [], 
       var $__127;
       if (!this.scope.inClassScope)
         return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformSetAccessor", [tree]);
-      ($__127 = this.scope.metadata).push.apply($__127, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, [tree.parameter])));
+      ($__127 = this.scope.metadata).push.apply($__127, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, tree.parameter.parameters)));
       var parameter = this.transformAny(tree.parameter);
       if (parameter !== tree.parameter || tree.annotations.length > 0) {
         tree = new SetAccessor(tree.location, tree.isStatic, tree.name, parameter, [], tree.body);
@@ -19514,7 +19514,7 @@ System.register("traceur@0.0.33/src/codegeneration/ObjectLiteralTransformer", []
         return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformSetAccessor", [tree]);
       var body = this.transformAny(tree.body);
       var parameter = this.transformAny(tree.parameter);
-      var parameterList = new FormalParameterList(parameter.location, [parameter]);
+      var parameterList = parameter;
       var func = createFunctionExpression(parameterList, body);
       return this.createProperty_(tree.name, {
         set: func,
