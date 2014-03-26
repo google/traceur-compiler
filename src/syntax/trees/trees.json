@@ -809,8 +809,8 @@
     "name": [
       "ParseTree"
     ],
-    "parameter": [
-      "FormalParameter"
+    "parameterList": [
+      "FormalParameterList"
     ],
     "annotations": [
       "Array.<ParseTree>"

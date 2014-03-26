@@ -1119,7 +1119,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.writeSpace_();
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
-    this.visitAny(tree.parameter);
+    this.visitAny(tree.parameterList);
     this.write_(CLOSE_PAREN);
     this.writeSpace_();
     this.visitAny(tree.body);

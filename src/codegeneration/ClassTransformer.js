@@ -332,11 +332,11 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformSetAccessor_(tree, internalName) {
-    var parameter = this.transformAny(tree.parameter);
+    var parameterList = this.transformAny(tree.parameterList);
     var body = this.transformSuperInFunctionBody_(tree, tree.body, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
-    return new SetAccessor(tree.location, false, tree.name, parameter,
+    return new SetAccessor(tree.location, false, tree.name, parameterList,
                            tree.annotations, body);
   }
 
