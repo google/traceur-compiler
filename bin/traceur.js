@@ -2338,7 +2338,7 @@ System.register("traceur@0.0.33/src/syntax/ParseTreeVisitor", [], function() {
     },
     visitSetAccessor: function(tree) {
       this.visitAny(tree.name);
-      this.visitAny(tree.parameter);
+      this.visitAny(tree.parameterList);
       this.visitList(tree.annotations);
       this.visitAny(tree.body);
     },
@@ -4604,11 +4604,11 @@ System.register("traceur@0.0.33/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var SET_ACCESSOR = ParseTreeType.SET_ACCESSOR;
-  var SetAccessor = function SetAccessor(location, isStatic, name, parameter, annotations, body) {
+  var SetAccessor = function SetAccessor(location, isStatic, name, parameterList, annotations, body) {
     this.location = location;
     this.isStatic = isStatic;
     this.name = name;
-    this.parameter = parameter;
+    this.parameterList = parameterList;
     this.annotations = annotations;
     this.body = body;
   };
@@ -7283,7 +7283,7 @@ System.register("traceur@0.0.33/src/outputgeneration/ParseTreeWriter", [], funct
       this.writeSpace_();
       this.visitAny(tree.name);
       this.write_(OPEN_PAREN);
-      this.visitAny(tree.parameter);
+      this.visitAny(tree.parameterList);
       this.write_(CLOSE_PAREN);
       this.writeSpace_();
       this.visitAny(tree.body);
@@ -9756,8 +9756,9 @@ System.register("traceur@0.0.33/src/codegeneration/ParseTreeFactory", [], functi
       name = createPropertyNameToken(name);
     if (typeof parameter == 'string')
       parameter = createIdentifierToken(parameter);
+    var parameterList = createParameterList(parameter);
     var isStatic = false;
-    return new SetAccessor(null, isStatic, name, parameter, [], body);
+    return new SetAccessor(null, isStatic, name, parameterList, [], body);
   }
   function createSpreadExpression(expression) {
     return new SpreadExpression(null, expression);
@@ -10759,13 +10760,13 @@ System.register("traceur@0.0.33/src/codegeneration/ParseTreeTransformer", [], fu
     },
     transformSetAccessor: function(tree) {
       var name = this.transformAny(tree.name);
-      var parameter = this.transformAny(tree.parameter);
+      var parameterList = this.transformAny(tree.parameterList);
       var annotations = this.transformList(tree.annotations);
       var body = this.transformAny(tree.body);
-      if (name === tree.name && parameter === tree.parameter && annotations === tree.annotations && body === tree.body) {
+      if (name === tree.name && parameterList === tree.parameterList && annotations === tree.annotations && body === tree.body) {
         return tree;
       }
-      return new SetAccessor(tree.location, tree.isStatic, name, parameter, annotations, body);
+      return new SetAccessor(tree.location, tree.isStatic, name, parameterList, annotations, body);
     },
     transformSpreadExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -12584,10 +12585,10 @@ System.register("traceur@0.0.33/src/syntax/Parser", [], function() {
       var functionKind = null;
       var name = this.parsePropertyName_();
       this.eat_(OPEN_PAREN);
-      var parameter = this.parsePropertySetParameterList_();
+      var parameterList = this.parsePropertySetParameterList_();
       this.eat_(CLOSE_PAREN);
-      var body = this.parseFunctionBody_(functionKind, parameter);
-      return new SetAccessor(this.getTreeLocation_(start), isStatic, name, parameter, annotations, body);
+      var body = this.parseFunctionBody_(functionKind, parameterList);
+      return new SetAccessor(this.getTreeLocation_(start), isStatic, name, parameterList, annotations, body);
     },
     peekPropertyDefinition_: function(type) {
       return this.peekPropertyName_(type) || type == STAR && parseOptions.propertyMethods && parseOptions.generators;
@@ -12617,7 +12618,8 @@ System.register("traceur@0.0.33/src/syntax/Parser", [], function() {
       else
         binding = this.parseBindingIdentifier_();
       var typeAnnotation = this.parseTypeAnnotationOpt_();
-      return new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, null), typeAnnotation, this.popAnnotations_());
+      var parameter = new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, null), typeAnnotation, this.popAnnotations_());
+      return new FormalParameterList(parameter.location, [parameter]);
     },
     parsePrimaryExpressionStartingWithParen_: function() {
       var start = this.getTreeStartLocation_();
@@ -14889,10 +14891,10 @@ System.register("traceur@0.0.33/src/codegeneration/AnnotationsTransformer", [], 
       var $__127;
       if (!this.scope.inClassScope)
         return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformSetAccessor", [tree]);
-      ($__127 = this.scope.metadata).push.apply($__127, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, [tree.parameter])));
-      var parameter = this.transformAny(tree.parameter);
-      if (parameter !== tree.parameter || tree.annotations.length > 0) {
-        tree = new SetAccessor(tree.location, tree.isStatic, tree.name, parameter, [], tree.body);
+      ($__127 = this.scope.metadata).push.apply($__127, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, tree.parameterList.parameters)));
+      var parameterList = this.transformAny(tree.parameterList);
+      if (parameterList !== tree.parameterList || tree.annotations.length > 0) {
+        tree = new SetAccessor(tree.location, tree.isStatic, tree.name, parameterList, [], tree.body);
       }
       return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformSetAccessor", [tree]);
     },
@@ -16610,11 +16612,11 @@ System.register("traceur@0.0.33/src/codegeneration/ClassTransformer", [], functi
       return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation, tree.annotations, body);
     },
     transformSetAccessor_: function(tree, internalName) {
-      var parameter = this.transformAny(tree.parameter);
+      var parameterList = this.transformAny(tree.parameterList);
       var body = this.transformSuperInFunctionBody_(tree, tree.body, internalName);
       if (!tree.isStatic && body === tree.body)
         return tree;
-      return new SetAccessor(tree.location, false, tree.name, parameter, tree.annotations, body);
+      return new SetAccessor(tree.location, false, tree.name, parameterList, tree.annotations, body);
     },
     transformSuperInFunctionBody_: function(methodTree, tree, internalName) {
       this.pushTempVarState();
@@ -19513,8 +19515,7 @@ System.register("traceur@0.0.33/src/codegeneration/ObjectLiteralTransformer", []
       if (!this.needsAdvancedTransform)
         return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformSetAccessor", [tree]);
       var body = this.transformAny(tree.body);
-      var parameter = this.transformAny(tree.parameter);
-      var parameterList = new FormalParameterList(parameter.location, [parameter]);
+      var parameterList = this.transformAny(tree.parameterList);
       var func = createFunctionExpression(parameterList, body);
       return this.createProperty_(tree.name, {
         set: func,

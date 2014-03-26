@@ -2186,11 +2186,11 @@ export class Parser {
     var functionKind = null;
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
-    var parameter = this.parsePropertySetParameterList_();
+    var parameterList = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(functionKind, parameter);
+    var body = this.parseFunctionBody_(functionKind, parameterList);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
-                           parameter, annotations, body);
+                           parameterList, annotations, body);
   }
 
   /**
@@ -2244,9 +2244,11 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start),
+    var parameter = new FormalParameter(this.getTreeLocation_(start),
         new BindingElement(this.getTreeLocation_(start), binding, null),
         typeAnnotation, this.popAnnotations_());
+
+    return new FormalParameterList(parameter.location, [parameter]);
   }
 
   /**

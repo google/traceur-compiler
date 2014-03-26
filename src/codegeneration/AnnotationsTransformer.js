@@ -201,12 +201,12 @@ class AnnotationsScope {
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
         tree.annotations,
-        [tree.parameter]));
+        tree.parameterList.parameters));
 
-    var parameter = this.transformAny(tree.parameter);
-    if (parameter !== tree.parameter || tree.annotations.length > 0) {
+    var parameterList = this.transformAny(tree.parameterList);
+    if (parameterList !== tree.parameterList || tree.annotations.length > 0) {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
-          parameter, [], tree.body);
+          parameterList, [], tree.body);
     }
     return super(tree);
   }

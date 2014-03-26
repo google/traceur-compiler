@@ -1018,8 +1018,9 @@ export function createSetAccessor(name, parameter, body) {
     name = createPropertyNameToken(name);
   if (typeof parameter == 'string')
     parameter = createIdentifierToken(parameter);
+  var parameterList = createParameterList(parameter);
   var isStatic = false;
-  return new SetAccessor(null, isStatic, name, parameter, [], body);
+  return new SetAccessor(null, isStatic, name, parameterList, [], body);
 }
 
 /**
