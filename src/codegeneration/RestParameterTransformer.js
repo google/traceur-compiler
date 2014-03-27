@@ -17,14 +17,14 @@ import {ParameterTransformer} from './ParameterTransformer';
 import {createIdentifierToken} from './ParseTreeFactory';
 import {parseStatement} from './PlaceholderParser';
 
-function hasRestParameter(formalParameterList) {
-  var parameters = formalParameterList.parameters;
+function hasRestParameter(parameterList) {
+  var parameters = parameterList.parameters;
   return parameters.length > 0 &&
       parameters[parameters.length - 1].isRestParameter();
 }
 
-function getRestParameterLiteralToken(formalParameterList) {
-  var parameters = formalParameterList.parameters;
+function getRestParameterLiteralToken(parameterList) {
+  var parameters = parameterList.parameters;
   return parameters[parameters.length - 1].parameter.identifier.identifierToken;
 }
 

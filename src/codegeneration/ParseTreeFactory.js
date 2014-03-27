@@ -334,11 +334,11 @@ export function createArgumentList(numberListOrFirst, var_args) {
 }
 
 /**
- * @param {FormalParameterList} formalParameterList
+ * @param {FormalParameterList} parameterList
  * @return {ArgumentList}
  */
-export function createArgumentListFromParameterList(formalParameterList) {
-  var builder = formalParameterList.parameters.map(function(parameter) {
+export function createArgumentListFromParameterList(parameterList) {
+  var builder = parameterList.parameters.map(function(parameter) {
     if (parameter.isRestParameter()) {
       return createSpreadExpression(
           createIdentifierExpression(
@@ -671,14 +671,14 @@ export function createForStatement(variables, condition, increment, body) {
 }
 
 /**
- * @param {FormalParameterList} formalParameterList
+ * @param {FormalParameterList} parameterList
  * @param {FunctionBody} body
  * @return {FunctionExpression}
  */
-export function createFunctionExpression(formalParameterList, body) {
+export function createFunctionExpression(parameterList, body) {
   assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
-                                formalParameterList, null, [], body);
+                                parameterList, null, [], body);
 }
 
 // get name () { ... }

@@ -130,7 +130,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var functionKind = null;
 
     return new constructor(null, tree.name, functionKind,
-                           tree.formalParameterList, tree.typeAnnotation,
+                           tree.parameterList, tree.typeAnnotation,
                            tree.annotations, body);
   }
 }
