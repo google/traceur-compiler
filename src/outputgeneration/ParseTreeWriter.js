@@ -817,7 +817,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
     this.writeSpace_();
-    if (this.importClause) {
+    if (tree.importClause) {
       this.visitAny(tree.importClause);
       this.writeSpace_();
       this.write_(FROM);
