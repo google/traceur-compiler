@@ -36,7 +36,7 @@
   var $toString = $Object.prototype.toString;
   var $preventExtensions = Object.preventExtensions;
   var $seal = Object.seal;
-	
+
   function nonEnum(value) {
     return {
       configurable: true,
@@ -199,7 +199,7 @@
     defineHashObject(object);
     return $preventExtensions.apply(this, arguments);
   }
-	
+
   function seal(object) {
     defineHashObject(object);
     return $seal.apply(this, arguments);
@@ -288,11 +288,11 @@
                     {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
-	$defineProperty(Object, 'freeze',
+    $defineProperty(Object, 'freeze',
                     {value: freeze});
-	$defineProperty(Object, 'preventExtensions',
+    $defineProperty(Object, 'preventExtensions',
                     {value: preventExtensions});
-	$defineProperty(Object, 'seal',
+    $defineProperty(Object, 'seal',
                     {value: seal});
 
     Object.getOwnPropertySymbols = getOwnPropertySymbols;
@@ -313,9 +313,9 @@
       var props = $getOwnPropertyNames(source);
       var p, length = props.length;
       for (p = 0; p < length; p++) {
-		var name = props[p];
-	    if (name === hashProperty)
-		  continue;
+        var name = props[p];
+        if (name === hashProperty)
+          continue;
         target[name] = source[name];
       }
       return target;
@@ -328,9 +328,9 @@
       var props = $getOwnPropertyNames(source);
       var p, descriptor, length = props.length;
       for (p = 0; p < length; p++) {
-	    var name = props[p];
-	    if (name === hashProperty)
-		  continue;
+        var name = props[p];
+        if (name === hashProperty)
+          continue;
         descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
       }
@@ -344,9 +344,9 @@
     for (var i = 1; i < arguments.length; i++) {
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
-	    var name = names[j];
-	    if (name === hashProperty)
-		  continue;
+        var name = names[j];
+        if (name === hashProperty)
+          continue;
         (function(mod, name) {
           $defineProperty(object, name, {
             get: function() { return mod[name]; },
@@ -689,8 +689,8 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-	defineHashObject: defineHashObject,
-	getHashObject: getHashObject
+    defineHashObject: defineHashObject,
+    getHashObject: getHashObject
   };
 
 })(typeof global !== 'undefined' ? global : this);
