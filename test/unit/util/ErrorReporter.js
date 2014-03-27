@@ -14,10 +14,13 @@
 
 suite('ErrorReporter.js', function() {
 
-  var MutedErrorReporter =
-      $traceurRuntime.ModuleStore.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
-  var SyntaxErrorReporter =
-      $traceurRuntime.ModuleStore.getForTesting('src/util/SyntaxErrorReporter').SyntaxErrorReporter;
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var MutedErrorReporter = get('src/util/MutedErrorReporter').MutedErrorReporter;
+  var SyntaxErrorReporter = get('src/util/SyntaxErrorReporter').SyntaxErrorReporter;
+  var SourcePosition = get('src/util/SourcePosition').SourcePosition;
 
   var originalConsoleError = console.error;
   var args;
@@ -46,7 +49,7 @@ suite('ErrorReporter.js', function() {
   test('ErrorReporterWithLocation', function() {
     var r = new traceur.util.ErrorReporter();
     var file = new traceur.syntax.SourceFile('test.js', '');
-    var location = new traceur.util.SourcePosition(file, 1);
+    var location = new SourcePosition(file, 1);
     location.line_ = 2;
     location.column_ = 3;
 
@@ -96,7 +99,7 @@ suite('ErrorReporter.js', function() {
       return;
 
     var file = new traceur.syntax.SourceFile('error_reporter_test.html', '');
-    var location = new traceur.util.SourcePosition(file, 1);
+    var location = new SourcePosition(file, 1);
     location.line_ = 108;
     location.column_ = 3;
 

@@ -7098,7 +7098,7 @@ System.register("traceur@0.0.33/src/outputgeneration/ParseTreeWriter", [], funct
     visitImportDeclaration: function(tree) {
       this.write_(IMPORT);
       this.writeSpace_();
-      if (this.importClause) {
+      if (tree.importClause) {
         this.visitAny(tree.importClause);
         this.writeSpace_();
         this.write_(FROM);
@@ -21731,41 +21731,25 @@ System.register("traceur@0.0.33/src/traceur", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.33/src/traceur";
   System.get("traceur@0.0.33/src/runtime/System");
+  var $___64_traceur_47_src_47_runtime_47_ModuleStore__ = System.get("@traceur/src/runtime/ModuleStore");
   ;
-  var ModuleStore = System.get('@traceur/src/runtime/ModuleStore').ModuleStore;
-  var $__traceur_64_0_46_0_46_33_47_src_47_options__ = System.get("traceur@0.0.33/src/options");
   var $__traceur_64_0_46_0_46_33_47_src_47_WebPageTranscoder__ = System.get("traceur@0.0.33/src/WebPageTranscoder");
-  var ExportListBuilder = System.get("traceur@0.0.33/src/codegeneration/module/ExportListBuilder").ExportListBuilder;
-  var semantics = {ExportListBuilder: ExportListBuilder};
+  var $__traceur_64_0_46_0_46_33_47_src_47_options__ = System.get("traceur@0.0.33/src/options");
   var ErrorReporter = System.get("traceur@0.0.33/src/util/ErrorReporter").ErrorReporter;
-  var SourcePosition = System.get("traceur@0.0.33/src/util/SourcePosition").SourcePosition;
-  var SyntaxErrorReporter = System.get("traceur@0.0.33/src/util/SyntaxErrorReporter").SyntaxErrorReporter;
   var TestErrorReporter = System.get("traceur@0.0.33/src/util/TestErrorReporter").TestErrorReporter;
-  var resolveUrl = System.get("traceur@0.0.33/src/util/url").resolveUrl;
   var util = {
     ErrorReporter: ErrorReporter,
-    SourcePosition: SourcePosition,
-    SyntaxErrorReporter: SyntaxErrorReporter,
-    TestErrorReporter: TestErrorReporter,
-    resolveUrl: resolveUrl
+    TestErrorReporter: TestErrorReporter
   };
-  var IdentifierToken = System.get("traceur@0.0.33/src/syntax/IdentifierToken").IdentifierToken;
-  var LiteralToken = System.get("traceur@0.0.33/src/syntax/LiteralToken").LiteralToken;
   var Parser = System.get("traceur@0.0.33/src/syntax/Parser").Parser;
   var Scanner = System.get("traceur@0.0.33/src/syntax/Scanner").Scanner;
+  var Script = System.get("traceur@0.0.33/src/syntax/trees/ParseTrees").Script;
   var SourceFile = System.get("traceur@0.0.33/src/syntax/SourceFile").SourceFile;
-  var Token = System.get("traceur@0.0.33/src/syntax/Token").Token;
-  var TokenType = System.get("traceur@0.0.33/src/syntax/TokenType");
-  var trees = System.get("traceur@0.0.33/src/syntax/trees/ParseTrees");
   var syntax = {
-    IdentifierToken: IdentifierToken,
-    LiteralToken: LiteralToken,
     Parser: Parser,
     Scanner: Scanner,
     SourceFile: SourceFile,
-    Token: Token,
-    TokenType: TokenType,
-    trees: trees
+    trees: {Script: Script}
   };
   var ParseTreeMapWriter = System.get("traceur@0.0.33/src/outputgeneration/ParseTreeMapWriter").ParseTreeMapWriter;
   var ParseTreeWriter = System.get("traceur@0.0.33/src/outputgeneration/ParseTreeWriter").ParseTreeWriter;
@@ -21779,31 +21763,15 @@ System.register("traceur@0.0.33/src/traceur", [], function() {
     SourceMapGenerator: SourceMapGenerator,
     TreeWriter: TreeWriter
   };
-  var AmdTransformer = System.get("traceur@0.0.33/src/codegeneration/AmdTransformer").AmdTransformer;
   var AttachModuleNameTransformer = System.get("traceur@0.0.33/src/codegeneration/module/AttachModuleNameTransformer").AttachModuleNameTransformer;
   var CloneTreeTransformer = System.get("traceur@0.0.33/src/codegeneration/CloneTreeTransformer").CloneTreeTransformer;
-  var CommonJsModuleTransformer = System.get("traceur@0.0.33/src/codegeneration/CommonJsModuleTransformer").CommonJsModuleTransformer;
-  var DirectExportVisitor = System.get("traceur@0.0.33/src/codegeneration/module/DirectExportVisitor").DirectExportVisitor;
   var FromOptionsTransformer = System.get("traceur@0.0.33/src/codegeneration/FromOptionsTransformer").FromOptionsTransformer;
-  var InlineModuleTransformer = System.get("traceur@0.0.33/src/codegeneration/InlineModuleTransformer").InlineModuleTransformer;
-  var ModuleSpecifierVisitor = System.get("traceur@0.0.33/src/codegeneration/module/ModuleSpecifierVisitor").ModuleSpecifierVisitor;
-  var ModuleTransformer = System.get("traceur@0.0.33/src/codegeneration/ModuleTransformer").ModuleTransformer;
-  var ParseTreeTransformer = System.get("traceur@0.0.33/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
   var createModuleEvaluationStatement = System.get("traceur@0.0.33/src/codegeneration/module/createModuleEvaluationStatement").createModuleEvaluationStatement;
-  var ParseTreeFactory = System.get("traceur@0.0.33/src/codegeneration/ParseTreeFactory");
   var codegeneration = {
-    AmdTransformer: AmdTransformer,
     CloneTreeTransformer: CloneTreeTransformer,
-    CommonJsModuleTransformer: CommonJsModuleTransformer,
     FromOptionsTransformer: FromOptionsTransformer,
-    InlineModuleTransformer: InlineModuleTransformer,
-    ModuleTransformer: ModuleTransformer,
-    ParseTreeFactory: ParseTreeFactory,
-    ParseTreeTransformer: ParseTreeTransformer,
     module: {
       AttachModuleNameTransformer: AttachModuleNameTransformer,
-      DirectExportVisitor: DirectExportVisitor,
-      ModuleSpecifierVisitor: ModuleSpecifierVisitor,
       createModuleEvaluationStatement: createModuleEvaluationStatement
     }
   };
@@ -21818,20 +21786,17 @@ System.register("traceur@0.0.33/src/traceur", [], function() {
     TraceurLoader: TraceurLoader
   };
   return {
+    get ModuleStore() {
+      return $___64_traceur_47_src_47_runtime_47_ModuleStore__.ModuleStore;
+    },
     get System() {
       return System;
-    },
-    get ModuleStore() {
-      return ModuleStore;
-    },
-    get options() {
-      return $__traceur_64_0_46_0_46_33_47_src_47_options__.options;
     },
     get WebPageTranscoder() {
       return $__traceur_64_0_46_0_46_33_47_src_47_WebPageTranscoder__.WebPageTranscoder;
     },
-    get semantics() {
-      return semantics;
+    get options() {
+      return $__traceur_64_0_46_0_46_33_47_src_47_options__.options;
     },
     get util() {
       return util;

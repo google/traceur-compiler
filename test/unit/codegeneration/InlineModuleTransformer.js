@@ -13,12 +13,19 @@
 // limitations under the License.
 
 suite('InlineModuleTransformer.js', function() {
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var write = traceur.outputgeneration.TreeWriter.write;
+
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer').InlineModuleTransformer;
+  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory');
+  var write = get('src/outputgeneration/TreeWriter').write;
+
   var transformer = null
 
   setup(function() {
-    transformer = new traceur.codegeneration.InlineModuleTransformer();
+    transformer = new InlineModuleTransformer();
   });
 
   function str(s) {

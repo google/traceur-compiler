@@ -19,7 +19,6 @@ var path = require('path');
 var nodeLoader = require('./nodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
-var ErrorReporter = traceur.util.ErrorReporter;
 var TraceurLoader = traceur.runtime.TraceurLoader;
 var LoaderHooks = traceur.runtime.LoaderHooks;
 var Script = traceur.syntax.trees.Script;

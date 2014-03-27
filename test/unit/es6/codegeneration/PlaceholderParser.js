@@ -14,14 +14,18 @@
 
 suite('PlaceholderParser.traceur.js', function() {
 
-  var ParseTreeType =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/trees/ParseTreeType');
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var ParseTreeType = get('src/syntax/trees/ParseTreeType');
   var {parseExpression, parseStatement} =
-      $traceurRuntime.ModuleStore.getForTesting('src/codegeneration/PlaceholderParser');
-  var {write} = $traceurRuntime.ModuleStore.getForTesting('src/outputgeneration/TreeWriter');
+      get('src/codegeneration/PlaceholderParser');
+  var {write} = get('src/outputgeneration/TreeWriter');
+  var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
 
   test('ParseExpressionIdentifierExpression', function() {
-    var id = new traceur.syntax.IdentifierToken(null, 'x');
+    var id = new IdentifierToken(null, 'x');
     var tree = parseExpression `1 + ${id}`;
     assert.equal('1 + x', write(tree));
   });
@@ -70,7 +74,7 @@ suite('PlaceholderParser.traceur.js', function() {
   });
 
   test('ParseExpressionPropertyNameIdentifier', function() {
-    var id = new traceur.syntax.IdentifierToken(null, 'x');
+    var id = new IdentifierToken(null, 'x');
     var tree = parseExpression `{${id}: ${id}}`;
     assert.equal('{x: x}', write(tree));
   });
