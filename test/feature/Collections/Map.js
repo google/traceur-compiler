@@ -12,15 +12,15 @@ var nullKey = null;
 
 assert.isTrue(t.size === 0);
 
-t.set(objectKey, 'value1');
-t.set(frozenKey, 'value2');
-t.set(sealedKey, 'value3');
 t.set(preventedExtensionsKey, 'value4');
+t.set(undefinedKey, 'value8');
+t.set(nullKey, 'value9');
 t.set(stringKey, 'value5');
 t.set(numberKey, 'value6');
 t.set(booleanKey, 'value7');
-t.set(undefinedKey, 'value8');
-t.set(nullKey, 'value9');
+t.set(objectKey, 'value1');
+t.set(frozenKey, 'value2');
+t.set(sealedKey, 'value3');
 
 assert.isTrue(t.size === 9);
 
@@ -80,11 +80,15 @@ cnt++;
 assert.isTrue(cnt === 9);
 
 var cnt = 0;
+var arr = [];
 for (var value of t.values()) {
 cnt++;
+arr.push(value);
 }
 assert.isTrue(cnt === 9);
-
+assertArrayEquals(arr, ["value4", "value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value2", "value3"])
 
 var t2 = new Map(t);
 assert.isTrue(t2.size === 9);

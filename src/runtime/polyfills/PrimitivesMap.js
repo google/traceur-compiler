@@ -14,65 +14,117 @@
 
 var global = this;
 
-function primitiveHash(p) {
-  return (typeof p) + ' ' + p;
-}
+var deletedSentinel = {};
 
 export class PrimitivesMap {
   constructor() {
-    this.primitivesMap_ = {};
-    this.primitivesSize_ = 0;
+    this.clear();
   }
   
   get size() {
-    return this.primitivesSize_;
+    return (this.entries_.length >> 1) - this.deletedItemsCount_;
   }
 
   get(key, defaultValue) {
-    var h = primitiveHash(key);
-    if (this.primitivesMap_.hasOwnProperty(h))
-      return this.primitivesMap_[h][1];
-    else 
-      return defaultValue;
+    var index;
+    
+    if (typeof key === 'string')
+      index = this.stringIndex_[key];
+    else
+      index = this.primitiveIndex_[key];
+    
+    if (index !== undefined)
+      return this.entries_[index+1];
+
+    return defaultValue;
   }
 
   set(key, value) {
-    var h = primitiveHash(key);
-    if (!this.primitivesMap_.hasOwnProperty(h)) {
-      this.primitivesSize_++;
+    var stringMode = typeof key === 'string';
+    var index;
+    
+    if (stringMode)
+      index = this.stringIndex_[key];
+    else
+      index = this.primitiveIndex_[key];
+      
+    if (index !== undefined) {
+      this.entries_[index+1] = value;
+    } else {
+      index = this.entries_.length;
+      this.entries_[index] = key;
+      this.entries_[index+1] = value;
+      
+      if (stringMode)
+        this.stringIndex_[key] = index;
+      else
+        this.primitiveIndex_[key] = index;
     }
-    this.primitivesMap_[h] = [key, value];
   }
   
   has(key) {
-    var h = primitiveHash(key);
-    return this.primitivesMap_.hasOwnProperty(h);
+    var stringMode = typeof key === 'string';
+    var index;
+    
+    if (stringMode)
+      index = this.stringIndex_[key];
+    else
+      index = this.primitiveIndex_[key];
+      
+    return index !== undefined;
   }
   
   delete(key) {
-    var h = primitiveHash(key);
-    if (this.primitivesMap_.hasOwnProperty(h)) {
-      this.primitivesSize_--;
+    var stringMode = typeof key === 'string';
+    var index;
+    
+    if (stringMode) {
+      index = this.stringIndex_[key];
+      delete this.stringIndex_[key];
+    } else {
+      index = this.primitiveIndex_[key];
+      delete this.primitiveIndex_[key];
     }
-    delete this.primitivesMap_[h];
+    
+    if (index !== undefined) {
+      this.entries_[index] = deletedSentinel;
+      // remove possible reference to value to avoid memory leaks
+      this.entries_[index+1] = undefined;
+      
+      this.deletedItemsCount_++;
+    }
   }
   
   clear() {
-    this.primitivesMap_ = {};
-    this.primitivesSize_ = 0;
+    this.entries_ = []; // every odd index is key, every even index is value
+    this.stringIndex_ = Object.create(null); // avoid prototype's properties
+    this.primitiveIndex_ = Object.create(null);
+    this.deletedItemsCount_ = 0;
   }
   
   entries() {
     return (function* () {
-      for (var i in this.primitivesMap_) {
-        yield this.primitivesMap_[i];
+      for (var i = 0, len = this.entries_.length; i < len; ) {
+        var key = this.entries_[i++];
+        var value = this.entries_[i++];
+        
+        if (key === deletedSentinel)
+          continue;
+          
+        yield [key, value];
       }
     }).call(this);
   }
   
   values() {
     return (function* () {
-      for (var [key, value] of this.entries()) {
+      for (var i = 0, len = this.entries_.length; i < len; ) {
+        var key = this.entries_[i++];
+        var value = this.entries_[i++];
+        
+        if (key === deletedSentinel)
+          continue;
+          
         yield value;
       }
     }).call(this);
@@ -80,7 +132,12 @@ export class PrimitivesMap {
   
   keys() {
     return (function* () {
-      for (var [key, value] of this.entries()) {
+      for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+        var key = this.entries_[i];
+        
+        if (key === deletedSentinel)
+          continue;
+          
         yield key;
       }
     }).call(this);

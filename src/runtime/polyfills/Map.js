@@ -17,10 +17,13 @@ import {PrimitivesMap} from './PrimitivesMap';
 
 var global = this;
 
+var deletedSentinel = {};
+
 export class Map {
   constructor(iterable) {
-    this.hashmap_ = new HashMap();
-    this.primitivesmap_ = new PrimitivesMap();
+    this.entries_ = []; // every odd index is key, every even index is value
+    this.objectIndex_ = new HashMap();
+    this.primitiveIndex_ = new PrimitivesMap();
     if (iterable) {
       for (var [key, value] of iterable) {
         this.set(key, value);
@@ -29,63 +32,97 @@ export class Map {
   }
   
   get allowNonExtensibleObjects() {
-    return this.hashmap_.allowNonExtensibleObjects;
+    return this.objectIndex_.allowNonExtensibleObjects;
   }
   
   set allowNonExtensibleObjects(v) {
-    this.hashmap_.allowNonExtensibleObjects = v;
+    this.objectIndex_.allowNonExtensibleObjects = v;
   }
   
   get size() {
-    return this.hashmap_.size + this.primitivesmap_.size;
+    return this.objectIndex_.size + this.primitiveIndex_.size;
   }
 
   get(key, defaultValue) {
+    var index;
     if (key instanceof Object)
-      return this.hashmap_.get(key, [null, defaultValue])[1];
-    else {
-      return this.primitivesmap_.get(key, defaultValue);
-    }
+      index = this.objectIndex_.get(key, -1);
+    else
+      index = this.primitiveIndex_.get(key, -1);
+    
+    if (index !== -1) 
+      return this.entries_[index+1];
+      
+    return defaultValue;
   }
 
   set(key, value) {
-    if (key instanceof Object)
-      this.hashmap_.set(key, [key, value]);
-    else {
-      this.primitivesmap_.set(key, value);
+    var objectMode = key instanceof Object;
+    var index;
+    
+    if (objectMode)
+      index = this.objectIndex_.get(key, -1);
+    else
+      index = this.primitiveIndex_.get(key, -1);
+    
+    if (index !== -1) {
+      this.entries_[index+1] = value;
+    } else {
+      index = this.entries_.length;
+      this.entries_[index] = key;
+      this.entries_[index+1] = value;
+      
+      if (objectMode)
+        this.objectIndex_.set(key, index);
+      else
+        this.primitiveIndex_.set(key, index);
     }
   }
   
   has(key) {
-    if (key instanceof Object)
-      return this.hashmap_.has(key);
-    else {
-      return this.primitivesmap_.has(key);
-    }
+    var objectMode = key instanceof Object;
+    
+    if (objectMode)
+      return this.objectIndex_.has(key);
+    
+    return this.primitiveIndex_.has(key);
   }
   
   delete(key) {
-    if (key instanceof Object)
-      this.hashmap_.delete(key);
-    else {
-      this.primitivesmap_.delete(key);
+    var objectMode = key instanceof Object;
+    var index;
+    
+    if (objectMode) {
+      index = this.objectIndex_.get(key, -1);
+      this.objectIndex_.delete(key);
+    } else {
+      index = this.primitiveIndex_.get(key, -1);
+      this.primitiveIndex_.delete(key);
     }
     
+    if (index !== -1) {
+      this.entries_[index] = deletedSentinel;
+      // remove possible reference to value to avoid memory leaks
+      this.entries_[index+1] = undefined;
+    }
   }
   
   clear() {
-    this.hashmap_.clear();
-    this.primitivesmap_.clear();
+    this.entries_ = [];
+    this.objectIndex_.clear();
+    this.primitiveIndex_.clear();
   }
   
   entries() {
     return (function* () {
-      var vals = this.hashmap_.values();
-      for (var entry of vals) {
-        yield entry;
-      }
-      for (var entry of this.primitivesmap_) {
-        yield entry;
+      for (var i = 0, len = this.entries_.length; i < len; ) {
+        var key = this.entries_[i++];
+        var value = this.entries_[i++];
+        
+        if (key === deletedSentinel)
+          continue;
+          
+        yield [key, value];
       }
     }).call(this);
   }
