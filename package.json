@@ -45,7 +45,8 @@
     "rsvp": "3.0.3",
     "requirejs": "~2.1.9",
     "semver": "2.2.1",
-    "traceur": "0.0.32"
+    "traceur": "0.0.32",
+    "promises-aplus-tests": "~2.0.4"
   },
   "subdomain": "traceur"
 }
