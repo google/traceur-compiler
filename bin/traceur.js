@@ -908,6 +908,10 @@ System.register("traceur@0.0.32/src/runtime/polyfills/ArrayIterator", [], functi
 System.register("traceur@0.0.32/src/runtime/polyfills/HashMap", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.32/src/runtime/polyfills/HashMap";
+  function isObject(obj) {
+    var type;
+    return obj !== null && (type = typeof obj, type === 'object' || type === 'function');
+  }
   var defineHashObject = $traceurRuntime.defineHashObject;
   var getHashObject = $traceurRuntime.getHashObject;
   var getTimestamp = (function() {
@@ -962,7 +966,7 @@ System.register("traceur@0.0.32/src/runtime/polyfills/HashMap", [], function() {
     return new TypeError('Key must be an object');
   }
   function validateKey(key) {
-    if (!(key instanceof Object))
+    if (!isObject(key))
       throw keyIsNotObjectError();
   }
   var HashMap = function HashMap() {
@@ -1114,9 +1118,14 @@ System.register("traceur@0.0.32/src/runtime/polyfills/HashMap", [], function() {
       return gen();
     }
   }, {});
-  return {get HashMap() {
+  return {
+    get isObject() {
+      return isObject;
+    },
+    get HashMap() {
       return HashMap;
-    }};
+    }
+  };
 });
 System.register("traceur@0.0.32/src/runtime/polyfills/PrimitivesMap", [], function() {
   "use strict";
@@ -1369,7 +1378,9 @@ System.register("traceur@0.0.32/src/runtime/polyfills/Map", [], function() {
   "use strict";
   var $__13;
   var __moduleName = "traceur@0.0.32/src/runtime/polyfills/Map";
-  var HashMap = System.get("traceur@0.0.32/src/runtime/polyfills/HashMap").HashMap;
+  var $__16 = System.get("traceur@0.0.32/src/runtime/polyfills/HashMap"),
+      HashMap = $__16.HashMap,
+      isObject = $__16.isObject;
   var PrimitivesMap = System.get("traceur@0.0.32/src/runtime/polyfills/PrimitivesMap").PrimitivesMap;
   var global = this;
   var deletedSentinel = {};
@@ -1407,7 +1418,7 @@ System.register("traceur@0.0.32/src/runtime/polyfills/Map", [], function() {
   }), Object.defineProperty($__13, "get", {
     value: function(key, defaultValue) {
       var index;
-      if (key instanceof Object)
+      if (isObject(key))
         index = this.objectIndex_.get(key, -1);
       else
         index = this.primitiveIndex_.get(key, -1);
@@ -1420,7 +1431,7 @@ System.register("traceur@0.0.32/src/runtime/polyfills/Map", [], function() {
     writable: true
   }), Object.defineProperty($__13, "set", {
     value: function(key, value) {
-      var objectMode = key instanceof Object;
+      var objectMode = isObject(key);
       var index;
       if (objectMode)
         index = this.objectIndex_.get(key, -1);
@@ -1443,7 +1454,7 @@ System.register("traceur@0.0.32/src/runtime/polyfills/Map", [], function() {
     writable: true
   }), Object.defineProperty($__13, "has", {
     value: function(key) {
-      var objectMode = key instanceof Object;
+      var objectMode = isObject(key);
       if (objectMode)
         return this.objectIndex_.has(key);
       return this.primitiveIndex_.has(key);
@@ -1453,7 +1464,7 @@ System.register("traceur@0.0.32/src/runtime/polyfills/Map", [], function() {
     writable: true
   }), Object.defineProperty($__13, "delete", {
     value: function(key) {
-      var objectMode = key instanceof Object;
+      var objectMode = isObject(key);
       var index;
       if (objectMode) {
         index = this.objectIndex_.get(key, -1);

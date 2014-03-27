@@ -11,7 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
- 
+
+export function isObject(obj) {
+  var type;
+  return obj !== null && (type = typeof obj, type === 'object' || type === 'function');
+}
+
 var defineHashObject = $traceurRuntime.defineHashObject;
 var getHashObject = $traceurRuntime.getHashObject;
 var getTimestamp = (function () {
@@ -87,7 +92,7 @@ function keyIsNotObjectError() {
 }
 
 function validateKey(key) {
-  if (!(key instanceof Object))
+  if (!isObject(key))
     throw keyIsNotObjectError();
 }
 

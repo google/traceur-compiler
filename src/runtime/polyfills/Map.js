@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HashMap} from './HashMap';
+import {HashMap, isObject} from './HashMap';
 import {PrimitivesMap} from './PrimitivesMap';
 
 var global = this;
@@ -45,7 +45,7 @@ export class Map {
 
   get(key, defaultValue) {
     var index;
-    if (key instanceof Object)
+    if (isObject(key))
       index = this.objectIndex_.get(key, -1);
     else
       index = this.primitiveIndex_.get(key, -1);
@@ -57,7 +57,7 @@ export class Map {
   }
 
   set(key, value) {
-    var objectMode = key instanceof Object;
+    var objectMode = isObject(key);
     var index;
     
     if (objectMode)
@@ -80,7 +80,7 @@ export class Map {
   }
   
   has(key) {
-    var objectMode = key instanceof Object;
+    var objectMode = isObject(key);
     
     if (objectMode)
       return this.objectIndex_.has(key);
@@ -89,7 +89,7 @@ export class Map {
   }
   
   delete(key) {
-    var objectMode = key instanceof Object;
+    var objectMode = isObject(key);
     var index;
     
     if (objectMode) {
