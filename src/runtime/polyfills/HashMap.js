@@ -1,8 +1,22 @@
-﻿ 
+﻿// Copyright 2014 Traceur Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+ 
 var defineHashObject = $traceurRuntime.defineHashObject;
 var getHashObject = $traceurRuntime.getHashObject;
 var getTimestamp = (function () {
-    var current = 0;
+    // it is hidden to prevent direct use anywhere except getTimestamp function
+    var current = 0; 
     return function getTimestamp() {
       return current++;
     }
@@ -61,10 +75,11 @@ class HashStore {
 
 var hashMapCurrent = 0;
 
-var DeletedObject = {};
+var deletedSentinel = {};
 
 function nonExtensibleError() {
-  return new TypeError('Object must not be natively freezed or flag "allowNonExtensibleObjects" in collection must be true');
+  return new TypeError('Object must not be natively freezed or flag '+
+      '"allowNonExtensibleObjects" in collection must be true');
 }
 
 function keyIsNotObjectError() {
@@ -77,45 +92,44 @@ function validateKey(key) {
 }
 
 // TODO: same as for HashStore - Bidirectional linked list instead of array
-//       for fast delete and avoid from special DeletedObject constant
+//       for fast delete and avoid from special deletedSentinel constant
 export class HashMap {
   constructor() {
     this.id_ = hashMapCurrent;
     this.tsId_ = this.id_+1;
     hashMapCurrent+=2;
     this.store_ = new HashStore();
-    //this._hashObjs = []; // [plainHash] == { this.id_: plainHash } // { plainHash: { this.id_: plainHash } } // for delete
     this.clearTS_ = getTimestamp();
     this.container_ = [];
     this.size_ = 0;
     this.allowNonExtensibleObjects = false;
-    this.currentHash_ = 0; // avoid 0 because of it falsy
+    this.currentHash_ = 0; 
   }
   
   get size() {
     return this.size_;
   }
   
-  _tryGetPlainHash(obj) {
+  tryGetPlainHash_(obj) {
     var hashObj;
     if (hashObj = getHashObject(obj)) { // if object contains hashes
       var timestamp = hashObj[this.tsId_];
       if (timestamp > this.clearTS_) // false if timestamp === undefined
         return hashObj[this.id_];
-      else
-        return undefined;
-    } else if (Object.isExtensible(obj)) { // if object extensible and it doesnt contains hash object - it could not be in hashmap
+      return undefined;
+    } else if (Object.isExtensible(obj)) {
+      // if object extensible and it doesnt contains hash object - it could not
+      // be in hashmap
       return undefined;
     } else {
-      if (!this.allowNonExtensibleObjects)
-        throw nonExtensibleError();
-      else {
+      if (this.allowNonExtensibleObjects)
         return this.store_.get(obj);
-      }
+      
+      throw nonExtensibleError();
     }
   }
   
-  _getPlainHash(obj) {
+  getPlainHash_(obj) {
     var hashObj;
     if (hashObj = getHashObject(obj)) {
     
@@ -126,7 +140,7 @@ export class HashMap {
       hashObj[this.tsId_] = getTimestamp();
       return hashObj[this.id_] = this.currentHash_++;
     
-    } else if (Object.isExtensible(obj)) { // if object extensible we may not check hash in store
+    } else if (Object.isExtensible(obj)) {
       
       var hashObj = defineHashObject(obj);
       hashObj[this.tsId_] = getTimestamp();
@@ -141,12 +155,12 @@ export class HashMap {
       }
       return plainHash;
       
-    } else {
-      throw nonExtensibleError();
     }
+    
+    throw nonExtensibleError();
   }
   
-  _deletePlainHash(obj) {
+  deletePlainHash_(obj) {
     var hashObj = getHashObject(obj);
     if (hashObj) {
       delete hashObj[this.id_];
@@ -162,11 +176,11 @@ export class HashMap {
 
   get(key, defaultValue) {
     validateKey(key);
-    var plainHash = this._tryGetPlainHash(key);
+    var plainHash = this.tryGetPlainHash_(key);
     
     var result;
     if (plainHash !== undefined &&
-        ((result = this.container_[plainHash]) !== DeletedObject)) {
+        ((result = this.container_[plainHash]) !== deletedSentinel)) {
       return result;
     } else {
       return defaultValue;
@@ -176,7 +190,7 @@ export class HashMap {
   set(key, value) {
     validateKey(key);
     var before = this.currentHash_;
-    var plainHash = this._getPlainHash(key);
+    var plainHash = this.getPlainHash_(key);
     var after = this.currentHash_;
     
     if (after > before) // if hash was added
@@ -190,17 +204,18 @@ export class HashMap {
   
   has(key) {
     validateKey(key);
-    var plainHash = this._tryGetPlainHash(key);
-    return plainHash !== undefined && this.container_[plainHash] !== DeletedObject;
+    var plainHash = this.tryGetPlainHash_(key);
+    return plainHash !== undefined && 
+        this.container_[plainHash] !== deletedSentinel;
   }
   
   delete(key) {
     validateKey(key);
-    var plainHash = this._tryGetPlainHash(key);
+    var plainHash = this.tryGetPlainHash_(key);
     if (plainHash !== undefined) {
       this.size_--;
-      this._deletePlainHash(key);
-      this.container_[plainHash] = DeletedObject;
+      this.deletePlainHash_(key);
+      this.container_[plainHash] = deletedSentinel;
     }
   }
   
@@ -217,7 +232,7 @@ export class HashMap {
     function* gen() {
       for (var i = 0, len = container.length; i < len; i++) {
         var v = container[i];
-        if (v === DeletedObject) {
+        if (v === deletedSentinel) {
           continue;
         }
         yield container[i];

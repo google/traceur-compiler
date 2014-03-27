@@ -1,26 +1,28 @@
+// Copyright 2014 Traceur Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import {HashMap} from './HashMap';
 import {PrimitivesMap} from './PrimitivesMap';
 
 var global = this;
-
-function primitiveHash(p) {
-  var hashStr = (typeof p) + ' ';
-  if (p === null) {
-    hashStr += 'null';
-  } else if (p === undefined) {
-    hashStr += 'undefined';
-  } else {
-    hashStr += p.toString();
-  }
-  return hashStr;
-}
 
 export class Map {
   constructor(iterable) {
     this.hashmap_ = new HashMap();
     this.primitivesmap_ = new PrimitivesMap();
     if (iterable) {
-      for(var [key, value] of iterable) {
+      for (var [key, value] of iterable) {
         this.set(key, value);
       }
     }
@@ -79,10 +81,10 @@ export class Map {
   entries() {
     return (function* () {
       var vals = this.hashmap_.values();
-      for(var entry of vals) {
+      for (var entry of vals) {
         yield entry;
       }
-      for(var entry of this.primitivesmap_) {
+      for (var entry of this.primitivesmap_) {
         yield entry;
       }
     }).call(this);
@@ -90,7 +92,7 @@ export class Map {
   
   values() {
     return (function* () {
-      for(var [key, value] of this.entries()) {
+      for (var [key, value] of this.entries()) {
         yield value;
       }
     }).call(this);
@@ -98,14 +100,14 @@ export class Map {
   
   keys() {
     return (function* () {
-      for(var [key, value] of this.entries()) {
+      for (var [key, value] of this.entries()) {
         yield key;
       }
     }).call(this);
   }
   
   forEach(callbackFn, thisArg) {
-    for(var [key, value] of this.entries()) {
+    for (var [key, value] of this.entries()) {
       callbackFn.call(global, key, value, this);
     }
   }

@@ -159,44 +159,45 @@
   });
   
 
-  //Symbol.hashSymbol = Symbol();
   var hashProperty = newUniqueString();
   
-  var hashObjectPropertyDescriptor = { // cached object
-	configurable: false,
-	enumerable: false,
-	writable: false,
-	value: undefined
+  // cached object to avoid allocation of new object in defineHashObject
+  var hashObjectPropertyDescriptor = { 
+    value: undefined
   };
+  
   function defineHashObject(object) {
-	//if (!$hasOwnProperty.call(object, hashProperty)) {
-	if (!object[hashProperty]) {
-	  var hashObj = {};
-	  hashObj.self = object; // need to avoid of slow hasOwnProperty (obj[hashProperty].self === obj faster equal to obj.hasOwnProperty(hashProperty))
-	  hashObjectPropertyDescriptor.value = hashObj;
-	  $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
-	  return hashObj;
-	}
+    var hashObject = object[hashProperty];
+    if (!hashObject) {
+      hashObject = {
+        // self is needed to avoid of slow hasOwnProperty 
+        // `obj[hashProperty].self === obj` is faster alternative to
+        // `obj.hasOwnProperty(hashProperty)`
+        self: object 
+      };
+      hashObjectPropertyDescriptor.value = hashObject;
+      $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+    }
+    
+    return hashObject;
   }
   
   function getHashObject(object) {
-    //if ($hasOwnProperty.call(object, hashProperty)) {
-	var hashObject = object[hashProperty];
-	if (hashObject && hashObject.self === object) {
-	  return hashObject;
-	} else {
-	  return undefined;
-	}
+    var hashObject = object[hashProperty];
+    if (hashObject && hashObject.self === object) {
+      return hashObject;
+    }
+    return undefined;
   }
   
   function freeze(object) {
     defineHashObject(object);
-	return $freeze.apply(this, arguments);
+    return $freeze.apply(this, arguments);
   }
   
   function preventExtensions(object) {
     defineHashObject(object);
-	return $preventExtensions.apply(this, arguments);
+    return $preventExtensions.apply(this, arguments);
   }
 	
   function seal(object) {
