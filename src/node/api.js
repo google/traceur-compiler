@@ -25,6 +25,7 @@ var AttachModuleNameTransformer =
     traceur.codegeneration.module.AttachModuleNameTransformer;
 var ErrorReporter = traceur.util.TestErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
+var PureES6Transformer = traceur.codegeneration.PureES6Transformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
@@ -58,6 +59,7 @@ var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
  */
 function compile(content, options) {
   options = merge({
+    outputLanguage: 'es5',
     modules: 'commonjs',
     filename: '<unknown file>',
     sourceMap: false,
@@ -75,7 +77,13 @@ function compile(content, options) {
   moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
   var transformer = new AttachModuleNameTransformer(moduleName);
   tree = transformer.transformAny(tree);
-  transformer = new FromOptionsTransformer(errorReporter);
+
+  if (options.outputLanguage.toLowerCase() === 'es6') {
+    transformer = new PureES6Transformer(errorReporter);
+  } else {
+    transformer = new FromOptionsTransformer(errorReporter);
+  }
+
   var transformedTree = transformer.transform(tree);
 
   if (errorReporter.hadError()) {
