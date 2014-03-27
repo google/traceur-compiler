@@ -17430,7 +17430,7 @@ System.register("traceur@0.0.33/src/syntax/trees/StateMachine", [], function() {
 System.register("traceur@0.0.33/src/codegeneration/generator/AwaitState", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.33/src/codegeneration/generator/AwaitState";
-  var $__194 = Object.freeze(Object.defineProperties(["Promise.cast(", ").then(\n              $ctx.createCallback(", "), $ctx.errback);\n          return"], {raw: {value: Object.freeze(["Promise.cast(", ").then(\n              $ctx.createCallback(", "), $ctx.errback);\n          return"])}}));
+  var $__194 = Object.freeze(Object.defineProperties(["Promise.resolve(", ").then(\n              $ctx.createCallback(", "), $ctx.errback);\n          return"], {raw: {value: Object.freeze(["Promise.resolve(", ").then(\n              $ctx.createCallback(", "), $ctx.errback);\n          return"])}}));
   var State = System.get("traceur@0.0.33/src/codegeneration/generator/State").State;
   var parseStatements = System.get("traceur@0.0.33/src/codegeneration/PlaceholderParser").parseStatements;
   var AwaitState = function AwaitState(id, callbackState, expression) {
