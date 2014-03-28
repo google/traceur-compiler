@@ -124,11 +124,11 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    * Helper function for visitFunctionDeclaration, visitFunctionExpression and
    * visitArrowFunctionExpression.
    * @param {BindingIdentifier} name This is null for the arrow function.
-   * @param {FormalParameterList} formalParameterList
+   * @param {FormalParameterList} parameterList
    * @param {Block} body
    * @private
    */
-  visitFunction_(name, formalParameterList, body) {
+  visitFunction_(name, parameterList, body) {
     var scope = this.pushScope_();
 
     this.visitAny(name);
@@ -136,7 +136,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     // Declare the function name, 'arguments' and formal parameters inside the
     // function
     this.declareVariable_(ARGUMENTS);
-    this.visitAny(formalParameterList);
+    this.visitAny(parameterList);
 
     this.visitAny(body);
 
@@ -146,15 +146,15 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   visitFunctionDeclaration(tree) {
     this.declareVariable_(tree.name);
     // Function declaration does not bind the name inside the function body.
-    this.visitFunction_(null, tree.formalParameterList, tree.functionBody);
+    this.visitFunction_(null, tree.parameterList, tree.functionBody);
   }
 
   visitFunctionExpression(tree) {
-    this.visitFunction_(tree.name, tree.formalParameterList, tree.functionBody);
+    this.visitFunction_(tree.name, tree.parameterList, tree.functionBody);
   }
 
   visitArrowFunctionExpression(tree) {
-    this.visitFunction_(null, tree.formalParameters, tree.functionBody);
+    this.visitFunction_(null, tree.parameterList, tree.functionBody);
   }
 
   visitGetAccessor(tree) {

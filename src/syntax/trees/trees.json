@@ -57,7 +57,7 @@
     "location": [
       "SourceRange"
     ],
-    "formalParameters": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "functionBody": [
@@ -444,7 +444,7 @@
     "functionKind": [
       "Token"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [
@@ -467,7 +467,7 @@
     "functionKind": [
       "Token"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [
@@ -751,7 +751,7 @@
     "name": [
       "ParseTree"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [

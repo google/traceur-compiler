@@ -867,13 +867,13 @@ export class Parser {
     }
 
     this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
+    var parameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(functionKind,
-                                               formalParameterList);
+                                               parameterList);
     return new ctor(this.getTreeLocation_(start), name, functionKind,
-                    formalParameterList, typeAnnotation, annotations,
+                    parameterList, typeAnnotation, annotations,
                     functionBody);
   }
 
@@ -2130,13 +2130,13 @@ export class Parser {
 
   parseMethod_(start, isStatic, functionKind, name, annotations) {
     this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
+    var parameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(functionKind,
-                                               formalParameterList);
+                                               parameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        isStatic, functionKind, name, formalParameterList, typeAnnotation,
+        isStatic, functionKind, name, parameterList, typeAnnotation,
         annotations, functionBody);
   }
 

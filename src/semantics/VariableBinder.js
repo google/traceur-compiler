@@ -139,7 +139,7 @@ export class VariableBinder extends ParseTreeVisitor {
 
   /** @param {FunctionDeclaration} tree */
   bindVariablesInFunction_(tree) {
-    var parameters = tree.formalParameterList.parameters;
+    var parameters = tree.parameterList.parameters;
     for (var i = 0; i < parameters.length; i++) {
       this.bindParameter_(parameters[i]);
     }
