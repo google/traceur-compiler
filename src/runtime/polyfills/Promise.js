@@ -19,46 +19,88 @@
 
 import async from '../../../node_modules/rsvp/lib/rsvp/asap';
 
+// Status values: 0 = pending, +1 = resolved, -1 = rejected
+
+var promiseRaw = {};
+
 function isPromise(x) {
   return x && typeof x === 'object' && x.status_ !== undefined;
 }
 
+function idResolveHandler(x) {
+  return x;
+}
+
+function idRejectHandler(x) {
+  throw x;
+}
+
 // Simple chaining (a.k.a. flatMap).
-function chain(promise, onResolve = (x) => x, onReject = (e) => { throw e; }) {
+function chain(promise,
+               onResolve = idResolveHandler,
+               onReject = idRejectHandler) {
   var deferred = getDeferred(promise.constructor);
   switch (promise.status_) {
     case undefined:
       throw TypeError;
-    case 'pending':
-      promise.onResolve_.push([deferred, onResolve]);
-      promise.onReject_.push([deferred, onReject]);
+    case 0:
+      promise.onResolve_.push(onResolve, deferred);
+      promise.onReject_.push(onReject, deferred);
       break;
-    case 'resolved':
-      promiseReact(deferred, onResolve, promise.value_);
+    case +1:
+      promiseEnqueue(promise.value_, [onResolve, deferred]);
       break;
-    case 'rejected':
-      promiseReact(deferred, onReject, promise.value_);
+    case -1:
+      promiseEnqueue(promise.value_, [onReject, deferred]);
       break;
   }
   return deferred.promise;
 }
 
 function getDeferred(C) {
-  var result = {};
-  result.promise = new C((resolve, reject) => {
-    result.resolve = resolve;
-    result.reject = reject;
-  });
-  return result;
+  if (this === $Promise) {
+    // Optimized case, avoid extra closure.
+    var promise = promiseInit(new $Promise(promiseRaw));
+    return {
+      promise: promise,
+      resolve: (x) => { promiseResolve(promise, x) },
+      reject: (r) => { promiseReject(promise, r) }
+    };
+  } else {
+    var result = {};
+    result.promise = new C((resolve, reject) => {
+      result.resolve = resolve;
+      result.reject = reject;
+    });
+    return result;
+  }
+}
+
+function promiseSet(promise, status, value, onResolve, onReject) {
+  promise.status_ = status;
+  promise.value_ = value;
+  promise.onResolve_ = onResolve;
+  promise.onReject_ = onReject;
+  return promise;
+}
+
+function promiseInit(promise) {
+  return promiseSet(promise, 0, undefined, [], []);
 }
 
 export class Promise {
   constructor(resolver) {
-    this.status_ = 'pending';
-    this.onResolve_ = [];
-    this.onReject_ = [];
-    resolver((x) => { promiseResolve(this, x) },
-             (r) => { promiseReject(this, r) });
+    if (resolver === promiseRaw)
+      return;
+    if (typeof resolver !== 'function')
+      throw new TypeError;
+    var promise = promiseInit(this);
+    try {
+      resolver((x) => { promiseResolve(promise, x) },
+               (r) => { promiseReject(promise, r) });
+    } catch (e) {
+      promiseReject(promise, e);
+    }
   }
 
   catch(onReject) {
@@ -66,11 +108,14 @@ export class Promise {
   }
 
   // Extended functionality for multi-unwrapping chaining and coercive 'then'.
-  then(onResolve = (x) => x, onReject) {
+  then(onResolve, onReject) {
+    if (typeof onResolve !== 'function') onResolve = idResolveHandler;
+    if (typeof onReject !== 'function') onReject = idRejectHandler;
+    var that = this;
     var constructor = this.constructor;
-    return chain(this, (x) => {
+    return chain(this, function(x) {
       x = promiseCoerce(constructor, x);
-      return x === this ? onReject(new TypeError) :
+      return x === that ? onReject(new TypeError) :
           isPromise(x) ? x.then(onResolve, onReject) : onResolve(x)
     }, onReject);
   }
@@ -78,11 +123,21 @@ export class Promise {
   // Convenience.
 
   static resolve(x) {
-    return new this((resolve, reject) => { resolve(x); });
+    if (this === $Promise) {
+      // Optimized case, avoid extra closure.
+      return promiseSet(new $Promise(promiseRaw), +1, x);
+    } else {
+      return new this(function(resolve, reject) { resolve(x) });
+    }
   }
 
   static reject(r) {
-    return new this((resolve, reject) => { reject(r); });
+    if (this === $Promise) {
+      // Optimized case, avoid extra closure.
+      return promiseSet(new $Promise(promiseRaw), -1, r);
+    } else {
+      return new this((resolve, reject) => { reject(r) });
+    }
   }
 
   // Combinators.
@@ -101,25 +156,22 @@ export class Promise {
 
   static all(values) {
     var deferred = getDeferred(this);
-    var count = 0;
     var resolutions = [];
     try {
-      for (var i = 0; i < values.length; i++) {
-        ++count;
-        this.cast(values[i]).then(
-            function(i, x) {
-              resolutions[i] = x;
-              if (--count === 0)
-                deferred.resolve(resolutions);
-            }.bind(undefined, i),
-            (r) => {
-              if (count > 0)
-                count = 0;
-              deferred.reject(r);
-            });
-      }
-      if (count === 0)
+      var count = values.length;
+      if (count === 0) {
         deferred.resolve(resolutions);
+      } else {
+        for (var i = 0; i < values.length; i++) {
+          this.resolve(values[i]).then(
+              function(i, x) {
+                resolutions[i] = x;
+                if (--count === 0)
+                  deferred.resolve(resolutions);
+              }.bind(undefined, i),
+              (r) => { deferred.reject(r); });
+        }
+      }
     } catch (e) {
       deferred.reject(e);
     }
@@ -129,8 +181,9 @@ export class Promise {
   static race(values) {
     var deferred = getDeferred(this);
     try {
+      // TODO(arv): values should be an iterable
       for (var i = 0; i < values.length; i++) {
-        this.cast(values[i]).then(
+        this.resolve(values[i]).then(
             (x) => { deferred.resolve(x); },
             (r) => { deferred.reject(r); });
       }
@@ -141,62 +194,79 @@ export class Promise {
   }
 }
 
+var $Promise = Promise;
+var $PromiseReject = $Promise.reject;
+
 function promiseResolve(promise, x) {
-  promiseDone(promise, 'resolved', x, promise.onResolve_);
+  promiseDone(promise, +1, x, promise.onResolve_);
 }
 
 function promiseReject(promise, r) {
-  promiseDone(promise, 'rejected', r, promise.onReject_);
+  promiseDone(promise, -1, r, promise.onReject_);
 }
 
 function promiseDone(promise, status, value, reactions) {
-  if (promise.status_ !== 'pending')
+  if (promise.status_ !== 0)
     return;
-  for (var i = 0; i < reactions.length; i++) {
-    promiseReact(reactions[i][0], reactions[i][1], value);
-  }
-  promise.status_ = status;
-  promise.value_ = value;
-  promise.onResolve_ = promise.onReject_ = undefined;
+  promiseEnqueue(value, reactions);
+  promiseSet(promise, status, value);
 }
 
-function promiseReact(deferred, handler, x) {
+function promiseEnqueue(value, tasks) {
   async(() => {
-    try {
-      var y = handler(x);
-      if (y === deferred.promise)
-        throw new TypeError;
-      else if (isPromise(y))
-        chain(y, deferred.resolve, deferred.reject);
-      else
-        deferred.resolve(y);
-    } catch (e) {
-      deferred.reject(e);
+    for (var i = 0; i < tasks.length; i += 2) {
+      promiseHandle(value, tasks[i], tasks[i + 1])
     }
   });
+}
+
+function promiseHandle(value, handler, deferred) {
+  try {
+    var result = handler(value);
+    if (result === deferred.promise)
+      throw new TypeError;
+    else if (isPromise(result))
+      chain(result, deferred.resolve, deferred.reject);
+    else
+      deferred.resolve(result);
+  } catch (e) {
+    // TODO(arv): perhaps log uncaught exceptions below.
+    try { deferred.reject(e) } catch(e) {}
+  }
 }
 
 // This should really be a WeakMap.
 var thenableSymbol = '@@thenable';
 
+function isObject(x) {
+  return x && (typeof x === 'object' || typeof x === 'function');
+}
+
 function promiseCoerce(constructor, x) {
-  if (isPromise(x)) {
-    return x;
-  } else if (x && typeof x.then === 'function') {
-    var p = x[thenableSymbol];
-    if (p) {
-      return p;
-    } else {
-      var deferred = getDeferred(constructor);
-      x[thenableSymbol] = deferred.promise;
-      try {
-        x.then(deferred.resolve, deferred.reject);
-      } catch (e) {
-        deferred.reject(e);
-      }
-      return deferred.promise;
+  if (!isPromise(x) && isObject(x)) {
+    var then;
+    try {
+      then = x.then;
+    } catch (r) {
+      var promise = $PromiseReject.call(constructor, r);
+      x[thenableSymbol] = promise;
+      return promise;
     }
-  } else {
-    return x;
+    if (typeof then === 'function') {
+      var p = x[thenableSymbol];
+      if (p) {
+        return p;
+      } else {
+        var deferred = getDeferred(constructor);
+        x[thenableSymbol] = deferred.promise;
+        try {
+          then.call(x, deferred.resolve, deferred.reject);
+        } catch (r) {
+          deferred.reject(r);
+        }
+        return deferred.promise;
+      }
+    }
   }
+  return x;
 }

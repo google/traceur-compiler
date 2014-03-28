@@ -32,7 +32,7 @@ export class AwaitState extends State {
   get statements() {
     if (!this.statements_) {
       this.statements_ = parseStatements
-          `Promise.cast(${this.expression}).then(
+          `Promise.resolve(${this.expression}).then(
               $ctx.createCallback(${this.callbackState}), $ctx.errback);
           return`;
     }

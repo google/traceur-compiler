@@ -131,6 +131,10 @@ test/unit/runtime/traceur-runtime: \
 test-version:
 	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
+# We currently fail on the sloppy mode tests
+test-promise:
+	node_modules/promises-aplus-tests/lib/cli.js test/node-promise-adapter.js --grep sloppy --invert
+
 boot: clean build
 
 clean: wikiclean
