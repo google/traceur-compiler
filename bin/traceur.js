@@ -93,32 +93,29 @@
   });
   var hashProperty = newUniqueString();
   var hashObjectPropertyDescriptor = {value: undefined};
-  function defineHashObject(object) {
-    var hashObject = object[hashProperty];
-    if (!hashObject) {
-      hashObject = {self: object};
-      hashObjectPropertyDescriptor.value = hashObject;
-      $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
-    }
-    return hashObject;
-  }
-  function getHashObject(object) {
-    var hashObject = object[hashProperty];
-    if (hashObject && hashObject.self === object) {
-      return hashObject;
-    }
-    return undefined;
-  }
+  var getOwnHash = (function() {
+    var current = 0;
+    return function getOwnHash(object) {
+      if ($hasOwnProperty.call(object, hashProperty))
+        return object[hashProperty];
+      if (Object.isExtensible(object)) {
+        hashObjectPropertyDescriptor.value = current++;
+        $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+        return hashObjectPropertyDescriptor.value;
+      }
+      return undefined;
+    };
+  })();
   function freeze(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $freeze.apply(this, arguments);
   }
   function preventExtensions(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $preventExtensions.apply(this, arguments);
   }
   function seal(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $seal.apply(this, arguments);
   }
   Symbol.iterator = Symbol();
@@ -538,8 +535,7 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    defineHashObject: defineHashObject,
-    getHashObject: getHashObject
+    getOwnHash: getOwnHash
   };
 })(typeof global !== 'undefined' ? global : this);
 (function() {
@@ -915,56 +911,41 @@ System.register("traceur@0.0.32/src/runtime/polyfills/HashMap", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.32/src/runtime/polyfills/HashMap";
   var isObject = System.get("traceur@0.0.32/src/runtime/polyfills/utils").isObject;
-  var defineHashObject = $traceurRuntime.defineHashObject;
-  var getHashObject = $traceurRuntime.getHashObject;
-  var getTimestamp = (function() {
-    var current = 0;
-    return function getTimestamp() {
-      return current++;
-    };
-  })();
-  var HashStore = function HashStore() {
+  var getOwnHash = $traceurRuntime.getOwnHash;
+  var ArrayMap = function ArrayMap() {
     this.clear();
   };
-  ($traceurRuntime.createClass)(HashStore, {
-    set: function(obj, plainHash) {
-      var index = this.keys_.push(obj) - 1;
-      this.values_[index] = plainHash;
-      this.index_[plainHash] = index;
+  ($traceurRuntime.createClass)(ArrayMap, {
+    get size() {
+      return this.keys_.length;
     },
-    get: function(obj) {
+    set: function(key, value) {
+      var index = this.keys_.push(key) - 1;
+      this.values_[index] = value;
+    },
+    get: function(key, defaultValue) {
       var index = this.keys_.indexOf(key);
       if (index == -1) {
-        return undefined;
+        return defaultValue;
       }
       return this.values_[index];
     },
-    delete: function(plainHash) {
-      var index = this.index_[plainHash];
-      this.keys_.splice(index, 1);
-      this.values_.splice(index, 1);
-      delete this.index_[plainHash];
+    has: function(key) {
+      return this.keys_.indexOf(key) !== -1;
     },
-    deleteByKey: function(obj) {
-      var index = this.keys_.indexOf(obj);
+    delete: function(key) {
+      var index = this.keys_.indexOf(key);
       if (index != -1) {
-        var plainHash = index;
         this.keys_.splice(index, 1);
         this.values_.splice(index, 1);
-        delete this.index_[plainHash];
       }
     },
     clear: function() {
       this.keys_ = [];
       this.values_ = [];
-      this.index_ = {};
     }
   }, {});
-  var hashMapCurrent = 0;
-  var deletedSentinel = {};
-  function nonExtensibleError() {
-    return new TypeError('Object must not be natively freezed or flag ' + '"allowNonExtensibleObjects" in collection must be true');
-  }
+  var undefinedSentinel = {};
   function keyIsNotObjectError() {
     return new TypeError('Key must be an object');
   }
@@ -973,152 +954,60 @@ System.register("traceur@0.0.32/src/runtime/polyfills/HashMap", [], function() {
       throw keyIsNotObjectError();
   }
   var HashMap = function HashMap() {
-    this.id_ = hashMapCurrent;
-    this.tsId_ = this.id_ + 1;
-    hashMapCurrent += 2;
-    this.store_ = new HashStore();
-    this.clearTS_ = getTimestamp();
-    this.container_ = [];
+    this.store_ = new ArrayMap();
+    this.container_ = Object.create(null);
     this.size_ = 0;
-    this.allowNonExtensibleObjects = false;
-    this.currentHash_ = 0;
   };
   ($traceurRuntime.createClass)(HashMap, {
     get size() {
-      return this.size_;
-    },
-    tryGetPlainHash_: function(obj) {
-      var hashObj;
-      if (hashObj = getHashObject(obj)) {
-        var timestamp = hashObj[this.tsId_];
-        if (timestamp > this.clearTS_)
-          return hashObj[this.id_];
-        return undefined;
-      } else if (Object.isExtensible(obj)) {
-        return undefined;
-      } else {
-        if (this.allowNonExtensibleObjects)
-          return this.store_.get(obj);
-        throw nonExtensibleError();
-      }
-    },
-    getPlainHash_: function(obj) {
-      var hashObj;
-      if (hashObj = getHashObject(obj)) {
-        var timestamp = hashObj[this.tsId_];
-        if (timestamp > this.clearTS_)
-          return hashObj[this.id_];
-        hashObj[this.tsId_] = getTimestamp();
-        return hashObj[this.id_] = this.currentHash_++;
-      } else if (Object.isExtensible(obj)) {
-        var hashObj = defineHashObject(obj);
-        hashObj[this.tsId_] = getTimestamp();
-        return hashObj[this.id_] = this.currentHash_++;
-      } else if (this.allowNonExtensibleObjects) {
-        var plainHash = this.store_.get(obj);
-        if (plainHash !== undefined) {
-          plainHash = this.currentHash_++;
-          this.store_.set(obj, plainHash);
-        }
-        return plainHash;
-      }
-      throw nonExtensibleError();
-    },
-    deletePlainHash_: function(obj) {
-      var hashObj = getHashObject(obj);
-      if (hashObj) {
-        delete hashObj[this.id_];
-        delete hashObj[this.tsId_];
-      } else {
-        if (!this.allowNonExtensibleObjects)
-          throw nonExtensibleError();
-        else {
-          this.store_.deleteByKey(obj);
-        }
-      }
+      return this.size_ + this.store_.size;
     },
     get: function(key, defaultValue) {
       validateKey(key);
-      var plainHash = this.tryGetPlainHash_(key);
-      var result;
-      if (plainHash !== undefined && ((result = this.container_[plainHash]) !== deletedSentinel)) {
-        return result;
+      var hash = getOwnHash(key);
+      if (hash !== undefined) {
+        var value = this.container_[hash];
+        return value === undefined ? defaultValue : value === undefinedSentinel ? undefined : value;
       } else {
-        return defaultValue;
+        return this.store_.get(key, defaultValue);
       }
     },
     set: function(key, value) {
       validateKey(key);
-      var before = this.currentHash_;
-      var plainHash = this.getPlainHash_(key);
-      var after = this.currentHash_;
-      if (after > before)
-        this.size_++;
-      if (plainHash === undefined)
-        throw new Error('Internal error in HashMap');
-      this.container_[plainHash] = value;
+      var hash = getOwnHash(key);
+      if (hash !== undefined) {
+        if (this.container_[hash] === undefined)
+          this.size_++;
+        this.container_[hash] = value !== undefined ? value : undefinedSentinel;
+      } else {
+        this.store_.set(key, value);
+      }
     },
     has: function(key) {
       validateKey(key);
-      var plainHash = this.tryGetPlainHash_(key);
-      return plainHash !== undefined && this.container_[plainHash] !== deletedSentinel;
+      var hash = getOwnHash(key);
+      if (hash !== undefined) {
+        return this.container_[hash] !== undefined;
+      } else {
+        return this.store_.has(key);
+      }
     },
     delete: function(key) {
       validateKey(key);
-      var plainHash = this.tryGetPlainHash_(key);
-      if (plainHash !== undefined) {
-        this.size_--;
-        this.deletePlainHash_(key);
-        this.container_[plainHash] = deletedSentinel;
+      var hash = getOwnHash(key);
+      if (hash !== undefined) {
+        if (this.container_[hash] !== undefined) {
+          this.size_--;
+          delete this.container_[hash];
+        }
+      } else {
+        return this.store_.delete(key);
       }
     },
     clear: function() {
-      var container = this.container_;
       this.store_.clear();
       this.container_ = [];
-      this.clearTS_ = getTimestamp();
       this.size_ = 0;
-    },
-    values: function() {
-      var container = this.container_;
-      function gen() {
-        var i,
-            len,
-            v;
-        return $traceurRuntime.generatorWrap(function($ctx) {
-          while (true)
-            switch ($ctx.state) {
-              case 0:
-                i = 0, len = container.length;
-                $ctx.state = 12;
-                break;
-              case 12:
-                $ctx.state = (i < len) ? 8 : -2;
-                break;
-              case 7:
-                i++;
-                $ctx.state = 12;
-                break;
-              case 8:
-                v = container[i];
-                $ctx.state = 9;
-                break;
-              case 9:
-                $ctx.state = (v === deletedSentinel) ? 7 : 2;
-                break;
-              case 2:
-                $ctx.state = 5;
-                return container[i];
-              case 5:
-                $ctx.maybeThrow();
-                $ctx.state = 7;
-                break;
-              default:
-                return $ctx.end();
-            }
-        }, this);
-      }
-      return gen();
     }
   }, {});
   return {get HashMap() {

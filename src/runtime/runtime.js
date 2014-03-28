@@ -166,42 +166,34 @@
     value: undefined
   };
   
-  function defineHashObject(object) {
-    var hashObject = object[hashProperty];
-    if (!hashObject) {
-      hashObject = {
-        // self is needed to avoid of slow hasOwnProperty 
-        // `obj[hashProperty].self === obj` is faster alternative to
-        // `obj.hasOwnProperty(hashProperty)`
-        self: object 
-      };
-      hashObjectPropertyDescriptor.value = hashObject;
-      $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+  var getOwnHash = (function () {
+    var current = 0;
+    return function getOwnHash(object) {
+      if ($hasOwnProperty.call(object, hashProperty))
+        return object[hashProperty];
+      
+      if (Object.isExtensible(object)) {
+        hashObjectPropertyDescriptor.value = current++;
+        $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
+        return hashObjectPropertyDescriptor.value;
+      }
+      
+      return undefined;
     }
-    
-    return hashObject;
-  }
-  
-  function getHashObject(object) {
-    var hashObject = object[hashProperty];
-    if (hashObject && hashObject.self === object) {
-      return hashObject;
-    }
-    return undefined;
-  }
+  })();
   
   function freeze(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $freeze.apply(this, arguments);
   }
   
   function preventExtensions(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $preventExtensions.apply(this, arguments);
   }
 
   function seal(object) {
-    defineHashObject(object);
+    getOwnHash(object);
     return $seal.apply(this, arguments);
   }
 
@@ -689,8 +681,7 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    defineHashObject: defineHashObject,
-    getHashObject: getHashObject
+    getOwnHash: getOwnHash
   };
 
 })(typeof global !== 'undefined' ? global : this);
