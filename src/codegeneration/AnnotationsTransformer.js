@@ -160,12 +160,12 @@ class AnnotationsScope {
     scope.metadata.push(...this.transformMetadata_(
         createIdentifierExpression(tree.name),
         scope.annotations,
-        tree.formalParameterList.parameters));
+        tree.parameterList.parameters));
 
     tree = super(tree);
     if (tree.annotations.length > 0) {
-      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-          tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
+      tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
+          tree.parameterList, tree.typeAnnotation, [], tree.functionBody);
     }
     return this.appendMetadata_(tree);
   }
@@ -201,12 +201,12 @@ class AnnotationsScope {
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
         tree.annotations,
-        [tree.parameter]));
+        tree.parameterList.parameters));
 
-    var parameter = this.transformAny(tree.parameter);
-    if (parameter !== tree.parameter || tree.annotations.length > 0) {
+    var parameterList = this.transformAny(tree.parameterList);
+    if (parameterList !== tree.parameterList || tree.annotations.length > 0) {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
-          parameter, [], tree.body);
+          parameterList, [], tree.body);
     }
     return super(tree);
   }
@@ -217,19 +217,19 @@ class AnnotationsScope {
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
-      this.scope.constructorParameters = tree.formalParameterList.parameters;
+      this.scope.constructorParameters = tree.parameterList.parameters;
     } else {
       this.scope.metadata.push(...this.transformMetadata_(
           this.transformPropertyMethod_(tree, this.scope.className),
           tree.annotations,
-          tree.formalParameterList.parameters));
+          tree.parameterList.parameters));
     }
 
-    var formalParameters = this.transformAny(tree.formalParameterList);
-    if (formalParameters !== tree.formalParameterList ||
+    var parameterList = this.transformAny(tree.parameterList);
+    if (parameterList !== tree.parameterList ||
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
-          tree.isGenerator, tree.name, formalParameters,
+          tree.functionKind, tree.name, parameterList,
           tree.typeAnnotation, [], tree.functionBody);
     }
     return super(tree);

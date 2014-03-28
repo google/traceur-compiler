@@ -1,5 +1,6 @@
-// Options: --deferred-functions
-// Async.
+// Should not compile.
+// Disabled by default.
+// Error: :14:21: Semi-colon expected
 
 function asyncComplete() {
   return new Promise((resolve) => {
@@ -9,9 +10,7 @@ function asyncComplete() {
 
 // ----------------------------------------------------------------------------
 
-(function() {
-  var value;
-  await value = asyncComplete();
+(async function() {
+  var value = async asyncComplete();
   assert.equal('complete', value);
-  done();
 })();

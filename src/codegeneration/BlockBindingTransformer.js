@@ -551,7 +551,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    */
   transformFunctionDeclaration(tree) {
     var body = this.transformFunctionBody(tree.functionBody);
-    var formalParameterList = this.transformAny(tree.formalParameterList);
+    var parameterList = this.transformAny(tree.parameterList);
 
     if (this.scope_.type === ScopeType.BLOCK) {
       // Named function in a block scope is only scoped to the block.
@@ -563,18 +563,18 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return createExpressionStatement(
           createAssignmentExpression(
               createIdentifierExpression(tree.name.identifierToken),
-              new FunctionExpression(tree.location, null, tree.isGenerator,
-                                     formalParameterList, tree.typeAnnotation,
+              new FunctionExpression(tree.location, null, tree.functionKind,
+                                     parameterList, tree.typeAnnotation,
                                      tree.annotations, body)));
     }
 
     if (body === tree.functionBody &&
-        formalParameterList === tree.formalParameterList) {
+        parameterList === tree.parameterList) {
       return tree;
     }
 
-    return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-                                   formalParameterList, tree.typeAnnotation,
+    return new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
+                                   parameterList, tree.typeAnnotation,
                                    tree.annotations, body);
   }
 

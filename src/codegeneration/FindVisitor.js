@@ -14,10 +14,6 @@
 
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 
-// Object used as a sentinel. This is thrown to abort visiting the rest of the
-// tree.
-var foundSentinel = {};
-
 /**
  * This is used to find something in a tree. Extend this class and override
  * the desired visit functions to find what you are looking for. When the tree
@@ -32,14 +28,9 @@ export class FindVisitor extends ParseTreeVisitor {
    */
   constructor(tree, keepOnGoing = undefined) {
     this.found_ = false;
+    this.shouldContinue_ = true;
     this.keepOnGoing_ = keepOnGoing;
-    try {
-      this.visitAny(tree);
-    } catch (ex) {
-      // This uses an exception to do early exits.
-      if (ex !== foundSentinel)
-        throw ex;
-    }
+    this.visitAny(tree);
   }
 
   /**
@@ -55,7 +46,19 @@ export class FindVisitor extends ParseTreeVisitor {
     if (v) {
       this.found_ = true;
       if (!this.keepOnGoing_)
-        throw foundSentinel;
+        this.shouldContinue_ = false;
+    }
+  }
+
+  visitAny(tree) {
+    this.shouldContinue_ && tree && tree.visit(this);
+  }
+
+  visitList(list) {
+    if (list) {
+      for (var i = 0; this.shouldContinue_ && i < list.length; i++) {
+        this.visitAny(list[i]);
+      }
     }
   }
 }

@@ -22,18 +22,21 @@ import {GeneratorTransformer} from './generator/GeneratorTransformer';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {parseStatement} from './PlaceholderParser';
 import {TempVarTransformer} from './TempVarTransformer';
-import {EQUAL} from '../syntax/TokenType';
+import {
+  EQUAL,
+  STAR
+} from '../syntax/TokenType';
 import {
   BINARY_OPERATOR,
   COMMA_EXPRESSION,
   PAREN_EXPRESSION,
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
+import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
-import {YieldFinder} from './generator/YieldFinder';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
@@ -47,11 +50,21 @@ import {
   createVariableStatement,
   createYieldStatement
 } from './ParseTreeFactory';
-import isYieldAssign from './generator/isYieldAssign';
 import {
   transformOptions,
   options
 } from '../options';
+
+class ForInFinder extends FindInFunctionScope {
+  visitForInStatement(tree) {
+    this.found = true;
+  }
+}
+
+function needsTransform(tree) {
+  return transformOptions.generators && tree.isGenerator() ||
+      transformOptions.asyncFunctions && tree.isAsyncFunction();
+}
 
 /**
  * This pass just finds function bodies with yields in them and passes them
@@ -72,6 +85,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
+    if (!needsTransform(tree))
+      return super(tree);
+
     return this.transformFunction_(tree, FunctionDeclaration);
   }
 
@@ -80,94 +96,41 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
+    if (!needsTransform(tree))
+      return super(tree);
+
     return this.transformFunction_(tree, FunctionExpression);
   }
 
   transformFunction_(tree, constructor) {
-    var body = this.transformBody_(tree.functionBody, tree.isGenerator);
-    if (body === tree.functionBody)
-      return tree;
-
-    // The generator has been transformed away.
-    var isGenerator = false;
-
-    return new constructor(null, tree.name, isGenerator,
-                           tree.formalParameterList, tree.typeAnnotation,
-                           tree.annotations, body);
-  }
-
-  /**
-   * @param {FunctionBody} tree
-   * @return {FunctionBody}
-   */
-  transformBody_(tree, isGenerator) {
-    var finder;
-
-    // transform nested functions
-    var body = super.transformFunctionBody(tree);
-
-    if (isGenerator || transformOptions.deferredFunctions) {
-      finder = new YieldFinder(tree);
-      if (!(finder.hasYield || isGenerator || finder.hasAwait))
-        return body;
-    } else if (!isGenerator) {
-      return body;
-    }
+    var body = super.transformFunctionBody(tree.functionBody);
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
-    if (finder.hasForIn &&
-        (transformOptions.generators || transformOptions.deferredFunctions)) {
-      body = new ForInTransformPass(this.identifierGenerator).transformAny(body);
+    var finder = new ForInFinder(body);
+    if (finder.found) {
+      body = new ForInTransformPass(this.identifierGenerator).
+          transformAny(body);
     }
 
-    if (finder.hasYield || isGenerator) {
-      if (transformOptions.generators) {
-        body = GeneratorTransformer.transformGeneratorBody(
-            this.identifierGenerator,
-            this.reporter_,
-            body);
-      }
-    } else if (transformOptions.deferredFunctions) {
+    if (transformOptions.generators && tree.isGenerator()) {
+      body = GeneratorTransformer.transformGeneratorBody(
+          this.identifierGenerator,
+          this.reporter_,
+          body);
+
+    } else if (transformOptions.asyncFunctions && tree.isAsyncFunction()) {
       body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator, this.reporter_, body);
+          this.identifierGenerator,
+          this.reporter_,
+          body);
     }
-    return body;
-  }
 
-  /**
-   * @param {GetAccessor} tree
-   * @return {ParseTree}
-   */
-  transformGetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
-    if (body === tree.body)
-      return tree;
+    // The generator has been transformed away.
+    var functionKind = null;
 
-    return new GetAccessor(
-        tree.location,
-        tree.isStatic,
-        tree.name,
-        tree.typeAnnotation,
-        tree.annotations,
-        body);
-  }
-
-  /**
-   * @param {SetAccessor} tree
-   * @return {ParseTree}
-   */
-  transformSetAccessor(tree) {
-    var body = this.transformBody_(tree.body);
-    if (body === tree.body)
-      return tree;
-
-    return new SetAccessor(
-        tree.location,
-        tree.isStatic,
-        tree.name,
-        tree.parameter,
-        tree.annotations,
-        body);
+    return new constructor(null, tree.name, functionKind,
+                           tree.parameterList, tree.typeAnnotation,
+                           tree.annotations, body);
   }
 }

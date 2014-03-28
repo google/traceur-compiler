@@ -637,12 +637,10 @@
         moveNext(ctx);
       };
     }
-    ctx.createErrback = function(newState) {
-      return function (err) {
-        ctx.state = newState;
-        ctx.err = err;
-        moveNext(ctx);
-      };
+
+    ctx.errback = function(err) {
+      handleCatch(ctx, err);
+      moveNext(ctx);
     };
 
     moveNext(ctx);
@@ -655,21 +653,25 @@
         try {
           return innerFunction.call(self, ctx);
         } catch (ex) {
-          ctx.storedException = ex;
-          var last = ctx.tryStack_[ctx.tryStack_.length - 1];
-          if (!last) {
-            ctx.GState = ST_CLOSED;
-            ctx.state = END_STATE;
-            throw ex;
-          }
-
-          ctx.state = last.catch !== undefined ? last.catch : last.finally;
-
-          if (last.finallyFallThrough !== undefined)
-            ctx.finallyFallThrough = last.finallyFallThrough;
+          handleCatch(ctx, ex);
         }
       }
     };
+  }
+
+  function handleCatch(ctx, ex) {
+    ctx.storedException = ex;
+    var last = ctx.tryStack_[ctx.tryStack_.length - 1];
+    if (!last) {
+      ctx.GState = ST_CLOSED;
+      ctx.state = END_STATE;
+      throw ex;
+    }
+
+    ctx.state = last.catch !== undefined ? last.catch : last.finally;
+
+    if (last.finallyFallThrough !== undefined)
+      ctx.finallyFallThrough = last.finallyFallThrough;
   }
 
   function setupGlobals(global) {

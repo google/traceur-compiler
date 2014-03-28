@@ -57,19 +57,16 @@
     "location": [
       "SourceRange"
     ],
-    "formalParameters": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "functionBody": [
       "ParseTree"
     ]
   },
-  "AwaitStatement": {
+  "AwaitExpression": {
     "location": [
       "SourceRange"
-    ],
-    "identifier": [
-      "IdentifierToken"
     ],
     "expression": [
       "ParseTree"
@@ -444,10 +441,10 @@
     "name": [
       "BindingIdentifier"
     ],
-    "isGenerator": [
-      "boolean"
+    "functionKind": [
+      "Token"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [
@@ -467,10 +464,10 @@
     "name": [
       "BindingIdentifier"
     ],
-    "isGenerator": [
-      "boolean"
+    "functionKind": [
+      "Token"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [
@@ -748,13 +745,13 @@
     "isStatic": [
       "boolean"
     ],
-    "isGenerator": [
-      "boolean"
+    "functionKind": [
+      "Token"
     ],
     "name": [
       "ParseTree"
     ],
-    "formalParameterList": [
+    "parameterList": [
       "FormalParameterList"
     ],
     "typeAnnotation": [
@@ -812,8 +809,8 @@
     "name": [
       "ParseTree"
     ],
-    "parameter": [
-      "FormalParameter"
+    "parameterList": [
+      "FormalParameterList"
     ],
     "annotations": [
       "Array.<ParseTree>"

@@ -38,7 +38,7 @@ suite('VariableBinder.js', function() {
   }
 
   test('BoundIdentifiersInBlock', function() {
-    traceur.options.experimental = true;
+    traceur.options.blockBinding = true;
     assert.equal('f', idsToString(variablesInBlock(parse(
         '{ function f(x) { var y; }; }'), false)));
     assert.equal('', idsToString(variablesInBlock(parse(

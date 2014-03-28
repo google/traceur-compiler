@@ -44,8 +44,8 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
    */
   transformArrowFunctionExpression(tree) {
     var parameters;
-    if (tree.formalParameters) {
-      parameters = this.transformAny(tree.formalParameters).parameters;
+    if (tree.parameterList) {
+      parameters = this.transformAny(tree.parameterList).parameters;
     } else {
       parameters = [];
     }

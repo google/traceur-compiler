@@ -44,6 +44,8 @@ import {
 } from './trees/ParseTreeType';
 import {
   AS,
+  ASYNC,
+  AWAIT,
   FROM,
   GET,
   MODULE,
@@ -69,7 +71,6 @@ import {
   AND,
   ARROW,
   AT,
-  AWAIT,
   BACK_QUOTE,
   BANG,
   BAR,
@@ -180,7 +181,7 @@ import {
   ArrayLiteralExpression,
   ArrayPattern,
   ArrowFunctionExpression,
-  AwaitStatement,
+  AwaitExpression,
   BinaryOperator,
   BindingElement,
   BindingIdentifier,
@@ -346,16 +347,13 @@ export class Parser {
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this);
 
-    /**
-     * Keeps track of whether we currently allow yield expressions.
-     * @type {boolean}
-     * @private
-     */
+    // yield is only allowed inside a generator and await is only allowed
+    // inside an async function.
     this.allowYield_ = false;
+    this.allowAwait_ = false;
 
     /**
      * Keeps track of whether we are currently in strict mode parsing or not.
-     * @type {boolean}
      */
     this.strictMode_ = false;
 
@@ -789,10 +787,6 @@ export class Parser {
         if (parseOptions.annotations)
           return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
         break;
-      case AWAIT:
-        if (parseOptions.deferredFunctions)
-          return this.parseAwaitStatement_();
-        break;
       case CLASS:
         if (parseOptions.classes)
           return this.parseClassDeclaration_();
@@ -840,10 +834,30 @@ export class Parser {
     return this.parseFunction_(FunctionExpression);
   }
 
+  parseAsyncFunctionDeclaration_(asyncToken) {
+    return this.parseAsyncFunction_(asyncToken, FunctionDeclaration);
+  }
+
+  parseAsyncFunctionExpression_(asyncToken) {
+    return this.parseAsyncFunction_(asyncToken, FunctionExpression);
+  }
+
+  parseAsyncFunction_(asyncToken, ctor) {
+    var start = asyncToken.location.start;
+    this.eat_(FUNCTION);
+    return this.parseFunction2_(start, asyncToken, ctor);
+  }
+
   parseFunction_(ctor) {
     var start = this.getTreeStartLocation_();
     this.eat_(FUNCTION);
-    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
+    var functionKind = null;
+    if (parseOptions.generators && this.peek_(STAR))
+      functionKind = this.eat_(STAR);
+    return this.parseFunction2_(start, functionKind, ctor);
+  }
+
+  parseFunction2_(start, functionKind, ctor) {
     var name = null;
     var annotations = [];
     if (ctor === FunctionDeclaration ||
@@ -853,13 +867,13 @@ export class Parser {
     }
 
     this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
+    var parameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
-    return new ctor(this.getTreeLocation_(start), name, isGenerator,
-                    formalParameterList, typeAnnotation, annotations,
+    var functionBody = this.parseFunctionBody_(functionKind,
+                                               parameterList);
+    return new ctor(this.getTreeLocation_(start), name, functionKind,
+                    parameterList, typeAnnotation, annotations,
                     functionBody);
   }
 
@@ -948,13 +962,17 @@ export class Parser {
    * @return {Block}
    * @private
    */
-  parseFunctionBody_(isGenerator, params) {
+  parseFunctionBody_(functionKind, params) {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
     var allowYield = this.allowYield_;
+    var allowAwait = this.allowAwait_;
     var strictMode = this.strictMode_;
-    this.allowYield_ = isGenerator;
+
+    this.allowYield_ = functionKind && functionKind.type === STAR;
+    this.allowAwait_ = functionKind &&
+        functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
 
     var result = this.parseStatementList_(!strictMode);
 
@@ -963,6 +981,7 @@ export class Parser {
 
     this.strictMode_ = strictMode;
     this.allowYield_ = allowYield;
+    this.allowAwait_ = allowAwait;
 
     this.eat_(CLOSE_CURLY);
     return new FunctionBody(this.getTreeLocation_(start), result);
@@ -1139,7 +1158,21 @@ export class Parser {
    */
   parseFallThroughStatement_(allowScriptItem) {
     var start = this.getTreeStartLocation_();
-    var expression = this.parseExpression();
+    var expression;
+
+    // async [no line terminator] function ...
+    if (parseOptions.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
+        this.peek_(FUNCTION, 1)) {
+      var asyncToken = this.eatId_();
+      var functionToken = this.peekTokenNoLineTerminator_();
+      if (functionToken !== null)
+        return this.parseAsyncFunctionDeclaration_(asyncToken);
+
+      expression = new IdentifierExpression(this.getTreeLocation_(start),
+                                            asyncToken);
+    } else {
+      expression = this.parseExpression();
+    }
 
     if (expression.type === IDENTIFIER_EXPRESSION) {
       var nameToken = expression.identifierToken;
@@ -1488,26 +1521,6 @@ export class Parser {
         this.getTreeLocation_(start), expression, isYieldFor);
   }
 
-  // Harmony?: The await Statement
-  // TODO: await should be an expression, not a statement
-  // await[ identifier = ] expression;
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseAwaitStatement_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(AWAIT);
-    var identifier = null;
-    if (this.peek_(IDENTIFIER) && this.peek_(EQUAL, 1)) {
-      identifier = this.eatId_();
-      this.eat_(EQUAL);
-    }
-    var expression = this.parseExpression();
-    this.eatPossibleImplicitSemiColon_();
-    return new AwaitStatement(this.getTreeLocation_(start), identifier, expression);
-  }
-
   // 12.10 The with Statement
   /**
    * @return {ParseTree}
@@ -1701,7 +1714,16 @@ export class Parser {
       case THIS:
         return this.parseThisExpression_();
       case IDENTIFIER:
-        return this.parseIdentifierExpression_();
+        var identifier = this.parseIdentifierExpression_();
+        if (parseOptions.asyncFunctions &&
+            identifier.identifierToken.value === ASYNC) {
+          var token = this.peekTokenNoLineTerminator_();
+          if (token && token.type === FUNCTION) {
+            var asyncToken = identifier.identifierToken;
+            return this.parseAsyncFunctionExpression_(asyncToken);
+          }
+        }
+        return identifier;
       case NUMBER:
       case STRING:
       case TRUE:
@@ -1987,7 +2009,7 @@ export class Parser {
   parsePropertyDefinition() {
     var start = this.getTreeStartLocation_();
 
-    var isGenerator = false;
+    var functionKind = null;
     var isStatic = false;
 
     if (parseOptions.generators && parseOptions.propertyMethods &&
@@ -1999,7 +2021,7 @@ export class Parser {
     var name = this.parsePropertyName_();
 
     if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN))
-      return this.parseMethod_(start, isStatic, isGenerator, name, []);
+      return this.parseMethod_(start, isStatic, functionKind, name, []);
 
     if (this.eatIf_(COLON)) {
       var value = this.parseAssignmentExpression();
@@ -2018,6 +2040,13 @@ export class Parser {
       if (nameLiteral.value === SET &&
           this.peekPropertyName_(type)) {
         return this.parseSetAccessor_(start, isStatic, []);
+      }
+
+      if (parseOptions.asyncFunctions && nameLiteral.value === ASYNC &&
+          this.peekPropertyName_(type)) {
+        var async = nameLiteral;
+        var name = this.parsePropertyName_();
+        return this.parseMethod_(start, isStatic, async, name, []);
       }
 
       if (parseOptions.propertyNameShorthand &&
@@ -2065,7 +2094,7 @@ export class Parser {
 
     var annotations = this.parseAnnotations_();
     var type = this.peekType_();
-    var isStatic = false, isGenerator = false;
+    var isStatic = false, functionKind = null;
     switch (type) {
       case STATIC:
         var staticToken = this.nextToken_();
@@ -2073,7 +2102,7 @@ export class Parser {
         switch (type) {
           case OPEN_PAREN:
             var name = new LiteralPropertyName(start, staticToken);
-            return this.parseMethod_(start, isStatic, isGenerator, name,
+            return this.parseMethod_(start, isStatic, functionKind, name,
                                      annotations);
 
           default:
@@ -2094,26 +2123,25 @@ export class Parser {
   }
 
   parseGeneratorMethod_(start, isStatic, annotations) {
-    var isGenerator = true;
-    this.eat_(STAR);
+    var functionKind = this.eat_(STAR);
     var name = this.parsePropertyName_();
-    return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
+    return this.parseMethod_(start, isStatic, functionKind, name, annotations);
   }
 
-  parseMethod_(start, isStatic, isGenerator, name, annotations) {
+  parseMethod_(start, isStatic, functionKind, name, annotations) {
     this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
+    var parameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
+    var functionBody = this.parseFunctionBody_(functionKind,
+                                               parameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        isStatic, isGenerator, name, formalParameterList, typeAnnotation,
+        isStatic, functionKind, name, parameterList, typeAnnotation,
         annotations, functionBody);
   }
 
   parseGetSetOrMethod_(start, isStatic, annotations) {
-    var isGenerator = false;
+    var functionKind = null;
     var name = this.parsePropertyName_();
     var type = this.peekType_();
 
@@ -2131,29 +2159,38 @@ export class Parser {
       return this.parseSetAccessor_(start, isStatic, annotations);
     }
 
-    return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
+    if (parseOptions.asyncFunctions &&
+        name.type === LITERAL_PROPERTY_NAME &&
+        name.literalToken.value === ASYNC &&
+        this.peekPropertyName_(type)) {
+      var async = name.literalToken;
+      var name = this.parsePropertyName_();
+      return this.parseMethod_(start, isStatic, async, name, annotations);
+    }
+
+    return this.parseMethod_(start, isStatic, functionKind, name, annotations);
   }
 
   parseGetAccessor_(start, isStatic, annotations) {
-    var isGenerator = false;
+    var functionKind = null;
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var body = this.parseFunctionBody_(isGenerator, null);
+    var body = this.parseFunctionBody_(functionKind, null);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
                            typeAnnotation, annotations, body);
   }
 
   parseSetAccessor_(start, isStatic, annotations) {
-    var isGenerator = false;
+    var functionKind = null;
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
-    var parameter = this.parsePropertySetParameterList_();
+    var parameterList = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(isGenerator, parameter);
+    var body = this.parseFunctionBody_(functionKind, parameterList);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
-                           parameter, annotations, body);
+                           parameterList, annotations, body);
   }
 
   /**
@@ -2207,9 +2244,11 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start),
+    var parameter = new FormalParameter(this.getTreeLocation_(start),
         new BindingElement(this.getTreeLocation_(start), binding, null),
         typeAnnotation, this.popAnnotations_());
+
+    return new FormalParameterList(parameter.location, [parameter]);
   }
 
   /**
@@ -2706,6 +2745,15 @@ export class Parser {
    */
   parseUnaryExpression_() {
     var start = this.getTreeStartLocation_();
+
+    if (this.allowAwait_ && this.peekPredefinedString_(AWAIT)) {
+      this.eatId_();
+      // no newline?
+      var operand = this.parseUnaryExpression_();
+      operand = this.toParenExpression_(operand);
+      return new AwaitExpression(this.getTreeLocation_(start), operand);
+    }
+
     if (this.peekUnaryOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var operand = this.parseUnaryExpression_();
@@ -3095,7 +3143,6 @@ export class Parser {
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
-   * @param {boolean} isGenerator
    * @return {ParseTree}
    *
    * @return {ParseTree} */

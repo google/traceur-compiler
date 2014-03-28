@@ -1,7 +1,7 @@
-// Options: --deferred-functions
+// Options: --async-functions
 // Async.
 
-function asyncValue(value) {
+async function asyncValue(value) {
   if (true)
     return value;
   await asyncYield();
@@ -17,9 +17,8 @@ function asyncTimeout(ms) {
   });
 }
 
-(function() {
-  var value;
-  await value = asyncValue(42);
+(async function() {
+  var value = await asyncValue(42);
   assert.equal(42, value);
   done();
 })();

@@ -90,7 +90,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
     if (this.oldName_ === tree.name) {
       // it is the function that is being renamed
       tree = new FunctionDeclaration(tree.location, this.newName_,
-          tree.isGenerator, tree.formalParameterList, tree.typeAnnotation,
+          tree.functionKind, tree.parameterList, tree.typeAnnotation,
           tree.annotations, tree.functionBody);
     }
 
@@ -107,7 +107,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
     if (this.oldName_ === tree.name) {
       // it is the function that is being renamed
       tree = new FunctionExpression(tree.location, this.newName_,
-          tree.isGenerator, tree.formalParameterList, tree.typeAnnotation,
+          tree.functionKind, tree.parameterList, tree.typeAnnotation,
           tree.annotations, tree.functionBody);
     }
 

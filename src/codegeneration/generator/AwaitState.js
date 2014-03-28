@@ -20,13 +20,11 @@ export class AwaitState extends State {
    * @param {number} id
    * @param {ParseTree} expression
    * @param {number} callbackState
-   * @param {number} errbackState
    * @param {Array.<ParseTree>} statements
    */
-  constructor(id, callbackState, errbackState, expression) {
+  constructor(id, callbackState, expression) {
     super(id),
     this.callbackState = callbackState;
-    this.errbackState = errbackState;
     this.expression = expression;
     this.statements_ = null;
   }
@@ -34,8 +32,8 @@ export class AwaitState extends State {
   get statements() {
     if (!this.statements_) {
       this.statements_ = parseStatements
-          `(${this.expression}).then($ctx.createCallback(${this.callbackState}),
-                                     $ctx.createErrback(${this.errbackState}));
+          `Promise.resolve(${this.expression}).then(
+              $ctx.createCallback(${this.callbackState}), $ctx.errback);
           return`;
     }
     return this.statements_;
@@ -50,7 +48,6 @@ export class AwaitState extends State {
     return new AwaitState(
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.callbackState, oldState, newState),
-        State.replaceStateId(this.errbackState, oldState, newState),
         this.expression);
   }
 

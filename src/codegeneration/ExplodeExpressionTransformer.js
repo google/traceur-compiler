@@ -46,6 +46,7 @@ import {
 import {
   ArgumentList,
   ArrayLiteralExpression,
+  AwaitExpression,
   BinaryOperator,
   CallExpression,
   ConditionalExpression,
@@ -245,6 +246,12 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return this.createCommaExpressionBuilder().add(expression).build(
         new YieldExpression(tree.location, getResult(expression),
                             tree.isYieldFor));
+  }
+
+  transformAwaitExpression(tree) {
+    var expression = this.transformAny(tree.expression);
+    return this.createCommaExpressionBuilder().add(expression).build(
+        new AwaitExpression(tree.location, getResult(expression)));
   }
 
   transformParenExpression(tree) {

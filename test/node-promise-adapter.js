@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  BINARY_OPERATOR,
-  YIELD_EXPRESSION
-} from '../../syntax/trees/ParseTreeType';
+'use strict';
 
-/**
- * @param {ParseTree} tree Expression tree
- * @return {boolean}
- */
-function isYieldAssign(tree) {
-  return tree.type === BINARY_OPERATOR &&
-      tree.operator.isAssignmentOperator() &&
-      tree.right.type === YIELD_EXPRESSION &&
-      tree.left.isLeftHandSideExpression();
-}
+require('../src/node/require').makeDefault(function(filename) {
+  return /polyfills[\/\\]Promise\.js/;
+});
 
-export default isYieldAssign;
+var Promise = require('../src/runtime/polyfills/Promise').Promise;
+
+exports.deferred = function () {
+  var resolve, reject;
+  var promise = new Promise(function(res, rej) {
+    resolve = res;
+    reject = rej;
+  });
+
+  return {
+    promise: promise,
+    resolve: resolve,
+    reject: reject
+  };
+};
+
+exports.resolved = Promise.resolve.bind(Promise);
+
+exports.rejected = Promise.reject.bind(Promise);
