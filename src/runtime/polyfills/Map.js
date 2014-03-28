@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HashMap, isObject} from './HashMap';
+import {isObject} from './utils'
+import {HashMap} from './HashMap';
 import {PrimitivesMap} from './PrimitivesMap';
 
 var global = this;

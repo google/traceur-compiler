@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function isObject(obj) {
-  var type;
-  return obj !== null && (type = typeof obj, type === 'object' || type === 'function');
-}
+import {isObject} from './utils'
 
 var defineHashObject = $traceurRuntime.defineHashObject;
 var getHashObject = $traceurRuntime.getHashObject;
