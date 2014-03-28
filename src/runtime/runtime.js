@@ -36,6 +36,7 @@
   var $toString = $Object.prototype.toString;
   var $preventExtensions = Object.preventExtensions;
   var $seal = Object.seal;
+  var $isExtensible = Object.isExtensible;
 
   function nonEnum(value) {
     return {
@@ -161,21 +162,35 @@
 
   var hashProperty = newUniqueString();
   
-  // cached object to avoid allocation of new object in defineHashObject
-  var hashObjectPropertyDescriptor = { 
+  // cached objects to avoid allocation of new object in defineHashObject
+  var hashPropertyDescriptor = { 
     value: undefined
   };
+  var hashObjectProperties = {
+    hash: {
+      value: undefined
+    },
+    self: {
+      value: undefined
+    }
+  };
   
-  var getOwnHash = (function () {
+  
+  var getOwnHashObject = (function () {
     var current = 0;
     return function getOwnHash(object) {
-      if ($hasOwnProperty.call(object, hashProperty))
-        return object[hashProperty];
+      var hashObject = object[hashProperty];
+      if (hashObject && hashObject.self === object)
+        return hashObject;
       
-      if (Object.isExtensible(object)) {
-        hashObjectPropertyDescriptor.value = current++;
-        $defineProperty(object, hashProperty, hashObjectPropertyDescriptor);
-        return hashObjectPropertyDescriptor.value;
+      if ($isExtensible(object)) {
+        hashObjectProperties.hash.value = current++;
+        hashObjectProperties.self.value = object;
+
+        hashPropertyDescriptor.value = $create(null, hashObjectProperties);
+            
+        $defineProperty(object, hashProperty, hashPropertyDescriptor);
+        return hashPropertyDescriptor.value;
       }
       
       return undefined;
@@ -183,17 +198,17 @@
   })();
   
   function freeze(object) {
-    getOwnHash(object);
+    getOwnHashObject(object);
     return $freeze.apply(this, arguments);
   }
   
   function preventExtensions(object) {
-    getOwnHash(object);
+    getOwnHashObject(object);
     return $preventExtensions.apply(this, arguments);
   }
 
   function seal(object) {
-    getOwnHash(object);
+    getOwnHashObject(object);
     return $seal.apply(this, arguments);
   }
 
@@ -681,7 +696,7 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    getOwnHash: getOwnHash
+    getOwnHashObject: getOwnHashObject
   };
 
 })(typeof global !== 'undefined' ? global : this);

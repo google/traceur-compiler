@@ -12,44 +12,116 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HashMap} from './HashMap';
+import {ArrayMap} from '../../util/ArrayMap';
+import {isObject} from './utils'
+
+var getOwnHashObject = $traceurRuntime.getOwnHashObject;
+
+
+function keyIsNotObjectError() {
+  return new TypeError('Key must be an object');
+}
+
+function validateKey(key) {
+  if (!isObject(key))
+    throw keyIsNotObjectError();
+}
+
+var undefinedSentinel = {};
+var weakMapCounter = 0;
 
 export class WeakMap {
-  constructor(iterable, allowNonExtensibleObjects = false) {
-    this.hashmap_ = new HashMap();
-    this.allowNonExtensibleObjects = allowNonExtensibleObjects;
+  constructor(iterable, lifetimeDependsOnCollection = false) {
+    this.lifetimeDependsOnCollection = lifetimeDependsOnCollection;
+    this.id_ = weakMapCounter++;
+    this.store_ = new ArrayMap();
+    this.container_ = Object.create(null);
+    
     if (iterable) {
       for(var [key, value] of iterable) {
         this.set(key, value);
       }
     }
   }
-  
-  get allowNonExtensibleObjects() {
-    return this.hashmap_.allowNonExtensibleObjects;
-  }
-  
-  set allowNonExtensibleObjects(v) {
-    this.hashmap_.allowNonExtensibleObjects = v; //true makes map O(N) and leaky
-  }
 
   get(key, defaultValue) {
-    return this.hashmap_.get(key, defaultValue);
+    validateKey(key);
+    
+    var hashObject = getOwnHashObject(key);
+    if (hashObject) {
+      var value = hashObject[this.id_];
+      if (value !== undefined) {
+        return value === undefinedSentinel ?
+            undefined :
+            value;
+      }
+      
+      var value = this.container_[hashObject.hash];
+      
+      return value === undefined ?
+          defaultValue :
+          value === undefinedSentinel ?
+          undefined :
+          value;
+    }
+    
+    return this.store_.get(key, defaultValue);
   }
 
-  set(key, value) {
-    this.hashmap_.set(key, value);
+  set(key, value, lifetimeDependsOnCollection = undefined) {
+    validateKey(key);
+    
+    lifetimeDependsOnCollection = 
+        lifetimeDependsOnCollection === undefined ?
+        this.lifetimeDependsOnCollection :
+        lifetimeDependsOnCollection;
+    
+    var hashObject = getOwnHashObject(key);
+    if (hashObject) {
+      value = value !== undefined ? value : undefinedSentinel;
+      
+      if (lifetimeDependsOnCollection)
+        this.container_[hashObject.hash] = value;
+      else
+        hashObject[this.id_] = value;
+      
+    } else {
+      this.store_.set(key, value);
+    }
   }
   
   has(key) {
-    return this.hashmap_.has(key);
+    validateKey(key);
+    
+    var hashObject = getOwnHashObject(key);
+    if (hashObject) {
+      return hashObject[this.id_] !== undefined || 
+          this.container_[hashObject.hash] !== undefined;
+    }
+    
+    return this.store_.has(key);
   }
   
   delete(key) {
-    this.hashmap_.delete(key);
+    validateKey(key);
+    
+    var hashObject = getOwnHashObject(key);
+    if (hashObject) {
+      var hash = hashObject.hash;
+      
+      if (hashObject[this.id_] !== undefined)
+        delete hashObject[this.id_];
+      else if (this.container_[hash] !== undefined)
+        delete this.container_[hash];
+        
+    } else {
+      this.store_.remove(key);
+    }
   }
   
   clear() {
-    this.hashmap_.clear();
+    this.id_ = weakMapCounter++;
+    this.store_ = new ArrayMap();
+    this.container_ = Object.create(null);
   }
 }

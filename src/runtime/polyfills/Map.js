@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {isObject} from './utils'
-import {HashMap} from './HashMap';
+import {WeakMap} from './WeakMap';
 import {PrimitivesMap} from './PrimitivesMap';
 
 var global = this;
@@ -23,8 +23,10 @@ var deletedSentinel = {};
 export class Map {
   constructor(iterable) {
     this.entries_ = []; // every odd index is key, every even index is value
-    this.objectIndex_ = new HashMap();
+    this.objectIndex_ = new WeakMap(null, true);
     this.primitiveIndex_ = new PrimitivesMap();
+    this.deletedCount_ = 0;
+    
     if (iterable) {
       for (var [key, value] of iterable) {
         this.set(key, value);
@@ -32,16 +34,8 @@ export class Map {
     }
   }
   
-  get allowNonExtensibleObjects() {
-    return this.objectIndex_.allowNonExtensibleObjects;
-  }
-  
-  set allowNonExtensibleObjects(v) {
-    this.objectIndex_.allowNonExtensibleObjects = v;
-  }
-  
   get size() {
-    return this.objectIndex_.size + this.primitiveIndex_.size;
+    return (this.entries_.length >> 1) - this.deletedCount_;
   }
 
   get(key, defaultValue) {
@@ -105,6 +99,8 @@ export class Map {
       this.entries_[index] = deletedSentinel;
       // remove possible reference to value to avoid memory leaks
       this.entries_[index+1] = undefined;
+      
+      this.deletedCount_++;
     }
   }
   
@@ -112,6 +108,7 @@ export class Map {
     this.entries_ = [];
     this.objectIndex_.clear();
     this.primitiveIndex_.clear();
+    this.deletedCount_ = 0;
   }
   
   entries() {

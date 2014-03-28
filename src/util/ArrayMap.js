@@ -26,10 +26,10 @@ export class ArrayMap {
     return this.keys_.indexOf(key) != -1;
   }
 
-  get(key) {
+  get(key, defaultValue = undefined) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
-      return undefined;
+      return defaultValue;
     }
     return this.values_[index];
   }
