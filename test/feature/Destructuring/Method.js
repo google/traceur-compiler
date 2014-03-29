@@ -1,3 +1,8 @@
+function MyError(s) {
+  this.message = new String(s);
+  this.name = 'Error';
+}
+
 var object = {
   method({message: [head, ...tail], name}) {
     assert.equal('a', head);
@@ -6,4 +11,4 @@ var object = {
   }
 };
 
-object.method(new Error('abc'));
+object.method(new MyError('abc'));

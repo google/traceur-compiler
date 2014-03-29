@@ -1,12 +1,12 @@
 var calls = 0;
 
-var {} = calls++;
+var {} = Object(calls++);
 assert.equal(calls, 1);
 
-var [] = calls++;
+var [] = Object(calls++);
 assert.equal(calls, 2);
 
-var {} = calls++, [] = calls++;
+var {} = Object(calls++), [] = Object(calls++);
 assert.equal(calls, 4);
 
 
@@ -14,11 +14,11 @@ assert.equal(calls, 4);
 
 calls = 0;
 
-({} = calls++);
+({} = Object(calls++));
 assert.equal(calls, 1);
 
-[] = calls++;
+[] = Object(calls++);
 assert.equal(calls, 2);
 
-({} = calls++, [] = calls++);
+({} = Object(calls++), [] = Object(calls++));
 assert.equal(calls, 4);

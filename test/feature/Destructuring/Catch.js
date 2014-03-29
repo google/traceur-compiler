@@ -6,8 +6,13 @@ var head = 'head';
 var tail = 'tail';
 var name = 'name';
 
+function MyError(s) {
+  this.message = new String(s);
+  this.name = 'Error';
+}
+
 try {
-  throw new Error('abc');
+  throw new MyError('abc');
 } catch ({message: [head, ...tail], name}) {
   assert.equal('a', head);
   assertArrayEquals(['b', 'c'], tail);

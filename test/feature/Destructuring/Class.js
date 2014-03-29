@@ -1,3 +1,8 @@
+function MyError(s) {
+  this.message = new String(s);
+  this.name = 'Error';
+}
+
 class C {
   constructor({message: [head, ...tail], name}) {
     assert.equal('a', head);
@@ -18,6 +23,6 @@ class C {
   }
 }
 
-var c = new C(new Error('abc'));
-c.method(new Error('abc'));
-c.x = new Error('abc');
+var c = new C(new MyError('abc'));
+c.method(new MyError('abc'));
+c.x = new MyError('abc');

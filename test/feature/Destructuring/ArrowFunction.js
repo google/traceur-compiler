@@ -13,5 +13,5 @@ assert.equal(i([0, 1]), 1);
 var j = ([, [, a]]) => a;
 assert.equal(j([0, [1, 2]]), 2);
 
-var k = ([a] = 'b') => a;
+var k = ([a] = new String('b')) => a;
 assert.equal(k(), 'b');

@@ -294,10 +294,20 @@
     return object;
   }
 
-  function toObject(value) {
-    if (value == null)
+  function isObject(x) {
+    return x != null && (typeof x === 'object' || typeof x === 'function');
+  }
+
+  function toObject(x) {
+    if (x == null)
       throw $TypeError();
-    return $Object(value);
+    return $Object(x);
+  }
+
+  function assertObject(x) {
+    if (!isObject(x))
+      throw $TypeError(x + ' is not an Object');
+    return x;
   }
 
   function spread() {
@@ -612,6 +622,7 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
+    assertObject: assertObject,
     asyncWrap: asyncWrap,
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,

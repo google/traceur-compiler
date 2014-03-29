@@ -40,7 +40,7 @@ suite('context test', function() {
     var reporter = new traceur.util.TestErrorReporter();
     var loaderHooks = new InterceptOutputLoaderHooks(reporter, fileName);
     var loader = new TraceurLoader(loaderHooks);
-    loader.script(source, fileName);
+    loader.script(source);
     assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
     var output = loaderHooks.transcoded;
 
@@ -151,7 +151,7 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var __moduleName = \"./unit/node/resources/compile-dir/file\";\n  if (!$__0 || !$__0.__esModule)\n    $__0 = {'default': $__0};\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __esModule: true\n  };\n});\n");
+      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var __moduleName = \"./unit/node/resources/compile-dir/file\";\n  if (!$__0 || !$__0.__esModule)\n    $__0 = {'default': $__0};\n  var q = $traceurRuntime.assertObject($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __esModule: true\n  };\n});\n");
       assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var __moduleName = \"./unit/node/resources/compile-dir/dep\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __esModule: true\n  };\n});\n");
       done();
     });
@@ -165,7 +165,7 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {\n  get p() {\n    return p;\n  },\n  __esModule: true\n};\n");
+      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = $traceurRuntime.assertObject(require('./dep')).q;\nvar p = 'module';\nmodule.exports = {\n  get p() {\n    return p;\n  },\n  __esModule: true\n};\n");
       assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {\n  get q() {\n    return q;\n  },\n  __esModule: true\n};\n");
       done();
     });

@@ -13,19 +13,18 @@
 // limitations under the License.
 
 import {
-  ARRAY,
-  CALL,
-  PROTOTYPE,
-  SLICE
-} from '../syntax/PredefinedName';
-import {
+  ARRAY_COMPREHENSION,
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
+  ARROW_FUNCTION_EXPRESSION,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
   BLOCK,
   CALL_EXPRESSION,
+  CLASS_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
+  FUNCTION_EXPRESSION,
+  GENERATOR_COMPREHENSION,
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
@@ -34,7 +33,8 @@ import {
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
-  VARIABLE_DECLARATION_LIST
+  THIS_EXPRESSION,
+  VARIABLE_DECLARATION_LIST,
 } from '../syntax/trees/ParseTreeType';
 import {
   BindingElement,
@@ -47,32 +47,27 @@ import {ParameterTransformer} from './ParameterTransformer';
 import {
   EQUAL,
   IDENTIFIER,
-  IN,
   LET,
+  REGULAR_EXPRESSION,
   VAR
 } from '../syntax/TokenType';
 import {
-  createArgumentList,
   createAssignmentExpression,
-  createBinaryOperator,
   createBindingIdentifier,
   createBlock,
-  createCallExpression,
   createCommaExpression,
-  createConditionalExpression,
   createExpressionStatement,
   createIdentifierExpression,
   createMemberExpression,
   createMemberLookupExpression,
   createNumberLiteral,
-  createOperatorToken,
   createParenExpression,
-  createStringLiteral,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory';
 import {options} from '../options';
+import {parseExpression} from './PlaceholderParser';
 
 /**
  * Collects assignments in the desugaring of a pattern.
@@ -157,30 +152,46 @@ function createConditionalMemberExpression(rvalue, name, initialiser) {
   if (!initialiser)
     return createMemberExpression(rvalue, token);
 
-  return createConditionalExpression(
-      createBinaryOperator(
-          createStringLiteral(token.toString()),
-          createOperatorToken(IN),
-          rvalue),
-      createMemberExpression(rvalue, token),
-      initialiser);
+  return parseExpression
+      `${token.toString()} in ${rvalue} ? ${rvalue}.${token} : ${initialiser}`;
 }
 
-/**
- * Creates something like [index] in rvalue ? rvalue[index] : initialiser
- */
 function createConditionalMemberLookupExpression(rvalue, index, initialiser) {
   if (!initialiser)
     return createMemberLookupExpression(rvalue, index);
 
-  return createConditionalExpression(
-      createBinaryOperator(
-          index,
-          createOperatorToken(IN),
-          rvalue),
-      createMemberLookupExpression(rvalue, index),
-      initialiser);
+  return parseExpression
+      `${index} in ${rvalue} ? ${rvalue}[${index}] : ${initialiser}`;
 }
+
+function staticallyKnownObject(tree) {
+  switch (tree.type) {
+    case OBJECT_LITERAL_EXPRESSION:
+    case ARRAY_LITERAL_EXPRESSION:
+    case ARRAY_COMPREHENSION:
+    case GENERATOR_COMPREHENSION:
+    case ARROW_FUNCTION_EXPRESSION:
+    case FUNCTION_EXPRESSION:
+    case CLASS_EXPRESSION:
+    case THIS_EXPRESSION:
+      return true;
+    case LITERAL_EXPRESSION:
+      return tree.literalToken.type === REGULAR_EXPRESSION;
+  }
+  return false;
+}
+
+function createGuardedExpression(tree) {
+  if (staticallyKnownObject(tree))
+    return tree;
+  return parseExpression `$traceurRuntime.assertObject(${tree})`;
+}
+
+function createGuardedAssignment(lvalue, rvalue) {
+  return parseExpression `${lvalue} = ${createGuardedExpression(rvalue)}`;
+}
+
+
 
 /**
  * Desugars destructuring assignment.
@@ -223,9 +234,8 @@ export class DestructuringTransformer extends ParameterTransformer {
   transformBinaryOperator(tree) {
     if (tree.operator.type == EQUAL && tree.left.isPattern()) {
       return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
-    } else {
-      return super.transformBinaryOperator(tree);
     }
+    return super(tree);
   }
 
   /**
@@ -238,8 +248,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     var desugaring = new AssignmentExpressionDesugaring(tempIdent);
 
     this.desugarPattern_(desugaring, lvalue);
-    desugaring.expressions.unshift(
-        createAssignmentExpression(tempIdent, rvalue));
+    desugaring.expressions.unshift(createGuardedAssignment(tempIdent, rvalue));
     desugaring.expressions.push(tempIdent);
 
     return createParenExpression(
@@ -485,14 +494,16 @@ export class DestructuringTransformer extends ParameterTransformer {
       default:
         // [1] Try first using a temporary (used later as the base rvalue).
         desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
-        desugaring.assign(desugaring.rvalue, tree.initialiser);
+        desugaring.assign(
+            desugaring.rvalue,
+            createGuardedExpression(tree.initialiser));
         var initialiserFound = this.desugarPattern_(desugaring, tree.lvalue);
 
         // [2] Was the temporary necessary? Then return.
         if (initialiserFound || desugaring.declarations.length > 2)
           return desugaring.declarations;
 
-        initialiser = initialiser || createParenExpression(tree.initialiser);
+        initialiser = createGuardedExpression(initialiser || tree.initialiser);
 
         // [3] Redo everything without the temporary.
         desugaring = new VariableDeclarationDesugaring(initialiser);
@@ -522,11 +533,8 @@ export class DestructuringTransformer extends ParameterTransformer {
             // Rest of the array, for example [x, ...y] = [1, 2, 3]
             desugaring.assign(
                 lvalue.lvalue,
-                createCallExpression(
-                    createMemberExpression(ARRAY, PROTOTYPE, SLICE, CALL),
-                    createArgumentList(
-                        desugaring.rvalue,
-                        createNumberLiteral(i))));
+                parseExpression
+                    `Array.prototype.slice.call(${desugaring.rvalue}, ${i})`);
           } else {
             if (lvalue.initialiser)
               initialiserFound = true;
