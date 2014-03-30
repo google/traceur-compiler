@@ -131,9 +131,11 @@ test/unit/runtime/traceur-runtime: \
 test-version:
 	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
-# We currently fail on the sloppy mode tests
+# Skip sloppy tests because the Promise pollyfil is defined in a module
+# and module context in ES6 is strict by default
 test-promise:
-	node_modules/promises-aplus-tests/lib/cli.js test/node-promise-adapter.js --grep sloppy --invert
+	node_modules/promises-aplus-tests/lib/cli.js \
+	test/node-promise-adapter.js --grep "2.2.5" --grep "sloppy" --invert
 
 boot: clean build
 
