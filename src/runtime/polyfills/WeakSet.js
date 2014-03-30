@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var toObject = $traceurRuntime.toObject;
+import {WeakMap} from './WeakMap';
 
-export function toUint32(x) {
-  return x | 0;
-}
-
-export function isObject(x) {
-  return x && (typeof x === 'object' || typeof x === 'function');
+export class WeakSet {
+  constructor(iterable) {
+    this.weakmap_ = new WeakMap();
+    if (iterable) {
+      for(var value of iterable) {
+        this.add(value);
+      }
+    }
+  }
+  
+  add(value) {
+    this.weakmap_.set(value, true);
+  }
+  
+  has(value) {
+    return this.weakmap_.has(value);
+  }
+  
+  delete(value) {
+    this.weakmap_.delete(value);
+  }
+  
+  clear() {
+    this.weakmap_.clear();
+  }
 }

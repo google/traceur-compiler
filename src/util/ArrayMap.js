@@ -26,10 +26,10 @@ export class ArrayMap {
     return this.keys_.indexOf(key) != -1;
   }
 
-  get(key) {
+  get(key, defaultValue = undefined) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
-      return undefined;
+      return defaultValue;
     }
     return this.values_[index];
   }
@@ -67,5 +67,14 @@ export class ArrayMap {
 
   values() {
     return this.values_.concat();
+  }
+  
+  forEach(callbackFn, thisArg) {
+    for (var i = 0; i < this.keys_.length; i++) {
+      var key = this.keys_[i];
+      var value = this.values_[i];
+      var br = callbackFn.call(thisArg, key, value, this);
+      if (br !== undefined) break;
+    }
   }
 }

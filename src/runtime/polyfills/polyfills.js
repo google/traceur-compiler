@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import {Promise} from './Promise';
+import {Map} from './Map';
+import {Set} from './Set';
+import {WeakMap} from './WeakMap';
+import {WeakSet} from './WeakSet';
 import {
   codePointAt,
   contains,
@@ -46,6 +50,20 @@ function maybeAddFunctions(object, functions) {
 function polyfillPromise(global) {
   if (!global.Promise)
     global.Promise = Promise;
+}
+
+function polyfillCollections(global) {
+  if (!global.Map)
+    global.Map = Map;
+	
+  if (!global.Set)
+    global.Set = Set;
+  
+  if (!global.WeakMap)
+    global.WeakMap = WeakMap;
+  
+  if (!global.WeakSet)
+    global.WeakSet = WeakSet;
 }
 
 function polyfillString(String) {
@@ -83,6 +101,7 @@ function polyfillArray(Array, Symbol) {
 
 function polyfill(global) {
   polyfillPromise(global);
+  polyfillCollections(global);
   polyfillString(global.String);
   polyfillArray(global.Array, global.Symbol);
 }
