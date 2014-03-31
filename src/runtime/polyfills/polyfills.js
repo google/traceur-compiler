@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Map} from './Map';
 import {Promise} from './Promise';
 import {
   codePointAt,
@@ -46,6 +47,11 @@ function maybeAddFunctions(object, functions) {
 function polyfillPromise(global) {
   if (!global.Promise)
     global.Promise = Promise;
+}
+
+function polyfillCollections(global) {
+  if (!global.Map)
+    global.Map = Map;
 }
 
 function polyfillString(String) {
@@ -83,6 +89,7 @@ function polyfillArray(Array, Symbol) {
 
 function polyfill(global) {
   polyfillPromise(global);
+  polyfillCollections(global);
   polyfillString(global.String);
   polyfillArray(global.Array, global.Symbol);
 }
