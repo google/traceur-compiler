@@ -13,9 +13,16 @@
 // limitations under the License.
 
 suite('SourceMap.js', function() {
-  var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-  var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
+
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var Parser = get('src/syntax/Parser').Parser;
+  var SourceFile = get('src/syntax/SourceFile').SourceFile;
+  var SourceMapConsumer = get('src/outputgeneration/SourceMapIntegration').SourceMapConsumer;
+  var SourceMapGenerator = get('src/outputgeneration/SourceMapIntegration').SourceMapGenerator;
+  var write = get('src/outputgeneration/TreeWriter').write;
 
   var errorReporter = {
     reportError: function(position, message) {
@@ -24,8 +31,8 @@ suite('SourceMap.js', function() {
   };
 
   function parse(name, source) {
-    var sourceFile = new traceur.syntax.SourceFile(name, source);
-    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
+    var sourceFile = new SourceFile(name, source);
+    var parser = new Parser(sourceFile, errorReporter);
     var tree = parser.parseScript();
     return tree;
   }
@@ -46,7 +53,7 @@ suite('SourceMap.js', function() {
 
     var generator = new SourceMapGenerator({file: filename});
     var options = {sourceMapGenerator: generator, showLineNumbers: false};
-    var actual = TreeWriter.write(tree, options);
+    var actual = write(tree, options);
 
     var consumer = new SourceMapConsumer(options.sourceMap);
 
@@ -80,7 +87,7 @@ suite('SourceMap.js', function() {
     var outFilename = 'out.js'
     var generator = new SourceMapGenerator({file: outFilename});
     var options = {sourceMapGenerator: generator};
-    var outFileContents = TreeWriter.write(tree, options);
+    var outFileContents = write(tree, options);
 
     assert.equal('alert(a);\nalert(b);\nalert(c);\n', outFileContents);
 
@@ -97,7 +104,7 @@ suite('SourceMap.js', function() {
 
     var generator = new SourceMapGenerator({file: filename});
     var options = {sourceMapGenerator: generator, showLineNumbers: false};
-    var actual = TreeWriter.write(tree, options);
+    var actual = write(tree, options);
 
     var consumer = new SourceMapConsumer(options.sourceMap);
 

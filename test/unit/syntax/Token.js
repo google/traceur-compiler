@@ -14,25 +14,34 @@
 
 suite('Token.js', function() {
 
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
+  var LiteralToken = get('src/syntax/LiteralToken').LiteralToken;
+  var Token = get('src/syntax/Token').Token;
+  var TokenType = get('src/syntax/TokenType');
+
   test('Token', function() {
-    var token = new traceur.syntax.Token('type', 'location');
+    var token = new Token('type', 'location');
     assert.equal('type', token.type);
     assert.equal('location', token.location);
   });
 
   test('TokenType', function() {
-    assert.equal('=', traceur.syntax.TokenType.EQUAL);
+    assert.equal('=', TokenType.EQUAL);
   });
 
   test('LiteralToken', function() {
-    var token = new traceur.syntax.LiteralToken('type', 'value', 'location');
+    var token = new LiteralToken('type', 'value', 'location');
     assert.equal('type', token.type);
     assert.equal('value', token.value);
     assert.equal('location', token.location);
   });
 
   test('IdentifierToken', function() {
-    var token = new traceur.syntax.IdentifierToken('location', 'id');
+    var token = new IdentifierToken('location', 'id');
     assert.equal('identifier', token.type);
     assert.equal('id', token.value);
     assert.equal('location', token.location);

@@ -13,13 +13,18 @@
 // limitations under the License.
 
 suite('writer.js', function() {
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var LiteralToken = traceur.syntax.LiteralToken;
-  var TokenType = traceur.syntax.TokenType;
-  var Token = traceur.syntax.Token;
 
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
-  var trees = traceur.syntax.trees;
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
+  var LiteralToken = get('src/syntax/LiteralToken').LiteralToken;
+  var TokenType = get('src/syntax/TokenType');
+  var Token = get('src/syntax/Token').Token;
+
+  var write = get('src/outputgeneration/TreeWriter').write;
+  var trees = get('src/syntax/trees/ParseTrees');
 
   test('WriteStatement', function() {
     var tree = new trees.Script(
@@ -55,7 +60,7 @@ suite('writer.js', function() {
         null
       )
     ]);
-    var actual = TreeWriter.write(tree);
+    var actual = write(tree);
 
     var expected = 'var x = 1;\nif (x > 0) {\n  x++\n}\n';
     assert.equal(expected, actual);
@@ -75,7 +80,7 @@ suite('writer.js', function() {
 
   function parseAndWrite(name, source) {
     var tree = parse(name, source);
-    return TreeWriter.write(tree);
+    return write(tree);
   }
 
   test('ParseAndWriteKeywords', function() {
@@ -87,18 +92,18 @@ suite('writer.js', function() {
 
   test('pretty print', function() {
     var tree = parse('test', 'function f() { return 42; }');
-    var result = TreeWriter.write(tree);
+    var result = write(tree);
     assert.equal(result, 'function f() {\n  return 42;\n}\n');
 
-    result = TreeWriter.write(tree, {prettyPrint: false});
+    result = write(tree, {prettyPrint: false});
     assert.equal(result, 'function f(){\nreturn 42;\n}\n');
 
     tree = parse('test', 'aaa.bbb');
-    result = TreeWriter.write(tree, {prettyPrint: false});
+    result = write(tree, {prettyPrint: false});
     assert.equal(result, 'aaa.bbb;\n');
 
     tree = tree.scriptItemList[0].expression;
-    result = TreeWriter.write(tree, {prettyPrint: false});
+    result = write(tree, {prettyPrint: false});
     assert.equal(result, 'aaa.bbb');
   });
 

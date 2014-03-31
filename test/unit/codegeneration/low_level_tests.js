@@ -13,12 +13,19 @@
 // limitations under the License.
 
 suite('low_level_tests.js', function() {
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeValidator =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  function get(name) {
+    return $traceurRuntime.ModuleStore.getForTesting(name);
+  }
+
+  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer').InlineModuleTransformer;
+  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory');
+  var ParseTreeTransformer = get('src/codegeneration/ParseTreeTransformer').ParseTreeTransformer;
+  var ParseTreeValidator = get('src/syntax/ParseTreeValidator').ParseTreeValidator;
+  var Parser = get('src/syntax/Parser').Parser;
+  var SourceFile = get('src/syntax/SourceFile').SourceFile;
+  var write = get('src/outputgeneration/TreeWriter').write;
+
   var createBreakStatement = ParseTreeFactory.createBreakStatement;
   var createContinueStatement = ParseTreeFactory.createContinueStatement;
   var createCatchStatement = ParseTreeFactory.createCatchStatement;
@@ -26,8 +33,8 @@ suite('low_level_tests.js', function() {
   var createCatch = ParseTreeFactory.createCatch;
 
   function toTree(errorReporter, name, source) {
-    var sourceFile = new traceur.syntax.SourceFile(name, source);
-    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
+    var sourceFile = new SourceFile(name, source);
+    var parser = new Parser(sourceFile, errorReporter);
     var tree = parser.parseScript();
     return tree;
   }
@@ -62,7 +69,7 @@ suite('low_level_tests.js', function() {
     var output_tree = transformer.transformAny(tree);
     ParseTreeValidator.validate(output_tree);
 
-    var outputSource = traceur.outputgeneration.TreeWriter.write(output_tree);
+    var outputSource = write(output_tree);
 
     var inputValue = eval(source);
     var outputValue = eval(outputSource);
