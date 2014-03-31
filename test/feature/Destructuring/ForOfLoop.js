@@ -1,8 +1,8 @@
 // Options: --block-binding
 
 function* gen() {
-  yield 'abc';
-  yield 'def';
+  yield new String('abc');
+  yield new String('def');
 }
 
 var expectedHeads = ['a', 'd'];
@@ -24,5 +24,5 @@ assert.equal(2, i);
 }
 
 var k;
-for ({length: k} of ['abc'])  // No block
+for ({length: k} of [new String('abc')])  // No block
   assert.equal(3, k);
