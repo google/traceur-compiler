@@ -58,11 +58,13 @@ export var outputgeneration = {
 import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
+import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
 
 export var codegeneration = {
   CloneTreeTransformer,
   FromOptionsTransformer,
+  PureES6Transformer,
   module: {
     AttachModuleNameTransformer,
     createModuleEvaluationStatement
