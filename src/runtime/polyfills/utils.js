@@ -17,3 +17,7 @@ export var toObject = $traceurRuntime.toObject;
 export function toUint32(x) {
   return x | 0;
 }
+
+export function isObject(x) {
+  return x && (typeof x === 'object' || typeof x === 'function');
+}
