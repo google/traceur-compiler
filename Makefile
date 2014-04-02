@@ -161,6 +161,8 @@ initbench:
 bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
+# Do not change the location of this file if at all possible, see
+# https://github.com/google/traceur-compiler/issues/828
 bin/traceur-runtime.js: $(RUNTIME_SRC) src/runtime/polyfill-import.js
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) src/runtime/polyfill-import.js
