@@ -55,26 +55,35 @@ function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
     writeFile(sourceMapFilePath, options.sourceMap);
 }
 
-function compileToSingleFile(outputFile, includes, useSourceMaps) {
-  var reporter = new ErrorReporter();
-  var resolvedOutputFile = path.resolve(outputFile);
-  var outputDir = path.dirname(resolvedOutputFile);
+function writeTreeToStdout(tree) {
+  var compiledCode = TreeWriter.write(tree);
+  process.stdout.write(compiledCode);
+}
 
+function compileToSingleFile(outputFile, includes, useSourceMaps) {
   // Resolve includes before changing directory.
   var resolvedIncludes = includes.map(function(include) {
     return path.resolve(include);
   });
 
-  mkdirRecursive(outputDir);
-  process.chdir(outputDir);
+  if (outputFile) {
+    var resolvedOutputFile = path.resolve(outputFile);
+    var outputDir = path.dirname(resolvedOutputFile);
+    mkdirRecursive(outputDir);
+    process.chdir(outputDir);
 
-  // Make includes relative to output dir so that sourcemap paths are correct.
-  resolvedIncludes = resolvedIncludes.map(function(include) {
-    return normalizePath(path.relative(outputDir, include));
-  });
 
+    // Make includes relative to output dir so that sourcemap paths are correct.
+    resolvedIncludes = resolvedIncludes.map(function(include) {
+      return normalizePath(path.relative(outputDir, include));
+    });
+  }
+  var reporter = new ErrorReporter();
   inlineAndCompile(resolvedIncludes, traceur.options, reporter, function(tree) {
-    writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
+    if (resolvedOutputFile)
+      writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
+    else
+      writeTreeToStdout(tree);
     process.exit(0);
   }, function(err) {
     process.exit(1);

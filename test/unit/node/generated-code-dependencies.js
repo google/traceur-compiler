@@ -44,12 +44,15 @@ suite('context test', function() {
     assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
     var output = loaderHooks.transcoded;
 
+    return executeCodeWithRuntime(output, fileName);
+  }
+
+  function executeCodeWithRuntime(output, fileName) {
     var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
-    var context = vm.createContext();
-    vm.runInNewContext(runtime + output, context, fileName);
-
-    return context.result;
+    var sandbox = {};
+    vm.runInNewContext(runtime + output, sandbox, fileName);
+    return sandbox.result;
   }
 
   test('class', function() {
@@ -80,6 +83,20 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
+          assert.equal(global.result, 'x');
+          done();
+        });
+  });
+
+  test('compiled modules to stdout', function(done) {
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+
+    exec(executable + ' --out - -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var code = stdout.toString();
+          executeCodeWithRuntime(code, inputFileName);
           assert.equal(global.result, 'x');
           done();
         });

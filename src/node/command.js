@@ -32,7 +32,7 @@ var traceur = require('./traceur.js');
 // follows. The module sets global.System as a side-effect.
 require('./System.js');
 
-flags.option('--out <FILE>', 'Compile all input files into a single file');
+flags.option('--out <FILE>', 'Compile all input files into a single file, or use - for stdout');
 flags.option('--referrer <name>',
     'Prefix compiled code with System.referrName');
 
@@ -84,6 +84,7 @@ flags.on('--help', function() {
   console.log('');
   console.log('    $ %s a.js [args]', cmdName);
   console.log('    $ %s --out compiled.js b.js c.js', cmdName);
+  console.log('    $ %s --out - b.js c.js', cmdName);
   console.log('    $ %s --dir indir outdir', cmdName);
   console.log('');
 });
@@ -199,8 +200,11 @@ var dir = flags.dir;
 if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
+    var isStdOutCompile = /^-$/.test(out);
     if (isSingleFileCompile)
       compileToSingleFile(out, includes, flags.sourceMaps);
+    else if (isStdOutCompile)
+      compileToSingleFile(undefined, includes);
     else
       compileToDirectory(out, includes, flags.sourceMaps);
   } else if (dir) {
