@@ -28,7 +28,8 @@ import {
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
 var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
-  lineNumbers: true
+  lineNumbers: true,
+  keyMap: 'sublime'
 });
 input.on('change', debouncedCompile);
 input.on('cursorActivity', onInputCursorActivity);
@@ -37,6 +38,7 @@ var outputCheckbox = document.querySelector('input.output');
 var output = CodeMirror.fromTextArea(
     document.querySelector('textarea.output'), {
       lineNumbers: true,
+      keyMap: 'sublime',
       readOnly: true
     });
 output.getWrapperElement().classList.add('output-wrapper');
