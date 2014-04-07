@@ -570,6 +570,11 @@
         default:
           throw getInternalError(this.state);
       }
+    },
+    handleException: function(ex) {
+      this.GState = ST_CLOSED;
+      this.state = END_STATE;
+      throw ex;
     }
   };
 
@@ -627,12 +632,17 @@
   AsyncFunctionContext.prototype.end = function() {
     switch (this.state) {
       case END_STATE:
-        return;
+        this.resolve(this.returnValue);
+        break;
       case RETHROW_STATE:
         this.reject(this.storedException);
+        break;
       default:
         this.reject(getInternalError(this.state));
     }
+  };
+  AsyncFunctionContext.prototype.handleException = function() {
+    this.state = RETHROW_STATE;
   };
 
   function asyncWrap(innerFunction, self) {
@@ -671,9 +681,8 @@
     ctx.storedException = ex;
     var last = ctx.tryStack_[ctx.tryStack_.length - 1];
     if (!last) {
-      ctx.GState = ST_CLOSED;
-      ctx.state = END_STATE;
-      throw ex;
+      ctx.handleException(ex);
+      return;
     }
 
     ctx.state = last.catch !== undefined ? last.catch : last.finally;

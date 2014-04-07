@@ -311,14 +311,6 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineFallThroughStatements(machineEndState) {
-    return createStatementList(createAssignStateStatement(machineEndState));
-  }
-
-  /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
    * @param {Block} body

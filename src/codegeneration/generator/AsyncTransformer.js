@@ -176,8 +176,7 @@ export class AsyncTransformer extends CPSTransformer {
     var startState = this.allocateState();
     var endState = this.allocateState();
     var completeState = new FallThroughState(startState, endState,
-        // $ctx.result.callback(expression);
-        createStatementList(this.createCompleteTask_(expression)));
+        parseStatements `$ctx.returnValue = ${expression}`);
     var end = new EndState(endState);
     var returnMachine = new StateMachine(
         startState,
@@ -217,20 +216,6 @@ export class AsyncTransformer extends CPSTransformer {
   transformAsyncBody(tree) {
     var runtimeFunction = parseExpression `$traceurRuntime.asyncWrap`;
     return this.transformCpsFunctionBody(tree, runtimeFunction);
-  }
-
-  /**
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineFallThroughStatements(machineEndState) {
-    // $ctx.waitTask.callback(undefined);
-    // $ctx.state = machineEndState;
-    // break;
-    return createStatementList(
-        this.createCompleteTask_(createUndefinedExpression()),
-        createAssignStateStatement(machineEndState),
-        createBreakStatement());
   }
 
   /**
