@@ -165,8 +165,8 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = $traceurRuntime.assertObject(require('./dep')).q;\nvar p = 'module';\nmodule.exports = {\n  get p() {\n    return p;\n  },\n  __esModule: true\n};\n");
-      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {\n  get q() {\n    return q;\n  },\n  __esModule: true\n};\n");
+      assert.equal(fileContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  p: {get: function() {\n      return p;\n    }},\n  __esModule: {value: true}\n});\nvar __moduleName = \"./unit/node/resources/compile-dir/file\";\nvar q = $traceurRuntime.assertObject(require('./dep')).q;\nvar p = 'module';\n");
+      assert.equal(depContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  q: {get: function() {\n      return q;\n    }},\n  __esModule: {value: true}\n});\nvar __moduleName = \"./unit/node/resources/compile-dir/dep\";\nvar q = 'q';\n");
       done();
     });
   })
