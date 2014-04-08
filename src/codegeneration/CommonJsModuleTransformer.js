@@ -45,7 +45,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     // might be because it wants to make its own changes to "exports" or
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
-      statements.push(parseStatement `module.exports = ${exportObject};`);
+      statements.push(parseStatement `($traceurRuntime.defineExports)(exports, ${exportObject});`);
     }
     return statements;
   }
