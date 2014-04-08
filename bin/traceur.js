@@ -20963,7 +20963,12 @@ System.register("traceur@0.0.33/src/runtime/webLoader", [], function() {
         if (xhr.status == 200 || xhr.status == 0) {
           callback(xhr.responseText);
         } else {
-          errback();
+          var err;
+          if (xhr.status === 404)
+            err = 'File not found \'' + url + '\'';
+          else
+            err = xhr.status + xhr.statusText;
+          errback(err);
         }
         xhr = null;
       });
