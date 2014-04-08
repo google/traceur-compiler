@@ -43,7 +43,8 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    this.loader.module(content, name);
+    var source = content + '//# sourceURL=' + name + '\n';
+    this.loader.module(source);
   }
 
   /**

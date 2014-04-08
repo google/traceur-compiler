@@ -21693,7 +21693,8 @@ System.register("traceur@0.0.33/src/WebPageTranscoder", [], function() {
       }));
     },
     addFileFromScriptElement: function(scriptElement, name, content) {
-      this.loader.module(content, name);
+      var source = content + '//# sourceURL=' + name + '\n';
+      this.loader.module(source);
     },
     nextInlineScriptName_: function() {
       this.numberInlined_ += 1;
