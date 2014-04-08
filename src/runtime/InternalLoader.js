@@ -240,6 +240,7 @@ export class InternalLoader {
       }).catch((err) => {
         codeUnit.state = ERROR;
         codeUnit.abort = function() {};
+        codeUnit.err = err;
         this.handleCodeUnitLoadError(codeUnit);
       });
     }
@@ -371,8 +372,9 @@ export class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoadError(codeUnit) {
-    var message = `Failed to load '${codeUnit.address}'.\n` +
-        codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+    var message = codeUnit.err ? String(codeUnit.err) :
+        `Failed to load '${codeUnit.address}'.\n`;
+    message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
     this.reporter.reportError(null, message);
     this.abortAll(message);
