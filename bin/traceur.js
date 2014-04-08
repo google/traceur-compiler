@@ -20963,7 +20963,12 @@ System.register("traceur@0.0.33/src/runtime/webLoader", [], function() {
         if (xhr.status == 200 || xhr.status == 0) {
           callback(xhr.responseText);
         } else {
-          errback();
+          var err;
+          if (xhr.status === 404)
+            err = 'File not found \'' + url + '\'';
+          else
+            err = xhr.status + xhr.statusText;
+          errback(err);
         }
         xhr = null;
       });
@@ -21366,6 +21371,7 @@ System.register("traceur@0.0.33/src/runtime/InternalLoader", [], function() {
         })).catch((function(err) {
           codeUnit.state = ERROR;
           codeUnit.abort = function() {};
+          codeUnit.err = err;
           $__332.handleCodeUnitLoadError(codeUnit);
         }));
       }
@@ -21463,7 +21469,8 @@ System.register("traceur@0.0.33/src/runtime/InternalLoader", [], function() {
       }
     },
     handleCodeUnitLoadError: function(codeUnit) {
-      var message = ("Failed to load '" + codeUnit.address + "'.\n") + codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+      var message = codeUnit.err ? String(codeUnit.err) : ("Failed to load '" + codeUnit.address + "'.\n");
+      message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;

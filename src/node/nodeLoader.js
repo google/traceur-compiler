@@ -23,10 +23,12 @@ function stripShebang(data) {
 var nodeLoader = {
   load: function(url, callback, errback) {
     fs.readFile(url, 'utf8', function(err, data) {
-      if (err)
+      if (err) {
+        err.message = err.message.replace('ENOENT, open', 'File not found');
         errback(err);
-      else
+      } else {
         callback(stripShebang(data));
+      }
     });
 
     // Returns an abort function.
