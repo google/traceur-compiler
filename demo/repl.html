@@ -25,11 +25,30 @@ if (location.host === 'traceur-compiler.googlecode.com') {
       location.hash);
 }
 </script>
-<link rel="stylesheet" href="../third_party/codemirror-3.22/lib/codemirror.css">
-<script src="../third_party/codemirror-3.22/lib/codemirror.js"></script>
-<script src="../third_party/codemirror-3.22/mode/javascript/javascript.js"></script>
+
+<!-- css and js files for CodeMirror from http://codemirror.net/demo/sublime.html -->
+
+<link rel="stylesheet" href="../third_party/CodeMirror-4.0.3/lib/codemirror.css">
+<link rel="stylesheet" href="../third_party/CodeMirror-4.0.3/addon/fold/foldgutter.css">
+<link rel="stylesheet" href="../third_party/CodeMirror-4.0.3/addon/dialog/dialog.css">
+
+<script src="../third_party/CodeMirror-4.0.3/lib/codemirror.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/search/searchcursor.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/search/search.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/dialog/dialog.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/edit/matchbrackets.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/edit/closebrackets.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/comment/comment.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/wrap/hardwrap.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/fold/foldcode.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/addon/fold/brace-fold.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/mode/javascript/javascript.js"></script>
+<script src="../third_party/CodeMirror-4.0.3/keymap/sublime.js"></script>
+
 <script src="../bin/traceur.js"></script>
+
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans">
+
 <style>
 
 html, body {
