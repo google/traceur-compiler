@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import {ModuleTransformer} from './ModuleTransformer';
-import {RETURN_STATEMENT} from '../syntax/trees/ParseTreeType';
+import {
+  GET_ACCESSOR,
+  OBJECT_LITERAL_EXPRESSION,
+  PROPERTY_NAME_ASSIGNMENT,
+  RETURN_STATEMENT
+} from '../syntax/trees/ParseTreeType';
 import {assert} from '../util/assert';
 import globalThis from './globalThis';
 import {
@@ -23,6 +28,12 @@ import {
   parseStatements
 } from './PlaceholderParser';
 import scopeContainsThis from './scopeContainsThis';
+import {
+  createEmptyParameterList,
+  createFunctionExpression,
+  createObjectLiteralExpression,
+  createPropertyNameAssignment
+} from './ParseTreeFactory';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
@@ -45,9 +56,36 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     // might be because it wants to make its own changes to "exports" or
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
-      statements.push(parseStatement `($traceurRuntime.defineExports)(exports, ${exportObject});`);
+      var descriptors = this.transformObjectLiteralToDescriptors(exportObject);
+      statements.push(parseStatement `Object.defineProperties(exports, ${descriptors});`);
     }
     return statements;
+  }
+
+  transformObjectLiteralToDescriptors(literalTree) {
+    assert(literalTree.type === OBJECT_LITERAL_EXPRESSION);
+
+    var props = literalTree.propertyNameAndValues.map((exp) => {
+      var descriptor;
+
+      switch (exp.type) {
+        case GET_ACCESSOR:
+          var getterFunction = createFunctionExpression(createEmptyParameterList(), exp.body);
+          descriptor = parseExpression `{get: ${getterFunction}}`;
+          break;
+
+        case PROPERTY_NAME_ASSIGNMENT:
+          descriptor = parseExpression `{value: ${exp.value}}`;
+          break;
+
+        default:
+          throw new Error(`Unexpected property type ${exp.type}`);
+      }
+
+      return createPropertyNameAssignment(exp.name, descriptor);
+    });
+
+    return createObjectLiteralExpression(props);
   }
 
   transformModuleSpecifier(tree) {
