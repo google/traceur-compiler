@@ -447,6 +447,10 @@
     return descriptors;
   }
 
+  function defineExports(exports, object) {
+    return $defineProperties(exports, getDescriptors(object));
+  }
+
   // The next three functions are more or less identical to
   // ClassDefinitionEvaluation in the ES6 draft.
 
@@ -704,6 +708,7 @@
     asyncWrap: asyncWrap,
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,
+    defineExports: defineExports,
     exportStar: exportStar,
     generatorWrap: generatorWrap,
     setProperty: setProperty,

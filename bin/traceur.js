@@ -322,6 +322,9 @@
     }
     return descriptors;
   }
+  function defineExports(exports, object) {
+    return $defineProperties(exports, getDescriptors(object));
+  }
   function createClass(ctor, object, staticObject, superClass) {
     $defineProperty(object, 'constructor', {
       value: ctor,
@@ -547,6 +550,7 @@
     asyncWrap: asyncWrap,
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,
+    defineExports: defineExports,
     exportStar: exportStar,
     generatorWrap: generatorWrap,
     setProperty: setProperty,
@@ -16906,7 +16910,7 @@ System.register("traceur@0.0.34/src/codegeneration/CommonJsModuleTransformer", [
   "use strict";
   var __moduleName = "traceur@0.0.34/src/codegeneration/CommonJsModuleTransformer";
   var $__171 = Object.freeze(Object.defineProperties(["module.exports = function() {\n            ", "\n          }.call(", ");"], {raw: {value: Object.freeze(["module.exports = function() {\n            ", "\n          }.call(", ");"])}})),
-      $__172 = Object.freeze(Object.defineProperties(["module.exports = ", ";"], {raw: {value: Object.freeze(["module.exports = ", ";"])}})),
+      $__172 = Object.freeze(Object.defineProperties(["($traceurRuntime.defineExports)(exports, ", ");"], {raw: {value: Object.freeze(["($traceurRuntime.defineExports)(exports, ", ");"])}})),
       $__173 = Object.freeze(Object.defineProperties(["require(", ")"], {raw: {value: Object.freeze(["require(", ")"])}})),
       $__174 = Object.freeze(Object.defineProperties(["__esModule: true"], {raw: {value: Object.freeze(["__esModule: true"])}}));
   var ModuleTransformer = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/codegeneration/ModuleTransformer")).ModuleTransformer;
