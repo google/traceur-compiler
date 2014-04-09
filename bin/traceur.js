@@ -21933,19 +21933,43 @@ System.register("traceur@0.0.34/src/runtime/TraceurLoader", [], function() {
   };
   var $TraceurLoader = TraceurLoader;
   ($traceurRuntime.createClass)(TraceurLoader, {
+    importAll: function(names) {
+      var $__350 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
+          referrerName = $__350.referrerName,
+          address = $__350.address;
+      var $__348 = this;
+      return Promise.all(names.map((function(name) {
+        return $__348.import(name, {
+          referrerName: referrerName,
+          address: address
+        });
+      })));
+    },
     loadAsScript: function(name) {
-      var $__349 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
-          referrerName = $__349.referrerName,
-          address = $__349.address;
+      var $__350 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
+          referrerName = $__350.referrerName,
+          address = $__350.address;
       return this.internalLoader_.load(name, referrerName, address, 'script').then((function(codeUnit) {
         return codeUnit.result;
       }));
     },
+    loadAsScriptAll: function(names) {
+      var $__350 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
+          referrerName = $__350.referrerName,
+          address = $__350.address;
+      var $__348 = this;
+      return Promise.all(names.map((function(name) {
+        return $__348.loadAsScript(name, {
+          referrerName: referrerName,
+          address: address
+        });
+      })));
+    },
     script: function(source) {
-      var $__349 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
-          name = $__349.name,
-          referrerName = $__349.referrerName,
-          address = $__349.address;
+      var $__350 = $traceurRuntime.assertObject(arguments[1] !== (void 0) ? arguments[1] : {}),
+          name = $__350.name,
+          referrerName = $__350.referrerName,
+          address = $__350.address;
       return this.internalLoader_.script(source, name, referrerName, address);
     },
     semVerRegExp_: function() {
@@ -22023,9 +22047,9 @@ System.register("traceur@0.0.34/src/runtime/System", [], function() {
 System.register("traceur@0.0.34/src/util/TestErrorReporter", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.34/src/util/TestErrorReporter";
-  var $__352 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/util/ErrorReporter")),
-      ErrorReporter = $__352.ErrorReporter,
-      format = $__352.format;
+  var $__353 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/util/ErrorReporter")),
+      ErrorReporter = $__353.ErrorReporter,
+      format = $__353.format;
   var TestErrorReporter = function TestErrorReporter() {
     this.errors = [];
   };
