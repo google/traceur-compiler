@@ -209,8 +209,32 @@ suite('Loader.js', function() {
       }).catch(done);
   });
 
+
+  test('Loader.LoadAsScriptAll', function(done) {
+    var names = ['./test_script.js'];
+    getLoader().loadAsScriptAll(names, {}).then(function(results) {
+      var result = results[0];
+      assert.equal('A', result[0]);
+      assert.equal('B', result[1]);
+      assert.equal('C', result[2]);
+      done();
+    }).catch(done);
+  });
+
   test('LoaderImport', function(done) {
     getLoader().import('./test_module', {}).then(function(mod) {
+      assert.equal('test', mod.name);
+      assert.equal('A', mod.a);
+      assert.equal('B', mod.b);
+      assert.equal('C', mod.c);
+      done();
+    }).catch(done);
+  });
+
+  test('LoaderImportAll', function(done) {
+    var names = ['./test_module'];
+    getLoader().importAll(names, {}).then(function(mods) {
+      var mod = mods[0];
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
