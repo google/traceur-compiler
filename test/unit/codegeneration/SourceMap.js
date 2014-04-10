@@ -15,7 +15,7 @@
 suite('SourceMap.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var Parser = get('src/syntax/Parser').Parser;

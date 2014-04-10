@@ -15,7 +15,7 @@
 suite('low_level_tests.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer').InlineModuleTransformer;

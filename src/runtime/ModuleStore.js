@@ -25,11 +25,11 @@
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
   // "default baseURL is the directory that contains the HTML page"
-  var baseURL;
+  var defaultBaseURL;
   if (global.location && global.location.href)
-    baseURL = resolveUrl(global.location.href, './');
+    defaultBaseURL = resolveUrl(global.location.href, './');
   else
-    baseURL = '';
+    defaultBaseURL = '';
 
   class UncoatedModuleEntry {
     constructor(url, uncoatedModule) {
@@ -54,7 +54,7 @@
   function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
-    var url = ModuleStore.normalize(name);
+    var url = ModuleStore.prototype.normalize(name);
     return moduleInstantiators[url];
   };
 
@@ -90,7 +90,11 @@
     return coatedModule;
   }
 
-  var ModuleStore = {
+  function ModuleStore() {
+    this.baseURL_ = defaultBaseURL;
+  }
+
+  ModuleStore.prototype = {
 
     normalize(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -125,17 +129,23 @@
     },
 
     get baseURL() {
-      return baseURL;
+      return this.baseURL_;
     },
 
     set baseURL(v) {
-      baseURL = String(v);
+      this.baseURL_ = canonicalizeUrl(String(v));
+      if (!this.baseURL_)
+        throw new Error('Invalid baseURL: ' + v);
+    },
+
+    keys() {
+      return Object.keys(moduleInstances);
     },
 
     // -- Non standard extensions to ModuleStore.
 
     registerModule(name, func) {
-      var normalizedName = ModuleStore.normalize(name);
+      var normalizedName = this.normalize(name);
       if (moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
       moduleInstantiators[normalizedName] =
@@ -179,32 +189,17 @@
         });
       }
       return this.get(this.testingPrefix_ + name);
+    },
+
+    /**
+      * Non-standard bootstrapping function for ModuleStore
+     **/
+    createModule(uncoatedModule) {
+      return Module(uncoatedModule);
     }
 
   };
 
-
-  ModuleStore.set('@traceur/src/runtime/ModuleStore',
-      new Module({ModuleStore: ModuleStore}));
-
-  // Override setupGlobals so that System is added to future globals.
-  var setupGlobals = $traceurRuntime.setupGlobals;
-  $traceurRuntime.setupGlobals = function(global) {
-    setupGlobals(global);
-  };
-  $traceurRuntime.ModuleStore = ModuleStore;
-
-  global.System = {
-    register: ModuleStore.register.bind(ModuleStore),
-    get: ModuleStore.get,
-    set: ModuleStore.set,
-    normalize: ModuleStore.normalize,
-  };
-
-  // TODO(jjb): remove after next npm release
-  $traceurRuntime.getModuleImpl = function(name) {
-    var instantiator = getUncoatedModuleInstantiator(name);
-    return instantiator && instantiator.getUncoatedModule();
-  };
+  global.$traceurRuntime.ModuleStore = ModuleStore;
 
 })(typeof global !== 'undefined' ? global : this);

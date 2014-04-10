@@ -22,6 +22,10 @@ export class Loader {
   constructor(loaderHooks) {
     this.internalLoader_ = new InternalLoader(loaderHooks);
     this.loaderHooks_ = loaderHooks;
+    Object.getOwnPropertyNames(loaderHooks).forEach((name) => {
+      var desc = Object.getOwnPropertyDescriptor(loaderHooks, name);
+      Object.defineProperty(this, name, desc);
+    });
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any

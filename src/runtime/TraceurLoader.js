@@ -16,7 +16,14 @@
 import {InternalLoader} from '../runtime/InternalLoader';
 import {Loader} from '../runtime/Loader';
 
-var version = __moduleName.slice(0, __moduleName.indexOf('/'));
+// Extract the build version number from a module name.
+// The first few modules don't have version info.
+// Late ones are dynamically loaded.
+// TODO(jjb): create a magic module with version embedded.
+var staticModuleName  =
+    $traceurRuntime.StaticModuleStore.keys()[12];
+
+var version = staticModuleName.slice(0, staticModuleName.indexOf('/'));
 
 export class TraceurLoader extends Loader {
 
@@ -32,6 +39,7 @@ export class TraceurLoader extends Loader {
       }
     }
     super(loaderHooks);
+    this.map = this.semverMap(staticModuleName);
   }
 
   /**
@@ -133,7 +141,8 @@ export class TraceurLoader extends Loader {
    * @param {string} normalizedName
    * @param {string} 'module' or 'script'
    */
-  sourceMapInfo(normalizedName, type) {
+  sourceMapInfo(name, type) {
+    var normalizedName = System.normalize(name);
     return this.internalLoader_.sourceMapInfo(normalizedName, type);
   }
 
@@ -143,7 +152,7 @@ export class TraceurLoader extends Loader {
    * @param {Function<Array<string>>} factory takes array of normalized names.
    */
   register(normalizedName, deps, factoryFunction) {
-    $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+    this.loaderHooks_.register(normalizedName, deps, factoryFunction);
   }
 
   get baseURL() {

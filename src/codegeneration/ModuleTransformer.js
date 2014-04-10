@@ -105,7 +105,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
     if (this.moduleName === null) {
       return parseStatements
-          `$traceurRuntime.ModuleStore.getAnonymousModule(
+          `$traceurRuntime.StaticModuleStore.getAnonymousModule(
               ${functionExpression});`;
     }
     return parseStatements

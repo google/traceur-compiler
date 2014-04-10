@@ -694,11 +694,11 @@
       resolveUrl = $__2.resolveUrl,
       isAbsolute = $__2.isAbsolute;
   var moduleInstantiators = Object.create(null);
-  var baseURL;
+  var defaultBaseURL;
   if (global.location && global.location.href)
-    baseURL = resolveUrl(global.location.href, './');
+    defaultBaseURL = resolveUrl(global.location.href, './');
   else
-    baseURL = '';
+    defaultBaseURL = '';
   var UncoatedModuleEntry = function UncoatedModuleEntry(url, uncoatedModule) {
     this.url = url;
     this.value_ = uncoatedModule;
@@ -717,7 +717,7 @@
   function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
-    var url = ModuleStore.normalize(name);
+    var url = ModuleStore.prototype.normalize(name);
     return moduleInstantiators[url];
   }
   ;
@@ -748,7 +748,10 @@
     Object.preventExtensions(coatedModule);
     return coatedModule;
   }
-  var ModuleStore = {
+  function ModuleStore() {
+    this.baseURL_ = defaultBaseURL;
+  }
+  ModuleStore.prototype = {
     normalize: function(name, refererName, refererAddress) {
       if (typeof name !== "string")
         throw new TypeError("module name must be a string, not " + typeof name);
@@ -779,13 +782,18 @@
       moduleInstances[normalizedName] = module;
     },
     get baseURL() {
-      return baseURL;
+      return this.baseURL_;
     },
     set baseURL(v) {
-      baseURL = String(v);
+      this.baseURL_ = canonicalizeUrl(String(v));
+      if (!this.baseURL_)
+        throw new Error('Invalid baseURL: ' + v);
+    },
+    keys: function() {
+      return Object.keys(moduleInstances);
     },
     registerModule: function(name, func) {
-      var normalizedName = ModuleStore.normalize(name);
+      var normalizedName = this.normalize(name);
       if (moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
       moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, func);
@@ -816,23 +824,29 @@
         }));
       }
       return this.get(this.testingPrefix_ + name);
+    },
+    createModule: function(uncoatedModule) {
+      return Module(uncoatedModule);
     }
   };
-  ModuleStore.set('@traceur/src/runtime/ModuleStore', new Module({ModuleStore: ModuleStore}));
+  global.$traceurRuntime.ModuleStore = ModuleStore;
+})(typeof global !== 'undefined' ? global : this);
+(function(global) {
+  'use strict';
+  var ModuleStore = $traceurRuntime.ModuleStore;
+  var StaticModuleStore = new ModuleStore();
+  StaticModuleStore.set('@traceur/src/runtime/StaticModuleStore', StaticModuleStore.createModule({StaticModuleStore: StaticModuleStore}));
+  StaticModuleStore.set('@traceur/src/runtime/ModuleStore', StaticModuleStore.createModule({ModuleStore: ModuleStore}));
   var setupGlobals = $traceurRuntime.setupGlobals;
   $traceurRuntime.setupGlobals = function(global) {
     setupGlobals(global);
   };
-  $traceurRuntime.ModuleStore = ModuleStore;
+  $traceurRuntime.StaticModuleStore = StaticModuleStore;
   global.System = {
-    register: ModuleStore.register.bind(ModuleStore),
-    get: ModuleStore.get,
-    set: ModuleStore.set,
-    normalize: ModuleStore.normalize
-  };
-  $traceurRuntime.getModuleImpl = function(name) {
-    var instantiator = getUncoatedModuleInstantiator(name);
-    return instantiator && instantiator.getUncoatedModule();
+    register: StaticModuleStore.register.bind(StaticModuleStore),
+    get: StaticModuleStore.get,
+    set: StaticModuleStore.set,
+    normalize: StaticModuleStore.normalize
   };
 })(typeof global !== 'undefined' ? global : this);
 System.register("traceur@0.0.34/src/runtime/polyfills/utils", [], function() {
@@ -14672,7 +14686,7 @@ System.register("traceur@0.0.34/src/codegeneration/ModuleTransformer", [], funct
   var __moduleName = "traceur@0.0.34/src/codegeneration/ModuleTransformer";
   var $__98 = Object.freeze(Object.defineProperties(["var __moduleName = ", ";"], {raw: {value: Object.freeze(["var __moduleName = ", ";"])}})),
       $__99 = Object.freeze(Object.defineProperties(["function() {\n      ", "\n    }"], {raw: {value: Object.freeze(["function() {\n      ", "\n    }"])}})),
-      $__100 = Object.freeze(Object.defineProperties(["$traceurRuntime.ModuleStore.getAnonymousModule(\n              ", ");"], {raw: {value: Object.freeze(["$traceurRuntime.ModuleStore.getAnonymousModule(\n              ", ");"])}})),
+      $__100 = Object.freeze(Object.defineProperties(["$traceurRuntime.StaticModuleStore.getAnonymousModule(\n              ", ");"], {raw: {value: Object.freeze(["$traceurRuntime.StaticModuleStore.getAnonymousModule(\n              ", ");"])}})),
       $__101 = Object.freeze(Object.defineProperties(["System.register(", ", [], ", ");"], {raw: {value: Object.freeze(["System.register(", ", [], ", ");"])}})),
       $__102 = Object.freeze(Object.defineProperties(["get ", "() { return ", "; }"], {raw: {value: Object.freeze(["get ", "() { return ", "; }"])}})),
       $__103 = Object.freeze(Object.defineProperties(["return $traceurRuntime.exportStar(", ")"], {raw: {value: Object.freeze(["return $traceurRuntime.exportStar(", ")"])}})),
@@ -21051,10 +21065,10 @@ System.register("traceur@0.0.34/src/runtime/LoaderHooks", [], function() {
   var identifierGenerator = new UniqueIdentifierGenerator();
   var LoaderHooks = function LoaderHooks(reporter, baseURL) {
     var fileLoader = arguments[2] !== (void 0) ? arguments[2] : webLoader;
-    var moduleStore = arguments[3] !== (void 0) ? arguments[3] : $traceurRuntime.ModuleStore;
+    var moduleStore = arguments[3] !== (void 0) ? arguments[3] : $traceurRuntime.StaticModuleStore;
     this.reporter = reporter;
-    this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
+    this.moduleStore_.baseURL = baseURL;
     this.fileLoader = fileLoader;
     this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   };
@@ -21073,10 +21087,10 @@ System.register("traceur@0.0.34/src/runtime/LoaderHooks", [], function() {
         return normalizedName;
     },
     get baseURL() {
-      return this.baseURL_;
+      return this.moduleStore_.baseURL;
     },
     set baseURL(value) {
-      this.baseURL_ = String(value);
+      this.moduleStore_.baseURL = value;
     },
     getModuleSpecifiers: function(codeUnit) {
       if (!this.parse(codeUnit))
@@ -21205,6 +21219,9 @@ System.register("traceur@0.0.34/src/runtime/LoaderHooks", [], function() {
     },
     bundledModule: function(name) {
       return this.moduleStore_.bundleStore[name];
+    },
+    register: function(normalizedName, deps, factoryFunction) {
+      return this.moduleStore_.register(normalizedName, deps, factoryFunction);
     }
   }, {});
   return {get LoaderHooks() {
@@ -21661,8 +21678,13 @@ System.register("traceur@0.0.34/src/runtime/Loader", [], function() {
   var __moduleName = "traceur@0.0.34/src/runtime/Loader";
   var InternalLoader = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/runtime/InternalLoader")).InternalLoader;
   var Loader = function Loader(loaderHooks) {
+    var $__337 = this;
     this.internalLoader_ = new InternalLoader(loaderHooks);
     this.loaderHooks_ = loaderHooks;
+    Object.getOwnPropertyNames(loaderHooks).forEach((function(name) {
+      var desc = Object.getOwnPropertyDescriptor(loaderHooks, name);
+      Object.defineProperty($__337, name, desc);
+    }));
   };
   ($traceurRuntime.createClass)(Loader, {
     import: function(name) {
@@ -21966,7 +21988,8 @@ System.register("traceur@0.0.34/src/runtime/TraceurLoader", [], function() {
   var __moduleName = "traceur@0.0.34/src/runtime/TraceurLoader";
   var InternalLoader = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/runtime/InternalLoader")).InternalLoader;
   var Loader = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/runtime/Loader")).Loader;
-  var version = __moduleName.slice(0, __moduleName.indexOf('/'));
+  var staticModuleName = $traceurRuntime.StaticModuleStore.keys()[12];
+  var version = staticModuleName.slice(0, staticModuleName.indexOf('/'));
   var TraceurLoader = function TraceurLoader(loaderHooks) {
     if (loaderHooks.translateSynchronous) {
       loaderHooks.translate = function(load) {
@@ -21976,6 +21999,7 @@ System.register("traceur@0.0.34/src/runtime/TraceurLoader", [], function() {
       };
     }
     $traceurRuntime.superCall(this, $TraceurLoader.prototype, "constructor", [loaderHooks]);
+    this.map = this.semverMap(staticModuleName);
   };
   var $TraceurLoader = TraceurLoader;
   ($traceurRuntime.createClass)(TraceurLoader, {
@@ -22046,11 +22070,12 @@ System.register("traceur@0.0.34/src/runtime/TraceurLoader", [], function() {
     get options() {
       return this.internalLoader_.options;
     },
-    sourceMapInfo: function(normalizedName, type) {
+    sourceMapInfo: function(name, type) {
+      var normalizedName = System.normalize(name);
       return this.internalLoader_.sourceMapInfo(normalizedName, type);
     },
     register: function(normalizedName, deps, factoryFunction) {
-      $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+      this.loaderHooks_.register(normalizedName, deps, factoryFunction);
     },
     get baseURL() {
       return this.loaderHooks_.baseURL;
@@ -22085,7 +22110,6 @@ System.register("traceur@0.0.34/src/runtime/System", [], function() {
   if (typeof global !== 'undefined')
     global.System = traceurLoader;
   ;
-  traceurLoader.map = traceurLoader.semverMap(__moduleName);
   return {get System() {
       return traceurLoader;
     }};
@@ -22208,7 +22232,7 @@ System.register("traceur@0.0.34/src/traceur-import", [], function() {
   var __moduleName = "traceur@0.0.34/src/traceur-import";
   var traceur = System.get("traceur@0.0.34/src/traceur");
   this.traceur = traceur;
-  $traceurRuntime.ModuleStore.set('traceur@', traceur);
+  $traceurRuntime.StaticModuleStore.set('traceur@', traceur);
   return {};
 });
 System.get("traceur@0.0.34/src/traceur-import" + '');

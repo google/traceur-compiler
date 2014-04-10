@@ -80,14 +80,14 @@ suite('System.js', function() {
   });
 
   test('System.set', function() {
-    var store = $traceurRuntime.ModuleStore;
+    var store = $traceurRuntime.StaticModuleStore;
     var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
 
   test('ModuleStore.registerModule', function() {
-    var store = $traceurRuntime.ModuleStore;
+    var store = $traceurRuntime.StaticModuleStore;
     try {
       store.registerModule('name', function(){});
       store.registerModule('name', function(){});
