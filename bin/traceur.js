@@ -16930,6 +16930,7 @@ System.register("traceur@0.0.33/src/codegeneration/CommonJsModuleTransformer", [
       createFunctionExpression = $__178.createFunctionExpression,
       createObjectLiteralExpression = $__178.createObjectLiteralExpression,
       createPropertyNameAssignment = $__178.createPropertyNameAssignment;
+  var prependStatements = $traceurRuntime.assertObject(System.get("traceur@0.0.33/src/codegeneration/PrependStatements")).prependStatements;
   var CommonJsModuleTransformer = function CommonJsModuleTransformer() {
     $traceurRuntime.defaultSuperCall(this, $CommonJsModuleTransformer.prototype, arguments);
   };
@@ -16946,7 +16947,8 @@ System.register("traceur@0.0.33/src/codegeneration/CommonJsModuleTransformer", [
       var exportObject = last.expression;
       if (this.hasExports()) {
         var descriptors = this.transformObjectLiteralToDescriptors(exportObject);
-        statements.push(parseStatement($__172, descriptors));
+        var exportStatement = parseStatement($__172, descriptors);
+        statements = prependStatements(statements, exportStatement);
       }
       return statements;
     },

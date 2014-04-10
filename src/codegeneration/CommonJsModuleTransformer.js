@@ -34,6 +34,7 @@ import {
   createObjectLiteralExpression,
   createPropertyNameAssignment
 } from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
@@ -57,7 +58,8 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
       var descriptors = this.transformObjectLiteralToDescriptors(exportObject);
-      statements.push(parseStatement `Object.defineProperties(exports, ${descriptors});`);
+      var exportStatement = parseStatement `Object.defineProperties(exports, ${descriptors});`;
+      statements = prependStatements(statements, exportStatement);
     }
     return statements;
   }
