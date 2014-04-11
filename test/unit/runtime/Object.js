@@ -16,19 +16,19 @@ suite('Object.js', function() {
 
   test('Object.assign(target, source)', function() {
     var target = {};
-    var source = { foo: 1 };
+    var source = {foo: 1};
 
     assert.deepEqual(Object.assign(target, source), source);
   });
 
   test('Object.assign(target[, ...])', function() {
     var target = {};
-    var a = { foo: 1 };
-    var b = { foo: 2, bar: 1 };
-    var c = { foo: 3, bar: 2, baz: 1 };
+    var a = {foo: 1};
+    var b = {foo: 2, bar: 1};
+    var c = {foo: 3, bar: 2, baz: 1};
 
     assert.deepEqual(
-      Object.assign(target, a, b, c), { foo: 3, bar: 2, baz: 1 }
+      Object.assign(target, a, b, c), {foo: 3, bar: 2, baz: 1}
     );
   });
 
@@ -46,7 +46,7 @@ suite('Object.js', function() {
     });
 
     assert.deepEqual(
-      Object.assign(target, a), { bar: 1 }
+      Object.assign(target, a), {bar: 1}
     );
   });
 
