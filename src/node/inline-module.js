@@ -140,6 +140,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           }
         }, function(err) {
           errback(err);
+        }).catch(function(ex) {
+          console.error('Internal error ' + (ex.stack || ex));
         });
   }
 
