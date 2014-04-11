@@ -32,6 +32,7 @@
   var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $getPrototypeOf = $Object.getPrototypeOf;
+  var $keys = $Object.keys;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
   var $toString = $Object.prototype.toString;
   var $preventExtensions = Object.preventExtensions;
@@ -314,14 +315,17 @@
     $defineProperty(Object, 'is', method(is));
 
     // Object.assign (19.1.3.1)
-    function assign(target, source) {
-      var props = $getOwnPropertyNames(source);
-      var p, length = props.length;
-      for (p = 0; p < length; p++) {
-        var name = props[p];
-        if (name === hashProperty)
-          continue;
-        target[name] = source[name];
+    function assign(target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+        var props = $keys(source);
+        var p, length = props.length;
+        for (p = 0; p < length; p++) {
+          var name = props[p];
+          if (name === hashProperty)
+            continue;
+          target[name] = source[name];
+        }
       }
       return target;
     }

@@ -24,8 +24,9 @@ RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 TFLAGS = --
 
 RUNTIME_TESTS = \
-  test/unit/runtime/System.js \
-  test/unit/runtime/Loader.js
+  test/unit/runtime/Loader.js \
+  test/unit/runtime/Object.js \
+  test/unit/runtime/System.js
 
 UNIT_TESTS = \
 	test/unit/codegeneration/ \
