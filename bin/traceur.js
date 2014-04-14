@@ -21110,7 +21110,12 @@ System.register("traceur@0.0.34/src/runtime/LoaderHooks", [], function() {
     fetch: function(load) {
       var $__328 = this;
       return new Promise((function(resolve, reject) {
-        $__328.fileLoader.load(load.address, resolve, reject);
+        if (!load)
+          reject(new TypeError('fetch requires argument object'));
+        else if (!load.address || typeof load.address !== 'string')
+          reject(new TypeError('fetch({address}) missing required string.'));
+        else
+          $__328.fileLoader.load(load.address, resolve, reject);
       }));
     },
     translate: function(load) {
@@ -21255,20 +21260,20 @@ System.register("traceur@0.0.34/src/runtime/InternalLoader", [], function() {
   var global = this;
   var CodeUnit = function CodeUnit(loaderHooks, normalizedName, type, state, name, referrerName, address) {
     var $__334 = this;
-    this.loaderHooks = loaderHooks;
-    this.normalizedName = normalizedName;
-    this.type = type;
-    this.name_ = name;
-    this.referrerName_ = referrerName;
-    this.address_ = address;
-    this.url = InternalLoader.uniqueName(normalizedName, address);
-    this.uid = getUid();
-    this.state_ = state || NOT_STARTED;
-    this.error = null;
-    this.result = null;
-    this.data_ = {};
-    this.dependencies = [];
     this.promise = new Promise((function(res, rej) {
+      $__334.loaderHooks = loaderHooks;
+      $__334.normalizedName = normalizedName;
+      $__334.type = type;
+      $__334.name_ = name;
+      $__334.referrerName_ = referrerName;
+      $__334.address_ = address;
+      $__334.url = InternalLoader.uniqueName(normalizedName, address);
+      $__334.uid = getUid();
+      $__334.state_ = state || NOT_STARTED;
+      $__334.error = null;
+      $__334.result = null;
+      $__334.data_ = {};
+      $__334.dependencies = [];
       $__334.resolve = res;
       $__334.reject = rej;
     }));
@@ -21406,10 +21411,14 @@ System.register("traceur@0.0.34/src/runtime/InternalLoader", [], function() {
           $__334.handleCodeUnitLoaded(codeUnit);
           return codeUnit;
         })).catch((function(err) {
-          codeUnit.state = ERROR;
-          codeUnit.abort = function() {};
-          codeUnit.err = err;
-          $__334.handleCodeUnitLoadError(codeUnit);
+          try {
+            codeUnit.state = ERROR;
+            codeUnit.abort = function() {};
+            codeUnit.err = err;
+            $__334.handleCodeUnitLoadError(codeUnit);
+          } catch (ex) {
+            console.error('Internal Error ' + (ex.stack || ex));
+          }
         }));
       }
       return codeUnit;
@@ -21506,7 +21515,7 @@ System.register("traceur@0.0.34/src/runtime/InternalLoader", [], function() {
       }
     },
     handleCodeUnitLoadError: function(codeUnit) {
-      var message = codeUnit.err ? String(codeUnit.err) : ("Failed to load '" + codeUnit.address + "'.\n");
+      var message = codeUnit.err ? String(codeUnit.err) + '\n' : ("Failed to load '" + codeUnit.address + "'.\n");
       message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
       this.reporter.reportError(null, message);
       this.abortAll(message);
