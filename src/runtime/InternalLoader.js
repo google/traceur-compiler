@@ -376,7 +376,7 @@ export class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoadError(codeUnit) {
-    var message = codeUnit.err ? String(codeUnit.err) :
+    var message = codeUnit.err ? String(codeUnit.err) + '\n' :
         `Failed to load '${codeUnit.address}'.\n`;
     message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
