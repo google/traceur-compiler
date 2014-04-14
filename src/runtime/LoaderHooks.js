@@ -124,7 +124,11 @@ export class LoaderHooks {
 
   fetch(load) {
     return new Promise((resolve, reject) => {
-      this.fileLoader.load(load.address, resolve, reject);
+      if (!load)
+        reject(new TypeError('fetch requires argument object'));
+      else if (!load.address || typeof load.address !== 'string')
+        reject(new TypeError('fetch({address}) missing required string.'));
+      else this.fileLoader.load(load.address, resolve, reject);
     });
   }
 
