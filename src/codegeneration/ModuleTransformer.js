@@ -79,10 +79,9 @@ export class ModuleTransformer extends TempVarTransformer {
 
     this.pushTempVarState();
 
-    var statements = [
-      ...this.transformList(tree.scriptItemList),
-      this.createExportStatement()
-    ];
+    var statements = this.transformList(tree.scriptItemList);
+
+    statements = this.appendExportStatement(statements);
 
     this.popTempVarState();
 
@@ -146,22 +145,35 @@ export class ModuleTransformer extends TempVarTransformer {
     return this.exportVisitor_.namedExports.map((exp) => {
       // export_name: {get: function() { return export_name },
       return this.getGetterExport(exp);
-    });
+    }).concat(this.exportVisitor_.namedExports.map((exp) => {
+      return this.getSetterExport(exp);
+    })).filter((e) => e);
   }
 
-  createExportStatement() {
-    var object = createObjectLiteralExpression(this.getExportProperties());
+  // By default, the module transformer doesn't create setters,
+  // as the Module object is read only.
+  getSetterExport({name, tree, moduleSpecifier}) {
+    return null;
+  }
 
+  getExportObject() {
+    var exportObject = createObjectLiteralExpression(this.getExportProperties());
     if (this.exportVisitor_.starExports.length) {
       var starExports = this.exportVisitor_.starExports;
       var starIdents = starExports.map((moduleSpecifier) => {
         return createIdentifierExpression(
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
       });
-      var args = createArgumentList(object, ...starIdents);
-      return parseStatement `return $traceurRuntime.exportStar(${args})`;
+      var args = createArgumentList(exportObject, ...starIdents);
+      return parseExpression `$traceurRuntime.exportStar(${args})`;
     }
-    return parseStatement `return ${object}`;
+    return exportObject;
+  }
+
+  appendExportStatement(statements) {
+    var exportObject = this.getExportObject();
+    statements.push(parseStatement `return ${exportObject}`);
+    return statements;
   }
 
   /**
