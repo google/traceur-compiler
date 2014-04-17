@@ -12,8 +12,8 @@ language feature patches that are not on the track for future versions of
 JavaScript.
 1. Due to legal reasons, all contributors must sign a contributor license
 agreement, either for an
-[http://code.google.com/legal/individual-cla-v1.0.html individual] or
-[http://code.google.com/legal/corporate-cla-v1.0.html corporation], before a
+[individual](http://code.google.com/legal/individual-cla-v1.0.html) or
+[corporation](http://code.google.com/legal/corporate-cla-v1.0.html), before a
 patch can be accepted.
 1. Add an entry to the `AUTHORS` file with your name and email.
 2. Please use the google javascript style, http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
