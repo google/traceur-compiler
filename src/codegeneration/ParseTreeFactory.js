@@ -640,23 +640,23 @@ export function createFinally(block) {
 }
 
 /**
- * @param {VariableDeclarationList} initialiser
+ * @param {VariableDeclarationList} initializer
  * @param {ParseTree} collection
  * @param {ParseTree} body
  * @return {ForOfStatement}
  */
-export function createForOfStatement(initialiser, collection, body) {
-  return new ForOfStatement(null, initialiser, collection, body);
+export function createForOfStatement(initializer, collection, body) {
+  return new ForOfStatement(null, initializer, collection, body);
 }
 
 /**
- * @param {ParseTree} initialiser
+ * @param {ParseTree} initializer
  * @param {ParseTree} collection
  * @param {ParseTree} body
  * @return {ForInStatement}
  */
-export function createForInStatement(initialiser, collection, body) {
-  return new ForInStatement(null, initialiser, collection, body);
+export function createForInStatement(initializer, collection, body) {
+  return new ForInStatement(null, initializer, collection, body);
 }
 
 /**
@@ -1085,12 +1085,12 @@ export function createUseStrictDirective() {
 /**
  * @param {TokenType} binding
  * @param {IdentifierToken|Array.<VariableDeclaration>} identifierOrDeclarations
- * @param {ParseTree=} initialiser
+ * @param {ParseTree=} initializer
  * @return {VariableDeclarationList}
  */
 export function createVariableDeclarationList(binding,
                                               identifierOrDeclarations,
-                                              initialiser) {
+                                              initializer) {
   if (identifierOrDeclarations instanceof Array) {
     var declarations = identifierOrDeclarations;
     return new VariableDeclarationList(null, binding, declarations);
@@ -1098,15 +1098,15 @@ export function createVariableDeclarationList(binding,
 
   var identifier = identifierOrDeclarations;
   return createVariableDeclarationList(
-      binding, [createVariableDeclaration(identifier, initialiser)]);
+      binding, [createVariableDeclaration(identifier, initializer)]);
 }
 
 /**
  * @param {string|IdentifierToken|ParseTree} identifier
- * @param {ParseTree} initialiser
+ * @param {ParseTree} initializer
  * @return {VariableDeclaration}
  */
-export function createVariableDeclaration(identifier, initialiser) {
+export function createVariableDeclaration(identifier, initializer) {
   if (!(identifier instanceof ParseTree) ||
       identifier.type !== ParseTreeType.BINDING_IDENTIFIER &&
       identifier.type !== ParseTreeType.OBJECT_PATTERN &&
@@ -1114,22 +1114,22 @@ export function createVariableDeclaration(identifier, initialiser) {
     identifier = createBindingIdentifier(identifier);
   }
 
-  return new VariableDeclaration(null, identifier, null, initialiser);
+  return new VariableDeclaration(null, identifier, null, initializer);
 }
 
 /**
  * @param {VariableDeclarationList|TokenType} listOrBinding
  * @param {string|IdentifierToken=} identifier
- * @param {ParseTree=} initialiser
+ * @param {ParseTree=} initializer
  * @return {VariableStatement}
  */
 export function createVariableStatement(listOrBinding,
                                         identifier,
-                                        initialiser) {
+                                        initializer) {
   if (listOrBinding instanceof VariableDeclarationList)
     return new VariableStatement(null, listOrBinding);
   var binding = listOrBinding;
-  var list = createVariableDeclarationList(binding, identifier, initialiser);
+  var list = createVariableDeclarationList(binding, identifier, initializer);
   return createVariableStatement(list);
 }
 

@@ -2378,7 +2378,7 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeVisitor", [], function() {
     },
     visitBindingElement: function(tree) {
       this.visitAny(tree.binding);
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
     },
     visitBindingIdentifier: function(tree) {},
     visitBlock: function(tree) {
@@ -2432,7 +2432,7 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeVisitor", [], function() {
       this.visitList(tree.expressions);
     },
     visitCoverInitialisedName: function(tree) {
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
     },
     visitDebuggerStatement: function(tree) {},
     visitDefaultClause: function(tree) {
@@ -2462,17 +2462,17 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeVisitor", [], function() {
       this.visitAny(tree.block);
     },
     visitForInStatement: function(tree) {
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.visitAny(tree.collection);
       this.visitAny(tree.body);
     },
     visitForOfStatement: function(tree) {
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.visitAny(tree.collection);
       this.visitAny(tree.body);
     },
     visitForStatement: function(tree) {
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.visitAny(tree.condition);
       this.visitAny(tree.increment);
       this.visitAny(tree.body);
@@ -2638,7 +2638,7 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeVisitor", [], function() {
     visitVariableDeclaration: function(tree) {
       this.visitAny(tree.lvalue);
       this.visitAny(tree.typeAnnotation);
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
     },
     visitVariableDeclarationList: function(tree) {
       this.visitList(tree.declarations);
@@ -3746,10 +3746,10 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var BINDING_ELEMENT = ParseTreeType.BINDING_ELEMENT;
-  var BindingElement = function BindingElement(location, binding, initialiser) {
+  var BindingElement = function BindingElement(location, binding, initializer) {
     this.location = location;
     this.binding = binding;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
   };
   ($traceurRuntime.createClass)(BindingElement, {
     transform: function(transformer) {
@@ -4015,11 +4015,11 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var COVER_INITIALISED_NAME = ParseTreeType.COVER_INITIALISED_NAME;
-  var CoverInitialisedName = function CoverInitialisedName(location, name, equalToken, initialiser) {
+  var CoverInitialisedName = function CoverInitialisedName(location, name, equalToken, initializer) {
     this.location = location;
     this.name = name;
     this.equalToken = equalToken;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
   };
   ($traceurRuntime.createClass)(CoverInitialisedName, {
     transform: function(transformer) {
@@ -4209,9 +4209,9 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var FOR_IN_STATEMENT = ParseTreeType.FOR_IN_STATEMENT;
-  var ForInStatement = function ForInStatement(location, initialiser, collection, body) {
+  var ForInStatement = function ForInStatement(location, initializer, collection, body) {
     this.location = location;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
     this.collection = collection;
     this.body = body;
   };
@@ -4227,9 +4227,9 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var FOR_OF_STATEMENT = ParseTreeType.FOR_OF_STATEMENT;
-  var ForOfStatement = function ForOfStatement(location, initialiser, collection, body) {
+  var ForOfStatement = function ForOfStatement(location, initializer, collection, body) {
     this.location = location;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
     this.collection = collection;
     this.body = body;
   };
@@ -4245,9 +4245,9 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var FOR_STATEMENT = ParseTreeType.FOR_STATEMENT;
-  var ForStatement = function ForStatement(location, initialiser, condition, increment, body) {
+  var ForStatement = function ForStatement(location, initializer, condition, increment, body) {
     this.location = location;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
     this.condition = condition;
     this.increment = increment;
     this.body = body;
@@ -5095,11 +5095,11 @@ System.register("traceur@0.0.34/src/syntax/trees/ParseTrees", [], function() {
     }
   }, {}, ParseTree);
   var VARIABLE_DECLARATION = ParseTreeType.VARIABLE_DECLARATION;
-  var VariableDeclaration = function VariableDeclaration(location, lvalue, typeAnnotation, initialiser) {
+  var VariableDeclaration = function VariableDeclaration(location, lvalue, typeAnnotation, initializer) {
     this.location = location;
     this.lvalue = lvalue;
     this.typeAnnotation = typeAnnotation;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
   };
   ($traceurRuntime.createClass)(VariableDeclaration, {
     transform: function(transformer) {
@@ -7017,11 +7017,11 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
       this.currentParameterTypeAnnotation_ = null;
       this.visitAny(tree.binding);
       this.writeTypeAnnotation_(typeAnnotation);
-      if (tree.initialiser) {
+      if (tree.initializer) {
         this.writeSpace_();
         this.write_(EQUAL);
         this.writeSpace_();
-        this.visitAny(tree.initialiser);
+        this.visitAny(tree.initializer);
       }
     },
     visitBindingIdentifier: function(tree) {
@@ -7208,7 +7208,7 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
       this.write_(FOR);
       this.writeSpace_();
       this.write_(OPEN_PAREN);
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.writeSpace_();
       this.write_(OF);
       this.writeSpace_();
@@ -7220,7 +7220,7 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
       this.write_(FOR);
       this.writeSpace_();
       this.write_(OPEN_PAREN);
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.writeSpace_();
       this.write_(IN);
       this.writeSpace_();
@@ -7232,7 +7232,7 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
       this.write_(FOR);
       this.writeSpace_();
       this.write_(OPEN_PAREN);
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
       this.write_(SEMI_COLON);
       this.writeSpace_();
       this.visitAny(tree.condition);
@@ -7617,11 +7617,11 @@ System.register("traceur@0.0.34/src/outputgeneration/ParseTreeWriter", [], funct
     visitVariableDeclaration: function(tree) {
       this.visitAny(tree.lvalue);
       this.writeTypeAnnotation_(tree.typeAnnotation);
-      if (tree.initialiser !== null) {
+      if (tree.initializer !== null) {
         this.writeSpace_();
         this.write_(EQUAL);
         this.writeSpace_();
-        this.visitAny(tree.initialiser);
+        this.visitAny(tree.initializer);
       }
     },
     visitVariableStatement: function(tree) {
@@ -9122,7 +9122,7 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeValidator", [], function() {
     visitBindingElement: function(tree) {
       var binding = tree.binding;
       this.checkVisit_(binding.type == BINDING_IDENTIFIER || binding.type == OBJECT_PATTERN || binding.type == ARRAY_PATTERN, binding, 'expected valid binding element');
-      this.visitAny(tree.initialiser);
+      this.visitAny(tree.initializer);
     },
     visitBlock: function(tree) {
       for (var i = 0; i < tree.statements.length; i++) {
@@ -9215,15 +9215,15 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeValidator", [], function() {
       this.checkVisit_(tree.block.type === BLOCK, tree.block, 'block expected');
     },
     visitForOfStatement: function(tree) {
-      this.checkVisit_(tree.initialiser.isPattern() || tree.initialiser.type === IDENTIFIER_EXPRESSION || tree.initialiser.type === VARIABLE_DECLARATION_LIST && tree.initialiser.declarations.length === 1, tree.initialiser, 'for-each statement may not have more than one variable declaration');
+      this.checkVisit_(tree.initializer.isPattern() || tree.initializer.type === IDENTIFIER_EXPRESSION || tree.initializer.type === VARIABLE_DECLARATION_LIST && tree.initializer.declarations.length === 1, tree.initializer, 'for-each statement may not have more than one variable declaration');
       this.checkVisit_(tree.collection.isExpression(), tree.collection, 'expression expected');
       this.checkVisit_(tree.body.isStatement(), tree.body, 'statement expected');
     },
     visitForInStatement: function(tree) {
-      if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
-        this.checkVisit_(tree.initialiser.declarations.length <= 1, tree.initialiser, 'for-in statement may not have more than one variable declaration');
+      if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
+        this.checkVisit_(tree.initializer.declarations.length <= 1, tree.initializer, 'for-in statement may not have more than one variable declaration');
       } else {
-        this.checkVisit_(tree.initialiser.isPattern() || tree.initialiser.isExpression(), tree.initialiser, 'variable declaration, expression or ' + 'pattern expected');
+        this.checkVisit_(tree.initializer.isPattern() || tree.initializer.isExpression(), tree.initializer, 'variable declaration, expression or ' + 'pattern expected');
       }
       this.checkVisit_(tree.collection.isExpression(), tree.collection, 'expression expected');
       this.checkVisit_(tree.body.isStatement(), tree.body, 'statement expected');
@@ -9248,8 +9248,8 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeValidator", [], function() {
       }
     },
     visitForStatement: function(tree) {
-      if (tree.initialiser !== null) {
-        this.checkVisit_(tree.initialiser.isExpression() || tree.initialiser.type === VARIABLE_DECLARATION_LIST, tree.initialiser, 'variable declaration list or expression expected');
+      if (tree.initializer !== null) {
+        this.checkVisit_(tree.initializer.isExpression() || tree.initializer.type === VARIABLE_DECLARATION_LIST, tree.initializer, 'variable declaration list or expression expected');
       }
       if (tree.condition !== null) {
         this.checkVisit_(tree.condition.isExpression(), tree.condition, 'expression expected');
@@ -9443,8 +9443,8 @@ System.register("traceur@0.0.34/src/syntax/ParseTreeValidator", [], function() {
     },
     visitVariableDeclaration: function(tree) {
       this.checkVisit_(tree.lvalue.isPattern() || tree.lvalue.type == BINDING_IDENTIFIER, tree.lvalue, 'binding identifier expected, found: ' + tree.lvalue.type);
-      if (tree.initialiser !== null) {
-        this.checkVisit_(tree.initialiser.isAssignmentExpression(), tree.initialiser, 'assignment expression expected');
+      if (tree.initializer !== null) {
+        this.checkVisit_(tree.initializer.isAssignmentExpression(), tree.initializer, 'assignment expression expected');
       }
     },
     visitWhileStatement: function(tree) {
@@ -9864,11 +9864,11 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeFactory", [], functi
   function createFinally(block) {
     return new Finally(null, block);
   }
-  function createForOfStatement(initialiser, collection, body) {
-    return new ForOfStatement(null, initialiser, collection, body);
+  function createForOfStatement(initializer, collection, body) {
+    return new ForOfStatement(null, initializer, collection, body);
   }
-  function createForInStatement(initialiser, collection, body) {
-    return new ForInStatement(null, initialiser, collection, body);
+  function createForInStatement(initializer, collection, body) {
+    return new ForInStatement(null, initializer, collection, body);
   }
   function createForStatement(variables, condition, increment, body) {
     return new ForStatement(null, variables, condition, increment, body);
@@ -10040,25 +10040,25 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeFactory", [], functi
   function createUseStrictDirective() {
     return createExpressionStatement(createStringLiteral('use strict'));
   }
-  function createVariableDeclarationList(binding, identifierOrDeclarations, initialiser) {
+  function createVariableDeclarationList(binding, identifierOrDeclarations, initializer) {
     if (identifierOrDeclarations instanceof Array) {
       var declarations = identifierOrDeclarations;
       return new VariableDeclarationList(null, binding, declarations);
     }
     var identifier = identifierOrDeclarations;
-    return createVariableDeclarationList(binding, [createVariableDeclaration(identifier, initialiser)]);
+    return createVariableDeclarationList(binding, [createVariableDeclaration(identifier, initializer)]);
   }
-  function createVariableDeclaration(identifier, initialiser) {
+  function createVariableDeclaration(identifier, initializer) {
     if (!(identifier instanceof ParseTree) || identifier.type !== ParseTreeType.BINDING_IDENTIFIER && identifier.type !== ParseTreeType.OBJECT_PATTERN && identifier.type !== ParseTreeType.ARRAY_PATTERN) {
       identifier = createBindingIdentifier(identifier);
     }
-    return new VariableDeclaration(null, identifier, null, initialiser);
+    return new VariableDeclaration(null, identifier, null, initializer);
   }
-  function createVariableStatement(listOrBinding, identifier, initialiser) {
+  function createVariableStatement(listOrBinding, identifier, initializer) {
     if (listOrBinding instanceof VariableDeclarationList)
       return new VariableStatement(null, listOrBinding);
     var binding = listOrBinding;
-    var list = createVariableDeclarationList(binding, identifier, initialiser);
+    var list = createVariableDeclarationList(binding, identifier, initializer);
     return createVariableStatement(list);
   }
   function createVoid0() {
@@ -10564,11 +10564,11 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeTransformer", [], fu
     },
     transformBindingElement: function(tree) {
       var binding = this.transformAny(tree.binding);
-      var initialiser = this.transformAny(tree.initialiser);
-      if (binding === tree.binding && initialiser === tree.initialiser) {
+      var initializer = this.transformAny(tree.initializer);
+      if (binding === tree.binding && initializer === tree.initializer) {
         return tree;
       }
-      return new BindingElement(tree.location, binding, initialiser);
+      return new BindingElement(tree.location, binding, initializer);
     },
     transformBindingIdentifier: function(tree) {
       return tree;
@@ -10676,11 +10676,11 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeTransformer", [], fu
       return new CoverFormals(tree.location, expressions);
     },
     transformCoverInitialisedName: function(tree) {
-      var initialiser = this.transformAny(tree.initialiser);
-      if (initialiser === tree.initialiser) {
+      var initializer = this.transformAny(tree.initializer);
+      if (initializer === tree.initializer) {
         return tree;
       }
-      return new CoverInitialisedName(tree.location, tree.name, tree.equalToken, initialiser);
+      return new CoverInitialisedName(tree.location, tree.name, tree.equalToken, initializer);
     },
     transformDebuggerStatement: function(tree) {
       return tree;
@@ -10746,32 +10746,32 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeTransformer", [], fu
       return new Finally(tree.location, block);
     },
     transformForInStatement: function(tree) {
-      var initialiser = this.transformAny(tree.initialiser);
+      var initializer = this.transformAny(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
-      if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
+      if (initializer === tree.initializer && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForInStatement(tree.location, initialiser, collection, body);
+      return new ForInStatement(tree.location, initializer, collection, body);
     },
     transformForOfStatement: function(tree) {
-      var initialiser = this.transformAny(tree.initialiser);
+      var initializer = this.transformAny(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
-      if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
+      if (initializer === tree.initializer && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ForOfStatement(tree.location, initialiser, collection, body);
+      return new ForOfStatement(tree.location, initializer, collection, body);
     },
     transformForStatement: function(tree) {
-      var initialiser = this.transformAny(tree.initialiser);
+      var initializer = this.transformAny(tree.initializer);
       var condition = this.transformAny(tree.condition);
       var increment = this.transformAny(tree.increment);
       var body = this.transformAny(tree.body);
-      if (initialiser === tree.initialiser && condition === tree.condition && increment === tree.increment && body === tree.body) {
+      if (initializer === tree.initializer && condition === tree.condition && increment === tree.increment && body === tree.body) {
         return tree;
       }
-      return new ForStatement(tree.location, initialiser, condition, increment, body);
+      return new ForStatement(tree.location, initializer, condition, increment, body);
     },
     transformFormalParameter: function(tree) {
       var parameter = this.transformAny(tree.parameter);
@@ -11108,11 +11108,11 @@ System.register("traceur@0.0.34/src/codegeneration/ParseTreeTransformer", [], fu
     transformVariableDeclaration: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
       var typeAnnotation = this.transformAny(tree.typeAnnotation);
-      var initialiser = this.transformAny(tree.initialiser);
-      if (lvalue === tree.lvalue && typeAnnotation === tree.typeAnnotation && initialiser === tree.initialiser) {
+      var initializer = this.transformAny(tree.initializer);
+      if (lvalue === tree.lvalue && typeAnnotation === tree.typeAnnotation && initializer === tree.initializer) {
         return tree;
       }
-      return new VariableDeclaration(tree.location, lvalue, typeAnnotation, initialiser);
+      return new VariableDeclaration(tree.location, lvalue, typeAnnotation, initializer);
     },
     transformVariableDeclarationList: function(tree) {
       var declarations = this.transformList(tree.declarations);
@@ -11192,7 +11192,7 @@ System.register("traceur@0.0.34/src/codegeneration/AssignmentPatternTransformer"
       return new ArrayPattern(tree.location, elements);
     },
     transformCoverInitialisedName: function(tree) {
-      return new BindingElement(tree.location, new BindingIdentifier(tree.name.location, tree.name), this.transformAny(tree.initialiser));
+      return new BindingElement(tree.location, new BindingIdentifier(tree.name.location, tree.name), this.transformAny(tree.initializer));
     },
     transformObjectLiteralExpression: function(tree) {
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
@@ -11283,7 +11283,7 @@ System.register("traceur@0.0.34/src/codegeneration/CoverFormalsTransformer", [],
       return new BindingElement(tree.location, new ObjectPattern(tree.location, propertyNameAndValues), null);
     },
     transformCoverInitialisedName: function(tree) {
-      return new BindingElement(tree.location, new BindingIdentifier(tree.location, tree.name), tree.initialiser);
+      return new BindingElement(tree.location, new BindingIdentifier(tree.location, tree.name), tree.initializer);
     },
     transformPropertyNameAssignment: function(tree) {
       return new ObjectPatternField(tree.location, tree.name, this.transformAny(tree.value));
@@ -11697,11 +11697,11 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
   };
-  var DestructuringInitialiser = {
+  var DestructuringInitializer = {
     REQUIRED: 'REQUIRED',
     OPTIONAL: 'OPTIONAL'
   };
-  var Initialiser = {
+  var Initializer = {
     ALLOWED: 'ALLOWED',
     REQUIRED: 'REQUIRED'
   };
@@ -12086,12 +12086,12 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
       return this.peekBindingElement_(type);
     },
     parseFormalParameter_: function() {
-      var initialiserAllowed = arguments[0];
+      var initializerAllowed = arguments[0];
       var start = this.getTreeStartLocation_();
       var binding = this.parseBindingElementBinding_();
       var typeAnnotation = this.parseTypeAnnotationOpt_();
-      var initialiser = this.parseBindingElementInitialiser_(initialiserAllowed);
-      return new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, initialiser), typeAnnotation, this.popAnnotations_());
+      var initializer = this.parseBindingElementInitializer_(initializerAllowed);
+      return new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, initializer), typeAnnotation, this.popAnnotations_());
     },
     parseFormalRestParameter_: function() {
       var start = this.getTreeStartLocation_();
@@ -12160,13 +12160,13 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
     parseVariableStatement_: function() {
       var start = this.getTreeStartLocation_();
       var declarations = this.parseVariableDeclarationList_();
-      this.checkInitialisers_(declarations);
+      this.checkInitializers_(declarations);
       this.eatPossibleImplicitSemiColon_();
       return new VariableStatement(this.getTreeLocation_(start), declarations);
     },
     parseVariableDeclarationList_: function() {
       var expressionIn = arguments[0] !== (void 0) ? arguments[0] : Expression.NORMAL;
-      var initialiser = arguments[1] !== (void 0) ? arguments[1] : DestructuringInitialiser.REQUIRED;
+      var initializer = arguments[1] !== (void 0) ? arguments[1] : DestructuringInitializer.REQUIRED;
       var type = this.peekType_();
       switch (type) {
         case CONST:
@@ -12181,15 +12181,15 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
       }
       var start = this.getTreeStartLocation_();
       var declarations = [];
-      declarations.push(this.parseVariableDeclaration_(type, expressionIn, initialiser));
+      declarations.push(this.parseVariableDeclaration_(type, expressionIn, initializer));
       while (this.eatIf_(COMMA)) {
-        declarations.push(this.parseVariableDeclaration_(type, expressionIn, initialiser));
+        declarations.push(this.parseVariableDeclaration_(type, expressionIn, initializer));
       }
       return new VariableDeclarationList(this.getTreeLocation_(start), type, declarations);
     },
     parseVariableDeclaration_: function(binding, expressionIn) {
-      var initialiser = arguments[2] !== (void 0) ? arguments[2] : DestructuringInitialiser.REQUIRED;
-      var initRequired = initialiser !== DestructuringInitialiser.OPTIONAL;
+      var initializer = arguments[2] !== (void 0) ? arguments[2] : DestructuringInitializer.REQUIRED;
+      var initRequired = initializer !== DestructuringInitializer.OPTIONAL;
       var start = this.getTreeStartLocation_();
       var lvalue;
       var typeAnnotation;
@@ -12200,14 +12200,14 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
         lvalue = this.parseBindingIdentifier_();
         typeAnnotation = this.parseTypeAnnotationOpt_();
       }
-      var initialiser = null;
+      var initializer = null;
       if (this.peek_(EQUAL))
-        initialiser = this.parseInitialiser_(expressionIn);
+        initializer = this.parseInitializer_(expressionIn);
       else if (lvalue.isPattern() && initRequired)
-        this.reportError_('destructuring must have an initialiser');
-      return new VariableDeclaration(this.getTreeLocation_(start), lvalue, typeAnnotation, initialiser);
+        this.reportError_('destructuring must have an initializer');
+      return new VariableDeclaration(this.getTreeLocation_(start), lvalue, typeAnnotation, initializer);
     },
-    parseInitialiser_: function(expressionIn) {
+    parseInitializer_: function(expressionIn) {
       this.eat_(EQUAL);
       return this.parseAssignmentExpression(expressionIn);
     },
@@ -12291,71 +12291,71 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
           $__65.reportError_(kind + ' statement may not have more than one variable declaration');
         }
         var declaration = variables.declarations[0];
-        if (declaration.lvalue.isPattern() && declaration.initialiser) {
-          $__65.reportError_(declaration.initialiser.location, ("initialiser is not allowed in " + kind + " loop with pattern"));
+        if (declaration.lvalue.isPattern() && declaration.initializer) {
+          $__65.reportError_(declaration.initializer.location, ("initializer is not allowed in " + kind + " loop with pattern"));
         }
       });
       var type = this.peekType_();
       if (this.peekVariableDeclarationList_(type)) {
-        var variables = this.parseVariableDeclarationList_(Expression.NO_IN, DestructuringInitialiser.OPTIONAL);
+        var variables = this.parseVariableDeclarationList_(Expression.NO_IN, DestructuringInitializer.OPTIONAL);
         type = this.peekType_();
         if (type === IN) {
           validate(variables, 'for-in');
           var declaration = variables.declarations[0];
           if (parseOptions.blockBinding && (variables.declarationType == LET || variables.declarationType == CONST)) {
-            if (declaration.initialiser != null) {
-              this.reportError_('let/const in for-in statement may not have initialiser');
+            if (declaration.initializer != null) {
+              this.reportError_('let/const in for-in statement may not have initializer');
             }
           }
           return this.parseForInStatement_(start, variables);
         } else if (this.peekOf_(type)) {
           validate(variables, 'for-of');
           var declaration = variables.declarations[0];
-          if (declaration.initialiser != null) {
-            this.reportError_('for-of statement may not have initialiser');
+          if (declaration.initializer != null) {
+            this.reportError_('for-of statement may not have initializer');
           }
           return this.parseForOfStatement_(start, variables);
         } else {
-          this.checkInitialisers_(variables);
+          this.checkInitializers_(variables);
           return this.parseForStatement2_(start, variables);
         }
       }
       if (type === SEMI_COLON) {
         return this.parseForStatement2_(start, null);
       }
-      var initialiser = this.parseExpression(Expression.NO_IN);
+      var initializer = this.parseExpression(Expression.NO_IN);
       type = this.peekType_();
-      if (initialiser.isLeftHandSideExpression() && (type === IN || this.peekOf_(type))) {
-        initialiser = this.transformLeftHandSideExpression_(initialiser);
+      if (initializer.isLeftHandSideExpression() && (type === IN || this.peekOf_(type))) {
+        initializer = this.transformLeftHandSideExpression_(initializer);
         if (this.peekOf_(type))
-          return this.parseForOfStatement_(start, initialiser);
-        return this.parseForInStatement_(start, initialiser);
+          return this.parseForOfStatement_(start, initializer);
+        return this.parseForInStatement_(start, initializer);
       }
-      return this.parseForStatement2_(start, initialiser);
+      return this.parseForStatement2_(start, initializer);
     },
     peekOf_: function(type) {
       return type === IDENTIFIER && parseOptions.forOf && this.peekToken_().value === OF;
     },
-    parseForOfStatement_: function(start, initialiser) {
+    parseForOfStatement_: function(start, initializer) {
       this.eatId_();
       var collection = this.parseExpression();
       this.eat_(CLOSE_PAREN);
       var body = this.parseStatement();
-      return new ForOfStatement(this.getTreeLocation_(start), initialiser, collection, body);
+      return new ForOfStatement(this.getTreeLocation_(start), initializer, collection, body);
     },
-    checkInitialisers_: function(variables) {
+    checkInitializers_: function(variables) {
       if (parseOptions.blockBinding && variables.declarationType == CONST) {
         var type = variables.declarationType;
         for (var i = 0; i < variables.declarations.length; i++) {
-          if (!this.checkInitialiser_(type, variables.declarations[i])) {
+          if (!this.checkInitializer_(type, variables.declarations[i])) {
             break;
           }
         }
       }
     },
-    checkInitialiser_: function(type, declaration) {
-      if (parseOptions.blockBinding && type == CONST && declaration.initialiser == null) {
-        this.reportError_('const variables must have an initialiser');
+    checkInitializer_: function(type, declaration) {
+      if (parseOptions.blockBinding && type == CONST && declaration.initializer == null) {
+        this.reportError_('const variables must have an initializer');
         return false;
       }
       return true;
@@ -12371,7 +12371,7 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
           return false;
       }
     },
-    parseForStatement2_: function(start, initialiser) {
+    parseForStatement2_: function(start, initializer) {
       this.eat_(SEMI_COLON);
       var condition = null;
       if (!this.peek_(SEMI_COLON)) {
@@ -12384,14 +12384,14 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
       }
       this.eat_(CLOSE_PAREN);
       var body = this.parseStatement();
-      return new ForStatement(this.getTreeLocation_(start), initialiser, condition, increment, body);
+      return new ForStatement(this.getTreeLocation_(start), initializer, condition, increment, body);
     },
-    parseForInStatement_: function(start, initialiser) {
+    parseForInStatement_: function(start, initializer) {
       this.eat_(IN);
       var collection = this.parseExpression();
       this.eat_(CLOSE_PAREN);
       var body = this.parseStatement();
-      return new ForInStatement(this.getTreeLocation_(start), initialiser, collection, body);
+      return new ForInStatement(this.getTreeLocation_(start), initializer, collection, body);
     },
     parseContinueStatement_: function() {
       var start = this.getTreeStartLocation_();
@@ -13493,21 +13493,21 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
       return this.peekBindingIdentifier_(type) || this.peekPattern_(type);
     },
     parseBindingElement_: function() {
-      var initialiser = arguments[0] !== (void 0) ? arguments[0] : Initialiser.OPTIONAL;
+      var initializer = arguments[0] !== (void 0) ? arguments[0] : Initializer.OPTIONAL;
       var start = this.getTreeStartLocation_();
       var binding = this.parseBindingElementBinding_();
-      var initialiser = this.parseBindingElementInitialiser_(initialiser);
-      return new BindingElement(this.getTreeLocation_(start), binding, initialiser);
+      var initializer = this.parseBindingElementInitializer_(initializer);
+      return new BindingElement(this.getTreeLocation_(start), binding, initializer);
     },
     parseBindingElementBinding_: function() {
       if (this.peekPattern_(this.peekType_()))
         return this.parseBindingPattern_();
       return this.parseBindingIdentifier_();
     },
-    parseBindingElementInitialiser_: function() {
-      var initialiser = arguments[0] !== (void 0) ? arguments[0] : Initialiser.OPTIONAL;
-      if (this.peek_(EQUAL) || initialiser === Initialiser.REQUIRED) {
-        return this.parseInitialiser_();
+    parseBindingElementInitializer_: function() {
+      var initializer = arguments[0] !== (void 0) ? arguments[0] : Initializer.OPTIONAL;
+      if (this.peek_(EQUAL) || initializer === Initializer.REQUIRED) {
+        return this.parseInitializer_();
       }
       return null;
     },
@@ -13545,10 +13545,10 @@ System.register("traceur@0.0.34/src/syntax/Parser", [], function() {
       if (this.strictMode_ && token.isStrictKeyword())
         this.reportReservedIdentifier_(token);
       var binding = new BindingIdentifier(name.location, token);
-      var initialiser = null;
+      var initializer = null;
       if (this.peek_(EQUAL))
-        initialiser = this.parseInitialiser_();
-      return new BindingElement(this.getTreeLocation_(start), binding, initialiser);
+        initializer = this.parseInitializer_();
+      return new BindingElement(this.getTreeLocation_(start), binding, initializer);
     },
     parseTemplateLiteral_: function(operand) {
       if (!parseOptions.templateLiterals)
@@ -14330,9 +14330,9 @@ System.register("traceur@0.0.34/src/codegeneration/TempVarTransformer", [], func
       throw new Error('Invalid use of addTempVar');
     return vars;
   }
-  var TempVarStatement = function TempVarStatement(name, initialiser) {
+  var TempVarStatement = function TempVarStatement(name, initializer) {
     this.name = name;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
   };
   ($traceurRuntime.createClass)(TempVarStatement, {}, {});
   var TempScope = function TempScope() {
@@ -14372,9 +14372,9 @@ System.register("traceur@0.0.34/src/codegeneration/TempVarTransformer", [], func
       vars = vars.filter((function(tempVarStatement) {
         var $__87 = $traceurRuntime.assertObject(tempVarStatement),
             name = $__87.name,
-            initialiser = $__87.initialiser;
+            initializer = $__87.initializer;
         if (name in seenNames) {
-          if (seenNames[name].initialiser || initialiser)
+          if (seenNames[name].initializer || initializer)
             throw new Error('Invalid use of TempVarTransformer');
           return false;
         }
@@ -14383,8 +14383,8 @@ System.register("traceur@0.0.34/src/codegeneration/TempVarTransformer", [], func
       }));
       var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars.map((function($__87) {
         var name = $__87.name,
-            initialiser = $__87.initialiser;
-        return createVariableDeclaration(name, initialiser);
+            initializer = $__87.initializer;
+        return createVariableDeclaration(name, initializer);
       }))));
       return prependStatements(transformedStatements, variableStatement);
     },
@@ -14416,10 +14416,10 @@ System.register("traceur@0.0.34/src/codegeneration/TempVarTransformer", [], func
       return name;
     },
     addTempVar: function() {
-      var initialiser = arguments[0] !== (void 0) ? arguments[0] : null;
+      var initializer = arguments[0] !== (void 0) ? arguments[0] : null;
       var vars = getVars(this);
       var uid = this.getTempIdentifier();
-      vars.push(new TempVarStatement(uid, initialiser));
+      vars.push(new TempVarStatement(uid, initializer));
       return uid;
     },
     addTempVarForThis: function() {
@@ -14820,8 +14820,8 @@ System.register("traceur@0.0.34/src/codegeneration/ModuleTransformer", [], funct
     },
     transformModuleDeclaration: function(tree) {
       this.moduleSpecifierKind_ = 'module';
-      var initialiser = this.transformAny(tree.expression);
-      return createVariableStatement(VAR, tree.identifier, initialiser);
+      var initializer = this.transformAny(tree.expression);
+      return createVariableStatement(VAR, tree.identifier, initializer);
     },
     transformImportedBinding: function(tree) {
       var bindingElement = new BindingElement(tree.location, tree.binding, null);
@@ -14833,8 +14833,8 @@ System.register("traceur@0.0.34/src/codegeneration/ModuleTransformer", [], funct
       if (!tree.importClause)
         return createExpressionStatement(this.transformAny(tree.moduleSpecifier));
       var binding = this.transformAny(tree.importClause);
-      var initialiser = this.transformAny(tree.moduleSpecifier);
-      return createVariableStatement(VAR, binding, initialiser);
+      var initializer = this.transformAny(tree.moduleSpecifier);
+      return createVariableStatement(VAR, binding, initializer);
     },
     transformImportSpecifierSet: function(tree) {
       var fields = this.transformList(tree.specifiers);
@@ -15316,7 +15316,7 @@ System.register("traceur@0.0.34/src/semantics/VariableBinder", [], function() {
       } else {
         var decls = tree.declarations;
         for (var i = 0; i < decls.length; i++) {
-          this.visitAny(decls[i].initialiser);
+          this.visitAny(decls[i].initializer);
         }
       }
     },
@@ -15544,8 +15544,8 @@ System.register("traceur@0.0.34/src/codegeneration/ComprehensionTransformer", []
           case COMPREHENSION_FOR:
             var left = this.transformAny(item.left);
             var iterator = this.transformAny(item.iterator);
-            var initialiser = createVariableDeclarationList(bindingKind, left, null);
-            statement = createForOfStatement(initialiser, iterator, statement);
+            var initializer = createVariableDeclarationList(bindingKind, left, null);
+            statement = createForOfStatement(initializer, iterator, statement);
             break;
           default:
             throw new Error('Unreachable.');
@@ -15748,9 +15748,9 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
     },
     transformForInStatement: function(tree) {
       var treeBody = tree.body;
-      var initialiser;
-      if (tree.initialiser != null && tree.initialiser.type == VARIABLE_DECLARATION_LIST) {
-        var variables = tree.initialiser;
+      var initializer;
+      if (tree.initializer != null && tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+        var variables = tree.initializer;
         if (variables.declarations.length != 1) {
           throw new Error('for .. in has != 1 variables');
         }
@@ -15760,27 +15760,27 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
           case LET:
           case CONST:
             {
-              if (variable.initialiser != null) {
-                throw new Error('const/let in for-in may not have an initialiser');
+              if (variable.initializer != null) {
+                throw new Error('const/let in for-in may not have an initializer');
               }
-              initialiser = createVariableDeclarationList(VAR, ("$" + variableName), null);
+              initializer = createVariableDeclarationList(VAR, ("$" + variableName), null);
               treeBody = this.prependToBlock_(createVariableStatement(LET, variableName, createIdentifierExpression(("$" + variableName))), treeBody);
               break;
             }
           case VAR:
-            initialiser = this.transformVariables_(variables);
+            initializer = this.transformVariables_(variables);
             break;
           default:
             throw new Error('Unreachable.');
         }
       } else {
-        initialiser = this.transformAny(tree.initialiser);
+        initializer = this.transformAny(tree.initializer);
       }
       var result = tree;
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(treeBody);
-      if (initialiser != tree.initialiser || collection != tree.collection || body != tree.body) {
-        result = createForInStatement(initialiser, collection, body);
+      if (initializer != tree.initializer || collection != tree.collection || body != tree.body) {
+        result = createForInStatement(initializer, collection, body);
       }
       return result;
     },
@@ -15794,28 +15794,28 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
       }
     },
     transformForStatement: function(tree) {
-      var initialiser;
-      if (tree.initialiser != null && tree.initialiser.type == VARIABLE_DECLARATION_LIST) {
-        var variables = tree.initialiser;
+      var initializer;
+      if (tree.initializer != null && tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+        var variables = tree.initializer;
         switch (variables.declarationType) {
           case LET:
           case CONST:
             return this.transformForLet_(tree, variables);
           case VAR:
-            initialiser = this.transformVariables_(variables);
+            initializer = this.transformVariables_(variables);
             break;
           default:
             throw new Error('Reached unreachable.');
         }
       } else {
-        initialiser = this.transformAny(tree.initialiser);
+        initializer = this.transformAny(tree.initializer);
       }
       var condition = this.transformAny(tree.condition);
       var increment = this.transformAny(tree.increment);
       var body = this.transformAny(tree.body);
       var result = tree;
-      if (initialiser != tree.initialiser || condition != tree.condition || increment != tree.increment || body != tree.body) {
-        result = createForStatement(initialiser, condition, increment, body);
+      if (initializer != tree.initializer || condition != tree.condition || increment != tree.increment || body != tree.body) {
+        result = createForStatement(initializer, condition, increment, body);
       }
       return result;
     },
@@ -15828,8 +15828,8 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
       variables.declarations.forEach((function(variable) {
         var variableName = $__146.getVariableName_(variable);
         var hoistedName = ("$" + variableName);
-        var initialiser = renameAll(renames, variable.initialiser);
-        hoisted.push(createVariableDeclaration(hoistedName, initialiser));
+        var initializer = renameAll(renames, variable.initializer);
+        hoisted.push(createVariableDeclaration(hoistedName, initializer));
         copyFwd.push(createVariableDeclaration(variableName, createIdentifierExpression(hoistedName)));
         copyBak.push(createExpressionStatement(createAssignmentExpression(createIdentifierExpression(hoistedName), createIdentifierExpression(variableName))));
         renames.push(new Rename(variableName, hoistedName));
@@ -15893,9 +15893,9 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
         }
         var variableName = $__146.getVariableName_(variable);
         $__146.scope_.addBlockScopedVariable(variableName);
-        var initialiser = $__146.transformAny(variable.initialiser);
-        if (initialiser != null) {
-          comma.push(createAssignmentExpression(createIdentifierExpression(variableName), initialiser));
+        var initializer = $__146.transformAny(variable.initializer);
+        if (initializer != null) {
+          comma.push(createAssignmentExpression(createIdentifierExpression(variableName), initializer));
         }
       }));
       switch (comma.length) {
@@ -15916,12 +15916,12 @@ System.register("traceur@0.0.34/src/codegeneration/BlockBindingTransformer", [],
       for (var index = 0; index < variables.length; index++) {
         var variable = variables[index];
         var variableName = this.getVariableName_(variable);
-        var initialiser = this.transformAny(variable.initialiser);
-        if (transformed != null || initialiser != variable.initialiser) {
+        var initializer = this.transformAny(variable.initializer);
+        if (transformed != null || initializer != variable.initializer) {
           if (transformed == null) {
             transformed = variables.slice(0, index);
           }
-          transformed.push(createVariableDeclaration(createIdentifierToken(variableName), initialiser));
+          transformed.push(createVariableDeclaration(createIdentifierToken(variableName), initializer));
         }
       }
       if (transformed != null || tree.declarationType != VAR) {
@@ -17066,13 +17066,13 @@ System.register("traceur@0.0.34/src/codegeneration/DefaultParametersTransformer"
       createVariableStatement = $__182.createVariableStatement,
       createVoid0 = $__182.createVoid0;
   var prependStatements = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/codegeneration/PrependStatements")).prependStatements;
-  function createDefaultAssignment(index, binding, initialiser) {
+  function createDefaultAssignment(index, binding, initializer) {
     var argumentsExpression = createMemberLookupExpression(createIdentifierExpression(ARGUMENTS), createNumberLiteral(index));
     var assignmentExpression;
-    if (initialiser === null || isUndefined(initialiser) || isVoidExpression(initialiser)) {
+    if (initializer === null || isUndefined(initializer) || isVoidExpression(initializer)) {
       assignmentExpression = argumentsExpression;
     } else {
-      assignmentExpression = createConditionalExpression(createBinaryOperator(argumentsExpression, createOperatorToken(NOT_EQUAL_EQUAL), createVoid0()), argumentsExpression, initialiser);
+      assignmentExpression = createConditionalExpression(createBinaryOperator(argumentsExpression, createOperatorToken(NOT_EQUAL_EQUAL), createVoid0()), argumentsExpression, initializer);
     }
     return createVariableStatement(VAR, binding, assignmentExpression);
   }
@@ -17088,12 +17088,12 @@ System.register("traceur@0.0.34/src/codegeneration/DefaultParametersTransformer"
         var param = this.transformAny(tree.parameters[i]);
         if (param !== tree.parameters[i])
           changed = true;
-        if (param.isRestParameter() || !param.parameter.initialiser && !defaultToUndefined) {
+        if (param.isRestParameter() || !param.parameter.initializer && !defaultToUndefined) {
           parameters.push(param);
         } else {
           defaultToUndefined = true;
           changed = true;
-          this.parameterStatements.push(createDefaultAssignment(i, param.parameter.binding, param.parameter.initialiser));
+          this.parameterStatements.push(createDefaultAssignment(i, param.parameter.binding, param.parameter.initializer));
         }
       }
       if (!changed)
@@ -17191,9 +17191,9 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
         lvalue = createBindingIdentifier(lvalue);
       this.declarations.push(createVariableDeclaration(lvalue, rvalue));
     }}, {}, Desugaring);
-  function createConditionalMemberExpression(rvalue, name, initialiser) {
+  function createConditionalMemberExpression(rvalue, name, initializer) {
     if (name.type === COMPUTED_PROPERTY_NAME) {
-      return createConditionalMemberLookupExpression(rvalue, name.expression, initialiser);
+      return createConditionalMemberLookupExpression(rvalue, name.expression, initializer);
     }
     var token;
     if (name.type == BINDING_IDENTIFIER) {
@@ -17201,17 +17201,17 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
     } else {
       token = name.literalToken;
       if (!token.isKeyword() && token.type !== IDENTIFIER) {
-        return createConditionalMemberLookupExpression(rvalue, new LiteralExpression(null, token), initialiser);
+        return createConditionalMemberLookupExpression(rvalue, new LiteralExpression(null, token), initializer);
       }
     }
-    if (!initialiser)
+    if (!initializer)
       return createMemberExpression(rvalue, token);
-    return parseExpression($__183, token.toString(), rvalue, rvalue, token, initialiser);
+    return parseExpression($__183, token.toString(), rvalue, rvalue, token, initializer);
   }
-  function createConditionalMemberLookupExpression(rvalue, index, initialiser) {
-    if (!initialiser)
+  function createConditionalMemberLookupExpression(rvalue, index, initializer) {
+    if (!initializer)
       return createMemberLookupExpression(rvalue, index);
-    return parseExpression($__184, index, rvalue, rvalue, index, initialiser);
+    return parseExpression($__184, index, rvalue, rvalue, index, initializer);
   }
   function staticallyKnownObject(tree) {
     switch (tree.type) {
@@ -17289,22 +17289,22 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
     },
     transformForInOrOf_: function(tree, superMethod, constr) {
       var $__191;
-      if (!tree.initialiser.isPattern() && (tree.initialiser.type !== VARIABLE_DECLARATION_LIST || !this.destructuringInDeclaration_(tree.initialiser))) {
+      if (!tree.initializer.isPattern() && (tree.initializer.type !== VARIABLE_DECLARATION_LIST || !this.destructuringInDeclaration_(tree.initializer))) {
         return superMethod.call(this, tree);
       }
       this.pushTempVarState();
       var declarationType,
           lvalue;
-      if (tree.initialiser.isPattern()) {
+      if (tree.initializer.isPattern()) {
         declarationType = null;
-        lvalue = tree.initialiser;
+        lvalue = tree.initializer;
       } else {
-        declarationType = tree.initialiser.declarationType;
-        lvalue = tree.initialiser.declarations[0].lvalue;
+        declarationType = tree.initializer.declarationType;
+        lvalue = tree.initializer.declarations[0].lvalue;
       }
       var statements = [];
       var binding = this.desugarBinding_(lvalue, statements, declarationType);
-      var initialiser = createVariableDeclarationList(VAR, binding, null);
+      var initializer = createVariableDeclarationList(VAR, binding, null);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
       if (body.type !== BLOCK)
@@ -17312,10 +17312,10 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
       ($__191 = statements).push.apply($__191, $traceurRuntime.toObject(body.statements));
       body = createBlock(statements);
       this.popTempVarState();
-      return new constr(tree.location, initialiser, collection, body);
+      return new constr(tree.location, initializer, collection, body);
     },
     transformBindingElement: function(tree) {
-      if (!tree.binding.isPattern() || tree.initialiser)
+      if (!tree.binding.isPattern() || tree.initializer)
         return tree;
       var statements = this.parameterStatements;
       var binding = this.desugarBinding_(tree.binding, statements, VAR);
@@ -17358,8 +17358,8 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
       var tempRValueName = this.getTempIdentifier();
       var tempRValueIdent = createIdentifierExpression(tempRValueName);
       var desugaring;
-      var initialiser;
-      switch (tree.initialiser.type) {
+      var initializer;
+      switch (tree.initializer.type) {
         case ARRAY_LITERAL_EXPRESSION:
         case CALL_EXPRESSION:
         case IDENTIFIER_EXPRESSION:
@@ -17368,21 +17368,21 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
         case MEMBER_LOOKUP_EXPRESSION:
         case OBJECT_LITERAL_EXPRESSION:
         case PAREN_EXPRESSION:
-          initialiser = tree.initialiser;
+          initializer = tree.initializer;
         default:
           desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
-          desugaring.assign(desugaring.rvalue, createGuardedExpression(tree.initialiser));
-          var initialiserFound = this.desugarPattern_(desugaring, tree.lvalue);
-          if (initialiserFound || desugaring.declarations.length > 2)
+          desugaring.assign(desugaring.rvalue, createGuardedExpression(tree.initializer));
+          var initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
+          if (initializerFound || desugaring.declarations.length > 2)
             return desugaring.declarations;
-          initialiser = createGuardedExpression(initialiser || tree.initialiser);
-          desugaring = new VariableDeclarationDesugaring(initialiser);
+          initializer = createGuardedExpression(initializer || tree.initializer);
+          desugaring = new VariableDeclarationDesugaring(initializer);
           this.desugarPattern_(desugaring, tree.lvalue);
           return desugaring.declarations;
       }
     },
     desugarPattern_: function(desugaring, tree) {
-      var initialiserFound = false;
+      var initializerFound = false;
       switch (tree.type) {
         case ARRAY_PATTERN:
           {
@@ -17394,9 +17394,9 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
               } else if (lvalue.isSpreadPatternElement()) {
                 desugaring.assign(lvalue.lvalue, parseExpression($__187, desugaring.rvalue, i));
               } else {
-                if (lvalue.initialiser)
-                  initialiserFound = true;
-                desugaring.assign(lvalue, createConditionalMemberLookupExpression(desugaring.rvalue, createNumberLiteral(i), lvalue.initialiser));
+                if (lvalue.initializer)
+                  initializerFound = true;
+                desugaring.assign(lvalue, createConditionalMemberLookupExpression(desugaring.rvalue, createNumberLiteral(i), lvalue.initializer));
               }
             }
             break;
@@ -17408,16 +17408,16 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
               var lookup;
               switch (field.type) {
                 case BINDING_ELEMENT:
-                  if (field.initialiser)
-                    initialiserFound = true;
-                  lookup = createConditionalMemberExpression(desugaring.rvalue, field.binding, field.initialiser);
+                  if (field.initializer)
+                    initializerFound = true;
+                  lookup = createConditionalMemberExpression(desugaring.rvalue, field.binding, field.initializer);
                   desugaring.assign(createIdentifierExpression(field.binding), lookup);
                   break;
                 case OBJECT_PATTERN_FIELD:
-                  if (field.element.initialiser)
-                    initialiserFound = true;
+                  if (field.element.initializer)
+                    initializerFound = true;
                   var name = field.name;
-                  lookup = createConditionalMemberExpression(desugaring.rvalue, name, field.element.initialiser);
+                  lookup = createConditionalMemberExpression(desugaring.rvalue, name, field.element.initializer);
                   desugaring.assign(field.element, lookup);
                   break;
                 case IDENTIFIER_EXPRESSION:
@@ -17438,7 +17438,7 @@ System.register("traceur@0.0.34/src/codegeneration/DestructuringTransformer", []
       if (desugaring instanceof VariableDeclarationDesugaring && desugaring.declarations.length === 0) {
         desugaring.assign(createBindingIdentifier(this.getTempIdentifier()), desugaring.rvalue);
       }
-      return initialiserFound;
+      return initializerFound;
     }
   }, {}, ParameterTransformer);
   return {get DestructuringTransformer() {
@@ -17466,10 +17466,10 @@ System.register("traceur@0.0.34/src/codegeneration/ForOfTransformer", [], functi
       var iter = id(this.getTempIdentifier());
       var result = id(this.getTempIdentifier());
       var assignment;
-      if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
-        assignment = createVariableStatement(tree.initialiser.declarationType, tree.initialiser.declarations[0].lvalue, createMemberExpression(result, 'value'));
+      if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
+        assignment = createVariableStatement(tree.initializer.declarationType, tree.initializer.declarations[0].lvalue, createMemberExpression(result, 'value'));
       } else {
-        assignment = parseStatement($__192, tree.initialiser, result);
+        assignment = parseStatement($__192, tree.initializer, result);
       }
       return parseStatement($__193, iter, tree.collection, result, result, iter, assignment, tree.body);
     }}, {}, TempVarTransformer);
@@ -17799,8 +17799,8 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
           assert(declaration.lvalue.type === BINDING_IDENTIFIER);
           var idToken = declaration.lvalue.identifierToken;
           this.addVariable(idToken.value);
-          if (declaration.initialiser !== null) {
-            expressions.push(createAssignmentExpression(id(idToken), declaration.initialiser));
+          if (declaration.initializer !== null) {
+            expressions.push(createAssignmentExpression(id(idToken), declaration.initializer));
           }
         }
         if (expressions.length === 0)
@@ -17818,13 +17818,13 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
       return this.transformLoop_(tree, ForOfStatement);
     },
     transformLoop_: function(tree, ctor) {
-      var initialiser = this.transformLoopIninitaliser_(tree.initialiser);
+      var initializer = this.transformLoopIninitaliser_(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
-      if (initialiser === tree.initialiser && collection === tree.collection && body === tree.body) {
+      if (initializer === tree.initializer && collection === tree.collection && body === tree.body) {
         return tree;
       }
-      return new ctor(tree.location, initialiser, collection, body);
+      return new ctor(tree.location, initializer, collection, body);
     },
     transformLoopIninitaliser_: function(tree) {
       if (tree.type !== VARIABLE_DECLARATION_LIST)
@@ -18400,15 +18400,15 @@ System.register("traceur@0.0.34/src/codegeneration/generator/CPSTransformer", []
       var labels = this.getLabels_();
       var label = this.clearCurrentLabel_();
       var tmp;
-      var initialiser = null,
-          initialiserMachine;
-      if (tree.initialiser) {
-        if (this.expressionNeedsStateMachine(tree.initialiser)) {
-          tmp = this.expressionToStateMachine(tree.initialiser);
-          initialiser = tmp.expression;
-          initialiserMachine = tmp.machine;
+      var initializer = null,
+          initializerMachine;
+      if (tree.initializer) {
+        if (this.expressionNeedsStateMachine(tree.initializer)) {
+          tmp = this.expressionToStateMachine(tree.initializer);
+          initializer = tmp.expression;
+          initializerMachine = tmp.machine;
         } else {
-          initialiser = this.transformAny(tree.initialiser);
+          initializer = this.transformAny(tree.initializer);
         }
       }
       var condition = null,
@@ -18434,38 +18434,38 @@ System.register("traceur@0.0.34/src/codegeneration/generator/CPSTransformer", []
         }
       }
       var body = this.transformAny(tree.body);
-      if (initialiser === tree.initialiser && condition === tree.condition && increment === tree.increment && body === tree.body) {
+      if (initializer === tree.initializer && condition === tree.condition && increment === tree.increment && body === tree.body) {
         return tree;
       }
-      if (!initialiserMachine && !conditionMachine && !incrementMachine && body.type !== STATE_MACHINE) {
-        return new ForStatement(tree.location, initialiser, condition, increment, body);
+      if (!initializerMachine && !conditionMachine && !incrementMachine && body.type !== STATE_MACHINE) {
+        return new ForStatement(tree.location, initializer, condition, increment, body);
       }
       var loopBodyMachine = this.ensureTransformed_(body);
       var bodyFallThroughId = loopBodyMachine.fallThroughState;
       var fallThroughId = this.allocateState();
       var startId;
-      var initialiserStartId = initialiser ? this.allocateState() : State.INVALID_STATE;
+      var initializerStartId = initializer ? this.allocateState() : State.INVALID_STATE;
       var conditionStartId = increment ? this.allocateState() : bodyFallThroughId;
       var loopStartId = loopBodyMachine.startState;
       var incrementStartId = bodyFallThroughId;
       var states = [];
-      if (initialiser) {
-        startId = initialiserStartId;
+      if (initializer) {
+        startId = initializerStartId;
         var initialiserFallThroughId;
         if (condition)
           initialiserFallThroughId = conditionStartId;
         else
           initialiserFallThroughId = loopStartId;
-        var tmpId = initialiserStartId;
-        if (initialiserMachine) {
-          initialiserMachine = initialiserMachine.replaceStartState(initialiserStartId);
-          tmpId = initialiserMachine.fallThroughState;
-          ($__245 = states).push.apply($__245, $traceurRuntime.toObject(initialiserMachine.states));
+        var tmpId = initializerStartId;
+        if (initializerMachine) {
+          initializerMachine = initializerMachine.replaceStartState(initializerStartId);
+          tmpId = initializerMachine.fallThroughState;
+          ($__245 = states).push.apply($__245, $traceurRuntime.toObject(initializerMachine.states));
         }
-        states.push(new FallThroughState(tmpId, initialiserFallThroughId, createStatementList(createExpressionStatement(initialiser))));
+        states.push(new FallThroughState(tmpId, initialiserFallThroughId, createStatementList(createExpressionStatement(initializer))));
       }
       if (condition) {
-        if (!initialiser)
+        if (!initializer)
           startId = conditionStartId;
         var tmpId = conditionStartId;
         if (conditionMachine) {
@@ -18489,7 +18489,7 @@ System.register("traceur@0.0.34/src/codegeneration/generator/CPSTransformer", []
         }
         states.push(new FallThroughState(tmpId, incrementFallThroughId, createStatementList(createExpressionStatement(increment))));
       }
-      if (!initialiser && !condition)
+      if (!initializer && !condition)
         startId = loopStartId;
       var continueId;
       if (increment)
@@ -19158,13 +19158,13 @@ System.register("traceur@0.0.34/src/codegeneration/generator/ForInTransformPass"
       var lookup = createMemberLookupExpression(createIdentifierExpression(keys), createIdentifierExpression(i));
       var originalKey,
           assignOriginalKey;
-      if (tree.initialiser.type == VARIABLE_DECLARATION_LIST) {
-        var decList = tree.initialiser;
+      if (tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+        var decList = tree.initializer;
         originalKey = createIdentifierExpression(decList.declarations[0].lvalue);
         assignOriginalKey = createVariableStatement(decList.declarationType, originalKey.identifierToken, lookup);
-      } else if (tree.initialiser.type == IDENTIFIER_EXPRESSION) {
-        originalKey = tree.initialiser;
-        assignOriginalKey = createAssignmentStatement(tree.initialiser, lookup);
+      } else if (tree.initializer.type == IDENTIFIER_EXPRESSION) {
+        originalKey = tree.initializer;
+        assignOriginalKey = createAssignmentStatement(tree.initializer, lookup);
       } else {
         throw new Error('Invalid left hand side of for in loop');
       }
@@ -20426,8 +20426,8 @@ System.register("traceur@0.0.34/src/codegeneration/TypeAssertionTransformer", []
       return this.prependAssertionImport_($traceurRuntime.superCall(this, $TypeAssertionTransformer.prototype, "transformModule", [tree]), Module);
     },
     transformVariableDeclaration: function(tree) {
-      if (tree.typeAnnotation && tree.initialiser) {
-        var assert = parseExpression($__306, tree.initialiser, tree.typeAnnotation);
+      if (tree.typeAnnotation && tree.initializer) {
+        var assert = parseExpression($__306, tree.initializer, tree.typeAnnotation);
         tree = new VariableDeclaration(tree.location, tree.lvalue, tree.typeAnnotation, assert);
         this.assertionAdded_ = true;
       }
@@ -20567,7 +20567,7 @@ System.register("traceur@0.0.34/src/codegeneration/TypeTransformer", [], functio
   ($traceurRuntime.createClass)(TypeTransformer, {
     transformVariableDeclaration: function(tree) {
       if (tree.typeAnnotation) {
-        tree = new VariableDeclaration(tree.location, tree.lvalue, null, tree.initialiser);
+        tree = new VariableDeclaration(tree.location, tree.lvalue, null, tree.initializer);
       }
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformVariableDeclaration", [tree]);
     },

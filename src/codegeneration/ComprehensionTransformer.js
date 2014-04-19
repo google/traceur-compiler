@@ -73,9 +73,9 @@ export class ComprehensionTransformer extends TempVarTransformer {
         case COMPREHENSION_FOR:
           var left = this.transformAny(item.left);
           var iterator = this.transformAny(item.iterator);
-          var initialiser = createVariableDeclarationList(bindingKind,
+          var initializer = createVariableDeclarationList(bindingKind,
                                                           left, null);
-          statement = createForOfStatement(initialiser, iterator, statement);
+          statement = createForOfStatement(initializer, iterator, statement);
           break;
         default:
           throw new Error('Unreachable.');

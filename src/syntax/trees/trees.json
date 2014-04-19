@@ -95,7 +95,7 @@
       "ObjectPattern",
       "ArrayPattern"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ]
   },
@@ -265,7 +265,7 @@
     "equalToken": [
       "Token"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ]
   },
@@ -361,7 +361,7 @@
     "location": [
       "SourceRange"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ],
     "collection": [
@@ -375,7 +375,7 @@
     "location": [
       "SourceRange"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ],
     "collection": [
@@ -389,7 +389,7 @@
     "location": [
       "SourceRange"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ],
     "condition": [
@@ -948,7 +948,7 @@
     "typeAnnotation": [
       "ParseTree"
     ],
-    "initialiser": [
+    "initializer": [
       "ParseTree"
     ]
   },

@@ -1,6 +1,6 @@
 // Should not compile.
-// Error: initialiser is not allowed in for-of loop with pattern
-// Error: for-of statement may not have initialiser
+// Error: initializer is not allowed in for-of loop with pattern
+// Error: for-of statement may not have initializer
 
 for (var {k} = {} of []) {
 }

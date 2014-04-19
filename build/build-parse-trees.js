@@ -37,7 +37,7 @@ function getType(types) {
   return types.join('|');
 }
 
-function printInitialiser(name) {
+function printInitializer(name) {
   print('    this.%s = %s;', name, name);
 }
 
@@ -58,7 +58,7 @@ names.forEach(function(name) {
   });
   print('   */');
   print('  constructor(%s) {', paramNames.join(', '));
-  paramNames.forEach(printInitialiser);
+  paramNames.forEach(printInitializer);
   print('  }');
   print();
   print('  /**');

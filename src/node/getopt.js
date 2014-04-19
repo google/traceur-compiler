@@ -50,7 +50,7 @@ function Getopt(opts) {
       opt = opt[0];
     }
     if (!(m = opt.match(/^([\w\-]+)(:{0,2})$/))) {
-      throw new Error('invalid option initialiser: ' + opt);
+      throw new Error('invalid option initializer: ' + opt);
     }
     this.opts_[m[1]] = {name: m[1], arg: m[2], data: data};
   }
