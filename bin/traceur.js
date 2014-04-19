@@ -273,38 +273,25 @@
     }
     return rv;
   }
-  function getPropertyDescriptor(object, name) {
-    while (object !== null) {
-      var result = $getOwnPropertyDescriptor(object, name);
-      if (result)
-        return result;
-      object = $getPrototypeOf(object);
-    }
-    return undefined;
-  }
   function superDescriptor(homeObject, name) {
     var proto = $getPrototypeOf(homeObject);
-    if (!proto)
-      throw $TypeError('super is null');
-    return getPropertyDescriptor(proto, name);
+    do {
+      var result = $getOwnPropertyDescriptor(proto, name);
+      if (result)
+        return result;
+      proto = $getPrototypeOf(proto);
+    } while (proto);
+    return undefined;
   }
   function superCall(self, homeObject, name, args) {
-    var descriptor = superDescriptor(homeObject, name);
-    if (descriptor) {
-      if ('value' in descriptor)
-        return descriptor.value.apply(self, args);
-      if (descriptor.get)
-        return descriptor.get.call(self).apply(self, args);
-    }
-    throw $TypeError("super has no method '" + name + "'.");
+    return superGet(self, homeObject, name).apply(self, args);
   }
   function superGet(self, homeObject, name) {
     var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
-      if (descriptor.get)
-        return descriptor.get.call(self);
-      else if ('value' in descriptor)
+      if (!descriptor.get)
         return descriptor.value;
+      return descriptor.get.call(self);
     }
     return undefined;
   }
