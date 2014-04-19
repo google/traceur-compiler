@@ -51,13 +51,6 @@
     }
   }
 
-  function getUncoatedModuleInstantiator(name) {
-    if (!name)
-      return;
-    var url = ModuleStore.prototype.normalize(name);
-    return moduleInstantiators[url];
-  };
-
   var moduleInstances = Object.create(null);
 
   var liveModuleSentinel = {};
@@ -110,7 +103,7 @@
     },
 
     get(normalizedName) {
-      var m = getUncoatedModuleInstantiator(normalizedName);
+      var m = this.getUncoatedModuleInstantiator_(normalizedName);
       if (!m)
         return undefined;
       var moduleInstance = moduleInstances[m.url];
@@ -138,6 +131,7 @@
         throw new Error('Invalid baseURL: ' + v);
     },
 
+    // TODO(arv): This should be an iterator
     keys() {
       return Object.keys(moduleInstances);
     },
@@ -192,10 +186,17 @@
     },
 
     /**
-      * Non-standard bootstrapping function for ModuleStore
+     * Non-standard bootstrapping function for ModuleStore
      **/
     createModule(uncoatedModule) {
       return Module(uncoatedModule);
+    },
+
+    getUncoatedModuleInstantiator_(name) {
+      if (!name)
+        return;
+      var url = this.normalize(name);
+      return moduleInstantiators[url];
     }
 
   };

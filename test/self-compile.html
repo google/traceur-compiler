@@ -20,51 +20,54 @@ mocha.setup({ui: 'tdd'});
   'use strict';
 
   // Set the baseURL to top of the tree, to match the baseURL for node.
-  System.baseURL = window.location.origin;
+  System.baseURL = window.location.origin + '/';
 
   var mochaTestScripts = [
-		"./test/unit//codegeneration/ExplodeExpressionTransformer.js",
-		"./test/unit//codegeneration/SourceMap.js",
-		"./test/unit//codegeneration/low_level_tests.js",
-		"./test/unit//codegeneration/writer.js",
-		"./test/unit//runtime/Loader.js",
-		"./test/unit//semantics/VariableBinder.js",
-		"./test/unit//syntax/LineNumbers.js",
-		"./test/unit//syntax/ParseTreeValidator.js",
-		"./test/unit//syntax/Token.js",
-		"./test/unit//syntax/parser.js",
-		"./test/unit//system/Hello.js",
-		"./test/unit//util/ErrorReporter.js",
-		"./test/unit//util/url.js",
-	];
+    "./test/unit//codegeneration/ExplodeExpressionTransformer.js",
+    "./test/unit//codegeneration/SourceMap.js",
+    "./test/unit//codegeneration/low_level_tests.js",
+    "./test/unit//codegeneration/writer.js",
+    "./test/unit//runtime/Loader.js",
+    "./test/unit//semantics/VariableBinder.js",
+    "./test/unit//syntax/LineNumbers.js",
+    "./test/unit//syntax/ParseTreeValidator.js",
+    "./test/unit//syntax/Token.js",
+    "./test/unit//syntax/parser.js",
+    "./test/unit//system/Hello.js",
+    "./test/unit//util/ErrorReporter.js",
+    "./test/unit//util/url.js",
+  ];
 
   var mochaTestModules = [
-		"./test/unit/es6/codegeneration/PlaceholderParser",
-		"./test/unit/es6/semantics/FreeVariableChecker",
-		"./test/unit/es6/tools/SourceMapMapping",
-	];
+    "./test/unit/es6/codegeneration/PlaceholderParser",
+    "./test/unit/es6/semantics/FreeVariableChecker",
+    "./test/unit/es6/tools/SourceMapMapping",
+  ];
 
-	function runAllMochaTests() {
-  	Promise.all(mochaTestScripts.map(function(test) {
-  			return System.loadAsScript(test);
-  	}).concat(mochaTestModules.map(function(test) {
-  			return System.import(test);
-  	}))).then(function() {
-  		mocha.run();
-  	}).catch(function(ex) {
-  		console.error(ex);
-  	});
+  function runAllMochaTests() {
+    Promise.all(mochaTestScripts.map(function(test) {
+        return System.loadAsScript(test);
+    }).concat(mochaTestModules.map(function(test) {
+        return System.import(test);
+    }))).then(function() {
+      mocha.run();
+    }).catch(function(ex) {
+      console.error(ex);
+    });
   }
 
   System.import('./test/DynamicSystem').then(function() {
-	  System.import('./src/runtime/webLoader', {}).then(function(module) {
-		  featureSuite(testList, module.webLoader);
-		  new traceur.WebPageTranscoder(document.location.href).run(runAllMochaTests);
-	  }, function(error) {
-	  	console.error(error);
-	  });
+    System.import('./src/options').then(function(module) {
+      module.options.sourceMaps = true;
+      System.import('./src/runtime/webLoader', {}).then(function(module) {
+        featureSuite(testList, module.webLoader);
+        new traceur.WebPageTranscoder(document.location.href).run(runAllMochaTests);
+      }, function(error) {
+        console.error(error);
+      });
+    });
   }).catch(function(ex) {
-  	console.error('Importing DynamicSystem failed ', ex.stack || ex);
+    console.error('Importing DynamicSystem failed ', ex.stack || ex);
   });
 
 

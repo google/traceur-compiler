@@ -19,7 +19,7 @@ import {Loader} from '../runtime/Loader';
 // Extract the build version number from a module name.
 // The first few modules don't have version info.
 // Late ones are dynamically loaded.
-// TODO(jjb): create a magic module with version embedded.
+// TODO(jjb): https://github.com/google/traceur-compiler/issues/962
 var staticModuleName  =
     $traceurRuntime.StaticModuleStore.keys()[12];
 

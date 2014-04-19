@@ -714,13 +714,6 @@
         return this.value_;
       return this.value_ = this.func.call(global);
     }}, {}, UncoatedModuleEntry);
-  function getUncoatedModuleInstantiator(name) {
-    if (!name)
-      return;
-    var url = ModuleStore.prototype.normalize(name);
-    return moduleInstantiators[url];
-  }
-  ;
   var moduleInstances = Object.create(null);
   var liveModuleSentinel = {};
   function Module(uncoatedModule) {
@@ -765,7 +758,7 @@
       return canonicalizeUrl(name);
     },
     get: function(normalizedName) {
-      var m = getUncoatedModuleInstantiator(normalizedName);
+      var m = this.getUncoatedModuleInstantiator_(normalizedName);
       if (!m)
         return undefined;
       var moduleInstance = moduleInstances[m.url];
@@ -827,6 +820,12 @@
     },
     createModule: function(uncoatedModule) {
       return Module(uncoatedModule);
+    },
+    getUncoatedModuleInstantiator_: function(name) {
+      if (!name)
+        return;
+      var url = this.normalize(name);
+      return moduleInstantiators[url];
     }
   };
   global.$traceurRuntime.ModuleStore = ModuleStore;
@@ -837,17 +836,8 @@
   var StaticModuleStore = new ModuleStore();
   StaticModuleStore.set('@traceur/src/runtime/StaticModuleStore', StaticModuleStore.createModule({StaticModuleStore: StaticModuleStore}));
   StaticModuleStore.set('@traceur/src/runtime/ModuleStore', StaticModuleStore.createModule({ModuleStore: ModuleStore}));
-  var setupGlobals = $traceurRuntime.setupGlobals;
-  $traceurRuntime.setupGlobals = function(global) {
-    setupGlobals(global);
-  };
   $traceurRuntime.StaticModuleStore = StaticModuleStore;
-  global.System = {
-    register: StaticModuleStore.register.bind(StaticModuleStore),
-    get: StaticModuleStore.get,
-    set: StaticModuleStore.set,
-    normalize: StaticModuleStore.normalize
-  };
+  global.System = StaticModuleStore;
 })(typeof global !== 'undefined' ? global : this);
 System.register("traceur@0.0.34/src/runtime/polyfills/utils", [], function() {
   "use strict";
@@ -1582,7 +1572,7 @@ System.register("traceur@0.0.34/src/runtime/polyfills/polyfills", [], function()
     maybeAddFunctions(Array.prototype, ['entries', entries, 'keys', keys, 'values', values]);
     if (Symbol && Symbol.iterator) {
       Object.defineProperty(Array.prototype, Symbol.iterator, {
-        value: values,
+        value: Array.prototype.values,
         configurable: true,
         enumerable: false,
         writable: true

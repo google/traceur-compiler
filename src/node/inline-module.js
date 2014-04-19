@@ -104,8 +104,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new TraceurLoader(hooks);
 
   function appendEvaluateModule(name, referrerName) {
-    var normalizedName =
-        traceur.ModuleStore.prototype.normalize(name, referrerName);
+    var normalizedName = loader.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
     var tree =
         traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);

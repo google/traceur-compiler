@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 (function(global) {
   'use strict';
 
@@ -23,18 +24,8 @@
   StaticModuleStore.set('@traceur/src/runtime/ModuleStore',
       StaticModuleStore.createModule({ModuleStore: ModuleStore}));
 
-  // Override setupGlobals so that System is added to future globals.
-  var setupGlobals = $traceurRuntime.setupGlobals;
-  $traceurRuntime.setupGlobals = function(global) {
-    setupGlobals(global);
-  };
   $traceurRuntime.StaticModuleStore = StaticModuleStore;
 
-  global.System = {
-    register: StaticModuleStore.register.bind(StaticModuleStore),
-    get: StaticModuleStore.get,
-    set: StaticModuleStore.set,
-    normalize: StaticModuleStore.normalize,
-  };
+  global.System = StaticModuleStore;
 
 })(typeof global !== 'undefined' ? global : this);

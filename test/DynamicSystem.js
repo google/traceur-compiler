@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @fileoverview Re-import Traceur via System.import().
- * The import will cause on-the-file recompilation of traceur source.
+/**
+ * @fileoverview Re-import Traceur via System.import().
+ * The import will cause on-the-fly recompilation of traceur source.
  * The resulting image will have correct source file names for debugging.
  */
 
@@ -21,11 +22,13 @@ import {ErrorReporter} from '../src/util/ErrorReporter';
 import {LoaderHooks} from '../src/runtime/LoaderHooks';
 import {TraceurLoader} from '../src/runtime/TraceurLoader';
 import {webLoader} from '../src/runtime/webLoader';
+import {} from '../src/runtime/polyfills/polyfills';
 
 var reporter = new ErrorReporter();
 // This loaderHooks does not read modules out of ModuleStore
 var dynamicModuleStore = new $traceurRuntime.ModuleStore();
-var loaderHooks = new LoaderHooks(reporter, System.baseURL, webLoader, dynamicModuleStore);
+var loaderHooks = new LoaderHooks(reporter, System.baseURL, webLoader,
+		dynamicModuleStore);
 
 // Overwrite global system value.
 System = new TraceurLoader(loaderHooks);

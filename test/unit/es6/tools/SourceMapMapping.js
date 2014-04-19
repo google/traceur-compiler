@@ -27,8 +27,7 @@ suite('SourceMapMapping', function() {
 
   setup(function() {
     System.options.sourceMaps = true;
-    if (typeof window !== 'undefined')
-      System.baseURL = window.location.origin;
+
     var testModuleName = System.normalize('./test/unit/runtime/test_a');
     whenSourceMapMapping = System.import(testModuleName).then(() => {
       var mapInfo = System.sourceMapInfo(testModuleName, 'module');
