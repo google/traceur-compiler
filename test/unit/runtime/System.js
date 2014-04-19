@@ -86,7 +86,17 @@ suite('System.js', function() {
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
 
-  test('ModuleStore.registerModule', function() {
+  test('new ModuleStore', function() {
+    var store = new $traceurRuntime.ModuleStore();
+    assert.equal(store.keys().length, 0);
+    store.registerModule('name', function(){
+      return {};
+    });
+    store.get('name');
+    assert.equal(store.keys().length, 1);
+  });
+
+  test('ModuleStore.registerModule duplicates', function() {
     var store = $traceurRuntime.StaticModuleStore;
     try {
       store.registerModule('name', function(){});

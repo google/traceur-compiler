@@ -693,7 +693,6 @@
       canonicalizeUrl = $__2.canonicalizeUrl,
       resolveUrl = $__2.resolveUrl,
       isAbsolute = $__2.isAbsolute;
-  var moduleInstantiators = Object.create(null);
   var defaultBaseURL;
   if (global.location && global.location.href)
     defaultBaseURL = resolveUrl(global.location.href, './');
@@ -714,7 +713,6 @@
         return this.value_;
       return this.value_ = this.func.call(global);
     }}, {}, UncoatedModuleEntry);
-  var moduleInstances = Object.create(null);
   var liveModuleSentinel = {};
   function Module(uncoatedModule) {
     var isLive = arguments[1];
@@ -743,6 +741,8 @@
   }
   function ModuleStore() {
     this.baseURL_ = defaultBaseURL;
+    this.moduleInstantiators = Object.create(null);
+    this.moduleInstances = Object.create(null);
   }
   ModuleStore.prototype = {
     normalize: function(name, refererName, refererAddress) {
@@ -761,18 +761,18 @@
       var m = this.getUncoatedModuleInstantiator_(normalizedName);
       if (!m)
         return undefined;
-      var moduleInstance = moduleInstances[m.url];
+      var moduleInstance = this.moduleInstances[m.url];
       if (moduleInstance)
         return moduleInstance;
       moduleInstance = Module(m.getUncoatedModule(), liveModuleSentinel);
-      return moduleInstances[m.url] = moduleInstance;
+      return this.moduleInstances[m.url] = moduleInstance;
     },
     set: function(normalizedName, module) {
       normalizedName = String(normalizedName);
-      moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, (function() {
+      this.moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, (function() {
         return module;
       }));
-      moduleInstances[normalizedName] = module;
+      this.moduleInstances[normalizedName] = module;
     },
     get baseURL() {
       return this.baseURL_;
@@ -783,13 +783,13 @@
         throw new Error('Invalid baseURL: ' + v);
     },
     keys: function() {
-      return Object.keys(moduleInstances);
+      return Object.keys(this.moduleInstances);
     },
     registerModule: function(name, func) {
       var normalizedName = this.normalize(name);
-      if (moduleInstantiators[normalizedName])
+      if (this.moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
-      moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, func);
+      this.moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, func);
     },
     bundleStore: Object.create(null),
     register: function(name, deps, func) {
@@ -808,7 +808,7 @@
     getForTesting: function(name) {
       var $__0 = this;
       if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).some((function(key) {
+        Object.keys(this.moduleInstances).some((function(key) {
           var m = /(traceur@[^\/]*\/)/.exec(key);
           if (m) {
             $__0.testingPrefix_ = m[1];
@@ -825,7 +825,7 @@
       if (!name)
         return;
       var url = this.normalize(name);
-      return moduleInstantiators[url];
+      return this.moduleInstantiators[url];
     }
   };
   global.$traceurRuntime.ModuleStore = ModuleStore;

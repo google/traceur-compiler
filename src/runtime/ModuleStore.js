@@ -20,8 +20,6 @@
     isAbsolute,
   } = $traceurRuntime;
 
-  var moduleInstantiators = Object.create(null);
-
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
   // "default baseURL is the directory that contains the HTML page"
@@ -50,8 +48,6 @@
       return this.value_ = this.func.call(global);
     }
   }
-
-  var moduleInstances = Object.create(null);
 
   var liveModuleSentinel = {};
 
@@ -85,6 +81,8 @@
 
   function ModuleStore() {
     this.baseURL_ = defaultBaseURL;
+    this.moduleInstantiators = Object.create(null);
+    this.moduleInstances = Object.create(null);
   }
 
   ModuleStore.prototype = {
@@ -106,19 +104,19 @@
       var m = this.getUncoatedModuleInstantiator_(normalizedName);
       if (!m)
         return undefined;
-      var moduleInstance = moduleInstances[m.url];
+      var moduleInstance = this.moduleInstances[m.url];
       if (moduleInstance)
         return moduleInstance;
 
       moduleInstance = Module(m.getUncoatedModule(), liveModuleSentinel);
-      return moduleInstances[m.url] = moduleInstance;
+      return this.moduleInstances[m.url] = moduleInstance;
     },
 
     set(normalizedName, module) {
       normalizedName = String(normalizedName);  // Req. by spec., why?
-      moduleInstantiators[normalizedName] =
+      this.moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, () => module);
-      moduleInstances[normalizedName] = module;
+      this.moduleInstances[normalizedName] = module;
     },
 
     get baseURL() {
@@ -133,16 +131,16 @@
 
     // TODO(arv): This should be an iterator
     keys() {
-      return Object.keys(moduleInstances);
+      return Object.keys(this.moduleInstances);
     },
 
     // -- Non standard extensions to ModuleStore.
 
     registerModule(name, func) {
       var normalizedName = this.normalize(name);
-      if (moduleInstantiators[normalizedName])
+      if (this.moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
-      moduleInstantiators[normalizedName] =
+      this.moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, func);
     },
 
@@ -172,7 +170,7 @@
     **/
     getForTesting(name) {
       if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).some( (key) => {
+        Object.keys(this.moduleInstances).some( (key) => {
           // Extract the version-dependent prefix from the first traceur
           // module matching our naming convention.
           var m = /(traceur@[^\/]*\/)/.exec(key);
@@ -196,7 +194,7 @@
       if (!name)
         return;
       var url = this.normalize(name);
-      return moduleInstantiators[url];
+      return this.moduleInstantiators[url];
     }
 
   };
