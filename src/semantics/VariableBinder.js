@@ -190,7 +190,7 @@ export class VariableBinder extends ParseTreeVisitor {
       // skipping let/const declarations in nested blocks
       var decls = tree.declarations;
       for (var i = 0; i < decls.length; i++) {
-        this.visitAny(decls[i].initialiser);
+        this.visitAny(decls[i].initializer);
       }
     }
   }

@@ -372,14 +372,14 @@ export class CPSTransformer extends TempVarTransformer {
     var label = this.clearCurrentLabel_();
     var tmp;
 
-    var initialiser = null, initialiserMachine;
-    if (tree.initialiser) {
-      if (this.expressionNeedsStateMachine(tree.initialiser)) {
-        tmp = this.expressionToStateMachine(tree.initialiser);
-        initialiser = tmp.expression;
-        initialiserMachine = tmp.machine;
+    var initializer = null, initializerMachine;
+    if (tree.initializer) {
+      if (this.expressionNeedsStateMachine(tree.initializer)) {
+        tmp = this.expressionToStateMachine(tree.initializer);
+        initializer = tmp.expression;
+        initializerMachine = tmp.machine;
       } else {
-        initialiser = this.transformAny(tree.initialiser);
+        initializer = this.transformAny(tree.initializer);
       }
     }
 
@@ -407,14 +407,14 @@ export class CPSTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.body);
 
-    if (initialiser === tree.initialiser && condition === tree.condition &&
+    if (initializer === tree.initializer && condition === tree.condition &&
         increment === tree.increment && body === tree.body) {
       return tree;
     }
 
-    if (!initialiserMachine && !conditionMachine && !incrementMachine &&
+    if (!initializerMachine && !conditionMachine && !incrementMachine &&
         body.type !== STATE_MACHINE) {
-      return new ForStatement(tree.location, initialiser, condition,
+      return new ForStatement(tree.location, initializer, condition,
           increment, body);
     }
 
@@ -424,8 +424,8 @@ export class CPSTransformer extends TempVarTransformer {
     var fallThroughId = this.allocateState();
 
     var startId;
-    var initialiserStartId =
-        initialiser ? this.allocateState() : State.INVALID_STATE;
+    var initializerStartId =
+        initializer ? this.allocateState() : State.INVALID_STATE;
     var conditionStartId =
         increment ? this.allocateState() : bodyFallThroughId;
     var loopStartId = loopBodyMachine.startState;
@@ -433,21 +433,21 @@ export class CPSTransformer extends TempVarTransformer {
 
     var states = [];
 
-    if (initialiser) {
-      startId = initialiserStartId;
+    if (initializer) {
+      startId = initializerStartId;
       var initialiserFallThroughId;
       if (condition)
         initialiserFallThroughId = conditionStartId;
       else
         initialiserFallThroughId = loopStartId;
 
-     var tmpId = initialiserStartId;
+     var tmpId = initializerStartId;
 
-      if (initialiserMachine) {
-        initialiserMachine =
-            initialiserMachine.replaceStartState(initialiserStartId);
-        tmpId = initialiserMachine.fallThroughState;
-        states.push(...initialiserMachine.states);
+      if (initializerMachine) {
+        initializerMachine =
+            initializerMachine.replaceStartState(initializerStartId);
+        tmpId = initializerMachine.fallThroughState;
+        states.push(...initializerMachine.states);
       }
 
       states.push(
@@ -455,11 +455,11 @@ export class CPSTransformer extends TempVarTransformer {
               tmpId,
               initialiserFallThroughId,
               createStatementList(
-                  createExpressionStatement(initialiser))));
+                  createExpressionStatement(initializer))));
     }
 
     if (condition) {
-      if (!initialiser)
+      if (!initializer)
         startId = conditionStartId;
 
       var tmpId = conditionStartId;
@@ -504,7 +504,7 @@ export class CPSTransformer extends TempVarTransformer {
     }
 
     // loop body
-    if (!initialiser && !condition)
+    if (!initializer && !condition)
       startId = loopStartId;
 
     var continueId;

@@ -88,8 +88,8 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformVariableDeclaration(tree) {
-    if (tree.typeAnnotation && tree.initialiser) {
-      var assert = parseExpression `assert.type(${tree.initialiser}, ${tree.typeAnnotation})`;
+    if (tree.typeAnnotation && tree.initializer) {
+      var assert = parseExpression `assert.type(${tree.initializer}, ${tree.typeAnnotation})`;
       tree = new VariableDeclaration(tree.location, tree.lvalue, tree.typeAnnotation, assert);
 
       this.assertionAdded_ = true;

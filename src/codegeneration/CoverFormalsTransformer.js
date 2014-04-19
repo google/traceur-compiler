@@ -112,7 +112,7 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
   transformCoverInitialisedName(tree) {
     return new BindingElement(tree.location,
                               new BindingIdentifier(tree.location, tree.name),
-                              tree.initialiser);
+                              tree.initializer);
   }
 
   transformPropertyNameAssignment(tree) {

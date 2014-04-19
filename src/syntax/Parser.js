@@ -282,20 +282,20 @@ var Expression = {
 };
 
 /**
- * Enum for determining if the initialiser is needed in a variable declaration
+ * Enum for determining if the initializer is needed in a variable declaration
  * with a destructuring pattern.
  * @enum {string}
  */
-var DestructuringInitialiser = {
+var DestructuringInitializer = {
   REQUIRED: 'REQUIRED',
   OPTIONAL: 'OPTIONAL'
 };
 
 /**
- * Enum used to determine if an initialiser is allowed or not.
+ * Enum used to determine if an initializer is allowed or not.
  * @enum {string}
  */
-var Initialiser = {
+var Initializer = {
   ALLOWED: 'ALLOWED',
   REQUIRED: 'REQUIRED'
 };
@@ -904,7 +904,7 @@ export class Parser {
     //
     // BindingElement :
     //   SingleNameBinding
-    //   BindingPattern Initialiseropt
+    //   BindingPattern Initializeropt
     var start = this.getTreeStartLocation_();
     var formals = [];
     this.pushAnnotations_();
@@ -932,14 +932,14 @@ export class Parser {
     return this.peekBindingElement_(type);
   }
 
-  parseFormalParameter_(initialiserAllowed = undefined) {
+  parseFormalParameter_(initializerAllowed = undefined) {
     var start = this.getTreeStartLocation_();
     var binding = this.parseBindingElementBinding_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var initialiser = this.parseBindingElementInitialiser_(initialiserAllowed);
+    var initializer = this.parseBindingElementInitializer_(initializerAllowed);
 
     return new FormalParameter(this.getTreeLocation_(start),
-        new BindingElement(this.getTreeLocation_(start), binding, initialiser),
+        new BindingElement(this.getTreeLocation_(start), binding, initializer),
         typeAnnotation, this.popAnnotations_());
   }
 
@@ -1048,21 +1048,21 @@ export class Parser {
   parseVariableStatement_() {
     var start = this.getTreeStartLocation_();
     var declarations = this.parseVariableDeclarationList_();
-    this.checkInitialisers_(declarations);
+    this.checkInitializers_(declarations);
     this.eatPossibleImplicitSemiColon_();
     return new VariableStatement(this.getTreeLocation_(start), declarations);
   }
 
   /**
    * @param {Expression=} expressionIn
-   * @param {DestructuringInitialiser} initialiser Whether destructuring
-   *     requires an initialiser
+   * @param {DestructuringInitializer} initializer Whether destructuring
+   *     requires an initializer
    * @return {VariableDeclarationList}
    * @private
    */
   parseVariableDeclarationList_(
       expressionIn = Expression.NORMAL,
-      initialiser = DestructuringInitialiser.REQUIRED) {
+      initializer = DestructuringInitializer.REQUIRED) {
     var type = this.peekType_();
 
     switch (type) {
@@ -1081,10 +1081,10 @@ export class Parser {
     var declarations = [];
 
     declarations.push(this.parseVariableDeclaration_(type, expressionIn,
-                                                     initialiser));
+                                                     initializer));
     while (this.eatIf_(COMMA)) {
       declarations.push(this.parseVariableDeclaration_(type, expressionIn,
-                                                       initialiser));
+                                                       initializer));
     }
     return new VariableDeclarationList(
         this.getTreeLocation_(start), type, declarations);
@@ -1092,22 +1092,22 @@ export class Parser {
 
   /**
    * VariableDeclaration :
-   *   BindingIdentifier Initialiseropt
-   *   BindingPattern Initialiser
+   *   BindingIdentifier Initializeropt
+   *   BindingPattern Initializer
    *
    * VariableDeclarationNoIn :
-   *   BindingIdentifier InitialiserNoInopt
-   *   BindingPattern InitialiserNoIn
+   *   BindingIdentifier InitializerNoInopt
+   *   BindingPattern InitializerNoIn
    *
    * @param {TokenType} binding
    * @param {Expression} expressionIn
-   * @param {DestructuringInitialiser=} initialiser
+   * @param {DestructuringInitializer=} initializer
    * @return {VariableDeclaration}
    * @private
    */
   parseVariableDeclaration_(binding, expressionIn,
-                            initialiser = DestructuringInitialiser.REQUIRED) {
-    var initRequired = initialiser !== DestructuringInitialiser.OPTIONAL;
+                            initializer = DestructuringInitializer.REQUIRED) {
+    var initRequired = initializer !== DestructuringInitializer.OPTIONAL;
     var start = this.getTreeStartLocation_();
 
     var lvalue;
@@ -1120,14 +1120,14 @@ export class Parser {
       typeAnnotation = this.parseTypeAnnotationOpt_();
     }
 
-    var initialiser = null;
+    var initializer = null;
     if (this.peek_(EQUAL))
-      initialiser = this.parseInitialiser_(expressionIn);
+      initializer = this.parseInitializer_(expressionIn);
     else if (lvalue.isPattern() && initRequired)
-      this.reportError_('destructuring must have an initialiser');
+      this.reportError_('destructuring must have an initializer');
 
     return new VariableDeclaration(this.getTreeLocation_(start), lvalue,
-        typeAnnotation, initialiser);
+        typeAnnotation, initializer);
   }
 
   /**
@@ -1135,7 +1135,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseInitialiser_(expressionIn) {
+  parseInitializer_(expressionIn) {
     this.eat_(EQUAL);
     return this.parseAssignmentExpression(expressionIn);
   }
@@ -1277,9 +1277,9 @@ export class Parser {
             ' statement may not have more than one variable declaration');
       }
       var declaration = variables.declarations[0];
-      if (declaration.lvalue.isPattern() && declaration.initialiser) {
-        this.reportError_(declaration.initialiser.location,
-            `initialiser is not allowed in ${kind} loop with pattern`);
+      if (declaration.lvalue.isPattern() && declaration.initializer) {
+        this.reportError_(declaration.initializer.location,
+            `initializer is not allowed in ${kind} loop with pattern`);
       }
     };
 
@@ -1287,20 +1287,20 @@ export class Parser {
     if (this.peekVariableDeclarationList_(type)) {
       var variables =
          this.parseVariableDeclarationList_(
-              Expression.NO_IN, DestructuringInitialiser.OPTIONAL);
+              Expression.NO_IN, DestructuringInitializer.OPTIONAL);
       type = this.peekType_();
       if (type === IN) {
         // for-in: only one declaration allowed
         validate(variables, 'for-in');
 
         var declaration = variables.declarations[0];
-        // for-in: if let/const binding used, initialiser is illegal
+        // for-in: if let/const binding used, initializer is illegal
         if (parseOptions.blockBinding &&
             (variables.declarationType == LET ||
              variables.declarationType == CONST)) {
-          if (declaration.initialiser != null) {
+          if (declaration.initializer != null) {
             this.reportError_(
-                'let/const in for-in statement may not have initialiser');
+                'let/const in for-in statement may not have initializer');
           }
         }
 
@@ -1309,16 +1309,16 @@ export class Parser {
         // for-of: only one declaration allowed
         validate(variables, 'for-of');
 
-        // for-of: initialiser is illegal
+        // for-of: initializer is illegal
         var declaration = variables.declarations[0];
-        if (declaration.initialiser != null) {
-          this.reportError_('for-of statement may not have initialiser');
+        if (declaration.initializer != null) {
+          this.reportError_('for-of statement may not have initializer');
         }
 
         return this.parseForOfStatement_(start, variables);
       } else {
-        // for statement: let and const must have initialisers
-        this.checkInitialisers_(variables);
+        // for statement: let and const must have initializers
+        this.checkInitializers_(variables);
         return this.parseForStatement2_(start, variables);
       }
     }
@@ -1327,17 +1327,17 @@ export class Parser {
       return this.parseForStatement2_(start, null);
     }
 
-    var initialiser = this.parseExpression(Expression.NO_IN);
+    var initializer = this.parseExpression(Expression.NO_IN);
     type = this.peekType_();
-    if (initialiser.isLeftHandSideExpression() &&
+    if (initializer.isLeftHandSideExpression() &&
         (type === IN || this.peekOf_(type))) {
-      initialiser = this.transformLeftHandSideExpression_(initialiser);
+      initializer = this.transformLeftHandSideExpression_(initializer);
       if (this.peekOf_(type))
-        return this.parseForOfStatement_(start, initialiser);
-      return this.parseForInStatement_(start, initialiser);
+        return this.parseForOfStatement_(start, initializer);
+      return this.parseForInStatement_(start, initializer);
     }
 
-    return this.parseForStatement2_(start, initialiser);
+    return this.parseForStatement2_(start, initializer);
   }
 
   peekOf_(type) {
@@ -1349,16 +1349,16 @@ export class Parser {
   // for  (  { let | var }  identifier  of  expression  )  statement
   /**
    * @param {SourcePosition} start
-   * @param {ParseTree} initialiser
+   * @param {ParseTree} initializer
    * @return {ParseTree}
    * @private
    */
-  parseForOfStatement_(start, initialiser) {
+  parseForOfStatement_(start, initializer) {
     this.eatId_(); // of
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForOfStatement(this.getTreeLocation_(start), initialiser, collection, body);
+    return new ForOfStatement(this.getTreeLocation_(start), initializer, collection, body);
   }
 
   /**
@@ -1368,12 +1368,12 @@ export class Parser {
    * @return {void}
    * @private
    */
-  checkInitialisers_(variables) {
+  checkInitializers_(variables) {
     if (parseOptions.blockBinding &&
         variables.declarationType == CONST) {
       var type = variables.declarationType;
       for (var i = 0; i < variables.declarations.length; i++) {
-        if (!this.checkInitialiser_(type, variables.declarations[i])) {
+        if (!this.checkInitializer_(type, variables.declarations[i])) {
           break;
         }
       }
@@ -1385,13 +1385,13 @@ export class Parser {
    *
    * @param {TokenType} type
    * @param {VariableDeclaration} declaration
-   * @return {boolan} Whether the initialiser is correct.
+   * @return {boolan} Whether the initializer is correct.
    * @private
    */
-  checkInitialiser_(type, declaration) {
+  checkInitializer_(type, declaration) {
     if (parseOptions.blockBinding && type == CONST &&
-        declaration.initialiser == null) {
-      this.reportError_('const variables must have an initialiser');
+        declaration.initializer == null) {
+      this.reportError_('const variables must have an initializer');
       return false;
     }
     return true;
@@ -1416,11 +1416,11 @@ export class Parser {
   // 12.6.3 The for Statement
   /**
    * @param {SourcePosition} start
-   * @param {ParseTree} initialiser
+   * @param {ParseTree} initializer
    * @return {ParseTree}
    * @private
    */
-  parseForStatement2_(start, initialiser) {
+  parseForStatement2_(start, initializer) {
     this.eat_(SEMI_COLON);
 
     var condition = null;
@@ -1435,22 +1435,22 @@ export class Parser {
     }
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForStatement(this.getTreeLocation_(start), initialiser, condition, increment, body);
+    return new ForStatement(this.getTreeLocation_(start), initializer, condition, increment, body);
   }
 
   // 12.6.4 The for-in Statement
   /**
    * @param {SourcePosition} start
-   * @param {ParseTree} initialiser
+   * @param {ParseTree} initializer
    * @return {ParseTree}
    * @private
    */
-  parseForInStatement_(start, initialiser) {
+  parseForInStatement_(start, initializer) {
     this.eat_(IN);
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForInStatement(this.getTreeLocation_(start), initialiser, collection, body);
+    return new ForInStatement(this.getTreeLocation_(start), initializer, collection, body);
   }
 
   // 12.7 The continue Statement
@@ -3285,28 +3285,28 @@ export class Parser {
   /**
    * BindingElement :
    *   SingleNameBinding
-   *   BindingPattern Initialiseropt
+   *   BindingPattern Initializeropt
    *
    * SingleNameBinding :
-   *   BindingIdentifier Initialiseropt
+   *   BindingIdentifier Initializeropt
    */
   peekBindingElement_(type) {
     return this.peekBindingIdentifier_(type) || this.peekPattern_(type);
   }
 
   /**
-   * @param {Initialiser=} initialiser If left out the initialiser is
-   *     optional and allowed. If set to Initialiser.REQUIRED there must be an
-   *     initialiser.
+   * @param {Initializer=} initializer If left out the initializer is
+   *     optional and allowed. If set to Initializer.REQUIRED there must be an
+   *     initializer.
    * @return {ParseTree}
    */
-  parseBindingElement_(initialiser = Initialiser.OPTIONAL) {
+  parseBindingElement_(initializer = Initializer.OPTIONAL) {
     var start = this.getTreeStartLocation_();
 
     var binding = this.parseBindingElementBinding_();
-    var initialiser = this.parseBindingElementInitialiser_(initialiser);
+    var initializer = this.parseBindingElementInitializer_(initializer);
     return new BindingElement(this.getTreeLocation_(start), binding,
-        initialiser);
+        initializer);
   }
 
   parseBindingElementBinding_() {
@@ -3315,10 +3315,10 @@ export class Parser {
     return this.parseBindingIdentifier_();
   }
 
-  parseBindingElementInitialiser_(initialiser = Initialiser.OPTIONAL) {
+  parseBindingElementInitializer_(initializer = Initializer.OPTIONAL) {
     if (this.peek_(EQUAL) ||
-        initialiser === Initialiser.REQUIRED) {
-      return this.parseInitialiser_();
+        initializer === Initializer.REQUIRED) {
+      return this.parseInitializer_();
     }
 
     return null;
@@ -3364,7 +3364,7 @@ export class Parser {
    *   PropertyName : BindingElement
    *
    * SingleNameBinding :
-   *   BindingIdentifier Initialiseropt
+   *   BindingIdentifier Initializeropt
    */
   peekBindingProperty_(type) {
     return this.peekBindingIdentifier_(type) || this.peekPropertyName_(type);
@@ -3391,11 +3391,11 @@ export class Parser {
       this.reportReservedIdentifier_(token);
 
     var binding = new BindingIdentifier(name.location, token);
-    var initialiser = null;
+    var initializer = null;
     if (this.peek_(EQUAL))
-      initialiser = this.parseInitialiser_();
+      initializer = this.parseInitializer_();
     return new BindingElement(this.getTreeLocation_(start), binding,
-                              initialiser);
+                              initializer);
   }
 
   /**

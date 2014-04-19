@@ -130,11 +130,11 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
         // This only works if destructuring has been taken care off already.
         var idToken = declaration.lvalue.identifierToken;
         this.addVariable(idToken.value);
-        if (declaration.initialiser !== null) {
+        if (declaration.initializer !== null) {
           expressions.push(
               createAssignmentExpression(
                   id(idToken),
-                  declaration.initialiser));
+                  declaration.initializer));
         }
       }
 
@@ -160,16 +160,16 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformLoop_(tree, ctor) {
-    var initialiser = this.transformLoopIninitaliser_(tree.initialiser);
+    var initializer = this.transformLoopIninitaliser_(tree.initializer);
     var collection = this.transformAny(tree.collection);
     var body = this.transformAny(tree.body);
-    if (initialiser === tree.initialiser &&
+    if (initializer === tree.initializer &&
         collection === tree.collection &&
         body === tree.body) {
       return tree;
     }
 
-    return new ctor(tree.location, initialiser, collection, body);
+    return new ctor(tree.location, initializer, collection, body);
   }
 
   transformLoopIninitaliser_(tree) {

@@ -37,9 +37,9 @@ function getVars(self) {
 }
 
 class TempVarStatement {
-  constructor(name, initialiser) {
+  constructor(name, initializer) {
     this.name = name;
-    this.initialiser = initialiser;
+    this.initializer = initializer;
   }
 }
 
@@ -102,9 +102,9 @@ export class TempVarTransformer extends ParseTreeTransformer {
     // Remove duplicates.
     var seenNames = Object.create(null);
     vars = vars.filter((tempVarStatement) => {
-      var {name, initialiser} = tempVarStatement;
+      var {name, initializer} = tempVarStatement;
       if (name in seenNames) {
-        if (seenNames[name].initialiser || initialiser)
+        if (seenNames[name].initializer || initializer)
           throw new Error('Invalid use of TempVarTransformer');
         return false;
       }
@@ -115,8 +115,8 @@ export class TempVarTransformer extends ParseTreeTransformer {
     var variableStatement = createVariableStatement(
         createVariableDeclarationList(
             VAR,
-            vars.map(({name, initialiser}) => {
-              return createVariableDeclaration(name, initialiser);
+            vars.map(({name, initializer}) => {
+              return createVariableDeclaration(name, initializer);
             })));
 
     return prependStatements(transformedStatements, variableStatement);
@@ -161,14 +161,14 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   /**
    * Adds a new temporary variable to the current function scope.
-   * @param {ParseTree=} initialiser If present then the variable will
-   *     have this as the initialiser expression.
+   * @param {ParseTree=} initializer If present then the variable will
+   *     have this as the initializer expression.
    * @return {string} The name of the temporary variable.
    */
-  addTempVar(initialiser = null) {
+  addTempVar(initializer = null) {
     var vars = getVars(this);
     var uid = this.getTempIdentifier();
-    vars.push(new TempVarStatement(uid, initialiser));
+    vars.push(new TempVarStatement(uid, initializer));
     return uid;
   }
 

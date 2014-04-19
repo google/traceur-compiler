@@ -294,7 +294,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         binding.type == ARRAY_PATTERN,
         binding,
         'expected valid binding element');
-    this.visitAny(tree.initialiser);
+    this.visitAny(tree.initializer);
   }
 
   /**
@@ -488,11 +488,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitForOfStatement(tree) {
     this.checkVisit_(
-      tree.initialiser.isPattern() ||
-      tree.initialiser.type === IDENTIFIER_EXPRESSION ||
-      tree.initialiser.type === VARIABLE_DECLARATION_LIST &&
-      tree.initialiser.declarations.length === 1,
-        tree.initialiser,
+      tree.initializer.isPattern() ||
+      tree.initializer.type === IDENTIFIER_EXPRESSION ||
+      tree.initializer.type === VARIABLE_DECLARATION_LIST &&
+      tree.initializer.declarations.length === 1,
+        tree.initializer,
         'for-each statement may not have more than one variable declaration');
     this.checkVisit_(tree.collection.isExpression(), tree.collection,
         'expression expected');
@@ -504,16 +504,16 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ForInStatement} tree
    */
   visitForInStatement(tree) {
-    if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
+    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       this.checkVisit_(
-          tree.initialiser.declarations.length <=
+          tree.initializer.declarations.length <=
               1,
-          tree.initialiser,
+          tree.initializer,
           'for-in statement may not have more than one variable declaration');
     } else {
-      this.checkVisit_(tree.initialiser.isPattern() ||
-                       tree.initialiser.isExpression(),
-                       tree.initialiser,
+      this.checkVisit_(tree.initializer.isPattern() ||
+                       tree.initializer.isExpression(),
+                       tree.initializer,
                        'variable declaration, expression or ' +
                        'pattern expected');
     }
@@ -558,11 +558,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ForStatement} tree
    */
   visitForStatement(tree) {
-    if (tree.initialiser !== null) {
+    if (tree.initializer !== null) {
       this.checkVisit_(
-          tree.initialiser.isExpression() ||
-          tree.initialiser.type === VARIABLE_DECLARATION_LIST,
-          tree.initialiser,
+          tree.initializer.isExpression() ||
+          tree.initializer.type === VARIABLE_DECLARATION_LIST,
+          tree.initializer,
           'variable declaration list or expression expected');
     }
     if (tree.condition !== null) {
@@ -971,9 +971,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                      tree.lvalue.type == BINDING_IDENTIFIER,
                      tree.lvalue,
                      'binding identifier expected, found: ' + tree.lvalue.type);
-    if (tree.initialiser !== null) {
-      this.checkVisit_(tree.initialiser.isAssignmentExpression(),
-          tree.initialiser, 'assignment expression expected');
+    if (tree.initializer !== null) {
+      this.checkVisit_(tree.initializer.isAssignmentExpression(),
+          tree.initializer, 'assignment expression expected');
     }
   }
 
