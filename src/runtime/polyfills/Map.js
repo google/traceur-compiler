@@ -143,4 +143,40 @@ export class Map {
       callbackFn.call(thisArg, value, key, this);
     }
   }
+
+  *items() {
+    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield [key, value];
+    }
+  }
+
+  *keys() {
+    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield key;
+    }
+  }
+
+  *values() {
+    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield value;
+    }
+  }
 }

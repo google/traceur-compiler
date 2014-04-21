@@ -81,6 +81,52 @@ assertArrayEquals(arr, ["value8", "value9",
     "value5", "value6", "value7",
     "value1", "value10", "value11"]);
 
+arrKeys = [];
+arr = [];
+cnt = 0;
+
+for(var mapItterItem of t.items()) {
+  var [mapItterItemKey, mapItterItemVal] = mapItterItem;
+  arrKeys.push(mapItterItemKey);
+  arr.push(mapItterItemVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ]);
+assertArrayEquals(arr, ["value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value10", "value11"]);
+
+arrKeys = [];
+cnt = 0;
+
+for(var mapItterKey of t.keys()) {
+  arrKeys.push(mapItterKey);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ]);
+
+arr = [];
+cnt = 0;
+
+for(var mapItterVal of t.values()) {
+  arr.push(mapItterVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arr, ["value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value10", "value11"]);
+
+
 var t3 = new Map([ [[],[]], [{},{}], [NaN,NaN] ]);
 assert.equal(t3.size, 3);
 assert.isTrue(t3.has(NaN));
