@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Map} from './Map';
+import {Set} from './Set';
 import {Promise} from './Promise';
 import {
   codePointAt,
@@ -54,6 +55,8 @@ function polyfillPromise(global) {
 function polyfillCollections(global) {
   if (!global.Map)
     global.Map = Map;
+  if (!global.Set)
+    global.Set = Set;
 }
 
 function polyfillString(String) {
