@@ -25,7 +25,7 @@ function initSet(set) {
 export class Set {
   constructor(iterable = undefined) {
     if (!isObject(this))
-      throw new TypeError("Constructor Set requires 'new'");
+      throw new TypeError('Set called on incompatible type');
     
     if ($hasOwnProperty.call(this, 'map_')) {
       throw new TypeError('Set can not be reentrantly initialised');

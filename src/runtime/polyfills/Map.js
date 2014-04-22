@@ -39,7 +39,7 @@ function initMap(map) {
 export class Map {
   constructor(iterable = undefined) {
     if (!isObject(this))
-      throw new TypeError("Constructor Map requires 'new'");
+      throw new TypeError('Map called on incompatible type');
     
     if ($hasOwnProperty.call(this, 'entries_')) {
       throw new TypeError('Map can not be reentrantly initialised');
