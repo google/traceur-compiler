@@ -42,7 +42,7 @@ export class Map {
       throw new TypeError("Constructor Map requires 'new'");
     
     if ($hasOwnProperty.call(this, 'entries_')) {
-      throw new TypeError("Map can not be reentrantly initialised");
+      throw new TypeError('Map can not be reentrantly initialised');
     }
     
     initMap(this);
@@ -145,7 +145,7 @@ export class Map {
   }
 
   *items() {
-    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
       
@@ -157,7 +157,7 @@ export class Map {
   }
 
   *keys() {
-    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
       
@@ -169,7 +169,7 @@ export class Map {
   }
 
   *values() {
-    for(var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
       
@@ -180,3 +180,5 @@ export class Map {
     }
   }
 }
+
+Object.defineProperty(Map.prototype, Symbol.iterator, {configurable: true, writable: true, value: Map.prototype.items});

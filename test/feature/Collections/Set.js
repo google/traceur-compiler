@@ -40,8 +40,44 @@ assert.isTrue(t.has(NaN));
 assert.isTrue(t.has(0));
 assert.isTrue(t.has(-0));
 
+var expected = [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ];
+expected.sort();
+
+
+// forEach
 var arr = [];
 var cnt = 0;
+
+t.forEach(val => {
+  arr.push(val);
+  cnt++;
+});
+
+assert.equal(cnt, 8);
+
+
+arr.sort();
+assertArrayEquals(arr, expected);
+
+// iterator
+arr = [];
+cnt = 0;
+
+for(var setItterVal of t) {
+  arr.push(setItterVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+
+arr.sort();
+assertArrayEquals(arr, expected);
+
+// .values()
+arr = [];
+cnt = 0;
 
 for(var setItterVal of t.values()) {
   arr.push(setItterVal);
@@ -51,10 +87,6 @@ assert.equal(cnt, 8);
 
 
 arr.sort();
-var expected = [ undefinedKey, nullKey, stringKey,
-    numberKey, booleanKey, objectKey,
-    nanKey, zeroKey ];
-expected.sort();
 assertArrayEquals(arr, expected);
 
 var t3 = new Set([[], {}, NaN]);
@@ -64,3 +96,5 @@ t3.delete(NaN);
 assert.equal(t3.size, 2);
 t3.delete(NaN);
 assert.equal(t3.size, 2);
+t3.clear();
+assert.equal(t3.size, 0);

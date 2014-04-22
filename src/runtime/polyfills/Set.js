@@ -3,7 +3,6 @@ import {Map} from './Map'
 
 var getOwnHashObject = $traceurRuntime.getOwnHashObject;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;
-var deletedSentinel = {};
 
 function initSet(set) {
   set.map_ = new Map(); // every odd index is key, every even index is value
@@ -12,10 +11,10 @@ function initSet(set) {
 export class Set {
   constructor(iterable = undefined) {
     if (!isObject(this))
-      throw new TypeError("Constructor Map requires 'new'");
+      throw new TypeError("Constructor Set requires 'new'");
     
-    if ($hasOwnProperty.call(this, 'entries_')) {
-      throw new TypeError("Map can not be reentrantly initialised");
+    if ($hasOwnProperty.call(this, 'map_')) {
+      throw new TypeError('Set can not be reentrantly initialised');
     }
 
     initSet(this);
@@ -46,7 +45,17 @@ export class Set {
     return this.map_.delete(key);
   }
 
+  clear() {
+    return this.map_.clear();
+  }
+
+  forEach(callbackFn, thisArg = undefined) {
+    return this.map_.forEach((val, key) => callbackFn.call(thisArg, key, this));
+  }
+
   *values() {
     yield* this.map_.keys();
   }
 }
+
+Object.defineProperty(Set.prototype, Symbol.iterator, {configurable: true, writable: true, value: Set.prototype.values});
