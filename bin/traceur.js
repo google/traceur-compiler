@@ -9136,7 +9136,7 @@ System.register("traceur@0.0.40/src/syntax/ParseTreeValidator", [], function() {
     },
     visitBindingElement: function(tree) {
       var binding = tree.binding;
-      this.checkVisit_(binding.type == BINDING_IDENTIFIER || binding.type == OBJECT_PATTERN || binding.type == ARRAY_PATTERN || binding.type == IDENTIFIER_EXPRESSION, binding, 'expected valid binding element');
+      this.checkVisit_(binding.type == BINDING_IDENTIFIER || binding.type == OBJECT_PATTERN || binding.type == ARRAY_PATTERN, binding, 'expected valid binding element');
       this.visitAny(tree.initializer);
     },
     visitBlock: function(tree) {

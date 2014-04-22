@@ -291,10 +291,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkVisit_(
         binding.type == BINDING_IDENTIFIER ||
         binding.type == OBJECT_PATTERN ||
-        binding.type == ARRAY_PATTERN ||
-        // https://github.com/google/traceur-compiler/issues/969
-        binding.type == IDENTIFIER_EXPRESSION,
-
+        binding.type == ARRAY_PATTERN,
         binding,
         'expected valid binding element');
     this.visitAny(tree.initializer);
