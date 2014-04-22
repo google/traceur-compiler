@@ -19,7 +19,7 @@ var getOwnHashObject = $traceurRuntime.getOwnHashObject;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function initSet(set) {
-  set.map_ = new Map(); // every odd index is key, every even index is value
+  set.map_ = new Map();
 }
 
 export class Set {
