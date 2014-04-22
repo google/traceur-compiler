@@ -17711,6 +17711,7 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
   var __moduleName = "traceur@0.0.34/src/codegeneration/HoistVariablesTransformer";
   var $__209 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/syntax/trees/ParseTrees")),
       AnonBlock = $__209.AnonBlock,
+      Catch = $__209.Catch,
       FunctionBody = $__209.FunctionBody,
       ForInStatement = $__209.ForInStatement,
       ForOfStatement = $__209.ForOfStatement,
@@ -17718,6 +17719,7 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
       VariableStatement = $__209.VariableStatement;
   var $__209 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/syntax/trees/ParseTreeType")),
       BINDING_IDENTIFIER = $__209.BINDING_IDENTIFIER,
+      OBJECT_PATTERN = $__209.OBJECT_PATTERN,
       VARIABLE_DECLARATION_LIST = $__209.VARIABLE_DECLARATION_LIST;
   var ParseTreeTransformer = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/codegeneration/ParseTreeTransformer")).ParseTreeTransformer;
   var VAR = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/syntax/TokenType")).VAR;
@@ -17727,11 +17729,13 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
       createCommaExpression = $__209.createCommaExpression,
       createExpressionStatement = $__209.createExpressionStatement,
       id = $__209.createIdentifierExpression,
+      createParenExpression = $__209.createParenExpression,
       createVariableDeclaration = $__209.createVariableDeclaration;
   var prependStatements = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/codegeneration/PrependStatements")).prependStatements;
   var HoistVariablesTransformer = function HoistVariablesTransformer() {
     $traceurRuntime.superCall(this, $HoistVariablesTransformer.prototype, "constructor", []);
     this.hoistedVariables_ = Object.create(null);
+    this.keepBindingIdentifiers_ = false;
   };
   var $HoistVariablesTransformer = HoistVariablesTransformer;
   ($traceurRuntime.createClass)(HoistVariablesTransformer, {
@@ -17777,19 +17781,44 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
         return new VariableStatement(tree.location, declarations);
       return createExpressionStatement(declarations);
     },
+    transformVariableDeclaration: function(tree) {
+      var lvalue = this.transformAny(tree.lvalue);
+      var initializer = this.transformAny(tree.initializer);
+      if (initializer) {
+        var expression = createAssignmentExpression(lvalue, initializer);
+        if (lvalue.type === OBJECT_PATTERN)
+          expression = createParenExpression(expression);
+        return expression;
+      }
+      return null;
+    },
+    transformObjectPattern: function(tree) {
+      var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+      this.keepBindingIdentifiers_ = true;
+      var transformed = $traceurRuntime.superCall(this, $HoistVariablesTransformer.prototype, "transformObjectPattern", [tree]);
+      this.keepBindingIdentifiers_ = keepBindingIdentifiers;
+      return transformed;
+    },
+    transformArrayPattern: function(tree) {
+      var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+      this.keepBindingIdentifiers_ = true;
+      var transformed = $traceurRuntime.superCall(this, $HoistVariablesTransformer.prototype, "transformArrayPattern", [tree]);
+      this.keepBindingIdentifiers_ = keepBindingIdentifiers;
+      return transformed;
+    },
+    transformBindingIdentifier: function(tree) {
+      var idToken = tree.identifierToken;
+      this.addVariable(idToken.value);
+      if (this.keepBindingIdentifiers_)
+        return tree;
+      return id(idToken);
+    },
     transformVariableDeclarationList: function(tree) {
       if (tree.declarationType == VAR) {
-        var expressions = [];
-        var declarations = this.transformList(tree.declarations);
-        for (var i = 0; i < declarations.length; i++) {
-          var declaration = declarations[i];
-          assert(declaration.lvalue.type === BINDING_IDENTIFIER);
-          var idToken = declaration.lvalue.identifierToken;
-          this.addVariable(idToken.value);
-          if (declaration.initializer !== null) {
-            expressions.push(createAssignmentExpression(id(idToken), declaration.initializer));
-          }
-        }
+        var expressions = this.transformList(tree.declarations);
+        expressions = expressions.filter((function(tree) {
+          return tree;
+        }));
         if (expressions.length === 0)
           return null;
         if (expressions.length == 1)
@@ -17797,6 +17826,12 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
         return createCommaExpression(expressions);
       }
       return $traceurRuntime.superCall(this, $HoistVariablesTransformer.prototype, "transformVariableDeclarationList", [tree]);
+    },
+    transformCatch: function(tree) {
+      var catchBody = this.transformAny(tree.catchBody);
+      if (catchBody === tree.catchBody)
+        return tree;
+      return new Catch(tree.location, tree.binding, catchBody);
     },
     transformForInStatement: function(tree) {
       return this.transformLoop_(tree, ForInStatement);
@@ -17816,9 +17851,7 @@ System.register("traceur@0.0.34/src/codegeneration/HoistVariablesTransformer", [
     transformLoopIninitaliser_: function(tree) {
       if (tree.type !== VARIABLE_DECLARATION_LIST)
         return tree;
-      var token = tree.declarations[0].lvalue.identifierToken;
-      this.addVariable(token.value);
-      return id(token);
+      return this.transformAny(tree.declarations[0].lvalue);
     },
     addMachineVariable: function(name) {
       this.machineVariables_[name] = true;
