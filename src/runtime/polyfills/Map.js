@@ -48,11 +48,8 @@ export class Map {
     initMap(this);
     
     if (iterable !== null && iterable !== undefined) {
-      var iter = iterable[Symbol.iterator];
-      if (iter !== undefined) {
-        for (var [key, value] of iterable) {
-          this.set(key, value);
-        }
+      for (var [key, value] of iterable) {
+        this.set(key, value);
       }
     }
   }

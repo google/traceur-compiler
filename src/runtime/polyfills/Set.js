@@ -34,11 +34,8 @@ export class Set {
     initSet(this);
 
     if (iterable !== null && iterable !== undefined) {
-      var iter = iterable[Symbol.iterator];
-      if (iter !== undefined) {
-        for (var item of iterable) {
-          this.add(item);
-        }
+      for (var item of iterable) {
+        this.add(item);
       }
     }
   }
