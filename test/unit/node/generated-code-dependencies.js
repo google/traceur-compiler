@@ -32,7 +32,7 @@ suite('context test', function() {
     return path.resolve(__dirname, '../../../' + name).replace(/\\/g, '/');
   }
 
-  function executeFileWithRuntime(fileName) {
+  function executeFileWithRuntime(fileName, debug) {
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
     var TraceurLoader = traceur.runtime.TraceurLoader;
 
@@ -47,6 +47,13 @@ suite('context test', function() {
     var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
     var context = vm.createContext();
+
+    if (debug) {
+      context.console = console;
+      context.debugGenerated = true;
+      console.log(output);
+    }
+
     vm.runInNewContext(runtime + output, context, fileName);
 
     return context.result;
@@ -109,7 +116,7 @@ suite('context test', function() {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
           var module = System.get('test/unit/node/resources/import-another-x');
-          assert.equal(global.result, 17);
+          assert.equal(global.another_result, 17);
           done();
         });
   });
