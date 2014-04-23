@@ -15,6 +15,7 @@
 
 import {
   AnonBlock,
+  Catch,
   FunctionBody,
   ForInStatement,
   ForOfStatement,
@@ -23,6 +24,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {
   BINDING_IDENTIFIER,
+  OBJECT_PATTERN,
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
@@ -33,6 +35,7 @@ import {
   createCommaExpression,
   createExpressionStatement,
   createIdentifierExpression as id,
+  createParenExpression,
   createVariableDeclaration
 } from './ParseTreeFactory';
 import {prependStatements} from './PrependStatements';
@@ -61,6 +64,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   constructor() {
     super();
     this.hoistedVariables_ = Object.create(null);
+    this.keepBindingIdentifiers_ = false;
   }
 
   transformFunctionBody(tree) {
@@ -120,23 +124,53 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return createExpressionStatement(declarations);
   }
 
+  transformVariableDeclaration(tree) {
+    var lvalue = this.transformAny(tree.lvalue);
+    var initializer = this.transformAny(tree.initializer);
+    if (initializer) {
+      var expression = createAssignmentExpression(lvalue, initializer);
+      if (lvalue.type === OBJECT_PATTERN)
+        expression = createParenExpression(expression);
+      return expression;
+    }
+    return null;
+  }
+
+  transformObjectPattern(tree) {
+    // AssignmentPatterns incorrectly uses BindingIdentifiers.
+    // https://github.com/google/traceur-compiler/issues/969
+    var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+    this.keepBindingIdentifiers_ = true;
+    var transformed = super(tree);
+    this.keepBindingIdentifiers_ = keepBindingIdentifiers;
+    return transformed;
+  }
+
+  transformArrayPattern(tree) {
+    // AssignmentPatterns incorrectly uses BindingIdentifiers.
+    // https://github.com/google/traceur-compiler/issues/969
+    var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+    this.keepBindingIdentifiers_ = true;
+    var transformed = super(tree);
+    this.keepBindingIdentifiers_ = keepBindingIdentifiers;
+    return transformed;
+  }
+
+  transformBindingIdentifier(tree) {
+    var idToken = tree.identifierToken;
+    this.addVariable(idToken.value);
+    if (this.keepBindingIdentifiers_)
+      return tree;
+    return id(idToken);
+  }
+
   transformVariableDeclarationList(tree) {
     if (tree.declarationType == VAR) {
-      var expressions = [];
-      var declarations = this.transformList(tree.declarations);
-      for (var i = 0; i < declarations.length; i++) {
-        var declaration = declarations[i];
-        assert(declaration.lvalue.type === BINDING_IDENTIFIER);
-        // This only works if destructuring has been taken care off already.
-        var idToken = declaration.lvalue.identifierToken;
-        this.addVariable(idToken.value);
-        if (declaration.initializer !== null) {
-          expressions.push(
-              createAssignmentExpression(
-                  id(idToken),
-                  declaration.initializer));
-        }
-      }
+      var expressions = this.transformList(tree.declarations);
+
+      // Any var without an initializer becomes null in
+      // transformVariableDeclaration Remove these null trees now.
+      expressions = expressions.filter((tree) => tree);
 
       if (expressions.length === 0)
         return null;
@@ -149,6 +183,14 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
 
     // let/const - just transform for now
     return super(tree);
+  }
+
+  transformCatch(tree) {
+    // Ensure that we do not transform the catch binding.
+    var catchBody = this.transformAny(tree.catchBody);
+    if (catchBody === tree.catchBody)
+      return tree;
+    return new Catch(tree.location, tree.binding, catchBody);
   }
 
   transformForInStatement(tree) {
@@ -175,9 +217,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   transformLoopIninitaliser_(tree) {
     if (tree.type !== VARIABLE_DECLARATION_LIST)
       return tree;
-    var token = tree.declarations[0].lvalue.identifierToken
-    this.addVariable(token.value);
-    return id(token);
+    return this.transformAny(tree.declarations[0].lvalue);
   }
 
   addMachineVariable(name) {
