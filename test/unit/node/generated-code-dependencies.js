@@ -116,7 +116,7 @@ suite('context test', function() {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
           var module = System.get('test/unit/node/resources/import-another-x');
-          assert.equal(global.another_result, 17);
+          assert.equal(global.anotherResult, 17);
           done();
         });
   });
