@@ -201,7 +201,7 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 self: build/previous-commit-traceur.js force
 	./traceur-build --debug --out bin/traceur.js $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
-$(TPL_GENSRC_DEPS): | node_modules
+$(TPL_GENSRC_DEPS): node_modules
 
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
@@ -226,8 +226,8 @@ unicode-tables: \
 %.js: %.js-template.js
 	node build/expand-js-template.js $< $@
 
-%.js-template.js.dep: | %.js-template.js
-	node build/expand-js-template.js --deps $| > $@
+%.js-template.js.dep: %.js-template.js
+	node build/expand-js-template.js --deps $^ > $@
 
 # set NO_PREPUBLISH=1 to prevent endless loop of makes and npm installs.
 NPM_INSTALL = NO_PREPUBLISH=1 npm install --local && touch node_modules
