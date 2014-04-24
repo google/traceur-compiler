@@ -15,7 +15,7 @@
 suite('Token.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;

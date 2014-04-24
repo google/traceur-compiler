@@ -16,7 +16,7 @@ suite('url.js', function() {
   test('removeDotSegments', function() {
 
     var removeDotSegments =
-            $traceurRuntime.ModuleStore.getForTesting('src/util/url').removeDotSegments;
+            $traceurRuntime.StaticModuleStore.getForTesting('src/util/url').removeDotSegments;
 
     assert.equal('/', removeDotSegments('/'));
     assert.equal('.', removeDotSegments('.'));
@@ -57,7 +57,7 @@ suite('url.js', function() {
 
   test('resolveUrl', function() {
     var resolveUrl =
-        $traceurRuntime.ModuleStore.getForTesting('src/util/url').resolveUrl;
+        $traceurRuntime.StaticModuleStore.getForTesting('src/util/url').resolveUrl;
     assert.equal('/a/b/c/d', resolveUrl('/a/b/x/y/', '../../c/d'));
     assert.equal('/a/b/c/d', resolveUrl('/a/b/x/y/', '../../////c/d'));
   });

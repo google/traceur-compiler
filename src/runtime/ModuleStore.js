@@ -20,16 +20,14 @@
     isAbsolute,
   } = $traceurRuntime;
 
-  var moduleInstantiators = Object.create(null);
-
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
   // "default baseURL is the directory that contains the HTML page"
-  var baseURL;
+  var defaultBaseURL;
   if (global.location && global.location.href)
-    baseURL = resolveUrl(global.location.href, './');
+    defaultBaseURL = resolveUrl(global.location.href, './');
   else
-    baseURL = '';
+    defaultBaseURL = '';
 
   class UncoatedModuleEntry {
     constructor(url, uncoatedModule) {
@@ -50,15 +48,6 @@
       return this.value_ = this.func.call(global);
     }
   }
-
-  function getUncoatedModuleInstantiator(name) {
-    if (!name)
-      return;
-    var url = ModuleStore.normalize(name);
-    return moduleInstantiators[url];
-  };
-
-  var moduleInstances = Object.create(null);
 
   var liveModuleSentinel = {};
 
@@ -90,7 +79,13 @@
     return coatedModule;
   }
 
-  var ModuleStore = {
+  function ModuleStore() {
+    this.baseURL_ = defaultBaseURL;
+    this.moduleInstantiators = Object.create(null);
+    this.moduleInstances = Object.create(null);
+  }
+
+  ModuleStore.prototype = {
 
     normalize(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -106,39 +101,46 @@
     },
 
     get(normalizedName) {
-      var m = getUncoatedModuleInstantiator(normalizedName);
+      var m = this.getUncoatedModuleInstantiator_(normalizedName);
       if (!m)
         return undefined;
-      var moduleInstance = moduleInstances[m.url];
+      var moduleInstance = this.moduleInstances[m.url];
       if (moduleInstance)
         return moduleInstance;
 
       moduleInstance = Module(m.getUncoatedModule(), liveModuleSentinel);
-      return moduleInstances[m.url] = moduleInstance;
+      return this.moduleInstances[m.url] = moduleInstance;
     },
 
     set(normalizedName, module) {
       normalizedName = String(normalizedName);  // Req. by spec., why?
-      moduleInstantiators[normalizedName] =
+      this.moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, () => module);
-      moduleInstances[normalizedName] = module;
+      this.moduleInstances[normalizedName] = module;
     },
 
     get baseURL() {
-      return baseURL;
+      return this.baseURL_;
     },
 
     set baseURL(v) {
-      baseURL = String(v);
+      this.baseURL_ = canonicalizeUrl(String(v));
+      if (!this.baseURL_)
+        throw new Error('Invalid baseURL: ' + v);
+    },
+
+    // TODO(arv): This should be an iterator
+    keys() {
+      return Object.keys(this.moduleInstances);
     },
 
     // -- Non standard extensions to ModuleStore.
 
     registerModule(name, func) {
-      var normalizedName = ModuleStore.normalize(name);
-      if (moduleInstantiators[normalizedName])
+      var normalizedName = this.normalize(name);
+      if (this.moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
-      moduleInstantiators[normalizedName] =
+      this.moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, func);
     },
 
@@ -168,7 +170,7 @@
     **/
     getForTesting(name) {
       if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).some( (key) => {
+        Object.keys(this.moduleInstances).some( (key) => {
           // Extract the version-dependent prefix from the first traceur
           // module matching our naming convention.
           var m = /(traceur@[^\/]*\/)/.exec(key);
@@ -179,32 +181,24 @@
         });
       }
       return this.get(this.testingPrefix_ + name);
+    },
+
+    /**
+     * Non-standard bootstrapping function for ModuleStore
+     **/
+    createModule(uncoatedModule) {
+      return Module(uncoatedModule);
+    },
+
+    getUncoatedModuleInstantiator_(name) {
+      if (!name)
+        return;
+      var url = this.normalize(name);
+      return this.moduleInstantiators[url];
     }
 
   };
 
-
-  ModuleStore.set('@traceur/src/runtime/ModuleStore',
-      new Module({ModuleStore: ModuleStore}));
-
-  // Override setupGlobals so that System is added to future globals.
-  var setupGlobals = $traceurRuntime.setupGlobals;
-  $traceurRuntime.setupGlobals = function(global) {
-    setupGlobals(global);
-  };
-  $traceurRuntime.ModuleStore = ModuleStore;
-
-  global.System = {
-    register: ModuleStore.register.bind(ModuleStore),
-    get: ModuleStore.get,
-    set: ModuleStore.set,
-    normalize: ModuleStore.normalize,
-  };
-
-  // TODO(jjb): remove after next npm release
-  $traceurRuntime.getModuleImpl = function(name) {
-    var instantiator = getUncoatedModuleInstantiator(name);
-    return instantiator && instantiator.getUncoatedModule();
-  };
+  global.$traceurRuntime.ModuleStore = ModuleStore;
 
 })(typeof global !== 'undefined' ? global : this);

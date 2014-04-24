@@ -1,27 +1,76 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Tracuer self-compile in Web page for debugging.</title>
-    <script src="../bin/traceur.js"></script>
-    <script>
-    // Settings the same as the tests
-    traceur.options.debug = true;
-    // Because of issue 534 we cannot self-compile with freeVariableChecker.
-    // traceur.options.freeVariableChecker = true;
-    traceur.options.validate = true;
-    var url = window.location.href;
+<meta charset="utf-8">
+<link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+<script src="../node_modules/mocha/mocha.js"></script>
+<script src="../node_modules/chai/chai.js"></script>
+<script src="../bin/traceur.js"></script>
+<script src="test-utils.js"></script>
+<script src="test-list.js"></script>
+<script>
 
-    System.import('../src/traceur', {}).then(
-        function(mod) {
-          console.log('DONE');
-        },
-        function(error) {
-          console.error(error);
-        }
-    );
-    </script>
-  </head>
-  <body>
-    For Self-hosted compilation: <code>make self</code>. Open DevTools.  Reload. Repeat.
-  </body>
-</html>
+mocha.setup({ui: 'tdd'});
+
+</script>
+
+<div id="mocha"></div>
+<script>
+
+
+(function() {
+  'use strict';
+
+  // Set the baseURL to top of the tree, to match the baseURL for node.
+  System.baseURL = window.location.origin + '/';
+
+  var mochaTestScripts = [
+    "./test/unit//codegeneration/ExplodeExpressionTransformer.js",
+    "./test/unit//codegeneration/SourceMap.js",
+    "./test/unit//codegeneration/low_level_tests.js",
+    "./test/unit//codegeneration/writer.js",
+    "./test/unit//runtime/Loader.js",
+    "./test/unit//semantics/VariableBinder.js",
+    "./test/unit//syntax/LineNumbers.js",
+    "./test/unit//syntax/ParseTreeValidator.js",
+    "./test/unit//syntax/Token.js",
+    "./test/unit//syntax/parser.js",
+    "./test/unit//system/Hello.js",
+    "./test/unit//util/ErrorReporter.js",
+    "./test/unit//util/url.js",
+  ];
+
+  var mochaTestModules = [
+    "./test/unit/es6/codegeneration/PlaceholderParser",
+    "./test/unit/es6/semantics/FreeVariableChecker",
+    "./test/unit/es6/tools/SourceMapMapping",
+  ];
+
+  function runAllMochaTests() {
+    Promise.all(mochaTestScripts.map(function(test) {
+        return System.loadAsScript(test);
+    }).concat(mochaTestModules.map(function(test) {
+        return System.import(test);
+    }))).then(function() {
+      mocha.run();
+    }).catch(function(ex) {
+      console.error(ex);
+    });
+  }
+
+  System.import('./test/DynamicSystem').then(function() {
+    System.import('./src/options').then(function(module) {
+      module.options.sourceMaps = true;
+      System.import('./src/runtime/webLoader', {}).then(function(module) {
+        featureSuite(testList, module.webLoader);
+        new traceur.WebPageTranscoder(document.location.href).run(runAllMochaTests);
+      }, function(error) {
+        console.error(error);
+      });
+    });
+  }).catch(function(ex) {
+    console.error('Importing DynamicSystem failed ', ex.stack || ex);
+  });
+
+
+})();
+
+</script>

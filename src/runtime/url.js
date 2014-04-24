@@ -178,7 +178,7 @@
    *
    * Each component can be accessed via the component indices; for example:
    * <pre>
-   * goog.uri.utils.split(someStr)[goog.uri.utils.CompontentIndex.QUERY_DATA];
+   * goog.uri.utils.split(someStr)[goog.uri.utils.ComponentIndex.QUERY_DATA];
    * </pre>
    *
    * @param {string} uri The URI string to examine.

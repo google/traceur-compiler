@@ -17,20 +17,34 @@ import {SourceMapConsumer}
     from '../../../../src/outputgeneration/SourceMapIntegration';
 import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
 
-System.options.sourceMaps = true;
-var testModuleName = System.normalize('./test/unit/runtime/test_a');
-var whenSourceMapMapping = System.import(testModuleName).then(() => {
-  var mapInfo = System.sourceMapInfo(testModuleName, 'module');
-  if (!mapInfo || !mapInfo.sourceMap)
-    throw new Error('No source map');
-  var consumer = new SourceMapConsumer(mapInfo.sourceMap);
-  var sourceMapMapping = new OriginalSourceMapMapping(consumer);
-  return sourceMapMapping;
-}).catch(function(ex) {
-  console.error(ex.stack || ex);
-});
 
 suite('SourceMapMapping', function() {
+
+  // TODO(jjb): remove this hack after one-system fixes.
+  var saveBaseURL = System.baseURL;
+
+  var whenSourceMapMapping;
+
+  setup(function() {
+    System.options.sourceMaps = true;
+
+    var testModuleName = System.normalize('./test/unit/runtime/test_a');
+    whenSourceMapMapping = System.import(testModuleName).then(() => {
+      var mapInfo = System.sourceMapInfo(testModuleName, 'module');
+      if (!mapInfo || !mapInfo.sourceMap)
+        throw new Error('No source map');
+      var consumer = new SourceMapConsumer(mapInfo.sourceMap);
+      var sourceMapMapping = new OriginalSourceMapMapping(consumer);
+      return sourceMapMapping;
+    }).catch(function(ex) {
+      console.error(ex.stack || ex);
+    });
+  });
+
+  teardown(function() {
+    System.baseURL = saveBaseURL;
+  });
+
   var columnsByLine = [
     [0, 0, 1, 3, 4, 4],
     [0, 0, 1, 3, 4, 4]

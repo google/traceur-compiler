@@ -35,6 +35,3 @@ if (typeof global !== 'undefined')
   global.System = traceurLoader;
 
 export { traceurLoader as System }
-
-traceurLoader.map = traceurLoader.semverMap(__moduleName);
-

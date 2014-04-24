@@ -79,7 +79,7 @@ function polyfillArray(Array, Symbol) {
   if (Symbol && Symbol.iterator) {
     // Use Object.defineProperty so that the Symbol override can do its thing.
     Object.defineProperty(Array.prototype, Symbol.iterator, {
-      value: values,
+      value: Array.prototype.values,
       configurable: true,
       enumerable: false,
       writable: true

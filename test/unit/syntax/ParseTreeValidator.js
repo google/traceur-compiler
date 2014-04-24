@@ -15,7 +15,7 @@
 suite('ParseTreeValidator.js', function() {
 
   var ParseTreeValidator =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+      $traceurRuntime.StaticModuleStore.getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
 
   test('Validate null', function() {
     ParseTreeValidator.validate(null);

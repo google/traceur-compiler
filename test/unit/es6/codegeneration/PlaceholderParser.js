@@ -15,7 +15,7 @@
 suite('PlaceholderParser.traceur.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var ParseTreeType = get('src/syntax/trees/ParseTreeType');

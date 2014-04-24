@@ -18,4 +18,4 @@ module traceur from './traceur';
 this.traceur = traceur;
 
 // TODO(jjb):  import ModuleStore once we merge the static and dynamic modules.
-$traceurRuntime.ModuleStore.set('traceur@', traceur);
+$traceurRuntime.StaticModuleStore.set('traceur@', traceur);

@@ -15,7 +15,7 @@
 suite('ErrorReporter.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var MutedErrorReporter = get('src/util/MutedErrorReporter').MutedErrorReporter;

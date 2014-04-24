@@ -23,7 +23,7 @@ var TraceurLoader = traceur.runtime.TraceurLoader;
 var LoaderHooks = traceur.runtime.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
-var moduleStore = traceur.runtime.ModuleStore;
+var moduleStore = traceur.runtime.StaticModuleStore;
 
 /**
  * @param {ErrorReporter} reporter
@@ -104,8 +104,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new TraceurLoader(hooks);
 
   function appendEvaluateModule(name, referrerName) {
-    var normalizedName =
-        traceur.ModuleStore.normalize(name, referrerName);
+    var normalizedName = loader.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
     var tree =
         traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);

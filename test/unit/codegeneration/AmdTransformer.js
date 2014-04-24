@@ -1,7 +1,7 @@
 suite('AmdTransformer.js', function() {
 
   function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
+    return $traceurRuntime.StaticModuleStore.getForTesting(name);
   }
 
   var AmdTransformer = get('src/codegeneration/AmdTransformer').AmdTransformer;

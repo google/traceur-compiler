@@ -22,6 +22,13 @@ export class Loader {
   constructor(loaderHooks) {
     this.internalLoader_ = new InternalLoader(loaderHooks);
     this.loaderHooks_ = loaderHooks;
+    // Our implemention-specific loader hook functions are defined in
+    // LoaderHooks, but according to our understanding of the spec
+    // they should be methods of Loader. Mixin LoaderHooks.
+    Object.getOwnPropertyNames(loaderHooks).forEach((name) => {
+      var desc = Object.getOwnPropertyDescriptor(loaderHooks, name);
+      Object.defineProperty(this, name, desc);
+    });
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any

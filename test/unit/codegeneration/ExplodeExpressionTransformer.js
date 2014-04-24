@@ -14,17 +14,17 @@
 
 suite('ExplodeExpressionTransformer.js', function() {
 
-  var ExplodeExpressionTransformer = $traceurRuntime.ModuleStore.
+  var ExplodeExpressionTransformer = $traceurRuntime.StaticModuleStore.
       getForTesting('src/codegeneration/ExplodeExpressionTransformer').
           ExplodeExpressionTransformer;
-  var Parser = $traceurRuntime.ModuleStore.
+  var Parser = $traceurRuntime.StaticModuleStore.
       getForTesting('src/syntax/Parser').Parser;
-  var SourceFile = $traceurRuntime.ModuleStore.
+  var SourceFile = $traceurRuntime.StaticModuleStore.
       getForTesting('src/syntax/SourceFile').SourceFile;
-  var id = $traceurRuntime.ModuleStore.
+  var id = $traceurRuntime.StaticModuleStore.
       getForTesting('src/codegeneration/ParseTreeFactory').
           createIdentifierExpression;
-  var write = $traceurRuntime.ModuleStore.
+  var write = $traceurRuntime.StaticModuleStore.
       getForTesting('src/outputgeneration/TreeWriter').write;
 
   var counter = 0;

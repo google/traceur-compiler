@@ -47,10 +47,10 @@ var identifierGenerator = new UniqueIdentifierGenerator();
 export class LoaderHooks {
   constructor(reporter, baseURL,
       fileLoader = webLoader,
-      moduleStore = $traceurRuntime.ModuleStore) {
+      moduleStore = $traceurRuntime.StaticModuleStore) {
     this.reporter = reporter;
-    this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
+    this.moduleStore_.baseURL = baseURL;
     this.fileLoader = fileLoader;
     this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   }
@@ -73,11 +73,11 @@ export class LoaderHooks {
   }
 
   get baseURL() {
-    return this.baseURL_;
+    return this.moduleStore_.baseURL;
   }
 
   set baseURL(value) {
-    this.baseURL_ = String(value);
+    this.moduleStore_.baseURL = value;
   }
 
   getModuleSpecifiers(codeUnit) {
@@ -232,6 +232,10 @@ export class LoaderHooks {
 
   bundledModule(name) {
     return this.moduleStore_.bundleStore[name];
+  }
+
+  register(normalizedName, deps, factoryFunction) {
+    return this.moduleStore_.register(normalizedName, deps, factoryFunction);
   }
 
 }
