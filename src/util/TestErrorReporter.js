@@ -22,8 +22,13 @@ import {
  * to the console but it does keep track of reported errors
  */
 export class TestErrorReporter extends ErrorReporter {
-  constructor() {
+  /**
+   * @param {RegExp} pathRe Regular expression used for normalizing paths in
+   *     the actual errors.
+   */
+  constructor(pathRe = undefined) {
     this.errors = [];
+    this.pathRe = pathRe;
   }
 
   reportMessageInternal(location, message) {
@@ -31,6 +36,27 @@ export class TestErrorReporter extends ErrorReporter {
   }
 
   hasMatchingError(expected) {
-    return this.errors.some((error) => error.indexOf(expected) !== -1);
+    var m;
+    if (!this.pathRe || !(m = this.pathRe.exec(expected)))
+      return this.errors.some((error) => error.indexOf(expected) !== -1);
+
+    var expectedPath = m[1];
+    var expectedNonPath = expected.replace(expectedPath, '<PATH>');
+
+    return this.errors.some((error) => {
+      var m = this.pathRe.exec(error);
+      if (!m)
+        return false;
+
+      var actualPath = m[1];
+      var actualNonPath = error.replace(actualPath, '<PATH>');
+
+      if (actualNonPath.indexOf(expectedNonPath) === -1)
+        return false;
+
+      actualPath = actualPath.replace(/\\/g, '/');
+
+      return actualPath.indexOf(expectedPath) !== -1;
+    });
   }
 }

@@ -22113,19 +22113,37 @@ System.register("traceur@0.0.34/src/runtime/System", [], function() {
 System.register("traceur@0.0.34/src/util/TestErrorReporter", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.34/src/util/TestErrorReporter";
-  var $__355 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/util/ErrorReporter")),
-      ErrorReporter = $__355.ErrorReporter,
-      format = $__355.format;
+  var $__356 = $traceurRuntime.assertObject(System.get("traceur@0.0.34/src/util/ErrorReporter")),
+      ErrorReporter = $__356.ErrorReporter,
+      format = $__356.format;
   var TestErrorReporter = function TestErrorReporter() {
+    var pathRe = arguments[0];
     this.errors = [];
+    this.pathRe = pathRe;
   };
   ($traceurRuntime.createClass)(TestErrorReporter, {
     reportMessageInternal: function(location, message) {
       this.errors.push(format(location, message));
     },
     hasMatchingError: function(expected) {
+      var $__354 = this;
+      var m;
+      if (!this.pathRe || !(m = this.pathRe.exec(expected)))
+        return this.errors.some((function(error) {
+          return error.indexOf(expected) !== -1;
+        }));
+      var expectedPath = m[1];
+      var expectedNonPath = expected.replace(expectedPath, '<PATH>');
       return this.errors.some((function(error) {
-        return error.indexOf(expected) !== -1;
+        var m = $__354.pathRe.exec(error);
+        if (!m)
+          return false;
+        var actualPath = m[1];
+        var actualNonPath = error.replace(actualPath, '<PATH>');
+        if (actualNonPath.indexOf(expectedNonPath) === -1)
+          return false;
+        actualPath = actualPath.replace(/\\/g, '/');
+        return actualPath.indexOf(expectedPath) !== -1;
       }));
     }
   }, {}, ErrorReporter);

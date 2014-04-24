@@ -54,13 +54,7 @@
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
         traceur.options.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
-        var errLine = m[1];
-        // Error messages on windows have backslashes in filenames sometimes.
-        errLine.replace(/\\/g, '/');
-        var resolvedError = errLine.replace(reDirectoryResources, function(match, p1) {
-          return '\'' + System.normalize(p1.replace(/\\/g, '/')) + '\'';
-        });
-        returnValue.expectedErrors.push(resolvedError);
+        returnValue.expectedErrors.push(m[1]);
       }
     });
     return returnValue;
@@ -131,7 +125,7 @@
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
-      var reporter = new traceur.util.TestErrorReporter();
+      var reporter = new traceur.util.TestErrorReporter(reDirectoryResources);
       var LoaderHooks = traceur.runtime.LoaderHooks;
       var loaderHooks = new LoaderHooks(reporter, './', fileLoader);
 
