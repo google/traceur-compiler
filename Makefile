@@ -182,7 +182,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
 	  $(subst node_modules/traceur/src/node,build/node,$(PREV_NODE)) \
-	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
+	  build/previous-commit-traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/' \
