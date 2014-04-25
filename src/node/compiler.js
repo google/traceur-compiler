@@ -33,10 +33,21 @@ function getSourceMapFileName(name) {
   return name.replace(/\.js$/, '.map');
 }
 
-function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
+var SourceMapType = {
+  NONE: 0,
+  EXTERNAL: 1,
+  INLINE: 2
+};
+
+var SM_PRELUDE = '\n//# sourceMappingURL=';
+var INLINE_SM_PRELUDE = SM_PRELUDE + 'data:application/json;base64,';
+
+function writeTreeToFile(tree, filename, sourceMapType, opt_sourceRoot) {
   var options;
-  if (useSourceMaps) {
-    var sourceMapFilePath = getSourceMapFileName(filename);
+  var sourceMapFilePath;
+  if (sourceMapType === true) sourceMapType = SourceMapType.EXTERNAL;
+  if (sourceMapType > SourceMapType.NONE) {
+    sourceMapFilePath = getSourceMapFileName(filename);
     var config = {
       file: path.basename(filename),
       sourceRoot: opt_sourceRoot
@@ -46,16 +57,18 @@ function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
   }
 
   var compiledCode = TreeWriter.write(tree, options);
-  if (useSourceMaps) {
-    compiledCode += '\n//# sourceMappingURL=' +
-        path.basename(sourceMapFilePath) + '\n';
+  if (sourceMapType === SourceMapType.EXTERNAL) {
+    compiledCode += SM_PRELUDE + path.basename(sourceMapFilePath) + '\n';
+  } else if (sourceMapType === SourceMapType.INLINE) {
+    var base64sm = new Buffer(options.sourceMap).toString('base64');
+    compiledCode += INLINE_SM_PRELUDE + base64sm + '\n';
   }
   writeFile(filename, compiledCode);
-  if (useSourceMaps)
+  if (sourceMapType === SourceMapType.EXTERNAL)
     writeFile(sourceMapFilePath, options.sourceMap);
 }
 
-function compileToSingleFile(outputFile, includes, useSourceMaps) {
+function compileToSingleFile(outputFile, includes, sourceMapType) {
   var reporter = new ErrorReporter();
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
@@ -76,7 +89,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
   });
 
   inlineAndCompile(resolvedIncludes, traceur.options, reporter, function(tree) {
-    writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
+    writeTreeToFile(tree, resolvedOutputFile, sourceMapType);
     process.exit(0);
   }, function(err) {
     console.error(err);
@@ -84,7 +97,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
   });
 }
 
-function compileToDirectory(outputDir, includes, useSourceMaps) {
+function compileToDirectory(outputDir, includes, sourceMapType) {
   var reporter = new ErrorReporter();
   var outputDir = path.resolve(outputDir);
 
@@ -99,7 +112,7 @@ function compileToDirectory(outputDir, includes, useSourceMaps) {
         function(tree) {
           var outputFile = path.join(outputDir, includes[current].name);
           var sourceRoot = path.relative(path.dirname(outputFile), '.');
-          writeTreeToFile(tree, outputFile, useSourceMaps, sourceRoot);
+          writeTreeToFile(tree, outputFile, sourceMapType, sourceRoot);
           current++;
           next();
         },
@@ -114,3 +127,4 @@ function compileToDirectory(outputDir, includes, useSourceMaps) {
 exports.compileToSingleFile = compileToSingleFile;
 exports.compileToDirectory = compileToDirectory;
 exports.writeTreeToFile = writeTreeToFile;
+exports.SourceMapType = SourceMapType;
