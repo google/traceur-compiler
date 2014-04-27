@@ -276,6 +276,8 @@ git-gh-rebase: git-update-version
 	-git branch -D upstream_gh_pages
 	git checkout -b upstream_gh_pages upstream/gh-pages
 	git rebase upstream_master
+	$(MAKE) clean # trees.json may have changed.
+	$(MAKE) test # build binaries for VERSION
 	./traceur -v | xargs -I VERSION git commit -a -m "Rebase; commit binaries for VERSION"
 	git push -f upstream upstream_gh_pages:gh-pages
 
