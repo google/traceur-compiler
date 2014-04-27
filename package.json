@@ -1,12 +1,7 @@
 {
   "name": "traceur",
-<<<<<<< HEAD
   "version": "0.0.39",
-  "description": "Experimental ES6 to ES5 compiler",
-=======
-  "version": "0.0.34",
   "description": "ES6 to ES5 compiler",
->>>>>>> Update the NPM description
   "keywords": [
     "javascript",
     "ecmascript",
