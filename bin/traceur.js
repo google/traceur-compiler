@@ -17856,6 +17856,12 @@ System.register("traceur@0.0.40/src/codegeneration/HoistVariablesTransformer", [
     addMachineVariable: function(name) {
       this.machineVariables_[name] = true;
     },
+    transformClassDeclaration: function(tree) {
+      return tree;
+    },
+    transformClassExpression: function(tree) {
+      return tree;
+    },
     transformFunctionDeclaration: function(tree) {
       return tree;
     },
