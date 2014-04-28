@@ -26,18 +26,21 @@ var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
 
-function compileSingleFile(inputFilePath, outputFilePath) {
+function compileSingleFile(inputFilePath, outputFilePath, anonymousModules) {
   return fs.read(inputFilePath).then(function(contents) {
     var reporter = new ErrorReporter();
     var sourceFile = new SourceFile(inputFilePath, contents);
     var parser = new Parser(sourceFile, reporter);
     var tree = parser.parseModule();
-    var moduleName = inputFilePath.replace(/\.js$/, '').replace(/\\/g,'/');
-    // Module naming uses ./ to signal relative names.
-    if (moduleName[0] !== '/')
-      moduleName = './' + moduleName;
-    var transformer = new AttachModuleNameTransformer(moduleName);
-    tree = transformer.transformAny(tree);
+    var moduleName, transformer;
+    if (!anonymousModules) {
+      moduleName = inputFilePath.replace(/\.js$/, '').replace(/\\/g,'/');
+      // Module naming uses ./ to signal relative names.
+      if (moduleName[0] !== '/')
+        moduleName = './' + moduleName;
+      transformer = new AttachModuleNameTransformer(moduleName);
+      tree = transformer.transformAny(tree);
+    }
     transformer = new FromOptionsTransformer(reporter);
     var transformed = transformer.transform(tree);
 
@@ -51,13 +54,13 @@ function onlyJsFiles(path, stat) {
   return stat.isFile() && /\.js$/.test(path) || false;
 }
 
-function compileAllJsFilesInDir(inputDir, outputDir) {
+function compileAllJsFilesInDir(inputDir, outputDir, anonymousModules) {
   inputDir = path.normalize(inputDir);
   outputDir = path.normalize(outputDir);
   fs.listTree(inputDir, onlyJsFiles).then(function(files) {
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      compileSingleFile(inputFilePath, outputFilePath).done();
+      compileSingleFile(inputFilePath, outputFilePath, anonymousModules).done();
     });
   }).done();
 }

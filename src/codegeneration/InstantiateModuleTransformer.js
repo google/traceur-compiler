@@ -116,10 +116,18 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   }
 
   wrapModule(statements) {
-    return parseStatements 
-      `System.register(${this.moduleName}, ${this.dependencies}, function(${this.depMapIdentifier}) {
-        ${statements}
-      });`;
+    if (this.moduleName) {
+      return parseStatements 
+        `System.register(${this.moduleName}, ${this.dependencies}, function(${this.depMapIdentifier}) {
+          ${statements}
+        });`;
+    }
+    else {
+      return parseStatements 
+        `System.register(${this.dependencies}, function(${this.depMapIdentifier}) {
+          ${statements}
+        });`;
+    }
   }
 
   /**

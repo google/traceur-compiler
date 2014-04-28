@@ -30,4 +30,4 @@ traceur.options.modules = 'commonjs';
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
 
-compileAllJsFilesInDir(inputDir, outputDir);
+compileAllJsFilesInDir(inputDir, outputDir, true);

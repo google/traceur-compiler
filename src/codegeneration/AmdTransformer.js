@@ -66,7 +66,12 @@ export class AmdTransformer extends ModuleTransformer {
     if (hasTopLevelThis)
       func = parseExpression `${func}.bind(${globalThis()})`;
 
-    return parseStatements `define(${depPaths}, ${func});`;
+    if (this.moduleName) {
+      return parseStatements `define(${this.moduleName}, ${depPaths}, ${func});`;
+    }
+    else {
+      return parseStatements `define(${depPaths}, ${func});`;
+    }
   }
 
   transformModuleSpecifier(tree) {

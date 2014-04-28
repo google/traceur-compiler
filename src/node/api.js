@@ -63,8 +63,11 @@ function compile(content, options) {
     modules: 'commonjs',
     filename: '<unknown file>',
     sourceMap: false,
-    cwd: process.cwd()
+    cwd: process.cwd(),
+    moduleName: false
   }, options || {});
+
+  var moduleName = options.moduleName;
 
   traceurOptions.reset();
   merge(traceurOptions, options);
@@ -73,10 +76,13 @@ function compile(content, options) {
   var sourceFile = new SourceFile(options.filename, content);
   var parser = new Parser(sourceFile, errorReporter);
   var tree = parser.parseModule();
-  var moduleName = options.filename.replace(/\.js$/, '');
-  moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
-  var transformer = new AttachModuleNameTransformer(moduleName);
-  tree = transformer.transformAny(tree);
+  var transformer;
+  if (moduleName === true || options.modules == 'register' || options.modules == 'inline') {
+    moduleName = options.filename.replace(/\.js$/, '');
+    moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
+    transformer = new AttachModuleNameTransformer(moduleName);
+    tree = transformer.transformAny(tree);
+  }
 
   if (options.outputLanguage.toLowerCase() === 'es6') {
     transformer = new PureES6Transformer(errorReporter);
