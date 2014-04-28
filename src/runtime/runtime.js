@@ -92,6 +92,16 @@
   // the symbol object if all we have is the string key representing the symbol.
   var symbolValues = $create(null);
 
+  // Private is a bit simpler than Symbol since it is not supposed to be
+  // exposed to user code.
+  var privateSlots = $create(null);
+
+  function Private() {
+    var s = newUniqueString();
+    privateSlots[s] = true;
+    return s;
+  }
+
   function isSymbol(symbol) {
     return typeof symbol === 'object' && symbol instanceof SymbolValue;
   }
@@ -159,12 +169,12 @@
     value: Symbol.prototype.valueOf,
     enumerable: false
   });
-  
 
-  var hashProperty = newUniqueString();
-  
+  var hashProperty = Private();
+
+
   // cached objects to avoid allocation of new object in defineHashObject
-  var hashPropertyDescriptor = { 
+  var hashPropertyDescriptor = {
     value: undefined
   };
   var hashObjectProperties = {
@@ -175,32 +185,32 @@
       value: undefined
     }
   };
-  
+
   var hashCounter = 0;
   function getOwnHashObject(object) {
     var hashObject = object[hashProperty];
     // Make sure we got the own property
-    if (hashObject && hashObject.self === object) 
+    if (hashObject && hashObject.self === object)
       return hashObject;
-    
+
     if ($isExtensible(object)) {
       hashObjectProperties.hash.value = hashCounter++;
       hashObjectProperties.self.value = object;
 
       hashPropertyDescriptor.value = $create(null, hashObjectProperties);
-          
+
       $defineProperty(object, hashProperty, hashPropertyDescriptor);
       return hashPropertyDescriptor.value;
     }
-    
+
     return undefined;
   }
-  
+
   function freeze(object) {
     getOwnHashObject(object);
     return $freeze.apply(this, arguments);
   }
-  
+
   function preventExtensions(object) {
     getOwnHashObject(object);
     return $preventExtensions.apply(this, arguments);
@@ -213,7 +223,7 @@
 
   Symbol.iterator = Symbol();
   freeze(SymbolValue.prototype);
-  
+
   function toProperty(name) {
     if (isSymbol(name))
       return name[symbolInternalProperty];
@@ -226,7 +236,7 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
-      if (!symbolValues[name] && name !== hashProperty)
+      if (!symbolValues[name] && !privateSlots[name])
         rv.push(name);
     }
     return rv;
@@ -322,7 +332,7 @@
         var p, length = props.length;
         for (p = 0; p < length; p++) {
           var name = props[p];
-          if (name === hashProperty)
+          if (privateSlots[name])
             continue;
           target[name] = source[name];
         }
@@ -338,7 +348,7 @@
       var p, descriptor, length = props.length;
       for (p = 0; p < length; p++) {
         var name = props[p];
-        if (name === hashProperty)
+        if (privateSlots[name])
           continue;
         descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
@@ -354,7 +364,7 @@
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
         var name = names[j];
-        if (name === hashProperty)
+        if (privateSlots[name])
           continue;
         (function(mod, name) {
           $defineProperty(object, name, {
@@ -489,12 +499,6 @@
   var END_STATE = -2;
   var RETHROW_STATE = -3;
 
-  function addIterator(object) {
-    // This needs the non native defineProperty to handle symbols correctly.
-    return defineProperty(object, Symbol.iterator, nonEnum(function() {
-      return this;
-    }));
-  }
 
   function getInternalError(state) {
     return new Error('Traceur compiler bug: invalid state in state machine: ' +
@@ -569,45 +573,84 @@
     }
   };
 
-  function getNextOrThrow(ctx, moveNext, action) {
-    return function(x) {
-      switch (ctx.GState) {
-        case ST_EXECUTING:
-          throw new Error(`"${action}" on executing generator`);
+  function nextOrThrow(ctx, moveNext, action, x) {
+    switch (ctx.GState) {
+      case ST_EXECUTING:
+        throw new Error(`"${action}" on executing generator`);
 
-        case ST_CLOSED:
-          throw new Error(`"${action}" on closed generator`);
+      case ST_CLOSED:
+        throw new Error(`"${action}" on closed generator`);
 
-        case ST_NEWBORN:
-          if (action === 'throw') {
-            ctx.GState = ST_CLOSED;
-            throw x;
-          }
-          if (x !== undefined)
-            throw $TypeError('Sent value to newborn generator');
-          // fall through
+      case ST_NEWBORN:
+        if (action === 'throw') {
+          ctx.GState = ST_CLOSED;
+          throw x;
+        }
+        if (x !== undefined)
+          throw $TypeError('Sent value to newborn generator');
+        // fall through
 
-        case ST_SUSPENDED:
-          ctx.GState = ST_EXECUTING;
-          ctx.action = action;
-          ctx.sent = x;
-          var value = moveNext(ctx);
-          var done = value === ctx;
-          if (done)
-            value = ctx.returnValue;
-          ctx.GState = done ? ST_CLOSED : ST_SUSPENDED;
-          return {value: value, done: done};
-      }
-    };
+      case ST_SUSPENDED:
+        ctx.GState = ST_EXECUTING;
+        ctx.action = action;
+        ctx.sent = x;
+        var value = moveNext(ctx);
+        var done = value === ctx;
+        if (done)
+          value = ctx.returnValue;
+        ctx.GState = done ? ST_CLOSED : ST_SUSPENDED;
+        return {value: value, done: done};
+    }
   }
 
-  function generatorWrap(innerFunction, self) {
+  var ctxName = Private();
+  var moveNextName = Private();
+
+  function GeneratorFunction() {}
+
+  function GeneratorFunctionPrototype() {}
+
+  GeneratorFunction.prototype = GeneratorFunctionPrototype;
+
+  $defineProperty(GeneratorFunctionPrototype, 'constructor',
+      nonEnum(GeneratorFunction));
+
+  GeneratorFunctionPrototype.prototype = {
+    constructor: GeneratorFunctionPrototype,
+    next: function(v) {
+      return nextOrThrow(this[ctxName], this[moveNextName], 'next', v);
+    },
+    throw: function(v) {
+      return nextOrThrow(this[ctxName], this[moveNextName], 'throw', v);
+    }
+  };
+
+  $defineProperties(GeneratorFunctionPrototype.prototype, {
+    constructor: {enumerable: false},
+    next: {enumerable: false},
+    throw: {enumerable: false},
+  });
+
+  defineProperty(GeneratorFunctionPrototype.prototype, Symbol.iterator,
+      nonEnum(function() {
+        return this;
+      }));
+
+  function createGeneratorInstance(innerFunction, functionObject, self) {
+    // TODO(arv): Use [[GeneratorState]]
     var moveNext = getMoveNext(innerFunction, self);
     var ctx = new GeneratorContext();
-    return addIterator({
-      next: getNextOrThrow(ctx, moveNext, 'next'),
-      throw: getNextOrThrow(ctx, moveNext, 'throw'),
-    });
+
+    var object = $create(functionObject.prototype);
+    object[ctxName] = ctx;
+    object[moveNextName] = moveNext;
+    return object;
+  }
+
+  function initGeneratorFunction(functionObject) {
+    functionObject.prototype = $create(GeneratorFunctionPrototype.prototype);
+    functionObject.__proto__ = GeneratorFunctionPrototype;
+    return functionObject;
   }
 
   function AsyncFunctionContext() {
@@ -696,7 +739,9 @@
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,
     exportStar: exportStar,
-    generatorWrap: generatorWrap,
+    initGeneratorFunction: initGeneratorFunction,
+    createGeneratorInstance: createGeneratorInstance,
+    getOwnHashObject: getOwnHashObject,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     spread: spread,
@@ -707,7 +752,6 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    getOwnHashObject: getOwnHashObject
   };
 
 })(typeof global !== 'undefined' ? global : this);

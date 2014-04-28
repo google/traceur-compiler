@@ -73,7 +73,7 @@ function scopeContainsYield(tree) {
  *
  * {
  *   machine variables
- *   return $traceurRuntime.generatorWrap(machineFunction);
+ *   return $traceurRuntime.createGeneratorInstance(machineFunction);
  * }
  */
 export class GeneratorTransformer extends CPSTransformer {
@@ -299,25 +299,28 @@ export class GeneratorTransformer extends CPSTransformer {
    *
    * {
    *   machine variables
-   *   return generatorWrap(machineFunction);
+   *   return $traceurRuntime.createGeneratorInstance(machineFunction);
    * }
    *
    * @param {FunctionBody} tree
+   * @param {IdentifierExpression} name
    * @return {FunctionBody}
    */
-  transformGeneratorBody(tree) {
-    var runtimeFunction = parseExpression `$traceurRuntime.generatorWrap`;
-    return this.transformCpsFunctionBody(tree, runtimeFunction);
+  transformGeneratorBody(tree, name) {
+    var runtimeFunction =
+        parseExpression `$traceurRuntime.createGeneratorInstance`;
+    return this.transformCpsFunctionBody(tree, runtimeFunction, name);
   }
 
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
    * @param {Block} body
+   * @param {IdentifierExpression} name
    * @return {Block}
    */
-  static transformGeneratorBody(identifierGenerator, reporter, body) {
+  static transformGeneratorBody(identifierGenerator, reporter, body, name) {
     return new GeneratorTransformer(identifierGenerator, reporter).
-        transformGeneratorBody(body);
+        transformGeneratorBody(body, name);
   }
 };
