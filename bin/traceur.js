@@ -5750,7 +5750,7 @@ System.register("traceur@0.0.40/src/syntax/LiteralToken", [], function() {
     writable: true
   }), Object.defineProperty($__31, "parseEscapeSequence", {
     value: function() {
-      var ch = this.next();
+      var ch = this.next().value;
       switch (ch) {
         case '\n':
         case '\r':
@@ -5772,9 +5772,9 @@ System.register("traceur@0.0.40/src/syntax/LiteralToken", [], function() {
         case 'v':
           return '\v';
         case 'x':
-          return String.fromCharCode(parseInt(this.next() + this.next(), 16));
+          return String.fromCharCode(parseInt(this.next().value + this.next().value, 16));
         case 'u':
-          return String.fromCharCode(parseInt(this.next() + this.next() + this.next() + this.next(), 16));
+          return String.fromCharCode(parseInt(this.next().value + this.next().value + this.next().value + this.next().value, 16));
         default:
           if (Number(ch) < 8)
             throw new Error('Octal literals are not supported');
