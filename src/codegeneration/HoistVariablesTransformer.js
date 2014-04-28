@@ -136,6 +136,17 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return null;
   }
 
+  transformClassDeclaration(tree) {
+    var name = tree.name;
+    var superClass = this.transformAny(tree.superClass);
+    var elements = this.transformList(tree.elements);
+    var annotations = this.transformList(tree.annotations);
+    if (name === tree.name && superClass === tree.superClass && elements === tree.elements && annotations === tree.annotations) {
+      return tree;
+    }
+    return new ClassDeclaration(tree.location, name, superClass, elements, annotations);
+  }
+
   transformObjectPattern(tree) {
     // AssignmentPatterns incorrectly uses BindingIdentifiers.
     // https://github.com/google/traceur-compiler/issues/969
