@@ -100,4 +100,9 @@ suite('HoistVariablesTransformer.js', function() {
   testHoist('Function', '1; function f() {}', '1; function f() {}');
 
   testHoist('Assignment pattern', '1; ({x} = {});', '1; ({x} = {});');
+
+  testHoist('ClassDeclaration', '1; class C {}', '1; class C {}');
+
+  testHoist('ClassExpression', '1; var x = class C {}',
+      'var x; 1; x = class C {}');
 });

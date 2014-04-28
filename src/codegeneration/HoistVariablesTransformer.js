@@ -224,6 +224,14 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     this.machineVariables_[name] = true;
   }
 
+  transformClassDeclaration(tree) {
+    return tree;
+  }
+
+  transformClassExpression(tree) {
+    return tree;
+  }
+
   transformFunctionDeclaration(tree) {
     return tree;
   }
