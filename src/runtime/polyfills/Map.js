@@ -39,20 +39,17 @@ function initMap(map) {
 export class Map {
   constructor(iterable = undefined) {
     if (!isObject(this))
-      throw new TypeError("Constructor Map requires 'new'");
+      throw new TypeError('Map called on incompatible type');
     
     if ($hasOwnProperty.call(this, 'entries_')) {
-      throw new TypeError("Map can not be reentrantly initialised");
+      throw new TypeError('Map can not be reentrantly initialised');
     }
     
     initMap(this);
     
     if (iterable !== null && iterable !== undefined) {
-      var iter = iterable[Symbol.iterator];
-      if (iter !== undefined) {
-        for (var [key, value] of iterable) {
-          this.set(key, value);
-        }
+      for (var [key, value] of iterable) {
+        this.set(key, value);
       }
     }
   }
@@ -143,4 +140,42 @@ export class Map {
       callbackFn.call(thisArg, value, key, this);
     }
   }
+
+  *items() {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield [key, value];
+    }
+  }
+
+  *keys() {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield key;
+    }
+  }
+
+  *values() {
+    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+      
+      if (key === deletedSentinel)
+        continue;
+
+      yield value;
+    }
+  }
 }
+
+Object.defineProperty(Map.prototype, Symbol.iterator, {configurable: true, writable: true, value: Map.prototype.items});

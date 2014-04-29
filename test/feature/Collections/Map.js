@@ -63,6 +63,8 @@ assert.isTrue(t.has(NaN));
 assert.isTrue(t.has(0));
 assert.isTrue(t.has(-0));
 
+
+// forEach
 var arrKeys = [];
 var arr = [];
 var cnt = 0;
@@ -81,6 +83,79 @@ assertArrayEquals(arr, ["value8", "value9",
     "value5", "value6", "value7",
     "value1", "value10", "value11"]);
 
+// iterator
+arrKeys = [];
+arr = [];
+cnt = 0;
+
+for(var mapItterItem of t) {
+  var [mapItterItemKey, mapItterItemVal] = mapItterItem;
+  arrKeys.push(mapItterItemKey);
+  arr.push(mapItterItemVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ]);
+assertArrayEquals(arr, ["value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value10", "value11"]);
+
+
+
+// .items()
+arrKeys = [];
+arr = [];
+cnt = 0;
+
+for(var mapItterItem of t.items()) {
+  var [mapItterItemKey, mapItterItemVal] = mapItterItem;
+  arrKeys.push(mapItterItemKey);
+  arr.push(mapItterItemVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ]);
+assertArrayEquals(arr, ["value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value10", "value11"]);
+
+
+// .keys()
+arrKeys = [];
+cnt = 0;
+
+for(var mapItterKey of t.keys()) {
+  arrKeys.push(mapItterKey);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+    numberKey, booleanKey, objectKey,
+    nanKey, zeroKey ]);
+
+
+// .values()
+arr = [];
+cnt = 0;
+
+for(var mapItterVal of t.values()) {
+  arr.push(mapItterVal);
+  cnt++;
+}
+assert.equal(cnt, 8);
+
+assertArrayEquals(arr, ["value8", "value9", 
+    "value5", "value6", "value7",
+    "value1", "value10", "value11"]);
+
+
 var t3 = new Map([ [[],[]], [{},{}], [NaN,NaN] ]);
 assert.equal(t3.size, 3);
 assert.isTrue(t3.has(NaN));
@@ -90,3 +165,5 @@ t3.delete(NaN);
 assert.equal(t3.size, 2);
 t3.delete(NaN);
 assert.equal(t3.size, 2);
+t3.clear();
+assert.equal(t3.size, 0);
