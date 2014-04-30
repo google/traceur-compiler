@@ -20,7 +20,10 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {GeneratorTransformer} from './generator/GeneratorTransformer';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
-import {parseStatement} from './PlaceholderParser';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   EQUAL,
@@ -34,22 +37,26 @@ import {
 } from '../syntax/trees/ParseTreeType';
 import {FindInFunctionScope} from './FindInFunctionScope';
 import {
+  AnonBlock,
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
+  createBindingIdentifier,
   createBlock,
   createCommaExpression,
   createExpressionStatement,
   createIdentifierExpression as id,
+  createIdentifierToken,
   createMemberExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement,
   createYieldStatement
 } from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 import {
   transformOptions,
   options
@@ -78,6 +85,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
     this.reporter_ = reporter;
+    this.inBlock_ = false;
   }
 
   /**
@@ -88,7 +96,25 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
-    return this.transformFunction_(tree, FunctionDeclaration);
+    var nameIdExpression = id(tree.name.identifierToken);
+
+    var setupPrototypeExpression = parseExpression
+        `$traceurRuntime.initGeneratorFunction(${nameIdExpression})`;
+
+    // Function declarations in blocks do not hoist. In that case we add the
+    // variable declaration after the function declaration.
+
+    var tmpVar = id(this.inBlock_ ?
+        this.getTempIdentifier() : this.addTempVar(setupPrototypeExpression));
+    var funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
+
+    if (!this.inBlock_)
+      return funcDecl;
+
+    return new AnonBlock(null, [
+      funcDecl,
+      parseStatement `var ${tmpVar} = ${setupPrototypeExpression}`
+    ]);
   }
 
   /**
@@ -99,11 +125,26 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
-    return this.transformFunction_(tree, FunctionExpression);
+    var name;
+    if (!tree.name) {
+      // We need a name to be able to reference the function object.
+      name = createIdentifierToken(this.getTempIdentifier());
+      tree = new FunctionExpression(tree.location,
+          createBindingIdentifier(name), tree.functionKind,
+          tree.parameterList, tree.typeAnnotation, tree.annotations,
+          tree.functionBody);
+    } else {
+      name = tree.name.identifierToken;
+    }
+
+    var functionExpression =
+        this.transformFunction_(tree, FunctionExpression, id(name));
+    return parseExpression
+        `$traceurRuntime.initGeneratorFunction(${functionExpression })`;
   }
 
-  transformFunction_(tree, constructor) {
-    var body = super.transformFunctionBody(tree.functionBody);
+  transformFunction_(tree, constructor, nameExpression) {
+    var body = super.transformAny(tree.functionBody);
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
@@ -115,22 +156,26 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     if (transformOptions.generators && tree.isGenerator()) {
       body = GeneratorTransformer.transformGeneratorBody(
-          this.identifierGenerator,
-          this.reporter_,
-          body);
+          this.identifierGenerator, this.reporter_, body, nameExpression);
 
     } else if (transformOptions.asyncFunctions && tree.isAsyncFunction()) {
       body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator,
-          this.reporter_,
-          body);
+          this.identifierGenerator, this.reporter_, body);
     }
 
     // The generator has been transformed away.
     var functionKind = null;
 
-    return new constructor(null, tree.name, functionKind,
+    return new constructor(tree.location, tree.name, functionKind,
                            tree.parameterList, tree.typeAnnotation,
                            tree.annotations, body);
+  }
+
+  transformBlock(tree) {
+    var inBlock = this.inBlock_;
+    this.inBlock_ = true;
+    var rv = super(tree);
+    this.inBlock_ = inBlock;
+    return rv;
   }
 }

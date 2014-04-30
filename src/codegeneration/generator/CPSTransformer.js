@@ -1010,7 +1010,7 @@ export class CPSTransformer extends TempVarTransformer {
     this.hoistVariablesTransformer_.addVariable(name);
   }
 
-  transformCpsFunctionBody(tree, runtimeMethod) {
+  transformCpsFunctionBody(tree, runtimeMethod, functionRef = undefined) {
     var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
     var hasArguments = alphaRenamedTree !== tree;
 
@@ -1048,10 +1048,16 @@ export class CPSTransformer extends TempVarTransformer {
       statements.push(this.hoistVariablesTransformer_.getVariableStatement());
     if (hasArguments)
       statements.push(parseStatement `var $arguments = arguments;`);
-    statements.push(parseStatement
-        `return ${runtimeMethod}(
-            ${this.generateMachineInnerFunction(machine)},
-            this);`);
+    if (functionRef) {
+      statements.push(parseStatement
+          `return ${runtimeMethod}(
+              ${this.generateMachineInnerFunction(machine)},
+              ${functionRef}, this);`);
+    } else {
+      statements.push(parseStatement
+          `return ${runtimeMethod}(
+              ${this.generateMachineInnerFunction(machine)}, this);`);
+    }
 
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
