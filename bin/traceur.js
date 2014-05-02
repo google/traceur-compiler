@@ -11907,7 +11907,7 @@ System.register("traceur@0.0.40/src/syntax/Parser", [], function() {
       var lhs = this.eatId_();
       var rhs = null;
       if (this.peekPredefinedString_(AS)) {
-        this.eatId_(AS);
+        this.eatId_();
         rhs = this.eatIdName_();
       }
       return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
@@ -13731,8 +13731,11 @@ System.register("traceur@0.0.40/src/syntax/Parser", [], function() {
           this.reportError_(this.peekToken_(), ("expected '" + expected + "'"));
         return null;
       }
-      if (token.type === IDENTIFIER)
+      if (token.type === IDENTIFIER) {
+        if (expected && token.value !== expected)
+          this.reportExpectedError_(token, expected);
         return token;
+      }
       if (token.isStrictKeyword()) {
         if (this.strictMode_) {
           this.reportReservedIdentifier_(token);
@@ -19654,7 +19657,7 @@ System.register("traceur@0.0.40/src/codegeneration/InstantiateModuleTransformer"
   var __moduleName = "traceur@0.0.40/src/codegeneration/InstantiateModuleTransformer";
   var $__281 = Object.freeze(Object.defineProperties(["", " = ", ""], {raw: {value: Object.freeze(["", " = ", ""])}})),
       $__282 = Object.freeze(Object.defineProperties(["System.register(", ", ", ", function(", ") {\n          ", "\n        });"], {raw: {value: Object.freeze(["System.register(", ", ", ", function(", ") {\n          ", "\n        });"])}})),
-      $__283 = Object.freeze(Object.defineProperties(["System.register(", ", ", ", function(", ") {\n          ", "\n        });"], {raw: {value: Object.freeze(["System.register(", ", ", ", function(", ") {\n          ", "\n        });"])}})),
+      $__283 = Object.freeze(Object.defineProperties(["System.register(", ", function(", ") {\n          ", "\n        });"], {raw: {value: Object.freeze(["System.register(", ", function(", ") {\n          ", "\n        });"])}})),
       $__284 = Object.freeze(Object.defineProperties(["function() {\n      ", "\n    }"], {raw: {value: Object.freeze(["function() {\n      ", "\n    }"])}})),
       $__285 = Object.freeze(Object.defineProperties(["function() {}"], {raw: {value: Object.freeze(["function() {}"])}})),
       $__286 = Object.freeze(Object.defineProperties(["return {\n        exports: ", ",\n        exportStar: ", ",\n        execute: ", "\n      }"], {raw: {value: Object.freeze(["return {\n        exports: ", ",\n        exportStar: ", ",\n        execute: ", "\n      }"])}})),
@@ -19743,7 +19746,7 @@ System.register("traceur@0.0.40/src/codegeneration/InstantiateModuleTransformer"
       if (this.moduleName) {
         return parseStatements($__282, this.moduleName, this.dependencies, this.depMapIdentifier, statements);
       } else {
-        return parseStatements($__283, this.moduleName, this.dependencies, this.depMapIdentifier, statements);
+        return parseStatements($__283, this.dependencies, this.depMapIdentifier, statements);
       }
     },
     appendExportStatement: function(statements) {
