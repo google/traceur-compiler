@@ -145,12 +145,24 @@
     bundleStore: Object.create(null),
 
     register(name, deps, func) {
-      if (!deps || !deps.length) {
+      if (!deps || !deps.length && !func.length) {
+        // Traceur System.register
         this.registerModule(name, func);
       } else {
+        // System.register instantiate form
         this.bundleStore[name] = {
           deps: deps,
-          execute: func
+          execute: function() {
+            var depMap = {};
+            deps.forEach((dep, index) => depMap[dep] = arguments[index]);
+
+            // TODO: separate into two-phase declaration / execution
+            var registryEntry = func.call(this, depMap);
+            
+            registryEntry.execute.call(this);
+            
+            return registryEntry.exports;
+          }
         };
       }
     },
