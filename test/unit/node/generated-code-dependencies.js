@@ -115,12 +115,13 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName);
-          var module = System.get('test/unit/node/resources/import-another-x');
-          assert.equal(global.anotherResult, 17);
-          done();
+          System.import('test/unit/node/resources/import-another-x').then(function(module) {
+            assert.equal(module.iAmNotScript, true);
+            assert.equal(anotherResult, 17);
+            done();
+          });
         });
   });
-
 
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
