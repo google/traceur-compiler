@@ -18,7 +18,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {createUseStrictDirective} from './ParseTreeFactory';
-import {hasUseStrict} frpm '../semantics/util';
+import {hasUseStrict} from '../semantics/util';
 
 function prepend(statements) {
   return [

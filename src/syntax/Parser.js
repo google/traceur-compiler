@@ -634,7 +634,7 @@ export class Parser {
     var lhs = this.eatId_();
     var rhs = null;
     if (this.peekPredefinedString_(AS)) {
-      this.eatId_(AS);
+      this.eatId_();
       rhs = this.eatIdName_();
     }
     return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
@@ -3703,8 +3703,12 @@ export class Parser {
       return null;
     }
 
-    if (token.type === IDENTIFIER)
+    if (token.type === IDENTIFIER) {
+      if (expected && token.value !== expected)
+        this.reportExpectedError_(token, expected);
+
       return token;
+    }
 
     if (token.isStrictKeyword()) {
       if (this.strictMode_) {
