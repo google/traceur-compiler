@@ -105,4 +105,16 @@ suite('HoistVariablesTransformer.js', function() {
 
   testHoist('ClassExpression', '1; var x = class C {}',
       'var x; 1; x = class C {}');
+
+  testHoist('Method', '1; var o = {m() {var x = 2;}};',
+      'var o; 1; o = {m() {var x = 2;}};');
+
+  testHoist('Arrow function', '1; var f = () => {var x = 2;};',
+      'var f; 1; f = () => {var x = 2;};');
+
+  testHoist('Array comprehension', '1; var a = [for (x of []) x];',
+      'var a; 1; a = [for (x of []) x];');
+
+  testHoist('Generator comprehension', '1; var g = (for (x of []) x);',
+      'var g; 1; g = (for (x of []) x);');
 });

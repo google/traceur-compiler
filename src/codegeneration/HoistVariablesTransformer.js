@@ -247,6 +247,18 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   transformSetAccessor(tree) {
     return tree;
   }
+
+  transformPropertyMethodAssignment(tree) {
+    return tree;
+  }
+
+  transformArrowFunctionExpression(tree) {
+    return tree;
+  }
+
+  transformComprehensionFor(tree) {
+    return tree;
+  }
 }
 
 export default HoistVariablesTransformer;

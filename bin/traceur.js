@@ -17934,6 +17934,15 @@ System.register("traceur@0.0.40/src/codegeneration/HoistVariablesTransformer", [
     },
     transformSetAccessor: function(tree) {
       return tree;
+    },
+    transformPropertyMethodAssignment: function(tree) {
+      return tree;
+    },
+    transformArrowFunctionExpression: function(tree) {
+      return tree;
+    },
+    transformComprehensionFor: function(tree) {
+      return tree;
     }
   }, {}, ParseTreeTransformer);
   var $__default = HoistVariablesTransformer;
