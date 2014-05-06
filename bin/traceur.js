@@ -869,13 +869,12 @@ System.register("traceur@0.0.40/src/runtime/polyfills/utils", [], function() {
   function isObject(x) {
     return x && (typeof x === 'object' || typeof x === 'function');
   }
-  function isCallable(fn) {
-    return fn && (Object.prototype.toString.call(fn.call) === '[object Function]');
+  function isCallable(x) {
+    return isObject(x) && (Object.prototype.toString.call(x.call) === '[object Function]');
   }
-  var $maxLength = Math.pow(2, 53) - 1;
   function toLength(num) {
     var len = parseInt(num, 10);
-    return len < 0 ? 0 : Math.min(len, $maxLength);
+    return len < 0 ? 0 : Math.min(len, Math.pow(2, 53) - 1);
   }
   return {
     get toObject() {

@@ -22,12 +22,13 @@ export function isObject(x) {
   return x && (typeof x === 'object' || typeof x === 'function');
 }
 
-export function isCallable(fn) {
-    return fn && (Object.prototype.toString.call(fn.call) === '[object Function]');
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
+export function isCallable(x) {
+    return isObject(x) && (Object.prototype.toString.call(x.call) === '[object Function]');
 }
 
-var $maxLength = Math.pow(2, 53) - 1;
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
 export function toLength(num) {
     var len = parseInt(num, 10);
-    return len < 0 ? 0 : Math.min(len, $maxLength);
+    return len < 0 ? 0 : Math.min(len, Math.pow(2, 53) - 1);
 }
