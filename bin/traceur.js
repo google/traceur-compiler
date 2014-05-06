@@ -919,7 +919,15 @@ System.register("traceur@0.0.40/src/runtime/polyfills/Array", [], function() {
     }
     return object;
   }
+  function find(predicate) {
+    var thisArg = arguments[1];
+    return _find.call(this, predicate, thisArg)[0];
+  }
   function findIndex(predicate) {
+    var thisArg = arguments[1];
+    return _find.call(this, predicate, thisArg)[1];
+  }
+  function _find(predicate) {
     var thisArg = arguments[1];
     var object = Object(this),
         len = toLength(object.length);
@@ -928,14 +936,17 @@ System.register("traceur@0.0.40/src/runtime/polyfills/Array", [], function() {
     }
     for (var i = 0; i < len; i++) {
       if (predicate.call(thisArg, object[i], i, object)) {
-        return i;
+        return [object[i], i];
       }
     }
-    return -1;
+    return [undefined, -1];
   }
   return {
     get fill() {
       return fill;
+    },
+    get find() {
+      return find;
     },
     get findIndex() {
       return findIndex;
@@ -1618,6 +1629,7 @@ System.register("traceur@0.0.40/src/runtime/polyfills/polyfills", [], function()
       startsWith = $__13.startsWith;
   var $__13 = $traceurRuntime.assertObject(System.get("traceur@0.0.40/src/runtime/polyfills/Array")),
       fill = $__13.fill,
+      find = $__13.find,
       findIndex = $__13.findIndex;
   var $__13 = $traceurRuntime.assertObject(System.get("traceur@0.0.40/src/runtime/polyfills/ArrayIterator")),
       entries = $__13.entries,
@@ -1653,7 +1665,7 @@ System.register("traceur@0.0.40/src/runtime/polyfills/polyfills", [], function()
     maybeAddFunctions(String, ['fromCodePoint', fromCodePoint, 'raw', raw]);
   }
   function polyfillArray(Array, Symbol) {
-    maybeAddFunctions(Array.prototype, ['entries', entries, 'keys', keys, 'values', values, 'fill', fill, 'findIndex', findIndex]);
+    maybeAddFunctions(Array.prototype, ['entries', entries, 'keys', keys, 'values', values, 'fill', fill, 'find', find, 'findIndex', findIndex]);
     if (Symbol && Symbol.iterator) {
       Object.defineProperty(Array.prototype, Symbol.iterator, {
         value: values,

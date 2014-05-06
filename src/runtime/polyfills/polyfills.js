@@ -23,7 +23,7 @@ import {
   raw,
   startsWith
 } from './String';
-import {fill, findIndex} from './Array';
+import {fill, find, findIndex} from './Array';
 import {entries, keys, values} from './ArrayIterator';
 
 function maybeDefineMethod(object, name, value) {
@@ -76,6 +76,7 @@ function polyfillArray(Array, Symbol) {
     'keys', keys,
     'values', values,
     'fill', fill,
+    'find', find,
     'findIndex', findIndex,
   ]);
 

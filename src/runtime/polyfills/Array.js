@@ -25,14 +25,18 @@ export function fill(value, start=0, end=this.length) {
     return object;
 }
 
-// TODO
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.7
-
-// TODO
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.8
+export function find(predicate, thisArg=undefined) {
+    return _find.call(this, predicate, thisArg)[0];
+}
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.9
 export function findIndex(predicate, thisArg=undefined) {
+    return _find.call(this, predicate, thisArg)[1];
+}
+
+// generic implementation for find and findIndex
+function _find(predicate, thisArg=undefined) {
     var object = Object(this),
         len = toLength(object.length);
 
@@ -44,9 +48,9 @@ export function findIndex(predicate, thisArg=undefined) {
     // run through until predicate returns true
     for (var i = 0; i < len; i++) {
         if (predicate.call(thisArg, object[i], i, object)) {
-            return i;
+            return [object[i], i];
         }
     }
 
-    return -1;
+    return [undefined, -1];
 }

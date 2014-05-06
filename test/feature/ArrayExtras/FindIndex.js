@@ -21,13 +21,3 @@ assert.equal(Array.prototype.findIndex.call({
     '0': false,
     '1': true
 }, v => v), 1);
-
-// should handle bad predicate
-assert.throws(function() {
-    [1, 2, 3].findIndex(1)
-}, TypeError);
-
-// should handle bad this
-assert.throws(function() {
-    Array.prototype.findIndex.call(null, function() {})
-}, TypeError);
