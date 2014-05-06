@@ -32,17 +32,17 @@ assert.throws(function() {
     Array.prototype.find.call(null, function() {})
 }, TypeError);
 
-// should handle 'this'
+// should handle this
 ({
     assert: function() {
         var self = this;
 
-        // should not be the same 'this'
+        // should not be the same this
         [1, 2, 3].find(function() {
             assert.notEqual(this, self);
         });
 
-        // should be the same 'this'
+        // should be the same this
         [1, 2, 3].find(function() {
             assert.equal(this, self);
         }, self);
