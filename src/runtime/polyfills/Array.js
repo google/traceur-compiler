@@ -25,6 +25,12 @@ export function fill(value, start=0, end=this.length) {
     return object;
 }
 
+// TODO
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.7
+
+// TODO
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.8
+
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.9
 export function findIndex(predicate, thisArg=undefined) {
     var object = Object(this),
