@@ -873,6 +873,7 @@ System.register("traceur@0.0.41/src/runtime/polyfills/utils", [], function() {
     return typeof x === 'function';
   }
   function toInteger(x) {
+    x = +x;
     if (isNaN(x))
       return 0;
     if (!isFinite(x) || x === 0)
@@ -945,8 +946,11 @@ System.register("traceur@0.0.41/src/runtime/polyfills/Array", [], function() {
       throw TypeError();
     }
     for (var i = 0; i < len; i++) {
-      if (predicate.call(thisArg, object[i], i, object)) {
-        return returnIndex ? i : object[i];
+      if (i in object) {
+        var value = object[i];
+        if (predicate.call(thisArg, value, i, object)) {
+          return returnIndex ? i : value;
+        }
       }
     }
     return returnIndex ? -1 : undefined;

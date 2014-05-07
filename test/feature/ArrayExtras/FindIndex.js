@@ -21,3 +21,27 @@ assert.equal(Array.prototype.findIndex.call({
   '0': false,
   '1': true
 }, v => v), 1);
+
+var lengthCalls = 0;
+var itemCalls = 0;
+var callbackCalls = 0;
+var object = {
+  length: {
+    valueOf() {
+      lengthCalls++;
+      return 3;
+    }
+  },
+  get 2() {
+    itemCalls++;
+    return 'a';
+  }
+};
+
+assert.equal(Array.prototype.findIndex.call(object, (v) => {
+  callbackCalls++;
+  return v === 'a';
+}), 2);
+assert.equal(lengthCalls, 1);
+assert.equal(itemCalls, 1);
+assert.equal(callbackCalls, 1);
