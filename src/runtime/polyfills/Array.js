@@ -42,8 +42,12 @@ function findHelper(self, predicate, thisArg = undefined, returnIndex = false) {
 
   // run through until predicate returns true
   for (var i = 0; i < len; i++) {
-    if (predicate.call(thisArg, object[i], i, object)) {
-      return returnIndex ? i : object[i];
+    if (i in object) {
+      var value = object[i];
+
+      if (predicate.call(thisArg, value, i, object)) {
+        return returnIndex ? i : value;
+      }
     }
   }
 

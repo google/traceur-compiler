@@ -29,6 +29,7 @@ export function isCallable(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
 export function toInteger(x) {
+  x = +x;
   if (isNaN(x)) return 0;
   if (!isFinite(x) || x === 0) return x;
   return x > 0 ? Math.floor(x) : Math.ceil(x);

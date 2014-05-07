@@ -22,6 +22,20 @@ assert.equal(Array.prototype.find.call({
   '1': true
 }, v => v), true);
 
+// should not call predicate on missing properties
+var called = 0;
+var predicate = function(v) {
+  called++;
+  return v;
+};
+assert.equal(Array.prototype.find.call({
+  'length': 2,
+  '1': false
+}, predicate), undefined);
+
+// should have only called the predicate 1 time
+assert.equal(called, 1);
+
 // should handle bad predicate
 assert.throws(function() {
   [1, 2, 3].find(1)
