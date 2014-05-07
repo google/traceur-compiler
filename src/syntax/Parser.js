@@ -559,6 +559,13 @@ export class Parser {
       case STAR:
         exportTree = this.parseNamedExport_();
         break;
+      case IDENTIFIER:
+        if (options.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
+          var asyncToken = this.eatId_();
+          exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
+          break;
+        }
+        // Fall through.
       default:
         return this.parseUnexpectedToken_(type);
     }
