@@ -33,13 +33,15 @@ assert.throws(function() {
 }, TypeError);
 
 // should handle this
+var global = this;
 ({
     assert: function() {
         var self = this;
 
-        // should not be the same this
+        // should be global this
         [1, 2, 3].find(function() {
             assert.notEqual(this, self);
+            assert.equal(this, global);
         });
 
         // should be the same this
@@ -50,6 +52,14 @@ assert.throws(function() {
         // should not have an effect on arrow functions
         [1, 2, 3].find(() => assert.equal(this, self));
         [1, 2, 3].find(() => assert.equal(this, self), self);
+
+        // should call with correct args
+        var arr = [5];
+        arr.find(function(value, i, object) {
+            assert.equal(value, 5);
+            assert.equal(i, 0);
+            assert.equal(arr, object);
+        });
 
     }
 }).assert();
