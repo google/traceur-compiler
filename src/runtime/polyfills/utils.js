@@ -24,7 +24,7 @@ export function isObject(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
 export function isCallable(x) {
-    return typeof x === 'function';
+  return typeof x === 'function';
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
