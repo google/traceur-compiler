@@ -62,3 +62,27 @@ var global = this;
     });
   }
 }).assert();
+
+var lengthCalls = 0;
+var itemCalls = 0;
+var callbackCalls = 0;
+var object = {
+  length: {
+    valueOf() {
+      lengthCalls++;
+      return 3;
+    }
+  },
+  get 2() {
+    itemCalls++;
+    return 'a';
+  }
+};
+
+assert.equal(Array.prototype.find.call(object, (v) => {
+  callbackCalls++;
+  return v === 'a';
+}), 'a');
+assert.equal(lengthCalls, 1);
+assert.equal(itemCalls, 1);
+assert.equal(callbackCalls, 1);

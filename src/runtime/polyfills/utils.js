@@ -29,6 +29,7 @@ export function isCallable(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
 export function toInteger(x) {
+  x = +x;
   if (isNaN(x)) return 0;
   if (!isFinite(x) || x === 0) return x;
   return x > 0 ? Math.floor(x) : Math.ceil(x);
@@ -36,6 +37,7 @@ export function toInteger(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
 var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
+
 export function toLength(x) {
   var len = toInteger(x);
   return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
