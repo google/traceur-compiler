@@ -21,3 +21,22 @@ export function toUint32(x) {
 export function isObject(x) {
   return x && (typeof x === 'object' || typeof x === 'function');
 }
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
+export function isCallable(x) {
+  return typeof x === 'function';
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
+export function toInteger(x) {
+  if (isNaN(x)) return 0;
+  if (!isFinite(x) || x === 0) return x;
+  return x > 0 ? Math.floor(x) : Math.ceil(x);
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
+export function toLength(x) {
+  var len = toInteger(x);
+  return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
+}
