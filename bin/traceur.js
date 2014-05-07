@@ -879,10 +879,10 @@ System.register("traceur@0.0.40/src/runtime/polyfills/utils", [], function() {
       return x;
     return x > 0 ? Math.floor(x) : Math.ceil(x);
   }
-  var $maxLength = Math.pow(2, 53) - 1;
+  var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
   function toLength(x) {
     var len = toInteger(x);
-    return len < 0 ? 0 : Math.min(len, $maxLength);
+    return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
   }
   return {
     get toObject() {

@@ -35,8 +35,8 @@ export function toInteger(x) {
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-var $maxLength = Math.pow(2, 53) - 1;
+var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
 export function toLength(x) {
   var len = toInteger(x);
-  return len < 0 ? 0 : Math.min(len, $maxLength);
+  return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
 }
