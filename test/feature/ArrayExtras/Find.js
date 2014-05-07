@@ -9,7 +9,7 @@ assert.equal([1, 2, 3].find(function(v) {
 // should handle arrow functions
 assert.equal([1, 2, 3].find(v => v * v === 4), 2);
 
-// should return -1 when not found
+// should return undefined when not found
 assert.equal([1, 2, 3].find(v => v > 10), undefined);
 
 // should return first match
