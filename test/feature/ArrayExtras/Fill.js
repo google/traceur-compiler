@@ -31,9 +31,15 @@ assert.deepEqual(Array.prototype.fill.call({'0': 2, 'length': -1}, 5), {'0': 2, 
 // should handle no elements
 assert.deepEqual([].fill(5), []);
 
-// should handle bad start/end
-assert.deepEqual([1, 2, 3].fill(5, 'hello'), [1, 2, 3]);
+// should handle bad start
+assert.deepEqual([1, 2, 3].fill(5, 'hello'), [5, 5, 5]);
+
+// should handle bad end
+assert.deepEqual([1, 2, 3].fill(5, 1, {}), [1, 2, 3]);
+
+// should handle bad start and end
 assert.deepEqual([1, 2, 3].fill(5, 'hello', {}), [1, 2, 3]);
+
 
 // should handle bad this
 assert.throws(function() {

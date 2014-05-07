@@ -1,56 +1,51 @@
-import {toLength, isCallable} from './utils';
+import {toInteger, toLength, toObject, isCallable} from './utils';
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.6
-export function fill(value, start=0, end=this.length) {
-    var object = Object(this),
-        len = toLength(object.length),
-        fillStart = parseInt(start, 10),
-        fillEnd = parseInt(end, 10);
+export function fill(value, start = 0, end = undefined) {
+  var object = toObject(this);
+  var len = toLength(object.length);
+  var fillStart = toInteger(start);
+  var fillEnd = end !== undefined ? toInteger(end) : len;
 
-    // this must not be null
-    if (this === null) {
-        throw TypeError();
-    }
+  // set the start and end
+  fillStart = fillStart < 0 ? Math.max(len + fillStart, 0) : Math.min(fillStart, len);
+  fillEnd = fillEnd < 0 ? Math.max(len + fillEnd, 0) : Math.min(fillEnd, len);
 
-    // set the start and end
-    fillStart = (fillStart < 0) ? Math.max(len + fillStart, 0) : Math.min(fillStart, len);
-    fillEnd = (fillEnd < 0) ? Math.max(len + fillEnd, 0) : Math.min(fillEnd, len);
+  // set the values
+  while (fillStart < fillEnd) {
+    object[fillStart] = value;
+    fillStart++;
+  }
 
-    // set the values
-    while (fillStart < fillEnd) {
-        object[fillStart.toString()] = value;
-        fillStart++;
-    }
-
-    return object;
+  return object;
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.8
-export function find(predicate, thisArg=undefined) {
-    return _find.call(this, predicate, thisArg)[0];
+export function find(predicate, thisArg = undefined) {
+  return findHelper(this, predicate, thisArg);
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.9
-export function findIndex(predicate, thisArg=undefined) {
-    return _find.call(this, predicate, thisArg)[1];
+export function findIndex(predicate, thisArg = undefined) {
+  return findHelper(this, predicate, thisArg, true);
 }
 
 // generic implementation for find and findIndex
-function _find(predicate, thisArg=undefined) {
-    var object = Object(this),
-        len = toLength(object.length);
+function findHelper(self, predicate, thisArg = undefined, returnIndex = false) {
+  var object = toObject(self);
+  var len = toLength(object.length);
 
-    // this must not be null and predicate must be callable
-    if (this === null || !isCallable(predicate)) {
-        throw TypeError();
+  // predicate must be callable
+  if (!isCallable(predicate)) {
+    throw TypeError();
+  }
+
+  // run through until predicate returns true
+  for (var i = 0; i < len; i++) {
+    if (predicate.call(thisArg, object[i], i, object)) {
+      return returnIndex ? i : object[i];
     }
+  }
 
-    // run through until predicate returns true
-    for (var i = 0; i < len; i++) {
-        if (predicate.call(thisArg, object[i], i, object)) {
-            return [object[i], i];
-        }
-    }
-
-    return [undefined, -1];
+  return returnIndex ? -1 : undefined;
 }

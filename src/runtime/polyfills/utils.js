@@ -24,11 +24,19 @@ export function isObject(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
 export function isCallable(x) {
-    return isObject(x) && (Object.prototype.toString.call(x.call) === '[object Function]');
+    return typeof x === 'function';
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
+export function toInteger(x) {
+  if (isNaN(x)) return 0;
+  if (!isFinite(x) || x === 0) return x;
+  return x > 0 ? Math.floor(x) : Math.ceil(x);
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-export function toLength(num) {
-    var len = parseInt(num, 10);
-    return len < 0 ? 0 : Math.min(len, Math.pow(2, 53) - 1);
+var $maxLength = Math.pow(2, 53) - 1;
+export function toLength(x) {
+  var len = toInteger(x);
+  return len < 0 ? 0 : Math.min(len, $maxLength);
 }

@@ -3,17 +3,17 @@ assert.equal(Array.prototype.find.length, 1);
 
 // should handle basic case
 assert.equal([1, 2, 3].find(function(v) {
-    return (v * v === 4);
+    return v * v === 4;
 }), 2);
 
 // should handle arrow functions
-assert.equal([1, 2, 3].find(v => (v * v === 4)), 2);
+assert.equal([1, 2, 3].find(v => v * v === 4), 2);
 
 // should return -1 when not found
-assert.equal([1, 2, 3].find(v => (v > 10)), undefined);
+assert.equal([1, 2, 3].find(v => v > 10), undefined);
 
 // should return first match
-assert.equal([2, 2, 3].find(v => (v * v === 4)), 2);
+assert.equal([2, 2, 3].find(v => v * v === 4), 2);
 
 // should handle custom objects
 assert.equal(Array.prototype.find.call({
@@ -32,7 +32,7 @@ assert.throws(function() {
     Array.prototype.find.call(null, function() {})
 }, TypeError);
 
-// should handle this
+// should correctly handle this
 var global = this;
 ({
     assert: function() {

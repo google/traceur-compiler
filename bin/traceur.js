@@ -870,11 +870,19 @@ System.register("traceur@0.0.40/src/runtime/polyfills/utils", [], function() {
     return x && (typeof x === 'object' || typeof x === 'function');
   }
   function isCallable(x) {
-    return isObject(x) && (Object.prototype.toString.call(x.call) === '[object Function]');
+    return typeof x === 'function';
   }
-  function toLength(num) {
-    var len = parseInt(num, 10);
-    return len < 0 ? 0 : Math.min(len, Math.pow(2, 53) - 1);
+  function toInteger(x) {
+    if (isNaN(x))
+      return 0;
+    if (!isFinite(x) || x === 0)
+      return x;
+    return x > 0 ? Math.floor(x) : Math.ceil(x);
+  }
+  var $maxLength = Math.pow(2, 53) - 1;
+  function toLength(x) {
+    var len = toInteger(x);
+    return len < 0 ? 0 : Math.min(len, $maxLength);
   }
   return {
     get toObject() {
@@ -889,6 +897,9 @@ System.register("traceur@0.0.40/src/runtime/polyfills/utils", [], function() {
     get isCallable() {
       return isCallable;
     },
+    get toInteger() {
+      return toInteger;
+    },
     get toLength() {
       return toLength;
     }
@@ -898,47 +909,47 @@ System.register("traceur@0.0.40/src/runtime/polyfills/Array", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.40/src/runtime/polyfills/Array";
   var $__3 = $traceurRuntime.assertObject(System.get("traceur@0.0.40/src/runtime/polyfills/utils")),
+      toInteger = $__3.toInteger,
       toLength = $__3.toLength,
+      toObject = $__3.toObject,
       isCallable = $__3.isCallable;
   function fill(value) {
     var start = arguments[1] !== (void 0) ? arguments[1] : 0;
-    var end = arguments[2] !== (void 0) ? arguments[2] : this.length;
-    var object = Object(this),
-        len = toLength(object.length),
-        fillStart = parseInt(start, 10),
-        fillEnd = parseInt(end, 10);
-    if (this === null) {
-      throw TypeError();
-    }
-    fillStart = (fillStart < 0) ? Math.max(len + fillStart, 0) : Math.min(fillStart, len);
-    fillEnd = (fillEnd < 0) ? Math.max(len + fillEnd, 0) : Math.min(fillEnd, len);
+    var end = arguments[2];
+    var object = toObject(this);
+    var len = toLength(object.length);
+    var fillStart = toInteger(start);
+    var fillEnd = end !== undefined ? toInteger(end) : len;
+    fillStart = fillStart < 0 ? Math.max(len + fillStart, 0) : Math.min(fillStart, len);
+    fillEnd = fillEnd < 0 ? Math.max(len + fillEnd, 0) : Math.min(fillEnd, len);
     while (fillStart < fillEnd) {
-      object[fillStart.toString()] = value;
+      object[fillStart] = value;
       fillStart++;
     }
     return object;
   }
   function find(predicate) {
     var thisArg = arguments[1];
-    return _find.call(this, predicate, thisArg)[0];
+    return findHelper(this, predicate, thisArg);
   }
   function findIndex(predicate) {
     var thisArg = arguments[1];
-    return _find.call(this, predicate, thisArg)[1];
+    return findHelper(this, predicate, thisArg, true);
   }
-  function _find(predicate) {
-    var thisArg = arguments[1];
-    var object = Object(this),
-        len = toLength(object.length);
-    if (this === null || !isCallable(predicate)) {
+  function findHelper(self, predicate) {
+    var thisArg = arguments[2];
+    var returnIndex = arguments[3] !== (void 0) ? arguments[3] : false;
+    var object = toObject(self);
+    var len = toLength(object.length);
+    if (!isCallable(predicate)) {
       throw TypeError();
     }
     for (var i = 0; i < len; i++) {
       if (predicate.call(thisArg, object[i], i, object)) {
-        return [object[i], i];
+        return returnIndex ? i : object[i];
       }
     }
-    return [undefined, -1];
+    return returnIndex ? -1 : undefined;
   }
   return {
     get fill() {
