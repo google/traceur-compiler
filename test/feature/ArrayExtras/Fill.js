@@ -43,5 +43,5 @@ assert.deepEqual([1, 2, 3].fill(5, 'hello', {}), [1, 2, 3]);
 
 // should handle bad this
 assert.throws(function() {
-    Array.prototype.fill.call(null, 5)
+  Array.prototype.fill.call(null, 5)
 }, TypeError);
