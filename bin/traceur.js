@@ -454,6 +454,12 @@
       case ST_EXECUTING:
         throw new Error(("\"" + action + "\" on executing generator"));
       case ST_CLOSED:
+        if (action == 'next') {
+          return {
+            value: undefined,
+            done: true
+          };
+        }
         throw new Error(("\"" + action + "\" on closed generator"));
       case ST_NEWBORN:
         if (action === 'throw') {
