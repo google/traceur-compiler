@@ -23,8 +23,10 @@ import {
 } from '../codegeneration/CoverFormalsTransformer';
 import {IdentifierToken} from './IdentifierToken';
 import {
+  ARGUMENT_LIST,
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
+  BINDING_IDENTIFIER,
   CALL_EXPRESSION,
   CLASS_DECLARATION,
   COMMA_EXPRESSION,
@@ -2371,6 +2373,7 @@ export class Parser {
    *   ConditionalExpression
    *   YieldExpression
    *   ArrowFunction
+   *   AsyncArrowFunction
    *   LeftHandSideExpression = AssignmentExpression
    *   LeftHandSideExpression AssignmentOperator AssignmentExpression
    *
@@ -2378,6 +2381,7 @@ export class Parser {
    *   ConditionalExpressionNoIn
    *   YieldExpression
    *   ArrowFunction
+   *   AsyncArrowFunction
    *   LeftHandSideExpression = AssignmentExpressionNoIn
    *   LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn
    *
@@ -2391,12 +2395,41 @@ export class Parser {
       return this.parseYieldExpression_();
 
     var start = this.getTreeStartLocation_();
+
+    var validAsyncParen = false;
+
+    if (options.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
+      var asyncToken = this.peekToken_();
+      var maybeOpenParenToken = this.peekToken_(1);
+      validAsyncParen = maybeOpenParenToken.type === OPEN_PAREN &&
+          asyncToken.location.end.line ===
+              maybeOpenParenToken.location.start.line;
+    }
+
     var left = this.parseConditional_(expressionIn);
     var type = this.peekType_();
 
-    if (type === ARROW && (left.type === COVER_FORMALS ||
-        left.type === IDENTIFIER_EXPRESSION)) {
-      return this.parseArrowFunction_(start, left);
+    if (options.asyncFunctions && left.type === IDENTIFIER_EXPRESSION &&
+        left.identifierToken.value === ASYNC && type === IDENTIFIER) {
+      if (this.peekTokenNoLineTerminator_() !== null) {
+        var bindingIdentifier = this.parseBindingIdentifier_();
+        var asyncToken = left.IdentifierToken;
+        return this.parseArrowFunction_(start, bindingIdentifier,
+            asyncToken);
+      }
+    }
+
+    if (type === ARROW) {
+      if (left.type === COVER_FORMALS || left.type === IDENTIFIER_EXPRESSION)
+        return this.parseArrowFunction_(start, left, null);
+
+      if (validAsyncParen && left.type === CALL_EXPRESSION) {
+        var arrowToken = this.peekTokenNoLineTerminator_();
+        if (arrowToken !== null) {
+          var asyncToken = left.operand.identifierToken;
+          return this.parseArrowFunction_(start, left.args, asyncToken);
+        }
+      }
     }
 
     if (this.peekAssignmentOperator_(type)) {
@@ -3044,20 +3077,28 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseArrowFunction_(start, tree) {
+  parseArrowFunction_(start, tree, asyncToken) {
     var formals;
-    if (tree.type === IDENTIFIER_EXPRESSION) {
-      var id = new BindingIdentifier(tree.location, tree.identifierToken);
-      var formals = new FormalParameterList(this.getTreeLocation_(start),
-          [new FormalParameter(id.location, new BindingElement(id.location, id, null), null, [])]);
-    } else {
-      formals = this.toFormalParameters_(tree);
+    switch (tree.type) {
+      case IDENTIFIER_EXPRESSION:
+        tree = new BindingIdentifier(tree.location, tree.identifierToken);
+        // Fall through.
+      case BINDING_IDENTIFIER:
+        formals = new FormalParameterList(this.getTreeLocation_(start),
+            [new FormalParameter(tree.location,
+                new BindingElement(tree.location, tree, null), null, [])]);
+        break;
+      case FORMAL_PARAMETER_LIST:
+        formals = tree;
+        break;
+      default:
+        formals = this.toFormalParameters_(tree);
     }
 
     this.eat_(ARROW);
-    var body = this.parseConciseBody_();
+    var body = this.parseConciseBody_(asyncToken);
     return new ArrowFunctionExpression(this.getTreeLocation_(start),
-                                       formals, body);
+        asyncToken, formals, body);
   }
 
   parseCoverFormals_(start) {
@@ -3112,9 +3153,6 @@ export class Parser {
   }
 
   toFormalParameters_(tree) {
-    if (tree.type !== COVER_FORMALS)
-      return tree;
-
     var transformed = this.transformCoverFormals_(toFormalParameters, tree);
     this.coverInitialisedName_ = null;
     return transformed;
@@ -3150,15 +3188,20 @@ export class Parser {
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
+   * @param {Token} asyncToken
    * @return {ParseTree}
-   *
-   * @return {ParseTree} */
-  parseConciseBody_() {
+   */
+  parseConciseBody_(asyncToken) {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
     if (this.peek_(OPEN_CURLY))
-      return this.parseFunctionBody_();
-    return this.parseAssignmentExpression();
+      return this.parseFunctionBody_(asyncToken);
+
+    var allowAwait = this.allowAwait_;
+    this.allowAwait_ = asyncToken !== null;
+    var expression = this.parseAssignmentExpression();
+    this.allowAwait_ = allowAwait;
+    return expression;
   }
 
   /**

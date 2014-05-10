@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {AsyncTransformer} from './generator/AsyncTransformer';
 import {ForInTransformPass} from './generator/ForInTransformPass';
 import {
@@ -41,6 +42,7 @@ import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
@@ -181,8 +183,15 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var functionKind = null;
 
     return new constructor(tree.location, tree.name, functionKind,
-                           tree.parameterList, tree.typeAnnotation,
-                           tree.annotations, body);
+                           tree.parameterList, tree.typeAnnotation || null,
+                           tree.annotations || null, body);
+  }
+
+  transformArrowFunctionExpression(tree) {
+    if (!tree.isAsyncFunction())
+      return super(tree);
+
+    return this.transformAny(ArrowFunctionTransformer.transform(this, tree));
   }
 
   transformBlock(tree) {

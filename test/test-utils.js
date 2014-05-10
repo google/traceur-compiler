@@ -141,9 +141,9 @@
           return '';
 
         if (options.async) {
-          global.done = function() {
+          global.done = function(ex) {
             handleShouldCompile();
-            done();
+            done(ex);
           };
         }
 

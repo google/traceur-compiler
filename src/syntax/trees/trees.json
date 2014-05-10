@@ -57,6 +57,9 @@
     "location": [
       "SourceRange"
     ],
+    "functionKind": [
+      "Token"
+    ],
     "parameterList": [
       "FormalParameterList"
     ],
