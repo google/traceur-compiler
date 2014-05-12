@@ -392,17 +392,6 @@
     return x;
   }
 
-  function spread() {
-    var rv = [], k = 0;
-    for (var i = 0; i < arguments.length; i++) {
-      var valueToSpread = toObject(arguments[i]);
-      for (var j = 0; j < valueToSpread.length; j++) {
-        rv[k++] = valueToSpread[j];
-      }
-    }
-    return rv;
-  }
-
   function superDescriptor(homeObject, name) {
     var proto = $getPrototypeOf(homeObject);
     do {
@@ -743,7 +732,6 @@
     getOwnHashObject: getOwnHashObject,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
-    spread: spread,
     superCall: superCall,
     superGet: superGet,
     superSet: superSet,
