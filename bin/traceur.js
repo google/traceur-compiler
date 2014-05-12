@@ -268,17 +268,6 @@
       throw $TypeError(x + ' is not an Object');
     return x;
   }
-  function spread() {
-    var rv = [],
-        k = 0;
-    for (var i = 0; i < arguments.length; i++) {
-      var valueToSpread = toObject(arguments[i]);
-      for (var j = 0; j < valueToSpread.length; j++) {
-        rv[k++] = valueToSpread[j];
-      }
-    }
-    return rv;
-  }
   function superDescriptor(homeObject, name) {
     var proto = $getPrototypeOf(homeObject);
     do {
@@ -571,7 +560,6 @@
     getOwnHashObject: getOwnHashObject,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
-    spread: spread,
     superCall: superCall,
     superGet: superGet,
     superSet: superSet,
@@ -581,6 +569,22 @@
     typeof: typeOf
   };
 })(typeof global !== 'undefined' ? global : this);
+(function() {
+  'use strict';
+  var toObject = $traceurRuntime.toObject;
+  function spread() {
+    var rv = [],
+        k = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      var valueToSpread = toObject(arguments[i]);
+      for (var j = 0; j < valueToSpread.length; j++) {
+        rv[k++] = valueToSpread[j];
+      }
+    }
+    return rv;
+  }
+  $traceurRuntime.spread = spread;
+})();
 (function() {
   function buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
     var out = [];
