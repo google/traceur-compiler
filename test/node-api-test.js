@@ -31,4 +31,29 @@ suite('node public api', function() {
       'module defines its path'
     );
   });
+
+  test('named amd', function() {
+    var compiled = traceur.compile(contents, {
+      // absolute path is important
+      filename: path,
+
+      // build ES6 style modules rather then cjs
+      modules: 'amd',
+
+      // enforce a module name in the AMD define
+      moduleName: 'test-module'
+    });
+
+    assert.deepEqual(compiled.errors, []);
+    assert.ok(compiled.js, 'can compile');    
+
+    var gotName;
+    var define = function(name) {
+      gotName = name;
+    }
+
+    eval(compiled.js);
+
+    assert.ok(gotName == 'test-module', 'module defines into named AMD');
+  });
 });

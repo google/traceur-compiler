@@ -80,6 +80,8 @@ function compile(content, options) {
   if (moduleName === true || options.modules == 'register' || options.modules == 'inline') {
     moduleName = options.filename.replace(/\.js$/, '');
     moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
+  }
+  if (moduleName) {
     transformer = new AttachModuleNameTransformer(moduleName);
     tree = transformer.transformAny(tree);
   }
