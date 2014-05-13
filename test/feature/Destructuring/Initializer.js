@@ -30,3 +30,45 @@ var count = 0;
 var [k = 42] = (count++, [21]);
 assert.equal(21, k);
 assert.equal(1, count);
+
+var {x = 1} = {x: undefined};
+assert.equal(x, 1);
+
+var {'x': x = 2} = {x: undefined};
+assert.equal(x, 2);
+
+var {['x']: x = 3} = {x: undefined};
+assert.equal(x, 3);
+
+var [y = 4] = [undefined];
+assert.equal(y, 4);
+
+
+var xCount = 0;
+var yCount = 0;
+var zCount = 0;
+
+var object = {
+  get x() {
+    xCount++;
+    return {
+      get y() {
+        yCount++;
+        return {
+          get z() {
+            zCount++;
+            return undefined;
+          }
+        };
+      }
+    };
+  }
+};
+
+var {y: {z = 5, w = 6}, v = 7} = object.x;
+assert.equal(z, 5);
+assert.equal(w, 6);
+assert.equal(v, 7);
+assert.equal(xCount, 1);
+assert.equal(yCount, 1);
+assert.equal(zCount, 1);
