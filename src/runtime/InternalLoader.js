@@ -499,7 +499,7 @@ export class InternalLoader {
         result = codeUnit.evaluate();
       } catch (ex) {
         codeUnit.error = ex;
-        this.reporter.reportError(null, String(ex));
+        this.reporter.reportError(null, String(ex.stack));
         this.abortAll();
         codeUnit.reject(codeUnit.error);
         return;
