@@ -25,6 +25,7 @@ import {
 } from './String';
 import {fill, find, findIndex} from './Array';
 import {entries, keys, values} from './ArrayIterator';
+import {assign, is, mixin} from './Object';
 
 function maybeDefineMethod(object, name, value) {
   if (!(name in object)) {
@@ -91,11 +92,20 @@ function polyfillArray(Array, Symbol) {
   }
 }
 
+function polyfillObject(Object) {
+  maybeAddFunctions(Object, [
+    'assign', assign,
+    'is', is,
+    'mixin', mixin,
+  ]);
+}
+
 function polyfill(global) {
   polyfillPromise(global);
   polyfillCollections(global);
   polyfillString(global.String);
   polyfillArray(global.Array, global.Symbol);
+  polyfillObject(global.Object);
 }
 
 polyfill(this);
