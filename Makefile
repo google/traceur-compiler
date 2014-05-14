@@ -1,6 +1,7 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/spread.js \
+  src/runtime/classes.js \
   src/runtime/url.js \
   src/runtime/ModuleStore.js
 SRC = \
