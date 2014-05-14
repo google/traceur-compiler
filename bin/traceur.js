@@ -22018,7 +22018,7 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
           result = codeUnit.evaluate();
         } catch (ex) {
           codeUnit.error = ex;
-          this.reporter.reportError(null, String(ex));
+          this.reporter.reportError(null, String(ex.stack));
           this.abortAll();
           codeUnit.reject(codeUnit.error);
           return;
