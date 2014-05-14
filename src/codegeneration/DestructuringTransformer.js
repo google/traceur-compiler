@@ -127,43 +127,6 @@ class VariableDeclarationDesugaring extends Desugaring {
   }
 }
 
-/**
- * Creates something like "ident" in rvalue ? rvalue.ident : initializer
- */
-function createConditionalMemberExpression(rvalue, name, initializer) {
-  if (name.type === COMPUTED_PROPERTY_NAME) {
-    return createConditionalMemberLookupExpression(rvalue,
-        name.expression,
-        initializer);
-  }
-
-  var token;
-  if (name.type == BINDING_IDENTIFIER) {
-    token = name.identifierToken;
-  } else {
-    token = name.literalToken;
-    if (!token.isKeyword() && token.type !== IDENTIFIER) {
-      return createConditionalMemberLookupExpression(rvalue,
-          new LiteralExpression(null, token),
-          initializer);
-    }
-  }
-
-  if (!initializer)
-    return createMemberExpression(rvalue, token);
-
-  return parseExpression
-      `${token.toString()} in ${rvalue} ? ${rvalue}.${token} : ${initializer}`;
-}
-
-function createConditionalMemberLookupExpression(rvalue, index, initializer) {
-  if (!initializer)
-    return createMemberLookupExpression(rvalue, index);
-
-  return parseExpression
-      `${index} in ${rvalue} ? ${rvalue}[${index}] : ${initializer}`;
-}
-
 function staticallyKnownObject(tree) {
   switch (tree.type) {
     case OBJECT_LITERAL_EXPRESSION:
@@ -232,10 +195,17 @@ export class DestructuringTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformBinaryOperator(tree) {
+    this.pushTempVarState();
+
+    var rv;
     if (tree.operator.type == EQUAL && tree.left.isPattern()) {
-      return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
+      rv = this.transformAny(this.desugarAssignment_(tree.left, tree.right));
+    } else {
+      rv = super(tree);
     }
-    return super(tree);
+
+    this.popTempVarState();
+    return rv;
   }
 
   /**
@@ -540,7 +510,7 @@ export class DestructuringTransformer extends ParameterTransformer {
               initializerFound = true;
             desugaring.assign(
                 lvalue,
-                createConditionalMemberLookupExpression(
+                this.createConditionalMemberLookupExpression(
                     desugaring.rvalue,
                     createNumberLiteral(i),
                     lvalue.initializer));
@@ -558,7 +528,7 @@ export class DestructuringTransformer extends ParameterTransformer {
             case BINDING_ELEMENT:
               if (field.initializer)
                 initializerFound = true;
-              lookup = createConditionalMemberExpression(desugaring.rvalue,
+              lookup = this.createConditionalMemberExpression(desugaring.rvalue,
                   field.binding, field.initializer);
               desugaring.assign(
                   createIdentifierExpression(field.binding),
@@ -569,7 +539,7 @@ export class DestructuringTransformer extends ParameterTransformer {
               if (field.element.initializer)
                 initializerFound = true;
               var name = field.name;
-              lookup = createConditionalMemberExpression(desugaring.rvalue,
+              lookup = this.createConditionalMemberExpression(desugaring.rvalue,
                   name, field.element.initializer);
               desugaring.assign(field.element, lookup);
               break;
@@ -606,5 +576,43 @@ export class DestructuringTransformer extends ParameterTransformer {
     }
 
     return initializerFound;
+  }
+
+  /**
+   * Creates something like:
+   *
+   *   ($tmp = rvalue.ident) === undefined ? initializer : $tmp
+   */
+  createConditionalMemberExpression(rvalue, name, initializer) {
+    if (name.type === COMPUTED_PROPERTY_NAME) {
+      return this.createConditionalMemberLookupExpression(rvalue,
+          name.expression, initializer);
+    }
+
+    var token;
+    if (name.type == BINDING_IDENTIFIER) {
+      token = name.identifierToken;
+    } else {
+      token = name.literalToken;
+    }
+
+    if (!initializer)
+      return createMemberExpression(rvalue, token);
+
+    this.pushTempVarState();
+    var tempIdent = createIdentifierExpression(this.addTempVar());
+    this.popTempVarState();
+
+    return parseExpression `(${tempIdent} = ${rvalue}.${token}) === void 0 ?
+        ${initializer} : ${tempIdent}`;
+  }
+
+  createConditionalMemberLookupExpression(rvalue, index, initializer) {
+    if (!initializer)
+      return createMemberLookupExpression(rvalue, index);
+
+    var tempIdent = createIdentifierExpression(this.addTempVar());
+    return parseExpression `(${tempIdent} = ${rvalue}[${index}]) === void 0 ?
+        ${initializer} : ${tempIdent}`;
   }
 }
