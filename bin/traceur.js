@@ -7250,6 +7250,13 @@ System.register("traceur@0.0.42/src/outputgeneration/ParseTreeWriter", [], funct
       }
       this.write_(SEMI_COLON);
     },
+    visitCoverInitialisedName: function(tree) {
+      this.write_(tree.name);
+      this.writeSpace_();
+      this.write_(tree.equalToken);
+      this.writeSpace_();
+      this.visitAny(tree.initializer);
+    },
     visitDebuggerStatement: function(tree) {
       this.write_(DEBUGGER);
       this.write_(SEMI_COLON);
@@ -9240,7 +9247,7 @@ System.register("traceur@0.0.42/src/syntax/ParseTreeValidator", [], function() {
     },
     visitBindingElement: function(tree) {
       var binding = tree.binding;
-      this.checkVisit_(binding.type == BINDING_IDENTIFIER || binding.type == OBJECT_PATTERN || binding.type == ARRAY_PATTERN, binding, 'expected valid binding element');
+      this.checkVisit_(binding.type == BINDING_IDENTIFIER || binding.type == OBJECT_PATTERN || binding.type == ARRAY_PATTERN || binding.type == IDENTIFIER_EXPRESSION, binding, 'expected valid binding element');
       this.visitAny(tree.initializer);
     },
     visitBlock: function(tree) {
@@ -11311,7 +11318,7 @@ System.register("traceur@0.0.42/src/codegeneration/AssignmentPatternTransformer"
       return new ArrayPattern(tree.location, elements);
     },
     transformCoverInitialisedName: function(tree) {
-      return new BindingElement(tree.location, new BindingIdentifier(tree.name.location, tree.name), this.transformAny(tree.initializer));
+      return new BindingElement(tree.location, new BindingIdentifier(tree.name.location, tree.name), tree.initializer);
     },
     transformObjectLiteralExpression: function(tree) {
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);

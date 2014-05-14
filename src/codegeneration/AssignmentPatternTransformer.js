@@ -59,7 +59,7 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
     // TODO(arv): Should be AssignmentElement.
     return new BindingElement(tree.location,
         new BindingIdentifier(tree.name.location, tree.name),
-        this.transformAny(tree.initializer));
+        tree.initializer);
   }
 
   transformObjectLiteralExpression(tree) {
