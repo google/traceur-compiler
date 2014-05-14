@@ -489,6 +489,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(SEMI_COLON);
   }
 
+  visitCoverInitialisedName(tree) {
+    this.write_(tree.name);
+    this.writeSpace_();
+    this.write_(tree.equalToken);
+    this.writeSpace_();
+    this.visitAny(tree.initializer);
+  }
+
   /**
    * @param {DebuggerStatement} tree
    */
