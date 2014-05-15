@@ -388,7 +388,7 @@ export class InternalLoader {
 
   toError(maybeError) {
     return maybeError instanceof Error ?
-        maybeError : new Error(String(maybeError));
+        maybeError : new Error(maybeError);
   }
 
   /**
