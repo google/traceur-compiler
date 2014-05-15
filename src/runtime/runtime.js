@@ -310,51 +310,6 @@
                     {value: seal});
 
     Object.getOwnPropertySymbols = getOwnPropertySymbols;
-
-    // Object.is
-
-    // Unlike === this returns true for (NaN, NaN) and false for (0, -0).
-    function is(left, right) {
-      if (left === right)
-        return left !== 0 || 1 / left === 1 / right;
-      return left !== left && right !== right;
-    }
-
-    $defineProperty(Object, 'is', method(is));
-
-    // Object.assign (19.1.3.1)
-    function assign(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        var props = $keys(source);
-        var p, length = props.length;
-        for (p = 0; p < length; p++) {
-          var name = props[p];
-          if (privateNames[name])
-            continue;
-          target[name] = source[name];
-        }
-      }
-      return target;
-    }
-
-    $defineProperty(Object, 'assign', method(assign));
-
-    // Object.mixin (19.1.3.15)
-    function mixin(target, source) {
-      var props = $getOwnPropertyNames(source);
-      var p, descriptor, length = props.length;
-      for (p = 0; p < length; p++) {
-        var name = props[p];
-        if (privateNames[name])
-          continue;
-        descriptor = $getOwnPropertyDescriptor(source, props[p]);
-        $defineProperty(target, props[p], descriptor);
-      }
-      return target;
-    }
-
-    $defineProperty(Object, 'mixin', method(mixin));
   }
 
   function exportStar(object) {
@@ -404,6 +359,7 @@
     createPrivateName: createPrivateName,
     exportStar: exportStar,
     getOwnHashObject: getOwnHashObject,
+    privateNames: privateNames,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     toObject: toObject,
@@ -416,6 +372,7 @@
     defineProperty: $defineProperty,
     getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
     getOwnPropertyNames: $getOwnPropertyNames,
+    keys: $keys,
   };
 
 })(typeof global !== 'undefined' ? global : this);
