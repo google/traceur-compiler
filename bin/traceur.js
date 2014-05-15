@@ -21745,7 +21745,7 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
       $__350.type = type;
       $__350.name_ = name;
       $__350.referrerName_ = referrerName;
-      $__350.address_ = address;
+      $__350.address = address;
       $__350.url = InternalLoader.uniqueName(normalizedName, address);
       $__350.uid = getUid();
       $__350.state_ = state || NOT_STARTED;
@@ -21999,9 +21999,13 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
       this.reporter.reportError(null, message);
       this.abortAll(message);
       codeUnit.error = message;
-      codeUnit.reject(new Error(message));
+      codeUnit.reject(this.toError(message));
+    },
+    toError: function(maybeError) {
+      return maybeError instanceof Error ? maybeError : new Error(maybeError);
     },
     abortAll: function(errorMessage) {
+      var $__350 = this;
       this.cache.values().forEach((function(codeUnit) {
         if (codeUnit.abort) {
           codeUnit.abort();
@@ -22009,7 +22013,7 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
         }
       }));
       this.cache.values().forEach((function(codeUnit) {
-        codeUnit.reject(new Error(codeUnit.error || errorMessage));
+        codeUnit.reject($__350.toError(codeUnit.error));
       }));
     },
     analyze: function() {
@@ -22061,9 +22065,8 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
         }
         for (var i = 0; i < dependencies.length; i++) {
           var codeUnit = dependencies[i];
-          if (codeUnit.state == ERROR) {
-            codeUnit.reject(phase);
-          }
+          if (codeUnit.state == ERROR)
+            codeUnit.reject(this.toError(codeUnit.error));
         }
         return true;
       }
@@ -22095,7 +22098,6 @@ System.register("traceur@0.0.42/src/runtime/InternalLoader", [], function() {
           result = codeUnit.evaluate();
         } catch (ex) {
           codeUnit.error = ex;
-          this.reporter.reportError(null, String(ex.stack));
           this.abortAll();
           codeUnit.reject(codeUnit.error);
           return;
@@ -22221,12 +22223,17 @@ System.register("traceur@0.0.42/src/WebPageTranscoder", [], function() {
         if (--$__356.numPending_ <= 0)
           onScriptsReady();
       }), (function(error) {
-        console.error('WebPageTranscoder FAILED to load ' + url, error);
+        console.error('WebPageTranscoder FAILED to load ' + url, error.stack || error);
       }));
     },
     addFileFromScriptElement: function(scriptElement, name, content) {
-      var source = content + '//# sourceURL=' + name + '\n';
-      this.loader.module(source);
+      var nameInfo = {
+        address: name,
+        referrerName: window.location.href
+      };
+      this.loader.module(content, nameInfo).catch(function(error) {
+        console.error(error.stack || error);
+      });
     },
     nextInlineScriptName_: function() {
       this.numberInlined_ += 1;
