@@ -50,7 +50,7 @@ class CodeUnit {
       this.type = type;
       this.name_ = name;
       this.referrerName_ = referrerName;
-      this.address_ = address;
+      this.address = address;
       this.url = InternalLoader.uniqueName(normalizedName, address);
       this.uid = getUid();
       this.state_ = state || NOT_STARTED;
@@ -383,7 +383,12 @@ export class InternalLoader {
     this.reporter.reportError(null, message);
     this.abortAll(message);
     codeUnit.error = message;
-    codeUnit.reject(new Error(message));
+    codeUnit.reject(this.toError(message));
+  }
+
+  toError(maybeError) {
+    return maybeError instanceof Error ?
+        maybeError : new Error(maybeError);
   }
 
   /**
@@ -398,7 +403,7 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.reject(new Error(codeUnit.error || errorMessage));
+        codeUnit.reject(this.toError(codeUnit.error));
     });
   }
 
@@ -457,9 +462,8 @@ export class InternalLoader {
 
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
-        if (codeUnit.state == ERROR) {
-          codeUnit.reject(phase);
-        }
+        if (codeUnit.state == ERROR)
+          codeUnit.reject(this.toError(codeUnit.error));
       }
       return true;
     }
@@ -499,7 +503,6 @@ export class InternalLoader {
         result = codeUnit.evaluate();
       } catch (ex) {
         codeUnit.error = ex;
-        this.reporter.reportError(null, String(ex.stack));
         this.abortAll();
         codeUnit.reject(codeUnit.error);
         return;

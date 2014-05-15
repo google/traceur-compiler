@@ -38,13 +38,16 @@ export class WebPageTranscoder {
       if (--this.numPending_ <= 0)
         onScriptsReady();
     }, (error) => {
-      console.error('WebPageTranscoder FAILED to load ' + url, error);
+      console.error('WebPageTranscoder FAILED to load ' +
+          url, error.stack || error);
     });
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var source = content + '//# sourceURL=' + name + '\n';
-    this.loader.module(source);
+    var nameInfo = {address: name, referrerName: window.location.href};
+    this.loader.module(content, nameInfo).catch(function(error) {
+      console.error(error.stack || error);
+    });
   }
 
   /**
