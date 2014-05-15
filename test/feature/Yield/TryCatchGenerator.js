@@ -83,14 +83,11 @@ function repeat(s, n) {
   return Array(n + 1).join(s);
 }
 
-var errors;
-
 // ----------------------------------------------------------------------------
 
-errors = repeat(' [Error: "next" on closed generator]', 3);
-assert.equal('1 [2]' + errors, accumulateCatch(W(throwGenerator)()));
-assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromCatchGenerator)()));
-assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromFinallyGenerator)()));
+assert.equal('1 [2]', accumulateCatch(W(throwGenerator)()));
+assert.equal('1 [2]', accumulateCatch(W(throwFromCatchGenerator)()));
+assert.equal('1 [2]', accumulateCatch(W(throwFromFinallyGenerator)()));
 
 // ----------------------------------------------------------------------------
 
@@ -149,8 +146,8 @@ function accumulateCatchOOB(iterator) {
 
 // ----------------------------------------------------------------------------
 
-errors = repeat(' [Error: "next" on closed generator] <>', 3);
-assert.equal('1 [2] <4>' + errors, accumulateCatchOOB(W(throwOOBGen)()));
-assert.equal('17(2) [8] <49>' + errors, accumulateCatchOOB(W(throwOOB2xGen)()));
+var emptyResult = repeat(' <>', 3);
+assert.equal('1 [2] <4>' + emptyResult, accumulateCatchOOB(W(throwOOBGen)()));
+assert.equal('17(2) [8] <49>' + emptyResult, accumulateCatchOOB(W(throwOOB2xGen)()));
 
 }); // end wrap_forEach
