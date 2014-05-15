@@ -1,5 +1,5 @@
 function assertClosed(g) {
-  assert.throw(() => g.next(), '"next" on closed generator');
+  assert.deepEqual({value: undefined, done: true}, g.next());
 }
 
 var x;
