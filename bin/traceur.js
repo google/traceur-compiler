@@ -460,7 +460,7 @@
             done: true
           };
         }
-        throw new Error(("\"" + action + "\" on closed generator"));
+        throw x;
       case ST_NEWBORN:
         if (action === 'throw') {
           ctx.GState = ST_CLOSED;
