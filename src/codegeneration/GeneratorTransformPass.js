@@ -96,6 +96,13 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
+    if (tree.isGenerator())
+      return this.transformGeneratorDeclaration_(tree);
+
+    return this.transformFunction_(tree, FunctionDeclaration, null);
+  }
+
+  transformGeneratorDeclaration_(tree) {
     var nameIdExpression = id(tree.name.identifierToken);
 
     var setupPrototypeExpression = parseExpression
@@ -125,6 +132,13 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
+    if (tree.isGenerator())
+      return this.transformGeneratorExpression_(tree);
+
+    return this.transformFunction_(tree, FunctionExpression, null);
+  }
+
+  transformGeneratorExpression_(tree) {
     var name;
     if (!tree.name) {
       // We need a name to be able to reference the function object.
