@@ -19752,6 +19752,11 @@ System.register("traceur@0.0.42/src/codegeneration/GeneratorTransformPass", [], 
     transformFunctionDeclaration: function(tree) {
       if (!needsTransform(tree))
         return $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionDeclaration", [tree]);
+      if (tree.isGenerator())
+        return this.transformGeneratorDeclaration_(tree);
+      return this.transformFunction_(tree, FunctionDeclaration, null);
+    },
+    transformGeneratorDeclaration_: function(tree) {
       var nameIdExpression = id(tree.name.identifierToken);
       var setupPrototypeExpression = parseExpression($__276, nameIdExpression);
       var tmpVar = id(this.inBlock_ ? this.getTempIdentifier() : this.addTempVar(setupPrototypeExpression));
@@ -19763,6 +19768,11 @@ System.register("traceur@0.0.42/src/codegeneration/GeneratorTransformPass", [], 
     transformFunctionExpression: function(tree) {
       if (!needsTransform(tree))
         return $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionExpression", [tree]);
+      if (tree.isGenerator())
+        return this.transformGeneratorExpression_(tree);
+      return this.transformFunction_(tree, FunctionExpression, null);
+    },
+    transformGeneratorExpression_: function(tree) {
       var name;
       if (!tree.name) {
         name = createIdentifierToken(this.getTempIdentifier());
