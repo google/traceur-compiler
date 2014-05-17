@@ -77,9 +77,11 @@ function compile(content, options) {
   var parser = new Parser(sourceFile, errorReporter);
   var tree = parser.parseModule();
   var transformer;
-  if (moduleName === true || options.modules == 'register' || options.modules == 'inline') {
-    moduleName = options.filename.replace(/\.js$/, '');
-    moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
+  if (typeof moduleName !== 'string') {
+    if (moduleName === true || options.modules == 'register' || options.modules == 'inline') {
+      moduleName = options.filename.replace(/\.js$/, '');
+      moduleName = path.relative(options.cwd, moduleName).replace(/\\/g,'/');
+    }
   }
   if (moduleName) {
     transformer = new AttachModuleNameTransformer(moduleName);
