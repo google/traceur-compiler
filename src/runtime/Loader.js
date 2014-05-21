@@ -34,20 +34,37 @@ export class Loader {
         then((codeUnit) => this.get(codeUnit.normalizedName));
   }
 
-  /**
-   * module - Asynchronously run the script src, first loading any imported
-   * modules that aren't already loaded.
-   *
-   * This is the same as import but without fetching the source.
-   * @param {string} source code
-   * @param {Object} properties referrerName and address passed to normalize.
-   * @return {Promise.<Module>}
-   */
-  module(source, {referrerName, address} = {}) {
-    return this.internalLoader_.module(source, referrerName, address);
-  }
+    /**
+     * module - Asynchronously run the script src, first loading any imported
+     * modules that aren't already loaded, with type="module" semantics (i.e.
+     * all global variables are local to the module).
+     *
+     * This is the same as import but without fetching the source.
+     * @param {string} source code
+     * @param {Object} properties referrerName and address passed to normalize.
+     * @return {Promise.<Module>}
+     */
+    module(source, {referrerName, address} = {}) {
+        return this.internalLoader_.module(source, referrerName, address);
+    }
 
-  /**
+
+    /**
+     * module - Asynchronously run the script src, first loading any imported
+     * modules that aren't already loaded, with type="script" semantics (i.e.
+     * all global variables are really global).
+     *
+     * This is the same as import but without fetching the source.
+     * @param {string} source code
+     * @param {string} name of script
+     * @param {Object} properties referrerName and address passed to normalize.
+     * @return {Promise.<Module>}
+     */
+    script(name, source, {referrerName, address} = {}) {
+        return this.internalLoader_.script(source, name, referrerName, address);
+    }
+
+    /**
    * Asynchronously install a new module under `name` from the `source` code.
    * All dependencies are installed in the registry.
    * @param {string} normalizedName

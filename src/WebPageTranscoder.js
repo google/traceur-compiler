@@ -45,7 +45,12 @@ export class WebPageTranscoder {
 
   addFileFromScriptElement(scriptElement, name, content) {
     var nameInfo = {address: name, referrerName: window.location.href};
-    this.loader.module(content, nameInfo).catch(function(error) {
+    var loadingResult;
+    if (scriptElement.type == "module")
+        loadingResult = this.loader.module(content, nameInfo);
+    else
+        loadingResult = this.loader.script(name, content, nameInfo);
+    loadingResult.catch(function(error) {
       console.error(error.stack || error);
     });
   }
@@ -110,7 +115,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    var selector = 'script[type="module"]';
+    var selector = 'script[type="module"],script[type="text/traceur"]';
     var scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {
