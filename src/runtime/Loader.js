@@ -48,22 +48,6 @@ export class Loader {
         return this.internalLoader_.module(source, referrerName, address);
     }
 
-
-    /**
-     * module - Asynchronously run the script src, first loading any imported
-     * modules that aren't already loaded, with type="script" semantics (i.e.
-     * all global variables are really global).
-     *
-     * This is the same as import but without fetching the source.
-     * @param {string} source code
-     * @param {string} name of script
-     * @param {Object} properties referrerName and address passed to normalize.
-     * @return {Promise.<Module>}
-     */
-    script(name, source, {referrerName, address} = {}) {
-        return this.internalLoader_.script(source, name, referrerName, address);
-    }
-
     /**
    * Asynchronously install a new module under `name` from the `source` code.
    * All dependencies are installed in the registry.

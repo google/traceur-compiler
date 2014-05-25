@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello, World!</title>
+    <script src="../../../bin/traceur.js"></script>
+    <script src="../../../src/bootstrap.js"></script>
+    <script>
+        traceur.options.experimental = true;
+    </script>
+</head>
+<body>
+<script type="text/traceur">
+      class Greeter {
+        constructor(message) {
+          this.message = message;
+        }
+
+        greet() {
+          let element = document.querySelector('#message');
+          element.textContent = this.message;
+        }
+      }
+</script>
+<script type="text/traceur">
+      let greeter = new Greeter('Success!');
+      greeter.greet();
+</script>
+<h1 id="message"></h1>
+</body>
+</html>
