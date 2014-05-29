@@ -34,4 +34,9 @@ suite('api.js', function() {
         {modules: false, blockBinding: true});
   });
 
+  test('api compile script export star', function() {
+    var api = require('../../../src/node/api');
+    api.compile('export * from "foo";', {});
+  });
+
 });
