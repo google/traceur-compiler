@@ -105,12 +105,12 @@ assertArrayEquals(arr, ["value8", "value9",
 
 
 
-// .items()
+// .entries()
 arrKeys = [];
 arr = [];
 cnt = 0;
 
-for(var mapItterItem of t.items()) {
+for(var mapItterItem of t.entries()) {
   var [mapItterItemKey, mapItterItemVal] = mapItterItem;
   arrKeys.push(mapItterItemKey);
   arr.push(mapItterItemVal);

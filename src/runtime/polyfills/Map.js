@@ -141,7 +141,7 @@ export class Map {
     }
   }
 
-  *items() {
+  *entries() {
     for (var i = 0, len = this.entries_.length; i < len; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
