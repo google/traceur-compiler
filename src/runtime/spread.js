@@ -25,7 +25,7 @@
         throw new TypeError('Cannot spread non-object.');
       }
 
-      if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] != 'function') {
+      if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] !== 'function') {
         throw new TypeError('Cannot spread non-iterable object.');
       }
 
