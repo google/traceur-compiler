@@ -93,15 +93,7 @@ closeMethods.forEach((closeMethod) => {
   g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
-    // We have to use try/catch explicitly here because a) assert.throw requires
-    // an Error object to be thrown, and b) we want to ensure that the thing
-    // thrown is the same thing we passed to the throw method.
-    try {
-      g.throw(44);
-      assert.ok(false);
-    } catch (e) {
-      assert.equal(e, 44);
-    }
+    assertThrownEquals(44, () => g.throw(44));
   }
 });
 
