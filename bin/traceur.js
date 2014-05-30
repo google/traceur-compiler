@@ -244,6 +244,7 @@
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     toObject: toObject,
+    isObject: isObject,
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
@@ -256,14 +257,21 @@
 })(typeof global !== 'undefined' ? global : this);
 (function() {
   'use strict';
-  var toObject = $traceurRuntime.toObject;
   function spread() {
     var rv = [],
-        k = 0;
+        j = 0,
+        iterResult;
     for (var i = 0; i < arguments.length; i++) {
-      var valueToSpread = toObject(arguments[i]);
-      for (var j = 0; j < valueToSpread.length; j++) {
-        rv[k++] = valueToSpread[j];
+      var valueToSpread = arguments[i];
+      if (!$traceurRuntime.isObject(valueToSpread)) {
+        throw new TypeError('Cannot spread non-object.');
+      }
+      if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] !== 'function') {
+        throw new TypeError('Cannot spread non-iterable object.');
+      }
+      var iter = valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)]();
+      while (!(iterResult = iter.next()).done) {
+        rv[j++] = iterResult.value;
       }
     }
     return rv;
