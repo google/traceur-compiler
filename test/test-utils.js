@@ -182,9 +182,11 @@
       function handleFailure(error) {
         handleShouldCompile();
         // TODO(arv): Improve how errors are passed through the module loader.
-        if (options.shouldCompile)
-          throw reporter.errors[0];
-        done();
+        if (options.shouldCompile) {
+          done(error)
+        } else {
+          done();
+        }
       }
 
       if (/\.module\.js$/.test(url)) {

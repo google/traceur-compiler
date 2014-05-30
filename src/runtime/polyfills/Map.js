@@ -181,5 +181,5 @@ export class Map {
 Object.defineProperty(Map.prototype, Symbol.iterator, {
   configurable: true,
   writable: true,
-  value: Map.prototype.items
+  value: Map.prototype.entries
 });

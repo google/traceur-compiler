@@ -1295,7 +1295,7 @@ System.register("traceur@0.0.43/src/runtime/polyfills/Map", [], function() {
   Object.defineProperty(Map.prototype, Symbol.iterator, {
     configurable: true,
     writable: true,
-    value: Map.prototype.items
+    value: Map.prototype.entries
   });
   return {get Map() {
       return Map;
