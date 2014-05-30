@@ -61,12 +61,22 @@ export class Set {
   }
 
   forEach(callbackFn, thisArg = undefined) {
-    return this.map_.forEach((val, key) => callbackFn.call(thisArg, key, this));
+    return this.map_.forEach((value, key) => {
+      callbackFn.call(thisArg, key, key, this);
+    });
   }
 
   *values() {
     yield* this.map_.keys();
   }
+
+  *keys() {
+    yield* this.map_.keys();
+  }
 }
 
-Object.defineProperty(Set.prototype, Symbol.iterator, {configurable: true, writable: true, value: Set.prototype.values});
+Object.defineProperty(Set.prototype, Symbol.iterator, {
+  configurable: true,
+  writable: true,
+  value: Set.prototype.values
+  });

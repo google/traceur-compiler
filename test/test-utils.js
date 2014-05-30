@@ -105,15 +105,6 @@
     throw new chai.AssertionError(message);
   }
 
-  function runCode(code, name) {
-    try {
-      ('global', eval)(code);
-    } catch (e) {
-      fail('Error running compiled output for : ' + name + '\n' + e + '\n' +
-           code);
-    }
-  }
-
   function featureTest(name, url, fileLoader) {
 
     teardown(function() {

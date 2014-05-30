@@ -40,23 +40,37 @@ assert.isTrue(t.has(NaN));
 assert.isTrue(t.has(0));
 assert.isTrue(t.has(-0));
 
-var expected = [ undefinedKey, nullKey, stringKey,
-    numberKey, booleanKey, objectKey,
-    nanKey, zeroKey ];
+var expected = [
+  undefinedKey,
+  nullKey,
+  stringKey,
+  numberKey,
+  booleanKey,
+  objectKey,
+  nanKey,
+  zeroKey
+];
 expected.sort();
 
 
 // forEach
 var arr = [];
 var cnt = 0;
+var context = {};
 
-t.forEach(val => {
+t.forEach(function(val, val2, obj) {
+  if (isNaN(val)) {
+    assert.isTrue(isNaN(val2));
+  } else {
+    assert.equal(val, val2);
+  }
+  assert.equal(obj, t);
+  assert.equal(this, context)
   arr.push(val);
   cnt++;
-});
+}, context);
 
 assert.equal(cnt, 8);
-
 
 arr.sort();
 assertArrayEquals(arr, expected);
@@ -65,8 +79,8 @@ assertArrayEquals(arr, expected);
 arr = [];
 cnt = 0;
 
-for(var setItterVal of t) {
-  arr.push(setItterVal);
+for (var setIterVal of t) {
+  arr.push(setIterVal);
   cnt++;
 }
 assert.equal(cnt, 8);
@@ -79,8 +93,8 @@ assertArrayEquals(arr, expected);
 arr = [];
 cnt = 0;
 
-for(var setItterVal of t.values()) {
-  arr.push(setItterVal);
+for (var setIterVal of t.values()) {
+  arr.push(setIterVal);
   cnt++;
 }
 assert.equal(cnt, 8);
@@ -98,3 +112,16 @@ t3.delete(NaN);
 assert.equal(t3.size, 2);
 t3.clear();
 assert.equal(t3.size, 0);
+
+// .keys()
+var t4 = new Set();
+var iter = t4.keys();
+t4.add(objectKey);
+t4.add(stringKey);
+t4.add(nanKey);
+assert.deepEqual(iter.next(), {value: objectKey, done: false});
+assert.deepEqual(iter.next(), {value: stringKey, done: false});
+t4.delete(nanKey);
+assert.deepEqual(iter.next(), {value: undefined, done: true});
+
+assert.equal(Set.prototype[Symbol.iterator], Set.prototype.values);
