@@ -21,12 +21,12 @@
     for (var i = 0; i < arguments.length; i++) {
       var valueToSpread = arguments[i];
 
-      if (typeof valueToSpread != "object") {
-        throw new TypeError("Cannot spread non-object.");
+      if (!$traceurRuntime.isObject(valueToSpread)) {
+        throw new TypeError('Cannot spread non-object.');
       }
 
-      if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] != "function") {
-        throw new TypeError("Cannot spread non-iterable object.");
+      if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] != 'function') {
+        throw new TypeError('Cannot spread non-iterable object.');
       }
 
       var iter = valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)]();
