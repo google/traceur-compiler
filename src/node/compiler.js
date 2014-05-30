@@ -77,6 +77,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
     writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
     process.exit(0);
   }, function(err) {
+    console.error(err);
     process.exit(1);
   });
 }

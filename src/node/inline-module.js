@@ -57,7 +57,7 @@ InlineLoaderHooks.prototype = {
 
 };
 
-function allLoaded(url, reporter, elements) {
+function allLoaded(url, elements) {
   return new Script(null, elements);
 }
 
@@ -135,7 +135,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           } else if (depTarget) {
             callback(null);
           } else {
-            var tree = allLoaded(basePath, reporter, elements);
+            var tree = allLoaded(basePath, elements);
             callback(tree);
           }
         }, function(err) {

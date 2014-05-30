@@ -27,10 +27,8 @@ import {options} from '../../options';
  *   module m from "url"
  */
 export class ModuleSpecifierVisitor extends ParseTreeVisitor {
-  /**
-   * @param {traceur.util.ErrorReporter} reporter
-   */
-  constructor(reporter) {
+
+  constructor() {
     super();
     this.moduleSpecifiers_ = Object.create(null);
   }

@@ -105,6 +105,33 @@
     throw new chai.AssertionError(message);
   }
 
+  function hasMatchingError(expected, actualErrors, pathRe) {
+    var m;
+    if (!pathRe || !(m = pathRe.exec(expected)))
+      return actualErrors.some(function(error) {
+        return error.indexOf(expected) !== -1;
+      });
+
+    var expectedPath = m[1];
+    var expectedNonPath = expected.replace(expectedPath, '<PATH>');
+
+    return actualErrors.some(function (error) {
+      var m = pathRe.exec(error);
+      if (!m)
+        return false;
+
+      var actualPath = m[1];
+      var actualNonPath = error.replace(actualPath, '<PATH>');
+
+      if (actualNonPath.indexOf(expectedNonPath) === -1)
+        return false;
+
+      actualPath = actualPath.replace(/\\/g, '/');
+
+      return actualPath.indexOf(expectedPath) !== -1;
+    });
+  }
+
   function featureTest(name, url, fileLoader) {
 
     teardown(function() {
@@ -133,7 +160,7 @@
 
         if (options.async) {
           global.done = function(ex) {
-            handleShouldCompile();
+            handleShouldCompile(ex);
             done(ex);
           };
         }
@@ -143,16 +170,17 @@
 
       var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
 
-      function handleShouldCompile() {
+      function handleShouldCompile(error) {
         if (!options.shouldCompile) {
-          assert.isTrue(reporter.hadError(),
+          assert.isTrue(typeof error !== 'undefined',
               'Expected error compiling ' + name + ', but got none.');
-
-          options.expectedErrors.forEach(function(expected) {
-            assert.isTrue(reporter.hasMatchingError(expected),
-                          'Missing expected error: ' + expected +
-                          '\nActual errors:\n' +
-                          reporter.errors.join('\n'));
+          options.expectedErrors.forEach(function(expected, index) {
+            var errors = (error + '').split('\n');
+            var actualErrors = errors instanceof Array ? errors : [errors];
+            assert.isTrue(
+                hasMatchingError(expected, actualErrors, reDirectoryResources),
+                'Missing expected error: ' + expected +
+                '\nActual errors:\n' + actualErrors);
           });
         }
       }
@@ -171,8 +199,7 @@
       }
 
       function handleFailure(error) {
-        handleShouldCompile();
-        // TODO(arv): Improve how errors are passed through the module loader.
+        handleShouldCompile(error);
         if (options.shouldCompile) {
           done(error)
         } else {

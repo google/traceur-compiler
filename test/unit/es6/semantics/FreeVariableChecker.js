@@ -23,19 +23,13 @@ suite('FreeVariableChecker.traceur.js', function() {
     traceur.options.reset();
   });
 
-  function compileAndReturnErrors(contents, name) {
+  function compileAndPromiseErrors(contents, name) {
     var LoaderHooks = traceur.runtime.LoaderHooks;
     var TraceurLoader = traceur.runtime.TraceurLoader;
-    var reporter = new traceur.util.ErrorReporter();
-    var errors = [];
-    reporter.reportMessageInternal = function() {
-      errors.push(arguments);
-    };
     var url = 'http://www.test.com/';
-    var loaderHooks = new LoaderHooks(reporter, url);
+    var loaderHooks = new LoaderHooks(null, url);
     var loader = new TraceurLoader(loaderHooks);
-    loader.script(contents, {name: name, address: url});
-    return errors;
+    return loader.script(contents, {name: name, address: url});
   }
 
   function assertErrorMessage(errors, expectedError) {
@@ -44,8 +38,10 @@ suite('FreeVariableChecker.traceur.js', function() {
   }
 
   function assertCompileError(contents, expectedError) {
-    var errors = compileAndReturnErrors(contents, 'code');
-    assertErrorMessage(errors, expectedError);
+    compileAndPromiseErrors(contents, 'code').catch((ex) => {
+      var errors = ex.toString();
+      assertErrorMessage(errors, expectedError);
+    });
   }
 
   test('FreeVariables', function() {
