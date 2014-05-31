@@ -143,9 +143,8 @@
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
-      var reporter = new traceur.util.TestErrorReporter(reDirectoryResources);
       var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', fileLoader);
+      var loaderHooks = new LoaderHooks(null, './', fileLoader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
@@ -228,7 +227,7 @@
         return;
       }
 
-      var reporter = new traceur.util.TestErrorReporter();
+      var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
@@ -244,7 +243,7 @@
 
       if (reporter.hadError()) {
         fail('Error compiling ' + name + '.\n' +
-             reporter.errors.join('\n'));
+             reporter.errorsToString());
         return;
       }
 

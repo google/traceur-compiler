@@ -17,7 +17,7 @@ import {
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {buildExportList} from '../codegeneration/module/ExportListBuilder';
-import {ErrorReporter} from '../util/ErrorReporter';
+import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
@@ -44,18 +44,6 @@ var COMPLETE = 6;
 var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
-
-class CollectingErrorReporter extends ErrorReporter {
-  constructor() {
-    super();
-    this.messages = [];
-  }
-  reportMessageInternal(location, message) {
-    if (location)
-      message = `${location}: ${message}`;
-    this.messages.push(message);
-  }
-}
 
 export class LoaderHooks {
   constructor(reporter, baseURL,
@@ -249,7 +237,7 @@ export class LoaderHooks {
     var reporter = new CollectingErrorReporter();
     var result = fncOfReporter(reporter);
     if (reporter.hadError())
-      throw new Error(reporter.messages.join('\n'));
+      throw reporter.toException();
     return result;
   }
 

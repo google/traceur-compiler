@@ -395,12 +395,7 @@ export class InternalLoader {
         `Failed to load '${codeUnit.address}'.\n`;
     message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
-    this.rejectOneAndAll(codeUnit, this.toError(message));
-  }
-
-  toError(maybeError) {
-    return maybeError instanceof Error ?
-        maybeError : new Error(maybeError);
+    this.rejectOneAndAll(codeUnit, new Error(message));
   }
 
   /**
@@ -410,7 +405,7 @@ export class InternalLoader {
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
       if (codeUnit.state !== ERROR)
-        codeUnit.reject(this.toError(errorMessage));
+        codeUnit.reject(errorMessage);
     });
   }
 
