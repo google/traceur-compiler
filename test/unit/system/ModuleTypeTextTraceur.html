@@ -10,20 +10,10 @@
 </head>
 <body>
 <script type="text/traceur">
-      class Greeter {
-        constructor(message) {
-          this.message = message;
-        }
-
-        greet() {
-          let element = document.querySelector('#message');
-          element.textContent = this.message;
-        }
-      }
+    thisShouldBeAGlobalVariable = 'Success!';
 </script>
 <script type="text/traceur">
-      let greeter = new Greeter('Success!');
-      greeter.greet();
+      document.querySelector('#message').textContent = thisShouldBeAGlobalVariable;
 </script>
 <h1 id="message"></h1>
 </body>
