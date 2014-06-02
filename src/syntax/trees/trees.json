@@ -67,6 +67,17 @@
       "ParseTree"
     ]
   },
+  "AssignmentElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "assignment": [
+      "ParseTree"
+    ],
+    "initializer": [
+      "ParseTree"
+    ]
+  },
   "AwaitExpression": {
     "location": [
       "SourceRange"
@@ -258,7 +269,7 @@
       "Array.<ParseTree>"
     ]
   },
-  "CoverInitialisedName": {
+  "CoverInitializedName": {
     "location": [
       "SourceRange"
     ],

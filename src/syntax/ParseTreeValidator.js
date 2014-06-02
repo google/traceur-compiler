@@ -57,6 +57,7 @@ import {
 } from './TokenType';
 import {
   ARRAY_PATTERN,
+  ASSIGNMENT_ELEMENT,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
   BLOCK,
@@ -195,7 +196,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       var element = tree.elements[i];
       this.checkVisit_(element === null ||
           element.type === BINDING_ELEMENT ||
-          element.type == IDENTIFIER_EXPRESSION ||
+          element.type == ASSIGNMENT_ELEMENT ||
           element.isLeftHandSideExpression() ||
           element.isPattern() ||
           element.isSpreadPatternElement(),
@@ -291,11 +292,23 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkVisit_(
         binding.type == BINDING_IDENTIFIER ||
         binding.type == OBJECT_PATTERN ||
-        binding.type == ARRAY_PATTERN ||
-        // https://github.com/google/traceur-compiler/issues/969
-        binding.type == IDENTIFIER_EXPRESSION,
+        binding.type == ARRAY_PATTERN,
         binding,
         'expected valid binding element');
+    this.visitAny(tree.initializer);
+  }
+
+  /**
+   * @param {AssignmentElement} tree
+   */
+  visitAssignmentElement(tree) {
+    var assignment = tree.assignment;
+    this.checkVisit_(
+        assignment.type == OBJECT_PATTERN ||
+        assignment.type == ARRAY_PATTERN ||
+        assignment.isLeftHandSideExpression(),
+        assignment,
+        'expected valid assignment element');
     this.visitAny(tree.initializer);
   }
 
@@ -394,8 +407,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.fail_(tree, 'CoverFormals should have been removed');
   }
 
-  visitCoverInitialisedName(tree) {
-    this.fail_(tree, 'CoverInitialisedName should have been removed');
+  visitCoverInitializedName(tree) {
+    this.fail_(tree, 'CoverInitializedName should have been removed');
   }
 
   /**
@@ -744,8 +757,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     for (var i = 0; i < tree.fields.length; i++) {
       var field = tree.fields[i];
       this.checkVisit_(field.type === OBJECT_PATTERN_FIELD ||
-                       field.type === BINDING_ELEMENT ||
-                       field.type === IDENTIFIER_EXPRESSION,
+                       field.type === ASSIGNMENT_ELEMENT ||
+                       field.type === BINDING_ELEMENT,
                        field,
                        'object pattern field expected');
     }
@@ -756,7 +769,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitObjectPatternField(tree) {
     this.checkPropertyName_(tree.name);
-   this.checkVisit_(tree.element.type === BINDING_ELEMENT ||
+    this.checkVisit_(tree.element.type === ASSIGNMENT_ELEMENT ||
+                     tree.element.type === BINDING_ELEMENT ||
                      tree.element.isPattern() ||
                      tree.element.isLeftHandSideExpression(),
                      tree.element,

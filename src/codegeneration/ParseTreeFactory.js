@@ -64,7 +64,7 @@ import {
   ConditionalExpression,
   ContinueStatement,
   CoverFormals,
-  CoverInitialisedName,
+  CoverInitializedName,
   DebuggerStatement,
   DefaultClause,
   DoWhileStatement,

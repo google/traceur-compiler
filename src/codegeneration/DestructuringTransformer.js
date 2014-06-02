@@ -16,6 +16,7 @@ import {
   ARRAY_COMPREHENSION,
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
+  ASSIGNMENT_ELEMENT,
   ARROW_FUNCTION_EXPRESSION,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
@@ -37,6 +38,7 @@ import {
   VARIABLE_DECLARATION_LIST,
 } from '../syntax/trees/ParseTreeType';
 import {
+  AssignmentElement,
   BindingElement,
   Catch,
   ForInStatement,
@@ -94,8 +96,12 @@ class AssignmentExpressionDesugaring extends Desugaring {
     this.expressions = [];
   }
 
+  /**
+   * @param {AssignmentElement|IdentifierExpression} lvalue
+   * @param {ParseTree} rvalue
+   */
   assign(lvalue, rvalue) {
-    lvalue = lvalue instanceof BindingElement ? lvalue.binding : lvalue;
+    lvalue = lvalue instanceof AssignmentElement ? lvalue.assignment : lvalue;
     this.expressions.push(createAssignmentExpression(lvalue, rvalue));
   }
 }
@@ -113,17 +119,14 @@ class VariableDeclarationDesugaring extends Desugaring {
     this.declarations = [];
   }
 
+  /**
+   * @param {BindingElement|IdentifierExpression} lvalue
+   * @param {ParseTree} rvalue
+   */
   assign(lvalue, rvalue) {
-    if (lvalue instanceof BindingElement) {
-      this.declarations.push(createVariableDeclaration(lvalue.binding,
-          rvalue));
-      return;
-    }
-
-    if (lvalue.type == IDENTIFIER_EXPRESSION)
-      lvalue = createBindingIdentifier(lvalue);
-
-    this.declarations.push(createVariableDeclaration(lvalue, rvalue));
+    var binding = lvalue instanceof BindingElement ?
+        lvalue.binding : createBindingIdentifier(lvalue);
+    this.declarations.push(createVariableDeclaration(binding, rvalue));
   }
 }
 
@@ -153,8 +156,6 @@ function createGuardedExpression(tree) {
 function createGuardedAssignment(lvalue, rvalue) {
   return parseExpression `${lvalue} = ${createGuardedExpression(rvalue)}`;
 }
-
-
 
 /**
  * Desugars destructuring assignment.
@@ -344,6 +345,11 @@ export class DestructuringTransformer extends ParameterTransformer {
     return new constr(tree.location, initializer, collection, body);
   }
 
+  transformAssignmentElement(tree) {
+    // Patterns should be desugard by their parent nodes.
+    throw new Error('unreachable');
+  }
+
   transformBindingElement(tree) {
     // If this has an initializer the default parameter transformer moves the
     // pattern into the function body and it will be taken care of by the
@@ -491,7 +497,7 @@ export class DestructuringTransformer extends ParameterTransformer {
   desugarPattern_(desugaring, tree) {
     var initializerFound = false;
     switch (tree.type) {
-      case ARRAY_PATTERN: {
+      case ARRAY_PATTERN:
         var pattern = tree;
 
         for (var i = 0; i < pattern.elements.length; i++) {
@@ -517,22 +523,27 @@ export class DestructuringTransformer extends ParameterTransformer {
           }
         }
         break;
-      }
 
-      case OBJECT_PATTERN: {
+      case OBJECT_PATTERN:
         var pattern = tree;
+
+        var elementHelper = (lvalue, initializer) => {
+          if (initializer)
+            initializerFound = true;
+          var lookup = this.createConditionalMemberExpression(desugaring.rvalue,
+              lvalue, initializer);
+          desugaring.assign(lvalue, lookup);
+        };
 
         pattern.fields.forEach((field) => {
           var lookup;
           switch (field.type) {
+            case ASSIGNMENT_ELEMENT:
+              elementHelper(field.assignment, field.initializer);
+              break;
+
             case BINDING_ELEMENT:
-              if (field.initializer)
-                initializerFound = true;
-              lookup = this.createConditionalMemberExpression(desugaring.rvalue,
-                  field.binding, field.initializer);
-              desugaring.assign(
-                  createIdentifierExpression(field.binding),
-                  lookup);
+              elementHelper(field.binding, field.initializer);
               break;
 
             case OBJECT_PATTERN_FIELD:
@@ -544,19 +555,11 @@ export class DestructuringTransformer extends ParameterTransformer {
               desugaring.assign(field.element, lookup);
               break;
 
-            case IDENTIFIER_EXPRESSION:
-              lookup = createMemberExpression(
-                  desugaring.rvalue, field.identifierToken);
-
-              desugaring.assign(field, lookup);
-              break;
-
             default:
               throw Error('unreachable');
           }
         });
         break;
-      }
 
       case PAREN_EXPRESSION:
         return this.desugarPattern_(desugaring, tree.expression);
@@ -590,18 +593,19 @@ export class DestructuringTransformer extends ParameterTransformer {
     }
 
     var token;
-    if (name.type == BINDING_IDENTIFIER) {
-      token = name.identifierToken;
-    } else {
-      token = name.literalToken;
+    switch (name.type) {
+      case BINDING_IDENTIFIER:
+      case IDENTIFIER_EXPRESSION:
+        token = name.identifierToken;
+        break;
+      default:
+        token = name.literalToken;
     }
 
     if (!initializer)
       return createMemberExpression(rvalue, token);
 
-    this.pushTempVarState();
     var tempIdent = createIdentifierExpression(this.addTempVar());
-    this.popTempVarState();
 
     return parseExpression `(${tempIdent} = ${rvalue}.${token}) === void 0 ?
         ${initializer} : ${tempIdent}`;

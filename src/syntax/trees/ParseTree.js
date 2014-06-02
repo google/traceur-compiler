@@ -47,7 +47,7 @@ import {
   CONDITIONAL_EXPRESSION,
   CONTINUE_STATEMENT,
   COVER_FORMALS,
-  COVER_INITIALISED_NAME,
+  COVER_INITIALIZED_NAME,
   DEBUGGER_STATEMENT,
   DEFAULT_CLAUSE,
   DO_WHILE_STATEMENT,
@@ -154,8 +154,6 @@ export class ParseTree {
       case ARRAY_PATTERN:
       case OBJECT_PATTERN:
         return true;
-      case PAREN_EXPRESSION:
-        return this.expression.isPattern();
       default:
         return false;
     }

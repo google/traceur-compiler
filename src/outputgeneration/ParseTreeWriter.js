@@ -290,6 +290,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {AssignmentElement} tree
+   */
+  visitAssignmentElement(tree) {
+    this.visitAny(tree.assignment);
+    if (tree.initializer) {
+      this.writeSpace_();
+      this.write_(EQUAL);
+      this.writeSpace_();
+      this.visitAny(tree.initializer);
+    }
+  }
+
+  /**
    * @param {AwaitExpression} tree
    */
   visitAwaitExpression(tree) {
@@ -494,7 +507,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(SEMI_COLON);
   }
 
-  visitCoverInitialisedName(tree) {
+  visitCoverInitializedName(tree) {
     this.write_(tree.name);
     this.writeSpace_();
     this.write_(tree.equalToken);

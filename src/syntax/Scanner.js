@@ -276,11 +276,7 @@ export class Scanner {
     lineNumberTable = file.lineNumberTable;
     input = file.contents;
     length = file.contents.length;
-    index = 0;
-    lastToken = null;
-    token = null;
-    lookaheadToken = null;
-    updateCurrentCharCode();
+    this.index = 0;
     currentParser = parser;
   }
 
@@ -324,6 +320,18 @@ export class Scanner {
 
   isAtEnd() {
     return isAtEnd();
+  }
+
+  set index(i) {
+    index = i;
+    lastToken = null;
+    token = null;
+    lookaheadToken = null;
+    updateCurrentCharCode();
+  }
+
+  get index() {
+    return index;
   }
 }
 
