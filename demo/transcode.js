@@ -39,16 +39,12 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
     var sourceMapGenerator = new SourceMapGenerator(config);
     options = {sourceMapGenerator: sourceMapGenerator};
   }
-  var reporter = new BatchErrorReporter();
   var url = location.href;
-  var loaderHooks = new InterceptOutputLoaderHooks(reporter, url, options);
+  var loaderHooks = new InterceptOutputLoaderHooks(null, url, options);
   loaderHooks.onTranscoded = onTranscoded;
 
-  function reportErrors() {
-    onFailure(reporter.errors);
-  }
   var loader = new Loader(loaderHooks);
-  loader.module(contents, {}).then(onSuccess, reportErrors);
+  loader.module(contents, {}).then(onSuccess, onFailure);
 }
 
 export function renderSourceMap(source, sourceMap) {
