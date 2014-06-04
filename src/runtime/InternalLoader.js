@@ -232,6 +232,7 @@ export class InternalLoader {
         codeUnit.source = text;
         return codeUnit;
       }).then(this.loaderHooks.translate.bind(this.loaderHooks)).then((source) => {
+        codeUnit.instantiate();  // TODO(jjb): this is where we need to process execute.
         codeUnit.source = source;
         codeUnit.state = LOADED;
         this.handleCodeUnitLoaded(codeUnit);

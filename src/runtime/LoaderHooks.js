@@ -52,6 +52,13 @@ export class LoaderHooks {
     this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
+<<<<<<< HEAD
+=======
+    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
+    this.eventHandlers = {
+      complete: []
+    }
+>>>>>>> wip
   }
 
   get(normalizedName) {
@@ -239,6 +246,18 @@ export class LoaderHooks {
     if (reporter.hadError())
       throw reporter.toException();
     return result;
+  }
+
+  on(eventName, callback) {
+    if (this.eventHandlers.hasOwnPropertyName(eventName)) {
+      this.eventHandlers[eventName].push(callback);
+    } else {
+      throw new Error('LoaderHooks has no event named ' + eventName);
+    }
+  }
+
+  onComplete(codeUnit) {
+    this.eventHandlers.complete.forEach((handler) => handler(codeUnit));
   }
 
 }
