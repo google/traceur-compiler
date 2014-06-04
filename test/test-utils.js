@@ -105,6 +105,33 @@
     throw new chai.AssertionError(message);
   }
 
+  function hasMatchingError(expected, actualErrors, pathRe) {
+    var m;
+    if (!pathRe || !(m = pathRe.exec(expected)))
+      return actualErrors.some(function(error) {
+        return error.indexOf(expected) !== -1;
+      });
+
+    var expectedPath = m[1];
+    var expectedNonPath = expected.replace(expectedPath, '<PATH>');
+
+    return actualErrors.some(function (error) {
+      var m = pathRe.exec(error);
+      if (!m)
+        return false;
+
+      var actualPath = m[1];
+      var actualNonPath = error.replace(actualPath, '<PATH>');
+
+      if (actualNonPath.indexOf(expectedNonPath) === -1)
+        return false;
+
+      actualPath = actualPath.replace(/\\/g, '/');
+
+      return actualPath.indexOf(expectedPath) !== -1;
+    });
+  }
+
   function featureTest(name, url, fileLoader) {
 
     teardown(function() {
@@ -116,9 +143,8 @@
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
-      var reporter = new traceur.util.TestErrorReporter(reDirectoryResources);
       var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', fileLoader);
+      var loaderHooks = new LoaderHooks(null, './', fileLoader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
@@ -133,7 +159,7 @@
 
         if (options.async) {
           global.done = function(ex) {
-            handleShouldCompile();
+            handleShouldCompile(ex);
             done(ex);
           };
         }
@@ -143,16 +169,16 @@
 
       var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
 
-      function handleShouldCompile() {
+      function handleShouldCompile(error) {
         if (!options.shouldCompile) {
-          assert.isTrue(reporter.hadError(),
+          assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
-
-          options.expectedErrors.forEach(function(expected) {
-            assert.isTrue(reporter.hasMatchingError(expected),
-                          'Missing expected error: ' + expected +
-                          '\nActual errors:\n' +
-                          reporter.errors.join('\n'));
+          options.expectedErrors.forEach(function(expected, index) {
+            var actualErrors = (error + '').split('\n');
+            assert.isTrue(
+                hasMatchingError(expected, actualErrors, reDirectoryResources),
+                'Missing expected error: ' + expected +
+                '\nActual errors:\n' + actualErrors);
           });
         }
       }
@@ -171,8 +197,7 @@
       }
 
       function handleFailure(error) {
-        handleShouldCompile();
-        // TODO(arv): Improve how errors are passed through the module loader.
+        handleShouldCompile(error);
         if (options.shouldCompile) {
           done(error)
         } else {
@@ -201,7 +226,7 @@
         return;
       }
 
-      var reporter = new traceur.util.TestErrorReporter();
+      var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
@@ -217,7 +242,7 @@
 
       if (reporter.hadError()) {
         fail('Error compiling ' + name + '.\n' +
-             reporter.errors.join('\n'));
+             reporter.errorsToString());
         return;
       }
 

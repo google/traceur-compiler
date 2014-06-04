@@ -21,42 +21,30 @@ import {transformOptions} from '../../options';
 
 /**
  * Builds up all module symbols and validates them.
+ * @param {Array.<Object>} deps, {moduleSymbol, tree}
+ * @param {Loader} loader
+ * @return {void}
  */
-export class ExportListBuilder {
-  /**
-   * @param {ErrorReporter} reporter
-   */
-  constructor(reporter) {
-    this.reporter_ = reporter;
+export function buildExportList(deps, loader, reporter) {
+  if (!transformOptions.modules)
+    return;
+
+  function doVisit(ctor) {
+    for (var i = 0; i < deps.length; i++) {
+      var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+      visitor.visitAny(deps[i].tree);
+    }
   }
 
-  /**
-   * @param {Array.<Object>} deps, {moduleSymbol, treee}
-   * @param {Loader} loader
-   * @return {void}
-   */
-  buildExportList(deps, loader) {
-    if (!transformOptions.modules)
-      return;
-
-    var reporter = this.reporter_;
-
-    function doVisit(ctor) {
-      for (var i = 0; i < deps.length; i++) {
-        var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
-        visitor.visitAny(deps[i].tree);
-      }
+  function reverseVisit(ctor) {
+    for (var i = deps.length - 1; i >= 0; i--) {
+      var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+      visitor.visitAny(deps[i].tree);
     }
-
-    function reverseVisit(ctor) {
-      for (var i = deps.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
-        visitor.visitAny(deps[i].tree);
-      }
-    }
-
-    // Export star needs to be done in dependency order.
-    reverseVisit(ExportVisitor);
-    doVisit(ValidationVisitor);
   }
+
+  // Export star needs to be done in dependency order.
+  reverseVisit(ExportVisitor);
+  doVisit(ValidationVisitor);
 }
+

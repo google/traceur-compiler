@@ -23,7 +23,7 @@ var path = require('path');
 var traceur = require('./traceur.js');
 var AttachModuleNameTransformer =
     traceur.codegeneration.module.AttachModuleNameTransformer;
-var ErrorReporter = traceur.util.TestErrorReporter;
+var ErrorReporter = traceur.util.CollectingErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var PureES6Transformer = traceur.codegeneration.PureES6Transformer;
 var Parser = traceur.syntax.Parser;

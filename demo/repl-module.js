@@ -164,10 +164,10 @@ function compile() {
   function onSuccess(mod) {
     // Empty for now.
   }
-  function onFailure(errors) {
+  function onFailure(error) {
      hasError = true;
      errorElement.hidden = false;
-     errorElement.textContent = errors.join('\n');
+     errorElement.textContent = error.stack || error;
   }
 
   function onTranscoded(metadata, url) {

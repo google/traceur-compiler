@@ -37,45 +37,50 @@ suite('context test', function() {
     var TraceurLoader = traceur.runtime.TraceurLoader;
 
     var source = fs.readFileSync(fileName, 'utf-8');
-    var reporter = new traceur.util.TestErrorReporter();
-    var loaderHooks = new InterceptOutputLoaderHooks(reporter, fileName);
+    var loaderHooks = new InterceptOutputLoaderHooks(null, fileName);
     var loader = new TraceurLoader(loaderHooks);
-    loader.script(source);
-    assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
-    var output = loaderHooks.transcoded;
+    return loader.script(source).then(function() {
+      var output = loaderHooks.transcoded;
 
-    var runtimePath = resolve('bin/traceur-runtime.js');
-    var runtime = fs.readFileSync(runtimePath, 'utf-8');
-    var context = vm.createContext();
+      var runtimePath = resolve('bin/traceur-runtime.js');
+      var runtime = fs.readFileSync(runtimePath, 'utf-8');
+      var context = vm.createContext();
 
-    if (debug) {
-      context.console = console;
-      context.debugGenerated = true;
-      console.log(output);
-    }
+      if (debug) {
+        context.console = console;
+        context.debugGenerated = true;
+        console.log(output);
+      }
 
-    vm.runInNewContext(runtime + output, context, fileName);
+      vm.runInNewContext(runtime + output, context, fileName);
 
-    return context.result;
+      return context.result;
+    });
   }
 
-  test('class', function() {
+  test('class', function(done) {
     var fileName = path.resolve(__dirname, 'resources/class.js');
-    var result = executeFileWithRuntime(fileName);
-    assert.equal(result, 2);
+    executeFileWithRuntime(fileName).then(function() {
+      assert.equal(result, 2);
+      done();
+    }).catch(done);
   });
 
-  test('generator', function() {
+  test('generator', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    var result = executeFileWithRuntime(fileName);
-    assert.deepEqual(result, [1, 2, 9, 16]);
+    executeFileWithRuntime(fileName).then(function() {
+      assert.deepEqual(result, [1, 2, 9, 16]);
+      done();
+    }).catch(done);
   });
 
-  test('generator (symbols)', function() {
+  test('generator (symbols)', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
     traceur.options.symbols = true;
-    var result = executeFileWithRuntime(fileName);
-    assert.deepEqual(result, [1, 2, 9, 16]);
+    executeFileWithRuntime(fileName).then(function() {
+      assert.deepEqual(result, [1, 2, 9, 16]);
+      done();
+    }).catch(done);
   });
 
   test('compiled modules', function(done) {
@@ -86,9 +91,10 @@ suite('context test', function() {
     exec(executable + ' --out ' + tempFileName + ' -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          executeFileWithRuntime(tempFileName);
-          assert.equal(global.result, 'x');
-          done();
+          executeFileWithRuntime(tempFileName).then(function() {
+            assert.equal(global.result, 'x');
+            done();
+          }).catch(done);
         });
   });
 
@@ -100,9 +106,10 @@ suite('context test', function() {
     exec(executable + ' --out ' + tempFileName + ' --modules=inline -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          executeFileWithRuntime(tempFileName);
-          assert.equal(global.result, 'x');
-          done();
+          executeFileWithRuntime(tempFileName).then(function() {
+            assert.equal(global.result, 'x');
+            done();
+          }).catch(done);
         });
   });
 
@@ -114,12 +121,13 @@ suite('context test', function() {
     exec(executable + ' --out ' + tempFileName + ' --modules=instantiate -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          executeFileWithRuntime(tempFileName);
-          System.import('test/unit/node/resources/import-another-x').then(function(module) {
-            assert.equal(module.iAmNotScript, true);
-            assert.equal(anotherResult, 17);
-            done();
-          });
+          executeFileWithRuntime(tempFileName).then(function() {
+            System.import('test/unit/node/resources/import-another-x').then(function(module) {
+              assert.equal(module.iAmNotScript, true);
+              assert.equal(anotherResult, 17);
+              done();
+            });
+          }).catch(done);
         });
   });
 

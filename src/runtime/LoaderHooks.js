@@ -16,7 +16,8 @@ import {
   AttachModuleNameTransformer
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
-import {ExportListBuilder} from '../codegeneration/module/ExportListBuilder';
+import {buildExportList} from '../codegeneration/module/ExportListBuilder';
+import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
@@ -48,11 +49,9 @@ export class LoaderHooks {
   constructor(reporter, baseURL,
       fileLoader = webLoader,
       moduleStore = $traceurRuntime.ModuleStore) {
-    this.reporter = reporter;
     this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   }
 
   get(normalizedName) {
@@ -81,45 +80,45 @@ export class LoaderHooks {
   }
 
   getModuleSpecifiers(codeUnit) {
-    // Parse
-    if (!this.parse(codeUnit))
-      return;
-
+    this.parse(codeUnit);
     codeUnit.state = PARSED;
 
     // Analyze to find dependencies
-    var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
+    var moduleSpecifierVisitor = new ModuleSpecifierVisitor();
     moduleSpecifierVisitor.visit(codeUnit.metadata.tree);
     return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
   parse(codeUnit) {
     assert(!codeUnit.metadata.tree);
-    var reporter = this.reporter;
+    var reporter = new CollectingErrorReporter();
     var normalizedName = codeUnit.normalizedName;
     var program = codeUnit.source;
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
-    var parser = new Parser(file, reporter);
-    if (codeUnit.type == 'module')
-      codeUnit.metadata.tree = parser.parseModule();
-    else
-      codeUnit.metadata.tree = parser.parseScript();
+    this.checkForErrors((reporter) => {
+      var parser = new Parser(file, reporter);
+      if (codeUnit.type == 'module')
+        codeUnit.metadata.tree = parser.parseModule();
+      else
+        codeUnit.metadata.tree = parser.parseScript();
+    });
 
     codeUnit.metadata.moduleSymbol =
       new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
-
-    return !reporter.hadError();
   }
 
   transform(codeUnit) {
     var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
     var transformedTree = transformer.transformAny(codeUnit.metadata.tree);
-    transformer = new FromOptionsTransformer(this.reporter,
-        identifierGenerator);
 
-    return transformer.transform(transformedTree);
+    return this.checkForErrors((reporter) => {
+      transformer = new FromOptionsTransformer(reporter,
+          identifierGenerator);
+
+      return transformer.transform(transformedTree);
+    });
   }
 
   fetch(load) {
@@ -223,7 +222,7 @@ export class LoaderHooks {
       }
     }
 
-    this.exportListBuilder_.buildExportList(deps, loader);
+    this.checkForErrors((reporter) => buildExportList(deps, loader, reporter));
   }
 
   get options() {
@@ -232,6 +231,14 @@ export class LoaderHooks {
 
   bundledModule(name) {
     return this.moduleStore_.bundleStore[name];
+  }
+
+  checkForErrors(fncOfReporter) {
+    var reporter = new CollectingErrorReporter();
+    var result = fncOfReporter(reporter);
+    if (reporter.hadError())
+      throw reporter.toException();
+    return result;
   }
 
 }

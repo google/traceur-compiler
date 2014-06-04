@@ -20,11 +20,11 @@ export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './options';
 
 import {ErrorReporter} from './util/ErrorReporter';
-import {TestErrorReporter} from './util/TestErrorReporter';
+import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 
 export var util = {
   ErrorReporter,
-  TestErrorReporter
+  CollectingErrorReporter
 };
 
 import {Parser} from './syntax/Parser';
