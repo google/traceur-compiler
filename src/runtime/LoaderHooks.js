@@ -52,13 +52,9 @@ export class LoaderHooks {
     this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-<<<<<<< HEAD
-=======
-    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
     this.eventHandlers = {
       complete: []
     }
->>>>>>> wip
   }
 
   get(normalizedName) {

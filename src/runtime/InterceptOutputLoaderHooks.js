@@ -21,10 +21,11 @@ export class InterceptOutputLoaderHooks extends LoaderHooks {
     this.transcoded = null;
     this.onTranscoded = () => {};
   }
-  instantiate({metadata, url}) {
+  onComplete(codeUnit) {
+    var metadata = codeUnit.metadata;
     this.sourceMap = metadata.sourceMap;
     this.transcoded = metadata.transcoded;
-    this.onTranscoded(metadata, url);
+    this.onTranscoded(metadata, codeUnit.url);
     return undefined;
   }
 }

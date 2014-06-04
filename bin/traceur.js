@@ -21876,6 +21876,7 @@ System.register("traceur@0.0.44/src/runtime/LoaderHooks", [], function() {
     this.baseURL_ = baseURL;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
+    this.eventHandlers = {complete: []};
   };
   ($traceurRuntime.createClass)(LoaderHooks, {
     get: function(normalizedName) {
@@ -22035,6 +22036,18 @@ System.register("traceur@0.0.44/src/runtime/LoaderHooks", [], function() {
       if (reporter.hadError())
         throw reporter.toException();
       return result;
+    },
+    on: function(eventName, callback) {
+      if (this.eventHandlers.hasOwnPropertyName(eventName)) {
+        this.eventHandlers[eventName].push(callback);
+      } else {
+        throw new Error('LoaderHooks has no event named ' + eventName);
+      }
+    },
+    onComplete: function(codeUnit) {
+      this.eventHandlers.complete.forEach((function(handler) {
+        return handler(codeUnit);
+      }));
     }
   }, {});
   return {get LoaderHooks() {
@@ -22055,12 +22068,11 @@ System.register("traceur@0.0.44/src/runtime/InterceptOutputLoaderHooks", [], fun
     this.onTranscoded = (function() {});
   };
   var $InterceptOutputLoaderHooks = InterceptOutputLoaderHooks;
-  ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__364) {
-      var metadata = $__364.metadata,
-          url = $__364.url;
+  ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {onComplete: function(codeUnit) {
+      var metadata = codeUnit.metadata;
       this.sourceMap = metadata.sourceMap;
       this.transcoded = metadata.transcoded;
-      this.onTranscoded(metadata, url);
+      this.onTranscoded(metadata, codeUnit.url);
       return undefined;
     }}, {}, LoaderHooks);
   return {get InterceptOutputLoaderHooks() {
@@ -22235,6 +22247,7 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
           codeUnit.source = text;
           return codeUnit;
         })).then(this.loaderHooks.translate.bind(this.loaderHooks)).then((function(source) {
+          codeUnit.instantiate();
           codeUnit.source = source;
           codeUnit.state = LOADED;
           $__365.handleCodeUnitLoaded(codeUnit);
@@ -22407,7 +22420,6 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
       ($__367 = $traceurRuntime.assertObject(toSource(metadata.transformedTree, this.options, filename)), metadata.transcoded = $__367[0], metadata.sourceMap = $__367[1], $__367);
       if (codeUnit.address && metadata.transcoded)
         metadata.transcoded += '//# sourceURL=' + codeUnit.address;
-      codeUnit.instantiate();
     },
     orderDependencies: function() {
       var visited = new ObjectMap();
@@ -22446,6 +22458,7 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
           continue;
         }
         codeUnit.state = COMPLETE;
+        this.loaderHooks.onComplete(codeUnit);
         codeUnit.resolve(codeUnit.result);
       }
     }

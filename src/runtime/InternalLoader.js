@@ -232,7 +232,7 @@ export class InternalLoader {
         codeUnit.source = text;
         return codeUnit;
       }).then(this.loaderHooks.translate.bind(this.loaderHooks)).then((source) => {
-        codeUnit.instantiate();  // TODO(jjb): this is where we need to process execute.
+        codeUnit.instantiate();
         codeUnit.source = source;
         codeUnit.state = LOADED;
         this.handleCodeUnitLoaded(codeUnit);
@@ -454,7 +454,6 @@ export class InternalLoader {
         toSource(metadata.transformedTree, this.options, filename);
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
-    codeUnit.instantiate();
   }
 
   orderDependencies() {
@@ -502,6 +501,7 @@ export class InternalLoader {
         continue;
       }
       codeUnit.state = COMPLETE;
+      this.loaderHooks.onComplete(codeUnit);
       codeUnit.resolve(codeUnit.result);
     }
   }
