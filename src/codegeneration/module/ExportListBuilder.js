@@ -21,7 +21,7 @@ import {transformOptions} from '../../options';
 
 /**
  * Builds up all module symbols and validates them.
- * @param {Array.<Object>} deps, {moduleSymbol, treee}
+ * @param {Array.<Object>} deps, {moduleSymbol, tree}
  * @param {Loader} loader
  * @return {void}
  */
