@@ -42,3 +42,18 @@ export function toLength(x) {
   var len = toInteger(x);
   return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
 }
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable
+export function checkIterable(x) {
+    return !isObject(x) ? undefined : x[Symbol.iterator];
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
+export function isConstructor(x) {
+    try {
+        new x();
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
