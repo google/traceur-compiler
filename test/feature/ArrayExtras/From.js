@@ -34,17 +34,24 @@ arr = Array.from([{'a': 1}, {'a': 2}], function(item, i) {
 
 assert.deepEqual(arr, [11, 13]);
 
+// should map on array-like object
+arr = Array.from({0: {'a': 5}, length: 1}, function(item, i) {
+  return item.a + i;
+});
+
+assert.deepEqual(arr, [5]);
+
 // should throw on bad map fn
 assert.throws(function() {
   Array.from.call([], null)
 }, TypeError);
 
 // should make from an array-like object
-var nonIterableObj = function(len) {
+var arrayLikeObj = function(len) {
     this.length = len;
 };
-nonIterableObj.from = Array.from;
-obj = nonIterableObj.from(['a', 'b', 'c']);
+arrayLikeObj.from = Array.from;
+obj = arrayLikeObj.from(['a', 'b', 'c']);
 
 assert.equal(obj.length, 3);
 assert.deepEqual(obj, {0: 'a', 1: 'b', 2: 'c', length: 3});
