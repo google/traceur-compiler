@@ -59,16 +59,15 @@ assert.deepEqual(obj, {0: 'a', 1: 'b', 2: 'c', length: 3});
 // should make from a non-array iterable
 var calledIterator = 0;
 var Iterable = function(len) {
-    var self = this;
+  var self = this;
 
-    self.length = len;
-    self[Symbol.iterator] = function*() {
-
-        for (var i = 0; i < self.length; i++) {
-          calledIterator++;
-          yield self[i];
-        }
-    };
+  self.length = len;
+  self[Symbol.iterator] = function*() {
+    for (var i = 0; i < self.length; i++) {
+      calledIterator++;
+      yield self[i];
+    }
+  };
 };
 var it = new Iterable(3);
 it[0] = 'a';
