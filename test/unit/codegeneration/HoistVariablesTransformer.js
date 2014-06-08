@@ -27,14 +27,21 @@ suite('HoistVariablesTransformer.js', function() {
   var options = $traceurRuntime.ModuleStore.
       getForTesting('src/options').options;
 
-  function parseExpression(content) {
-    var currentOption = options.blockBinding;
+  var currentOption;
+
+  setup(function() {
+    currentOption = options.blockBinding;
     options.blockBinding = true;
+  });
+
+  teardown(function() {
+    options.blockBinding = currentOption;
+  });
+
+  function parseExpression(content) {
     var file = new SourceFile('test', content);
     var parser = new Parser(file);
-    var tree = parser.parseExpression();
-    options.blockBinding = currentOption;
-    return tree;
+    return parser.parseExpression();
   }
 
   function parseFunctionBody(content) {

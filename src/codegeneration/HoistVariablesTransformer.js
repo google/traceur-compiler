@@ -66,7 +66,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     super();
     this.hoistedVariables_ = Object.create(null);
     this.keepBindingIdentifiers_ = false;
-	this.inBlockOrFor_ = false;
+    this.inBlockOrFor_ = false;
   }
 
   transformFunctionBody(tree) {
@@ -247,8 +247,8 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     var inBlockOrFor = this.inBlockOrFor_;
     this.inBlockOrFor_ = true;
     tree = super(tree);
-	this.inBlockOrFor_ = inBlockOrFor;
-	return tree;
+    this.inBlockOrFor_ = inBlockOrFor;
+    return tree;
   }
 
   addMachineVariable(name) {
