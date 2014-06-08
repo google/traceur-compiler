@@ -12,25 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {toInteger, toLength, toObject, isCallable, isConstructor, checkIterable} from './utils';
+import {
+  isCallable,
+  isConstructor,
+  checkIterable,
+  toInteger,
+  toLength,
+  toObject
+} from './utils';
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.1
 export function from(arrLike, mapFn = undefined, thisArg = undefined) {
   var C = this;
   var items = toObject(arrLike);
-  var len = toLength(items.length);
-  var mapping = mapFn === undefined ? false : true;
-  var usingIterator = checkIterable(items);
-  var arr, k;
+  var mapping = mapFn !== undefined;
+  var k = 0;
+  var arr, len;
 
   // mapFn must be callable if mapping
   if (mapping && !isCallable(mapFn)) {
     throw TypeError();
   }
 
-  if (usingIterator) {
+  if (checkIterable(items)) {
     arr = isConstructor(C) ? new C() : [];
-    k = 0;
 
     for (var item of items) {
       if (mapping) {
@@ -47,9 +52,10 @@ export function from(arrLike, mapFn = undefined, thisArg = undefined) {
     return arr;
   }
 
+  len = toLength(items.length);
   arr = isConstructor(C) ? new C(len) : new Array(len);
 
-  for (k = 0; k < len; k++) {
+  for (; k < len; k++) {
     if (mapping) {
       arr[k] = mapFn.call(thisArg, items[k], k);
     } else {

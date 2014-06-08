@@ -903,12 +903,7 @@ System.register("traceur@0.0.44/src/runtime/polyfills/utils", [], function() {
     return !isObject(x) ? undefined : x[Symbol.iterator];
   }
   function isConstructor(x) {
-    try {
-      new x();
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return isCallable(x);
   }
   return {
     get toObject() {
@@ -941,28 +936,26 @@ System.register("traceur@0.0.44/src/runtime/polyfills/Array", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.44/src/runtime/polyfills/Array";
   var $__5 = $traceurRuntime.assertObject(System.get("traceur@0.0.44/src/runtime/polyfills/utils")),
-      toInteger = $__5.toInteger,
-      toLength = $__5.toLength,
-      toObject = $__5.toObject,
       isCallable = $__5.isCallable,
       isConstructor = $__5.isConstructor,
-      checkIterable = $__5.checkIterable;
+      checkIterable = $__5.checkIterable,
+      toInteger = $__5.toInteger,
+      toLength = $__5.toLength,
+      toObject = $__5.toObject;
   function from(arrLike) {
     var mapFn = arguments[1];
     var thisArg = arguments[2];
     var C = this;
     var items = toObject(arrLike);
-    var len = toLength(items.length);
-    var mapping = mapFn === undefined ? false : true;
-    var usingIterator = checkIterable(items);
+    var mapping = mapFn !== undefined;
+    var k = 0;
     var arr,
-        k;
+        len;
     if (mapping && !isCallable(mapFn)) {
       throw TypeError();
     }
-    if (usingIterator) {
+    if (checkIterable(items)) {
       arr = isConstructor(C) ? new C() : [];
-      k = 0;
       for (var $__3 = items[Symbol.iterator](),
           $__4; !($__4 = $__3.next()).done; ) {
         var item = $__4.value;
@@ -978,8 +971,9 @@ System.register("traceur@0.0.44/src/runtime/polyfills/Array", [], function() {
       arr.length = k;
       return arr;
     }
+    len = toLength(items.length);
     arr = isConstructor(C) ? new C(len) : new Array(len);
-    for (k = 0; k < len; k++) {
+    for (; k < len; k++) {
       if (mapping) {
         arr[k] = mapFn.call(thisArg, items[k], k);
       } else {

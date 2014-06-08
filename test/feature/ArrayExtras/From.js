@@ -4,12 +4,14 @@ var arr;
 var obj;
 
 // should make an array from arguments
-var arrayFromArgs = function() {return Array.from(arguments);};
+function arrayFromArgs() {
+  return Array.from(arguments);
+}
 arr = arrayFromArgs('a', 1);
 
 assert.equal(arr.length, 2);
 assert.deepEqual(arr, ['a', 1]);
-assert.equal(Array.isArray(arr), true);
+assert.isTrue(Array.isArray(arr));
 
 // should handle undefined values
 var arrayLike = {0: 'a', 2: 'c', length: 3};
@@ -17,7 +19,7 @@ arr = Array.from(arrayLike);
 
 assert.equal(arr.length, 3);
 assert.deepEqual(arr, ['a', undefined, 'c']);
-assert.equal(Array.isArray(arr), true);
+assert.isTrue(Array.isArray(arr));
 
 // should use a mapFn
 arr = Array.from([{'a': 1}, {'a': 2}], function(item, i) {
@@ -80,3 +82,38 @@ assert.equal(obj[0], 'a');
 assert.equal(obj[1], 'b');
 assert.equal(obj[2], 'c');
 assert.equal(calledIterator, 3);
+
+// should make from a sub-classed array
+var length = 0;
+var constructorCounter = 0;
+var lengthSetCounter = 0;
+var lengthGetCounter = 0;
+
+class MyArray extends Array {
+  constructor(v) {
+    constructorCounter++;
+    assert.isUndefined(v);
+  }
+
+  set length(v) {
+    lengthSetCounter++;
+    length = v;
+  }
+
+  get length() {
+    lengthGetCounter++;
+    return length;
+  }
+}
+
+var ma = MyArray.from(['a', 'b']);
+assert.instanceOf(ma, MyArray);
+assert.equal(constructorCounter, 1);
+assert.equal(lengthSetCounter, 1);
+assert.equal(lengthGetCounter, 0);
+assert.isTrue(ma.hasOwnProperty('0'));
+assert.isTrue(ma.hasOwnProperty('1'));
+assert.isFalse(ma.hasOwnProperty('length'));
+assert.equal(ma[0], 'a');
+assert.equal(ma[1], 'b');
+assert.equal(ma.length, 2);

@@ -45,15 +45,10 @@ export function toLength(x) {
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable
 export function checkIterable(x) {
-    return !isObject(x) ? undefined : x[Symbol.iterator];
+  return !isObject(x) ? undefined : x[Symbol.iterator];
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
 export function isConstructor(x) {
-    try {
-        new x();
-        return true;
-    } catch(e) {
-        return false;
-    }
+  return isCallable(x);
 }
