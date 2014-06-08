@@ -2128,7 +2128,7 @@ System.register("traceur@0.0.44/src/options", [], function() {
       }));
       return value;
     },
-    modules_: 'register',
+    modules_: null,
     get modules() {
       return this.modules_;
     },
@@ -2183,6 +2183,8 @@ System.register("traceur@0.0.44/src/options", [], function() {
   }
   function addOptions(flags) {
     Object.keys(options).forEach(function(name) {
+      if (/_$/.test(name))
+        return;
       var dashedName = toDashCase(name);
       if ((name in parseOptions) && (name in transformOptions)) {
         flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]);
@@ -2198,6 +2200,7 @@ System.register("traceur@0.0.44/src/options", [], function() {
     });
     flags.option('--referrer <name>', 'Bracket output code with System.referrerName=<name>', (function(name) {
       setOption('referrer', name);
+      System.map = System.semverMap(name);
       return name;
     }));
     flags.option('--type-assertion-module <path>', 'Absolute path to the type assertion module.', (function(path) {
@@ -2207,6 +2210,10 @@ System.register("traceur@0.0.44/src/options", [], function() {
     flags.option('--script <fileName>', 'Parse as Script (must precede modules)', (function(fileName) {
       options.scripts.push(fileName);
     }));
+    flags.option('--modules <' + moduleOptions.join(', ') + '>', 'select the output format for modules', (function(moduleFormat) {
+      options.modules = moduleFormat;
+    }));
+    options.modules = 'register';
   }
   function filterOption(dashedName) {
     var name = toCamelCase(dashedName);
@@ -2275,7 +2282,7 @@ System.register("traceur@0.0.44/src/options", [], function() {
   addFeatureOption('forOf', ON_BY_DEFAULT);
   addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
   addFeatureOption('generators', ON_BY_DEFAULT);
-  addFeatureOption('modules', ON_BY_DEFAULT);
+  addFeatureOption('modules', 'SPECIAL');
   addFeatureOption('numericLiterals', ON_BY_DEFAULT);
   addFeatureOption('propertyMethods', ON_BY_DEFAULT);
   addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
@@ -22434,7 +22441,7 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
       }
     },
     rejectOneAndAll: function(codeUnit, error) {
-      codeUnit.state.ERROR;
+      codeUnit.state = ERROR;
       codeUnit.error = error;
       codeUnit.reject(error);
       this.abortAll(error);

@@ -18,7 +18,7 @@ var fs = require('fs');
 var traceur = require('./traceur.js');
 var nodeLoader = require('./nodeLoader.js');
 
-function interpret(filename, argv, flags) {
+function interpret(filename) {
   // Interpret the filename argument as a platform-independent,
   // normalized module name.
   var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');

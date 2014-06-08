@@ -379,7 +379,7 @@ export class InternalLoader {
   }
 
   rejectOneAndAll(codeUnit, error) {
-    codeUnit.state.ERROR;
+    codeUnit.state = ERROR;
     codeUnit.error = error;
     codeUnit.reject(error);
     // TODO(jjb): reject the other codeUnits with a distinct error.

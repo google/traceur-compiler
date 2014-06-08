@@ -62,7 +62,7 @@ export var options = {
     return value;
   },
 
-  modules_: 'register',
+  modules_: null,
 
   get modules() {
     return this.modules_;
@@ -152,23 +152,26 @@ function setOption(name, value) {
  */
 function addOptions(flags) {
   Object.keys(options).forEach(function(name) {
+    if (/_$/.test(name))
+      return;  // Skip private properties
+
     var dashedName = toDashCase(name);
     if ((name in parseOptions) && (name in transformOptions)) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
       flags.on(dashedName, (value) => setOption(dashedName, value));
-    }
-    // If the option value is null then it's not a boolean option and should
-    // be added separately.
-    else if (options[name] !== null) {
+    } else if (options[name] !== null) {
       flags.option('--' + dashedName, descriptions[name]);
       flags.on(dashedName, () => setOption(dashedName, true));
     }
+    // If the option value is null then it's not a boolean option and should
+    // be added separately below.
   });
   flags.option('--referrer <name>',
     'Bracket output code with System.referrerName=<name>',
     (name) => {
       setOption('referrer', name);
+      System.map = System.semverMap(name);
       return name;
     });
   flags.option('--type-assertion-module <path>',
@@ -182,6 +185,13 @@ function addOptions(flags) {
     (fileName) => {
       options.scripts.push(fileName);
     });
+  flags.option('--modules <' + moduleOptions.join(', ') + '>',
+    'select the output format for modules',
+    (moduleFormat) => {
+      options.modules = moduleFormat;
+    });
+  // After we've processed the options, set defaults for non-boolean options.
+  options.modules = 'register';
 }
 
 /**
@@ -292,7 +302,7 @@ addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
 addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
 addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
-addFeatureOption('modules', ON_BY_DEFAULT);    // 14
+addFeatureOption('modules', 'SPECIAL');    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
 addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
