@@ -45,7 +45,7 @@ assert.deepEqual(arr, [5]);
 
 // should throw on bad map fn
 assert.throws(function() {
-  Array.from.call([], null)
+  Array.from([], null)
 }, TypeError);
 
 // should make from an array-like object
