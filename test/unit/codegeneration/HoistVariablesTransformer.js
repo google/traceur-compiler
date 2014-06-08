@@ -24,6 +24,19 @@ suite('HoistVariablesTransformer.js', function() {
       getForTesting('src/outputgeneration/TreeWriter').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
       getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+  var options = $traceurRuntime.ModuleStore.
+      getForTesting('src/options').options;
+
+  var currentOption;
+
+  setup(function() {
+    currentOption = options.blockBinding;
+    options.blockBinding = true;
+  });
+
+  teardown(function() {
+    options.blockBinding = currentOption;
+  });
 
   function parseExpression(content) {
     var file = new SourceFile('test', content);
@@ -56,6 +69,11 @@ suite('HoistVariablesTransformer.js', function() {
   testHoist('Variable statement', '1; var x = 2, y;', 'var x, y; 1; x = 2;');
   testHoist('Variable statement', '1; var x, y = 3;', 'var x, y; 1; y = 3;');
 
+  testHoist('Let/const declaration', '1; let x = 2; const y = 3;',
+      'var x, y; 1; x = 2; y = 3;');
+  testHoist('Let/const declaration', '1; {let x = 2; const y = 3;}',
+      '1; {let x = 2; const y = 3;}');
+
   testHoist('For loop', '1; for (var x = 2; x; x--) {}',
       'var x; 1; for (x = 2; x; x--) {}');
   testHoist('For loop', '1; for (var x = 2, y = 3; x; x--) {}',
@@ -64,12 +82,18 @@ suite('HoistVariablesTransformer.js', function() {
       'var x, y; 1; for (x = 2; x; x--) {}');
   testHoist('For loop', '1; for (var x, y = 3; x; x--) {}',
       'var x, y; 1; for (y = 3; x; x--) {}');
+  testHoist('For loop', '1; for (let x = 2; x; x--) {}',
+      '1; for (let x = 2; x; x--) {}');
 
   testHoist('For in loop', '1; for (var x in {}) {}',
       'var x; 1; for (x in {}) {}');
+  testHoist('For in loop', '1; for (let x in {}) {}',
+      '1; for (let x in {}) {}');
 
   testHoist('For of loop', '1; for (var x of []) {}',
       'var x; 1; for (x of []) {}');
+  testHoist('For of loop', '1; for (let x of []) {}',
+      '1; for (let x of []) {}');
 
   testHoist('Object pattern', '1; var {x} = {x: 2};',
       'var x; 1; ({x} = {x: 2});');

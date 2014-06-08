@@ -19,6 +19,7 @@ import {
   FunctionBody,
   ForInStatement,
   ForOfStatement,
+  ForStatement,
   VariableDeclarationList,
   VariableStatement
 } from '../syntax/trees/ParseTrees';
@@ -65,6 +66,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     super();
     this.hoistedVariables_ = Object.create(null);
     this.keepBindingIdentifiers_ = false;
+    this.inBlockOrFor_ = false;
   }
 
   transformFunctionBody(tree) {
@@ -165,7 +167,10 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformVariableDeclarationList(tree) {
-    if (tree.declarationType == VAR) {
+    // Hoist var declarations and top-level let/const declarations. If
+    // const-ness is ever enforced, note that all hoisted declarations become
+    // var declarations.
+    if (tree.declarationType === VAR || !this.inBlockOrFor_) {
       var expressions = this.transformList(tree.declarations);
 
       // Any var without an initializer becomes null in
@@ -181,8 +186,8 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
       return createCommaExpression(expressions);
     }
 
-    // let/const - just transform for now
-    return super(tree);
+    // let/const - do not transform.
+    return tree;
   }
 
   transformCatch(tree) {
@@ -215,9 +220,35 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformLoopIninitaliser_(tree) {
-    if (tree.type !== VARIABLE_DECLARATION_LIST)
+    if (tree.type !== VARIABLE_DECLARATION_LIST || tree.declarationType !== VAR)
       return tree;
     return this.transformAny(tree.declarations[0].lvalue);
+  }
+
+  transformForStatement(tree) {
+    var inBlockOrFor = this.inBlockOrFor_;
+    this.inBlockOrFor_ = true;
+    var initializer = this.transformAny(tree.initializer);
+    this.inBlockOrFor_ = inBlockOrFor;
+    var condition = this.transformAny(tree.condition);
+    var increment = this.transformAny(tree.increment);
+    var body = this.transformAny(tree.body);
+    if (initializer === tree.initializer &&
+        condition === tree.condition &&
+        increment === tree.increment &&
+        body === tree.body) {
+      return tree;
+    }
+    return new ForStatement(tree.location, initializer,
+                            condition, increment, body);
+  }
+
+  transformBlock(tree) {
+    var inBlockOrFor = this.inBlockOrFor_;
+    this.inBlockOrFor_ = true;
+    tree = super(tree);
+    this.inBlockOrFor_ = inBlockOrFor;
+    return tree;
   }
 
   addMachineVariable(name) {
