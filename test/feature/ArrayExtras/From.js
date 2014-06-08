@@ -128,7 +128,13 @@ function MyArray2(v) {
 }
 MyArray2.from = Array.from;
 
-ma = MyArray2.from({0: 'a', 1: 'b', length: 2});
+function MyArray3() {};
+var ma3 = new MyArray3();
+ma3[0] = 'a';
+ma3[1] = 'b';
+ma3.length = 2;
+
+ma = MyArray2.from(ma3);
 assert.instanceOf(ma, MyArray2);
 assert.equal(constructorCounter, 1);
 assert.isTrue(ma.hasOwnProperty('0'));
