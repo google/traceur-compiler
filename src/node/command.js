@@ -33,6 +33,15 @@ var interpret = require('./interpreter.js');
 // follows. The module sets global.System as a side-effect.
 require('./System.js');
 
+var rootSources = [];
+commandLine.option('--script <fileName>', 'Parse as Script', function(fileName) {
+  rootSources.push({name: fileName, type: 'script'});
+});
+
+commandLine.option('--module <fileName>', 'Parse as module ', function(fileName) {
+   rootSources.push({name: fileName, type: 'module'});
+});
+
 commandLine.option('--out <FILE>', 'Compile all input files into a single file');
 commandLine.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modules into an output directory');
 
@@ -90,20 +99,16 @@ traceur.options.addOptions(commandLine);
 
 commandLine.usage('[options] [files]');
 
-var moduleFileNames = [];
 commandLine.command('*').action(function() {
     // The callback seems to receive a "command" at the end of arguments
     for (var i = 0; i < arguments.length - 1; i++) {
-      moduleFileNames.push(arguments[i]);
+      rootSources.push({name: arguments[i], type: 'module'});
     }
   });
 
 commandLine.parse(process.argv);
 
-var includes = traceur.options.scripts || [];
-includes = includes.concat(moduleFileNames);
-
-if (!shouldExit && !includes.length) {
+if (!shouldExit && !rootSources.length) {
   // TODO: Start trepl
   console.error('\n  Error: At least one input file is needed');
   commandLine.help();
@@ -113,22 +118,24 @@ if (!shouldExit && !includes.length) {
 var compiler = require('./compiler.js');
 var compileToSingleFile = compiler.compileToSingleFile;
 var compileToDirectory = compiler.compileToDirectory;
-
 var out = commandLine.out;
 var dir = commandLine.dir;
 if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile)
-      compileToSingleFile(out, includes, commandLine.sourceMaps);
+      compileToSingleFile(out, rootSources, commandLine.sourceMaps);
     else
-      compileToDirectory(out, includes, commandLine.sourceMaps);
+      compileToDirectory(out, rootSources, commandLine.sourceMaps);
   } else if (dir) {
-    var compileAllJsFilesInDir = require('./compile-single-file.js').compileAllJsFilesInDir;
-    compileAllJsFilesInDir(dir, includes[0], true);
+    if (rootSources.length !== 1)
+      throw new Error('Compile all in directory requires exactly one input filename');
+    var compileAllJsFilesInDir =
+        require('./compile-single-file.js').compileAllJsFilesInDir;
+    compileAllJsFilesInDir(dir, rootSources[0].name, true);
   } else {
-    moduleFileNames.forEach(function(name) {
-      interpret(path.resolve(name));
+    rootSources.forEach(function(obj) {
+      interpret(path.resolve(obj.name));
     });
   }
 }

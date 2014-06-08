@@ -2203,9 +2203,6 @@ System.register("traceur@0.0.44/src/options", [], function() {
       setOption('type-assertion-module', path);
       return path;
     }));
-    flags.option('--script <fileName>', 'Parse as Script (must precede modules)', (function(fileName) {
-      options.scripts.push(fileName);
-    }));
     flags.option('--modules <' + moduleOptions.join(', ') + '>', 'select the output format for modules', (function(moduleFormat) {
       options.modules = moduleFormat;
     }));
@@ -2222,10 +2219,6 @@ System.register("traceur@0.0.44/src/options", [], function() {
     setFromObject: {value: setFromObject},
     addOptions: {value: addOptions},
     filterOption: {value: filterOption},
-    scripts: {
-      value: [],
-      writable: true
-    },
     modules_: {
       value: null,
       writable: true
