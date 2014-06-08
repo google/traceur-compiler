@@ -24,7 +24,7 @@ import {
   raw,
   startsWith
 } from './String';
-import {fill, find, findIndex} from './Array';
+import {fill, find, findIndex, from} from './Array';
 import {entries, keys, values} from './ArrayIterator';
 import {assign, is, mixin} from './Object';
 
@@ -82,6 +82,10 @@ function polyfillArray(Array, Symbol) {
     'fill', fill,
     'find', find,
     'findIndex', findIndex,
+  ]);
+
+  maybeAddFunctions(Array, [
+    'from', from
   ]);
 
   if (Symbol && Symbol.iterator) {
