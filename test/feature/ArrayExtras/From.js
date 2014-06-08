@@ -118,28 +118,38 @@ assert.equal(ma[0], 'a');
 assert.equal(ma[1], 'b');
 assert.equal(ma.length, 2);
 
-
-// should make from without iterables
+// should make from a sub-classed array without iterable
+length = 0;
 constructorCounter = 0;
+lengthSetCounter = 0;
+lengthGetCounter = 0;
 
-function MyArray2(v) {
-  constructorCounter++;
-  assert.equal(2, v);
+class MyArray2 extends MyArray {
+  constructor(v) {
+    constructorCounter++;
+    assert.equal(v, 2);
+  }
+};
+MyArray2.prototype[Symbol.iterator] = undefined;
+
+class MyArray3 extends Array {
+  constructor(v) {
+    this.length = v;
+  }
 }
-MyArray2.from = Array.from;
+MyArray3.prototype[Symbol.iterator] = undefined;
 
-function MyArray3() {};
-var ma3 = new MyArray3();
+var ma3 = new MyArray3(2);
 ma3[0] = 'a';
 ma3[1] = 'b';
-ma3.length = 2;
-
 ma = MyArray2.from(ma3);
 assert.instanceOf(ma, MyArray2);
 assert.equal(constructorCounter, 1);
+assert.equal(lengthSetCounter, 1);
+assert.equal(lengthGetCounter, 0);
 assert.isTrue(ma.hasOwnProperty('0'));
 assert.isTrue(ma.hasOwnProperty('1'));
-assert.isTrue(ma.hasOwnProperty('length'));
+assert.isFalse(ma.hasOwnProperty('length'));
 assert.equal(ma[0], 'a');
 assert.equal(ma[1], 'b');
 assert.equal(ma.length, 2);
