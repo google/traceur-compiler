@@ -48,7 +48,7 @@ assert.throws(function() {
 
 // should make from an array-like object
 var arrayLikeObj = function(len) {
-    this.length = len;
+  this.length = len;
 };
 arrayLikeObj.from = Array.from;
 obj = arrayLikeObj.from(['a', 'b', 'c']);
