@@ -119,7 +119,7 @@ assert.equal(ma[1], 'b');
 assert.equal(ma.length, 2);
 
 
-// should make from a without iterables
+// should make from without iterables
 constructorCounter = 0;
 
 function MyArray2(v) {
