@@ -2128,7 +2128,6 @@ System.register("traceur@0.0.44/src/options", [], function() {
       }));
       return value;
     },
-    modules_: null,
     get modules() {
       return this.modules_;
     },
@@ -2139,8 +2138,7 @@ System.register("traceur@0.0.44/src/options", [], function() {
         throw new Error('Invalid \'modules\' option \'' + value + '\', not in ' + moduleOptions.join(', '));
       }
       this.modules_ = value;
-    },
-    scripts: []
+    }
   };
   var descriptions = {experimental: 'Turns on all experimental features'};
   function reset() {
@@ -2183,8 +2181,6 @@ System.register("traceur@0.0.44/src/options", [], function() {
   }
   function addOptions(flags) {
     Object.keys(options).forEach(function(name) {
-      if (/_$/.test(name))
-        return;
       var dashedName = toDashCase(name);
       if ((name in parseOptions) && (name in transformOptions)) {
         flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]);
@@ -2225,7 +2221,15 @@ System.register("traceur@0.0.44/src/options", [], function() {
     fromArgv: {value: fromArgv},
     setFromObject: {value: setFromObject},
     addOptions: {value: addOptions},
-    filterOption: {value: filterOption}
+    filterOption: {value: filterOption},
+    scripts: {
+      value: [],
+      writable: true
+    },
+    modules_: {
+      value: null,
+      writable: true
+    }
   });
   function parseCommand(s) {
     var re = /--([^=]+)(?:=(.+))?/;
@@ -22441,7 +22445,7 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
       }
     },
     rejectOneAndAll: function(codeUnit, error) {
-      codeUnit.state = ERROR;
+      codeUnit.state.ERROR;
       codeUnit.error = error;
       codeUnit.reject(error);
       this.abortAll(error);

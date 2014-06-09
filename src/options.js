@@ -62,8 +62,6 @@ export var options = {
     return value;
   },
 
-  modules_: null,
-
   get modules() {
     return this.modules_;
   },
@@ -76,9 +74,7 @@ export var options = {
         moduleOptions.join(', '));
     }
     this.modules_ = value;
-  },
-
-  scripts: []
+  }
 };
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -152,9 +148,6 @@ function setOption(name, value) {
  */
 function addOptions(flags) {
   Object.keys(options).forEach(function(name) {
-    if (/_$/.test(name))
-      return;  // Skip private properties
-
     var dashedName = toDashCase(name);
     if ((name in parseOptions) && (name in transformOptions)) {
       flags.option('--' + dashedName + ' [true|false|parse]',
@@ -210,7 +203,9 @@ Object.defineProperties(options, {
   fromArgv: {value: fromArgv},
   setFromObject: {value: setFromObject},
   addOptions: {value: addOptions},
-  filterOption: {value: filterOption}
+  filterOption: {value: filterOption},
+  scripts: {value: [], writable: true},
+  modules_: {value: null, writable: true}
 });
 
 /**
