@@ -62,8 +62,6 @@ export var options = {
     return value;
   },
 
-  modules_: 'register',
-
   get modules() {
     return this.modules_;
   },
@@ -76,9 +74,7 @@ export var options = {
         moduleOptions.join(', '));
     }
     this.modules_ = value;
-  },
-
-  scripts: []
+  }
 };
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -157,31 +153,38 @@ function addOptions(flags) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
       flags.on(dashedName, (value) => setOption(dashedName, value));
-    }
-    // If the option value is null then it's not a boolean option and should
-    // be added separately.
-    else if (options[name] !== null) {
+    } else if (options[name] !== null) {
       flags.option('--' + dashedName, descriptions[name]);
       flags.on(dashedName, () => setOption(dashedName, true));
     }
+    // If the option value is null then it's not a boolean option and should
+    // be added separately below.
   });
   flags.option('--referrer <name>',
-    'Bracket output code with System.referrerName=<name>',
-    (name) => {
-      setOption('referrer', name);
-      return name;
-    });
+      'Bracket output code with System.referrerName=<name>',
+      (name) => {
+        setOption('referrer', name);
+        System.map = System.semverMap(name);
+        return name;
+      });
   flags.option('--type-assertion-module <path>',
-    'Absolute path to the type assertion module.',
-    (path) => {
-      setOption('type-assertion-module', path);
-      return path;
-    });
+      'Absolute path to the type assertion module.',
+      (path) => {
+        setOption('type-assertion-module', path);
+        return path;
+      });
   flags.option('--script <fileName>',
-    'Parse as Script (must precede modules)',
-    (fileName) => {
-      options.scripts.push(fileName);
-    });
+      'Parse as Script (must precede modules)',
+      (fileName) => {
+        options.scripts.push(fileName);
+      });
+  flags.option('--modules <' + moduleOptions.join(', ') + '>',
+      'select the output format for modules',
+      (moduleFormat) => {
+        options.modules = moduleFormat;
+      });
+  // After we've processed the options, set defaults for non-boolean options.
+  options.modules = 'register';
 }
 
 /**
@@ -200,7 +203,9 @@ Object.defineProperties(options, {
   fromArgv: {value: fromArgv},
   setFromObject: {value: setFromObject},
   addOptions: {value: addOptions},
-  filterOption: {value: filterOption}
+  filterOption: {value: filterOption},
+  scripts: {value: [], writable: true},
+  modules_: {value: null, writable: true}
 });
 
 /**
@@ -292,7 +297,7 @@ addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
 addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
 addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
-addFeatureOption('modules', ON_BY_DEFAULT);    // 14
+addFeatureOption('modules', 'SPECIAL');    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
 addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
