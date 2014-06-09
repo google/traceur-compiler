@@ -91,10 +91,10 @@ traceur.options.addOptions(commandLine);
 commandLine.usage('[options] [files]');
 
 var moduleFileNames = [];
-commandLine.command('*').action(function(){
+commandLine.command('*').action(function() {
     // The callback seems to receive a "command" at the end of arguments
     for (var i = 0; i < arguments.length - 1; i++) {
-        moduleFileNames.push(arguments[i]);
+      moduleFileNames.push(arguments[i]);
     }
   });
 
