@@ -161,28 +161,28 @@ function addOptions(flags) {
     // be added separately below.
   });
   flags.option('--referrer <name>',
-    'Bracket output code with System.referrerName=<name>',
-    (name) => {
-      setOption('referrer', name);
-      System.map = System.semverMap(name);
-      return name;
-    });
+      'Bracket output code with System.referrerName=<name>',
+      (name) => {
+        setOption('referrer', name);
+        System.map = System.semverMap(name);
+        return name;
+      });
   flags.option('--type-assertion-module <path>',
-    'Absolute path to the type assertion module.',
-    (path) => {
-      setOption('type-assertion-module', path);
-      return path;
-    });
+      'Absolute path to the type assertion module.',
+      (path) => {
+        setOption('type-assertion-module', path);
+        return path;
+      });
   flags.option('--script <fileName>',
-    'Parse as Script (must precede modules)',
-    (fileName) => {
-      options.scripts.push(fileName);
-    });
+      'Parse as Script (must precede modules)',
+      (fileName) => {
+        options.scripts.push(fileName);
+      });
   flags.option('--modules <' + moduleOptions.join(', ') + '>',
-    'select the output format for modules',
-    (moduleFormat) => {
-      options.modules = moduleFormat;
-    });
+      'select the output format for modules',
+      (moduleFormat) => {
+        options.modules = moduleFormat;
+      });
   // After we've processed the options, set defaults for non-boolean options.
   options.modules = 'register';
 }
