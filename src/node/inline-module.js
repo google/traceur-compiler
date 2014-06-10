@@ -120,7 +120,7 @@ function inlineAndCompile(fileNamesAndTypes, options, reporter, callback, errbac
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
-      if (options.modules !== 'inline' && options.modules !== 'instantiate')
+     if (options.modules === 'register')
         doEvaluateModule = true;
     }
     var loadOptions = {referrerName: referrerName};
