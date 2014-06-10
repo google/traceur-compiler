@@ -74,7 +74,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
     include.name = normalizePath(path.relative(outputDir, include.name));
     return include;
   });
-console.log('resolvedOutputFile', resolvedOutputFile)
+
   inlineAndCompile(resolvedIncludes, traceur.options, reporter, function(tree) {
     writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
     process.exit(0);
