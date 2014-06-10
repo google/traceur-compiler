@@ -65,7 +65,7 @@ function allLoaded(url, elements) {
  * Compiles the files in "fileNamesAndTypes" along with any associated modules, into a
  * single js file, in proper module dependency order.
  *
- * @param {Array.<Object>} fileNamesAndTypes The list of {name:, type:}
+ * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
  *     to compile and concat; type is 'module' or 'script'
  * @param {Object} options A container for misc options. 'depTarget' is the
  *     only currently available option, which results in the dependencies for

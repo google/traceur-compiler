@@ -38,7 +38,7 @@ commandLine.option('--script <fileName>', 'Parse as Script', function(fileName) 
   rootSources.push({name: fileName, type: 'script'});
 });
 
-commandLine.option('--module <fileName>', 'Parse as module ', function(fileName) {
+commandLine.option('--module <fileName>', 'Parse as Module', function(fileName) {
    rootSources.push({name: fileName, type: 'module'});
 });
 

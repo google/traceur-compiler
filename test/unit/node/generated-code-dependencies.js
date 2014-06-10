@@ -155,9 +155,13 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
-          eval(source);
-          assert.equal(global.sandwich, 'iAmGlobal pastrami');
-          done();
+          try {
+            ('global', eval)(source);
+            assert.equal(global.sandwich, 'iAmGlobal pastrami');
+            done();
+          } catch(ex) {
+            done(ex);
+          }
         });
   });
 
