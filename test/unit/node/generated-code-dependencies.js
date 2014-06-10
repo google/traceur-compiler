@@ -145,6 +145,26 @@ suite('context test', function() {
         });
   });
 
+  test('script depends on module global', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/scriptUsesModuleGlobal.js';
+    var inputModuleName = './unit/node/resources/moduleSetsGlobal.js';
+    exec(executable + ' --out ' + tempFileName + ' --module ' + inputModuleName +
+        ' --script ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var source = fs.readFileSync(tempFileName, 'utf-8');
+          try {
+            ('global', eval)(source);
+            assert.equal(global.sandwich, 'iAmGlobal pastrami');
+            done();
+          } catch(ex) {
+            done(ex);
+          }
+        });
+  });
+
   test('script option loads .es file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');

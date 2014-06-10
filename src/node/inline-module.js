@@ -62,20 +62,21 @@ function allLoaded(url, elements) {
 }
 
 /**
- * Compiles the files in "filenames" along with any associated modules, into a
+ * Compiles the files in "fileNamesAndTypes" along with any associated modules, into a
  * single js file, in proper module dependency order.
  *
- * @param {Array.<string>} filenames The list of files to compile and concat.
+ * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
+ *     to compile and concat; type is 'module' or 'script'
  * @param {Object} options A container for misc options. 'depTarget' is the
  *     only currently available option, which results in the dependencies for
- *     'filenames' being printed to stdout, with 'depTarget' as the target.
+ *     'fileNamesAndTypes' being printed to stdout, with 'depTarget' as the target.
  * @param {ErrorReporter} reporter
  * @param {Function} callback Callback used to return the result. A null result
  *     indicates that inlineAndCompile has returned successfully from a
  *     non-compile request.
  * @param {Function} errback Callback used to return errors.
  */
-function inlineAndCompile(filenames, options, reporter, callback, errback) {
+function inlineAndCompile(fileNamesAndTypes, options, reporter, callback, errback) {
 
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
@@ -96,8 +97,6 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   }
   basePath = basePath.replace(/\\/g, '/');
 
-  var scriptsCount = options.scripts.length;
-
   var loadCount = 0;
   var elements = [];
   var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
@@ -113,11 +112,11 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   }
 
   function loadNext() {
-    var loadAsScript = scriptsCount && (loadCount < scriptsCount);
     var doEvaluateModule = false;
     var loadFunction = loader.import;
-    var name = filenames[loadCount];
-    if (loadAsScript) {
+    var input = fileNamesAndTypes[loadCount];
+    var name = input.name;
+    if (input.type === 'script') {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
@@ -130,7 +129,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           if (doEvaluateModule)
             appendEvaluateModule(name, referrerName);
           loadCount++;
-          if (loadCount < filenames.length) {
+          if (loadCount < fileNamesAndTypes.length) {
             loadNext();
           } else if (depTarget) {
             callback(null);

@@ -173,11 +173,6 @@ function addOptions(flags) {
         setOption('type-assertion-module', path);
         return path;
       });
-  flags.option('--script <fileName>',
-      'Parse as Script (must precede modules)',
-      (fileName) => {
-        options.scripts.push(fileName);
-      });
   flags.option('--modules <' + moduleOptions.join(', ') + '>',
       'select the output format for modules',
       (moduleFormat) => {
@@ -204,7 +199,6 @@ Object.defineProperties(options, {
   setFromObject: {value: setFromObject},
   addOptions: {value: addOptions},
   filterOption: {value: filterOption},
-  scripts: {value: [], writable: true},
   modules_: {value: null, writable: true}
 });
 
