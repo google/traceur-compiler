@@ -349,7 +349,7 @@
   function setupGlobals(global) {
     global.Symbol = Symbol;
 
-    global.Reflect = global.Reflect || { };
+    global.Reflect = global.Reflect || {};
     global.Reflect.global = global.Reflect.global || global;
 
     polyfillObject(global.Object);
