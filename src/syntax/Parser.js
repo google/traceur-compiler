@@ -3200,7 +3200,6 @@ export class Parser {
   }
 
   toFormalParameters_(start, tree, asyncToken) {
-    var index = this.scanner_.index;
     this.scanner_.index = start.offset;
     return this.parseArrowFormalParameters_(asyncToken);
   }

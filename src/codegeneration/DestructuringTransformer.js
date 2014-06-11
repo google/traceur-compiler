@@ -177,7 +177,7 @@ export class DestructuringTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformObjectPattern(tree) {
-    // Patterns should be desugard by their parent nodes.
+    // Patterns should be desugared by their parent nodes.
     throw new Error('unreachable');
   }
 
@@ -346,7 +346,7 @@ export class DestructuringTransformer extends ParameterTransformer {
   }
 
   transformAssignmentElement(tree) {
-    // Patterns should be desugard by their parent nodes.
+    // Patterns should be desugared by their parent nodes.
     throw new Error('unreachable');
   }
 

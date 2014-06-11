@@ -13104,7 +13104,6 @@ System.register("traceur@0.0.44/src/syntax/Parser", [], function() {
       return tree;
     },
     toFormalParameters_: function(start, tree, asyncToken) {
-      var index = this.scanner_.index;
       this.scanner_.index = start.offset;
       return this.parseArrowFormalParameters_(asyncToken);
     },
