@@ -25,7 +25,7 @@ var loaderHooks = new LoaderHooks(reporter, url, nodeLoader);
 
 var System = new traceur.runtime.TraceurLoader(loaderHooks);
 
-global.System = System;
+Reflect.global.System = System;
 System.map = System.semverMap(System.version);
 
 module.exports = System;
