@@ -29,10 +29,7 @@ if (typeof window !== 'undefined' && window.location) {
 var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
 var traceurLoader = new TraceurLoader(loaderHooks);
 
-if (typeof window !== 'undefined')
-  window.System = traceurLoader;
-if (typeof global !== 'undefined')
-  global.System = traceurLoader;
+Reflect.global.System = traceurLoader;
 
 export { traceurLoader as System }
 

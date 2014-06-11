@@ -28,8 +28,6 @@ var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
 
-var global = this;
-
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
@@ -143,7 +141,7 @@ class BundledCodeUnit extends CodeUnit {
   evaluate() {
     var normalizedNames =
         this.deps.map((name) => this.loaderHooks.normalize(name));
-    var module = this.execute.apply(global, normalizedNames);
+    var module = this.execute.apply(Reflect.global, normalizedNames);
     System.set(this.normalizedName, module);
     return module;
   }

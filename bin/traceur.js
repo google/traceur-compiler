@@ -232,6 +232,8 @@
   }
   function setupGlobals(global) {
     global.Symbol = Symbol;
+    global.Reflect = global.Reflect || {};
+    global.Reflect.global = global.Reflect.global || global;
     polyfillObject(global.Object);
   }
   setupGlobals(global);
@@ -6027,7 +6029,6 @@ System.register("traceur@0.0.44/src/semantics/FreeVariableChecker", [], function
   var IDENTIFIER_EXPRESSION = $traceurRuntime.assertObject(System.get("traceur@0.0.44/src/syntax/trees/ParseTreeType")).IDENTIFIER_EXPRESSION;
   var ParseTreeVisitor = $traceurRuntime.assertObject(System.get("traceur@0.0.44/src/syntax/ParseTreeVisitor")).ParseTreeVisitor;
   var TYPEOF = $traceurRuntime.assertObject(System.get("traceur@0.0.44/src/syntax/TokenType")).TYPEOF;
-  var global = this;
   var Scope = function Scope(parent) {
     this.parent = parent;
     this.references = Object.create(null);
@@ -6173,7 +6174,7 @@ System.register("traceur@0.0.44/src/semantics/FreeVariableChecker", [], function
       this.reporter_.reportError(location, message);
     }
   }, {checkScript: function(reporter, tree) {
-      new $FreeVariableChecker(reporter).visitScript(tree, global);
+      new $FreeVariableChecker(reporter).visitScript(tree, Reflect.global);
     }}, ParseTreeVisitor);
   return {
     get getVariableName() {
@@ -22113,7 +22114,6 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
   var TRANSFORMED = 5;
   var COMPLETE = 6;
   var ERROR = 7;
-  var global = this;
   var CodeUnit = function CodeUnit(loaderHooks, normalizedName, type, state, name, referrerName, address) {
     var $__365 = this;
     this.promise = new Promise((function(res, rej) {
@@ -22195,7 +22195,7 @@ System.register("traceur@0.0.44/src/runtime/InternalLoader", [], function() {
       var normalizedNames = this.deps.map((function(name) {
         return $__365.loaderHooks.normalize(name);
       }));
-      var module = this.execute.apply(global, normalizedNames);
+      var module = this.execute.apply(Reflect.global, normalizedNames);
       System.set(this.normalizedName, module);
       return module;
     }
@@ -22927,10 +22927,7 @@ System.register("traceur@0.0.44/src/runtime/System", [], function() {
   }
   var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
   var traceurLoader = new TraceurLoader(loaderHooks);
-  if (typeof window !== 'undefined')
-    window.System = traceurLoader;
-  if (typeof global !== 'undefined')
-    global.System = traceurLoader;
+  Reflect.global.System = traceurLoader;
   ;
   traceurLoader.map = traceurLoader.semverMap(__moduleName);
   return {get System() {
@@ -23031,7 +23028,7 @@ System.register("traceur@0.0.44/src/traceur-import", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.44/src/traceur-import";
   var traceur = System.get("traceur@0.0.44/src/traceur");
-  this.traceur = traceur;
+  Reflect.global.traceur = traceur;
   $traceurRuntime.ModuleStore.set('traceur@', traceur);
   return {};
 });

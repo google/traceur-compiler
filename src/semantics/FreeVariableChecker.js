@@ -22,8 +22,6 @@ import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {TYPEOF} from '../syntax/TokenType';
 
-var global = this;
-
 /**
  * Represents the link in the scope chain.
  */
@@ -277,6 +275,6 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    * @param {Script} tree
    */
   static checkScript(reporter, tree) {
-    new FreeVariableChecker(reporter).visitScript(tree, global);
+    new FreeVariableChecker(reporter).visitScript(tree, Reflect.global);
   }
 }
