@@ -15415,7 +15415,7 @@ System.register("traceur@0.0.44/src/codegeneration/ModuleTransformer", [], funct
 System.register("traceur@0.0.44/src/codegeneration/globalThis", [], function() {
   "use strict";
   var __moduleName = "traceur@0.0.44/src/codegeneration/globalThis";
-  var $__130 = Object.freeze(Object.defineProperties(["typeof global !== 'undefined' ? global : this"], {raw: {value: Object.freeze(["typeof global !== 'undefined' ? global : this"])}}));
+  var $__130 = Object.freeze(Object.defineProperties(["Reflect.global"], {raw: {value: Object.freeze(["Reflect.global"])}}));
   var parseExpression = $traceurRuntime.assertObject(System.get("traceur@0.0.44/src/codegeneration/PlaceholderParser")).parseExpression;
   var expr;
   function globalThis() {
