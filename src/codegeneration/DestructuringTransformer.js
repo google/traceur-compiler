@@ -35,17 +35,16 @@ import {
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
   THIS_EXPRESSION,
-  VARIABLE_DECLARATION_LIST,
+  VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType';
 import {
   AssignmentElement,
   BindingElement,
   Catch,
   ForInStatement,
-  ForOfStatement,
-  LiteralExpression
+  ForOfStatement
 } from '../syntax/trees/ParseTrees';
-import {ParameterTransformer} from './ParameterTransformer';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   EQUAL,
   IDENTIFIER,
@@ -59,6 +58,7 @@ import {
   createBlock,
   createCommaExpression,
   createExpressionStatement,
+  createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
   createMemberLookupExpression,
@@ -70,6 +70,7 @@ import {
 } from './ParseTreeFactory';
 import {options} from '../options';
 import {parseExpression} from './PlaceholderParser';
+import {prependStatements} from './PrependStatements'
 
 /**
  * Collects assignments in the desugaring of a pattern.
@@ -162,7 +163,15 @@ function createGuardedAssignment(lvalue, rvalue) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
  */
-export class DestructuringTransformer extends ParameterTransformer {
+export class DestructuringTransformer extends TempVarTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super(identifierGenerator);
+    this.parameterDeclarations = null;
+  }
+
   /**
    * @param {ArrayPattern} tree
    * @return {ParseTree}
@@ -365,10 +374,38 @@ export class DestructuringTransformer extends ParameterTransformer {
     //   var pattern = $tmp;
     // }
 
-    var statements = this.parameterStatements;
-    var binding = this.desugarBinding_(tree.binding, statements, VAR);
+    // We only get here for formal parameters. Variable declarations are handled
+    // further up in the transformer without calling transformBindingElement.
+
+    if (this.parameterDeclarations === null) {
+      this.parameterDeclarations = [];
+      this.pushTempVarState();  // Popped in the function body.
+    }
+
+    var varName = this.getTempIdentifier();
+    var binding = createBindingIdentifier(varName);
+    var initializer = createIdentifierExpression(varName);
+    var decl = createVariableDeclaration(tree.binding, initializer);
+
+    this.parameterDeclarations.push(decl);
 
     return new BindingElement(null, binding, null);
+  }
+
+  transformFunctionBody(tree) {
+    if (this.parameterDeclarations === null)
+      return super(tree);
+
+    var list = createVariableDeclarationList(VAR, this.parameterDeclarations);
+    var statement = createVariableStatement(list);
+    var statements = prependStatements(tree.statements, statement);
+    var newBody = createFunctionBody(statements);
+
+    this.parameterDeclarations = null;
+
+    var result = super(newBody);
+    this.popTempVarState();
+    return result;
   }
 
   transformCatch(tree) {
