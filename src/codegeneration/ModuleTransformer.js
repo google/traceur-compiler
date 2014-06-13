@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {
+  AnonBlock,
   BindingElement,
   BindingIdentifier,
   EmptyStatement,
@@ -24,8 +25,10 @@ import {
 import {DirectExportVisitor} from './module/DirectExportVisitor';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
+  CLASS_DECLARATION,
   EXPORT_DEFAULT,
-  EXPORT_SPECIFIER
+  EXPORT_SPECIFIER,
+  FUNCTION_DECLARATION
 } from '../syntax/trees/ParseTreeType';
 import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
@@ -189,6 +192,16 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformExportDefault(tree) {
+    switch (tree.expression.type) {
+      case CLASS_DECLARATION:
+      case FUNCTION_DECLARATION:
+        var nameBinding = tree.expression.name;
+        var name = createIdentifierExpression(nameBinding.identifierToken);
+        return new AnonBlock(null, [
+          tree.expression,
+          parseStatement `var $__default = ${name}`
+        ]);
+    }
     return parseStatement `var $__default = ${tree.expression}`;
   }
 

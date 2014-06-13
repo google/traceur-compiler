@@ -6,3 +6,6 @@ assert.equal(new C().m(), 'm');
 
 import {default as D} from './resources/default-name';
 assert.equal(D, 4);
+
+import f from './resources/default-function';
+assert.equal(f(), 123);
