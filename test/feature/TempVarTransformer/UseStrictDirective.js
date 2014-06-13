@@ -3,7 +3,7 @@ assert.isTrue(function() { return this; }() !== undefined);
 
 function f() {
   'use strict';
-  var xs = 'abc';
+  var xs = 'abc'.split('');
   var o = {
     f() {
       return this;
