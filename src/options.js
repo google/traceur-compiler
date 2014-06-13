@@ -178,8 +178,16 @@ function addOptions(flags) {
       (moduleFormat) => {
         options.modules = moduleFormat;
       });
-  // After we've processed the options, set defaults for non-boolean options.
+  flags.option('--moduleName <string>',
+    '__moduleName value, + sign to use filename, or empty to omit; default +',
+    (moduleName) => {
+      if (moduleName === '+')
+        moduleName = true;
+      options.moduleName = moduleName;
+    });
+  // After we've processed the options, set defaults for  options.
   options.modules = 'register';
+  options.moduleName = true;
 }
 
 /**

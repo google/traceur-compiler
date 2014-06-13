@@ -2208,7 +2208,13 @@ System.register("traceur@0.0.45/src/options", [], function() {
     flags.option('--modules <' + moduleOptions.join(', ') + '>', 'select the output format for modules', (function(moduleFormat) {
       options.modules = moduleFormat;
     }));
+    flags.option('--moduleName <string>', '__moduleName value, + sign to use filename, or empty to omit; default +', (function(moduleName) {
+      if (moduleName === '+')
+        moduleName = true;
+      options.moduleName = moduleName;
+    }));
     options.modules = 'register';
+    options.moduleName = true;
   }
   function filterOption(dashedName) {
     var name = toCamelCase(dashedName);
@@ -21669,33 +21675,28 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
     }));
     return dest;
   }
-  var Compiler = function Compiler() {
-    this.defaultOptions = {
-      outputLanguage: 'es5',
-      modules: 'commonjs',
-      filename: '<unknown file>',
-      sourceMap: false,
-      cwd: './',
-      moduleName: false
-    };
+  var Compiler = function Compiler(options) {
+    this.defaultOptions = options;
   };
   ($traceurRuntime.createClass)(Compiler, {
     compile: function(content) {
       var options = arguments[1] !== (void 0) ? arguments[1] : {};
       options = merge(this.defaultOptions, options);
-      var moduleName = options.moduleName;
       traceurOptions.reset();
-      merge(traceurOptions, options);
+      options = merge(traceurOptions, options);
       var errorReporter = new CollectingErrorReporter();
       var sourceFile = new SourceFile(options.filename, content);
       var parser = new Parser(sourceFile, errorReporter);
       var tree = options.modules ? parser.parseModule() : parser.parseScript();
       var transformer;
-      if (moduleName === true || options.modules === 'register' || options.modules === 'inline' || options.modules === 'amd') {
-        if (options.modules !== 'amd' || typeof moduleName !== 'string')
-          moduleName = this.resolveModuleName(options.cwd, options.filename);
-        transformer = new AttachModuleNameTransformer(moduleName);
-        tree = transformer.transformAny(tree);
+      if (options.moduleName) {
+        var moduleName = options.moduleName;
+        if (typeof options.moduleName !== 'string')
+          moduleName = this.resolveModuleName(options.filename);
+        if (moduleName) {
+          transformer = new AttachModuleNameTransformer(moduleName);
+          tree = transformer.transformAny(tree);
+        }
       }
       if (options.outputLanguage.toLowerCase() === 'es6') {
         transformer = new PureES6Transformer(errorReporter);
@@ -21723,7 +21724,7 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
         sourceMap: treeWriterOptions.sourceMap || null
       };
     },
-    resolveModuleName: function(cwd, filename) {
+    resolveModuleName: function(filename) {
       return filename;
     }
   }, {});
@@ -21731,12 +21732,40 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
     var options = arguments[1];
     return new Compiler().compile(content, options);
   }
+  var ToCommonJSCompiler = function ToCommonJSCompiler() {
+    $traceurRuntime.superCall(this, $ToCommonJSCompiler.prototype, "constructor", [{
+      outputLanguage: 'es5',
+      modules: 'commonjs',
+      filename: '<unknown file>',
+      sourceMap: false,
+      moduleName: false
+    }]);
+  };
+  var $ToCommonJSCompiler = ToCommonJSCompiler;
+  ($traceurRuntime.createClass)(ToCommonJSCompiler, {}, {}, Compiler);
+  var ToAmdCompiler = function ToAmdCompiler() {
+    $traceurRuntime.superCall(this, $ToAmdCompiler.prototype, "constructor", [{
+      outputLanguage: 'es5',
+      modules: 'amd',
+      filename: '<unknown file>',
+      sourceMap: false,
+      moduleName: true
+    }]);
+  };
+  var $ToAmdCompiler = ToAmdCompiler;
+  ($traceurRuntime.createClass)(ToAmdCompiler, {}, {}, Compiler);
   return {
     get Compiler() {
       return Compiler;
     },
     get compile() {
       return compile;
+    },
+    get ToCommonJSCompiler() {
+      return ToCommonJSCompiler;
+    },
+    get ToAmdCompiler() {
+      return ToAmdCompiler;
     }
   };
 });
@@ -23103,6 +23132,9 @@ System.register("traceur@0.0.45/src/traceur", [], function() {
     },
     get Compiler() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.Compiler;
+    },
+    get ToCommonJSCompiler() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ToCommonJSCompiler;
     },
     get compile() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.compile;

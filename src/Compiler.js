@@ -36,15 +36,8 @@ function merge(dest, ...srcs) {
  * Simple source to source compiler.
  */
 export class Compiler {
-  constructor() {
-    this.defaultOptions = {
-      outputLanguage: 'es5',
-      modules: 'commonjs',
-      filename: '<unknown file>',
-      sourceMap: false,
-      cwd: './',
-      moduleName: false
-    };
+  constructor(options) {
+    this.defaultOptions = options;
   }
 
   /**
@@ -56,11 +49,8 @@ export class Compiler {
    */
   compile(content, options = {}) {
     options = merge(this.defaultOptions, options);
-
-    var moduleName = options.moduleName;
-
     traceurOptions.reset();
-    merge(traceurOptions, options);
+    options = merge(traceurOptions, options);
 
     var errorReporter = new CollectingErrorReporter();
     var sourceFile = new SourceFile(options.filename, content);
@@ -68,13 +58,14 @@ export class Compiler {
     var tree = options.modules ? parser.parseModule() : parser.parseScript();
     var transformer;
 
-    // TODO(arv): This is ugly. Clean up logic.
-    if (moduleName === true || options.modules === 'register' ||
-        options.modules === 'inline' || options.modules === 'amd') {
-      if (options.modules !== 'amd' || typeof moduleName !== 'string')
-        moduleName = this.resolveModuleName(options.cwd, options.filename);
-      transformer = new AttachModuleNameTransformer(moduleName);
-      tree = transformer.transformAny(tree);
+    if (options.moduleName) {
+      var moduleName = options.moduleName;
+      if (typeof options.moduleName !== 'string')
+          moduleName = this.resolveModuleName(options.filename);
+      if (moduleName) {
+        transformer = new AttachModuleNameTransformer(moduleName);
+        tree = transformer.transformAny(tree);
+      }
     }
 
     if (options.outputLanguage.toLowerCase() === 'es6') {
@@ -109,13 +100,13 @@ export class Compiler {
     };
   }
 
-  resolveModuleName(cwd, filename) {
+  resolveModuleName(filename) {
     return filename;
   }
 }
 
 /**
- * Compile ES6 source code with Traceur.
+ * Compile ES6 module source code with Traceur to register module.
  *
  * @param  {string} content ES6 source code.
  * @param  {Object=} options Traceur options.
@@ -123,4 +114,28 @@ export class Compiler {
  */
 export function compile(content, options = undefined) {
   return new Compiler().compile(content, options);
+}
+
+export class ToCommonJSCompiler extends Compiler {
+  constructor() {
+    super({
+      outputLanguage: 'es5',
+      modules: 'commonjs',
+      filename: '<unknown file>',
+      sourceMap: false,
+      moduleName: false
+    });
+  }
+}
+
+export class ToAmdCompiler extends Compiler {
+  constructor() {
+    super({
+      outputLanguage: 'es5',
+      modules: 'amd',
+      filename: '<unknown file>',
+      sourceMap: false,
+      moduleName: true
+    });
+  }
 }

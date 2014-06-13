@@ -22,18 +22,18 @@
 var path = require('path');
 var traceur = require('./traceur.js');
 
-var Compiler = traceur.Compiler;
+var Compiler = traceur.ToCommonJSCompiler;
 
 function NodeCompiler() {
   Compiler.call(this);
-  this.defaultOptions.cwd = process.cwd();
+  this.cwd = process.cwd();
 }
 
 NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
-  resolveModuleName: function(cwd, filename) {
+  resolveModuleName: function(filename) {
     var moduleName = filename.replace(/\.js$/, '');
-    return path.relative(cwd, moduleName).replace(/\\/g,'/');
+    return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
   }
 };
 

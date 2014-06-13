@@ -13,8 +13,8 @@ suite('node public api', function() {
       // build ES6 style modules rather then cjs
       modules: 'register',
 
-      // cwd is this test directory
-      cwd: __dirname,
+      // node defaults to moduleName false
+      moduleName: true,
 
       // ensure the source map works
       sourceMap: true
@@ -45,7 +45,7 @@ suite('node public api', function() {
     });
 
     assert.deepEqual(compiled.errors, []);
-    assert.ok(compiled.js, 'can compile');    
+    assert.ok(compiled.js, 'can compile');
 
     var gotName;
     var define = function(name) {
