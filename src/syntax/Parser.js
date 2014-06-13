@@ -24,6 +24,7 @@ import {
   COMMA_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
   COVER_FORMALS,
+  COVER_INITIALIZED_NAME,
   FORMAL_PARAMETER_LIST,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
@@ -312,32 +313,6 @@ class ValidateObjectLiteral extends FindVisitor {
 }
 
 /**
- * This is used to validate that the cover formal can be treated as a paren
- * expression. We therefore flag RestParameters that are direct children of
- * CoverFormals.
- */
-class ValidateCoverFormalsAsParenExpression extends FindVisitor {
-  constructor(tree) {
-    this.parentIsCoverFormals = false;
-    this.errorToken = null;
-    super(tree);
-  }
-
-  visitCoverFormals(tree) {
-    this.parentIsCoverFormals = true;
-    super(tree);
-    this.parentIsCoverFormals = false;
-  }
-
-  visitRestParameter(tree) {
-    if (this.parentIsCoverFormals) {
-      this.errorToken = new Token(DOT_DOT_DOT, tree.location);
-      this.found = true;
-    }
-  }
-}
-
-/**
  * Parses a javascript file.
  *
  * The various this.parseX_() methods never return null - even when parse errors
@@ -388,6 +363,11 @@ export class Parser {
     // inside an async function.
     this.allowYield_ = false;
     this.allowAwait_ = false;
+
+    // This is used in conjunction with ensureNoCoverInitializedNames_ to
+    // determine  if there has been any added CoverInitializedName since last
+    // time this was read.
+    this.coverInitializedNameCount_ = 0;
 
     /**
      * Keeps track of whether we are currently in strict mode parsing or not.
@@ -1390,8 +1370,8 @@ export class Parser {
       return this.parseForStatement2_(start, null);
     }
 
-    var initializer =
-        this.parseExpressionAllowPattern_(Expression.NO_IN);
+    var coverInitializedNameCount = this.coverInitializedNameCount_;
+    var initializer = this.parseExpressionAllowPattern_(Expression.NO_IN);
     type = this.peekType_();
     if (initializer.isLeftHandSideExpression() &&
         (type === IN || this.peekOf_(type))) {
@@ -1401,7 +1381,7 @@ export class Parser {
       return this.parseForInStatement_(start, initializer);
     }
 
-    this.ensureNoCoverInitializedNames_(initializer);
+    this.ensureNoCoverInitializedNames_(initializer, coverInitializedNameCount);
 
     return this.parseForStatement2_(start, initializer);
   }
@@ -2121,8 +2101,11 @@ export class Parser {
 
         if (this.peek_(EQUAL)) {
           token = this.nextToken_();
+          var coverInitializedNameCount = this.coverInitializedNameCount_;
           var expr = this.parseAssignmentExpression();
-          this.ensureNoCoverInitializedNames_(expr)
+          this.ensureNoCoverInitializedNames_(expr, coverInitializedNameCount);
+
+          this.coverInitializedNameCount_++;
           return new CoverInitializedName(this.getTreeLocation_(start),
                                           nameLiteral, token, expr);
         }
@@ -2403,8 +2386,9 @@ export class Parser {
    * @return {ParseTree}
    */
   parseExpression(expressionIn = Expression.IN) {
+    var coverInitializedNameCount = this.coverInitializedNameCount_;
     var expression = this.parseExpressionAllowPattern_(expressionIn);
-    this.ensureNoCoverInitializedNames_(expression);
+    this.ensureNoCoverInitializedNames_(expression, coverInitializedNameCount);
     return expression;
   }
 
@@ -3165,16 +3149,15 @@ export class Parser {
     return new CoverFormals(this.getTreeLocation_(start), expressions);
   }
 
-  visitWithErrorFinder_(tree, ctor) {
-    var finder = new ctor(tree);
+  ensureNoCoverInitializedNames_(tree, coverInitializedNameCount) {
+    if (coverInitializedNameCount === this.coverInitializedNameCount_)
+      return;
+
+    var finder = new ValidateObjectLiteral(tree);
     if (finder.found) {
       var token = finder.errorToken;
       this.reportError_(token.location, `Unexpected token ${token}`);
     }
-  }
-
-  ensureNoCoverInitializedNames_(tree) {
-    this.visitWithErrorFinder_(tree, ValidateObjectLiteral);
   }
 
   /**
@@ -3184,30 +3167,36 @@ export class Parser {
   toPrimaryExpression_(tree) {
     if (tree.type === COVER_FORMALS)
       return this.coverFormalsToParenExpression_(tree);
-
-    if (tree.type === OBJECT_LITERAL_EXPRESSION)
-      this.ensureNoCoverInitializedNames_(tree);
-
     return tree;
+  }
+
+  validateCoverFormalsAsParenExpression_(tree) {
+    for (var i = 0; i < tree.expressions.length; i++) {
+      if (tree.expressions[i].type === REST_PARAMETER) {
+        var token = new Token(DOT_DOT_DOT, tree.expressions[i].location);
+        this.reportError_(token.location, `Unexpected token ${token}`);
+        return;
+      }
+    }
   }
 
   coverFormalsToParenExpression_(tree) {
     if (tree.type === COVER_FORMALS) {
-      this.visitWithErrorFinder_(tree, ValidateCoverFormalsAsParenExpression);
-
       var expressions = tree.expressions;
       if (expressions.length === 0) {
         var message = 'Unexpected token )';
         this.reportError_(tree.location, message);
+      } else {
+        this.validateCoverFormalsAsParenExpression_(tree);
+
+        var expression;
+        if (expressions.length > 1)
+          expression = new CommaExpression(expressions[0].location, expressions);
+        else
+          expression = expressions[0];
+
+        return new ParenExpression(tree.location, expression);
       }
-
-      var expression;
-      if (expressions.length > 1)
-        expression = new CommaExpression(expressions[0].location, expressions);
-      else
-        expression = expressions[0];
-
-      return new ParenExpression(tree.location, expression);
     }
 
     return tree;
