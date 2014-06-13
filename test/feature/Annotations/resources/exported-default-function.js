@@ -1,5 +1,4 @@
 import {Anno} from './setup';
 
 @Anno
-export default function (@Anno x) {
-}
+export default (function (@Anno x) {});

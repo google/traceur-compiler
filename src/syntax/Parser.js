@@ -612,9 +612,23 @@ export class Parser {
     // export default AssignmentExpression ;
     var start = this.getTreeStartLocation_();
     this.eat_(DEFAULT);
-    var expression = this.parseAssignmentExpression();
-    this.eatPossibleImplicitSemiColon_();
-    return new ExportDefault(this.getTreeLocation_(start), expression);
+    var exportValue;
+    switch (this.peekType_()) {
+      case FUNCTION:
+        exportValue = this.parseFunctionDeclaration_();
+        break;
+      case CLASS:
+        if (parseOptions.classes) {
+          exportValue = this.parseClassDeclaration_();
+          break;
+        }
+        // Fall through.
+      default:
+        exportValue = this.parseAssignmentExpression();
+        this.eatPossibleImplicitSemiColon_();
+    }
+
+    return new ExportDefault(this.getTreeLocation_(start), exportValue);
   }
 
   parseNamedExport_() {

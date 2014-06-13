@@ -14,6 +14,8 @@
 
 import {
   BLOCK,
+  CLASS_DECLARATION,
+  FUNCTION_DECLARATION,
   IF_STATEMENT,
   LITERAL_EXPRESSION,
   POSTFIX_EXPRESSION,
@@ -570,7 +572,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(DEFAULT);
     this.writeSpace_();
     this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
+    switch (tree.expression.type) {
+      case CLASS_DECLARATION:
+      case FUNCTION_DECLARATION:
+        break;
+      default:
+        this.write_(SEMI_COLON);
+    }
   }
 
   /**

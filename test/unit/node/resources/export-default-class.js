@@ -5,5 +5,5 @@ export default class Q {
   get name() {
     return 'Q';
   }
-};
+}
 var p = 5;
