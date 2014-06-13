@@ -60,8 +60,8 @@ export class Compiler {
 
     if (options.moduleName) {
       var moduleName = options.moduleName;
-      if (typeof options.moduleName !== 'string')
-          moduleName = this.resolveModuleName(options.filename);
+      if (typeof moduleName !== 'string')
+        moduleName = this.resolveModuleName(options.filename);
       if (moduleName) {
         transformer = new AttachModuleNameTransformer(moduleName);
         tree = transformer.transformAny(tree);
@@ -119,7 +119,6 @@ export function compile(content, options = undefined) {
 export class ToCommonJSCompiler extends Compiler {
   constructor() {
     super({
-      outputLanguage: 'es5',
       modules: 'commonjs',
       filename: '<unknown file>',
       sourceMap: false,
@@ -131,7 +130,6 @@ export class ToCommonJSCompiler extends Compiler {
 export class ToAmdCompiler extends Compiler {
   constructor() {
     super({
-      outputLanguage: 'es5',
       modules: 'amd',
       filename: '<unknown file>',
       sourceMap: false,

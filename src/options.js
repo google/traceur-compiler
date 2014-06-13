@@ -92,6 +92,16 @@ function reset(allOff = undefined) {
   Object.keys(options).forEach((name) => {
     options[name] = useDefault && defaultValues[name];
   });
+  setDefaults();
+}
+
+/**
+ * Set values into options which should not have boolean false values.
+ */
+function setDefaults() {
+  options.modules = 'register';
+  options.moduleName = true;
+  options.outputLanguage = 'es5';
 }
 
 /**
@@ -185,9 +195,16 @@ function addOptions(flags) {
         moduleName = true;
       options.moduleName = moduleName;
     });
-  // After we've processed the options, set defaults for  options.
-  options.modules = 'register';
-  options.moduleName = true;
+  flags.option('--outputLanguage <es6|es5>',
+    'compilation target language',
+    (outputLanguage) => {
+      if (outputLanguage === 'es6' || outputLanguage === 'es5')
+        options.outputLanguage = outputLanguage;
+      else
+        throw new Error('outputLanguage must be one of es5, es6');
+  });
+  // After we've processed the options, set defaults for options.
+  setDefaults();
 }
 
 /**

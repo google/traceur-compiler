@@ -2149,6 +2149,12 @@ System.register("traceur@0.0.45/src/options", [], function() {
     Object.keys(options).forEach((function(name) {
       options[name] = useDefault && defaultValues[name];
     }));
+    setDefaults();
+  }
+  function setDefaults() {
+    options.modules = 'register';
+    options.moduleName = true;
+    options.outputLanguage = 'es5';
   }
   function fromString(s) {
     fromArgv(s.split(/\s+/));
@@ -2213,8 +2219,13 @@ System.register("traceur@0.0.45/src/options", [], function() {
         moduleName = true;
       options.moduleName = moduleName;
     }));
-    options.modules = 'register';
-    options.moduleName = true;
+    flags.option('--outputLanguage <es6|es5>', 'compilation target language', (function(outputLanguage) {
+      if (outputLanguage === 'es6' || outputLanguage === 'es5')
+        options.outputLanguage = outputLanguage;
+      else
+        throw new Error('outputLanguage must be one of es5, es6');
+    }));
+    setDefaults();
   }
   function filterOption(dashedName) {
     var name = toCamelCase(dashedName);
@@ -21691,7 +21702,7 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
       var transformer;
       if (options.moduleName) {
         var moduleName = options.moduleName;
-        if (typeof options.moduleName !== 'string')
+        if (typeof moduleName !== 'string')
           moduleName = this.resolveModuleName(options.filename);
         if (moduleName) {
           transformer = new AttachModuleNameTransformer(moduleName);
@@ -21734,7 +21745,6 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
   }
   var ToCommonJSCompiler = function ToCommonJSCompiler() {
     $traceurRuntime.superCall(this, $ToCommonJSCompiler.prototype, "constructor", [{
-      outputLanguage: 'es5',
       modules: 'commonjs',
       filename: '<unknown file>',
       sourceMap: false,
@@ -21745,7 +21755,6 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
   ($traceurRuntime.createClass)(ToCommonJSCompiler, {}, {}, Compiler);
   var ToAmdCompiler = function ToAmdCompiler() {
     $traceurRuntime.superCall(this, $ToAmdCompiler.prototype, "constructor", [{
-      outputLanguage: 'es5',
       modules: 'amd',
       filename: '<unknown file>',
       sourceMap: false,
