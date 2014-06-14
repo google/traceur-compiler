@@ -41,6 +41,11 @@ import {
   parseStatements
 } from './PlaceholderParser';
 import HoistVariablesTransformer from './HoistVariablesTransformer';
+import {
+  createFunctionExpression,
+  createEmptyParameterList,
+  createFunctionBody
+} from './ParseTreeFactory';
 
 /**
  * Extracts variable and function declarations from the module scope.
@@ -66,7 +71,7 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
 
     // Convert a class declaration into a class expression.
     tree = new ClassExpression(tree.location, tree.name, tree.superClass, tree.elements, tree.annotations);
-  
+
     return parseStatement `${tree.name.identifierToken} = ${tree}`;
   }
 }
@@ -108,7 +113,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
   constructor(identifierGenerator) {
     super(identifierGenerator);
-    this.declarationExtractionTransformer = 
+    this.declarationExtractionTransformer =
         new DeclarationExtractionTransformer(identifierGenerator, this.moduleBindings_);
     this.dependencies = [];
     this.depMapIdentifier = createIdentifierExpression(this.identifierGenerator.generateUniqueIdentifier());
@@ -117,13 +122,13 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     if (this.moduleName) {
-      return parseStatements 
+      return parseStatements
         `System.register(${this.moduleName}, ${this.dependencies}, function(${this.depMapIdentifier}) {
           ${statements}
         });`;
     }
     else {
-      return parseStatements 
+      return parseStatements
         `System.register(${this.dependencies}, function(${this.depMapIdentifier}) {
           ${statements}
         });`;
@@ -133,7 +138,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   /**
    * Create the primary System.register structure, separating
    * declaration bindings from execution for ES6 binding support.
-   * 
+   *
    * Converts:
    *   import {s} from 's';
    *   export {p} from 'q';
@@ -141,7 +146,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    *   function q() {
    *     s();
    *   }
-   * 
+   *
    *
    * Hoisting the declarations and writing the exports into:
    *   function q() {
@@ -182,15 +187,16 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    * Note that $__depMap is actually $__0 in output.
    */
   appendExportStatement(statements) {
-    
+
     // Transform statements into execution statements only, with declarations removed.
     var executionStatements = statements.map(
       (statement) => this.declarationExtractionTransformer.transformAny(statement)
     );
 
-    var executionFunction = executionStatements.length ? parseExpression `function() {
-      ${executionStatements}
-    }` : parseExpression `function() {}`;
+    var executionFunction = createFunctionExpression(
+        createEmptyParameterList(),
+        createFunctionBody(executionStatements)
+    );
 
     // Extract the declaration statements for hoisting from the previous transform.
     var declarationStatements = this.declarationExtractionTransformer.getDeclarationStatements();
@@ -257,7 +263,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    */
   transformModuleSpecifier(tree) {
     var depIndex = this.getOrCreateDependencyIndex(tree);
-    
+
     return parseExpression `${this.depMapIdentifier}[${depIndex}]`;
   }
 
@@ -270,7 +276,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         if (moduleSpecifier) {
           return createMemberExpression(moduleSpecifier, tree.lhs);
         }
-        
+
         return createIdentifierExpression(tree.lhs);
 
       default:
@@ -344,7 +350,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     this.addModuleBinding({
       variableName: localName,
-      depIndex: this.curDepIndex_, 
+      depIndex: this.curDepIndex_,
       importName: importName
     });
   }
