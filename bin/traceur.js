@@ -21714,12 +21714,13 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
   }
   var Compiler = function Compiler() {
     var options = arguments[0] !== (void 0) ? arguments[0] : {};
-    this.defaultOptions = options;
+    this.defaultOptions = merge({}, options);
   };
   ($traceurRuntime.createClass)(Compiler, {
     compile: function(content) {
       var options = arguments[1] !== (void 0) ? arguments[1] : {};
-      options = merge(this.defaultOptions, options);
+      var copyOptions = merge({}, options);
+      options = merge(this.defaultOptions, copyOptions);
       traceurOptions.reset();
       options = merge(traceurOptions, options);
       var errorReporter = new CollectingErrorReporter();
@@ -21786,7 +21787,7 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
   var ToAmdCompiler = function ToAmdCompiler() {
     $traceurRuntime.superCall(this, $ToAmdCompiler.prototype, "constructor", [{
       modules: 'amd',
-      filename: '<unknown file>',
+      filename: undefined,
       sourceMap: false,
       moduleName: true
     }]);

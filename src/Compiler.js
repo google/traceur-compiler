@@ -37,7 +37,7 @@ function merge(dest, ...srcs) {
  */
 export class Compiler {
   constructor(options = {}) {
-    this.defaultOptions = options;
+    this.defaultOptions = merge({}, options);
   }
 
   /**
@@ -48,7 +48,10 @@ export class Compiler {
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
   compile(content, options = {}) {
-    options = merge(this.defaultOptions, options);
+    //  The caller may send us traceurOptions; make a copy so we can reset it
+    //  without altering the input object.
+    var copyOptions = merge({}, options);
+    options = merge(this.defaultOptions, copyOptions);
     traceurOptions.reset();
     options = merge(traceurOptions, options);
 
@@ -135,7 +138,7 @@ export class ToAmdCompiler extends Compiler {
   constructor() {
     super({
       modules: 'amd',
-      filename: '<unknown file>',
+      filename: undefined,
       sourceMap: false,
       moduleName: true
     });

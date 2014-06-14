@@ -26,8 +26,7 @@ function compileSingleFile(inputFilePath, outputFilePath, compile) {
     if (result.error)
       throw new Error(result.errors.join('\n'));
 
-    writeCompiledCodeToFile(result.transformed, result.outputFilePath,
-        result.sourceMap);
+    writeCompiledCodeToFile(result.js, outputFilePath, result.sourceMap);
   });
 }
 
@@ -37,7 +36,7 @@ function onlyJsFiles(path, stat) {
 
 function compileAllJsFilesInDir(inputDir, outputDir, compile) {
   if (typeof compile !== 'function')
-    throw new Error('function!');
+    throw new Error('Missing required function(string) -> result');
 
   inputDir = path.normalize(inputDir);
   outputDir = path.normalize(outputDir);
