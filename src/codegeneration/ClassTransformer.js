@@ -280,23 +280,23 @@ export class ClassTransformer extends TempVarTransformer{
 
     var expression;
 
-    if (hasSuper) {
+    if (hasSuper || tree.name) {
       // We need a binding name that can be referenced in the super calls and
       // we hide this name in an IIFE.
       // TODO(arv): Use const.
-      expression = parseExpression `function($__super) {
-        var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object},
-                                             ${staticObject}, $__super);
-      }(${superClass})`;
-    } else if (tree.name) {
-      // The name should be locally bound in the class body.
-      // TODO(arv): Use const.
-      expression = parseExpression `function() {
-        var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object},
-                                             ${staticObject});
-      }()`;
+      if (superClass) {
+        expression = parseExpression `function($__super) {
+          var ${name} = ${func};
+          return ($traceurRuntime.createClass)(${name}, ${object},
+                                               ${staticObject}, $__super);
+        }(${superClass})`;
+      } else {
+        expression = parseExpression `function() {
+          var ${name} = ${func};
+          return ($traceurRuntime.createClass)(${name}, ${object},
+                                               ${staticObject});
+        }()`;
+      }
     } else {
       expression = classCall(func, object, staticObject, superClass);
     }
