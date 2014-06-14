@@ -130,9 +130,11 @@ if (!shouldExit) {
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
+    var compiler = new traceur.Compiler();
     var compileAllJsFilesInDir =
         require('./compile-single-file.js').compileAllJsFilesInDir;
-    compileAllJsFilesInDir(dir, rootSources[0].name, true);
+    compileAllJsFilesInDir(dir, rootSources[0].name,
+        compiler.compile.bind(compiler));
   } else {
     rootSources.forEach(function(obj) {
       interpret(path.resolve(obj.name));

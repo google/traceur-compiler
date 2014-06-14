@@ -24,10 +24,9 @@ if (process.argv.length < 4) {
   process.exit(1);
 }
 
-// Nasty, we should rather pass the options to FromOptionsTransformer
-traceur.options.modules = 'commonjs';
-
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
 
-compileAllJsFilesInDir(inputDir, outputDir, true);
+var compiler = new traceur.ToCommonJSCompiler();
+
+compileAllJsFilesInDir(inputDir, outputDir, compiler.compile.bind(compiler));

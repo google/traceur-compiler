@@ -36,7 +36,7 @@ function merge(dest, ...srcs) {
  * Simple source to source compiler.
  */
 export class Compiler {
-  constructor(options) {
+  constructor(options = {}) {
     this.defaultOptions = options;
   }
 
@@ -58,9 +58,9 @@ export class Compiler {
     var tree = options.modules ? parser.parseModule() : parser.parseScript();
     var transformer;
 
-    if (options.moduleName) {
+    if (options.moduleName) {  // true or non-empty string.
       var moduleName = options.moduleName;
-      if (typeof moduleName !== 'string')
+      if (typeof moduleName !== 'string') // true means resolve filename
         moduleName = this.resolveModuleName(options.filename);
       if (moduleName) {
         transformer = new AttachModuleNameTransformer(moduleName);
@@ -89,7 +89,7 @@ export class Compiler {
     if (options.sourceMap) {
       treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
         file: options.filename,
-        sourceRoot: null
+        sourceRoot: this.sourceRootForFilename(options.filename)
       });
     }
 
@@ -101,6 +101,10 @@ export class Compiler {
   }
 
   resolveModuleName(filename) {
+    return filename;
+  }
+
+  sourceRootForFilename(filename) {
     return filename;
   }
 }

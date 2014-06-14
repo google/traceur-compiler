@@ -36,7 +36,6 @@ function getSourceMapFileName(name) {
 function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
   var options;
   if (useSourceMaps) {
-    var sourceMapFilePath = getSourceMapFileName(filename);
     var config = {
       file: path.basename(filename),
       sourceRoot: opt_sourceRoot
@@ -46,13 +45,20 @@ function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
   }
 
   var compiledCode = TreeWriter.write(tree, options);
-  if (useSourceMaps) {
+  var sourcemap = useSourceMaps ? options.sourcemap : null;
+  writeCompiledCodeToFile(compiledCode, filename, sourcemap);
+}
+
+function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
+  var sourceMapFilePath
+  if (sourcemap) {
+    sourceMapFilePath = getSourceMapFileName(filename);
     compiledCode += '\n//# sourceMappingURL=' +
         path.basename(sourceMapFilePath) + '\n';
   }
   writeFile(filename, compiledCode);
-  if (useSourceMaps)
-    writeFile(sourceMapFilePath, options.sourceMap);
+  if (sourcemap)
+    writeFile(sourceMapFilePath, sourcemap);
 }
 
 function compileToSingleFile(outputFile, includes, useSourceMaps) {
@@ -113,4 +119,4 @@ function compileToDirectory(outputDir, includes, useSourceMaps) {
 
 exports.compileToSingleFile = compileToSingleFile;
 exports.compileToDirectory = compileToDirectory;
-exports.writeTreeToFile = writeTreeToFile;
+exports.writeCompiledCodeToFile = writeCompiledCodeToFile;
