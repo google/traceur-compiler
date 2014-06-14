@@ -19,11 +19,7 @@
     var rv = [], j = 0, iterResult;
 
     for (var i = 0; i < arguments.length; i++) {
-      var valueToSpread = arguments[i];
-
-      if (!$traceurRuntime.isObject(valueToSpread)) {
-        throw new TypeError('Cannot spread non-object.');
-      }
+      var valueToSpread = $traceurRuntime.checkObjectCoercible(arguments[i]);
 
       if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] !== 'function') {
         throw new TypeError('Cannot spread non-iterable object.');

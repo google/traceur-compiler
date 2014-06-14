@@ -8,14 +8,6 @@ assert.throw(() => {
 }, TypeError);
 
 assert.throw(() => {
-  [0, ...'abc', 1];
-}, TypeError);
-
-assert.throw(() => {
-  [0, ... new String('abc'), 1];
-}, TypeError);
-
-assert.throw(() => {
   [0, ...true, 1];
 }, TypeError);
 

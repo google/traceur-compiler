@@ -63,3 +63,8 @@ export function checkIterable(x) {
 export function isConstructor(x) {
   return isCallable(x);
 }
+
+// 15.19.4.3.4 CreateIterResultObject
+export function createIteratorResultObject(value, done) {
+  return {value: value, done: done};
+}

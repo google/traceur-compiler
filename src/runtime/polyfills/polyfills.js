@@ -22,7 +22,8 @@ import {
   fromCodePoint,
   repeat,
   raw,
-  startsWith
+  startsWith,
+  stringPrototypeIterator
 } from './String';
 import {fill, find, findIndex, from} from './Array';
 import {entries, keys, values} from './ArrayIterator';
@@ -133,6 +134,15 @@ function polyfillString(String) {
     'fromCodePoint', fromCodePoint,
     'raw', raw,
   ]);
+
+  if (Symbol && Symbol.iterator) {
+    Object.defineProperty(String.prototype, Symbol.iterator, {
+      value: stringPrototypeIterator,
+      configurable: true,
+      enumerable: false,
+      writable: true
+    });
+  }
 }
 
 function polyfillArray(Array, Symbol) {

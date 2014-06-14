@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {createStringIterator} from './StringIterator';
+
 var $toString = Object.prototype.toString;
 var $indexOf = String.prototype.indexOf;
 var $lastIndexOf = String.prototype.lastIndexOf;
@@ -193,4 +195,11 @@ export function fromCodePoint() {
     }
   }
   return String.fromCharCode.apply(null, codeUnits);
+}
+
+// 21.1.3.27 String.prototype[@@iterator]( )
+export function stringPrototypeIterator() {
+  var o = $traceurRuntime.checkObjectCoercible(this);
+  var s = String(o);
+  return createStringIterator(s);
 }

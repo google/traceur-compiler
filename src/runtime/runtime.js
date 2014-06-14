@@ -346,6 +346,14 @@
     return x;
   }
 
+  // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
+  function checkObjectCoercible(argument) {
+    if (argument == null) {
+      throw new TypeError('Value cannot be converted to an Object');
+    }
+    return argument;
+  }
+
   function setupGlobals(global) {
     global.Symbol = Symbol;
 
@@ -370,6 +378,10 @@
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
+    checkObjectCoercible: checkObjectCoercible,
+    hasOwnProperty: function (o, p) {
+      return hasOwnProperty.call(o, p);
+    },
 
     // TODO(arv): Remove these once the symbol overrides have been extracted.
     defineProperties: $defineProperties,
