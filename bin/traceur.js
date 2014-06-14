@@ -21735,13 +21735,15 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
     }));
     return dest;
   }
-  var Compiler = function Compiler(options) {
-    this.defaultOptions = options;
+  var Compiler = function Compiler() {
+    var options = arguments[0] !== (void 0) ? arguments[0] : {};
+    this.defaultOptions = merge({}, options);
   };
   ($traceurRuntime.createClass)(Compiler, {
     compile: function(content) {
       var options = arguments[1] !== (void 0) ? arguments[1] : {};
-      options = merge(this.defaultOptions, options);
+      var copyOptions = merge({}, options);
+      options = merge(this.defaultOptions, copyOptions);
       traceurOptions.reset();
       options = merge(traceurOptions, options);
       var errorReporter = new CollectingErrorReporter();
@@ -21775,7 +21777,7 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
       if (options.sourceMap) {
         treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
           file: options.filename,
-          sourceRoot: null
+          sourceRoot: this.sourceRootForFilename(options.filename)
         });
       }
       return {
@@ -21785,6 +21787,9 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
       };
     },
     resolveModuleName: function(filename) {
+      return filename;
+    },
+    sourceRootForFilename: function(filename) {
       return filename;
     }
   }, {});
@@ -21805,7 +21810,7 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
   var ToAmdCompiler = function ToAmdCompiler() {
     $traceurRuntime.superCall(this, $ToAmdCompiler.prototype, "constructor", [{
       modules: 'amd',
-      filename: '<unknown file>',
+      filename: undefined,
       sourceMap: false,
       moduleName: true
     }]);
@@ -23195,6 +23200,9 @@ System.register("traceur@0.0.45/src/traceur", [], function() {
     },
     get ToCommonJSCompiler() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ToCommonJSCompiler;
+    },
+    get ToAmdCompiler() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ToAmdCompiler;
     },
     get compile() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.compile;

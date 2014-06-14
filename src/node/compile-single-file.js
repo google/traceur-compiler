@@ -16,37 +16,17 @@
 
 var fs = require('q-io/fs');
 var path = require('path');
-var writeTreeToFile = require('./compiler.js').writeTreeToFile;
-
+var writeCompiledCodeToFile = require('./compiler.js').writeCompiledCodeToFile;
 var traceur = require('./traceur.js');
-var ErrorReporter = traceur.util.ErrorReporter;
-var AttachModuleNameTransformer =
-    traceur.codegeneration.module.AttachModuleNameTransformer;
-var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
-var Parser = traceur.syntax.Parser;
-var SourceFile = traceur.syntax.SourceFile;
 
-function compileSingleFile(inputFilePath, outputFilePath, anonymousModules) {
+function compileSingleFile(inputFilePath, outputFilePath, compile) {
   return fs.read(inputFilePath).then(function(contents) {
-    var reporter = new ErrorReporter();
-    var sourceFile = new SourceFile(inputFilePath, contents);
-    var parser = new Parser(sourceFile, reporter);
-    var tree = parser.parseModule();
-    var moduleName, transformer;
-    if (!anonymousModules) {
-      moduleName = inputFilePath.replace(/\.js$/, '').replace(/\\/g,'/');
-      // Module naming uses ./ to signal relative names.
-      if (moduleName[0] !== '/')
-        moduleName = './' + moduleName;
-      transformer = new AttachModuleNameTransformer(moduleName);
-      tree = transformer.transformAny(tree);
-    }
-    transformer = new FromOptionsTransformer(reporter);
-    var transformed = transformer.transform(tree);
+    var result = compile(contents);
 
-    if (!reporter.hadError()) {
-      writeTreeToFile(transformed, outputFilePath);
-    }
+    if (result.error)
+      throw new Error(result.errors.join('\n'));
+
+    writeCompiledCodeToFile(result.js, outputFilePath, result.sourceMap);
   });
 }
 
@@ -54,13 +34,16 @@ function onlyJsFiles(path, stat) {
   return stat.isFile() && /\.js$/.test(path) || false;
 }
 
-function compileAllJsFilesInDir(inputDir, outputDir, anonymousModules) {
+function compileAllJsFilesInDir(inputDir, outputDir, compile) {
+  if (typeof compile !== 'function')
+    throw new Error('Missing required function(string) -> result');
+
   inputDir = path.normalize(inputDir);
   outputDir = path.normalize(outputDir);
   fs.listTree(inputDir, onlyJsFiles).then(function(files) {
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      compileSingleFile(inputFilePath, outputFilePath, anonymousModules).done();
+      compileSingleFile(inputFilePath, outputFilePath, compile).done();
     });
   }).done();
 }

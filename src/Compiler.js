@@ -36,8 +36,8 @@ function merge(dest, ...srcs) {
  * Simple source to source compiler.
  */
 export class Compiler {
-  constructor(options) {
-    this.defaultOptions = options;
+  constructor(options = {}) {
+    this.defaultOptions = merge({}, options);
   }
 
   /**
@@ -48,7 +48,10 @@ export class Compiler {
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
   compile(content, options = {}) {
-    options = merge(this.defaultOptions, options);
+    //  The caller may send us traceurOptions; make a copy so we can reset it
+    //  without altering the input object.
+    var copyOptions = merge({}, options);
+    options = merge(this.defaultOptions, copyOptions);
     traceurOptions.reset();
     options = merge(traceurOptions, options);
 
@@ -58,9 +61,9 @@ export class Compiler {
     var tree = options.modules ? parser.parseModule() : parser.parseScript();
     var transformer;
 
-    if (options.moduleName) {
+    if (options.moduleName) {  // true or non-empty string.
       var moduleName = options.moduleName;
-      if (typeof moduleName !== 'string')
+      if (typeof moduleName !== 'string') // true means resolve filename
         moduleName = this.resolveModuleName(options.filename);
       if (moduleName) {
         transformer = new AttachModuleNameTransformer(moduleName);
@@ -89,7 +92,7 @@ export class Compiler {
     if (options.sourceMap) {
       treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
         file: options.filename,
-        sourceRoot: null
+        sourceRoot: this.sourceRootForFilename(options.filename)
       });
     }
 
@@ -101,6 +104,10 @@ export class Compiler {
   }
 
   resolveModuleName(filename) {
+    return filename;
+  }
+
+  sourceRootForFilename(filename) {
     return filename;
   }
 }
@@ -131,7 +138,7 @@ export class ToAmdCompiler extends Compiler {
   constructor() {
     super({
       modules: 'amd',
-      filename: '<unknown file>',
+      filename: undefined,
       sourceMap: false,
       moduleName: true
     });

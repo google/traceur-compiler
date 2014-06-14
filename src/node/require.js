@@ -18,12 +18,6 @@ var fs = require('fs');
 var Module = require('module');
 var traceur = require('./traceur.js');
 
-var ErrorReporter = traceur.util.ErrorReporter;
-var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
-var Parser = traceur.syntax.Parser;
-var SourceFile = traceur.syntax.SourceFile;
-var TreeWriter = traceur.outputgeneration.TreeWriter;
-
 var ext = '.traceur-compiled';
 
 Module._extensions[ext] = function(module, filename) {
@@ -32,18 +26,13 @@ Module._extensions[ext] = function(module, filename) {
 };
 
 function compile(filename) {
-  traceur.options.modules = 'commonjs';
-
   var contents = fs.readFileSync(filename, 'utf-8');
-  var sourceFile = new SourceFile(filename, contents);
-  var parser = new Parser(sourceFile);
-  var tree = parser.parseModule();
-  var reporter = new ErrorReporter();
-  var transformer = new FromOptionsTransformer(reporter);
-  tree = transformer.transform(tree);
-  if (reporter.hadError())
-    throw new Error('Error transforming ' + filename);
-  return TreeWriter.write(tree);
+  var compiler = new traceur.ToCommonJSCompiler();
+  var results = compiler.compile(contents);
+  if (!results.js)
+    console.error(results.errors);
+
+  return results.js;
 }
 
 function traceurRequire(filename) {

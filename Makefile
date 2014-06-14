@@ -119,11 +119,12 @@ test-inline-module-error:
 	./traceur --out not-written.js \
 		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d'
 
-# TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force
+	rm -f -r test.commonjs-compiled/*
 	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
 
 test/amd-compiled: force
+	rm -f -r test/amd-compiled/*
 	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
 test/unit/%.generated.js: test/unit/es6/%.js
