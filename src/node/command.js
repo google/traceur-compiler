@@ -28,6 +28,7 @@ commandLine.setMaxListeners(100);
 
 var traceur = require('./traceur.js');
 var interpret = require('./interpreter.js');
+var compiler = require('./compiler.js');
 
 // The System object requires traceur, but we want it set for everything that
 // follows. The module sets global.System as a side-effect.
@@ -45,9 +46,17 @@ commandLine.option('--module <fileName>', 'Parse as Module', function(fileName) 
 commandLine.option('--out <FILE>', 'Compile all input files into a single file');
 commandLine.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modules into an output directory');
 
+commandLine.sourceMapType = compiler.SourceMapType.NONE;
 commandLine.option('--sourcemap', 'Generate source maps');
 commandLine.on('sourcemap', function() {
-  commandLine.sourceMaps = traceur.options.sourceMaps = true;
+  commandLine.sourceMapType = compiler.SourceMapType.EXTERNAL;
+  traceur.options.sourceMaps = true;
+});
+
+commandLine.option('--inline-sourcemap', 'Generate inline source maps');
+commandLine.on('inline-sourcemap', function() {
+  commandLine.sourceMapType = compiler.SourceMapType.INLINE;
+  traceur.options.sourceMaps = true;
 });
 
 commandLine.option('--longhelp', 'Show all known options');
@@ -115,7 +124,6 @@ if (!shouldExit && !rootSources.length) {
   process.exit(1);
 }
 
-var compiler = require('./compiler.js');
 var compileToSingleFile = compiler.compileToSingleFile;
 var compileToDirectory = compiler.compileToDirectory;
 var out = commandLine.out;
@@ -124,9 +132,9 @@ if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile)
-      compileToSingleFile(out, rootSources, commandLine.sourceMaps);
+      compileToSingleFile(out, rootSources, commandLine.sourceMapType);
     else
-      compileToDirectory(out, rootSources, commandLine.sourceMaps);
+      compileToDirectory(out, rootSources, commandLine.sourceMapType);
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
