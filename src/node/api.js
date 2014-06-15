@@ -21,6 +21,13 @@
 
 var path = require('path');
 var traceur = require('./traceur.js');
+// require compiler so we can export it for consumers that want to do a single file concatenation using the
+// traceur es6 module based topological sort.  for instance, gulp-traceur
+var compiler = require('./compiler');
+// The System object requires traceur, but we want it set for everything that
+// follows. The module sets global.System as a side-effect.
+// load this to avoid getting an error about not setting the baseURL.
+require('./System.js');
 
 var ToCommonJSCompiler = traceur.ToCommonJSCompiler;
 
@@ -59,5 +66,8 @@ var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
 module.exports = {
   __proto__: traceur,
   compile: compile,
+  // export this for consumers that want to do a single file concatenation using the
+  // traceur es6 module based topological sort.  for instance, gulp-traceur
+  compiler: compiler,
   RUNTIME_PATH: RUNTIME_PATH
 };
