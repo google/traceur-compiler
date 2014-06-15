@@ -27,7 +27,7 @@ Module._extensions[ext] = function(module, filename) {
 
 function compile(filename) {
   var contents = fs.readFileSync(filename, 'utf-8');
-  var compiler = new traceur.ToCommonJSCompiler();
+  var compiler = new traceur.ModuleToCommonJSCompiler();
   var results = compiler.compile(contents);
   if (!results.js)
     console.error(results.errors);

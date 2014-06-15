@@ -22,15 +22,15 @@
 var path = require('path');
 var traceur = require('./traceur.js');
 
-var ToCommonJSCompiler = traceur.ToCommonJSCompiler;
+var ModuleToCommonJSCompiler = traceur.ModuleToCommonJSCompiler;
 
 function NodeCompiler() {
-  ToCommonJSCompiler.call(this);
+  ModuleToCommonJSCompiler.call(this);
   this.cwd = process.cwd();
 }
 
 NodeCompiler.prototype = {
-  __proto__: ToCommonJSCompiler.prototype,
+  __proto__: ModuleToCommonJSCompiler.prototype,
   resolveModuleName: function(filename) {
     var moduleName = filename.replace(/\.js$/, '');
     return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
@@ -41,13 +41,13 @@ NodeCompiler.prototype = {
 };
 
 /**
- * Compile ES6 source code with Traceur.
+ * Use Traceur to Compile ES6 module source code to commonjs format.
  *
  * @param  {string} content ES6 source code.
  * @param  {Object=} options Traceur options.
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
-function compile(content, options) {
+function moduleToCommonJS(content, options) {
   return new NodeCompiler().compile(content, options);
 }
 
@@ -58,6 +58,6 @@ var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
 // extend traceur module
 module.exports = {
   __proto__: traceur,
-  compile: compile,
+  compile: moduleToCommonJS,
   RUNTIME_PATH: RUNTIME_PATH
 };
