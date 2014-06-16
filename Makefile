@@ -16,7 +16,6 @@ GENSRC = \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
   src/syntax/ParseTreeVisitor.js
-TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
@@ -150,7 +149,7 @@ clean: wikiclean
 	@rm -f build/previous-commit-traceur.js
 	@rm -rf build/node
 	@rm -rf build/currentSemVer.mk
-	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	@rm -f $(GENSRC)
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
@@ -206,8 +205,6 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 self: build/previous-commit-traceur.js force
 	./traceur-build --debug --out bin/traceur.js $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
-$(TPL_GENSRC_DEPS): node_modules
-
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
@@ -230,9 +227,6 @@ unicode-tables: \
 
 %.js: %.js-template.js
 	node build/expand-js-template.js $< $@
-
-%.js-template.js.dep: %.js-template.js
-	node build/expand-js-template.js --deps $^ > $@
 
 # set NO_PREPUBLISH=1 to prevent endless loop of makes and npm installs.
 NPM_INSTALL = NO_PREPUBLISH=1 npm install --local && touch node_modules
@@ -309,4 +303,3 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
 
--include $(TPL_GENSRC_DEPS)
