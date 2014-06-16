@@ -343,3 +343,40 @@ options.referrer = null;
 
 defaultValues.typeAssertionModule = null;
 options.typeAssertionModule = null;
+
+// Traceur sets these default options and no others for v 0.1.*
+export var optionsV01 = {
+  arrayComprehension: true,
+  arrowFunctions: true,
+  classes: true,
+  computedPropertyNames: true,
+  defaultParameters: true,
+  destructuring: true,
+  forOf: true,
+  generatorComprehension: true,
+  generators: true,
+  modules: 'register',
+  numericLiterals: true,
+  propertyMethods: true,
+  propertyNameShorthand: true,
+  restParameters: true,
+  spread: true,
+  templateLiterals: true,
+  asyncFunctions: false,
+  blockBinding: false,
+  symbols: false,
+  type: false,
+  annotations: false,
+  commentCallback: false,
+  debug: false,
+  freeVariableChecker: false,
+  sourceMaps: false,
+  typeAssertions: false,
+  validate: false,
+  referrer: '',
+  typeAssertionModule: null,
+  moduleName: true,
+  outputLanguage: 'es5',
+  experimental: false,
+  types: false
+};

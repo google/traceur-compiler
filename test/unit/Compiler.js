@@ -18,8 +18,11 @@ suite('Compiler', function() {
   }
 
   var Compiler;
+  var optionsV01;
   setup(function() {
     Compiler = get('src/Compiler').Compiler;
+    optionsV01 = get('src/options').optionsV01;
+    traceur.options.reset();
   });
 
   test('Compiler synchronous', function() {
@@ -63,6 +66,19 @@ suite('Compiler', function() {
       done(new Error('Expected error, got none'));
     }).catch(function(ex) {
       done();
+    });
+  });
+
+  test('Compiler options locked', function() {
+    Object.keys(traceur.options).forEach(function(key) {
+      var mismatches = [];
+      if (traceur.options[key] !== optionsV01[key]) {
+        mismatches.push({key: key,
+            now: traceur.options[key], v01: optionsV01[key]});
+      }
+      if (mismatches.length)
+        console.log("Options changed ", mismatches);
+      assert.equal(mismatches.length, 0);
     });
   });
 });
