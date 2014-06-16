@@ -26,13 +26,12 @@ var SourceFile = traceur.syntax.SourceFile
 var moduleStore = traceur.runtime.ModuleStore;
 
 /**
- * @param {ErrorReporter} reporter
  * @param {Array.<ParseTree>} elements
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
-function InlineLoaderHooks(reporter, url, elements, depTarget) {
-  LoaderHooks.call(this, reporter, url,
+function InlineLoaderHooks(url, elements, depTarget) {
+  LoaderHooks.call(this, null, url,
       nodeLoader,  // Load modules using node fs.
       moduleStore);  // Look up modules in our static module store
   this.dirname = url;
@@ -70,13 +69,12 @@ function allLoaded(url, elements) {
  * @param {Object} options A container for misc options. 'depTarget' is the
  *     only currently available option, which results in the dependencies for
  *     'fileNamesAndTypes' being printed to stdout, with 'depTarget' as the target.
- * @param {ErrorReporter} reporter
  * @param {Function} callback Callback used to return the result. A null result
  *     indicates that inlineAndCompile has returned successfully from a
  *     non-compile request.
  * @param {Function} errback Callback used to return errors.
  */
-function inlineAndCompile(fileNamesAndTypes, options, reporter, callback, errback) {
+function inlineAndCompile(fileNamesAndTypes, options, callback, errback) {
 
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
@@ -99,7 +97,7 @@ function inlineAndCompile(fileNamesAndTypes, options, reporter, callback, errbac
 
   var loadCount = 0;
   var elements = [];
-  var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
+  var hooks = new InlineLoaderHooks(basePath, elements, depTarget);
   var loader = new TraceurLoader(hooks);
 
   function appendEvaluateModule(name, referrerName) {

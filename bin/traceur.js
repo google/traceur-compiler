@@ -21793,42 +21793,71 @@ System.register("traceur@0.0.45/src/Compiler", [], function() {
       return filename;
     }
   }, {});
-  function compile(content) {
-    var options = arguments[1];
-    return new Compiler().compile(content, options);
-  }
-  var ToCommonJSCompiler = function ToCommonJSCompiler() {
-    $traceurRuntime.superCall(this, $ToCommonJSCompiler.prototype, "constructor", [{
+  var ModuleToCommonJSCompiler = function ModuleToCommonJSCompiler() {
+    $traceurRuntime.superCall(this, $ModuleToCommonJSCompiler.prototype, "constructor", [{
       modules: 'commonjs',
       filename: '<unknown file>',
       sourceMap: false,
       moduleName: false
     }]);
   };
-  var $ToCommonJSCompiler = ToCommonJSCompiler;
-  ($traceurRuntime.createClass)(ToCommonJSCompiler, {}, {}, Compiler);
-  var ToAmdCompiler = function ToAmdCompiler() {
-    $traceurRuntime.superCall(this, $ToAmdCompiler.prototype, "constructor", [{
+  var $ModuleToCommonJSCompiler = ModuleToCommonJSCompiler;
+  ($traceurRuntime.createClass)(ModuleToCommonJSCompiler, {}, {}, Compiler);
+  var ModuleToAmdCompiler = function ModuleToAmdCompiler() {
+    $traceurRuntime.superCall(this, $ModuleToAmdCompiler.prototype, "constructor", [{
       modules: 'amd',
       filename: undefined,
       sourceMap: false,
       moduleName: true
     }]);
   };
-  var $ToAmdCompiler = ToAmdCompiler;
-  ($traceurRuntime.createClass)(ToAmdCompiler, {}, {}, Compiler);
+  var $ModuleToAmdCompiler = ModuleToAmdCompiler;
+  ($traceurRuntime.createClass)(ModuleToAmdCompiler, {}, {}, Compiler);
+  function compile(content, options) {
+    return new Compiler().compile(content, options);
+  }
+  function script(content) {
+    var options = arguments[1] !== (void 0) ? arguments[1] : {};
+    options.modules = false;
+    return new Compiler().compile(content, options);
+  }
+  function module(content) {
+    var options = arguments[1] !== (void 0) ? arguments[1] : {};
+    options.modules = 'register';
+    return new Compiler().compile(content, options);
+  }
+  function moduleToAmd(content) {
+    var options = arguments[1];
+    return new ModuleToAmdCompiler().compile(content, options);
+  }
+  function moduleToCommonJS(content) {
+    var options = arguments[1];
+    return new ModuleToCommonJSCompiler().compile(content, options);
+  }
   return {
     get Compiler() {
       return Compiler;
     },
+    get ModuleToCommonJSCompiler() {
+      return ModuleToCommonJSCompiler;
+    },
+    get ModuleToAmdCompiler() {
+      return ModuleToAmdCompiler;
+    },
     get compile() {
       return compile;
     },
-    get ToCommonJSCompiler() {
-      return ToCommonJSCompiler;
+    get script() {
+      return script;
     },
-    get ToAmdCompiler() {
-      return ToAmdCompiler;
+    get module() {
+      return module;
+    },
+    get moduleToAmd() {
+      return moduleToAmd;
+    },
+    get moduleToCommonJS() {
+      return moduleToCommonJS;
     }
   };
 });
@@ -23198,14 +23227,23 @@ System.register("traceur@0.0.45/src/traceur", [], function() {
     get Compiler() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.Compiler;
     },
-    get ToCommonJSCompiler() {
-      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ToCommonJSCompiler;
-    },
-    get ToAmdCompiler() {
-      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ToAmdCompiler;
-    },
     get compile() {
       return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.compile;
+    },
+    get script() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.script;
+    },
+    get module() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.module;
+    },
+    get ModuleToCommonJSCompiler() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.ModuleToCommonJSCompiler;
+    },
+    get moduleToAmd() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.moduleToAmd;
+    },
+    get moduleToCommonJS() {
+      return $__traceur_64_0_46_0_46_45_47_src_47_Compiler__.moduleToCommonJS;
     },
     get util() {
       return util;

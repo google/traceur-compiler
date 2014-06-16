@@ -27,5 +27,4 @@ if (process.argv.length < 4) {
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
 
-var compiler = new traceur.ToAmdCompiler();
-compileAllJsFilesInDir(inputDir, outputDir, compiler.compile.bind(compiler));
+compileAllJsFilesInDir(inputDir, outputDir, traceur.moduleToAmd);

@@ -24,8 +24,6 @@ var util = require('./file-util.js');
 var writeFile = util.writeFile;
 var mkdirRecursive = util.mkdirRecursive;
 var normalizePath = util.normalizePath;
-
-var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
@@ -62,7 +60,6 @@ function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
 }
 
 function compileToSingleFile(outputFile, includes, useSourceMaps) {
-  var reporter = new ErrorReporter();
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
 
@@ -81,7 +78,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
     return include;
   });
 
-  inlineAndCompile(resolvedIncludes, traceur.options, reporter, function(tree) {
+  inlineAndCompile(resolvedIncludes, traceur.options, function(tree) {
     writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
     process.exit(0);
   }, function(err) {
@@ -91,7 +88,6 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
 }
 
 function compileToDirectory(outputDir, includes, useSourceMaps) {
-  var reporter = new ErrorReporter();
   var outputDir = path.resolve(outputDir);
 
   var current = 0;
@@ -101,7 +97,6 @@ function compileToDirectory(outputDir, includes, useSourceMaps) {
       process.exit(0);
 
     inlineAndCompile(includes.slice(current, current + 1), traceur.options,
-        reporter,
         function(tree) {
           var outputFile = path.join(outputDir, includes[current].name);
           var sourceRoot = path.relative(path.dirname(outputFile), '.');
