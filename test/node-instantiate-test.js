@@ -3,6 +3,21 @@ var System = require('../third_party/es6-module-loader/index').System;
 System.baseURL = __dirname + '/instantiate/';
 
 suite('instantiate', function() {
+  test('Inheritance', function(done) {
+    System.import('inheritance').then(function(m) {
+      assert.instanceOf(m.test, m.Bar);
+      assert.instanceOf(m.test, m.Foo);
+      done();
+    }).catch(done);
+  });
+
+  test('Variable Hoisting', function(done) {
+    System.import('hoisting').then(function(m) {
+      assert.equal(m.a, 1);
+      done();
+    }).catch(done);
+  });
+
   test('Circular dependencies', function(done) {
     System.import('circular1').then(function(m1) {
       System.import('circular2').then(function(m2) {
