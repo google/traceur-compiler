@@ -17,7 +17,7 @@ suite('Compiler', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var Compiler
+  var Compiler;
   setup(function() {
     Compiler = get('src/Compiler').Compiler;
   });
@@ -49,9 +49,7 @@ suite('Compiler', function() {
       assert.isTrue(result.js.length > 0);
       assert.equal(result.errors.length, 0);
       done();
-    }).catch(function(ex) {
-      done(ex);
-    });
+    }).catch(done);
   });
 
   test('Compiler asynchronous, error', function(done) {
