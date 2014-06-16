@@ -31,12 +31,13 @@ RUNTIME_TESTS = \
   test/unit/runtime/System.js
 
 UNIT_TESTS = \
+	test/unit/util/ \
 	test/unit/codegeneration/ \
-	test/unit/node/ \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
-	test/unit/system/ \
-	test/unit/util/
+	test/unit/ \
+	test/unit/node/ \
+	test/unit/system/
 
 TESTS = \
 	test/node-commonjs-test.js \
