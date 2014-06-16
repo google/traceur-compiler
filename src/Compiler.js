@@ -48,6 +48,16 @@ export class Compiler {
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
   compile(content, options = {}) {
+    var output = this.stringToTree({content: content, options: options});
+    if (output.errors.length)
+      return output;
+    output = this.treeToTree(output);
+    if (output.errors.length)
+      return output;
+    return this.treeToString(output);
+  }
+
+  stringToTree({content, options}) {
     //  The caller may send us traceurOptions; make a copy so we can reset it
     //  without altering the input object.
     var copyOptions = merge({}, options);
@@ -59,6 +69,18 @@ export class Compiler {
     var sourceFile = new SourceFile(options.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
     var tree = options.modules ? parser.parseModule() : parser.parseScript();
+    return {
+      tree: tree,
+      options: options,
+      errors: errorReporter.errors
+    };
+  }
+
+  parse(input) {
+    return this.promise(this.stringToTree, input);
+  }
+
+  treeToTree({tree, options}) {
     var transformer;
 
     if (options.moduleName) {  // true or non-empty string.
@@ -71,6 +93,7 @@ export class Compiler {
       }
     }
 
+    var errorReporter = new CollectingErrorReporter();
     if (options.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
@@ -82,11 +105,22 @@ export class Compiler {
     if (errorReporter.hadError()) {
       return {
         js: null,
-        errors: errorReporter.errors,
-        sourceMap: null
+        errors: errorReporter.errors
+      };
+    } else {
+      return {
+        tree: transformedTree,
+        options: options,
+        errors: errorReporter.errors
       };
     }
+  }
 
+  transform(input) {
+    return this.promise(this.treeToTree, input);
+  }
+
+  treeToString({tree, options, errors}) {
     var treeWriterOptions = {};
 
     if (options.sourceMap) {
@@ -97,10 +131,14 @@ export class Compiler {
     }
 
     return {
-      js: write(transformedTree, treeWriterOptions),
-      errors: errorReporter.errors,
+      js: write(tree, treeWriterOptions),
+      errors: errors,
       sourceMap: treeWriterOptions.sourceMap || null
     };
+  }
+
+  write(input) {
+    return this.promise(this.treeToString, input);
   }
 
   resolveModuleName(filename) {
@@ -109,6 +147,16 @@ export class Compiler {
 
   sourceRootForFilename(filename) {
     return filename;
+  }
+
+  promise(method, input) {
+    return new Promise((resolve, reject) => {
+      var output = method.call(this, input);
+      if (output.errors.length)
+        reject(new Error(output.errors.join('\n')));
+      else
+        resolve(output);
+    });
   }
 }
 
@@ -135,7 +183,8 @@ export class ModuleToAmdCompiler extends Compiler {
 }
 
 /**
- * Low-level compile function.
+ * Basic compile function. Specify the options when calling this function,
+ * or use one of the pre-specified functions below.
  *
  * @param  {string} content ES6 source code.
  * @param  {Object} options Traceur options to override defaults.
