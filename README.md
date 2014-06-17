@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/google/traceur-compiler.png)](https://travis-ci.org/google/traceur-compiler)
+[![Build Status](https://travis-ci.org/google/traceur-compiler.svg)](https://travis-ci.org/google/traceur-compiler)
 
 <img src="https://raw.github.com/google/traceur-compiler/master/logo/tc.png" alt="Traceur logo" width="200px">
 ## What is Traceur?
