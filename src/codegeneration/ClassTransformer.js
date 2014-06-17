@@ -262,7 +262,7 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformClassExpression(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var name;
     if (tree.name)
@@ -301,7 +301,7 @@ export class ClassTransformer extends TempVarTransformer{
       expression = classCall(func, object, staticObject, superClass);
     }
 
-    this.popTempVarState();
+    this.popTempScope();
 
     return createParenExpression(this.makeStrict_(expression));
   }
@@ -341,7 +341,7 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformSuperInFunctionBody_(methodTree, tree, internalName) {
-    this.pushTempVarState();
+    this.pushTempScope();
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
@@ -354,7 +354,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (superTransformer.hasSuper)
       this.state_.hasSuper = true;
 
-    this.popTempVarState();
+    this.popTempScope();
 
     if (superTransformer.nestedSuper)
       return createFunctionBody([thisDecl].concat(transformedTree.statements));

@@ -80,13 +80,13 @@ export class ModuleTransformer extends TempVarTransformer {
   transformModule(tree) {
     this.moduleName = tree.moduleName;
 
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var statements = this.transformList(tree.scriptItemList);
 
     statements = this.appendExportStatement(statements);
 
-    this.popTempVarState();
+    this.popTempScope();
 
     statements = this.wrapModule(this.moduleProlog().concat(statements));
 
