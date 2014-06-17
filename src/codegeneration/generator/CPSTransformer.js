@@ -205,7 +205,7 @@ export class CPSTransformer extends TempVarTransformer {
   }
 
   transformFunctionBody(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     // NOTE: tree may contain state machines already ...
     var oldLabels = this.clearLabels_();
@@ -215,7 +215,7 @@ export class CPSTransformer extends TempVarTransformer {
 
     this.restoreLabels_(oldLabels);
 
-    this.popTempVarState();
+    this.popTempScope();
     return machine == null ? transformedTree : machine;
   }
 
