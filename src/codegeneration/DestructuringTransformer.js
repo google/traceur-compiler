@@ -205,7 +205,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformBinaryOperator(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var rv;
     if (tree.operator.type == EQUAL && tree.left.isPattern()) {
@@ -214,7 +214,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       rv = super(tree);
     }
 
-    this.popTempVarState();
+    this.popTempScope();
     return rv;
   }
 
@@ -256,7 +256,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return super.transformVariableDeclarationList(tree);
     }
 
-    this.pushTempVarState();
+    this.pushTempScope();
 
     // Desugar one level of patterns.
     var desugaredDeclarations = [];
@@ -275,7 +275,7 @@ export class DestructuringTransformer extends TempVarTransformer {
             tree.declarationType,
             desugaredDeclarations));
 
-    this.popTempVarState();
+    this.popTempScope();
 
     return transformedTree;
   }
@@ -309,7 +309,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return superMethod.call(this, tree);
     }
 
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var declarationType, lvalue;
     if (tree.initializer.isPattern()) {
@@ -349,7 +349,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     statements.push(...body.statements);
     body = createBlock(statements);
 
-    this.popTempVarState();
+    this.popTempScope();
 
     return new constr(tree.location, initializer, collection, body);
   }
@@ -379,7 +379,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     if (this.parameterDeclarations === null) {
       this.parameterDeclarations = [];
-      this.pushTempVarState();  // Popped in the function body.
+      this.pushTempScope();  // Popped in the function body.
     }
 
     var varName = this.getTempIdentifier();
@@ -404,7 +404,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     this.parameterDeclarations = null;
 
     var result = super(newBody);
-    this.popTempVarState();
+    this.popTempScope();
     return result;
   }
 
