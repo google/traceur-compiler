@@ -73,11 +73,14 @@ suite('Compiler', function() {
     Object.keys(traceur.options).forEach(function(key) {
       var mismatches = [];
       if (traceur.options[key] !== optionsV01[key]) {
-        mismatches.push({key: key,
-            now: traceur.options[key], v01: optionsV01[key]});
+        mismatches.push({
+          key: key,
+          now: traceur.options[key],
+          v01: optionsV01[key]
+        });
       }
       if (mismatches.length)
-        console.log("Options changed ", mismatches);
+        console.error('Options changed ', mismatches);
       assert.equal(mismatches.length, 0);
     });
   });
