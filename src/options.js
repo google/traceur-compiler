@@ -100,8 +100,9 @@ function reset(allOff = undefined) {
  */
 function setDefaults() {
   options.modules = 'register';
-  options.moduleName = true;
+  options.moduleName = false;
   options.outputLanguage = 'es5';
+  options.filename = undefined;
 }
 
 /**
@@ -126,6 +127,7 @@ function setFromObject(object) {
   Object.keys(object).forEach((name) => {
     options[name] = object[name];
   });
+  return this;
 }
 
 function coerceOptionValue(v) {
@@ -216,6 +218,45 @@ function filterOption(dashedName) {
   return name === 'experimental' || !(name in options);
 }
 
+
+// Traceur sets these default options and no others for v 0.1.*
+export var optionsV01 = Object.create(null, {
+  arrayComprehension: {enumerable: true, value: true},
+  arrowFunctions: {enumerable: true, value: true},
+  classes: {enumerable: true, value: true},
+  computedPropertyNames: {enumerable: true, value: true},
+  defaultParameters: {enumerable: true, value: true},
+  destructuring: {enumerable: true, value: true},
+  forOf: {enumerable: true, value: true},
+  generatorComprehension: {enumerable: true, value: true},
+  generators: {enumerable: true, value: true},
+  modules: {enumerable: true, value: 'register'},
+  numericLiterals: {enumerable: true, value: true},
+  propertyMethods: {enumerable: true, value: true},
+  propertyNameShorthand: {enumerable: true, value: true},
+  restParameters: {enumerable: true, value: true},
+  spread: {enumerable: true, value: true},
+  templateLiterals: {enumerable: true, value: true},
+  asyncFunctions: {enumerable: true, value: false},
+  blockBinding: {enumerable: true, value: false},
+  symbols: {enumerable: true, value: false},
+  types: {enumerable: true, value: false},
+  annotations: {enumerable: true, value: false},
+  commentCallback: {enumerable: true, value: false},
+  debug: {enumerable: true, value: false},
+  freeVariableChecker: {enumerable: true, value: false},
+  sourceMaps: {enumerable: true, value: false},
+  typeAssertions: {enumerable: true, value: false},
+  validate: {enumerable: true, value: false},
+  referrer: {enumerable: true, value: ''},
+  typeAssertionModule: {enumerable: true, value: null},
+  moduleName: {enumerable: true, value: false},
+  outputLanguage: {enumerable: true, value: 'es5'},
+  experimental: {enumerable: true, value: false},
+  filename: {enumerable: true, value: undefined}
+});
+
+
 // Make sure non option fields are non enumerable.
 Object.defineProperties(options, {
   reset: {value: reset},
@@ -224,7 +265,8 @@ Object.defineProperties(options, {
   setFromObject: {value: setFromObject},
   addOptions: {value: addOptions},
   filterOption: {value: filterOption},
-  modules_: {value: null, writable: true}
+  modules_: {value: null, writable: true},
+  versionLockedOptions: {value: optionsV01}
 });
 
 /**
@@ -343,40 +385,3 @@ options.referrer = null;
 
 defaultValues.typeAssertionModule = null;
 options.typeAssertionModule = null;
-
-// Traceur sets these default options and no others for v 0.1.*
-export var optionsV01 = {
-  arrayComprehension: true,
-  arrowFunctions: true,
-  classes: true,
-  computedPropertyNames: true,
-  defaultParameters: true,
-  destructuring: true,
-  forOf: true,
-  generatorComprehension: true,
-  generators: true,
-  modules: 'register',
-  numericLiterals: true,
-  propertyMethods: true,
-  propertyNameShorthand: true,
-  restParameters: true,
-  spread: true,
-  templateLiterals: true,
-  asyncFunctions: false,
-  blockBinding: false,
-  symbols: false,
-  type: false,
-  annotations: false,
-  commentCallback: false,
-  debug: false,
-  freeVariableChecker: false,
-  sourceMaps: false,
-  typeAssertions: false,
-  validate: false,
-  referrer: '',
-  typeAssertionModule: null,
-  moduleName: true,
-  outputLanguage: 'es5',
-  experimental: false,
-  types: false
-};

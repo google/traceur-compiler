@@ -28,7 +28,7 @@ suite('Compiler', function() {
   test('Compiler synchronous', function() {
     var compiler = new Compiler();
     var content = '';
-    var result = compiler.compile(content);
+    var result = compiler.stringToString(content);
     assert.isTrue(result.js.length > 0);
     assert.equal(result.errors.length, 0);
   });
@@ -36,7 +36,7 @@ suite('Compiler', function() {
   test('Compiler synchronous, errors', function() {
     var compiler = new Compiler();
     var content = 'syntax error';
-    var result = compiler.compile(content);
+    var result = compiler.stringToString(content);
     assert.isUndefined(result.js);
     assert.equal(result.errors.length, 1);
   });

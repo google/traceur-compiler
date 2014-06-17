@@ -199,6 +199,7 @@ suite('context test', function() {
     var outDir = './unit/node/resources/compile-cjs';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
       assert.isNull(error);
+      console.log('stdout', stdout)
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
       assert.equal(fileContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  p: {get: function() {\n      return p;\n    }},\n  __esModule: {value: true}\n});\nvar q = $traceurRuntime.assertObject(require('./dep')).q;\nvar p = 'module';\n");
