@@ -5,6 +5,7 @@
 .DS_Store
 .svn
 bin/traceur-runtime.js
+bin/traceur.js
 build/compiled-by-previous-traceur.js
 build/currentSemVer.mk
 build/local.mk
