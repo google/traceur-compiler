@@ -50,7 +50,3 @@ export var THIS = 'this';
 export var TRACEUR_RUNTIME = '$traceurRuntime';
 export var UNDEFINED = 'undefined';
 export var WRITABLE = 'writable';
-export function getParameterName(index) {
-  // TODO: consider caching these
-  return '$' + index;
-};

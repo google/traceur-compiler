@@ -343,10 +343,10 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var collection = this.transformAny(tree.collection);
     var body = this.transformAny(tree.body);
-    if (body.type !== BLOCK)
-      body = createBlock(body);
-
-    statements.push(...body.statements);
+    if (body.type === BLOCK)
+      statements.push(...body.statements);
+    else
+      statements.push(body);
     body = createBlock(statements);
 
     this.popTempScope();

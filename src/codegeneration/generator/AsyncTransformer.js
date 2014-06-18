@@ -43,7 +43,6 @@ import {
   createBreakStatement,
   createOperatorToken,
   createReturnStatement,
-  createStatementList,
   createUndefinedExpression
 } from '../ParseTreeFactory';
 

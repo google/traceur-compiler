@@ -43,7 +43,6 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createNewExpression,
-  createStatementList,
   createStringLiteralToken
 } from './ParseTreeFactory';
 import {parseExpression} from './PlaceholderParser';
@@ -260,8 +259,10 @@ class AnnotationsScope {
   }
 
   transformAccessor_(tree, className, accessor) {
-    var args = createArgumentList([this.transformClassReference_(tree, className),
-        this.createLiteralStringExpression_(tree.name)]);
+    var args = createArgumentList([
+      this.transformClassReference_(tree, className),
+      this.createLiteralStringExpression_(tree.name)
+    ]);
 
     var descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);

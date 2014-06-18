@@ -167,7 +167,7 @@ export class ModuleTransformer extends TempVarTransformer {
         return createIdentifierExpression(
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
       });
-      var args = createArgumentList(exportObject, ...starIdents);
+      var args = createArgumentList([exportObject, ...starIdents]);
       return parseExpression `$traceurRuntime.exportStar(${args})`;
     }
     return exportObject;

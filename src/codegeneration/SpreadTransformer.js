@@ -143,7 +143,7 @@ export class SpreadTransformer extends TempVarTransformer {
     var arrayExpression = this.createArrayFromElements_(tree.args.args);
     return createCallExpression(
         createMemberExpression(functionObject, APPLY),
-        createArgumentList(contextObject, arrayExpression));
+        createArgumentList([contextObject, arrayExpression]));
   }
 
   desugarNewSpread_(tree) {
@@ -158,9 +158,10 @@ export class SpreadTransformer extends TempVarTransformer {
         createParenExpression(
             createCallExpression(
               createMemberExpression(FUNCTION, PROTOTYPE, BIND, APPLY),
-              createArgumentList(
-                  this.transformAny(tree.operand),
-                  arrayExpression))),
+              createArgumentList([
+                this.transformAny(tree.operand),
+                arrayExpression
+              ]))),
         createEmptyArgumentList());
   }
 

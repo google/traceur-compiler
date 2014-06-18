@@ -133,11 +133,11 @@ function renameAll(renames, tree) {
 
 /**
  * Wraps a statement in a block if needed.
- * @param {ParseTree} statements
+ * @param {ParseTree} statement
  * @return {Block}
  */
 function toBlock(statement) {
-  return statement.type == BLOCK ? statement : createBlock(statement);
+  return statement.type == BLOCK ? statement : createBlock([statement]);
 }
 
 export class BlockBindingTransformer extends ParseTreeTransformer {
@@ -220,8 +220,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     if (scope.blockVariables != null) {
       // rewrite into catch construct
-      tree = toBlock(
-          this.rewriteAsCatch_(scope.blockVariables, createBlock(statements)));
+      tree = createBlock([
+        this.rewriteAsCatch_(scope.blockVariables, createBlock(statements))
+      ]);
     } else if (statements != tree.statements) {
       tree = createBlock(statements);
     }
@@ -258,12 +259,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     for (var variable in blockVariables) {
       statement =
           createTryStatement(
-              createBlock(                  // try
-                  createThrowStatement(
-                      createUndefinedExpression())),
+              createBlock([                      // try
+                createThrowStatement(createUndefinedExpression())
+              ]),
               createCatch(                  // catch
                   createBindingIdentifier(variable),
-                  toBlock(statement)),
+                  createBlock([statement])),
               null);                       // finally
     }
 
@@ -368,11 +369,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    */
   prependToBlock_(statement, body) {
     if (body.type == BLOCK) {
-      var block = body;
-      var list = [statement, ... block.statements];
-      return createBlock(list);
+      return createBlock([statement, ... body.statements]);
     } else {
-      return createBlock(statement, body);
+      return createBlock([statement, body]);
     }
   }
 
@@ -514,29 +513,31 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var increment = renameAll(renames, tree.increment);
 
     // package it all up
-    var transformedForLoop = createBlock(
-        // hoisted declaration
-        createVariableStatement(
-            createVariableDeclarationList(
-                LET, hoisted)),
-        // for loop
-        createForStatement(
-            null,
-            condition,
-            increment,
-            // body
-            createBlock(
-                createVariableStatement(
-                    // let x = $x;
-                    createVariableDeclarationList(LET, copyFwd)),
-                // try { ... } finally { copyBak }
-                createTryStatement(
-                    // try - the original for loop body
-                    toBlock(tree.body),
-                    // catch (none)
-                    null,
-                    // finally - the writebacks
-                    createFinally(createBlock(copyBak))))));
+    var transformedForLoop = createBlock([
+      // hoisted declaration
+      createVariableStatement(
+          createVariableDeclarationList(
+              LET, hoisted)),
+      // for loop
+      createForStatement(
+          null,
+          condition,
+          increment,
+          // body
+          createBlock([
+            createVariableStatement(
+                // let x = $x;
+                createVariableDeclarationList(LET, copyFwd)),
+            // try { ... } finally { copyBak }
+            createTryStatement(
+                // try - the original for loop body
+                toBlock(tree.body),
+                // catch (none)
+                null,
+                // finally - the writebacks
+                createFinally(createBlock(copyBak)))
+          ]))
+      ]);
 
     // Now transform the rewritten for loop! This is safe to do because the
     return this.transformAny(transformedForLoop);
@@ -651,7 +652,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    */
   transformBlockVariables_(tree) {
     var variables = tree.declarations;
-    var comma = [];
+    var commaExpressions = [];
 
     variables.forEach((variable) => {
       switch (tree.declarationType) {
@@ -670,24 +671,24 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
       if (initializer != null) {
         // varname = initializer, ...
-        comma.push(
+        commaExpressions.push(
             createAssignmentExpression(
                 createIdentifierExpression(variableName),
                 initializer));
       }
     });
 
-    switch (comma.length) {
+    switch (commaExpressions.length) {
       case 0:
         return createEmptyStatement();
       case 1:
-        return createExpressionStatement(comma[0]);
+        return createExpressionStatement(commaExpressions[0]);
       default:
-        // Turn comma into statements
-        for (var i = 0; i < comma.length; i++) {
-          comma[i] = createExpressionStatement(comma[i]);
+        // Turn commaExpressions into statements
+        for (var i = 0; i < commaExpressions.length; i++) {
+          commaExpressions[i] = createExpressionStatement(commaExpressions[i]);
         }
-        return createBlock(comma);
+        return createBlock(commaExpressions);
     }
   }
 

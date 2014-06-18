@@ -19,7 +19,6 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createReturnStatement,
-  createThisExpression,
   createTrueLiteral
 } from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';

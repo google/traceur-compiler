@@ -19,8 +19,7 @@ import {
 } from '../../syntax/trees/ParseTrees';
 import {State} from './State';
 import {
-  createBreakStatement,
-  createStatementList
+  createBreakStatement
 } from '../ParseTreeFactory';
 
 /**
@@ -95,8 +94,9 @@ export class SwitchState extends State {
             State.generateJump(enclosingFinally, clause.second)));
       }
     }
-    return createStatementList(
-        new SwitchStatement(null, this.expression, clauses),
-        createBreakStatement());
+    return [
+      new SwitchStatement(null, this.expression, clauses),
+      createBreakStatement()
+    ];
   }
 }

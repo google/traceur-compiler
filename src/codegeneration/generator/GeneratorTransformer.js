@@ -34,7 +34,6 @@ import {
   createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
-  createStatementList,
   createUndefinedExpression,
   createYieldStatement
 } from '../ParseTreeFactory';

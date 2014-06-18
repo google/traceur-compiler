@@ -108,7 +108,7 @@ export class ForInTransformPass extends TempVarTransformer {
             // $keys.push($p)
             createCallStatement(
                 createMemberExpression(keys, PUSH),
-                createArgumentList(createIdentifierExpression(p)))));
+                createArgumentList([createIdentifierExpression(p)]))));
 
     var i = this.getTempIdentifier();
 

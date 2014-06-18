@@ -20,8 +20,7 @@ import {YieldState} from './YieldState';
 import {State} from './State';
 import {
   createAssignmentStatement,
-  createMemberExpression,
-  createThisExpression
+  createMemberExpression
 } from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';
 

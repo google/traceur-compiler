@@ -42,14 +42,12 @@ import {
   createCommaExpression,
   createExpressionStatement,
   createFunctionBody,
-  createGetAccessor,
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
   createNullLiteral,
   createNumberLiteral,
   createParenExpression,
-  createSetAccessor,
   createStringLiteral,
   createVoid0
 } from './ParseTreeFactory';

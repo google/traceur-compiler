@@ -69,15 +69,17 @@ function createCallSiteIdObject(tree) {
   return createObjectFreeze(
       createCallExpression(
           createMemberExpression(OBJECT, DEFINE_PROPERTIES),
-          createArgumentList(
-              createCookedStringArray(elements),
-              createObjectLiteralExpression(
-                  createPropertyNameAssignment(
-                      RAW,
-                      createPropertyDescriptor({
-                        value: createObjectFreeze(
-                            createRawStringArray(elements))
-                      }))))));
+          createArgumentList([
+            createCookedStringArray(elements),
+            createObjectLiteralExpression([
+              createPropertyNameAssignment(
+                  RAW,
+                  createPropertyDescriptor({
+                    value: createObjectFreeze(
+                        createRawStringArray(elements))
+                  }))
+              ])
+          ])));
 }
 
 /**
