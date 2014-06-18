@@ -47,7 +47,7 @@ export class WebPageTranscoder {
   addFileFromScriptElement(scriptElement, name, content) {
     var nameInfo = {address: name, referrerName: window.location.href, name: name};
     var loadingResult;
-    if (scriptElement.type === "module")
+    if (scriptElement.type === 'module')
       loadingResult = this.loader.module(content, nameInfo);
     else
       loadingResult = this.loader.script(content, nameInfo);
