@@ -14,7 +14,7 @@
 
 'use strict';
 
-var traceurNodeAPI = require('./api.js');
+var traceurApi = require('./api.js');
 var compileAllJsFilesInDir =
     require('./compile-single-file.js').compileAllJsFilesInDir;
 
@@ -27,4 +27,4 @@ if (process.argv.length < 4) {
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
 
-compileAllJsFilesInDir(inputDir, outputDir, traceurNodeAPI.moduleToAmd);
+compileAllJsFilesInDir(inputDir, outputDir, traceurApi.moduleToAmd);

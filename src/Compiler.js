@@ -56,7 +56,7 @@ export class Compiler {
    *
    * @param  {string} content ES6 source code.
    * @param  {Object=} options Traceur options to override defaults.
-    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
+   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
   module(content, options = {}) {
     options.modules = 'register';
@@ -68,7 +68,7 @@ export class Compiler {
    * @param  {Object=} options Traceur options to override defaults.
   * @return {Object}
    */
-  static amdOptions(content, options = {}) {
+  static amdOptions(options = {}) {
     var amdOptions = {
       modules: 'amd',
       filename: undefined,
@@ -81,7 +81,7 @@ export class Compiler {
    * Options to create 'commonjs' module format.
    *
    * @param  {Object=} options Traceur options to override defaults.
-    * @return {Object}
+   * @return {Object}
    */
   static commonJSOptions(options = {}) {
     var commonjsOptions = {
