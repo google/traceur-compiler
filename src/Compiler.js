@@ -94,14 +94,14 @@ export class Compiler {
   }
 
   /**
-   * Use Traceur to compile ES6 module source code, using default options
+   * Use Traceur to compile ES6 module source code
    *
    * @param  {string} content ES6 source code.
    * @param  {Object=} options Traceur options to override defaults.
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
-  compile(content, options) {
-    return this.parse({content: content, options: {}}).
+  compile(content, options = {}) {
+    return this.parse({content: content, options: options}).
         then((result) => this.transform(result)).
         then((result) => this.write(result));
   }

@@ -69,6 +69,18 @@ suite('Compiler', function() {
     });
   });
 
+  test('Compiler script', function(done) {
+    var compiler = new Compiler();
+    var content = 'var x = 42;\n';
+
+    var result = compiler.script(content).
+      then(function(result) {
+        assert.equal(result.js, content);
+        assert.equal(result.errors.length, 0);
+        done();
+      }).catch(done);
+  });
+  
   test('Compiler options locked', function() {
     Object.keys(traceur.options).forEach(function(key) {
       var mismatches = [];
@@ -84,4 +96,5 @@ suite('Compiler', function() {
       assert.equal(mismatches.length, 0);
     });
   });
+
 });
