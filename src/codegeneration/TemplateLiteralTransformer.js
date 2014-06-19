@@ -23,11 +23,6 @@ import {
   ParenExpression
 } from '../syntax/trees/ParseTrees';
 import {LiteralToken} from '../syntax/LiteralToken';
-import {
-  DEFINE_PROPERTIES,
-  OBJECT,
-  RAW
-} from '../syntax/PredefinedName';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
@@ -43,43 +38,25 @@ import {
   createBinaryOperator,
   createCallExpression,
   createIdentifierExpression,
-  createMemberExpression,
-  createObjectFreeze,
   createObjectLiteralExpression,
   createOperatorToken,
-  createPropertyDescriptor,
-  createPropertyNameAssignment,
   createStringLiteral
 } from './ParseTreeFactory';
+import {parseExpression} from './PlaceholderParser';
 
 /**
- * Creates an object like:
- *
- *   Object.freeze(Object.defineProperties(CookedArray, {
- *     raw: {
- *       value: Object.freeze(RawArray)
- *     }
- *   });
- *
  * @param {ParseTree} tree
  * @return {ParseTree}
  */
 function createCallSiteIdObject(tree) {
   var elements = tree.elements;
-  return createObjectFreeze(
-      createCallExpression(
-          createMemberExpression(OBJECT, DEFINE_PROPERTIES),
-          createArgumentList([
-            createCookedStringArray(elements),
-            createObjectLiteralExpression([
-              createPropertyNameAssignment(
-                  RAW,
-                  createPropertyDescriptor({
-                    value: createObjectFreeze(
-                        createRawStringArray(elements))
-                  }))
-              ])
-          ])));
+  var cooked = createCookedStringArray(elements);
+  var raw = createRawStringArray(elements);
+  return parseExpression `Object.freeze(Object.defineProperties(${cooked}, {
+    raw: {
+      value: Object.freeze(${raw})
+    }
+  }))`;
 }
 
 /**
@@ -97,10 +74,14 @@ function maybeAddEmptyStringAtEnd(elements, items) {
 function createRawStringArray(elements) {
   var items = [];
   for (var i = 0; i < elements.length; i += 2) {
-    var str = replaceRaw(JSON.stringify(elements[i].value.value));
+    var str = elements[i].value.value;
+    // Normalize line endings before using JSON for the rest.
+    str = str.replace(/\r\n?/g, '\n');
+    str = JSON.stringify(str);
+    // JSON does not handle Unicode line terminators \u2028 and \u2029.
+    str = replaceRaw(str);
     var loc = elements[i].location;
-    var expr = new LiteralExpression(loc, new LiteralToken(STRING,
-                                                           str, loc));
+    var expr = new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
     items.push(expr);
   }
   maybeAddEmptyStringAtEnd(elements, items);
@@ -176,8 +157,12 @@ function cookString(s) {
       case '\n':
         sb[k++] = '\\n';
         break;
+      // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF>
+      // for both TV and TRV.
       case '\r':
-        sb[k++] = '\\r';
+        if (s[i] === '\n')
+          i++;
+        sb[k++] = '\\n';
         break;
       case '\t':
         sb[k++] = '\\t';
@@ -263,8 +248,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
     var length = tree.elements.length;
     if (length === 0) {
       var loc = tree.location;
-      return new LiteralExpression(loc, new LiteralToken(STRING,
-                                                         '""', loc));
+      return new LiteralExpression(loc, new LiteralToken(STRING, '""', loc));
     }
 
     var firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;
