@@ -358,7 +358,9 @@ function nextRegularExpressionLiteralToken() {
   var beginIndex = index - token.toString().length;
 
   // body
-  if (!skipRegularExpressionBody()) {
+  // Also, check if we are done with the body in case we had /=/
+  if (!(token.type == SLASH_EQUAL && currentCharCode === 47) &&
+      !skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
                             getTokenRange(beginIndex));
