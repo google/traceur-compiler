@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ARRAY_PATTERN,
-  BINDING_ELEMENT,
-  BINDING_IDENTIFIER,
-  FORMAL_PARAMETER,
-  OBJECT_PATTERN,
-  OBJECT_PATTERN_FIELD,
-  PAREN_EXPRESSION,
-  SPREAD_PATTERN_ELEMENT
-} from '../syntax/trees/ParseTreeType';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
-
-// TODO: Update once destructuring has been refactored.
 
 // TODO: Add entry more entry points:
 //    for..in statment
@@ -57,7 +45,7 @@ import {assert} from '../util/assert';
  * @param {boolean=} includeFunctionScope
  * @return {Object}
  */
-export function variablesInBlock(tree, includeFunctionScope) {
+export function variablesInBlock(tree, includeFunctionScope = false) {
   var binder = new VariableBinder(includeFunctionScope, tree);
   binder.visitAny(tree);
   return binder.identifiers_;
@@ -103,7 +91,8 @@ export function variablesInBlock(tree, includeFunctionScope) {
  */
 export function variablesInFunction(tree) {
   var binder = new VariableBinder(true, tree.functionBody);
-  binder.bindVariablesInFunction_(tree);
+  binder.visitAny(tree.parameterList);
+  binder.visitAny(tree.functionBody);
   return binder.identifiers_;
 };
 
@@ -117,7 +106,7 @@ export class VariableBinder extends ParseTreeVisitor {
    * @param {boolean} inFunctionScope
    * @param {Block=} scope
    */
-  constructor(includeFunctionScope, scope) {
+  constructor(includeFunctionScope, scope = null) {
     super();
 
     // Should we include:
@@ -129,7 +118,7 @@ export class VariableBinder extends ParseTreeVisitor {
     // Block within which we are looking for declarations:
     // * block scoped declaration occurring in this block.
     // If function != null this refers to the top level function block.
-    this.scope_ = scope || null;
+    this.scope_ = scope;
 
     // Block currently being processed
     this.block_ = null;
@@ -137,20 +126,9 @@ export class VariableBinder extends ParseTreeVisitor {
     this.identifiers_ = Object.create(null);
   }
 
-  /** @param {FunctionDeclaration} tree */
-  bindVariablesInFunction_(tree) {
-    var parameters = tree.parameterList.parameters;
-    for (var i = 0; i < parameters.length; i++) {
-      this.bindParameter_(parameters[i]);
-    }
-    this.visitAny(tree.functionBody);
+  visitBindingIdentifier(tree) {
+    this.identifiers_[tree.identifierToken.value] = true;
   }
-
-  // TODO(arv): This is where we should do the binding but I need to refactor
-  // destructuring first.
-  // visitBindingIdentifier(tree) {
-  //
-  // }
 
   /** @param {Block} tree */
   visitBlock(tree) {
@@ -167,8 +145,8 @@ export class VariableBinder extends ParseTreeVisitor {
 
   visitFunctionDeclaration(tree) {
     // functions follow the binding rules of 'let'
-    if (this.block_ == this.scope_)
-      this.bind_(tree.name.identifierToken);
+    if (this.block_ === this.scope_)
+      this.visitAny(tree.name);
   }
 
   visitFunctionExpression(tree) {
@@ -176,97 +154,13 @@ export class VariableBinder extends ParseTreeVisitor {
     // their own lexical scope.
   }
 
-  /** @param {VariableDeclarationList} tree */
+  visitCatch(tree) {
+    // Do not include catch binding
+    this.visitAny(tree.catchBody);
+  }
+
   visitVariableDeclarationList(tree) {
-    // "var" variables are bound if we are scanning the whole function only
-    // "let/const" are bound if (we are scanning block scope or function) AND
-    //   the scope currently processed is the scope we care about
-    //   (either the block scope being scanned or the top level function scope)
-    if ((tree.declarationType == VAR && this.includeFunctionScope_) ||
-        (tree.declarationType != VAR && this.block_ == this.scope_)) {
-      // declare the variables
-      super.visitVariableDeclarationList(tree);
-    } else {
-      // skipping let/const declarations in nested blocks
-      var decls = tree.declarations;
-      for (var i = 0; i < decls.length; i++) {
-        this.visitAny(decls[i].initializer);
-      }
-    }
-  }
-
-  /** @param {VariableDeclaration} tree */
-  visitVariableDeclaration(tree) {
-    this.bindVariableDeclaration_(tree.lvalue);
-    super.visitVariableDeclaration(tree);
-  }
-
-  /** @param {IdentifierToken} identifier */
-  bind_(identifier) {
-    assert(typeof identifier.value == 'string');
-    this.identifiers_[identifier.value] = true;
-  }
-
-  /** @param {ParseTree} parameter */
-  bindParameter_(parameter) {
-    if (parameter.type === FORMAL_PARAMETER)
-      parameter = parameter.parameter;
-
-    if (parameter.isRestParameter()) {
-      this.bind_(parameter.identifier);
-    } else {
-      // Formal parameters are otherwise like variable
-      // declarations--identifier expressions and patterns
-      this.bindVariableDeclaration_(parameter.binding);
-    }
-  }
-
-  /** @param {ParseTree} parameter */
-  bindVariableDeclaration_(tree) {
-    // TODO(arv): This should just visit all the BindingIdentifiers once
-    // destructuring has been refactored.
-    switch (tree.type) {
-      case BINDING_ELEMENT:
-        this.bindVariableDeclaration_(tree.binding);
-        break;
-
-      case BINDING_IDENTIFIER:
-        this.bind_(tree.identifierToken);
-        break;
-
-      case ARRAY_PATTERN:
-        var elements = tree.elements;
-        for (var i = 0; i < elements.length; i++) {
-          this.bindVariableDeclaration_(elements[i]);
-        }
-        break;
-
-      case SPREAD_PATTERN_ELEMENT:
-        this.bindVariableDeclaration_(tree.lvalue);
-        break;
-
-      case OBJECT_PATTERN:
-        var fields = tree.fields;
-        for (var i = 0; i < fields.length; i++) {
-          this.bindVariableDeclaration_(fields[i]);
-        }
-        break;
-
-      case OBJECT_PATTERN_FIELD:
-        var field = tree;
-        if (field.element == null) {
-          this.bind_(field.name);
-        } else {
-          this.bindVariableDeclaration_(field.element);
-        }
-        break;
-
-      case PAREN_EXPRESSION:
-        this.bindVariableDeclaration_(tree.expression);
-        break;
-
-      default:
-        throw new Error('unreachable');
-    }
+    if (this.includeFunctionScope_ || tree.declarationType !== VAR)
+      super(tree);
   }
 }

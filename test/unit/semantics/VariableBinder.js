@@ -45,6 +45,16 @@ suite('VariableBinder.js', function() {
         '{ var x = function f() {}; }'), false)));
     assert.equal('x', idsToString(variablesInBlock(parse(
         '{ let x = function f() {}; }'), false)));
+    assert.equal('x', idsToString(variablesInBlock(parse(
+        '{ let {x} = {x: 1}; }'), false)));
+    assert.equal('x', idsToString(variablesInBlock(parse(
+        '{ let {x = 1} = {} }'), false)));
+    assert.equal('x', idsToString(variablesInBlock(parse(
+        '{ let [x] = [1]; }'), false)));
+    assert.equal('x', idsToString(variablesInBlock(parse(
+        '{ let [x = 1] = []; }'), false)));
+    assert.equal('x', idsToString(variablesInBlock(parse(
+        '{ let [...x] = []; }'), false)));
 
     // Now set includeFunctionScope = true
     assert.equal('f', idsToString(variablesInBlock(parse(
@@ -58,6 +68,17 @@ suite('VariableBinder.js', function() {
         'function f(x) { var y; f(); }'))));
     assert.equal('', idsToString(variablesInFunction(parse(
         'function f() { try { } catch (x) { function g(y) { } } }'))));
+
+    assert.equal('x,y', idsToString(variablesInFunction(parse(
+        'function f({x}) { var y; f(); }'))));
+    assert.equal('x,y,z', idsToString(variablesInFunction(parse(
+        'function f({x, y}) { var z; f(); }'))));
+    assert.equal('x,y,z', idsToString(variablesInFunction(parse(
+        'function f({x}, {y}) { var z; f(); }'))));
+    assert.equal('x,y,z', idsToString(variablesInFunction(parse(
+        'function f([x, y]) { var z; f(); }'))));
+    assert.equal('x,y,z', idsToString(variablesInFunction(parse(
+        'function f([x, ...y]) { var z; f(); }'))));
   });
 
 });
