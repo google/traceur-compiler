@@ -22,16 +22,18 @@
 var path = require('path');
 var traceur = require('./traceur.js');
 
-var ModuleToCommonJSCompiler = traceur.ModuleToCommonJSCompiler;
+var Compiler = traceur.Compiler;
 
 function NodeCompiler() {
-  ModuleToCommonJSCompiler.call(this);
+  Compiler.call(this);
   this.cwd = process.cwd();
 }
 
 NodeCompiler.prototype = {
-  __proto__: ModuleToCommonJSCompiler.prototype,
+  __proto__: Compiler.prototype,
   resolveModuleName: function(filename) {
+    if (!filename)
+      return;
     var moduleName = filename.replace(/\.js$/, '');
     return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
   },
@@ -40,6 +42,11 @@ NodeCompiler.prototype = {
   }
 };
 
+function compile(content, options) {
+  return new NodeCompiler().stringToString(content,
+      Compiler.commonJSOptions(options));
+}
+
 /**
  * Use Traceur to Compile ES6 module source code to commonjs format.
  *
@@ -47,8 +54,20 @@ NodeCompiler.prototype = {
  * @param  {Object=} options Traceur options.
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
-function moduleToCommonJS(content, options) {
-  return new NodeCompiler().compile(content, options);
+function moduleToCommonJS(content) {
+  return new NodeCompiler().stringToString(content,
+      Compiler.commonJSOptions({}));
+}
+/**
+ * Use Traceur to Compile ES6 module source code to amd format.
+ *
+ * @param  {string} content ES6 source code.
+ * @param  {Object=} options Traceur options.
+ * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
+ */
+function moduleToAmd(content) {
+  return new NodeCompiler().stringToString(content,
+      Compiler.amdOptions({}));
 }
 
 // The absolute path to traceur-runtime.js -- the file that should be executed
@@ -58,6 +77,8 @@ var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
 // extend traceur module
 module.exports = {
   __proto__: traceur,
-  compile: moduleToCommonJS,
+  compile: compile,
+  moduleToCommonJS: moduleToCommonJS,
+  moduleToAmd: moduleToAmd,
   RUNTIME_PATH: RUNTIME_PATH
 };

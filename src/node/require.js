@@ -16,7 +16,7 @@
 
 var fs = require('fs');
 var Module = require('module');
-var traceur = require('./traceur.js');
+var traceurAPI = require('./api.js');
 
 var ext = '.traceur-compiled';
 
@@ -27,8 +27,7 @@ Module._extensions[ext] = function(module, filename) {
 
 function compile(filename) {
   var contents = fs.readFileSync(filename, 'utf-8');
-  var compiler = new traceur.ModuleToCommonJSCompiler();
-  var results = compiler.compile(contents);
+  var results = traceurAPI.compile(contents);
   if (!results.js)
     console.error(results.errors);
 

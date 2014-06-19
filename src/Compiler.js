@@ -22,7 +22,8 @@ import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 import {options as traceurOptions} from './options';
 import {write} from './outputgeneration/TreeWriter';
 
-function merge(dest, ...srcs) {
+function merge(...srcs) {
+  var dest = Object.create(null);
   srcs.forEach((src) => {
     Object.keys(src).forEach((key) => {
       dest[key] = src[key];
@@ -36,8 +37,73 @@ function merge(dest, ...srcs) {
  * Synchronous source to source compiler using default values for options.
  */
 export class Compiler {
-  constructor(options = {}) {
-    this.defaultOptions = merge({}, options);
+  constructor(overridingOptions = {}) {
+    this.defaultOptions_ = merge(this.defaultOptions(), overridingOptions);
+  }
+  /**
+   * Use Traceur to compile ES6 type=script source code to ES5 script.
+   *
+   * @param  {string} content ES6 source code.
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
+   */
+  script(content, options = {}) {
+    options.modules = false;
+    return this.compile(content, options);
+  }
+  /**
+   * Use Traceur to compile ES6 module source code to 'register' module format.
+   *
+   * @param  {string} content ES6 source code.
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
+   */
+  module(content, options = {}) {
+    options.modules = 'register';
+    return this.compile(content, options);
+  }
+  /**
+   * Options to create 'amd' module format.
+   *
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Object}
+   */
+  static amdOptions(options = {}) {
+    var amdOptions = {
+      modules: 'amd',
+      filename: undefined,
+      sourceMap: false,
+      moduleName: true
+    };
+    return merge(amdOptions, options);
+  }
+  /**
+   * Options to create 'commonjs' module format.
+   *
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Object}
+   */
+  static commonJSOptions(options = {}) {
+    var commonjsOptions = {
+      modules: 'commonjs',
+      filename: '<unknown file>',
+      sourceMap: false,
+      moduleName: false
+    };
+    return merge(commonjsOptions, options);
+  }
+
+  /**
+   * Use Traceur to compile ES6 module source code, using default options
+   *
+   * @param  {string} content ES6 source code.
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
+   */
+  compile(content, options) {
+    return this.parse({content: content, options: {}}).
+        then((result) => this.transform(result)).
+        then((result) => this.write(result));
   }
 
   /**
@@ -47,7 +113,7 @@ export class Compiler {
    * @param  {Object=} options Traceur options.
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
-  compile(content, options = {}) {
+  stringToString(content, options = {}) {
     var output = this.stringToTree({content: content, options: options});
     if (output.errors.length)
       return output;
@@ -58,20 +124,15 @@ export class Compiler {
   }
 
   stringToTree({content, options}) {
-    //  The caller may send us traceurOptions; make a copy so we can reset it
-    //  without altering the input object.
-    var copyOptions = merge({}, options);
-    options = merge(this.defaultOptions, copyOptions);
-    traceurOptions.reset();
-    options = merge(traceurOptions, options);
-
+    var mergedOptions = merge(this.defaultOptions_, options);
+    options = traceurOptions.setFromObject(mergedOptions);
     var errorReporter = new CollectingErrorReporter();
-    var sourceFile = new SourceFile(options.filename, content);
+    var sourceFile = new SourceFile(mergedOptions.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
-    var tree = options.modules ? parser.parseModule() : parser.parseScript();
+    var tree = mergedOptions.modules ? parser.parseModule() : parser.parseScript();
     return {
       tree: tree,
-      options: options,
+      options: mergedOptions,
       errors: errorReporter.errors
     };
   }
@@ -82,7 +143,6 @@ export class Compiler {
 
   treeToTree({tree, options}) {
     var transformer;
-
     if (options.moduleName) {  // true or non-empty string.
       var moduleName = options.moduleName;
       if (typeof moduleName !== 'string') // true means resolve filename
@@ -149,6 +209,10 @@ export class Compiler {
     return filename;
   }
 
+  defaultOptions() {
+    return traceurOptions.versionLockedOptions;
+  }
+
   promise(method, input) {
     return new Promise((resolve, reject) => {
       var output = method.call(this, input);
@@ -159,84 +223,3 @@ export class Compiler {
     });
   }
 }
-
-export class ModuleToCommonJSCompiler extends Compiler {
-  constructor() {
-    super({
-      modules: 'commonjs',
-      filename: '<unknown file>',
-      sourceMap: false,
-      moduleName: false
-    });
-  }
-}
-
-export class ModuleToAmdCompiler extends Compiler {
-  constructor() {
-    super({
-      modules: 'amd',
-      filename: undefined,
-      sourceMap: false,
-      moduleName: true
-    });
-  }
-}
-
-/**
- * Basic compile function. Specify the options when calling this function,
- * or use one of the pre-specified functions below.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object} options Traceur options to override defaults.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-export function compile(content, options) {
-  return new Compiler().compile(content, options);
-}
-
-/**
- * Use Traceur to compile ES6 type=script source code to ES5 script.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options to override defaults.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-export function script(content, options = {}) {
-  options.modules = false;
-  return new Compiler().compile(content, options);
-}
-
-/**
- * Use Traceur to compile ES6 module source code to 'register' module format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options to override defaults.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-export function module(content, options = {}) {
-  options.modules = 'register';
-  return new Compiler().compile(content, options);
-}
-
-/**
- * Use Traceur to compile ES6 module source code to 'amd' module format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-export function moduleToAmd(content, options = undefined) {
-  return new ModuleToAmdCompiler().compile(content, options);
-}
-
-/**
- * Use Traceur to compile ES6 module source code to 'commonjs' module format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options to override defaults.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-export function moduleToCommonJS(content, options = undefined) {
-  return new ModuleToCommonJSCompiler().compile(content, options);
-}
-

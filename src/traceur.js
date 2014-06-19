@@ -18,8 +18,7 @@ export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './options';
-export {Compiler, compile, script, module,
-    ModuleToCommonJSCompiler, moduleToAmd, moduleToCommonJS} from './Compiler';
+export {Compiler} from './Compiler';
 
 import {ErrorReporter} from './util/ErrorReporter';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';

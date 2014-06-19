@@ -26,7 +26,7 @@ try {
 }
 commandLine.setMaxListeners(100);
 
-var traceur = require('./traceur.js');
+var traceur = require('./api.js');
 var interpret = require('./interpreter.js');
 
 // The System object requires traceur, but we want it set for everything that
@@ -130,11 +130,10 @@ if (!shouldExit) {
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
-    var compiler = new traceur.Compiler(traceur.options);
     var compileAllJsFilesInDir =
         require('./compile-single-file.js').compileAllJsFilesInDir;
     compileAllJsFilesInDir(dir, rootSources[0].name,
-        compiler.compile.bind(compiler));
+        function(content) { return traceur.compile(content, traceur.options); });
   } else {
     rootSources.forEach(function(obj) {
       interpret(path.resolve(obj.name));
