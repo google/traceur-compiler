@@ -17,7 +17,70 @@
 var fs = require('fs');
 var path = require('path');
 var nodeLoader = require('./nodeLoader.js');
-var normalizePath = require('./file-util.js').normalizePath;
+var util = require('./file-util.js');
+var normalizePath = util.normalizePath;
+var mkdirRecursive = util.mkdirRecursive;
+var treeToString = require('./api.js').treeToString;
+var writeCompiledCodeToFile = require('./api.js').writeCompiledCodeToFile;
+
+function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
+  var options = {sourcMmaps: useSourceMaps};
+  var result = treeToString({tree: tree, options: options, errors: []});
+  writeCompiledCodeToFile(result.js, filename, result.sourcemap);
+}
+
+function recursiveModuleCompileToSingleFile(outputFile, includes, useSourceMaps) {
+  var resolvedOutputFile = path.resolve(outputFile);
+  var outputDir = path.dirname(resolvedOutputFile);
+
+  // Resolve includes before changing directory.
+  var resolvedIncludes = includes.map(function(include) {
+    include.name = path.resolve(include.name);
+    return include;
+  });
+
+  mkdirRecursive(outputDir);
+  process.chdir(outputDir);
+
+  // Make includes relative to output dir so that sourcemap paths are correct.
+  resolvedIncludes = resolvedIncludes.map(function(include) {
+    include.name = normalizePath(path.relative(outputDir, include.name));
+    return include;
+  });
+
+  recursiveModuleCompile(resolvedIncludes, traceur.options, function(tree) {
+    writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
+    process.exit(0);
+  }, function(err) {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+function forEachRecursiveModuleCompile(outputDir, includes, useSourceMaps) {
+  var outputDir = path.resolve(outputDir);
+
+  var current = 0;
+
+  function next() {
+    if (current === includes.length)
+      process.exit(0);
+
+    recursiveModuleCompile(includes.slice(current, current + 1), traceur.options,
+        function(tree) {
+          var outputFile = path.join(outputDir, includes[current].name);
+          var sourceRoot = path.relative(path.dirname(outputFile), '.');
+          writeTreeToFile(tree, outputFile, useSourceMaps, sourceRoot);
+          current++;
+          next();
+        },
+        function(err) {
+          process.exit(1);
+        });
+  }
+
+  next();
+}
 
 var TraceurLoader = traceur.runtime.TraceurLoader;
 var LoaderHooks = traceur.runtime.LoaderHooks;
@@ -61,8 +124,8 @@ function allLoaded(url, elements) {
 }
 
 /**
- * Compiles the files in "fileNamesAndTypes" along with any associated modules, into a
- * single js file, in proper module dependency order.
+ * Compiles the files in "fileNamesAndTypes" along with any associated modules,
+ * into a single js file, in module dependency order.
  *
  * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
  *     to compile and concat; type is 'module' or 'script'
@@ -70,11 +133,11 @@ function allLoaded(url, elements) {
  *     only currently available option, which results in the dependencies for
  *     'fileNamesAndTypes' being printed to stdout, with 'depTarget' as the target.
  * @param {Function} callback Callback used to return the result. A null result
- *     indicates that inlineAndCompile has returned successfully from a
+ *     indicates that recursiveModuleCompile has returned successfully from a
  *     non-compile request.
  * @param {Function} errback Callback used to return errors.
  */
-function inlineAndCompile(fileNamesAndTypes, options, callback, errback) {
+function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
 
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
@@ -144,4 +207,6 @@ function inlineAndCompile(fileNamesAndTypes, options, callback, errback) {
 
   loadNext();
 }
-exports.inlineAndCompile = inlineAndCompile;
+exports.recursiveModuleCompile = recursiveModuleCompile;
+exports.recursiveModuleCompileToSingleFile = recursiveModuleCompileToSingleFile;
+exports.forEachRecursiveModuleCompile = forEachRecursiveModuleCompile;
