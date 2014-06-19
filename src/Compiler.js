@@ -66,7 +66,7 @@ export class Compiler {
    * Options to create 'amd' module format.
    *
    * @param  {Object=} options Traceur options to override defaults.
-  * @return {Object}
+   * @return {Object}
    */
   static amdOptions(options = {}) {
     var amdOptions = {
@@ -98,7 +98,7 @@ export class Compiler {
    *
    * @param  {string} content ES6 source code.
    * @param  {Object=} options Traceur options to override defaults.
-    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
+   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
   compile(content, options) {
     return this.parse({content: content, options: {}}).
