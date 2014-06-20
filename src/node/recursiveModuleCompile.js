@@ -20,8 +20,9 @@ var nodeLoader = require('./nodeLoader.js');
 var util = require('./file-util.js');
 var normalizePath = util.normalizePath;
 var mkdirRecursive = util.mkdirRecursive;
-var treeToString = require('./api.js').treeToString;
-var writeCompiledCodeToFile = require('./api.js').writeCompiledCodeToFile;
+var treeToString = require('./NodeCompiler.js').treeToString;
+var writeCompiledCodeToFile =
+    require('./NodeCompiler.js').writeCompiledCodeToFile;
 
 function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
   var options = {sourcMmaps: useSourceMaps};

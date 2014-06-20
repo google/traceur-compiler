@@ -26,7 +26,7 @@ try {
 }
 commandLine.setMaxListeners(100);
 
-var traceur = require('./api.js');
+var traceurAPI = require('./api.js');
 var interpret = require('./interpreter.js');
 
 // The System object requires traceur, but we want it set for everything that
@@ -47,7 +47,7 @@ commandLine.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modu
 
 commandLine.option('--sourcemap', 'Generate source maps');
 commandLine.on('sourcemap', function() {
-  commandLine.sourceMaps = traceur.options.sourceMaps = true;
+  commandLine.sourceMaps = traceurAPI.options.sourceMaps = true;
 });
 
 commandLine.option('--longhelp', 'Show all known options');
@@ -95,7 +95,7 @@ commandLine.on('--help', function() {
   console.log('');
 });
 
-traceur.options.addOptions(commandLine);
+traceurAPI.options.addOptions(commandLine);
 
 commandLine.usage('[options] [files]');
 
@@ -115,25 +115,25 @@ if (!shouldExit && !rootSources.length) {
   process.exit(1);
 }
 
-var compiler = require('./recursiveModuleCompile.js');
-var recursiveModuleCompileToSingleFile = compiler.recursiveModuleCompileToSingleFile;
-var forEachRecursiveModuleCompile = compiler.forEachRecursiveModuleCompile;
 var out = commandLine.out;
 var dir = commandLine.dir;
 if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
-    if (isSingleFileCompile)
-      recursiveModuleCompileToSingleFile(out, rootSources, commandLine.sourceMaps);
-    else
-      forEachRecursiveModuleCompile(out, rootSources, commandLine.sourceMaps);
+    if (isSingleFileCompile) {
+      traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
+          commandLine.sourceMaps);
+    } else {
+      traceurAPI.forEachRecursiveModuleCompile(out, rootSources,
+          commandLine.sourceMaps);
+    }
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
-    var compileAllJsFilesInDir =
-        require('./compile-single-file.js').compileAllJsFilesInDir;
-    compileAllJsFilesInDir(dir, rootSources[0].name,
-        function(content) { return traceur.compile(content, traceur.options); });
+    traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name,
+        function(content) {
+          return traceurAPI.compile(content, traceurAPI.options);
+        });
   } else {
     rootSources.forEach(function(obj) {
       interpret(path.resolve(obj.name));
