@@ -16,8 +16,7 @@
 
 var fs = require('q-io/fs');
 var path = require('path');
-var writeCompiledCodeToFile = require('./compiler.js').writeCompiledCodeToFile;
-var traceur = require('./traceur.js');
+var writeCompiledCodeToFile = require('./api.js').writeCompiledCodeToFile;
 
 function compileSingleFile(inputFilePath, outputFilePath, compile) {
   return fs.read(inputFilePath).then(function(contents) {

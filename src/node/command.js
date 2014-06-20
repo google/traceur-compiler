@@ -115,18 +115,18 @@ if (!shouldExit && !rootSources.length) {
   process.exit(1);
 }
 
-var compiler = require('./compiler.js');
-var compileToSingleFile = compiler.compileToSingleFile;
-var compileToDirectory = compiler.compileToDirectory;
+var compiler = require('./recursiveModuleCompile.js');
+var recursiveModuleCompileToSingleFile = compiler.recursiveModuleCompileToSingleFile;
+var forEachRecursiveModuleCompile = compiler.forEachRecursiveModuleCompile;
 var out = commandLine.out;
 var dir = commandLine.dir;
 if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile)
-      compileToSingleFile(out, rootSources, commandLine.sourceMaps);
+      recursiveModuleCompileToSingleFile(out, rootSources, commandLine.sourceMaps);
     else
-      compileToDirectory(out, rootSources, commandLine.sourceMaps);
+      forEachRecursiveModuleCompile(out, rootSources, commandLine.sourceMaps);
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
