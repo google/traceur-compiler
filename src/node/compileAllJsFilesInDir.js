@@ -49,7 +49,7 @@ function compileAllJsFilesInDir(inputDir, outputDir, compile) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
       compileSingleFile(inputFilePath, outputFilePath, compile);
     });
-  })
+  });
 }
 
 module.exports = {
