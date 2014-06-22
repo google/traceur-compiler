@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,11 +92,6 @@ function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
     writeFile(sourceMapFilePath, sourcemap);
 }
 
-// The absolute path to traceur-runtime.js -- the file that should be executed
-// if you want to run Traceur-compiled scripts when the compiler isn't present.
-var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
-
-// extend traceur module
 module.exports = {
   compile: compile,
   moduleToCommonJS: moduleToCommonJS,
