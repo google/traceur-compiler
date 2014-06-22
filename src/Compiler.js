@@ -123,7 +123,7 @@ export class Compiler {
     return this.treeToString(output);
   }
 
-  stringToTree({content, options}) {
+  stringToTree({content, options = {}}) {
     var mergedOptions = merge(this.defaultOptions_, options);
     options = traceurOptions.setFromObject(mergedOptions);
     var errorReporter = new CollectingErrorReporter();

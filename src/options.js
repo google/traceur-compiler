@@ -22,7 +22,11 @@
 // false. For example:
 //
 //   options.destructuring = 'parse';
+//   parseOptions.destructuring === true;
 //   transformOptions.destructuring === false;
+//
+// This allows you to parse certain features without transforming them, leaving
+// the syntax intact in the outputted code.
 
 export var parseOptions = Object.create(null);
 export var transformOptions = Object.create(null);

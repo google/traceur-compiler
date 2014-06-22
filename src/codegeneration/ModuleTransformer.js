@@ -22,13 +22,15 @@ import {
   ObjectPatternField,
   Script
 } from '../syntax/trees/ParseTrees';
+import {DestructuringTransformer} from './DestructuringTransformer';
 import {DirectExportVisitor} from './module/DirectExportVisitor';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   CLASS_DECLARATION,
   EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
-  FUNCTION_DECLARATION
+  FUNCTION_DECLARATION,
+  IMPORT_SPECIFIER_SET
 } from '../syntax/trees/ParseTreeType';
 import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
@@ -44,11 +46,21 @@ import {
   createVariableStatement,
 } from './ParseTreeFactory';
 import {
+  parseOptions,
+  transformOptions
+} from '../options';
+import {
   parseExpression,
   parsePropertyDefinition,
   parseStatement,
   parseStatements
 } from './PlaceholderParser';
+
+class DestructImportVarStatement extends DestructuringTransformer {
+  createGuardedExpression(tree) {
+    return tree;
+  }
+}
 
 export class ModuleTransformer extends TempVarTransformer {
   /**
@@ -261,13 +273,26 @@ export class ModuleTransformer extends TempVarTransformer {
     //  =>
     // moduleInstance;
     this.moduleSpecifierKind_ = 'import';
-    if (!tree.importClause)
+    if (!tree.importClause ||
+        (tree.importClause.type === IMPORT_SPECIFIER_SET &&
+         tree.importClause.specifiers.length === 0)) {
       return createExpressionStatement(this.transformAny(tree.moduleSpecifier));
+    }
 
     var binding = this.transformAny(tree.importClause);
     var initializer = this.transformAny(tree.moduleSpecifier);
 
-    return createVariableStatement(VAR, binding, initializer);
+    var varStatement = createVariableStatement(VAR, binding, initializer);
+
+    // If destructuring patterns are kept in the output code, keep this as is,
+    // otherwise transform it here to remove the need for assertObject.
+    if (transformOptions.destructuring || !parseOptions.destructuring) {
+      var destructuringTransformer =
+          new DestructImportVarStatement(this.identifierGenerator);
+      varStatement = varStatement.transform(destructuringTransformer);
+    }
+
+    return varStatement;
   }
 
   transformImportSpecifierSet(tree) {

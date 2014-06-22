@@ -148,16 +148,6 @@ function staticallyKnownObject(tree) {
   return false;
 }
 
-function createGuardedExpression(tree) {
-  if (staticallyKnownObject(tree))
-    return tree;
-  return parseExpression `$traceurRuntime.assertObject(${tree})`;
-}
-
-function createGuardedAssignment(lvalue, rvalue) {
-  return parseExpression `${lvalue} = ${createGuardedExpression(rvalue)}`;
-}
-
 /**
  * Desugars destructuring assignment.
  *
@@ -228,7 +218,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     var desugaring = new AssignmentExpressionDesugaring(tempIdent);
 
     this.desugarPattern_(desugaring, lvalue);
-    desugaring.expressions.unshift(createGuardedAssignment(tempIdent, rvalue));
+    desugaring.expressions.unshift(this.createGuardedAssignment(tempIdent, rvalue));
     desugaring.expressions.push(tempIdent);
 
     return createParenExpression(
@@ -476,6 +466,17 @@ export class DestructuringTransformer extends TempVarTransformer {
         (declaration) => declaration.lvalue.isPattern());
   }
 
+  createGuardedExpression(tree) {
+    if (staticallyKnownObject(tree))
+      return tree;
+    return parseExpression `$traceurRuntime.assertObject(${tree})`;
+  }
+
+  createGuardedAssignment(lvalue, rvalue) {
+    return parseExpression
+        `${lvalue} = ${this.createGuardedExpression(rvalue)}`;
+  }
+
   /**
    * @param {VariableDeclaration} tree
    * @return {Array.<VariableDeclaration>}
@@ -509,14 +510,14 @@ export class DestructuringTransformer extends TempVarTransformer {
         desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
         desugaring.assign(
             desugaring.rvalue,
-            createGuardedExpression(tree.initializer));
+            this.createGuardedExpression(tree.initializer));
         var initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
 
         // [2] Was the temporary necessary? Then return.
         if (initializerFound || desugaring.declarations.length > 2)
           return desugaring.declarations;
 
-        initializer = createGuardedExpression(initializer || tree.initializer);
+        initializer = this.createGuardedExpression(initializer || tree.initializer);
 
         // [3] Redo everything without the temporary.
         desugaring = new VariableDeclarationDesugaring(initializer);
