@@ -14,13 +14,18 @@
 
 'use strict';
 
-var fs = require('q-io/fs');
+var glob = require("glob")
+var fs = require('fs');
 var path = require('path');
-var writeCompiledCodeToFile = require('./api.js').writeCompiledCodeToFile;
+var writeCompiledCodeToFile =
+    require('./NodeCompiler.js').writeCompiledCodeToFile;
 
 function compileSingleFile(inputFilePath, outputFilePath, compile) {
-  return fs.read(inputFilePath).then(function(contents) {
-    var result = compile(contents);
+  return fs.readFile(inputFilePath, function(err, contents) {
+    if (err)
+      throw new Error('While reading ' + inputFilePath + ': ' + err);
+
+    var result = compile(contents.toString());
 
     if (result.error)
       throw new Error(result.errors.join('\n'));
@@ -29,23 +34,24 @@ function compileSingleFile(inputFilePath, outputFilePath, compile) {
   });
 }
 
-function onlyJsFiles(path, stat) {
-  return stat.isFile() && /\.js$/.test(path) || false;
-}
-
 function compileAllJsFilesInDir(inputDir, outputDir, compile) {
   if (typeof compile !== 'function')
     throw new Error('Missing required function(string) -> result');
 
   inputDir = path.normalize(inputDir);
   outputDir = path.normalize(outputDir);
-  fs.listTree(inputDir, onlyJsFiles).then(function(files) {
+
+  glob(inputDir + '/**/*.js', {}, function (er, files) {
+    if (er)
+      throw new Error('While scanning ' + inputDir + ': ' + er);
+
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      compileSingleFile(inputFilePath, outputFilePath, compile).done();
+      compileSingleFile(inputFilePath, outputFilePath, compile);
     });
-  }).done();
+  });
 }
 
-compileSingleFile.compileAllJsFilesInDir = compileAllJsFilesInDir;
-module.exports = compileSingleFile;
+module.exports = {
+  compileAllJsFilesInDir: compileAllJsFilesInDir
+};

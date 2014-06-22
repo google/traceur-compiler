@@ -1,12 +1,12 @@
 var fs = require('fs');
 suite('node public api', function() {
-  var traceur = require('../');
+  var traceurAPI = require('../src/node/api.js');
   var path = __dirname + '/commonjs/BasicImport.js';
   var contents =
     fs.readFileSync(path, 'utf8');
 
   test('moduleName from filename with backslashes', function() {
-    var compiled = traceur.compile(contents, {
+    var compiled = traceurAPI.compile(contents, {
       // windows-simulation, with .js
       filename: path.replace(/\//g,'\\'),
 
@@ -33,7 +33,7 @@ suite('node public api', function() {
   });
 
   test('modules: true', function() {
-    var compiled = traceur.compile(contents, {
+    var compiled = traceurAPI.compile(contents, {
       // absolute path is important
       filename: path,
 
@@ -60,7 +60,7 @@ suite('node public api', function() {
   });
 
   test('named amd', function() {
-    var compiled = traceur.compile(contents, {
+    var compiled = traceurAPI.compile(contents, {
       // absolute path is important
       filename: path,
 
