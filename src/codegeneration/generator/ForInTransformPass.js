@@ -32,7 +32,7 @@ import {
 import {
   createArgumentList,
   createAssignmentStatement,
-  createBinaryOperator,
+  createBinaryExpression,
   createBlock,
   createCallStatement,
   createContinueStatement,
@@ -143,7 +143,7 @@ export class ForInTransformPass extends TempVarTransformer {
             createUnaryExpression(
                 createOperatorToken(BANG),
                 createParenExpression(
-                    createBinaryOperator(
+                    createBinaryExpression(
                         originalKey,
                         createOperatorToken(IN),
                         createIdentifierExpression(collection)))),
@@ -160,7 +160,7 @@ export class ForInTransformPass extends TempVarTransformer {
             // var $i = 0
             createVariableDeclarationList(VAR, i, createNumberLiteral(0)),
             // $i < $keys.length
-            createBinaryOperator(
+            createBinaryExpression(
                 createIdentifierExpression(i),
                 createOperatorToken(OPEN_ANGLE),
                 createMemberExpression(keys, LENGTH)),

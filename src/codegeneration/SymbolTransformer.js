@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {
-  BinaryOperator,
+  BinaryExpression,
   MemberLookupExpression,
   UnaryExpression
 } from '../syntax/trees/ParseTrees';
@@ -102,13 +102,13 @@ export class SymbolTransformer extends TempVarTransformer {
     return new UnaryExpression(tree.location, tree.operator, operand);
   }
 
-  transformBinaryOperator(tree) {
+  transformBinaryExpression(tree) {
     if (tree.operator.type === IN) {
       var name = this.transformAny(tree.left);
       var object = this.transformAny(tree.right);
 
       if (name.type === LITERAL_EXPRESSION)
-        return new BinaryOperator(tree.location, name, tree.operator, object);
+        return new BinaryExpression(tree.location, name, tree.operator, object);
 
       // name in object
       // =>
@@ -124,13 +124,13 @@ export class SymbolTransformer extends TempVarTransformer {
       if (isTypeof(tree.left) && isSafeTypeofString(tree.right)) {
         var left = this.transformTypeofOperand_(tree.left);
         var right = tree.right;
-        return new BinaryOperator(tree.location, left, tree.operator, right);
+        return new BinaryExpression(tree.location, left, tree.operator, right);
       }
 
       if (isTypeof(tree.right) && isSafeTypeofString(tree.left)) {
         var left = tree.left;
         var right = this.transformTypeofOperand_(tree.right);
-        return new BinaryOperator(tree.location, left, tree.operator, right);
+        return new BinaryExpression(tree.location, left, tree.operator, right);
       }
     }
 
@@ -152,7 +152,7 @@ export class SymbolTransformer extends TempVarTransformer {
           ${memberExpression}, ${value})`;
     }
 
-    return super.transformBinaryOperator(tree);
+    return super.transformBinaryExpression(tree);
   }
 
   transformMemberLookupExpression(tree) {

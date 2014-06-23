@@ -47,7 +47,7 @@ import {
   ArgumentList,
   ArrayLiteralExpression,
   AwaitExpression,
-  BinaryOperator,
+  BinaryExpression,
   CallExpression,
   ConditionalExpression,
   MemberExpression,
@@ -162,7 +162,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // transformed as needed.
 
     return this.transformAny(
-        new BinaryOperator(tree.location, tree.operand,
+        new BinaryExpression(tree.location, tree.operand,
             createOperatorToken(operator), createNumberLiteral(1)));
   }
 
@@ -186,7 +186,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     var expressions = [
       createAssignmentExpression(tmp, operand),
       createAssignmentExpression(operand,
-          new BinaryOperator(tree.location, tmp, createOperatorToken(operator),
+          new BinaryExpression(tree.location, tmp, createOperatorToken(operator),
               createNumberLiteral(1))),
       tmp
     ];
@@ -210,7 +210,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       ...getExpressions(operand),
       createAssignmentExpression(tmp, memberExpression),
       createAssignmentExpression(memberExpression,
-          new BinaryOperator(tree.location, tmp, createOperatorToken(operator),
+          new BinaryExpression(tree.location, tmp, createOperatorToken(operator),
               createNumberLiteral(1))),
       tmp
     ];
@@ -234,7 +234,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       ...getExpressions(memberExpression),
       createAssignmentExpression(tmp, memberLookupExpression),
       createAssignmentExpression(memberLookupExpression,
-          new BinaryOperator(tree.location, tmp, createOperatorToken(operator),
+          new BinaryExpression(tree.location, tmp, createOperatorToken(operator),
               createNumberLiteral(1))),
       tmp
     ];
@@ -309,7 +309,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
             tree.location, getResult(operand), getResult(memberExpression)));
   }
 
-  transformBinaryOperator(tree) {
+  transformBinaryExpression(tree) {
     if (tree.operator.isAssignmentOperator())
       return this.transformAssignmentExpression(tree);
 
@@ -332,7 +332,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     var expressions = [
       ...getExpressions(left),
       ...getExpressions(right),
-      new BinaryOperator(
+      new BinaryExpression(
               tree.location, getResult(left), tree.operator, getResult(right))
     ];
 
@@ -377,7 +377,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     var expressions = [
       ...getExpressions(right),
       createAssignmentExpression(tmp,
-        new BinaryOperator(tree.location, left, binop, getResult(right))),
+        new BinaryExpression(tree.location, left, binop, getResult(right))),
       createAssignmentExpression(left, tmp),
       tmp
     ];
@@ -398,7 +398,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       var expressions = [
         ...getExpressions(operand),
         ...getExpressions(right),
-        new BinaryOperator(tree.location,
+        new BinaryExpression(tree.location,
             new MemberExpression(left.location, getResult(operand), left.memberName),
             tree.operator,
             getResult(right)),
@@ -425,7 +425,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       ...getExpressions(right),
       createAssignmentExpression(tmp, memberExpression),
       createAssignmentExpression(tmp2,
-          new BinaryOperator(tree.location, tmp, binop, getResult(right))),
+          new BinaryExpression(tree.location, tmp, binop, getResult(right))),
       createAssignmentExpression(memberExpression, tmp2),
       tmp2
     ];
@@ -448,7 +448,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
         ...getExpressions(operand),
         ...getExpressions(memberExpression),
         ...getExpressions(right),
-        new BinaryOperator(tree.location,
+        new BinaryExpression(tree.location,
             new MemberLookupExpression(
                 left.location, getResult(operand), getResult(memberExpression)),
             tree.operator,
@@ -478,7 +478,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       ...getExpressions(right),
       createAssignmentExpression(tmp, memberLookupExpression),
       createAssignmentExpression(tmp2,
-          new BinaryOperator(tree.location, tmp, binop, getResult(right))),
+          new BinaryExpression(tree.location, tmp, binop, getResult(right))),
       createAssignmentExpression(memberLookupExpression, tmp2),
       tmp2
     ];

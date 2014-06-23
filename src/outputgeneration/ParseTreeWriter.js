@@ -314,9 +314,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {BinaryOperator} tree
+   * @param {BinaryExpression} tree
    */
-  visitBinaryOperator(tree) {
+  visitBinaryExpression(tree) {
     var left = tree.left;
     this.visitAny(left);
     var operator = tree.operator;

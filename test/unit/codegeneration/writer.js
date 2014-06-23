@@ -43,7 +43,7 @@ suite('writer.js', function() {
       ),
       new trees.IfStatement(
         'loc',
-        new trees.BinaryOperator(
+        new trees.BinaryExpression(
           'loc',
           new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
           new Token(TokenType.CLOSE_ANGLE, 'loc'),

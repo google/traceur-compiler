@@ -201,10 +201,10 @@ export class DestructuringTransformer extends TempVarTransformer {
    *
    * Nested patterns are desugared by recursive calls to transform.
    *
-   * @param {BinaryOperator} tree
+   * @param {BinaryExpression} tree
    * @return {ParseTree}
    */
-  transformBinaryOperator(tree) {
+  transformBinaryExpression(tree) {
     this.pushTempScope();
 
     var rv;

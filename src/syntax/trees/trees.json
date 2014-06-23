@@ -86,7 +86,7 @@
       "ParseTree"
     ]
   },
-  "BinaryOperator": {
+  "BinaryExpression": {
     "location": [
       "SourceRange"
     ],

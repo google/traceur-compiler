@@ -211,9 +211,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {BinaryOperator} tree
+   * @param {BinaryExpression} tree
    */
-  visitBinaryOperator(tree) {
+  visitBinaryExpression(tree) {
     switch (tree.operator.type) {
       // assignment
       case EQUAL:

@@ -28,7 +28,7 @@ import {
   VAR
 } from '../syntax/TokenType';
 import {
-  createBinaryOperator,
+  createBinaryExpression,
   createConditionalExpression,
   createIdentifierExpression,
   createMemberLookupExpression,
@@ -56,7 +56,7 @@ function createDefaultAssignment(index, binding, initializer) {
     // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
     assignmentExpression =
         createConditionalExpression(
-            createBinaryOperator(
+            createBinaryExpression(
                 argumentsExpression,
                 createOperatorToken(NOT_EQUAL_EQUAL),
                 createVoid0()),

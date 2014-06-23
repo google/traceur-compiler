@@ -14,12 +14,12 @@
 
 import {CPSTransformer} from './CPSTransformer';
 import {
-  BINARY_OPERATOR,
+  BINARY_EXPRESSION,
   STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
 import {
-  BinaryOperator,
+  BinaryExpression,
   ExpressionStatement
 } from '../../syntax/trees/ParseTrees'
 import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
@@ -48,7 +48,7 @@ import {
  * @return {boolean}
  */
 function isYieldAssign(tree) {
-  return tree.type === BINARY_OPERATOR &&
+  return tree.type === BINARY_EXPRESSION &&
       tree.operator.isAssignmentOperator() &&
       tree.right.type === YIELD_EXPRESSION &&
       tree.left.isLeftHandSideExpression();
@@ -206,7 +206,7 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {BinaryOperator} tree
+   * @param {BinaryExpression} tree
    */
   transformYieldAssign_(tree) {
     var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
@@ -218,7 +218,7 @@ export class GeneratorTransformer extends CPSTransformer {
         parseExpression `$ctx.sent`;
     var statement = new ExpressionStatement(
         tree.location,
-        new BinaryOperator(
+        new BinaryExpression(
             tree.location,
             left,
             tree.operator,

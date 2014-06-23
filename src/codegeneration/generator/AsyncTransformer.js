@@ -14,7 +14,7 @@
 
 import {AwaitState} from './AwaitState';
 import {
-  BinaryOperator,
+  BinaryExpression,
   ExpressionStatement,
   IdentifierExpression
 } from '../../syntax/trees/ParseTrees';
@@ -23,7 +23,7 @@ import {EndState} from './EndState';
 import {FallThroughState} from './FallThroughState';
 import {
   AWAIT_EXPRESSION,
-  BINARY_OPERATOR,
+  BINARY_EXPRESSION,
   STATE_MACHINE
 } from '../../syntax/trees/ParseTreeType';
 import {
@@ -51,7 +51,7 @@ import {
  * @return {boolean}
  */
 function isAwaitAssign(tree) {
-  return tree.type === BINARY_OPERATOR &&
+  return tree.type === BINARY_EXPRESSION &&
       tree.operator.isAssignmentOperator() &&
       tree.right.type === AWAIT_EXPRESSION &&
       tree.left.isLeftHandSideExpression();
@@ -132,7 +132,7 @@ export class AsyncTransformer extends CPSTransformer {
     if (left) {
       var statement = new ExpressionStatement(
           tree.location,
-          new BinaryOperator(
+          new BinaryExpression(
               tree.location,
               left,
               operator,

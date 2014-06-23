@@ -31,7 +31,7 @@ import {
   STAR
 } from '../syntax/TokenType';
 import {
-  BINARY_OPERATOR,
+  BINARY_EXPRESSION,
   COMMA_EXPRESSION,
   PAREN_EXPRESSION,
   YIELD_EXPRESSION
