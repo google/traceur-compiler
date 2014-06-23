@@ -55,6 +55,7 @@ import {
   Token,
   isAssignmentOperator
 } from './Token';
+import {getKeywordType} from './Keywords';
 import {
   parseOptions,
   options
@@ -617,29 +618,30 @@ export class Parser {
     //     ExportSpecifierSet ("from" ModuleSpecifier(load))?
     var start = this.getTreeStartLocation_();
 
-    var specifierSet, expression;
+    var specifierSet, expression = null;
 
     if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
-      expression = this.parseFromModuleSpecifierOpt_(false);
+      if (this.peekPredefinedString_(FROM)) {
+        this.eatId_(FROM);
+        expression = this.parseModuleSpecifier_();
+      } else {
+        // Ensure that the bindings (lhs) of the specifiers are not keywords.
+        // Keywords are only disallowed when we do not have a 'from' following
+        // the ExportSpecifierSet.
+        this.validateExportSpecifierSet_(specifierSet);
+      }
     } else {
       this.eat_(STAR);
       specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleSpecifierOpt_(true);
+      this.eatId_(FROM);
+      expression = this.parseModuleSpecifier_();
     }
 
     this.eatPossibleImplicitSemiColon_();
 
     return new NamedExport(this.getTreeLocation_(start), expression,
                              specifierSet);
-  }
-
-  parseFromModuleSpecifierOpt_(required) {
-    if (required || this.peekPredefinedString_(FROM)) {
-      this.eatId_(FROM);
-      return this.parseModuleSpecifier_();
-    }
-    return null;
   }
 
   parseExportSpecifierSet_() {
@@ -663,17 +665,28 @@ export class Parser {
   //   Identifier
   //   Identifier "as" IdentifierName
   parseExportSpecifier_() {
-    // ExportSpecifier ::= Identifier
-    //     | IdentifierName ":" Identifier
+    // ExportSpecifier ::= IdentifierName
+    //     | IdentifierName "as" IdentifierName
 
     var start = this.getTreeStartLocation_();
-    var lhs = this.eatId_();
+    var lhs = this.eatIdName_();
     var rhs = null;
     if (this.peekPredefinedString_(AS)) {
       this.eatId_();
       rhs = this.eatIdName_();
     }
     return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
+  }
+
+  validateExportSpecifierSet_(tree) {
+    for (var i = 0; i < tree.specifiers.length; i++) {
+      var specifier = tree.specifiers[i];
+      // These are represented as IdentifierTokens because we used eatIdName.
+      if (getKeywordType(specifier.lhs.value)) {
+        this.reportError_(specifier.lhs.location,
+            `Unexpected token ${specifier.lhs.value}`);
+      }
+    }
   }
 
   peekId_(type) {
