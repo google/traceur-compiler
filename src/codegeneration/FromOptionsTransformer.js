@@ -82,6 +82,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (options.typeAssertions)
       append(TypeAssertionTransformer);
 
+    if (transformOptions.propertyNameShorthand)
+      append(PropertyNameShorthandTransformer);
+
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
         case 'commonjs':
@@ -111,9 +114,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
       append(ClassTransformer);
-
-    if (transformOptions.propertyNameShorthand)
-      append(PropertyNameShorthandTransformer);
 
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames) {
