@@ -43,4 +43,10 @@ suite('instantiate', function() {
       }).catch(done);
     }).catch(done);
   });
+
+  test('Shorthand syntax with import', function(done) {
+    System.import('shorthand').then(function(m) {
+      done();
+    }).catch(done);
+  });
 });
