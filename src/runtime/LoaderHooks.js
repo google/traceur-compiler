@@ -225,10 +225,6 @@ export class LoaderHooks {
     this.checkForErrors((reporter) => buildExportList(deps, loader, reporter));
   }
 
-  get options() {
-    return options;
-  }
-
   bundledModule(name) {
     return this.moduleStore_.bundleStore[name];
   }

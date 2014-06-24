@@ -123,13 +123,6 @@ export class TraceurLoader extends Loader {
   }
 
   /**
-  * @return {Object} traceur-specific options object
-  */
-  get options() {
-    return this.internalLoader_.options;
-  }
-
-  /**
    * @param {string} normalizedName
    * @param {string} 'module' or 'script'
    */
