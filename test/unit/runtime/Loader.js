@@ -30,8 +30,7 @@ suite('Loader.js', function() {
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
-    var loader = getLoader();
-    loader.options.modules = 'register';
+    traceur.options.modules = 'register';
     System.baseURL = baseURL;
   });
 
@@ -97,11 +96,11 @@ suite('Loader.js', function() {
 
   test('Loader.Script.Named', function(done) {
     var loader = getLoader();
-    loader.options.sourceMaps = true;
+    traceur.options.sourceMaps = true;
     var name = '43';
     loader.script('(function(x = 43) { return x; })()', {name: name}).then(
       function(result) {
-        loader.options.sourceMaps = false;
+        traceur.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
         var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'script');
         assert(sourceMapInfo.sourceMap);
@@ -245,7 +244,7 @@ suite('Loader.js', function() {
 
   test('LoaderDefine.Instantiate', function(done) {
     var loader = getLoader();
-    loader.options.modules = 'instantiate';
+    traceur.options.modules = 'instantiate';
     var name = './test_instantiate';
     var src = 'export {name as a} from \'./test_a\';\n' +
     'export var dd = 8;\n';
@@ -316,7 +315,7 @@ suite('Loader.js', function() {
   test('Loader.defineWithSourceMap', function(done) {
     var normalizedName = System.normalize('./test_define_with_source_map');
     var loader = getLoader();
-    loader.options.sourceMaps = true;
+    traceur.options.sourceMaps = true;
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {}).then(function() {
       var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'module');
@@ -375,7 +374,7 @@ suite('Loader.js', function() {
     var src = "  import {name} from './test_a';";
 
     var loader = getLoader();
-    loader.options.sourceMap = true;
+    traceur.options.sourceMap = true;
 
     loader.module(src, {}).then(function (mod) {
       assert(mod);

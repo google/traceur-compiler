@@ -16,8 +16,11 @@
 import {SourceMapConsumer}
     from '../../../../src/outputgeneration/SourceMapIntegration';
 import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
+var options = traceur.options;
 
-System.options.sourceMaps = true;
+// Force sourceMaps on for test.
+options.sourceMaps = true;
+
 var testModuleName = System.normalize('./test/unit/runtime/test_a');
 var whenSourceMapMapping = System.import(testModuleName).then(() => {
   var mapInfo = System.sourceMapInfo(testModuleName, 'module');

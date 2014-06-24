@@ -18,6 +18,7 @@ import {ObjectMap} from '../util/ObjectMap';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
 import {getUid} from '../util/uid';
 import {toSource} from '../outputgeneration/toSource';
+import {options} from '../options';
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -285,10 +286,6 @@ export class InternalLoader {
     return codeUnit.promise;
   }
 
-  get options() {
-    return this.loaderHooks.options;
-  }
-
   sourceMapInfo(normalizedName, type) {
     var key = this.getKey(normalizedName, type);
     var codeUnit = this.cache.get(key);
@@ -448,7 +445,7 @@ export class InternalLoader {
     codeUnit.state = TRANSFORMED;
     var filename = codeUnit.address || codeUnit.normalizedName;
     [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, this.options, filename);
+        toSource(metadata.transformedTree, options, filename);
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
     codeUnit.instantiate();
