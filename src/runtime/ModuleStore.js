@@ -38,6 +38,18 @@
     }
   }
 
+  class ModuleEvaluationError extends Error {
+    constructor(erroneousModuleName, cause = undefined) {
+      this.moduleChain = [erroneousModuleName];
+      this.cause = cause;
+    }
+    toString() {
+      var cause = this.cause ? ': \'' + this.cause + '\'' : '';
+      return `${this.constructor.name}${cause} in
+          ${this.moduleChain.join(' loaded by\n')}`;
+    }
+  }
+
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
     constructor(url, func) {
       super(url, null);
@@ -47,7 +59,15 @@
     getUncoatedModule() {
       if (this.value_)
         return this.value_;
-      return this.value_ = this.func.call(global);
+      try {
+        return this.value_ = this.func.call(global);
+      } catch(ex) {
+        if (ex instanceof ModuleEvaluationError) {
+          ex.moduleChain.push(this.url);
+          throw ex;
+        }
+        throw new ModuleEvaluationError(this.url, ex + '');
+      }
     }
   }
 
@@ -158,9 +178,9 @@
 
             // TODO: separate into two-phase declaration / execution
             var registryEntry = func.call(this, depMap);
-            
+
             registryEntry.execute.call(this);
-            
+
             return registryEntry.exports;
           }
         };

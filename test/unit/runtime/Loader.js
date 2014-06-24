@@ -267,6 +267,17 @@ suite('Loader.js', function() {
     }).catch(done);
   });
 
+  test('LoaderImport.Fail.deperror', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).import('loads/main', {}).then(function(mod) {
+      fail('should not have succeeded')
+      done();
+    }, function(error) {
+      assert((error + '').indexOf('ModuleEvaluationError: \'dep error\' in') === 0);
+      done();
+    }).catch(done);
+  });
+
   test('LoaderImportWithReferrer', function(done) {
     getLoader().import('../test_module',
       {referrerName: 'traceur@0.0.1/bin'}).then(function(mod) {

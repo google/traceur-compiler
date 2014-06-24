@@ -110,7 +110,7 @@ test-interpret: test/unit/runtime/test_interpret.js
 	./traceur $^
 
 test-interpret-throw: test/unit/runtime/throwsError.js
-	./traceur $^ 2>&1 | wc -l | grep '11'
+	./traceur $^ 2>&1 | grep 'ModuleEvaluationError' | wc -l | grep '1'
 
 test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
 	./traceur $^
