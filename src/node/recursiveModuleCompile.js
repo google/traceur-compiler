@@ -178,18 +178,23 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     var loadFunction = loader.import;
     var input = fileNamesAndTypes[loadCount];
     var name = input.name;
+    var moduleOption = options.modules;
     if (input.type === 'script') {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
-     if (options.modules === 'register')
+      if (input.type === 'inline')
+        options.modules = 'inline';
+      else if (options.modules === 'register')
         doEvaluateModule = true;
     }
     var loadOptions = {referrerName: referrerName};
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {
+          options.modules = moduleOption;
           if (doEvaluateModule)
             appendEvaluateModule(name, referrerName);
+
           loadCount++;
           if (loadCount < fileNamesAndTypes.length) {
             loadNext();

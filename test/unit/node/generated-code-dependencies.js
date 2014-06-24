@@ -58,6 +58,16 @@ suite('context test', function() {
     });
   }
 
+  // If the test fails, echo debug info.
+  function logOnError(command, error, stdout, stderr) {
+    if (error) {
+      console.log('command fails: \'' + command + '\'');
+      console.error(error);
+      console.log('stdout', stdout);
+      console.log('stderr', stderr);
+    }
+  }
+
   test('class', function(done) {
     var fileName = path.resolve(__dirname, 'resources/class.js');
     executeFileWithRuntime(fileName).then(function() {
@@ -117,9 +127,11 @@ suite('context test', function() {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-another-x.js');
-
-    exec(executable + ' --out ' + tempFileName + ' --modules=instantiate -- ' + inputFileName,
-        function(error, stdout, stderr) {
+    var command = executable + ' --out ' + tempFileName +
+      ' --modules=instantiate -- ' + inputFileName;
+    exec(command,
+      function(error, stdout, stderr) {
+          logOnError(command, error, stdout, stderr);
           assert.isNull(error);
           executeFileWithRuntime(tempFileName).then(function() {
             System.import('test/unit/node/resources/import-another-x').then(function(module) {
@@ -162,6 +174,30 @@ suite('context test', function() {
           } catch(ex) {
             done(ex);
           }
+        });
+  });
+
+  test('compiled modules mix inline & script', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var scriptFileName = './unit/node/resources/scriptUsesModuleGlobal.js';
+    var inlineFileName = './unit/node/resources/moduleSetsGlobal.js';
+    var command = executable + ' --out ' + tempFileName +
+      ' --inline ' + inlineFileName + ' --script ' + scriptFileName;
+    exec(command,
+        function(error, stdout, stderr) {
+          logOnError(command, error, stdout, stderr);
+          assert.isNull(error);
+          executeFileWithRuntime(tempFileName).then(function() {
+            assert.equal(global.aGlobal, 'iAmGlobal');
+            try {
+              ('global', eval)(source);
+              assert.equal(global.sandwich, 'iAmGlobal pastrami');
+              done();
+            } catch(ex) {
+              done(ex);
+            }
+          }).catch(done);
         });
   });
 

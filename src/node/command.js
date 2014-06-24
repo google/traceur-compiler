@@ -42,6 +42,12 @@ commandLine.option('--module <fileName>', 'Parse as Module', function(fileName) 
    rootSources.push({name: fileName, type: 'module'});
 });
 
+commandLine.option('--inline <fileName>', 'Parse as Module, format \'inline\'',
+  function(fileName) {
+   rootSources.push({name: fileName, type: 'inline'});
+  }
+);
+
 commandLine.option('--out <FILE>', 'Compile all input files into a single file');
 commandLine.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modules into an output directory');
 
