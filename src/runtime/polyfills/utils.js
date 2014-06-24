@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var $ceil = Math.ceil;
+var $floor = Math.floor;
+var $isFinite = isFinite;
+var $isNaN = isNaN;
+var $pow = Math.pow;
+var $min = Math.min;
+
 export var toObject = $traceurRuntime.toObject;
 
 export function toUint32(x) {
@@ -27,20 +34,24 @@ export function isCallable(x) {
   return typeof x === 'function';
 }
 
+export function isNumber(x) {
+  return typeof x === 'number';
+}
+
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
 export function toInteger(x) {
   x = +x;
-  if (isNaN(x)) return 0;
-  if (!isFinite(x) || x === 0) return x;
-  return x > 0 ? Math.floor(x) : Math.ceil(x);
+  if ($isNaN(x)) return 0;
+  if (x === 0 || !$isFinite(x)) return x;
+  return x > 0 ? $floor(x) : $ceil(x);
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
+var MAX_SAFE_LENGTH = $pow(2, 53) - 1;
 
 export function toLength(x) {
   var len = toInteger(x);
-  return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
+  return len < 0 ? 0 : $min(len, MAX_SAFE_LENGTH);
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable

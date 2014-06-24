@@ -27,16 +27,38 @@ import {
 import {fill, find, findIndex, from} from './Array';
 import {entries, keys, values} from './ArrayIterator';
 import {assign, is, mixin} from './Object';
+import {
+  MAX_SAFE_INTEGER,
+  MIN_SAFE_INTEGER,
+  EPSILON,
+  isFinite,
+  isInteger,
+  isNaN,
+  isSafeInteger
+} from './Number';
+
+function maybeDefine(object, name, descr) {
+  if (!(name in object)) {
+    Object.defineProperty(object, name, descr);
+  }
+}
 
 function maybeDefineMethod(object, name, value) {
-  if (!(name in object)) {
-    Object.defineProperty(object, name, {
-      value: value,
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
+  maybeDefine(object, name, {
+    value: value,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
+function maybeDefineConst(object, name, value) {
+  maybeDefine(object, name, {
+    value: value,
+    configurable: false,
+    enumerable: false,
+    writable: false
+  });
 }
 
 function maybeAddFunctions(object, functions) {
@@ -44,6 +66,14 @@ function maybeAddFunctions(object, functions) {
     var name = functions[i];
     var value = functions[i + 1];
     maybeDefineMethod(object, name, value);
+  }
+}
+
+function maybeAddConsts(object, consts) {
+  for (var i = 0; i < consts.length; i += 2) {
+    var name = consts[i];
+    var value = consts[i + 1];
+    maybeDefineConst(object, name, value);
   }
 }
 
@@ -107,12 +137,27 @@ function polyfillObject(Object) {
   ]);
 }
 
+function polyfillNumber(Number) {
+  maybeAddConsts(Number, [
+    'MAX_SAFE_INTEGER', MAX_SAFE_INTEGER,
+    'MIN_SAFE_INTEGER', MIN_SAFE_INTEGER,
+    'EPSILON', EPSILON,
+  ]);
+  maybeAddFunctions(Number, [
+    'isFinite', isFinite,
+    'isInteger', isInteger,
+    'isNaN', isNaN,
+    'isSafeInteger', isSafeInteger,
+  ]);
+}
+
 function polyfill(global) {
   polyfillPromise(global);
   polyfillCollections(global);
   polyfillString(global.String);
   polyfillArray(global.Array, global.Symbol);
   polyfillObject(global.Object);
+  polyfillNumber(global.Number);
 }
 
 polyfill(this);
