@@ -25,7 +25,7 @@ function interpret(filename) {
   System.import(moduleName).then(function() {
 
   }).catch(function(err) {
-    console.error(err.stack || err);
+    console.error(err.stack || err + '');
     process.exit(8);
   });
 }
