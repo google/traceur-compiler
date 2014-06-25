@@ -44,7 +44,7 @@ commandLine.option('--module <fileName>', 'Parse as Module', function(fileName) 
 
 commandLine.option('--inline <fileName>', 'Parse as Module, format \'inline\'',
   function(fileName) {
-   rootSources.push({name: fileName, type: 'inline'});
+   rootSources.push({name: fileName, type: 'module', format: 'inline'});
   }
 );
 

@@ -190,13 +190,9 @@ suite('context test', function() {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName).then(function() {
             assert.equal(global.aGlobal, 'iAmGlobal');
-            try {
-              ('global', eval)(source);
-              assert.equal(global.sandwich, 'iAmGlobal pastrami');
-              done();
-            } catch(ex) {
-              done(ex);
-            }
+            ('global', eval)(source);
+            assert.equal(global.sandwich, 'iAmGlobal pastrami');
+            done();
           }).catch(done);
         });
   });

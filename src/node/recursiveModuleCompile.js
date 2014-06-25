@@ -183,7 +183,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
-      if (input.type === 'inline')
+      if (input.format === 'inline')
         options.modules = 'inline';
       else if (options.modules === 'register')
         doEvaluateModule = true;
