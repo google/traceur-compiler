@@ -274,11 +274,11 @@ git-update-version: update-version-number
 
 git-gh-rebase: git-update-version
 	-git branch -D upstream_gh_pages
-	git checkout -b upstream_gh_pages upstream/gh-pages
-	git rebase upstream_master
+	git checkout -b upstream_gh_pages upstream/master
+	cp gh-pages.gitignore .gitignore # tell git to commit built files.
 	$(MAKE) clean # trees.json may have changed.
 	$(MAKE) test # build binaries for VERSION
-	./traceur -v | xargs -I VERSION git commit -a -m "Rebase; commit binaries for VERSION"
+	./traceur -v | xargs -I VERSION git commit -a -m "Commit binaries for VERSION"
 	git push -f upstream upstream_gh_pages:gh-pages
 
 git-update-publish: git-gh-rebase
