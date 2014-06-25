@@ -278,6 +278,8 @@ git-gh-rebase: git-update-version
 	cp gh-pages.gitignore .gitignore # tell git to commit built files.
 	$(MAKE) clean # trees.json may have changed.
 	$(MAKE) test # build binaries for VERSION
+	git add src/
+	git add bin/
 	./traceur -v | xargs -I VERSION git commit -a -m "Commit binaries for VERSION"
 	git push -f upstream upstream_gh_pages:gh-pages
 
