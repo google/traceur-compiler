@@ -30,7 +30,7 @@ function compileSingleFile(inputFilePath, outputFilePath, compile) {
     if (result.error)
       throw new Error(result.errors.join('\n'));
 
-    writeCompiledCodeToFile(result.js, outputFilePath, result.sourceMap);
+    writeCompiledCodeToFile(result.js, outputFilePath, result.theSourceMap);
   });
 }
 

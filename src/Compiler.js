@@ -183,7 +183,7 @@ export class Compiler {
   treeToString({tree, options, errors}) {
     var treeWriterOptions = {};
 
-    if (options.sourceMap) {
+    if (options.sourceMaps) {
       treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
         file: options.filename,
         sourceRoot: this.sourceRootForFilename(options.filename)
@@ -193,7 +193,7 @@ export class Compiler {
     return {
       js: write(tree, treeWriterOptions),
       errors: errors,
-      sourceMap: treeWriterOptions.sourceMap || null
+      theSourceMap: treeWriterOptions.theSourceMap || null
     };
   }
 

@@ -83,7 +83,8 @@ export var options = {
 
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
-  experimental: 'Turns on all experimental features'
+  experimental: 'Turns on all experimental features',
+  sourceMaps: 'generate source map and write to .map',
 };
 
 /**

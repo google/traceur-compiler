@@ -55,7 +55,7 @@ suite('SourceMap.js', function() {
     var options = {sourceMapGenerator: generator, showLineNumbers: false};
     var actual = write(tree, options);
 
-    var consumer = new SourceMapConsumer(options.sourceMap);
+    var consumer = new SourceMapConsumer(options.theSourceMap);
 
     testcases.forEach(function(testcase, caseNumber) {
       var actual = consumer.originalPositionFor(testcase.generated);
@@ -91,7 +91,7 @@ suite('SourceMap.js', function() {
 
     assert.equal('alert(a);\nalert(b);\nalert(c);\n', outFileContents);
 
-    var map = JSON.parse(options.sourceMap);
+    var map = JSON.parse(options.theSourceMap);
     assert.equal(outFilename, map.file);
     assertArrayEquals(['a.js', 'b.js', 'c.js'], map.sources);
   });
@@ -106,7 +106,7 @@ suite('SourceMap.js', function() {
     var options = {sourceMapGenerator: generator, showLineNumbers: false};
     var actual = write(tree, options);
 
-    var consumer = new SourceMapConsumer(options.sourceMap);
+    var consumer = new SourceMapConsumer(options.theSourceMap);
 
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);

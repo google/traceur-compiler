@@ -51,11 +51,6 @@ commandLine.option('--inline <fileName>', 'Parse as Module, format \'inline\'',
 commandLine.option('--out <FILE>', 'Compile all input files into a single file');
 commandLine.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modules into an output directory');
 
-commandLine.option('--sourcemap', 'Generate source maps');
-commandLine.on('sourcemap', function() {
-  commandLine.sourceMaps = traceurAPI.options.sourceMaps = true;
-});
-
 commandLine.option('--longhelp', 'Show all known options');
 commandLine.on('longhelp', function() {
   commandLine.help();

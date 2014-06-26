@@ -108,6 +108,20 @@ suite('context test', function() {
         });
   });
 
+  test('compiled modules with --source-maps', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+
+    exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var map = fs.readFileSync(tempFileName.replace('.js','') + '.map', 'utf-8');
+          assert(map);
+          done();
+        });
+  });
+
   test('compiled modules inline', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
