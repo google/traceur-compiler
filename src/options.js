@@ -263,13 +263,13 @@ export var optionsV01 = enumerableOnlyObject({
   typeAssertionModule: null,
   moduleName: false,
   outputLanguage: 'es5',
-  experimental: false,
   filename: undefined
 });
 
 
 // Make sure non option fields are non enumerable.
 Object.defineProperties(options, {
+  experimental: {value: false, writable: true},
   reset: {value: reset},
   fromString: {value: fromString},
   fromArgv: {value: fromArgv},

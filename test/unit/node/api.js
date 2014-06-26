@@ -24,14 +24,22 @@ suite('api.js', function() {
 
   test('api compile script function declaration', function() {
     var api = require('../../../src/node/api');
-    api.compile('function foo() {};',
-        {modules: false, blockBinding: true});
+    var result = api.compile('function foo() {};',
+        {modules: false});
+    assert(result.errors.length === 0);
   });
 
   test('api compile script function expression', function() {
     var api = require('../../../src/node/api');
-    api.compile('var foo = function() {};',
-        {modules: false, blockBinding: true});
+    var result = api.compile('var foo = function() {};',
+        {modules: false});
+    assert(result.errors.length === 0);
+  });
+
+  test('api compile experimental', function() {
+    var api = require('../../../src/node/api');
+    var result = api.compile('let a = 1;', {blockBinding: true});
+    assert(result.errors.length === 0, 'expect no errors');
   });
 
 });
