@@ -24,7 +24,7 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  *     showLineNumbers: {boolean} add comments giving input line numbers
  *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
- * @return source code; optional side-effect options.sourceMap set
+ * @return source code; optional side-effect options.sourceMaps set
  */
 export function toSource(tree, options = undefined) {
   var sourceMapGenerator = options && options.sourceMapGenerator;

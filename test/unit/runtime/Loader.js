@@ -385,9 +385,10 @@ suite('Loader.js', function() {
     var src = "  import {name} from './test_a';";
 
     var loader = getLoader();
-    traceur.options.sourceMap = true;
+    traceur.options.sourceMaps = true;
 
     loader.module(src, {}).then(function (mod) {
+      // TODO(jjb): where is the test that the source map exists?
       assert(mod);
       done();
     }).catch(done);

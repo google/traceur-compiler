@@ -81,7 +81,7 @@ function getSourceMapFileName(name) {
 }
 
 function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
-  var sourceMapFilePath
+  var sourceMapFilePath;
   if (sourcemap) {
     sourceMapFilePath = getSourceMapFileName(filename);
     compiledCode += '\n//# sourceMappingURL=' +

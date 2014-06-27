@@ -25,9 +25,9 @@ var writeCompiledCodeToFile =
     require('./NodeCompiler.js').writeCompiledCodeToFile;
 
 function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
-  var options = {sourcMmaps: useSourceMaps};
+  var options = {sourceMaps: useSourceMaps};
   var result = treeToString({tree: tree, options: options, errors: []});
-  writeCompiledCodeToFile(result.js, filename, result.sourcemap);
+  writeCompiledCodeToFile(result.js, filename, result.generatedSourceMap);
 }
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, useSourceMaps) {
