@@ -59,6 +59,7 @@ suite('SourceMap.js', function() {
 
     testcases.forEach(function(testcase, caseNumber) {
       var actual = consumer.originalPositionFor(testcase.generated);
+      console.log('actual for caseNumber ' + caseNumber, actual)
       var shouldBeTrue = actual.line === testcase.original.line;
       assert.isTrue(shouldBeTrue, caseNumber + ' Line mismatch ' + actual.line);
       var expected = testcase.original.column;

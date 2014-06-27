@@ -33,9 +33,9 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": "2.2.x",
-    "glob": "4.0.x",
-    "semver": "2.3.x"
+    "commander": "2.x",
+    "glob": "4.x",
+    "semver": "2.x"
   },
   "devDependencies": {
     "source-map": "0.1.34",
@@ -48,7 +48,7 @@
     "requirejs": "2.x",
     "semver": "2.x",
     "traceur": "0.0.49",
-    "promises-aplus-tests": "2.0.x"
+    "promises-aplus-tests": "2.x"
   },
   "subdomain": "traceur"
 }
