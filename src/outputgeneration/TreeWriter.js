@@ -22,12 +22,12 @@ import {toSource} from './toSource';
  *     showLineNumbers: {boolean} add comments giving input line numbers
  *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
- * @return source code; optional side-effect options.theSourceMap set
+ * @return source code; optional side-effect options.generatedSourceMap set
  */
 export function write(tree, options = undefined) {
   var [result, sourceMap] = toSource(tree, options);
   if (sourceMap)
-    options.theSourceMap = sourceMap;
+    options.generatedSourceMap = sourceMap;
   return result;
 }
 

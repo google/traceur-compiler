@@ -193,7 +193,7 @@ export class Compiler {
     return {
       js: write(tree, treeWriterOptions),
       errors: errors,
-      theSourceMap: treeWriterOptions.theSourceMap || null
+      generatedSourceMap: treeWriterOptions.generatedSourceMap || null
     };
   }
 

@@ -21,10 +21,14 @@ suite('context test', function() {
   var exec = require('child_process').exec;
 
   var tempFileName;
+  var tempMapName;
 
   teardown(function() {
     if (fs.existsSync(tempFileName))
       fs.unlinkSync(tempFileName);
+    if (tempMapName && fs.existsSync(tempMapName))
+      fs.unlinkSync(tempMapName);
+    tempMapName = null;
     traceur.options.reset();
   });
 
@@ -116,7 +120,8 @@ suite('context test', function() {
     exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          var map = fs.readFileSync(tempFileName.replace('.js','') + '.map', 'utf-8');
+          tempMapName = tempFileName.replace('.js','') + '.map';
+          var map = fs.readFileSync(tempMapName, 'utf-8');
           assert(map);
           done();
         });
