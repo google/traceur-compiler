@@ -37,6 +37,8 @@ import {
   isSafeInteger
 } from './Number';
 
+var {getPrototypeOf} = Object;
+
 function maybeDefine(object, name, descr) {
   if (!(name in object)) {
     Object.defineProperty(object, name, descr);
@@ -77,16 +79,41 @@ function maybeAddConsts(object, consts) {
   }
 }
 
+function maybeAddIterator(object, func, Symbol) {
+  if (!Symbol || !Symbol.iterator || object[Symbol.iterator])
+    return;
+
+  // Firefox does not have symbols so they use a hack.
+  if (object['@@iterator'])
+    func = object['@@iterator'];
+
+  Object.defineProperty(object, Symbol.iterator, {
+    value: func,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
 function polyfillPromise(global) {
   if (!global.Promise)
     global.Promise = Promise;
 }
 
-function polyfillCollections(global) {
+function polyfillCollections(global, Symbol) {
   if (!global.Map)
     global.Map = Map;
+  var mapPrototype = global.Map.prototype;
+  maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
+  maybeAddIterator(getPrototypeOf(new global.Map().values()),
+      function() { return this; }, Symbol);
+
   if (!global.Set)
     global.Set = Set;
+  var setPrototype = global.Set.prototype;
+  maybeAddIterator(setPrototype, setPrototype.values, Symbol);
+  maybeAddIterator(getPrototypeOf(new global.Set().values()),
+      function() { return this; }, Symbol);
 }
 
 function polyfillString(String) {
@@ -118,15 +145,9 @@ function polyfillArray(Array, Symbol) {
     'from', from
   ]);
 
-  if (Symbol && Symbol.iterator) {
-    // Use Object.defineProperty so that the Symbol override can do its thing.
-    Object.defineProperty(Array.prototype, Symbol.iterator, {
-      value: values,
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
+  maybeAddIterator(Array.prototype, values, Symbol);
+  maybeAddIterator(getPrototypeOf([].values()),
+      function() { return this; }, Symbol);
 }
 
 function polyfillObject(Object) {
@@ -153,7 +174,7 @@ function polyfillNumber(Number) {
 
 function polyfill(global) {
   polyfillPromise(global);
-  polyfillCollections(global);
+  polyfillCollections(global, global.Symbol);
   polyfillString(global.String);
   polyfillArray(global.Array, global.Symbol);
   polyfillObject(global.Object);
