@@ -83,10 +83,30 @@ function polyfillPromise(global) {
 }
 
 function polyfillCollections(global) {
+  var SymbolIterator = $traceurRuntime.toProperty(global.Symbol.iterator);
   if (!global.Map)
     global.Map = Map;
   if (!global.Set)
     global.Set = Set;
+
+  var map = new global.Map();
+  var set = new global.Set();
+  var mapIterator = map.entries().constructor;
+  var setIterator = set.values().constructor;
+  if (undefined === mapIterator.prototype[SymbolIterator]) {
+    mapIterator.prototype[SymbolIterator] = function() {
+      return this;
+    };
+  }
+  if (undefined === setIterator.prototype[SymbolIterator]) {
+    setIterator.prototype[SymbolIterator] = function() {
+      return this;
+    };
+  }
+  if (undefined === global.Map.prototype[SymbolIterator])
+    global.Map.prototype[SymbolIterator] = global.Map.prototype.entries;
+  if (undefined === global.Set.prototype[SymbolIterator])
+    global.Set.prototype[SymbolIterator] = global.Set.prototype.values;
 }
 
 function polyfillString(String) {
