@@ -22,7 +22,7 @@ var $min = Math.min;
 export var toObject = $traceurRuntime.toObject;
 
 export function toUint32(x) {
-  return x | 0;
+  return x >>> 0;
 }
 
 export function isObject(x) {
