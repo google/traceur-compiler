@@ -124,4 +124,16 @@ assert.deepEqual(iter.next(), {value: stringKey, done: false});
 t4.delete(nanKey);
 assert.deepEqual(iter.next(), {value: undefined, done: true});
 
+assert.equal(Set.prototype.keys, Set.prototype.values);
 assert.equal(Set.prototype[Symbol.iterator], Set.prototype.values);
+
+// .entries()
+var t5 = new Set();
+var iter = t5.entries();
+t5.add(objectKey);
+t5.add(stringKey);
+t5.add(nanKey);
+assert.deepEqual(iter.next(), {value: [objectKey, objectKey], done: false});
+assert.deepEqual(iter.next(), {value: [stringKey, stringKey], done: false});
+t5.delete(nanKey);
+assert.deepEqual(iter.next(), {value: undefined, done: true});

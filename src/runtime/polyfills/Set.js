@@ -49,7 +49,7 @@ export class Set {
   }
 
   add(key) {
-    return this.map_.set(key, true);
+    return this.map_.set(key, key);
   }
 
   delete(key) {
@@ -70,8 +70,8 @@ export class Set {
     yield* this.map_.keys();
   }
 
-  *keys() {
-    yield* this.map_.keys();
+  *entries() {
+    yield* this.map_.entries();
   }
 }
 
@@ -79,4 +79,10 @@ Object.defineProperty(Set.prototype, Symbol.iterator, {
   configurable: true,
   writable: true,
   value: Set.prototype.values
-  });
+});
+
+Object.defineProperty(Set.prototype, 'keys', {
+  configurable: true,
+  writable: true,
+  value: Set.prototype.values
+});
