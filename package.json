@@ -39,6 +39,8 @@
   },
   "devDependencies": {
     "source-map": "0.1.30",
+    "express": "4.x",
+    "serve-index": "1.x",
     "mocha": ">=1.9",
     "chai": ">=1.5",
     "node-uuid": ">=1.4",
