@@ -11,7 +11,7 @@ module m from './resources/m';
 assert.equal(a, renamedX);
 assert.equal(a, m.a);
 
-module m2 from './resources/m';
+module m3 from './resources/m';
 
-assert.isTrue(m === m2);
+assert.isTrue(m === m3);
 assert.equal(b, m.b);

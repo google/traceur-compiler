@@ -66,8 +66,15 @@ suite('VariableBinder.js', function() {
   test('BoundIdentifiersInFunction', function() {
     assert.equal('x,y', idsToString(variablesInFunction(parse(
         'function f(x) { var y; f(); }'))));
-    assert.equal('', idsToString(variablesInFunction(parse(
+    assert.equal('g', idsToString(variablesInFunction(parse(
         'function f() { try { } catch (x) { function g(y) { } } }'))));
+    assert.equal('', idsToString(variablesInFunction(parse(
+        'function f() {\n' +
+        '  "use strict";\n' +
+        '  try {} catch (x) {\n' +
+        '    function g(y) {}\n' +
+        '  }\n' +
+        '}'))));
 
     assert.equal('x,y', idsToString(variablesInFunction(parse(
         'function f({x}) { var y; f(); }'))));

@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import {AnnotationsTransformer} from './AnnotationsTransformer';
-import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
+import {validate as validateFreeVariables} from
+    '../semantics/FreeVariableChecker';
 import {MultiTransformer} from './MultiTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options, transformOptions} from '../options';
+import {options} from '../options';
 
 /**
  * MultiTransformer that only transforms non ES6 features, such as:
@@ -40,15 +41,15 @@ export class PureES6Transformer extends MultiTransformer {
       });
     };
 
-    append(AnnotationsTransformer);
-    append(TypeTransformer);
-
     // Issue errors for any unbound variables
     if (options.freeVariableChecker) {
       this.append((tree) => {
-        FreeVariableChecker.checkScript(reporter, tree);
+        validateFreeVariables(tree, reporter);
         return tree;
       });
     }
+
+    append(AnnotationsTransformer);
+    append(TypeTransformer);
   }
 }

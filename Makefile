@@ -49,7 +49,6 @@ TESTS = \
 	$(UNIT_TESTS)
 
 COMPILE_BEFORE_TEST = \
-	test/unit/semantics/FreeVariableChecker.generated.js \
 	test/unit/codegeneration/PlaceholderParser.generated.js
 
 MOCHA_OPTIONS = \

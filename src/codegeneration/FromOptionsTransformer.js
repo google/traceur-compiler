@@ -19,10 +19,12 @@ import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
+import {validate as validateConst} from '../semantics/ConstChecker';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
-import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
+import {validate as validateFreeVariables} from
+    '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
@@ -61,6 +63,21 @@ export class FromOptionsTransformer extends MultiTransformer {
         return new transformer(idGenerator, reporter).transformAny(tree);
       });
     };
+
+    if (transformOptions.blockBinding) {
+      this.append((tree) => {
+        validateConst(tree, reporter);
+        return tree;
+      });
+    }
+
+    // Issue errors for any unbound variables
+    if (options.freeVariableChecker) {
+      this.append((tree) => {
+        validateFreeVariables(tree, reporter);
+        return tree;
+      });
+    }
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
@@ -164,13 +181,5 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.symbols)
       append(SymbolTransformer);
-
-    // Issue errors for any unbound variables
-    if (options.freeVariableChecker) {
-      this.append((tree) => {
-        FreeVariableChecker.checkScript(reporter, tree);
-        return tree;
-      });
-    }
   }
 }
