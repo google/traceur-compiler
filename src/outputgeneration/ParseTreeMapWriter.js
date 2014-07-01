@@ -64,8 +64,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     // Every time we write an output line, then next mapping will start
     // on column 1.
     this.generated_ = {
-      line: this.outputLineCount_,
-      column: 1
+      line: this.outputLineCount_,  // lines are one based.
+      column: 0 // columns are zero based.
     };
     this.flushMappings();
   }
@@ -83,9 +83,10 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   generate() {
+    var column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
     this.generated_ = {
       line: this.outputLineCount_,
-      column: this.currentLine_.length
+      column: column
     };
     this.flushMappings();
   }
@@ -96,19 +97,29 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   exitBranch(location) {
-    this.originate(location.end);
+    var position = location.end;
+    var endOfPreviousToken = {
+      line: position.line,
+      column: position.column ? position.column - 1 : 0,
+      source : {name: position.source.name, contents: position.source.contents},
+    }
+    this.originate(endOfPreviousToken);
     this.entered_ = false;
   }
 
+  /**
+    * Set the original coordinates for the generated position.
+    * @param {Object} position, Traceur SourcePosition, line and col zero based.
+    */
   originate(position) {
-    var line = position.line + 1;
+    var line = position.line + 1;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
     if (this.original_ && this.original_.line !== line)
       this.flushMappings();
     // The first mapping on each output line must cover beginning columns.
     this.original_ = {
       line: line,
-      column: position.column || 0
+      column: position.column || 0  // source map uses zero based columns
     };
     if (position.source.name !== this.sourceName_) {
       this.sourceName_ = position.source.name;

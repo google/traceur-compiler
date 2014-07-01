@@ -39,27 +39,35 @@ suite('SourceMap.js', function() {
 
   test('SourceMap', function() {
     var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
-
+    var srcLines = src.split('\n');
     var filename = 'sourceMapThis.js';
     var tree = parse(filename, src);
 
     var testcases = [
+      // >f<unction
       {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
-      {generated: {line: 2, column: 0}, original: {line: 1, column: 15}},
-      {generated: {line: 3, column: 0}, original: {line: 1, column: 26}},
+      // function foo() { >r<eturn 5; }
+      {generated: {line: 2, column: 0}, original: {line: 1, column: 17}},
+      // function foo() { return 5; >}<
+      {generated: {line: 3, column: 0}, original: {line: 1, column: 27}},
       {generated: {line: 4, column: 0}, original: {line: 3, column: 0}},
       {generated: {line: 5, column: 1}, original: {line: 6, column: 0}}
     ];
 
     var generator = new SourceMapGenerator({file: filename});
     var options = {sourceMapGenerator: generator, showLineNumbers: false};
-    var actual = write(tree, options);
+    var generatedSource = write(tree, options);
+    var generatedLines = generatedSource.split('\n');
+
+    // Check that the generated code did not change since we analyzed the map.
+    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1];
+    generatedLines.map(function(line, index) {
+      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
+    });
 
     var consumer = new SourceMapConsumer(options.generatedSourceMap);
-
     testcases.forEach(function(testcase, caseNumber) {
       var actual = consumer.originalPositionFor(testcase.generated);
-      console.log('actual for caseNumber ' + caseNumber, actual)
       var shouldBeTrue = actual.line === testcase.original.line;
       assert.isTrue(shouldBeTrue, caseNumber + ' Line mismatch ' + actual.line);
       var expected = testcase.original.column;
