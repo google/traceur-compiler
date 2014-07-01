@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../util/ArrayMap';
 import {
   ARGUMENT_LIST,
   BLOCK,
@@ -21,6 +20,7 @@ import {
 } from '../syntax/trees/ParseTreeType';
 import {IdentifierToken} from '../syntax/IdentifierToken';
 import {LiteralToken} from '../syntax/LiteralToken';
+import {Map} from '../runtime/polyfills/Map';
 import {MutedErrorReporter} from '../util/MutedErrorReporter';
 import {ParseTree} from '../syntax/trees/ParseTree';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
@@ -79,7 +79,7 @@ var NOT_FOUND = {};
 
 var PREFIX = '$__placeholder__';
 
-var cache = new ArrayMap();
+var cache = new Map();
 
 /**
  * @param {Array.<string>} sourceLiterals

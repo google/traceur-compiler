@@ -31,7 +31,6 @@ import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
-import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
@@ -81,9 +80,9 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (options.typeAssertions)
       append(TypeAssertionTransformer);
-    
+
     // PropertyNameShorthandTransformer needs to come before
-    // module transformers. See #1120 or 
+    // module transformers. See #1120 or
     // test/node-instantiate-test.js test "Shorthand syntax with import"
     // for detailed info.
     if (transformOptions.propertyNameShorthand)

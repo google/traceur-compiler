@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
-import {ObjectMap} from '../util/ObjectMap';
+import {Map} from './polyfills/Map';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
-import {getUid} from '../util/uid';
-import {toSource} from '../outputgeneration/toSource';
 import {options} from '../options';
+import {toSource} from '../outputgeneration/toSource';
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -28,6 +26,17 @@ var TRANSFORMING = 4
 var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
+
+function mapToValues(map) {
+  // We are having issues with cross frame/context symbols so we cannot use
+  // iterators here.
+  // https://github.com/google/traceur-compiler/issues/1152
+  var array = [];
+  map.forEach((v) => {
+    array.push(v);
+  });
+  return array;
+}
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
@@ -51,7 +60,6 @@ class CodeUnit {
       this.referrerName_ = referrerName;
       this.address = address;
       this.url = InternalLoader.uniqueName(normalizedName, address);
-      this.uid = getUid();
       this.state_ = state || NOT_STARTED;
       this.error = null;
       this.result = null;
@@ -202,7 +210,7 @@ export class InternalLoader {
    */
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
-    this.cache = new ArrayMap();
+    this.cache = new Map();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
   }
@@ -332,7 +340,7 @@ export class InternalLoader {
   }
 
   areAll(state) {
-    return this.cache.values().every((codeUnit) => codeUnit.state >= state);
+    return mapToValues(this.cache).every((codeUnit) => codeUnit.state >= state);
   }
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
@@ -398,18 +406,18 @@ export class InternalLoader {
    */
   abortAll(errorMessage) {
     // Notify all codeUnit listeners (else tests hang til timeout).
-    this.cache.values().forEach((codeUnit) => {
+    this.cache.forEach((codeUnit) => {
       if (codeUnit.state !== ERROR)
         codeUnit.reject(errorMessage);
     });
   }
 
   analyze() {
-    this.loaderHooks.analyzeDependencies(this.cache.values(), this);
+    this.loaderHooks.analyzeDependencies(mapToValues(this.cache), this);
   }
 
   transform() {
-    this.transformDependencies_(this.cache.values());
+    this.transformDependencies_(mapToValues(this.cache));
   }
 
   transformDependencies_(dependencies, dependentName) {
@@ -453,7 +461,7 @@ export class InternalLoader {
 
   orderDependencies() {
     // Order the dependencies.
-    var visited = new ObjectMap();
+    var visited = new Map();
     var ordered = [];
     function orderCodeUnits(codeUnit) {
       // Cyclic dependency.
@@ -465,7 +473,7 @@ export class InternalLoader {
       codeUnit.dependencies.forEach(orderCodeUnits);
       ordered.push(codeUnit);
     }
-    this.cache.values().forEach(orderCodeUnits);
+    this.cache.forEach(orderCodeUnits);
     return ordered;
   }
 
