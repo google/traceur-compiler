@@ -38,8 +38,8 @@ function compileAllJsFilesInDir(inputDir, outputDir, compile) {
   if (typeof compile !== 'function')
     throw new Error('Missing required function(string) -> result');
 
-  inputDir = path.normalize(inputDir);
-  outputDir = path.normalize(outputDir);
+  inputDir = path.normalize(inputDir).replace(/\\/g, '/');
+  outputDir = path.normalize(outputDir).replace(/\\/g, '/');
 
   glob(inputDir + '/**/*.js', {}, function (er, files) {
     if (er)
