@@ -273,7 +273,7 @@ suite('Loader.js', function() {
       fail('should not have succeeded')
       done();
     }, function(error) {
-      assert((error + '').indexOf('ModuleEvaluationError: \'dep error\' in') === 0);
+      assert((error + '').indexOf('ModuleEvaluationError: \'dep error\' in') !== -1);
       done();
     }).catch(done);
   });

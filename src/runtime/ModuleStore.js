@@ -39,14 +39,14 @@
   }
 
   class ModuleEvaluationError extends Error {
-    constructor(erroneousModuleName, cause = undefined) {
-      this.moduleChain = [erroneousModuleName];
-      this.cause = cause;
+
+    constructor(erroneousModuleName, cause) {
+      this.message =
+          this.constructor.name + (cause ? ': \'' + cause + '\'' : '') +
+          ' in ' + erroneousModuleName;
     }
-    toString() {
-      var cause = this.cause ? ': \'' + this.cause + '\'' : '';
-      return `${this.constructor.name}${cause} in
-          ${this.moduleChain.join(' loaded by\n')}`;
+    loadedBy(moduleName) {
+      this.message += '\n loaded by ' + moduleName;
     }
   }
 
@@ -63,10 +63,10 @@
         return this.value_ = this.func.call(global);
       } catch(ex) {
         if (ex instanceof ModuleEvaluationError) {
-          ex.moduleChain.push(this.url);
+          ex.loadedBy(this.url);
           throw ex;
         }
-        throw new ModuleEvaluationError(this.url, ex + '');
+        throw new ModuleEvaluationError(this.url, ex);
       }
     }
   }
