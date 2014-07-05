@@ -9,3 +9,12 @@ assert.equal(D, 4);
 
 import f from './resources/default-function';
 assert.equal(f(), 123);
+
+import f from './resources/default-function2';
+assert.equal(f(), 123);
+
+import f from './resources/default-function3';
+assert.equal(f(), 123);
+
+import f from './resources/default-function4';
+assert.equal(f(), 123);
