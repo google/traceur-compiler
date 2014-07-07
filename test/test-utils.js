@@ -139,6 +139,7 @@
     });
 
     test(name, function(done) {
+      traceur.options.reset();
       traceur.options.debug = true;
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;

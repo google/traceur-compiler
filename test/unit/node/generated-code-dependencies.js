@@ -142,26 +142,6 @@ suite('context test', function() {
         });
   });
 
-  test('compiled modules instantiate', function(done) {
-    tempFileName = resolve(uuid.v4() + '.js');
-    var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-another-x.js');
-    var command = executable + ' --out ' + tempFileName +
-      ' --modules=instantiate -- ' + inputFileName;
-    exec(command,
-      function(error, stdout, stderr) {
-          logOnError(command, error, stdout, stderr);
-          assert.isNull(error);
-          executeFileWithRuntime(tempFileName).then(function() {
-            System.import('test/unit/node/resources/import-another-x').then(function(module) {
-              assert.equal(module.iAmNotScript, true);
-              assert.equal(anotherResult, 17);
-              done();
-            });
-          }).catch(done);
-        });
-  });
-
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
