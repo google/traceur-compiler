@@ -1,4 +1,7 @@
+
+var traceurSystem = global.System;
 var System = require('../third_party/es6-module-loader/index').System;
+global.System = traceurSystem;
 
 System.baseURL = __dirname + '/instantiate/';
 
@@ -38,7 +41,7 @@ suite('instantiate', function() {
   test('Re-export bindings', function(done) {
     System.import('reexport-binding').then(function(m) {
       System.import('rebinding').then(function(m) {
-        assert.equal(m.p, 3);
+        assert.equal(m.p, 4);
         done();
       }).catch(done);
     }).catch(done);
@@ -47,6 +50,36 @@ suite('instantiate', function() {
   test('Shorthand syntax with import', function(done) {
     System.import('shorthand').then(function(m) {
       done();
+    }).catch(done);
+  });
+
+  test('Export Reassignments', function(done) {
+    System.import('export-reassignment').then(function(m) {
+      assert.equal(m.a, -6);
+      assert.equal(m.b, 6);
+      assert.equal(m.c, 'number');
+      assert.equal(m.d, 4);
+      assert.equal(m.e, 6);
+      assert.equal(m.default, 5);
+      done();
+    }).catch(done);
+  });
+
+  test('Module import', function(done) {
+    System.import('module-import').then(function(m) {
+      assert.equal(m.default, -6);
+      done();
+    }).catch(done);
+  });
+
+  test('Export Star', function(done) {
+    System.import('export-reassignment').then(function(ma) {
+      return System.import('export-star').then(function(mb) {
+        assert.equal(mb.a, -6);
+        ma.reassign(); // updates the a export variable to 10, which should push the change out
+        assert.equal(mb.a, 10);
+        done();
+      });
     }).catch(done);
   });
 });

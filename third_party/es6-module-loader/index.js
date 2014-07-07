@@ -1,5 +1,6 @@
+if (!global.traceur)
+  require('traceur');
 module.exports = {
   Loader: require('./loader'),
-  Module: Module,
   System: require('./system')
 };
