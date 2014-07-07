@@ -108,9 +108,9 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   /**
-    * Set the original coordinates for the generated position.
-    * @param {Object} position, Traceur SourcePosition, line and col zero based.
-    */
+  * Set the original coordinates for the generated position.
+  * @param {Object} position Traceur SourcePosition, line and col zero based.
+  */
   originate(position) {
     var line = position.line + 1;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
