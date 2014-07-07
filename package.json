@@ -33,22 +33,22 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": ">=1.1",
-    "glob": ">=4.0",
-    "semver": "*"
+    "commander": "2.x",
+    "glob": "4.x",
+    "semver": "2.x"
   },
   "devDependencies": {
-    "source-map": "0.1.30",
+    "source-map": "0.1.34",
     "express": "4.x",
     "serve-index": "1.x",
-    "mocha": ">=1.9",
-    "chai": ">=1.5",
-    "node-uuid": ">=1.4",
-    "rsvp": "3.0.3",
-    "requirejs": "~2.1.9",
-    "semver": "2.2.1",
+    "mocha": "1.20.x",
+    "chai": "1.x",
+    "node-uuid": "1.x",
+    "rsvp": "3.x",
+    "requirejs": "2.x",
+    "semver": "2.x",
     "traceur": "0.0.49",
-    "promises-aplus-tests": "~2.0.4"
+    "promises-aplus-tests": "2.x"
   },
   "subdomain": "traceur"
 }
