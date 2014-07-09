@@ -12,73 +12,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Run test from https://github.com/kangax/compat-table
+// Run's test from https://github.com/kangax/compat-table
+
+import {Compiler} from '../src/Compiler';
+import {FindVisitor} from '../src/codegeneration/FindVisitor';
 
 Reflect.global.exports = {};
 
-import {Compiler} from '../src/Compiler';
-import {ParseTreeVisitor} from '../src/syntax/ParseTreeVisitor';
-
 var compiler = new Compiler();
 
-class EvalGetta extends ParseTreeVisitor {
-	constructor() {
-		this.found = null;
-	}
-	visitCallExpression(tree) {
-		if (tree && tree.operand.identifierToken) {
-			var shouldBeEval = tree.operand.identifierToken.value;
-			if (shouldBeEval === 'eval') {
-				var arg = compiler.treeToString({tree:tree.args,options:{}}).js
-				this.found = arg.substring(2, arg.length - 2);
-			}
-		}
-	}
+class FindEvalVisitor extends FindVisitor {
+  visitCallExpression(tree) {
+    if (tree.operand.identifierToken) {
+      var shouldBeEval = tree.operand.identifierToken.value;
+      if (shouldBeEval === 'eval') {
+        var arg = compiler.treeToString({tree: tree.args,options:{}}).js
+        this.found = arg.substring(2, arg.length - 2);
+      }
+    }
+  }
 }
 
 var failures = 0;
 
-function checkTest(test, tracuerResult) {
-	if (test.res.tr !== tracuerResult) {
-		failures++;
-		console.error('FAIL: ' + test.name + ' should be ' + !test.res.tr);
-	}
+function checkTest(test, traceurResult) {
+  if (test.res.tr !== traceurResult) {
+    failures++;
+    console.error('FAIL: ' + test.name + ' should be ' + !test.res.tr);
+  }
 }
 
-System.loadAsScript('./test/compat-table/data-es6.js').then(function(tests){
-	var unknown = [];
-	tests.forEach(function(test) {
-		if (typeof test.exec !== 'function') {
-			unknown.push(test.name);
-		} else {
-			var src = 'var f = ' + test.exec + '';
+System.loadAsScript('./test/compat-table/data-es6.js').then((tests) => {
+  var unknown = [];
+  tests.forEach((test)  => {
+    if (typeof test.exec !== 'function') {
+      unknown.push(test.name);
+    } else {
+      var src = 'var f = ' + test.exec + '';
 
-			var m = /eval\(([^\)]*)\)/.exec(src);
-			if (m) {
-				var parse = compiler.stringToTree({content:src});
-				var tree = parse.tree;
-				var vistor = new EvalGetta();
-				vistor.visit(tree);
-				if (vistor.found) {
-					try {
-						eval(compiler.module(vistor.found).js);
-						checkTest(test, true);
-					} catch (ex) {
-						checkTest(test, false);
-					}
-				} else {
-					unknown.push(test.name);
-				}
-			} else {
-				checkTest(test, test.exec());
-			}
-		}
-	});
-	if (!failures) {
-		console.log('compat-table PASS, ' + unknown.length +
-				' tests could not be run');
-	}
-}).catch(function(ex) {
-	console.log('catch', ex)
-	console.error(ex);
+      var m = /eval\(([^\)]*)\)/.exec(src);
+      if (m) {
+        var parse = compiler.stringToTree({content:src});
+        var tree = parse.tree;
+        var visitor = new FindEvalVisitor();
+        visitor.visit(tree);
+        if (visitor.found) {
+          try {
+            (0, eval)(compiler.module(visitor.found).js);
+            checkTest(test, true);
+          } catch (ex) {
+            checkTest(test, false);
+          }
+        } else {
+          unknown.push(test.name);
+        }
+      } else {
+        checkTest(test, test.exec());
+      }
+    }
+  });
+  if (!failures) {
+    console.log('compat-table PASS, ' + unknown.length +
+        ' tests could not be run');
+  } else {
+    throw new Error(failures +
+        ' compat-table failures, update tests/compat-table/data-es6.js');
+  }
+}).catch((ex) => {
+  console.error(ex.stack || ex);
+  throw ex;
 });
