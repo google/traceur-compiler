@@ -394,6 +394,7 @@ addBoolOption('validate');
 
 defaultValues.referrer = '';
 options.referrer = null;
+options.outputLanguage = 'es5';
 
 defaultValues.typeAssertionModule = null;
 options.typeAssertionModule = null;

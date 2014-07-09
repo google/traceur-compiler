@@ -210,7 +210,7 @@ export class Compiler {
   }
 
   defaultOptions() {
-    return traceurOptions.versionLockedOptions;
+    return traceurOptions;
   }
 
   promise(method, input) {
