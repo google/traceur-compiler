@@ -96,10 +96,11 @@
       var prototype = superClass.prototype;
       if ($Object(prototype) === prototype || prototype === null)
         return superClass.prototype;
+      throw new $TypeError('super prototype must be an Object or null');
     }
     if (superClass === null)
       return null;
-    throw new $TypeError();
+    throw new $TypeError('Super expression must either be null or a function');
   }
 
   function defaultSuperCall(self, homeObject, args) {
