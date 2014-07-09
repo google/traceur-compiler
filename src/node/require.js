@@ -25,11 +25,11 @@ Module._extensions[ext] = function(module, filename) {
   module._compile(module.compiledCode, module.filename);
 };
 
-function compile(filename) {
+function compile(filename, options) {
   var contents = fs.readFileSync(filename, 'utf-8');
-  var results = traceurAPI.compile(contents);
+  var results = traceurAPI.compile(contents, options);
   if (!results.js)
-    console.error(results.errors);
+    throw new Error(results.errors[0]);
 
   return results.js;
 }
@@ -55,7 +55,7 @@ function shouldCompile(filename) {
   return false;
 }
 
-traceurRequire.makeDefault = function(filter) {
+traceurRequire.makeDefault = function(filter, options) {
   if (!filter)
     filters = [];
   else
@@ -63,7 +63,7 @@ traceurRequire.makeDefault = function(filter) {
 
   Module._extensions['.js'] = function(module, filename) {
     if (shouldCompile(filename)) {
-      var source = compile(filename)
+      var source = compile(filename, options);
       return module._compile(source, filename);
     }
     return originalRequireJs(module, filename);
