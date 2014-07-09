@@ -143,6 +143,12 @@ test-promise:
 	node_modules/promises-aplus-tests/lib/cli.js \
 	test/node-promise-adapter.js --grep "2.2.5" --grep "sloppy" --invert
 
+test/compat-table/data-es6.js:
+	cd test; git clone https://github.com/kangax/compat-table.git
+
+test-compat-table: test/compat-table/data-es6.js
+	./traceur test/verify-compat.js
+
 boot: clean build
 
 clean: wikiclean
@@ -155,6 +161,7 @@ clean: wikiclean
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
+	@rm -rf test/compat-table
 	@rm -f bin/*
 	$(NPM_INSTALL)
 
