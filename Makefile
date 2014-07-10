@@ -75,11 +75,11 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
-		test/unit/runtime/traceur-runtime \
-		wiki test/amd-compiled test/commonjs-compiled test-interpret \
-		test-interpret-absolute test-inline-module-error \
-		test-version test/unit/tools/SourceMapMapping \
-		test-compat-table
+	  test/unit/runtime/traceur-runtime \
+	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
+	  test-interpret-absolute test-inline-module-error \
+	  test-version test/unit/tools/SourceMapMapping \
+	  test-compat-table
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
