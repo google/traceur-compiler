@@ -75,10 +75,11 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
-	test/unit/runtime/traceur-runtime \
-	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error \
-	test-version test/unit/tools/SourceMapMapping
+	  test/unit/runtime/traceur-runtime \
+	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
+	  test-interpret-absolute test-inline-module-error \
+	  test-version test/unit/tools/SourceMapMapping \
+	  test-compat-table
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -143,6 +144,12 @@ test-promise:
 	node_modules/promises-aplus-tests/lib/cli.js \
 	test/node-promise-adapter.js --grep "2.2.5" --grep "sloppy" --invert
 
+test/compat-table/data-es6.js:
+	cd test; git clone https://github.com/kangax/compat-table.git
+
+test-compat-table: test/compat-table/data-es6.js
+	./traceur test/verify-compat.js
+
 boot: clean build
 
 clean: wikiclean
@@ -155,6 +162,7 @@ clean: wikiclean
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
+	@rm -rf test/compat-table
 	@rm -f bin/*
 	$(NPM_INSTALL)
 
