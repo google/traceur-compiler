@@ -16,6 +16,7 @@
 
 import {Compiler} from '../src/Compiler';
 import {FindVisitor} from '../src/codegeneration/FindVisitor';
+import {IDENTIFIER_EXPRESSION} from '../src/syntax/trees/ParseTreeType';
 
 Reflect.global.exports = {};
 
@@ -23,11 +24,11 @@ var compiler = new Compiler();
 
 class FindEvalVisitor extends FindVisitor {
   visitCallExpression(tree) {
-    if (tree.operand.identifierToken) {
+    if (tree.operand.type === IDENTIFIER_EXPRESSION) {
       var shouldBeEval = tree.operand.identifierToken.value;
       if (shouldBeEval === 'eval') {
-        var arg = compiler.treeToString({tree: tree.args,options:{}}).js
-        this.found = arg.substring(2, arg.length - 2);
+        var src = compiler.treeToString({tree: tree.args, options: {}}).js
+        this.found = src.substring(2, src.length - 2);
       }
     }
   }
