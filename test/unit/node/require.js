@@ -23,6 +23,32 @@ suite('require.js', function() {
     assert.equal(x, 'x');
   });
 
+  test('traceurRequire.makeDefault options', function() {
+    var traceurRequire = require('../../../src/node/require'),
+        // TODO(arv): The path below is sucky...
+        fixturePath = path.join(__dirname, './resources/async-function.js'),
+        experimentalOption = {asyncFunctions: true};
+
+    // traceur.require must throw without the experimentalOption
+    try {
+      traceurRequire(fixturePath);
+      assert.notOk(true);
+    } catch(e) {
+      assert.ok(true);
+    }
+
+    traceurRequire.makeDefault(undefined, experimentalOption);
+    assert.equal(typeof require(fixturePath).foo, 'function');
+
+    // reset traceur.makeDefault options
+    traceurRequire.makeDefault();
+    try {
+      require(fixturePath);
+      assert.notOk(true);
+    } catch(e) {
+      assert.ok(true);
+    }
+  });
 
   test('traceurRequire.makeDefault with nested dependencies', function() {
     require('../../../src/node/require').makeDefault(function(filename) {
