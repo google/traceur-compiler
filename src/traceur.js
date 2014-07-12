@@ -74,12 +74,14 @@ export var codegeneration = {
 
 import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';
+import {InlineLoaderHooks} from './runtime/InlineLoaderHooks';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 import {TraceurLoader} from './runtime/TraceurLoader';
 
 export var runtime = {
+  InlineLoaderHooks,
   InterceptOutputLoaderHooks,
   Loader,
   LoaderHooks,
   TraceurLoader
-}
+};
