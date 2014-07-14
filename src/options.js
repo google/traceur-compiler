@@ -119,7 +119,7 @@ function fromString(s) {
 }
 
 /**
- * Takes an array of command line params sets the options based on that.
+ * Takes an array of command line params and sets the options based on that.
  */
 function fromArgv(args) {
   args.forEach(parseCommand);
@@ -299,7 +299,7 @@ function parseCommand(s) {
 }
 
 /**
- * Converts a string from aaa-bbb-ccc ot aaaBbbCcc
+ * Converts a string from aaa-bbb-ccc to aaaBbbCcc.
  */
 function toCamelCase(s) {
   return s.replace(/-\w/g, function(ch) {
@@ -308,10 +308,10 @@ function toCamelCase(s) {
 }
 
 /**
- * Converts a string from aaa-bbb-ccc ot aaaBbbCcc
+ * Converts a string from aaaBbbCcc to aaa-bbb-ccc.
  */
 function toDashCase(s) {
-  return s.replace(/[A-W]/g, function(ch) {
+  return s.replace(/[A-Z]/g, function(ch) {
     return '-' + ch.toLowerCase();
   });
 }
