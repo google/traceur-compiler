@@ -48,7 +48,8 @@
     "requirejs": "2.x",
     "semver": "2.x",
     "traceur": "0.0.49",
-    "promises-aplus-tests": "2.x"
+    "promises-aplus-tests": "2.x",
+    "compat-table": "git+https://github.com/johnjbarton/compat-table.git#traceur"
   },
   "subdomain": "traceur"
 }
