@@ -84,45 +84,12 @@ function forEachRecursiveModuleCompile(outputDir, includes, useSourceMaps) {
 }
 
 var TraceurLoader = traceur.runtime.TraceurLoader;
-var LoaderHooks = traceur.runtime.LoaderHooks;
+var InlineLoaderHooks = traceur.runtime.InlineLoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var moduleStore = traceur.runtime.ModuleStore;
 
-/**
- * @param {Array.<ParseTree>} elements
- * @param {string|undefined} depTarget A valid depTarget means dependency
- *     printing was requested.
- */
-function InlineLoaderHooks(url, elements, depTarget) {
-  LoaderHooks.call(this, null, url,
-      nodeLoader,  // Load modules using node fs.
-      moduleStore);  // Look up modules in our static module store
-  this.dirname = url;
-  this.elements = elements;
-  this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
-  this.codeUnitList = [];
-}
 
-InlineLoaderHooks.prototype = {
-  __proto__: LoaderHooks.prototype,
-
-  evaluateCodeUnit: function(codeUnit) {
-    if (this.depTarget) {
-      console.log('%s: %s', this.depTarget,
-                  normalizePath(path.relative(path.join(__dirname, '../..'),
-                  codeUnit.url)));
-    }
-    // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.metadata.transformedTree;
-    this.elements.push.apply(this.elements, tree.scriptItemList);
-  },
-
-};
-
-function allLoaded(url, elements) {
-  return new Script(null, elements);
-}
 
 /**
  * Compiles the files in "fileNamesAndTypes" along with any associated modules,
@@ -161,7 +128,10 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var hooks = new InlineLoaderHooks(basePath, elements, depTarget);
+  var hooks = new InlineLoaderHooks(basePath, elements,
+      nodeLoader,  // Load modules using node fs.
+      moduleStore);  // Look up modules in our static module store
+
   var loader = new TraceurLoader(hooks);
 
   function appendEvaluateModule(name, referrerName) {
@@ -201,7 +171,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
           } else if (depTarget) {
             callback(null);
           } else {
-            var tree = allLoaded(basePath, elements);
+            var tree = hooks.toTree(basePath, elements);
             callback(tree);
           }
         }, function(err) {
