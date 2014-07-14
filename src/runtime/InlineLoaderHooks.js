@@ -17,19 +17,19 @@ import {Script} from '../syntax/trees/ParseTrees';
 
 export class InlineLoaderHooks extends LoaderHooks {
 
-	constructor(url, elements, fileLoader, moduleStore) {
-	  super(null, url, fileLoader, moduleStore);
-	  this.elements = elements;
-	}
-
- 	evaluateCodeUnit(codeUnit) {
-    // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.metadata.transformedTree;
-    this.elements.push.apply(this.elements, tree.scriptItemList);
+  constructor(url, elements, fileLoader, moduleStore) {
+    super(null, url, fileLoader, moduleStore);
+    this.elements = elements;
   }
 
-	toTree() {
-	  return new Script(null, this.elements);
-	}
+  evaluateCodeUnit(codeUnit) {
+    // Don't eval. Instead append the trees to the output.
+    var tree = codeUnit.metadata.transformedTree;
+    this.elements.push(...tree.scriptItemList);
+  }
+
+  toTree() {
+    return new Script(null, this.elements);
+  }
 }
 
