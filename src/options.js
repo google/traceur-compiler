@@ -270,7 +270,7 @@ export var optionsV01 = enumerableOnlyObject({
 
 // Make sure non option fields are non enumerable.
 Object.defineProperties(options, {
-  experimental: {value: false, writable: true},
+  experimental: {enumerable: false},
   reset: {value: reset},
   fromString: {value: fromString},
   fromArgv: {value: fromArgv},

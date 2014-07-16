@@ -41,6 +41,14 @@ suite('Compiler', function() {
     assert.equal(result.errors.length, 1);
   });
 
+  test('Compiler synchronous, experimental option', function() {
+    var compiler = new Compiler();
+    var content = 'let x = 5;';
+    var result = compiler.stringToString(content, {experimental: true});
+    assert.equal(result.errors.length, 0);
+    assert.isTrue(result.js.length > 0);
+  });
+
   test('Compiler asynchronous', function(done) {
     var compiler = new Compiler();
     var content = '';
@@ -80,7 +88,7 @@ suite('Compiler', function() {
         done();
       }).catch(done);
   });
-  
+
   test('Compiler options locked', function() {
     Object.keys(traceur.options).forEach(function(key) {
       var mismatches = [];
