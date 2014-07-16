@@ -269,8 +269,11 @@ export var optionsV01 = enumerableOnlyObject({
 
 
 // Make sure non option fields are non enumerable.
+var experimentalDescriptor = Object.getOwnPropertyDescriptor(options, 'experimental');
+experimentalDescriptor.enumerable = false;
+
 Object.defineProperties(options, {
-  experimental: {value: false, writable: true},
+  experimental: experimentalDescriptor,
   reset: {value: reset},
   fromString: {value: fromString},
   fromArgv: {value: fromArgv},
