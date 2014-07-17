@@ -136,7 +136,13 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
     if (!this.matchesBindingName_(tree.operand))
       return tree;
 
-    return parseExpression `($__export(${this.exportName_}, ${tree.operand} + 1), ${tree})`;
+    var operatorType = tree.operator.type;
+    if (operatorType == PLUS_PLUS)
+      return parseExpression `($__export(${this.exportName_}, ${tree.operand} + 1), ${tree})`;
+    else if (operatorType == MINUS_MINUS)
+      return parseExpression `($__export(${this.exportName_}, ${tree.operand} - 1), ${tree})`;
+    else
+      return tree;
   }
 
   // x = y
