@@ -13,7 +13,6 @@
 // limitations under the License.
 
 
-import {InternalLoader} from '../runtime/InternalLoader';
 import {Loader} from '../runtime/Loader';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));

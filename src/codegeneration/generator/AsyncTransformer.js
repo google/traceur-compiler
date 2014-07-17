@@ -15,8 +15,7 @@
 import {AwaitState} from './AwaitState';
 import {
   BinaryExpression,
-  ExpressionStatement,
-  IdentifierExpression
+  ExpressionStatement
 } from '../../syntax/trees/ParseTrees';
 import {CPSTransformer} from './CPSTransformer';
 import {EndState} from './EndState';
@@ -31,20 +30,9 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
-import {
-  EQUAL,
-  VAR
-} from '../../syntax/TokenType';
 import {FindInFunctionScope} from '../FindInFunctionScope'
-import {
-  createAssignStateStatement,
-  createBreakStatement,
-  createOperatorToken,
-  createReturnStatement,
-  createUndefinedExpression
-} from '../ParseTreeFactory';
+import {createUndefinedExpression} from '../ParseTreeFactory';
 
 /**
  * @param {ParseTree} tree Expression tree

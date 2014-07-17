@@ -21,13 +21,9 @@ import {
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType';
-import {
-  TYPEOF,
-  VAR
-} from '../syntax/TokenType';
+import {TYPEOF} from '../syntax/TokenType';
 import {ScopeVisitor} from './ScopeVisitor';
 import {ScopeChainBuilder} from './ScopeChainBuilder';
-import {createBindingIdentifier} from '../codegeneration/ParseTreeFactory';
 import {getVariableName} from './getVariableName';
 
 function hasArgumentsInScope(scope) {

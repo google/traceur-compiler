@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import globalThis from '../codegeneration/globalThis';
 import {ErrorReporter} from '../util/ErrorReporter';
 import {TraceurLoader} from '../runtime/TraceurLoader';
 import {LoaderHooks} from './LoaderHooks';
-import {options} from '../options';
 import {webLoader} from './webLoader';
 
 var url;
@@ -34,4 +32,3 @@ Reflect.global.System = traceurLoader;
 export { traceurLoader as System }
 
 traceurLoader.map = traceurLoader.semverMap(__moduleName);
-

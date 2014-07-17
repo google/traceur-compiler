@@ -15,23 +15,16 @@
 import {CPSTransformer} from './CPSTransformer';
 import {
   BINARY_EXPRESSION,
-  STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
 import {
   BinaryExpression,
   ExpressionStatement
 } from '../../syntax/trees/ParseTrees'
-import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
-import {FallThroughState} from './FallThroughState';
 import {FindInFunctionScope} from '../FindInFunctionScope'
 import {ReturnState} from './ReturnState';
-import {State} from './State';
-import {StateMachine} from '../../syntax/trees/StateMachine';
 import {YieldState} from './YieldState';
 import {
-  createAssignStateStatement,
-  createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
   createUndefinedExpression,

@@ -14,10 +14,8 @@
 
 import {
   createAssignStateStatement,
-  createAssignmentStatement,
   createBreakStatement,
   createCaseClause,
-  createIdentifierExpression,
   createNumberLiteral
 } from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';

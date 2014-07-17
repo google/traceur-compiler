@@ -14,10 +14,7 @@
 
 import {Map} from '../runtime/polyfills/Map';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
-import {
-  LET,
-  VAR
-} from '../syntax/TokenType';
+import {VAR} from '../syntax/TokenType';
 import {Scope} from './Scope';
 import {
   COMPREHENSION_FOR,

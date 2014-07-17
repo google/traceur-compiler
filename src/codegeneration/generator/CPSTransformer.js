@@ -16,10 +16,8 @@ import {AlphaRenamer} from '../AlphaRenamer';
 import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
   BLOCK,
-  BREAK_STATEMENT,
   CASE_CLAUSE,
   CONDITIONAL_EXPRESSION,
-  CONTINUE_STATEMENT,
   EXPRESSION_STATEMENT,
   PAREN_EXPRESSION,
   STATE_MACHINE

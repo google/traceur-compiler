@@ -14,7 +14,7 @@
 
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {Map} from './polyfills/Map';
-import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
+import {isAbsolute, resolveUrl} from '../util/url';
 import {options} from '../options';
 import {toSource} from '../outputgeneration/toSource';
 
