@@ -121,4 +121,26 @@ suite('FreeVariableChecker.js', function() {
       ['CODE:1:16: x is not defined']);
 
   makeTest('spread', 'var x = [1, 2]; var y = [0, ...x, 3]', []);
+
+  makeTest('getter',
+      '({\n' +
+      '  get p() { return x; }\n' +
+      '})',
+      ['CODE:2:20: x is not defined']);
+  makeTest('getter',
+      '({\n' +
+      '  get x() { return x; }\n' +
+      '})',
+      ['CODE:2:20: x is not defined']);
+
+  makeTest('setter',
+      '({\n' +
+      '  set p(_) { x; }\n' +
+      '})',
+      ['CODE:2:14: x is not defined']);
+  makeTest('setter',
+      '({\n' +
+      '  set x(_) { x; }\n' +
+      '})',
+      ['CODE:2:14: x is not defined']);
 });

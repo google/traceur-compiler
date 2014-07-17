@@ -106,11 +106,11 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitGetAccessor(tree) {
-    this.visitFunctionBodyForScope(tree, null);
+    this.visitFunctionBodyForScope(tree, null, tree.body);
   }
 
   visitSetAccessor(tree) {
-    this.visitFunctionBodyForScope(tree);
+    this.visitFunctionBodyForScope(tree, undefined, tree.body);
   }
 
   visitPropertyMethodAssignment(tree) {
