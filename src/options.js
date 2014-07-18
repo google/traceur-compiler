@@ -210,6 +210,10 @@ function addOptions(flags) {
       else
         throw new Error('outputLanguage must be one of es5, es6');
   });
+  flags.option('--experimental ',
+    'Turns on all experimental features',
+    () => { options.experimental = true; }
+  );
   // After we've processed the options, set defaults for options.
   setDefaults();
 }

@@ -78,7 +78,7 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version test/unit/tools/SourceMapMapping \
-	  test-compat-table
+	  test-compat-table test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -145,6 +145,9 @@ test-promise:
 
 test-compat-table: node_modules/es5-compat-table/data-es6.js bin/traceur.js
 	./traceur test/verify-compat.js
+
+test-experimental: bin/traceur.js
+	./traceur --experimental -- ./test/unit/node/resources/let-x.js
 
 boot: clean build
 
