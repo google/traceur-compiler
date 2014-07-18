@@ -47,7 +47,6 @@ import {
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   EQUAL,
-  IDENTIFIER,
   LET,
   REGULAR_EXPRESSION,
   VAR

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {ModuleDescription} from './ModuleSymbol';
-import {ParseTree} from '../../syntax/trees/ParseTree';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 import {
   MODULE_DECLARATION,

@@ -27,10 +27,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {Parser} from '../syntax/Parser';
 import {
   LiteralExpression,
-  LiteralPropertyName,
-  PropertyMethodAssignment,
-  PropertyNameAssignment,
-  PropertyNameShorthand
+  LiteralPropertyName
 } from '../syntax/trees/ParseTrees';
 import {SourceFile} from '../syntax/SourceFile';
 import {IDENTIFIER} from '../syntax/TokenType';

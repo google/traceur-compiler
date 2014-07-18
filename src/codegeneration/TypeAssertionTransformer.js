@@ -22,13 +22,11 @@ import {
   ImportSpecifierSet,
   Module,
   ModuleSpecifier,
-  ReturnStatement,
   Script,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees';
 import {
   createArgumentList,
-  createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
   createStringLiteralToken

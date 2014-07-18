@@ -16,10 +16,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
-import {
-  IDENTIFIER,
-  STRING
-} from '../syntax/TokenType';
+import {STRING} from '../syntax/TokenType';
 import {
   AnonBlock,
   ClassDeclaration,
@@ -31,10 +28,6 @@ import {
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
-import {
-  BINDING_IDENTIFIER,
-  IDENTIFIER_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
 import {propName} from '../staticsemantics/PropName';
 import {
   createArgumentList,

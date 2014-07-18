@@ -15,54 +15,24 @@
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {AsyncTransformer} from './generator/AsyncTransformer';
 import {ForInTransformPass} from './generator/ForInTransformPass';
-import {
-  GetAccessor,
-  SetAccessor
-} from '../syntax/trees/ParseTrees';
 import {GeneratorTransformer} from './generator/GeneratorTransformer';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser';
 import {TempVarTransformer} from './TempVarTransformer';
-import {
-  EQUAL,
-  STAR
-} from '../syntax/TokenType';
-import {
-  BINARY_EXPRESSION,
-  COMMA_EXPRESSION,
-  PAREN_EXPRESSION,
-  YIELD_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
 import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   AnonBlock,
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
-import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {
-  createAssignmentExpression,
-  createAssignmentStatement,
   createBindingIdentifier,
-  createBlock,
-  createCommaExpression,
-  createExpressionStatement,
   createIdentifierExpression as id,
-  createIdentifierToken,
-  createMemberExpression,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement,
-  createYieldStatement
+  createIdentifierToken
 } from './ParseTreeFactory';
-import {prependStatements} from './PrependStatements';
-import {
-  transformOptions,
-  options
-} from '../options';
+import {transformOptions} from '../options';
 
 class ForInFinder extends FindInFunctionScope {
   visitForInStatement(tree) {

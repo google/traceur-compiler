@@ -45,7 +45,6 @@ import {
   createVariableStatement
 } from './ParseTreeFactory';
 import {hasUseStrict} from '../semantics/util';
-import {parseOptions} from '../options';
 import {
   parseExpression,
   parseStatement,

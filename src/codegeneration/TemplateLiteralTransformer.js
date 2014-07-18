@@ -38,7 +38,6 @@ import {
   createBinaryExpression,
   createCallExpression,
   createIdentifierExpression,
-  createObjectLiteralExpression,
   createOperatorToken,
   createStringLiteral
 } from './ParseTreeFactory';

@@ -20,10 +20,6 @@ import {FormalParameterList} from '../syntax/trees/ParseTrees';
 import {ParameterTransformer} from './ParameterTransformer';
 import {ARGUMENTS} from '../syntax/PredefinedName';
 import {
-  FORMAL_PARAMETER,
-  REST_PARAMETER
-} from '../syntax/trees/ParseTreeType';
-import {
   NOT_EQUAL_EQUAL,
   VAR
 } from '../syntax/TokenType';
@@ -37,7 +33,6 @@ import {
   createVariableStatement,
   createVoid0
 } from './ParseTreeFactory';
-import {prependStatements} from './PrependStatements';
 
 function createDefaultAssignment(index, binding, initializer) {
   var argumentsExpression =

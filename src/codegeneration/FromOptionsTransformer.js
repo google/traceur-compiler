@@ -33,7 +33,6 @@ import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
-import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
 import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';

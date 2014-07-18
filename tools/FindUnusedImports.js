@@ -35,7 +35,7 @@ class ImportAndScopeChainBuilder extends ScopeChainBuilder {
     this.imports = Object.create(null);
   }
   visitImportDeclaration(tree) {
-    if (tree.importClause.type === IMPORTED_BINDING) {
+    if (tree.importClause && tree.importClause.type === IMPORTED_BINDING) {
       this.imports[getVariableName(tree.importClause.binding)] =
           tree.importClause;
     }
@@ -77,7 +77,7 @@ class FilterFoundImports extends ScopeVisitor {
     return this.scope = this.scopeBuilder_.getScopeForTree(tree);
   }
 
-  visitIdentifierExpression(tree) {
+  checkTree_(tree) {
     var name = getVariableName(tree);
     if (!this.imports[name]) {
       return;
@@ -87,6 +87,14 @@ class FilterFoundImports extends ScopeVisitor {
     if (binding && isImportBinding(binding)) {
       delete this.imports[name];
     }
+  }
+
+  visitIdentifierExpression(tree) {
+    this.checkTree_(tree);
+  }
+
+  visitPropertyNameShorthand(tree) {
+    this.checkTree_(tree.name);
   }
 }
 

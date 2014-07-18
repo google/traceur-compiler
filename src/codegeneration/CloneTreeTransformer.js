@@ -29,15 +29,14 @@ import {
   PredefinedType,
   PropertyNameShorthand,
   TemplateLiteralPortion,
-  RestParameter,
   SuperExpression,
-  ThisExpression 
+  ThisExpression
 } from '../syntax/trees/ParseTrees';
 
 /**
  * Duplicates a ParseTree. Simply creates new leaf nodes so the
  * ParseTreeTransformer branch methods all see changes values and
- * thus create new branch nodes. 
+ * thus create new branch nodes.
  */
 export class CloneTreeTransformer extends ParseTreeTransformer {
 

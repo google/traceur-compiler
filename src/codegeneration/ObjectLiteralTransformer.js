@@ -14,16 +14,12 @@
 
 import {FindVisitor} from './FindVisitor';
 import {
-  FormalParameterList,
   FunctionExpression,
   IdentifierExpression,
   LiteralExpression
 } from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
-import {
-  IDENTIFIER,
-  STRING
-} from '../syntax/TokenType';
+import {IDENTIFIER} from '../syntax/TokenType';
 import {
   COMPUTED_PROPERTY_NAME,
   LITERAL_PROPERTY_NAME

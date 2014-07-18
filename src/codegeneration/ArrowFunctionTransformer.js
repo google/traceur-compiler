@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  FormalParameterList,
-  FunctionExpression
-} from '../syntax/trees/ParseTrees';
+import {FunctionExpression} from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
-import {
-  FUNCTION_BODY,
-  FUNCTION_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
+import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType';
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {
   createFunctionBody,

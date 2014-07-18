@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {ModuleTransformer} from './ModuleTransformer';
-import {VAR} from '../syntax/TokenType';
 import {
   createBindingIdentifier,
   createIdentifierExpression

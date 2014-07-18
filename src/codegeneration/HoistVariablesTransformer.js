@@ -24,13 +24,11 @@ import {
   VariableStatement
 } from '../syntax/trees/ParseTrees';
 import {
-  BINDING_IDENTIFIER,
   OBJECT_PATTERN,
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {VAR} from '../syntax/TokenType';
-import {assert} from '../util/assert';
 import {
   createAssignmentExpression,
   createCommaExpression,

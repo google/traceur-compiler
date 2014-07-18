@@ -13,9 +13,6 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
-import {STRING} from '../../syntax/TokenType';
-import {LiteralToken} from '../../syntax/LiteralToken';
-import {canonicalizeUrl} from '../../util/url';
 import {options} from '../../options';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
