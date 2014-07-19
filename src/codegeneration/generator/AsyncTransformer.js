@@ -101,7 +101,15 @@ export class AsyncTransformer extends CPSTransformer {
                                 tree.operator);
   }
 
-  transformAwait_(tree, expression, left, operator) {
+  transformAwait_(tree, inExpression, left, operator) {
+    var expression, machine;
+    if (this.expressionNeedsStateMachine(inExpression)) {
+      ({expression, machine} = this.expressionToStateMachine(inExpression));
+    } else {
+      expression = this.transformAny(inExpression);
+    }
+
+
     var createTaskState = this.allocateState();
     var callbackState = this.allocateState();
     var fallThroughState = this.allocateState();
@@ -130,7 +138,14 @@ export class AsyncTransformer extends CPSTransformer {
                                        assignment));
     }
 
-    return new StateMachine(createTaskState, fallThroughState, states, []);
+    var awaitMachine =
+        new StateMachine(createTaskState, fallThroughState, states, []);
+
+    if (machine) {
+      awaitMachine = machine.append(awaitMachine);
+    }
+
+    return awaitMachine;
   }
 
   /**

@@ -45,6 +45,7 @@ suite('ExplodeExpressionTransformer.js', function() {
     var file = new SourceFile('test', content);
     var parser = new Parser(file);
     parser.allowYield_ = true;
+    parser.allowAwait_ = true;
     return parser.parseExpression();
   }
 
@@ -220,4 +221,10 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('AssignMemberLookupExpression', 'a.b[c.d] += e.f',
       '$0 = a.b, $1 = c.d, $2 = e.f, $3 = $0[$1], ' +
       '$4 = $3 + $2, $0[$1] = $4, $4');
+
+  testExplode('AwaitExpression', 'await 1', '$0 = await 1, $0');
+  testExplode('AwaitExpression', 'await a.b', '$0 = a.b, $1 = await $0, $1');
+  testExplode('AwaitExpression', 'await (await a.b)',
+      '$0 = a.b, $1 = await $0, $2 = await $1, $2');
+
 });
