@@ -35,8 +35,8 @@ suite('System.js', function() {
     var refererName = 'dir/file';  // assume referer is normalized
     assert.equal(System.normalize('./d/e/f', refererName), 'dir/d/e/f');
     assert.equal(System.normalize('../e/f', refererName), 'e/f');
-    assert.equal(System.normalize('../src/options.js',
-        'traceur@/b/node'), 'traceur@/src/options.js');
+    assert.equal(System.normalize('../src/CompileOptions.js',
+        'traceur@/b/node'), 'traceur@/src/CompileOptions.js');
     // not relative
     assert.equal(System.normalize('d/e/f', refererName), 'd/e/f');
 

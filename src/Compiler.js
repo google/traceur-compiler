@@ -19,7 +19,7 @@ import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {SourceFile} from './syntax/SourceFile';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';
-import {options as traceurOptions} from './options';
+import {options as traceurOptions, versionLockedOptions} from './CompileOptions';
 import {write} from './outputgeneration/TreeWriter';
 
 function merge(...srcs) {
@@ -28,8 +28,12 @@ function merge(...srcs) {
     Object.keys(src).forEach((key) => {
       dest[key] = src[key];
     });
-  });
+    var srcModules = src.modules;  // modules is a getter.
+    if (typeof srcModules !== 'undefined') {
+      dest.modules = srcModules;
+    }
 
+  });
   return dest;
 }
 
@@ -210,7 +214,7 @@ export class Compiler {
   }
 
   defaultOptions() {
-    return traceurOptions.versionLockedOptions;
+    return versionLockedOptions;
   }
 
   promise(method, input) {

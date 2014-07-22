@@ -67,7 +67,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory';
-import {options} from '../options';
+import {options} from '../CompileOptions';
 import {parseExpression} from './PlaceholderParser';
 import {prependStatements} from './PrependStatements'
 

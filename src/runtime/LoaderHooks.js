@@ -22,7 +22,7 @@ import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
-import {options} from '../options';
+import {options} from '../CompileOptions';
 import {SourceFile} from '../syntax/SourceFile';
 import {systemjs} from '../runtime/system-map';
 import {UniqueIdentifierGenerator} from

@@ -32,7 +32,7 @@ import {
   createIdentifierExpression as id,
   createIdentifierToken
 } from './ParseTreeFactory';
-import {transformOptions} from '../options';
+import {transformOptions} from '../CompileOptions';
 
 class ForInFinder extends FindInFunctionScope {
   visitForInStatement(tree) {

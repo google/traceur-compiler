@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
-import {options} from '../../options';
+import {options} from '../../CompileOptions';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.

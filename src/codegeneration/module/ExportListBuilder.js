@@ -14,7 +14,7 @@
 
 import {ExportVisitor} from './ExportVisitor';
 import {ValidationVisitor} from './ValidationVisitor';
-import {transformOptions} from '../../options';
+import {transformOptions} from '../../CompileOptions';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists

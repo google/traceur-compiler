@@ -21,7 +21,7 @@ import {
   SourceMapGenerator,
   SourceMapConsumer
 } from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
-import {options as traceurOptions} from 'traceur@0.0/src/options';
+import {options as traceurOptions} from 'traceur@0.0/src/CompileOptions';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {

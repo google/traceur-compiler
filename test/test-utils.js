@@ -52,7 +52,7 @@
       } else if (line.indexOf('// Async.') === 0) {
         returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
-        traceur.options.fromString(m[1]);
+        returnValue.traceurOptions = traceur.util.CommandOptions.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
         returnValue.expectedErrors.push(m[1]);
       }
@@ -139,11 +139,6 @@
     });
 
     test(name, function(done) {
-      traceur.options.reset();
-      traceur.options.debug = true;
-      traceur.options.freeVariableChecker = true;
-      traceur.options.validate = true;
-
       var LoaderHooks = traceur.runtime.LoaderHooks;
       var loaderHooks = new LoaderHooks(null, './', fileLoader);
 
@@ -164,7 +159,12 @@
             done(ex);
           };
         }
-
+        traceur.options.reset();
+        if (options.traceurOptions)
+          traceur.options.setFromObject(options.traceurOptions);
+        traceur.options.debug = true;
+        traceur.options.freeVariableChecker = true;
+        traceur.options.validate = true;
         return source;
       }
 
@@ -227,6 +227,10 @@
         return;
       }
 
+      traceur.options.reset();
+      if (options.traceurOptions)
+        traceur.options.setFromObject(options.traceurOptions);
+
       var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
@@ -243,7 +247,7 @@
 
       if (reporter.hadError()) {
         fail('Error compiling ' + name + '.\n' +
-             reporter.errorsToString());
+             reporter.errorsAsString());
         return;
       }
 

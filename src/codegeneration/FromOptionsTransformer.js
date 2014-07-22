@@ -44,7 +44,7 @@ import {TypeTransformer} from './TypeTransformer';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options, transformOptions} from '../options';
+import {options, transformOptions} from '../CompileOptions';
 
 /**
  * MultiTransformer built from global options settings

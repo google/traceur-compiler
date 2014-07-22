@@ -24,7 +24,7 @@ import {
 import {
   options,
   parseOptions
-} from '../options';
+} from '../CompileOptions';
 
 import {
   AMPERSAND,
