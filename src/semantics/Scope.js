@@ -115,6 +115,18 @@ export class Scope {
     return null;
   }
 
+  getAllBindingNames() {
+    var names = Object.create(null);
+    var name;
+    for (name in this.variableDeclarations) {
+      names[name] = true;
+    }
+    for (name in this.lexicalDeclarations) {
+      names[name] = true;
+    }
+    return names;
+  }
+
   getVariableBindingNames() {
     var names = Object.create(null);
     for (var name in this.variableDeclarations) {
@@ -129,5 +141,17 @@ export class Scope {
       names[name] = true;
     }
     return names;
+  }
+
+  hasBindingName(name) {
+    return this.lexicalDeclarations[name] || this.variableDeclarations[name];
+  }
+
+  hasLexicalBindingName(name) {
+    return this.lexicalDeclarations[name];
+  }
+
+  hasVariableBindingName(name) {
+    return this.variableDeclarations[name];
   }
 }

@@ -174,8 +174,13 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.spread)
       append(SpreadTransformer);
 
-    if (transformOptions.blockBinding)
-      append(BlockBindingTransformer);
+    if (transformOptions.blockBinding) {
+      this.append((tree) => {
+        // this transformer need to be aware of the tree it will be working on
+        var transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
+        return transformer.transformAny(tree);
+      });
+    }
 
     // generator must come after for of and rest parameters
     if (transformOptions.generators || transformOptions.asyncFunctions)

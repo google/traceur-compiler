@@ -229,8 +229,6 @@ export class DestructuringTransformer extends TempVarTransformer {
       return super.transformVariableDeclarationList(tree);
     }
 
-    this.pushTempScope();
-
     // Desugar one level of patterns.
     var desugaredDeclarations = [];
     tree.declarations.forEach((declaration) => {
@@ -247,8 +245,6 @@ export class DestructuringTransformer extends TempVarTransformer {
         createVariableDeclarationList(
             tree.declarationType,
             desugaredDeclarations));
-
-    this.popTempScope();
 
     return transformedTree;
   }

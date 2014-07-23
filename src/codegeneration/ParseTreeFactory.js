@@ -592,7 +592,7 @@ export function createObjectCreate(protoExpression, descriptors) {
  *     may be true, false or a ParseTree.
  * @return {ObjectLiteralExpression}
  */
-export function createPropertyDescriptor(descr) {
+export function createObjectLiteral(descr) {
   var propertyNameAndValues = Object.keys(descr).map(function(name) {
     var value = descr[name];
     if (!(value instanceof ParseTree))
@@ -620,7 +620,7 @@ export function createDefineProperty(tree, name, descr) {
       createArgumentList([
         tree,
         name,
-        createPropertyDescriptor(descr)
+        createObjectLiteral(descr)
       ]));
 }
 

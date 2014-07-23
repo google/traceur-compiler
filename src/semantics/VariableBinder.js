@@ -95,5 +95,5 @@ export function variablesInFunction(tree) {
   var builder = new ScopeChainBuilder(null);
   builder.visitAny(tree);
   var scope = builder.getScopeForTree(tree);
-  return scope.getVariableBindingNames();
+  return scope.getAllBindingNames();
 }
