@@ -12,7 +12,6 @@ build/previous-commit-traceur.js
 node_modules
 out
 test/unit/codegeneration/PlaceholderParser.generated.js
-test/unit/semantics/FreeVariableChecker.generated.js
 test/unit/tools/SourceMapMapping.generated.js
 test/unit/node/resources/compile-amd
 test/unit/node/resources/compile-cjs
