@@ -104,16 +104,20 @@ function polyfillCollections(global, Symbol) {
   if (!global.Map)
     global.Map = Map;
   var mapPrototype = global.Map.prototype;
-  maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
-  maybeAddIterator(getPrototypeOf(new global.Map().values()),
-      function() { return this; }, Symbol);
+  if (mapPrototype.entries) {
+    maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
+    maybeAddIterator(getPrototypeOf(new global.Map().entries()),
+        function() { return this; }, Symbol);
+  }
 
   if (!global.Set)
     global.Set = Set;
   var setPrototype = global.Set.prototype;
-  maybeAddIterator(setPrototype, setPrototype.values, Symbol);
-  maybeAddIterator(getPrototypeOf(new global.Set().values()),
-      function() { return this; }, Symbol);
+  if (setPrototype.values) {
+    maybeAddIterator(setPrototype, setPrototype.values, Symbol);
+    maybeAddIterator(getPrototypeOf(new global.Set().values()),
+        function() { return this; }, Symbol);
+  }
 }
 
 function polyfillString(String) {
