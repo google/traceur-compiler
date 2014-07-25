@@ -28,7 +28,7 @@ function merge(...srcs) {
     Object.keys(src).forEach((key) => {
       dest[key] = src[key];
     });
-    var srcModules = src.modules;  // modules is a getter.
+    var srcModules = src.modules;  // modules is a getter on prototype
     if (typeof srcModules !== 'undefined') {
       dest.modules = srcModules;
     }

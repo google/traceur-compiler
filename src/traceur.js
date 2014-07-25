@@ -19,7 +19,7 @@ export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './CompileOptions';
 export {CompileOptions} from './CompileOptions';
-import {addOptions, CommandOptions, versionLockedOptions} from './CompileOptions';
+import {addOptions, CommandOptions} from './CompileOptions';
 
 export {Compiler} from './Compiler';
 
@@ -29,7 +29,6 @@ import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 export var util = {
   addOptions,
   CommandOptions,
-  versionLockedOptions,
   ErrorReporter,
   CollectingErrorReporter
 };
