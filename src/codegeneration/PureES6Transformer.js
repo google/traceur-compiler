@@ -18,7 +18,7 @@ import {validate as validateFreeVariables} from
 import {MultiTransformer} from './MultiTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options} from '../options';
+import {options} from '../CompileOptions';
 
 /**
  * MultiTransformer that only transforms non ES6 features, such as:

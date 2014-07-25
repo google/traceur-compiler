@@ -15,7 +15,7 @@
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {Map} from './polyfills/Map';
 import {isAbsolute, resolveUrl} from '../util/url';
-import {options} from '../options';
+import {options} from '../CompileOptions';
 import {toSource} from '../outputgeneration/toSource';
 
 var NOT_STARTED = 0;

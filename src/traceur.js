@@ -17,13 +17,18 @@ import './runtime/System';
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
-export {options} from './options';
+export {options} from './CompileOptions';
+export {CompileOptions} from './CompileOptions';
+import {addOptions, CommandOptions} from './CompileOptions';
+
 export {Compiler} from './Compiler';
 
 import {ErrorReporter} from './util/ErrorReporter';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 
 export var util = {
+  addOptions,
+  CommandOptions,
   ErrorReporter,
   CollectingErrorReporter
 };

@@ -96,7 +96,8 @@ commandLine.on('--help', function() {
   console.log('');
 });
 
-traceurAPI.options.addOptions(commandLine);
+var commandOptions = new traceurAPI.util.CommandOptions();
+traceurAPI.util.addOptions(commandLine, commandOptions);
 
 commandLine.usage('[options] [files]');
 
@@ -108,6 +109,8 @@ commandLine.command('*').action(function() {
   });
 
 commandLine.parse(process.argv);
+
+traceurAPI.options.setFromObject(commandOptions);
 
 if (!shouldExit && !rootSources.length) {
   // TODO: Start trepl
@@ -133,7 +136,7 @@ if (!shouldExit) {
       throw new Error('Compile all in directory requires exactly one input filename');
     traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name,
         function(content) {
-          return traceurAPI.compile(content, traceurAPI.options);
+          return traceurAPI.compile(content, commandOptions);
         });
   } else {
     rootSources.forEach(function(obj) {

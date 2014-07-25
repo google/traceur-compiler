@@ -38,7 +38,7 @@ import {
   createStringLiteral
 } from './ParseTreeFactory';
 import {propName} from '../staticsemantics/PropName';
-import {transformOptions} from '../options';
+import {transformOptions} from '../CompileOptions';
 
 /**
  * FindAdvancedProperty class that finds if an object literal contains a

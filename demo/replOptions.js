@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {options as traceurOptions} from 'traceur@0.0/src/options';
+import {options as traceurOptions} from 'traceur@0.0/src/CompileOptions';
 
 // Show correlation of input and generated source by default
 traceurOptions.sourceMaps = true;

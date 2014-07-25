@@ -19,9 +19,9 @@ suite('ModuleTransformer', function() {
   }
 
   var ModuleTransformer = get('src/codegeneration/ModuleTransformer').ModuleTransformer;
-  var options = get('src/options').options;
-  var parseOptions = get('src/options').parseOptions;
-  var transformOptions = get('src/options').transformOptions;
+  var options = get('src/CompileOptions').options;
+  var parseOptions = get('src/CompileOptions').parseOptions;
+  var transformOptions = get('src/CompileOptions').transformOptions;
   var Compiler = get('src/Compiler').Compiler;
   var write = get('src/outputgeneration/TreeWriter').write;
 
