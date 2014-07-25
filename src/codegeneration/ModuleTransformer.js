@@ -48,7 +48,7 @@ import {
 import {
   parseOptions,
   transformOptions
-} from '../CompileOptions';
+} from '../Options';
 import {
   parseExpression,
   parsePropertyDefinition,

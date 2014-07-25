@@ -19,7 +19,7 @@ import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {SourceFile} from './syntax/SourceFile';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';
-import {options as traceurOptions, versionLockedOptions} from './CompileOptions';
+import {options as traceurOptions, versionLockedOptions} from './Options';
 import {write} from './outputgeneration/TreeWriter';
 
 function merge(...srcs) {

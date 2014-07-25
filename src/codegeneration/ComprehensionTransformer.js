@@ -34,7 +34,7 @@ import {
   createParenExpression,
   createVariableDeclarationList
 } from './ParseTreeFactory';
-import {options} from '../CompileOptions';
+import {options} from '../Options';
 
 /**
  * Base class for GeneratorComprehensionTransformer and

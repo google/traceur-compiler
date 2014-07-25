@@ -74,7 +74,7 @@ suite('Loader.js', function() {
 
   test('traceur@', function() {
     var traceur = System.get('traceur@');
-    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/CompileOptions');
+    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/Options');
     assert.equal(traceur.options, optionsModule.options);
   });
 

@@ -82,7 +82,7 @@ var defaultValues = Object.create(null);
 var experimentalOptions = Object.create(null);
 var moduleOptions = ['amd', 'commonjs', 'instantiate', 'inline', 'register'];
 
-export class CompileOptions {
+export class Options {
 
   constructor(options = Object.create(null)) {
     this.setDefaults();
@@ -175,7 +175,7 @@ export class CompileOptions {
 
 // A distinguish instance shared internally via module
 //
-export var options = new CompileOptions();
+export var options = new Options();
 
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -184,7 +184,7 @@ var descriptions = {
   sourceMaps: 'generate source map and write to .map',
 };
 
-export class CommandOptions extends CompileOptions {
+export class CommandOptions extends Options {
 
   /**
    * Takes a string and parses it and sets the options based on that

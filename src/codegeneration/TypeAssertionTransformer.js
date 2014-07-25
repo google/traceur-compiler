@@ -36,7 +36,7 @@ import {
   parseStatement
 } from './PlaceholderParser';
 import {ParameterTransformer} from './ParameterTransformer';
-import {options} from '../CompileOptions';
+import {options} from '../Options';
 
 /**
  * Inserts runtime type assertions for type annotations.
