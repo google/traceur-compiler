@@ -49,7 +49,7 @@ import {getKeywordType} from './Keywords';
 import {
   parseOptions,
   options
-} from '../CompileOptions';
+} from '../Options';
 
 import {
   AMPERSAND,

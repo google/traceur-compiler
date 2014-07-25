@@ -21,7 +21,7 @@ suite('Compiler', function() {
   var optionsV01;
   setup(function() {
     Compiler = get('src/Compiler').Compiler;
-    optionsV01 = get('src/CompileOptions').optionsV01;
+    optionsV01 = get('src/Options').optionsV01;
     traceur.options.reset();
   });
 

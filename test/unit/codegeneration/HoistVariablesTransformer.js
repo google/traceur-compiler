@@ -25,7 +25,7 @@ suite('HoistVariablesTransformer.js', function() {
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
       getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
   var options = $traceurRuntime.ModuleStore.
-      getForTesting('src/CompileOptions').options;
+      getForTesting('src/Options').options;
 
   var currentOption;
 

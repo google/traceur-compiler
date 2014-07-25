@@ -17,11 +17,11 @@ suite('options', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var CompileOptions = get('src/CompileOptions').CompileOptions;
-  var CommandOptions = get('src/CompileOptions').CommandOptions;
+  var Options = get('src/Options').Options;
+  var CommandOptions = get('src/Options').CommandOptions;
 
-  test('CompileOptions instance', function() {
-    var options = new CompileOptions();
+  test('Options instance', function() {
+    var options = new Options();
     // default is false
     assert.isFalse(options.experimental);
     options.experimental = true;
@@ -36,8 +36,8 @@ suite('options', function() {
     }, Error);
   });
 
-  test('CompileOptions reset', function() {
-    var options = new CompileOptions();
+  test('Options reset', function() {
+    var options = new Options();
     options.experimental = true;
     options.reset();
     assert.isFalse(options.experimental);
@@ -46,14 +46,14 @@ suite('options', function() {
     assert.isFalse(options.classes);
   });
 
-  test('CompileOptions from options', function() {
-    var mutatedOptions = new CompileOptions();
+  test('Options from options', function() {
+    var mutatedOptions = new Options();
     assert.isTrue(mutatedOptions.classes);
     mutatedOptions.classes = false;
     assert.isFalse(mutatedOptions.classes);
-    var options = new CompileOptions(mutatedOptions);
+    var options = new Options(mutatedOptions);
     assert.isFalse(options.classes);
-    var moreOptions = new CompileOptions();
+    var moreOptions = new Options();
     mutatedOptions.modules = 'amd';
     assert.equal(mutatedOptions.modules,'amd');
     moreOptions.setFromObject(mutatedOptions);
