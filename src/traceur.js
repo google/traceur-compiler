@@ -18,7 +18,6 @@ export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './Options';
-export {Options} from './Options';
 import {addOptions, CommandOptions} from './Options';
 
 export {Compiler} from './Compiler';
