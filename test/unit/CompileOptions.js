@@ -23,56 +23,52 @@ suite('options', function() {
   test('CompileOptions instance', function() {
     var options = new CompileOptions();
     // default is false
-    assert(options.experimental === false);
+    assert.isFalse(options.experimental);
     options.experimental = true;
-    assert(options.experimental === true);
+    assert.isTrue(options.experimental);
 
     options.modules = false;
-    assert(options.modules === 'register');
+    assert.equal(options.modules, 'register');
     options.modules = 'inline';
-    assert(options.modules === 'inline');
-    var assertThrown = false;
-    try {
-      options.modules = true;
-    } catch(ex) {
-      assertThrown = true;
-    }
-    assert(assertThrown);
+    assert.equal(options.modules, 'inline');
+    assert.throws(function() {
+      options.modules = true
+    }, Error);
   });
 
   test('CompileOptions reset', function() {
     var options = new CompileOptions();
     options.experimental = true;
     options.reset();
-    assert(options.experimental === false);
-    assert(options.classes === true);
+    assert.isFalse(options.experimental);
+    assert.isTrue(options.classes);
     options.reset(true);
-    assert(options.classes === false);
+    assert.isFalse(options.classes);
   });
 
   test('CompileOptions from options', function() {
     var mutatedOptions = new CompileOptions();
-    assert(mutatedOptions.classes === true);
+    assert.isTrue(mutatedOptions.classes);
     mutatedOptions.classes = false;
-    assert(mutatedOptions.classes === false);
+    assert.isFalse(mutatedOptions.classes);
     var options = new CompileOptions(mutatedOptions);
-    assert(options.classes === false);
+    assert.isFalse(options.classes);
     var moreOptions = new CompileOptions();
     mutatedOptions.modules = 'amd';
-    assert(mutatedOptions.modules === 'amd');
+    assert.equal(mutatedOptions.modules,'amd');
     moreOptions.setFromObject(mutatedOptions);
-    assert(moreOptions.modules === 'amd');
+    assert.equal(moreOptions.modules,'amd');
   });
 
   test('CommandOptions fromString', function() {
-    assert(CommandOptions.fromString('--blockBinding').blockBinding === true);
-    assert(CommandOptions.fromString('--block-binding').blockBinding === true);
-    assert(CommandOptions.fromString('--blockBinding=true').
-      blockBinding === true);
-    assert(CommandOptions.fromString('--classes=false').classes === false);
-    assert(CommandOptions.fromString('--modules=amd').modules == 'amd');
-    assert(CommandOptions.fromString('--modules=false').modules == 'register');
-    assert(CommandOptions.fromString('--referrer=traceur@0.0.1').
-      referrer === 'traceur@0.0.1');
+    assert.isTrue(CommandOptions.fromString('--blockBinding').blockBinding);
+    assert.isTrue(CommandOptions.fromString('--block-binding').blockBinding);
+    assert.isTrue(CommandOptions.fromString('--blockBinding=true').
+      blockBinding);
+    assert.isFalse(CommandOptions.fromString('--classes=false').classes);
+    assert.equal(CommandOptions.fromString('--modules=amd').modules,'amd');
+    assert.equal(CommandOptions.fromString('--modules=false').modules, 'register');
+    assert.equal(CommandOptions.fromString('--referrer=traceur@0.0.1').
+      referrer,'traceur@0.0.1');
   });
 });
