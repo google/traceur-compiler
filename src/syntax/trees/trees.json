@@ -63,7 +63,7 @@
     "parameterList": [
       "FormalParameterList"
     ],
-    "functionBody": [
+    "body": [
       "ParseTree"
     ]
   },
@@ -467,7 +467,7 @@
     "annotations": [
       "Array.<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },
@@ -490,7 +490,7 @@
     "annotations": [
       "Array.<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },
@@ -774,7 +774,7 @@
     "annotations": [
       "Array.<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },

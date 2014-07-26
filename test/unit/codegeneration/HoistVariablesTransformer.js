@@ -45,11 +45,11 @@ suite('HoistVariablesTransformer.js', function() {
   }
 
   function parseFunctionBody(content) {
-    return parseExpression('function() {' + content + '}').functionBody;
+    return parseExpression('function() {' + content + '}').body;
   }
 
   function normalize(content) {
-    var tree = parseExpression('function() {' + content + '}').functionBody;
+    var tree = parseExpression('function() {' + content + '}').body;
     return write(tree);
   }
 

@@ -40,11 +40,11 @@ export function isTreeStrict(tree) {
     case FUNCTION_EXPRESSION:
     case FUNCTION_DECLARATION:
     case PROPERTY_METHOD_ASSIGNMENT:
-      return isTreeStrict(tree.functionBody);
+      return isTreeStrict(tree.body);
 
     case ARROW_FUNCTION_EXPRESSION:
-      if (tree.functionBody.type === FUNCTION_BODY) {
-        return isTreeStrict(tree.functionBody);
+      if (tree.body.type === FUNCTION_BODY) {
+        return isTreeStrict(tree.body);
       }
       return false;
 

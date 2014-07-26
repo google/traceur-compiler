@@ -551,7 +551,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    var body = this.transformFunctionBody(tree.functionBody);
+    var body = this.transformFunctionBody(tree.body);
     var parameterList = this.transformAny(tree.parameterList);
 
     if (this.scope_.type === ScopeType.BLOCK) {
@@ -569,7 +569,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                                      tree.annotations, body)));
     }
 
-    if (body === tree.functionBody &&
+    if (body === tree.body &&
         parameterList === tree.parameterList) {
       return tree;
     }

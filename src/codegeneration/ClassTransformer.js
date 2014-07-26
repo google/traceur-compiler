@@ -186,7 +186,7 @@ export class ClassTransformer extends TempVarTransformer{
           if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             hasConstructor = true;
             constructorParams = transformed.parameterList;
-            constructorBody = transformed.functionBody;
+            constructorBody = transformed.body;
           } else {
             elements.push(transformed);
           }
@@ -307,18 +307,18 @@ export class ClassTransformer extends TempVarTransformer{
 
   transformPropertyMethodAssignment_(tree, internalName) {
     var parameterList = this.transformAny(tree.parameterList);
-    var functionBody = this.transformSuperInFunctionBody_(tree,
-        tree.functionBody, internalName);
+    var body = this.transformSuperInFunctionBody_(tree,
+        tree.body, internalName);
     if (!tree.isStatic &&
         parameterList === tree.parameterList &&
-        functionBody === tree.functionBody) {
+        body === tree.body) {
       return tree;
     }
 
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
-        tree.annotations, functionBody);
+        tree.annotations, body);
   }
 
   transformGetAccessor_(tree, internalName) {

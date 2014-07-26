@@ -629,7 +629,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                     'formal parameters expected');
 
     this.checkType_(FUNCTION_BODY,
-                    tree.functionBody,
+                    tree.body,
                     'function body expected');
   }
 

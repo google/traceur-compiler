@@ -79,7 +79,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
       this.visitAny(tree.name);
     }
     this.visitAny(tree.parameterList);
-    this.visitAny(tree.functionBody);
+    this.visitAny(tree.body);
     this.popScope(scope);
   }
 
@@ -106,7 +106,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
       }
     }
 
-    this.visitFunctionBodyForScope(tree, tree.parameterList, tree.functionBody);
+    this.visitFunctionBodyForScope(tree, tree.parameterList, tree.body);
   }
 
   visitClassDeclaration(tree) {

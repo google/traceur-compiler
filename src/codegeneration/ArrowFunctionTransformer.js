@@ -49,10 +49,10 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     var alphaRenamed = alphaRenameThisAndArguments(this, tree);
     var parameterList = this.transformAny(alphaRenamed.parameterList);
 
-    var functionBody = this.transformAny(alphaRenamed.functionBody);
-    functionBody = convertConciseBody(functionBody);
+    var body = this.transformAny(alphaRenamed.body);
+    body = convertConciseBody(body);
     var functionExpression = new FunctionExpression(tree.location, null,
-        tree.functionKind, parameterList, null, [], functionBody);
+        tree.functionKind, parameterList, null, [], body);
 
     return createParenExpression(functionExpression);
   }
@@ -66,8 +66,8 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
    */
   static transform(tempVarTransformer, tree) {
     tree = alphaRenameThisAndArguments(tempVarTransformer, tree);
-    var functionBody = convertConciseBody(tree.functionBody);
+    var body = convertConciseBody(tree.body);
     return new FunctionExpression(tree.location, null, tree.functionKind,
-        tree.parameterList, null, [], functionBody);
+        tree.parameterList, null, [], body);
   }
 }

@@ -72,7 +72,7 @@ export class AlphaRenamer extends ScopeTransformer {
       // it is the function that is being renamed
       tree = new FunctionDeclaration(tree.location, this.newName_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
-          tree.annotations, tree.functionBody);
+          tree.annotations, tree.body);
     }
     return super.transformFunctionDeclaration(tree);
   }
@@ -86,7 +86,7 @@ export class AlphaRenamer extends ScopeTransformer {
       // it is the function that is being renamed
       tree = new FunctionExpression(tree.location, this.newName_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
-          tree.annotations, tree.functionBody);
+          tree.annotations, tree.body);
     }
     return super.transformFunctionExpression(tree);
   }

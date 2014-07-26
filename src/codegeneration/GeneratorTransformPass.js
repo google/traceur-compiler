@@ -118,7 +118,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
       tree = new FunctionExpression(tree.location,
           createBindingIdentifier(name), tree.functionKind,
           tree.parameterList, tree.typeAnnotation, tree.annotations,
-          tree.functionBody);
+          tree.body);
     } else {
       name = tree.name.identifierToken;
     }
@@ -130,7 +130,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   transformFunction_(tree, constructor, nameExpression) {
-    var body = super.transformAny(tree.functionBody);
+    var body = super.transformAny(tree.body);
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.

@@ -157,7 +157,7 @@ class AnnotationsScope {
     tree = super(tree);
     if (tree.annotations.length > 0) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
-          tree.parameterList, tree.typeAnnotation, [], tree.functionBody);
+          tree.parameterList, tree.typeAnnotation, [], tree.body);
     }
     return this.appendMetadata_(tree);
   }
@@ -222,7 +222,7 @@ class AnnotationsScope {
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
           tree.functionKind, tree.name, parameterList,
-          tree.typeAnnotation, [], tree.functionBody);
+          tree.typeAnnotation, [], tree.body);
     }
     return super(tree);
   }

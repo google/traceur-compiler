@@ -81,11 +81,10 @@ export class ScopeVisitor extends ParseTreeVisitor {
     this.popScope(scope);
   }
 
-  visitFunctionBodyForScope(tree, parameterList = tree.parameterList,
-                            functionBody = tree.functionBody) {
+  visitFunctionBodyForScope(tree, parameterList = tree.parameterList) {
     var scope = this.pushScope(tree);
     this.visitAny(parameterList);
-    this.visitAny(functionBody);
+    this.visitAny(tree.body);
     this.popScope(scope);
   }
 
@@ -103,11 +102,11 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitGetAccessor(tree) {
-    this.visitFunctionBodyForScope(tree, null, tree.body);
+    this.visitFunctionBodyForScope(tree, null);
   }
 
   visitSetAccessor(tree) {
-    this.visitFunctionBodyForScope(tree, undefined, tree.body);
+    this.visitFunctionBodyForScope(tree);
   }
 
   visitPropertyMethodAssignment(tree) {

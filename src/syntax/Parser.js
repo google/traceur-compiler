@@ -896,11 +896,9 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(functionKind,
-                                               parameters);
+    var body = this.parseFunctionBody_(functionKind, parameters);
     return new ctor(this.getTreeLocation_(start), name, functionKind,
-                    parameters, typeAnnotation, annotations,
-                    functionBody);
+                    parameters, typeAnnotation, annotations, body);
   }
 
   peekRest_(type) {
@@ -1393,7 +1391,8 @@ export class Parser {
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForOfStatement(this.getTreeLocation_(start), initializer, collection, body);
+    return new ForOfStatement(this.getTreeLocation_(start), initializer,
+                              collection, body);
   }
 
   /**
@@ -1470,7 +1469,8 @@ export class Parser {
     }
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForStatement(this.getTreeLocation_(start), initializer, condition, increment, body);
+    return new ForStatement(this.getTreeLocation_(start), initializer,
+                            condition, increment, body);
   }
 
   // 12.6.4 The for-in Statement
@@ -1485,7 +1485,8 @@ export class Parser {
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
-    return new ForInStatement(this.getTreeLocation_(start), initializer, collection, body);
+    return new ForInStatement(this.getTreeLocation_(start), initializer,
+                              collection, body);
   }
 
   // 12.7 The continue Statement
@@ -2171,11 +2172,10 @@ export class Parser {
     var parameterList = this.parseFormalParameters_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(functionKind,
-                                               parameterList);
+    var body = this.parseFunctionBody_(functionKind, parameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, functionKind, name, parameterList, typeAnnotation,
-        annotations, functionBody);
+        annotations, body);
   }
 
   parseGetSetOrMethod_(start, isStatic, annotations) {

@@ -229,7 +229,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.writeSpace_();
     this.write_(ARROW);
     this.writeSpace_();
-    this.visitAny(tree.functionBody);
+    this.visitAny(tree.body);
   }
 
   /**
@@ -703,7 +703,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_PAREN);
     this.writeTypeAnnotation_(tree.typeAnnotation);
     this.writeSpace_();
-    this.visitAny(tree.functionBody);
+    this.visitAny(tree.body);
   }
 
   visitGeneratorComprehension(tree) {
@@ -1010,7 +1010,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_PAREN);
     this.writeSpace_();
     this.writeTypeAnnotation_(tree.typeAnnotation);
-    this.visitAny(tree.functionBody);
+    this.visitAny(tree.body);
   }
 
   /**
