@@ -487,8 +487,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   transformFunctionDeclaration(tree) {
     // simply note the function declaration to do assignment in the declaration phase later
     if (this.inExport_) {
-      this.addLocalExportBinding(tree.name.identifierToken.value);
-      this.addExportFunction(tree.name.identifierToken.value);
+      var name = tree.name.getStringValue();
+      this.addLocalExportBinding(name);
+      this.addExportFunction(name);
       this.inExport_ = false;
     }
     return super.transformFunctionDeclaration(tree);
@@ -540,8 +541,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       return importClause;
     } else {
       // import default form
-      this.addImportBinding(this.curDepIndex_, tree.importClause.binding.identifierToken.value, 'default');
-      return parseStatement `var ${tree.importClause.binding.identifierToken.value};`;
+      var bindingName = tree.importClause.binding.getStringValue();
+      this.addImportBinding(this.curDepIndex_, bindingName, 'default');
+      return parseStatement `var ${bindingName};`;
     }
 
     return new AnonBlock(null, []);
@@ -582,7 +584,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       bindingName = tree.lhs.value;
     } else {
       exportName = tree.lhs.value;
-      bindingName = tree.lhs.value;
+      bindingName = exportName;
     }
 
     if (this.curDepIndex_ !== null) {
@@ -603,27 +605,20 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   }
 
   transformImportSpecifier(tree) {
-    var importName;
-    var localBinding;
-
-    if (tree.rhs) {
-      localBinding = tree.rhs;
-      importName = tree.lhs.value;
-    } else {
-      localBinding = tree.lhs;
-      importName = tree.lhs.value;
-    }
-
-    this.addImportBinding(this.curDepIndex_, localBinding.value, importName);
-
+    var localBinding = tree.binding.binding;
+    var localBindingToken = localBinding.identifierToken;
+    var importName = (tree.name || localBindingToken).value;
+    this.addImportBinding(this.curDepIndex_, localBindingToken.value, importName);
     return createVariableDeclaration(localBinding);
   }
 
   transformModuleDeclaration(tree) {
     // we visit the declaration only
     this.transformAny(tree.expression);
-    this.addModuleBinding(this.curDepIndex_, tree.identifier.value);
-    return parseStatement `var ${tree.identifier.value};`;
+    var bindingIdentifier = tree.binding.binding;
+    var name = bindingIdentifier.getStringValue();
+    this.addModuleBinding(this.curDepIndex_, name);
+    return parseStatement `var ${bindingIdentifier};`;
   }
 
   transformModuleSpecifier(tree) {

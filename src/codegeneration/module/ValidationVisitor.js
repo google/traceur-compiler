@@ -82,13 +82,14 @@ export class ValidationVisitor extends ModuleVisitor {
   }
 
   visitImportSpecifier(tree) {
-    var importName = tree.rhs ? tree.rhs.value : tree.lhs.value;
+    var importName = tree.binding.getStringValue();
+    var exportName = tree.name ? tree.name.value : importName;
     this.checkImport_(tree, importName);
-    this.checkExport_(tree, tree.lhs.value);
+    this.checkExport_(tree, exportName);
   }
 
   visitImportedBinding(tree) {
-    var importName = tree.binding.identifierToken.value;
+    var importName = tree.binding.getStringValue();
     this.checkImport_(tree, importName);
     this.checkExport_(tree, 'default');
   }

@@ -20,7 +20,6 @@ import {
 } from '../syntax/TokenType';
 import {ScopeVisitor} from './ScopeVisitor';
 import {ScopeChainBuilder} from './ScopeChainBuilder';
-import {getVariableName} from './getVariableName';
 
 export class ConstChecker extends ScopeVisitor {
   /**
@@ -75,7 +74,7 @@ export class ConstChecker extends ScopeVisitor {
     var {type, tree} = binding;
     if (type === CONST) {
       this.reportError_(identifierExpression.location,
-          `${getVariableName(tree)} is read-only`);
+          `${tree.getStringValue()} is read-only`);
     }
   }
 

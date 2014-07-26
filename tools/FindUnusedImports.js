@@ -12,19 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  CONST,
-  IDENTIFIER,
-} from '../src/syntax/TokenType';
 import {CollectingErrorReporter} from '../src/util/CollectingErrorReporter';
 import {Compiler} from '../src/Compiler';
-import {
-  BINDING_IDENTIFIER,
-  IMPORTED_BINDING
-} from '../src/syntax/trees/ParseTreeType';
 import {ScopeChainBuilder} from '../src/semantics/ScopeChainBuilder';
 import {ScopeVisitor} from '../src/semantics/ScopeVisitor';
-import {getVariableName} from '../src/semantics/getVariableName';
 
 /**
  * Overrides to also keep track of imported bindings.
@@ -34,32 +25,10 @@ class ImportAndScopeChainBuilder extends ScopeChainBuilder {
     super(reporter);
     this.imports = Object.create(null);
   }
-  visitImportDeclaration(tree) {
-    if (tree.importClause && tree.importClause.type === IMPORTED_BINDING) {
-      this.imports[getVariableName(tree.importClause.binding)] =
-          tree.importClause;
-    }
-    super(tree);
-  }
-  visitImportSpecifier(tree) {
-    var name = getVariableName(tree.rhs || tree.lhs);
+  visitImportedBinding(tree) {
+    var name = tree.binding.getStringValue();
     this.imports[name] = tree;
-    super(tree);
   }
-}
-
-function isImportBinding(binding) {
-// TODO(arv): Use IMPORTED_BINDING
-  if (binding.type !== CONST) {
-    return false;
-  }
-  switch (binding.tree.type) {
-    case IMPORTED_BINDING:
-    case BINDING_IDENTIFIER:
-    case IDENTIFIER:
-      return true;
-  }
-  return false;
 }
 
 class FilterFoundImports extends ScopeVisitor {
@@ -78,13 +47,13 @@ class FilterFoundImports extends ScopeVisitor {
   }
 
   checkTree_(tree) {
-    var name = getVariableName(tree);
+    var name = tree.getStringValue();
     if (!this.imports[name]) {
       return;
     }
 
     var binding = this.scope.getBinding(tree);
-    if (binding && isImportBinding(binding)) {
+    if (!binding) {
       delete this.imports[name];
     }
   }
@@ -94,7 +63,7 @@ class FilterFoundImports extends ScopeVisitor {
   }
 
   visitPropertyNameShorthand(tree) {
-    this.checkTree_(tree.name);
+    this.checkTree_(tree);
   }
 }
 

@@ -24,7 +24,6 @@ import {
 import {TYPEOF} from '../syntax/TokenType';
 import {ScopeVisitor} from './ScopeVisitor';
 import {ScopeChainBuilder} from './ScopeChainBuilder';
-import {getVariableName} from './getVariableName';
 
 function hasArgumentsInScope(scope) {
   for (; scope; scope = scope.parent) {
@@ -93,7 +92,7 @@ class FreeVariableChecker extends ScopeVisitor {
       return;
     }
 
-    var name = getVariableName(tree);
+    var name = tree.getStringValue();
     if (name === 'arguments' && hasArgumentsInScope(scope)) {
       return;
     }

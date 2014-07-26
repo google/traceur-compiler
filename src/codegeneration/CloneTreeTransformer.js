@@ -23,7 +23,6 @@ import {
   ExportSpecifier,
   ExportStar,
   IdentifierExpression,
-  ImportSpecifier,
   LiteralExpression,
   ModuleSpecifier,
   PredefinedType,
@@ -102,14 +101,6 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    */
   transformIdentifierExpression(tree) {
     return new IdentifierExpression(tree.location, tree.identifierToken);
-  }
-
-  /**
-   * @param {ImportSpecifier} tree
-   * @return {ParseTree}
-   */
-  transformImportSpecifier(tree) {
-    return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
   }
 
   /**

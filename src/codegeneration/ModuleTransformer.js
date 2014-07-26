@@ -15,7 +15,6 @@
 import {
   AnonBlock,
   BindingElement,
-  BindingIdentifier,
   EmptyStatement,
   LiteralPropertyName,
   ObjectPattern,
@@ -36,7 +35,6 @@ import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
 import {
   createArgumentList,
-  createBindingIdentifier,
   createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
@@ -248,9 +246,10 @@ export class ModuleTransformer extends TempVarTransformer {
   transformModuleDeclaration(tree) {
     this.moduleSpecifierKind_ = 'module';
     var initializer = this.transformAny(tree.expression);
+    var bindingIdentifier = tree.binding.binding;
     // const a = b.c, d = e.f;
     // TODO(arv): const is not allowed in ES5 strict
-    return createVariableStatement(VAR, tree.identifier, initializer);
+    return createVariableStatement(VAR, bindingIdentifier, initializer);
   }
 
   transformImportedBinding(tree) {
@@ -301,13 +300,12 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformImportSpecifier(tree) {
-    if (tree.rhs) {
-      var binding = new BindingIdentifier(tree.location, tree.rhs);
-      var bindingElement = new BindingElement(tree.location, binding, null);
-      var name = new LiteralPropertyName(tree.lhs.location, tree.lhs);
+    var binding = tree.binding.binding;
+    var bindingElement = new BindingElement(binding.location, binding, null);
+    if (tree.name) {
+      var name = new LiteralPropertyName(tree.name.location, tree.name);
       return new ObjectPatternField(tree.location, name, bindingElement);
     }
-    return new BindingElement(tree.location,
-        createBindingIdentifier(tree.lhs), null);
+    return bindingElement;
   }
 }

@@ -570,10 +570,10 @@
     "location": [
       "SourceRange"
     ],
-    "lhs": [
-      "IdentifierToken"
+    "binding": [
+      "ImportedBinding"
     ],
-    "rhs": [
+    "name": [
       "IdentifierToken"
     ]
   },
@@ -582,8 +582,7 @@
       "SourceRange"
     ],
     "specifiers": [
-      "Array.<ImportSpecifier>",
-      "Token"
+      "Array.<ImportSpecifier>"
     ]
   },
   "LabelledStatement": {
@@ -650,8 +649,8 @@
     "location": [
       "SourceRange"
     ],
-    "identifier": [
-      "IdentifierToken"
+    "binding": [
+      "ImportedBinding"
     ],
     "expression": [
       "ParseTree"

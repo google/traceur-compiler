@@ -28,7 +28,7 @@ import {
 import {
   createArgumentList,
   createIdentifierExpression,
-  createIdentifierToken,
+  createImportedBinding,
   createStringLiteralToken
 } from './ParseTreeFactory';
 import {
@@ -220,9 +220,10 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     if (!this.assertionAdded_ || options.typeAssertionModule === null)
       return tree;
 
+    var binding = createImportedBinding('assert');
     var importStatement = new ImportDeclaration(null,
         new ImportSpecifierSet(null,
-            [new ImportSpecifier(null, createIdentifierToken('assert'), null)]),
+            [new ImportSpecifier(null, binding, null)]),
         new ModuleSpecifier(null,
             createStringLiteralToken(options.typeAssertionModule)));
     tree = new Ctor(tree.location,

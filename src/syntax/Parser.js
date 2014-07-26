@@ -491,6 +491,11 @@ export class Parser {
       return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
     }
 
+    return this.parseImportedBinding_();
+  }
+
+  parseImportedBinding_() {
+    var start = this.getTreeStartLocation_();
     var binding = this.parseBindingIdentifier_();
     return new ImportedBinding(this.getTreeLocation_(start), binding);
   }
@@ -503,17 +508,19 @@ export class Parser {
    */
   parseImportSpecifier_() {
     var start = this.getTreeStartLocation_();
-
     var token = this.peekToken_();
     var isKeyword = token.isKeyword();
-    var lhs = this.eatIdName_();
-    var rhs = null;
+    var binding;
+    var name = this.eatIdName_();
     if (isKeyword || this.peekPredefinedString_(AS)) {
       this.eatId_(AS);
-      rhs = this.eatId_();
+      binding = this.parseImportedBinding_();
+    } else {
+      binding = new ImportedBinding(name.location,
+          new BindingIdentifier(name.location, name));
+      name = null;
     }
-
-    return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
+    return new ImportSpecifier(this.getTreeLocation_(start), binding, name);
   }
 
   // export  VariableStatement
@@ -1225,7 +1232,9 @@ export class Parser {
           this.eatId_(FROM);
           var moduleSpecifier = this.parseModuleSpecifier_();
           this.eatPossibleImplicitSemiColon_();
-          return new ModuleDeclaration(this.getTreeLocation_(start), name,
+          var binding = new ImportedBinding(name.location,
+              new BindingIdentifier(name.location, name));
+          return new ModuleDeclaration(this.getTreeLocation_(start), binding,
                                        moduleSpecifier);
         }
 

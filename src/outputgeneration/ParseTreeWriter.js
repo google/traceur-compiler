@@ -806,13 +806,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ImportSpecifier} tree
    */
   visitImportSpecifier(tree) {
-    this.write_(tree.lhs);
-    if (tree.rhs !== null) {
+    if (tree.name) {
+      this.write_(tree.name);
       this.writeSpace_();
       this.write_(AS);
       this.writeSpace_();
-      this.write_(tree.rhs);
     }
+    this.visitAny(tree.binding);
   }
 
   visitImportSpecifierSet(tree) {
@@ -901,7 +901,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitModuleDeclaration(tree) {
     this.write_(MODULE);
     this.writeSpace_();
-    this.write_(tree.identifier);
+    this.visitAny(tree.binding);
     this.writeSpace_();
     this.write_(FROM);
     this.writeSpace_();

@@ -46,23 +46,6 @@ export class ScopeChainBuilder extends ScopeVisitor {
     super(tree);
   }
 
-  visitImportSpecifier(tree) {
-    this.declarationType_ = CONST;
-
-    // TODO(arv): Let ImportSpecifier contain ImportedBinding
-    if (tree.rhs) {
-      this.declareVariable(tree.rhs);
-    } else {
-      this.declareVariable(tree.lhs);
-    }
-  }
-
-  visitModuleDeclaration(tree) {
-    // TODO(arv): Change this to use a Binding
-    this.declarationType_ = CONST;
-    this.declareVariable(tree.identifier);
-  }
-
   visitVariableDeclarationList(tree) {
     this.declarationType_ = tree.declarationType;
     super(tree);

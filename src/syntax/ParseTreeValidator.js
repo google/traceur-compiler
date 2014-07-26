@@ -77,6 +77,7 @@ import {
   FUNCTION_DECLARATION,
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
+  IMPORTED_BINDING,
   LITERAL_PROPERTY_NAME,
   MODULE_DECLARATION,
   MODULE_SPECIFIER,
@@ -655,6 +656,15 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     }
   }
 
+  visitImportSpecifier(tree) {
+    this.checkType_(IMPORTED_BINDING, tree.binding, 'ImportedBinding expected');
+  }
+
+  visitImportedBinding(tree) {
+    this.checkType_(BINDING_IDENTIFIER, tree.binding,
+                    'binding identifier expected');
+  }
+
   /**
    * @param {LabelledStatement} tree
    */
@@ -710,6 +720,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ModuleDeclaration} tree
    */
   visitModuleDeclaration(tree) {
+    this.checkType_(IMPORTED_BINDING,
+                    tree.binding,
+                    'ImportedBinding expected');
     this.checkType_(MODULE_SPECIFIER,
                     tree.expression,
                     'module expression expected');

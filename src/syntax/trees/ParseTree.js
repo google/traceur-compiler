@@ -30,6 +30,7 @@ import {
   ARROW_FUNCTION_EXPRESSION,
   AWAIT_EXPRESSION,
   BINARY_EXPRESSION,
+  BINDING_IDENTIFIER,
   BLOCK,
   BREAK_STATEMENT,
   CALL_EXPRESSION,
@@ -53,6 +54,7 @@ import {
   IDENTIFIER_EXPRESSION,
   IF_STATEMENT,
   IMPORT_DECLARATION,
+  IMPORTED_BINDING,
   LABELLED_STATEMENT,
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
@@ -63,6 +65,7 @@ import {
   OBJECT_PATTERN,
   PAREN_EXPRESSION,
   POSTFIX_EXPRESSION,
+  PROPERTY_NAME_SHORTHAND,
   REST_PARAMETER,
   RETURN_STATEMENT,
   SPREAD_EXPRESSION,
@@ -367,6 +370,26 @@ export class ParseTree {
 
   stringify(indent = 2) {
     return JSON.stringify(this, ParseTree.replacer, indent);
+  }
+
+  /**
+   * Gets the string value of a tree. This matches the StringValue static
+   * semantics of the spec.
+   * @returns {string}
+   */
+  getStringValue() {
+    switch (this.type) {
+      case IDENTIFIER_EXPRESSION:
+      case BINDING_IDENTIFIER:
+        return this.identifierToken.toString();
+      case IMPORTED_BINDING:
+        return this.binding.getStringValue();
+      case PROPERTY_NAME_SHORTHAND:
+        return this.name.toString();
+    }
+
+    throw new Error('Not yet implemented');
+
   }
 
   /**

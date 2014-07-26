@@ -17,7 +17,6 @@ import {
   CATCH
 } from '../syntax/trees/ParseTreeType';
 import {VAR} from '../syntax/TokenType';
-import {getVariableName} from './getVariableName';
 import {isTreeStrict} from './isTreeStrict';
 
 function reportDuplicateVar(reporter, tree, name) {
@@ -55,7 +54,7 @@ export class Scope {
 
   addVar(tree, reporter) {
     // We add VAR bindings to blocks so that we can check for duplicates.
-    var name = getVariableName(tree);
+    var name = tree.getStringValue();
     if (this.lexicalDeclarations[name]) {
       reportDuplicateVar(reporter, tree, name);
       return;
@@ -68,7 +67,7 @@ export class Scope {
   }
 
   addDeclaration(tree, type, reporter) {
-    var name = getVariableName(tree);
+    var name = tree.getStringValue();
     if (this.lexicalDeclarations[name] || this.variableDeclarations[name]) {
       reportDuplicateVar(reporter, tree, name);
       return;
@@ -96,7 +95,7 @@ export class Scope {
   }
 
   getBinding(tree) {
-    var name = getVariableName(tree);
+    var name = tree.getStringValue();
     return this.getBinding_(name);
   }
 

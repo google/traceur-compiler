@@ -65,6 +65,7 @@ import {
   FunctionExpression,
   IdentifierExpression,
   IfStatement,
+  ImportedBinding,
   LiteralExpression,
   LiteralPropertyName,
   MemberExpression,
@@ -199,6 +200,11 @@ export function createBindingIdentifier(identifier) {
     return new BindingIdentifier(identifier.location,
                                  identifier.identifierToken);
   return new BindingIdentifier(null, identifier);
+}
+
+export function createImportedBinding(name) {
+  var bindingIdentifier = createBindingIdentifier(name);
+  return new ImportedBinding(bindingIdentifier.location, bindingIdentifier);
 }
 
 /**
