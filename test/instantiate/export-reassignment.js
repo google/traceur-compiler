@@ -38,7 +38,7 @@ export default --a;
 
 a -= 10;
 
---a;
+a--;
 
 export function reassign() {
   a = 10;

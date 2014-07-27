@@ -65,6 +65,16 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('Postfix Operator', function(done) {
+    System.import('postfix-operator').then(function(m) {
+      assert.equal(m.a, 5);
+      assert.equal(m.b, 5);
+      assert.equal(m.c, 6);
+      assert.equal(m.d, 5);
+      done();
+    }).catch(done);
+  });
+
   test('Module import', function(done) {
     System.import('module-import').then(function(m) {
       assert.equal(m.default, -6);
