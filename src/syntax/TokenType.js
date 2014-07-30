@@ -100,6 +100,8 @@ export var SLASH = '/';
 export var SLASH_EQUAL = '/=';
 export var STAR = '*';
 export var STAR_EQUAL = '*=';
+export var STAR_STAR = '**';
+export var STAR_STAR_EQUAL = '**=';
 export var STATIC = 'static';
 export var STRING = 'string literal';
 export var SUPER = 'super';

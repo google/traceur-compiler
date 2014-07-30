@@ -127,6 +127,7 @@ import {
   SLASH,
   SLASH_EQUAL,
   STAR,
+  STAR_STAR,
   STATIC,
   STRING,
   SUPER,
@@ -2770,8 +2771,19 @@ export class Parser {
    */
   parseMultiplicativeExpression_() {
     var start = this.getTreeStartLocation_();
-    var left = this.parseUnaryExpression_();
+    var left = this.parseExponentiationExpression_();
     while (this.peekMultiplicativeOperator_(this.peekType_())) {
+      var operator = this.nextToken_();
+      var right = this.parseExponentiationExpression_();
+      left = this.newBinaryExpression_(start, left, operator, right);
+    }
+    return left;
+  }
+
+  parseExponentiationExpression_() {
+    var start = this.getTreeStartLocation_();
+    var left = this.parseUnaryExpression_();
+    while (this.peekExponentiationExpression_(this.peekType_())) {
       var operator = this.nextToken_();
       var right = this.parseUnaryExpression_();
       left = this.newBinaryExpression_(start, left, operator, right);
@@ -2792,6 +2804,10 @@ export class Parser {
       default:
         return false;
     }
+  }
+
+  peekExponentiationExpression_(type) {
+    return type === STAR_STAR;
   }
 
   // 11.4 Unary Operator

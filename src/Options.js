@@ -23,38 +23,39 @@ function enumerableOnlyObject(obj) {
 
 // Traceur sets these default options and no others for v 0.1.*
 export var optionsV01 = enumerableOnlyObject({
+  annotations: false,
   arrayComprehension: true,
   arrowFunctions: true,
-  classes: true,
-  computedPropertyNames: true,
-  defaultParameters: true,
-  destructuring: true,
-  forOf: true,
-  generatorComprehension: true,
-  generators: true,
-  modules: 'register',
-  numericLiterals: true,
-  propertyMethods: true,
-  propertyNameShorthand: true,
-  restParameters: true,
-  spread: true,
-  templateLiterals: true,
   asyncFunctions: false,
   blockBinding: false,
-  symbols: false,
-  types: false,
-  annotations: false,
+  classes: true,
   commentCallback: false,
+  computedPropertyNames: true,
   debug: false,
+  defaultParameters: true,
+  destructuring: true,
+  exponentiation: false,
+  filename: undefined,
+  forOf: true,
   freeVariableChecker: false,
-  sourceMaps: false,
-  typeAssertions: false,
-  validate: false,
-  referrer: '',
-  typeAssertionModule: null,
+  generatorComprehension: true,
+  generators: true,
   moduleName: false,
+  modules: 'register',
+  numericLiterals: true,
   outputLanguage: 'es5',
-  filename: undefined
+  propertyMethods: true,
+  propertyNameShorthand: true,
+  referrer: '',
+  restParameters: true,
+  sourceMaps: false,
+  spread: true,
+  symbols: false,
+  templateLiterals: true,
+  typeAssertionModule: null,
+  typeAssertions: false,
+  types: false,
+  validate: false
 });
 
 export var versionLockedOptions = optionsV01;
@@ -391,11 +392,12 @@ addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
+addFeatureOption('annotations', EXPERIMENTAL);
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
+addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
-addFeatureOption('annotations', EXPERIMENTAL);
 
 addBoolOption('commentCallback');
 addBoolOption('debug');

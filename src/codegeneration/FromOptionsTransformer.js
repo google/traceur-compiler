@@ -19,6 +19,7 @@ import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
+import {ExponentiationTransformer} from './ExponentiationTransformer';
 import {validate as validateConst} from '../semantics/ConstChecker';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
@@ -80,6 +81,8 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
+    if (transformOptions.exponentiation)
+      append(ExponentiationTransformer);
 
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);

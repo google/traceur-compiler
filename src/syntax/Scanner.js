@@ -80,6 +80,8 @@ import {
   SLASH_EQUAL,
   STAR,
   STAR_EQUAL,
+  STAR_STAR,
+  STAR_STAR_EQUAL,
   STRING,
   TEMPLATE_HEAD,
   TEMPLATE_MIDDLE,
@@ -722,6 +724,14 @@ function scanToken() {
       if (currentCharCode === 61) {  // =
         next();
         return createToken(STAR_EQUAL, beginIndex);
+      }
+      if (parseOptions.exponentiation && currentCharCode === 42) {
+        next();
+        if (currentCharCode === 61) {  // =
+          next();
+          return createToken(STAR_STAR_EQUAL, beginIndex);
+        }
+        return createToken(STAR_STAR, beginIndex);
       }
       return createToken(STAR, beginIndex);
     case 37:  // %

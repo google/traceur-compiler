@@ -24,6 +24,7 @@ import {
   RIGHT_SHIFT_EQUAL,
   SLASH_EQUAL,
   STAR_EQUAL,
+  STAR_STAR_EQUAL,
   UNSIGNED_RIGHT_SHIFT_EQUAL
 } from './TokenType';
 
@@ -74,6 +75,7 @@ export function isAssignmentOperator(type) {
     case RIGHT_SHIFT_EQUAL:
     case SLASH_EQUAL:
     case STAR_EQUAL:
+    case STAR_STAR_EQUAL:
     case UNSIGNED_RIGHT_SHIFT_EQUAL:
       return true;
   }

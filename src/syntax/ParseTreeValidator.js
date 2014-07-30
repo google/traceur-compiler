@@ -51,6 +51,8 @@ import {
   SLASH_EQUAL,
   STAR,
   STAR_EQUAL,
+  STAR_STAR,
+  STAR_STAR_EQUAL,
   STRING,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
@@ -217,6 +219,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       // assignment
       case EQUAL:
       case STAR_EQUAL:
+      case STAR_STAR_EQUAL:
       case SLASH_EQUAL:
       case PERCENT_EQUAL:
       case PLUS_EQUAL:
@@ -270,6 +273,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       case STAR:
       case SLASH:
       case PERCENT:
+
+      // exponentiation
+      case STAR_STAR:
         this.check_(tree.left.isAssignmentExpression(), tree.left,
             'assignment expression expected');
         this.check_(tree.right.isAssignmentExpression(), tree.right,
