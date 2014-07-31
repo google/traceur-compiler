@@ -154,15 +154,31 @@ function compile() {
 
   var name = 'repl';
   var contents = input.getValue();
+  traceurOptions.setFromObject(
+    setOptionsFromSource(contents, resetAndCompileContents));
+
+  compileContents(contents);
+}
+
+// When options are changed we write // Options back into the source
+// and recompile with these options.
+function resetAndCompileContents (contents, newOptions) {
+  input.setValue(contents);
+
   if (history.replaceState)
     history.replaceState(null, document.title,
                          '#' + encodeURIComponent(contents));
 
-  setOptionsFromSource(contents, compile);
+  traceurOptions.setFromObject(newOptions);
+  compileContents(contents);
+}
+
+function compileContents(contents) {
 
   errorElement.hidden = true;
   function onSuccess(mod) {
-    // Empty for now.
+    errorElement.hidden = false;
+    errorElement.textContent = "Compile succeeded";
   }
   function onFailure(error) {
      hasError = true;

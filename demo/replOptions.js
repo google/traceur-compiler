@@ -12,32 +12,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {options as traceurOptions} from 'traceur@0.0/src/Options';
+import {Options, CommandOptions, versionLockedOptions}
+    from 'traceur@0.0/src/Options';
 
-// Show correlation of input and generated source by default
-traceurOptions.sourceMaps = true;
 
 var optionChangeHandler;
+var traceurOptions;
+var showAllOpts = false;
+var allOptsLength;
+var showMax;
+var firstPass = true;
+var reOptions = /^\/\/ Options:\s*(.+)$/mg;
 
 export function setOptionsFromSource(source, onOptionChanged) {
-  var re = /^\/\/ Options:\s*(.+)$/mg;
-  var optionLines = source.match(re);
+
+  // Start with default options.
+  traceurOptions = new Options();
+
+  // Mutate these options with source-defined // Options values.
+  var optionLines = source.match(reOptions);
   if (optionLines) {
     optionLines.forEach(function(line) {
-      re.lastIndex = 0;
-      var m = re.exec(line);
+      reOptions.lastIndex = 0;
+      var m = reOptions.exec(line);
       try {
-        traceurOptions.fromString(m[1]);
+        traceurOptions.setFromObject(CommandOptions.fromString(m[1]));
+        if (firstPass) {
+            // Show correlation of input and generated source by default
+            traceurOptions.sourceMaps = true;
+            firstPass = false;
+        }
       } catch (ex) {
-        // Ignore unknown options.
+        console.error('Internal Error: ', ex.stack || ex);
       }
     });
-    createOptions();
   }
-  optionChangeHandler = onOptionChanged;
+  createMatchingOptionControls(traceurOptions);
+  optionChangeHandler = (newOptions) => {
+    source = prependSourceWithNewOptions(newOptions, source);
+    onOptionChanged(source, newOptions);
+  }
+
+  allOptsLength = Object.keys(traceurOptions).length;
+  showMax = allOptsLength;
+
+  return traceurOptions;
 }
 
-function createOptionRow(name) {
+function optionsToSource(newOptions) {
+  var line = '';
+  for (var key in versionLockedOptions) {
+    if (versionLockedOptions[key] !== newOptions[key])
+      line += '--' + key + '=' + newOptions[key] + ' ';
+  }
+  return  line ? '// Options: ' + line + '\n' : '';
+}
+
+function prependSourceWithNewOptions(newOptions, source) {
+  source = source.split('\n').reduce((linesNoOptions, line) => {
+    reOptions.lastIndex = 0;
+    if (!reOptions.test(line))
+      linesNoOptions.push(line);
+    return linesNoOptions;
+  }, []).join('\n');
+  return optionsToSource(newOptions) + source;
+}
+
+function createOptionRow(traceurOptions, name) {
   var label = document.createElement('label');
   label.textContent = name;
   var cb = label.insertBefore(document.createElement('input'),
@@ -48,8 +89,7 @@ function createOptionRow(name) {
   cb.indeterminate = checked === null;
   cb.onclick = function() {
     traceurOptions[name] = cb.checked;
-    createOptions();
-    optionChangeHandler();
+    optionChangeHandler(traceurOptions);
   };
   return label;
 }
@@ -62,11 +102,7 @@ var extraOptions = [
   'validate'
 ];
 
-var showAllOpts = false;
-var allOptsLength = Object.keys(traceurOptions).length;
-var showMax = allOptsLength;
-
-function createOptions() {
+function createMatchingOptionControls(traceurOptions) {
   var optionsDiv = document.querySelector('.traceur-options');
   optionsDiv.textContent = '';
   if (showAllOpts) {
@@ -74,39 +110,37 @@ function createOptions() {
     Object.keys(traceurOptions).forEach(function(name) {
       if (i++ >= showMax || extraOptions.lastIndexOf(name) >= 0)
         return;
-      optionsDiv.appendChild(createOptionRow(name));
+      optionsDiv.appendChild(createOptionRow(traceurOptions, name));
     });
     optionsDiv.appendChild(document.createElement('hr'));
   }
   extraOptions.forEach(function(name) {
-    optionsDiv.appendChild(createOptionRow(name));
+    optionsDiv.appendChild(createOptionRow(traceurOptions, name));
   });
 }
 
-createOptions();
-
-function rebuildOptions() {
+function rebuildOptions(traceurOptions) {
   var optionsDiv = document.querySelector('.traceur-options');
   optionsDiv.innerHTML = '';
-  createOptions();
+  optionChangeHandler(traceurOptions);
 }
 
 document.querySelector('.reset-all').addEventListener('click',
     function() {
       traceurOptions.reset();
-      rebuildOptions();
+      rebuildOptions(traceurOptions);
     });
 
 document.querySelector('.all-off').addEventListener('click',
     function() {
       traceurOptions.reset(true);
-      rebuildOptions();
+      rebuildOptions(traceurOptions);
     });
 
 document.querySelector('.show-all-toggle').addEventListener('click',
     function() {
       showAllOpts = !showAllOpts;
-      rebuildOptions();
+      rebuildOptions(traceurOptions);
     });
 
 document.querySelector('.option-button').addEventListener('click',
@@ -137,7 +171,7 @@ document.addEventListener('keyup', function(e) {
 function rebuildAnimate() {
   if (showMax++ >= allOptsLength)
     return;
-  rebuildOptions();
+  rebuildOptions(traceurOptions);
   var optionsDiv = document.querySelector('.options');
   setTimeout(rebuildAnimate, 1000);
 }

@@ -225,7 +225,9 @@ h1 {
 </div>
 <div id='mocha'></div>
 <script>
-System.import('./repl-module');
+System.import('./repl-module').catch(function(ex) {
+  console.error('Internal Error ', ex.stack || ex);
+});
 </script>
 </body>
 </html>
