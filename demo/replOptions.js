@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {options as traceurOptions} from 'traceur@0.0/src/Options';
+import {
+  CommandOptions,
+  options as traceurOptions
+} from 'traceur@0.0/src/Options';
 
 // Show correlation of input and generated source by default
 traceurOptions.sourceMaps = true;
@@ -27,7 +30,7 @@ export function setOptionsFromSource(source, onOptionChanged) {
       re.lastIndex = 0;
       var m = re.exec(line);
       try {
-        traceurOptions.fromString(m[1]);
+        traceurOptions.setFromObject(CommandOptions.fromString(m[1]));
       } catch (ex) {
         // Ignore unknown options.
       }
@@ -114,41 +117,3 @@ document.querySelector('.option-button').addEventListener('click',
       var optionsDiv = document.querySelector('.options');
       optionsDiv.hidden = !optionsDiv.hidden;
     });
-
-var codeCur = 0;
-var code = 'UUDDLRLRBA'.split('').map(function(k) {
-  return {'U': 38, 'D': 40, 'L': 37, 'R': 39, 'A': 65, 'B': 66}[k];
-});
-
-document.addEventListener('keyup', function(e) {
-  if (e.keyCode !== code[codeCur++])
-    codeCur = +(e.keyCode === code[0]);
-  if (codeCur === code.length) {
-    var optionsDiv = document.querySelector('.options');
-    optionsDiv.hidden = false;
-    optionsDiv.classList.add('god0');
-    window.setInterval(updateTransition, 500);
-    showAllOpts = !showAllOpts;
-    showMax = 0;
-    rebuildAnimate();
-  }
-})
-
-function rebuildAnimate() {
-  if (showMax++ >= allOptsLength)
-    return;
-  rebuildOptions();
-  var optionsDiv = document.querySelector('.options');
-  setTimeout(rebuildAnimate, 1000);
-}
-
-function updateTransition() {
-  var optionsDiv;
-  for (var i = 0; i < 2; i++) {
-    if (optionsDiv = document.querySelector('.god' + i)) {
-      optionsDiv.classList.remove('god' + i);
-      optionsDiv.classList.add('god' + (i + 1) % 2);
-      break;
-    }
-  }
-}
