@@ -1,2 +1,2 @@
-module m from './resources/m';
-module n from './resources/n';
+import * as m from './resources/m';
+import * as n from './resources/n';

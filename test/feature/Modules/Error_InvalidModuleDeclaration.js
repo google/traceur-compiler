@@ -6,4 +6,4 @@
 // Error: LoaderHooks.locate resolved against base './'
 
 
-module b from './resources/no_such_file';
+import * as b from './resources/no_such_file';

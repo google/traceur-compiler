@@ -105,7 +105,7 @@ suite('FreeVariableChecker.js', function() {
 
   makeTest('module', 'import {x} from "x"; x', [], undefined, 'module');
   makeTest('module', 'import x from "x"; x', [], undefined, 'module');
-  makeTest('module', 'module x from "x"; x', [], undefined, 'module');
+  makeTest('module', 'import * as x from "x"; x', [], undefined, 'module');
   makeTest('module', 'import {y as x} from "x"; x', [], undefined, 'module');
   makeTest('module', 'import {x as y} from "x"; x',
       ['CODE:1:27: x is not defined'], undefined, 'module');

@@ -152,7 +152,7 @@
         // import {} from 'foo';
         // export * from 'foo';
         // export { ... } from 'foo';
-        // module x from 'foo';
+        // import * as x from 'foo';
         if (node.type == 'EXPORT_DECLARATION') {
           if (node.declaration.moduleSpecifier)
             addImport(node.declaration.moduleSpecifier.token.processedValue);

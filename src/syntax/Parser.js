@@ -458,6 +458,19 @@ export class Parser {
   parseImportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
+    
+    // import * as m from './m.js'
+    if (this.peek_(STAR)) {
+      this.eat_(STAR);
+      this.eatId_(AS);
+      var binding = this.parseImportedBinding_();
+      this.eatId_(FROM);
+      var moduleSpecifier = this.parseModuleSpecifier_();
+      this.eatPossibleImplicitSemiColon_();
+      return new ModuleDeclaration(this.getTreeLocation_(start), binding,
+                                   moduleSpecifier);
+    }
+
     var importClause = null;
     if (this.peekImportClause_(this.peekType_())) {
       importClause = this.parseImportClause_();

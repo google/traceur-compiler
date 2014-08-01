@@ -123,9 +123,9 @@ suite('Loader.js', function() {
 
   test('LoaderModule', function(done) {
     var code =
-        'module a from "./test_a";\n' +
-        'module b from "./test_b";\n' +
-        'module c from "./test_c";\n' +
+        'import * as a from "./test_a";\n' +
+        'import * as b from "./test_b";\n' +
+        'import * as c from "./test_c";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
@@ -142,7 +142,7 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'module d from "./subdir/test_d";\n' +
+        'import * as d from "./subdir/test_d";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
@@ -156,9 +156,9 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'module a from "./test_a";\n' +
-        'module b from "./test_b";\n' +
-        'module c from "./test_c";\n' +
+        'import * as a from "./test_a";\n' +
+        'import * as b from "./test_b";\n' +
+        'import * as c from "./test_c";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 

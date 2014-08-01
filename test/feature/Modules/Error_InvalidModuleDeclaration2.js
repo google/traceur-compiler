@@ -1,4 +1,4 @@
 // Should not compile.
-// Error: 4:33: Unexpected token .
+// Error: 4:38: Unexpected token .
 
-module b from './resources/a.js'.c;
+import * as b from './resources/a.js'.c;

@@ -15,5 +15,5 @@ System.register(["./export-reassignment"], function($__export) {
 });
 */
 
-module M from './export-reassignment';
+import * as M from './export-reassignment';
 export default M.a;
