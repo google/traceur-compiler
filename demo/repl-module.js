@@ -160,7 +160,7 @@ function compile() {
 
 // When options are changed we write // Options back into the source
 // and recompile with these options.
-function resetAndCompileContents (contents, newOptions) {
+function resetAndCompileContents(contents, newOptions) {
   input.setValue(contents);
 
   if (history.replaceState)
@@ -176,7 +176,7 @@ function compileContents(contents) {
   errorElement.hidden = true;
   function onSuccess(mod) {
     errorElement.hidden = false;
-    errorElement.textContent = "Module evaluation succeeded";
+    errorElement.textContent = 'Module evaluation succeeded';
   }
   function onFailure(error) {
      hasError = true;
