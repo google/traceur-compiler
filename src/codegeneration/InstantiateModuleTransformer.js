@@ -201,7 +201,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.functionDeclarations = [];
 
     // module declaration bindings
-    // module P from 'q';
+    // import * as P from 'q';
     // string array keyed by dependency index
     this.moduleBindings = [];
 
@@ -390,7 +390,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.exportStarBindings[depIndex] = true;
   }
   // Add a new module binding
-  // module P from 'q';
+  // import * as P from 'q';
   addModuleBinding(depIndex, variableName) {
     this.moduleBindings[depIndex] = variableName;
   }

@@ -860,7 +860,7 @@ export class Parser {
       case WITH:
         return this.parseWithStatement_();
     }
-    return this.parseFallThroughStatement_(allowScriptItem);
+    return this.parseFallThroughStatement_();
   }
 
   // 13 Function Definition
@@ -1202,12 +1202,11 @@ export class Parser {
     return new EmptyStatement(this.getTreeLocation_(start));
   }
 
-  // Expression Statement and Module declaration.
   /**
-   * @return {ExpressionStatement|ModuleDeclaration}
+   * @return {ExpressionStatement|LabelledStatement|FunctionDeclaration}
    * @private
    */
-  parseFallThroughStatement_(allowScriptItem) {
+  parseFallThroughStatement_() {
     var start = this.getTreeStartLocation_();
     var expression;
 
@@ -1226,33 +1225,12 @@ export class Parser {
     }
 
     if (expression.type === IDENTIFIER_EXPRESSION) {
-      var nameToken = expression.identifierToken;
-
       // 12.12 Labelled Statement
       if (this.eatIf_(COLON)) {
+        var nameToken = expression.identifierToken;
         var statement = this.parseStatement();
         return new LabelledStatement(this.getTreeLocation_(start), nameToken,
                                      statement);
-      }
-
-      // ModuleDeclaration :
-      //     module [no LineTerminator here] ImportedBinding FromClause ;
-      //
-      if (allowScriptItem && nameToken.value === MODULE &&
-          parseOptions.modules) {
-        var token = this.peekTokenNoLineTerminator_();
-        if (token !== null && token.type === IDENTIFIER) {
-          var name = this.eatId_();
-          this.eatId_(FROM);
-          var moduleSpecifier = this.parseModuleSpecifier_();
-          this.eatPossibleImplicitSemiColon_();
-          var binding = new ImportedBinding(name.location,
-              new BindingIdentifier(name.location, name));
-          return new ModuleDeclaration(this.getTreeLocation_(start), binding,
-                                       moduleSpecifier);
-        }
-
-        // Fall through.
       }
     }
 

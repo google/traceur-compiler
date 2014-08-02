@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module ParseTreeType from './ParseTreeType';
+import * as ParseTreeType from './ParseTreeType';
 import {
   IDENTIFIER,
   STAR,
@@ -20,7 +20,7 @@ import {
   VAR,
 } from '../TokenType';
 import {Token} from '../Token';
-module utilJSON from '../../util/JSON';
+import * as utilJSON from '../../util/JSON';
 import {ASYNC} from '../PredefinedName';
 
 import {

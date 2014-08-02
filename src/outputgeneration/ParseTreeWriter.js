@@ -899,8 +899,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ModuleDeclaration} tree
    */
   visitModuleDeclaration(tree) {
-    this.write_(MODULE);
+    this.write_(IMPORT);
     this.writeSpace_();
+    this.write_(STAR);
+    this.writeSpace_();
+    this.write_(AS);
     this.visitAny(tree.binding);
     this.writeSpace_();
     this.write_(FROM);

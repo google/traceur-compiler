@@ -21,7 +21,7 @@ import {options} from '../../Options';
 /**
  * Visits a parse tree and finds all ModuleSpecifiers in it.
  *
- *   module m from "url"
+ *   import * as m from "url"
  */
 export class ModuleSpecifierVisitor extends ParseTreeVisitor {
 

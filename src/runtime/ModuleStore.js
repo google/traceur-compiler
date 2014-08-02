@@ -86,8 +86,8 @@
     var coatedModule = Object.create(null);
     Object.getOwnPropertyNames(uncoatedModule).forEach((name) => {
       var getter, value;
-      // Module instances acquired using `module m from 'name'` should have live
-      // references so when we create these internally we pass a sentinel.
+      // Module instances acquired using `import * as m from 'name'` should have
+      // live references so when we create these internally we pass a sentinel.
       if (isLive === liveModuleSentinel) {
         var descr = Object.getOwnPropertyDescriptor(uncoatedModule, name);
         // Some internal modules do not use getters at this point.
