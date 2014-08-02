@@ -21,9 +21,7 @@ import {SourceMapConsumer}
     from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {transcode, renderSourceMap} from './transcode';
 import {options as traceurOptions} from 'traceur@0.0/src/Options';
-import {
-  setOptionsFromSource
-} from './replOptions';
+import {setOptionsFromSource} from './replOptions';
 
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
@@ -178,7 +176,7 @@ function compileContents(contents) {
   errorElement.hidden = true;
   function onSuccess(mod) {
     errorElement.hidden = false;
-    errorElement.textContent = "Compile succeeded";
+    errorElement.textContent = "Module evaluation succeeded";
   }
   function onFailure(error) {
      hasError = true;

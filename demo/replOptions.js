@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Options, CommandOptions, versionLockedOptions}
-    from 'traceur@0.0/src/Options';
+import {
+  Options, CommandOptions, versionLockedOptions, toDashCase
+} from 'traceur@0.0/src/Options';
 
 
 var optionChangeHandler;
@@ -38,9 +39,9 @@ export function setOptionsFromSource(source, onOptionChanged) {
       try {
         traceurOptions.setFromObject(CommandOptions.fromString(m[1]));
         if (firstPass) {
-            // Show correlation of input and generated source by default
-            traceurOptions.sourceMaps = true;
-            firstPass = false;
+          // Show correlation of input and generated source by default
+          traceurOptions.sourceMaps = true;
+          firstPass = false;
         }
       } catch (ex) {
         console.error('Internal Error: ', ex.stack || ex);
@@ -51,7 +52,7 @@ export function setOptionsFromSource(source, onOptionChanged) {
   optionChangeHandler = (newOptions) => {
     source = prependSourceWithNewOptions(newOptions, source);
     onOptionChanged(source, newOptions);
-  }
+  };
 
   allOptsLength = Object.keys(traceurOptions).length;
   showMax = allOptsLength;
@@ -62,10 +63,14 @@ export function setOptionsFromSource(source, onOptionChanged) {
 function optionsToSource(newOptions) {
   var line = '';
   for (var key in versionLockedOptions) {
-    if (versionLockedOptions[key] !== newOptions[key])
-      line += '--' + key + '=' + newOptions[key] + ' ';
+    if (versionLockedOptions[key] !== newOptions[key]) {
+      line += '--' + toDashCase(key);
+      if (!newOptions[key])
+        line += '=' + newOptions[key];
+      line += ' ';
+    }
   }
-  return  line ? '// Options: ' + line + '\n' : '';
+  return line && '// Options: ' + line + '\n';
 }
 
 function prependSourceWithNewOptions(newOptions, source) {
