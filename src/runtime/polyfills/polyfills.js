@@ -135,14 +135,7 @@ function polyfillString(String) {
     'raw', raw,
   ]);
 
-  if (Symbol && Symbol.iterator) {
-    Object.defineProperty(String.prototype, Symbol.iterator, {
-      value: stringPrototypeIterator,
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
+  maybeAddIterator(String.prototype, stringPrototypeIterator, Symbol);
 }
 
 function polyfillArray(Array, Symbol) {
