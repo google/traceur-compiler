@@ -175,8 +175,7 @@ function compileContents(contents) {
 
   errorElement.hidden = true;
   function onSuccess(mod) {
-    errorElement.hidden = false;
-    errorElement.textContent = 'Module evaluation succeeded';
+    console.log('Module evaluation succeeded');
   }
   function onFailure(error) {
      hasError = true;

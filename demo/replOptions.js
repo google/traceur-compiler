@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import {
-  Options, CommandOptions, versionLockedOptions, toDashCase
+  Options,
+  CommandOptions,
+  versionLockedOptions,
+  toDashCase
 } from 'traceur@0.0/src/Options';
 
 
