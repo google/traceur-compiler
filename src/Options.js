@@ -323,7 +323,7 @@ function toCamelCase(s) {
 /**
  * Converts a string from aaaBbbCcc to aaa-bbb-ccc.
  */
-function toDashCase(s) {
+export function toDashCase(s) {
   return s.replace(/[A-Z]/g, function(ch) {
     return '-' + ch.toLowerCase();
   });

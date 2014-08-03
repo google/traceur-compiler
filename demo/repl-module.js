@@ -21,9 +21,7 @@ import {SourceMapConsumer}
     from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {transcode, renderSourceMap} from './transcode';
 import {options as traceurOptions} from 'traceur@0.0/src/Options';
-import {
-  setOptionsFromSource
-} from './replOptions';
+import {setOptionsFromSource} from './replOptions';
 
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
@@ -154,15 +152,30 @@ function compile() {
 
   var name = 'repl';
   var contents = input.getValue();
+  traceurOptions.setFromObject(
+    setOptionsFromSource(contents, resetAndCompileContents));
+
+  compileContents(contents);
+}
+
+// When options are changed we write // Options back into the source
+// and recompile with these options.
+function resetAndCompileContents(contents, newOptions) {
+  input.setValue(contents);
+
   if (history.replaceState)
     history.replaceState(null, document.title,
                          '#' + encodeURIComponent(contents));
 
-  setOptionsFromSource(contents, compile);
+  traceurOptions.setFromObject(newOptions);
+  compileContents(contents);
+}
+
+function compileContents(contents) {
 
   errorElement.hidden = true;
   function onSuccess(mod) {
-    // Empty for now.
+    console.log('Module evaluation succeeded');
   }
   function onFailure(error) {
      hasError = true;
