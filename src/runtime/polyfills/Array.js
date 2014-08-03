@@ -57,7 +57,7 @@ export function from(arrLike, mapFn = undefined, thisArg = undefined) {
 
   for (; k < len; k++) {
     if (mapping) {
-      arr[k] = mapFn.call(thisArg, items[k], k);
+      arr[k] = typeof thisArg === 'undefined' ? mapFn(items[k], k) : mapFn.call(thisArg, items[k], k);
     } else {
       arr[k] = items[k];
     }
