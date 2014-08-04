@@ -146,12 +146,20 @@ function showRange(range) {
 
 var compilationResults = {};
 
+function updateLocation(contents) {
+  if (history.replaceState) {
+    history.replaceState(null, document.title,
+                         '#' + encodeURIComponent(contents));
+  }
+}
+
 function compile() {
   hasError = false;
   output.setValue('');
 
   var name = 'repl';
   var contents = input.getValue();
+  updateLocation(contents);
   try {
     traceurOptions.setFromObject(
         setOptionsFromSource(contents, resetAndCompileContents));
@@ -169,11 +177,7 @@ function compile() {
 // and recompile with these options.
 function resetAndCompileContents(contents, newOptions) {
   input.setValue(contents);
-
-  if (history.replaceState)
-    history.replaceState(null, document.title,
-                         '#' + encodeURIComponent(contents));
-
+  updateLocation(contents);
   traceurOptions.setFromObject(newOptions);
   compileContents(contents);
 }
