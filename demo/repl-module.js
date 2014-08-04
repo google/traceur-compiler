@@ -154,7 +154,7 @@ function compile() {
   var contents = input.getValue();
   try {
     traceurOptions.setFromObject(
-      setOptionsFromSource(contents, resetAndCompileContents));
+        setOptionsFromSource(contents, resetAndCompileContents));
   } catch(ex) {
     errorElement.hidden = false;
     errorElement.textContent = ex.stack || ex;
