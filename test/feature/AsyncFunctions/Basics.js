@@ -1,5 +1,7 @@
-// Options: --async-functions
+// Options: --async-functions --generators=false
 // Async.
+//
+// The --generators=false part is to test #1231
 
 var f = (x, y) => ({x, y});
 

@@ -178,7 +178,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(BlockBindingTransformer);
 
     // generator must come after for of and rest parameters
-    if (transformOptions.generators || transformOptions.asyncFuntions)
+    if (transformOptions.generators || transformOptions.asyncFunctions)
       append(GeneratorTransformPass);
 
     if (transformOptions.symbols)
