@@ -39,15 +39,11 @@ export function setOptionsFromSource(source, onOptionChanged) {
     optionLines.forEach(function(line) {
       reOptions.lastIndex = 0;
       var m = reOptions.exec(line);
-      try {
-        traceurOptions.setFromObject(CommandOptions.fromString(m[1]));
-        if (firstPass) {
-          // Show correlation of input and generated source by default
-          traceurOptions.sourceMaps = true;
-          firstPass = false;
-        }
-      } catch (ex) {
-        console.error('Internal Error: ', ex.stack || ex);
+      traceurOptions.setFromObject(CommandOptions.fromString(m[1]));
+      if (firstPass) {
+        // Show correlation of input and generated source by default
+        traceurOptions.sourceMaps = true;
+        firstPass = false;
       }
     });
   }

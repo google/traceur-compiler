@@ -152,8 +152,15 @@ function compile() {
 
   var name = 'repl';
   var contents = input.getValue();
-  traceurOptions.setFromObject(
-    setOptionsFromSource(contents, resetAndCompileContents));
+  try {
+    traceurOptions.setFromObject(
+        setOptionsFromSource(contents, resetAndCompileContents));
+  } catch(ex) {
+    errorElement.hidden = false;
+    errorElement.textContent = ex.stack || ex;
+    console.error(ex);
+    return;
+  }
 
   compileContents(contents);
 }
