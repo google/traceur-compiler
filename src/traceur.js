@@ -20,6 +20,12 @@ export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './Options';
 import {addOptions, CommandOptions} from './Options';
 
+import {ModuleStore} from '@traceur/src/runtime/ModuleStore';
+
+export function get(name) {
+  return ModuleStore.get(ModuleStore.normalize('./' + name, __moduleName));
+}
+
 export {Compiler} from './Compiler';
 
 import {ErrorReporter} from './util/ErrorReporter';
