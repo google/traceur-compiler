@@ -25,7 +25,7 @@ import {
   startsWith,
   stringPrototypeIterator
 } from './String';
-import {fill, find, findIndex, from} from './Array';
+import {fill, find, findIndex, from, of} from './Array';
 import {entries, keys, values} from './ArrayIterator';
 import {assign, is, mixin} from './Object';
 import {
@@ -149,7 +149,8 @@ function polyfillArray(Array, Symbol) {
   ]);
 
   maybeAddFunctions(Array, [
-    'from', from
+    'from', from,
+    'of', of
   ]);
 
   maybeAddIterator(Array.prototype, values, Symbol);

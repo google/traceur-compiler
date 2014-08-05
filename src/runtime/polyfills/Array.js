@@ -68,6 +68,21 @@ export function from(arrLike, mapFn = undefined, thisArg = undefined) {
   return arr;
 }
 
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.3
+export function of(...items) {
+  var C = this;
+  var len = items.length;
+  var arr = isConstructor(C) ? new C(len) : new Array(len);
+
+  for (var k = 0; k < len; k++) {
+    arr[k] = items[k];
+  }
+
+  arr.length = len;
+
+  return arr;
+}
+
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.6
 export function fill(value, start = 0, end = undefined) {
   var object = toObject(this);
