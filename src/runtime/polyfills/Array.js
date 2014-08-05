@@ -78,6 +78,8 @@ export function of(...items) {
     arr[k] = items[k];
   }
 
+  arr.length = len;
+
   return arr;
 }
 

@@ -14,11 +14,7 @@ assert.deepEqual(arr, []);
 assert.isTrue(arr instanceof Array);
 
 //should work with sub-classed array
-class MyArray extends Array {
-  constructor(len) {
-    this.length = len;
-  }
-}
+class MyArray extends Array {}
 
 arr = MyArray.of(4, 'b');
 assert.equal(arr[0], 4);
