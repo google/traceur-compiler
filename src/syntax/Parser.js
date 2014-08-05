@@ -291,6 +291,14 @@ class ValidateObjectLiteral extends FindVisitor {
 }
 
 /**
+ * @param {Array.<VariableDeclaration>} declarations
+ * @return {boolean}
+ */
+function containsInitializer(declarations) {
+  return declarations.some((v) => v.initializer);
+}
+
+/**
  * Parses a javascript file.
  *
  * The various this.parseX_() methods never return null - even when parse errors
@@ -1302,53 +1310,23 @@ export class Parser {
     this.eat_(FOR);
     this.eat_(OPEN_PAREN);
 
-    var validate = (variables, kind) => {
-      if (variables.declarations.length > 1) {
-        this.reportError_(kind +
-            ' statement may not have more than one variable declaration');
-      }
-      var declaration = variables.declarations[0];
-      if (declaration.lvalue.isPattern() && declaration.initializer) {
-        this.reportError_(declaration.initializer.location,
-            `initializer is not allowed in ${kind} loop with pattern`);
-      }
-    };
-
     var type = this.peekType_();
     if (this.peekVariableDeclarationList_(type)) {
-      var variables =
-         this.parseVariableDeclarationList_(
-              Expression.NO_IN, DestructuringInitializer.OPTIONAL);
+      var variables = this.parseVariableDeclarationList_(
+          Expression.NO_IN, DestructuringInitializer.OPTIONAL);
+
+      var declarations = variables.declarations;
+      if (declarations.length > 1 || containsInitializer(declarations)) {
+        return this.parseForStatement2_(start, variables);
+      }
+
       type = this.peekType_();
       if (type === IN) {
-        // for-in: only one declaration allowed
-        validate(variables, 'for-in');
-
-        var declaration = variables.declarations[0];
-        // for-in: if let/const binding used, initializer is illegal
-        if (parseOptions.blockBinding &&
-            (variables.declarationType == LET ||
-             variables.declarationType == CONST)) {
-          if (declaration.initializer != null) {
-            this.reportError_(
-                'let/const in for-in statement may not have initializer');
-          }
-        }
-
         return this.parseForInStatement_(start, variables);
       } else if (this.peekOf_(type)) {
-        // for-of: only one declaration allowed
-        validate(variables, 'for-of');
-
-        // for-of: initializer is illegal
-        var declaration = variables.declarations[0];
-        if (declaration.initializer != null) {
-          this.reportError_('for-of statement may not have initializer');
-        }
-
         return this.parseForOfStatement_(start, variables);
       } else {
-        // for statement: let and const must have initializers
+        // for statement: const must have initializers
         this.checkInitializers_(variables);
         return this.parseForStatement2_(start, variables);
       }

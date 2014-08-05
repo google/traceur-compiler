@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: initializer is not allowed in for-in loop with pattern
+// Error: :4:19: Unexpected token in
 
 for (var {k} = {} in {}) {
 }
