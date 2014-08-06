@@ -210,7 +210,7 @@ export class Compiler {
   }
 
   sourceRootForFilename(filename) {
-    return filename;
+    return;
   }
 
   defaultOptions() {
