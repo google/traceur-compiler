@@ -100,7 +100,9 @@
     }
     if (superClass === null)
       return null;
-    throw new $TypeError('Super expression must either be null or a function');
+    throw new $TypeError(
+        'Super expression must either be null or a function, not ' +
+        typeof superClass + '.');
   }
 
   function defaultSuperCall(self, homeObject, args) {
