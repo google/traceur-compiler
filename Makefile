@@ -271,7 +271,7 @@ update-version-number: npm-publish updateSemver
 	$(MAKE) test  # build version N+1
 
 git-update-version: update-version-number
-	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
+	./traceur -v | xargs -I VERSION git commit -a -m "VERSION (npm now has version-1)"
 	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
