@@ -53,7 +53,7 @@ import {options, transformOptions} from '../Options';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdGenerator=} idGenerator
+   * @param {UniqueIdentifierGenerator=} idGenerator
    */
   constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
     super(reporter, options.validate);

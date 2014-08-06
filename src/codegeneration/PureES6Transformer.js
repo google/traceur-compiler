@@ -30,7 +30,7 @@ import {options} from '../Options';
 export class PureES6Transformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdGenerator=} idGenerator
+   * @param {UniqueIdentifierGenerator=} idGenerator
    */
   constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
     super(reporter, options.validate);
