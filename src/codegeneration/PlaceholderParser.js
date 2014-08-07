@@ -21,7 +21,7 @@ import {
 import {IdentifierToken} from '../syntax/IdentifierToken';
 import {LiteralToken} from '../syntax/LiteralToken';
 import {Map} from '../runtime/polyfills/Map';
-import {MutedErrorReporter} from '../util/MutedErrorReporter';
+import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
 import {ParseTree} from '../syntax/trees/ParseTree';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {Parser} from '../syntax/Parser';
@@ -103,6 +103,28 @@ export function parseStatement(sourceLiterals, ...values) {
 /**
  * @param {Array.<string>} sourceLiterals
  * @param {Array} values An array containing values or parse trees.
+ * @return {ParseTree}
+ */
+export function parseModule(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseModule(sourceLiterals);
+  });
+}
+
+/**
+ * @param {Array.<string>} sourceLiterals
+ * @param {Array} values An array containing values or parse trees.
+ * @return {ParseTree}
+ */
+export function parseScript(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseScript(sourceLiterals);
+  });
+}
+
+/**
+ * @param {Array.<string>} sourceLiterals
+ * @param {Array} values An array containing values or parse trees.
  * @return {Array.<ParseTree>}
  */
 export function parseStatements(sourceLiterals, ...values) {
@@ -165,6 +187,22 @@ export class PlaceholderParser {
 
   /**
    * @param {Array.<string>} sourceLiterals
+   * @return {ParseTree}
+   */
+  parseModule(sourceLiterals) {
+    return this.parse_(sourceLiterals, (p) => p.parseModule());
+  }
+
+  /**
+   * @param {Array.<string>} sourceLiterals
+   * @return {ParseTree}
+   */
+  parseScript(sourceLiterals) {
+    return this.parse_(sourceLiterals, (p) => p.parseScript());
+  }
+
+  /**
+   * @param {Array.<string>} sourceLiterals
    * @return {Array.<ParseTree>}
    */
   parseStatements(sourceLiterals) {
@@ -193,11 +231,14 @@ export class PlaceholderParser {
 
     var file = new SourceFile(
         '@traceur/generated/TemplateParser/' + counter++, source);
-    var errorReporter = new MutedErrorReporter();
+    var errorReporter = new CollectingErrorReporter();
     var parser = new Parser(file, errorReporter);
     var tree = doParse(parser);
-    if (errorReporter.hadError() || !tree || !parser.isAtEnd())
-      throw new Error(`Internal error trying to parse:\n\n${source}`);
+    if (errorReporter.hadError() || !tree || !parser.isAtEnd()) {
+      throw new Error(
+          `Internal error trying to parse:\n\n${source}\n\n${
+              errorReporter.errorsAsString()}`);
+    }
     return tree;
   }
 }

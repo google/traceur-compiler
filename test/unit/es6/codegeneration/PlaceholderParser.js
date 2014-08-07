@@ -19,7 +19,7 @@ suite('PlaceholderParser.traceur.js', function() {
   }
 
   var ParseTreeType = get('src/syntax/trees/ParseTreeType');
-  var {parseExpression, parseStatement} =
+  var {parseExpression, parseStatement, parseModule, parseScript} =
       get('src/codegeneration/PlaceholderParser');
   var {write} = get('src/outputgeneration/TreeWriter');
   var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
@@ -118,4 +118,16 @@ suite('PlaceholderParser.traceur.js', function() {
     assert.equal('function() {}', write(tree));
   });
 
+  test('ParseModuleExportDeclaration', function() {
+    var className = 'Foo';
+    var tree = parseModule `export default class ${className} {}`;
+    assert.equal('export default class Foo {}\n', write(tree));
+  });
+
+  test('ParseScriptFunctionDeclarations', function() {
+    var f1 = 'f1';
+    var f2 = 'f2';
+    var tree = parseScript `function ${f1}() { } function ${f2}() { }`;
+    assert.equal('function f1() {}\nfunction f2() {}\n', write(tree));
+  });
 });

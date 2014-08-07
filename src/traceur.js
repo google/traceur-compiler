@@ -14,6 +14,9 @@
 
 import './runtime/System';
 
+// Used by unit tests only
+import './util/MutedErrorReporter';
+
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
@@ -65,11 +68,16 @@ import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
+import {parseExpression, parseModule, parseScript, parseStatement} from './codegeneration/PlaceholderParser';
 
 export var codegeneration = {
   CloneTreeTransformer,
   FromOptionsTransformer,
   PureES6Transformer,
+  parseExpression,
+  parseModule,
+  parseScript,
+  parseStatement,
   module: {
     AttachModuleNameTransformer,
     createModuleEvaluationStatement
