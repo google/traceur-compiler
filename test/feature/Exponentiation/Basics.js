@@ -19,4 +19,7 @@
   o.p.q **= 2;
   assert.equal(1, calls);
   assert.equal(9, o.p.q);
+
+  assert.equal(512, 2 ** (3 ** 2));
+  assert.equal(512, 2 ** 3 ** 2);
 })();

@@ -2754,7 +2754,7 @@ export class Parser {
     var left = this.parseUnaryExpression_();
     while (this.peekExponentiationExpression_(this.peekType_())) {
       var operator = this.nextToken_();
-      var right = this.parseUnaryExpression_();
+      var right = this.parseExponentiationExpression_();
       left = this.newBinaryExpression_(start, left, operator, right);
     }
     return left;
