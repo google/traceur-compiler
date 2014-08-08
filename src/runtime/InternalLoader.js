@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {LoaderHooks} from '../runtime/LoaderHooks';
+import {ExportsList} from '../codegeneration/module/ModuleSymbol';
 import {Map} from './polyfills/Map';
 import {isAbsolute, resolveUrl} from '../util/url';
 import {options} from '../Options';
@@ -345,6 +346,22 @@ export class InternalLoader {
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
     return this.getCodeUnit_(name, referrerName, null, 'module');
+  }
+
+  getExportsListForModuleSpecifier(name, referrer) {
+    var codeUnit = this.getCodeUnitForModuleSpecifier(name, referrer);
+    var exportsList = codeUnit.metadata.moduleSymbol;
+    if (!exportsList) {
+      if (codeUnit.result) {
+        exportsList =
+          new ExportsList(codeUnit.normalizedName);
+        exportsList.addExportsFromModule(codeUnit.result);
+      } else {
+        var msg = `${name} is not a module, required by ${referrer}`;
+        this.reportError(codeUnit.metadata.tree, msg);
+      }
+    }
+    return exportsList;
   }
 
   /**
