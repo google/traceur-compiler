@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './runtime/System';
+export {System} from './runtime/System';
 
 // Used by unit tests only
 import './util/MutedErrorReporter';
 
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
-export {System};
 export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './Options';
 import {addOptions, CommandOptions} from './Options';
