@@ -130,23 +130,6 @@ class VariableDeclarationDesugaring extends Desugaring {
   }
 }
 
-function staticallyKnownObject(tree) {
-  switch (tree.type) {
-    case OBJECT_LITERAL_EXPRESSION:
-    case ARRAY_LITERAL_EXPRESSION:
-    case ARRAY_COMPREHENSION:
-    case GENERATOR_COMPREHENSION:
-    case ARROW_FUNCTION_EXPRESSION:
-    case FUNCTION_EXPRESSION:
-    case CLASS_EXPRESSION:
-    case THIS_EXPRESSION:
-      return true;
-    case LITERAL_EXPRESSION:
-      return tree.literalToken.type === REGULAR_EXPRESSION;
-  }
-  return false;
-}
-
 /**
  * Desugars destructuring assignment.
  *
@@ -217,7 +200,8 @@ export class DestructuringTransformer extends TempVarTransformer {
     var desugaring = new AssignmentExpressionDesugaring(tempIdent);
 
     this.desugarPattern_(desugaring, lvalue);
-    desugaring.expressions.unshift(this.createGuardedAssignment(tempIdent, rvalue));
+    desugaring.expressions.unshift(
+        createAssignmentExpression(tempIdent, rvalue));
     desugaring.expressions.push(tempIdent);
 
     return createParenExpression(
@@ -465,17 +449,6 @@ export class DestructuringTransformer extends TempVarTransformer {
         (declaration) => declaration.lvalue.isPattern());
   }
 
-  createGuardedExpression(tree) {
-    if (staticallyKnownObject(tree))
-      return tree;
-    return parseExpression `$traceurRuntime.assertObject(${tree})`;
-  }
-
-  createGuardedAssignment(lvalue, rvalue) {
-    return parseExpression
-        `${lvalue} = ${this.createGuardedExpression(rvalue)}`;
-  }
-
   /**
    * @param {VariableDeclaration} tree
    * @return {Array.<VariableDeclaration>}
@@ -507,16 +480,17 @@ export class DestructuringTransformer extends TempVarTransformer {
       default:
         // [1] Try first using a temporary (used later as the base rvalue).
         desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
-        desugaring.assign(
-            desugaring.rvalue,
-            this.createGuardedExpression(tree.initializer));
+        desugaring.assign(desugaring.rvalue, tree.initializer);
         var initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
 
         // [2] Was the temporary necessary? Then return.
-        if (initializerFound || desugaring.declarations.length > 2)
+        if (initializerFound || desugaring.declarations.length > 2) {
           return desugaring.declarations;
+        }
 
-        initializer = this.createGuardedExpression(initializer || tree.initializer);
+        if (!initializer) {
+          initializer = createParenExpression(tree.initializer);
+        }
 
         // [3] Redo everything without the temporary.
         desugaring = new VariableDeclarationDesugaring(initializer);

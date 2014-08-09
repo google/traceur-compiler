@@ -284,7 +284,7 @@ export class ModuleTransformer extends TempVarTransformer {
     var varStatement = createVariableStatement(VAR, binding, initializer);
 
     // If destructuring patterns are kept in the output code, keep this as is,
-    // otherwise transform it here to remove the need for assertObject.
+    // otherwise transform it here.
     if (transformOptions.destructuring || !parseOptions.destructuring) {
       var destructuringTransformer =
           new DestructImportVarStatement(this.identifierGenerator);

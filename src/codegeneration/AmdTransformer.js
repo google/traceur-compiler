@@ -47,7 +47,7 @@ export class AmdTransformer extends ModuleTransformer {
       var local = createIdentifierExpression(dep.local);
       return parseStatement
           `if (!${local} || !${local}.__esModule)
-            ${local} = { 'default': ${local} }`;
+            ${local} = {default: ${local}}`;
     });
     return super().concat(locals);
   }
@@ -76,6 +76,6 @@ export class AmdTransformer extends ModuleTransformer {
   transformModuleSpecifier(tree) {
     var localName = this.getTempIdentifier();
     this.dependencies.push({path: tree.token, local: localName});
-    return createBindingIdentifier(localName);
+    return createIdentifierExpression(localName);
   }
 }
