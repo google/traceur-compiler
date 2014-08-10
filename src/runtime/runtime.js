@@ -340,12 +340,6 @@
     return $Object(x);
   }
 
-  function assertObject(x) {
-    if (!isObject(x))
-      throw $TypeError(x + ' is not an Object');
-    return x;
-  }
-
   // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
   function checkObjectCoercible(argument) {
     if (argument == null) {
@@ -366,7 +360,6 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
-    assertObject: assertObject,
     createPrivateName: createPrivateName,
     exportStar: exportStar,
     getOwnHashObject: getOwnHashObject,
