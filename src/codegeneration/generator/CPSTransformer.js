@@ -95,11 +95,19 @@ function needsStateMachine(tree) {
 }
 
 class HoistVariables extends HoistVariablesTransformer {
+  constructor() {
+    super(true);  // Hoist functions.
+  }
+
   /**
    * Override to not inject the hoisted variables. We will manually inject them
    * later.
    */
   prependVariables(statements) {
+    return statements;
+  }
+
+  prependFunctions(statements) {
     return statements;
   }
 }
@@ -1039,6 +1047,8 @@ export class CPSTransformer extends TempVarTransformer {
         replaceStartState(State.START_STATE);
 
     var statements = [];
+    if (this.hoistVariablesTransformer_.hasFunctions())
+      statements.push(...this.hoistVariablesTransformer_.getFunctions());
     if (this.hoistVariablesTransformer_.hasVariables())
       statements.push(this.hoistVariablesTransformer_.getVariableStatement());
     if (hasArguments)

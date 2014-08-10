@@ -60,11 +60,17 @@ import {prependStatements} from './PrependStatements';
  *   }
  */
 class HoistVariablesTransformer extends ParseTreeTransformer {
-  constructor() {
+  /**
+   * @param {boolean} shouldHoistFunctions Whether to also hoist function
+   *     declarations.
+   */
+  constructor(shouldHoistFunctions = false) {
     super();
+    this.hoistedFunctions_ = [];
     this.hoistedVariables_ = Object.create(null);
     this.keepBindingIdentifiers_ = false;
     this.inBlockOrFor_ = false;
+    this.shouldHoistFunctions_ = shouldHoistFunctions;
   }
 
   transformFunctionBody(tree) {
@@ -72,12 +78,17 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     if (statements === tree.statements)
       return tree;
 
-    var prepended = this.prependVariables(statements);
-    return new FunctionBody(tree.location, prepended);
+    statements = this.prependVariables(statements);
+    statements = this.prependFunctions(statements);
+    return new FunctionBody(tree.location, statements);
   }
 
   addVariable(name) {
     this.hoistedVariables_[name] = true;
+  }
+
+  addFunctionDeclaration(tree) {
+    this.hoistedFunctions_.push(tree);
   }
 
   hasVariables() {
@@ -85,6 +96,10 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
       return true;
     }
     return false;
+  }
+
+  hasFunctions() {
+    return this.hoistedFunctions_.length > 0;
   }
 
   getVariableNames() {
@@ -103,10 +118,20 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
         new VariableDeclarationList(null, VAR, declarations));
   }
 
+  getFunctions() {
+    return this.hoistedFunctions_;
+  }
+
   prependVariables(statements) {
     if (!this.hasVariables())
       return statements;
     return prependStatements(statements, this.getVariableStatement());
+  }
+
+  prependFunctions(statements) {
+    if (!this.hasFunctions())
+      return statements;
+    return prependStatements(statements, this.getFunctionDeclarations());
   }
 
   transformVariableStatement(tree) {
@@ -262,6 +287,10 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformFunctionDeclaration(tree) {
+    if (this.shouldHoistFunctions_) {
+      this.addFunctionDeclaration(tree);
+      return new AnonBlock(null, []);
+    }
     return tree;
   }
 
