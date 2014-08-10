@@ -18,10 +18,10 @@ suite('Compiler', function() {
   }
 
   var Compiler;
-  var optionsV01;
+  var versionLockedOptions;
   setup(function() {
     Compiler = get('src/Compiler').Compiler;
-    optionsV01 = get('src/Options').optionsV01;
+    versionLockedOptions = get('src/Options').versionLockedOptions;
     traceur.options.reset();
   });
 
@@ -90,19 +90,15 @@ suite('Compiler', function() {
   });
 
   test('Compiler options locked', function() {
-    Object.keys(traceur.options).forEach(function(key) {
-      var mismatches = [];
-      if (traceur.options[key] !== optionsV01[key]) {
-        mismatches.push({
-          key: key,
-          now: traceur.options[key],
-          v01: optionsV01[key]
-        });
-      }
-      if (mismatches.length)
-        console.error('Options changed ', mismatches);
-      assert.equal(mismatches.length, 0);
-    });
+    var Options = get('src/Options').Options;
+    var checkDiff =
+      new Options({blockBinding: !versionLockedOptions.blockBinding});
+    assert.equal(checkDiff.diff(versionLockedOptions).length, 1);
+
+    var mismatches = traceur.options.diff(versionLockedOptions);
+    if (mismatches.length)
+      console.error('Options changed ', mismatches);
+    assert.equal(mismatches.length, 0);
   });
 
 });
