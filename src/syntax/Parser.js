@@ -466,7 +466,7 @@ export class Parser {
   parseImportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
-    
+
     // import * as m from './m.js'
     if (this.peek_(STAR)) {
       this.eat_(STAR);
@@ -601,11 +601,28 @@ export class Parser {
     var exportValue;
     switch (this.peekType_()) {
       case FUNCTION:
-        exportValue = this.parseFunctionDeclaration_();
+        // Use FunctionExpression as a cover grammar. If it has a name it is
+        // treated as a declaration.
+        var tree = this.parseFunctionExpression_();
+        if (tree.name) {
+          tree = new FunctionDeclaration(tree.location, tree.name,
+                                         tree.functionKind, tree.parameterList,
+                                         tree.typeAnnotation, tree.annotations,
+                                         tree.body);
+        }
+        exportValue = tree;
         break;
       case CLASS:
         if (parseOptions.classes) {
-          exportValue = this.parseClassDeclaration_();
+          // Use ClassExpression as a cover grammar. If it has a name it is
+          // treated as a declaration.
+          var tree = this.parseClassExpression_();
+          if (tree.name) {
+            tree = new ClassDeclaration(tree.location, tree.name,
+                                        tree.superClass, tree.elements,
+                                        tree.annotations);
+          }
+          exportValue = tree;
           break;
         }
         // Fall through.

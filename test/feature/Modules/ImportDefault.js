@@ -9,3 +9,9 @@ assert.equal(D, 4);
 
 import f from './resources/default-function';
 assert.equal(f(), 123);
+
+import E from './resources/default-class-expression';
+assert.equal(new E().n(), 'n');
+
+import g from './resources/default-function-expression';
+assert.equal(g(), 456);

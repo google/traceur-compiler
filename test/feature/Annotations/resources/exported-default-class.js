@@ -1,7 +1,7 @@
 import {Anno} from './setup';
 
 @Anno
-export default (class {
+export default class {
   @Anno
   annotatedMethod() {}
-});
+};
