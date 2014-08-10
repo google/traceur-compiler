@@ -68,3 +68,69 @@ export function isConstructor(x) {
 export function createIteratorResultObject(value, done) {
   return {value: value, done: done};
 }
+
+export function maybeDefine(object, name, descr) {
+  if (!(name in object)) {
+    Object.defineProperty(object, name, descr);
+  }
+}
+
+export function maybeDefineMethod(object, name, value) {
+  maybeDefine(object, name, {
+    value: value,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
+export function maybeDefineConst(object, name, value) {
+  maybeDefine(object, name, {
+    value: value,
+    configurable: false,
+    enumerable: false,
+    writable: false
+  });
+}
+
+export function maybeAddFunctions(object, functions) {
+  for (var i = 0; i < functions.length; i += 2) {
+    var name = functions[i];
+    var value = functions[i + 1];
+    maybeDefineMethod(object, name, value);
+  }
+}
+
+export function maybeAddConsts(object, consts) {
+  for (var i = 0; i < consts.length; i += 2) {
+    var name = consts[i];
+    var value = consts[i + 1];
+    maybeDefineConst(object, name, value);
+  }
+}
+
+export function maybeAddIterator(object, func, Symbol) {
+  if (!Symbol || !Symbol.iterator || object[Symbol.iterator])
+    return;
+
+  // Firefox does not have symbols so they use a hack.
+  if (object['@@iterator'])
+    func = object['@@iterator'];
+
+  Object.defineProperty(object, Symbol.iterator, {
+    value: func,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
+var polyfills = [];
+
+export function registerPolyfill(func) {
+  polyfills.push(func);
+}
+
+export function polyfillAll(global) {
+  polyfills.forEach((f) => f(global));
+}

@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isObject} from './utils'
+import {
+  isObject,
+  maybeAddIterator,
+  registerPolyfill
+} from './utils'
 
 var getOwnHashObject = $traceurRuntime.getOwnHashObject;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -183,3 +187,17 @@ Object.defineProperty(Map.prototype, Symbol.iterator, {
   writable: true,
   value: Map.prototype.entries
 });
+
+export function polyfillMap(global) {
+  var {Object, Symbol} = global;
+  if (!global.Map)
+    global.Map = Map;
+  var mapPrototype = global.Map.prototype;
+  if (mapPrototype.entries) {
+    maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
+    maybeAddIterator(Object.getPrototypeOf(new global.Map().entries()),
+        function() { return this; }, Symbol);
+  }
+}
+
+registerPolyfill(polyfillMap);

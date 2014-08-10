@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  maybeAddFunctions,
+  registerPolyfill
+} from './utils';
+
 var {
   defineProperty,
   getOwnPropertyDescriptor,
@@ -58,3 +63,14 @@ export function mixin(target, source) {
   }
   return target;
 }
+
+export function polyfillObject(global) {
+  var {Object} = global;
+  maybeAddFunctions(Object, [
+    'assign', assign,
+    'is', is,
+    'mixin', mixin,
+  ]);
+}
+
+registerPolyfill(polyfillObject);

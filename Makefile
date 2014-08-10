@@ -5,8 +5,17 @@ RUNTIME_SRC = \
   src/runtime/generators.js \
   src/runtime/url.js \
   src/runtime/ModuleStore.js
+POLYFILL_SRC = \
+  src/runtime/polyfills/Map.js \
+  src/runtime/polyfills/Set.js \
+  src/runtime/polyfills/Promise.js \
+  src/runtime/polyfills/String.js \
+  src/runtime/polyfills/Array.js \
+  src/runtime/polyfills/Object.js \
+  src/runtime/polyfills/Number.js \
+  src/runtime/polyfills/polyfills.js
 SRC = \
-  src/runtime/polyfill-import.js \
+  $(POLYFILL_SRC) \
   src/traceur-import.js
 TPL_GENSRC = \
   src/outputgeneration/SourceMapIntegration.js
@@ -137,7 +146,7 @@ test/unit/runtime/traceur-runtime: \
 test-version:
 	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
-# Skip sloppy tests because the Promise pollyfil is defined in a module
+# Skip sloppy tests because the Promise polyfill is defined in a module
 # and module context in ES6 is strict by default
 test-promise:
 	node_modules/promises-aplus-tests/lib/cli.js \
@@ -175,9 +184,9 @@ bin/%.min.js: bin/%.js
 
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
-bin/traceur-runtime.js: $(RUNTIME_SRC) src/runtime/polyfill-import.js
+bin/traceur-runtime.js: $(RUNTIME_SRC) $(POLYFILL_SRC)
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) src/runtime/polyfill-import.js
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(POLYFILL_SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -311,4 +320,3 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
-

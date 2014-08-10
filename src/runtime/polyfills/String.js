@@ -13,6 +13,11 @@
 // limitations under the License.
 
 import {createStringIterator} from './StringIterator';
+import {
+  maybeAddFunctions,
+  maybeAddIterator,
+  registerPolyfill
+} from './utils';
 
 var $toString = Object.prototype.toString;
 var $indexOf = String.prototype.indexOf;
@@ -203,3 +208,23 @@ export function stringPrototypeIterator() {
   var s = String(o);
   return createStringIterator(s);
 }
+
+export function polyfillString(global) {
+  var {String} = global;
+  maybeAddFunctions(String.prototype, [
+    'codePointAt', codePointAt,
+    'contains', contains,
+    'endsWith', endsWith,
+    'startsWith', startsWith,
+    'repeat', repeat,
+  ]);
+
+  maybeAddFunctions(String, [
+    'fromCodePoint', fromCodePoint,
+    'raw', raw,
+  ]);
+
+  maybeAddIterator(String.prototype, stringPrototypeIterator, Symbol);
+}
+
+registerPolyfill(polyfillString);

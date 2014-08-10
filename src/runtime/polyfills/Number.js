@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isNumber, toInteger} from './utils';
+import {
+  isNumber,
+  maybeAddConsts,
+  maybeAddFunctions,
+  registerPolyfill,
+  toInteger
+} from './utils';
 
 var $abs = Math.abs;
 var $isFinite = isFinite;
@@ -44,3 +50,20 @@ export function isSafeInteger(number) {
   }
   return false;
 }
+
+export function polyfillNumber(global) {
+  var {Number} = global;
+  maybeAddConsts(Number, [
+    'MAX_SAFE_INTEGER', MAX_SAFE_INTEGER,
+    'MIN_SAFE_INTEGER', MIN_SAFE_INTEGER,
+    'EPSILON', EPSILON,
+  ]);
+  maybeAddFunctions(Number, [
+    'isFinite', NumberIsFinite,
+    'isInteger', isInteger,
+    'isNaN', NumberIsNaN,
+    'isSafeInteger', isSafeInteger,
+  ]);
+}
+
+registerPolyfill(polyfillNumber);

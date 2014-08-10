@@ -13,9 +13,17 @@
 // limitations under the License.
 
 import {
+  entries,
+  keys,
+  values
+} from './ArrayIterator';
+import {
+  checkIterable,
   isCallable,
   isConstructor,
-  checkIterable,
+  maybeAddFunctions,
+  maybeAddIterator,
+  registerPolyfill,
   toInteger,
   toLength,
   toObject
@@ -136,3 +144,26 @@ function findHelper(self, predicate, thisArg = undefined, returnIndex = false) {
 
   return returnIndex ? -1 : undefined;
 }
+
+export function polyfillArray(global) {
+  var {Array, Object, Symbol} = global;
+  maybeAddFunctions(Array.prototype, [
+    'entries', entries,
+    'keys', keys,
+    'values', values,
+    'fill', fill,
+    'find', find,
+    'findIndex', findIndex,
+  ]);
+
+  maybeAddFunctions(Array, [
+    'from', from,
+    'of', of
+  ]);
+
+  maybeAddIterator(Array.prototype, values, Symbol);
+  maybeAddIterator(Object.getPrototypeOf([].values()),
+      function() { return this; }, Symbol);
+}
+
+registerPolyfill(polyfillArray);

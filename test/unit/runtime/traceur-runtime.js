@@ -24,7 +24,7 @@ if (!data)
 ('global', eval)(data);
 
 var setupGlobalsSrc = $traceurRuntime.setupGlobals + '';
-if (setupGlobalsSrc.indexOf('polyfill(global);') === -1)
+if (setupGlobalsSrc.indexOf('polyfillAll(global);') === -1)
   throw new Error('bin/traceur-runtime.js does not contain the polyfill');
 
 if (!Reflect.global)
