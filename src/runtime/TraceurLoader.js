@@ -46,7 +46,7 @@ export class TraceurLoader extends Loader {
 
   /**
    * See https://github.com/jorendorff/js-loaders/issues/92
-   * loadAsScript - Asynchronously load and run a script. If the script
+   * loadscript - Asynchronously load and run a script. If the script
    * calls Loader.import(),  this can cause modules to be loaded, linked,
    * and evaluated.
    *
@@ -57,14 +57,14 @@ export class TraceurLoader extends Loader {
    * @param {Object} referrerName and address passed to normalize.
    * @return {Promise} fulfilled with evaluation result.
    */
-  loadAsScript(name, {referrerName, address} = {}) {
+  loadscript(name, {referrerName, address} = {}) {
     return this.internalLoader_.load(name, referrerName, address, 'script').
         then((codeUnit) => codeUnit.result);
   }
 
-  loadAsScriptAll(names, {referrerName, address} = {}) {
+  loadscriptAll(names, {referrerName, address} = {}) {
     return Promise.all(names.map((name) => {
-      return this.loadAsScript(name,
+      return this.loadscript(name,
           {referrerName: referrerName, address: address});
     }));
   }

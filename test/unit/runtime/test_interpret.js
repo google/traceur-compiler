@@ -16,12 +16,12 @@ import {assert} from '../../../src/util/assert';
 import {resolveUrl} from '../../../src/util/url';
 
 var testScriptName = '../../unit/runtime/test_script.js';
-System.loadAsScript(testScriptName, {referrerName: __moduleName}).then(function(result) {
+System.loadscript(testScriptName, {referrerName: __moduleName}).then(function(result) {
   assert('A', result[0]);
   assert('B', result[1]);
   assert('C', result[2]);
 }, function(error) {
-  throw new Error('test_interpret loadAsScript FAILED: ' + error);
+  throw new Error('test_interpret loadscript FAILED: ' + error);
 });
 
 var testModuleName = '../../unit/runtime/test_module';

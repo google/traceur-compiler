@@ -210,7 +210,7 @@
         moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
             handleFailure).catch(done);
       } else {
-        moduleLoader.loadAsScript(url, {}).then(handleSuccess,
+        moduleLoader.loadscript(url, {}).then(handleSuccess,
           handleFailure).catch(done);
       }
     });

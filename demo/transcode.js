@@ -44,7 +44,7 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
   loaderHooks.onTranscoded = onTranscoded;
 
   var loader = new TraceurLoader(loaderHooks);
-  if (traceurOptions.asScript)
+  if (traceurOptions.script)
     loader.script(contents, {}).then(onSuccess, onFailure);
   else
     loader.module(contents, {}).then(onSuccess, onFailure);

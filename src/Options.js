@@ -26,7 +26,7 @@ export var optionsV01 = enumerableOnlyObject({
   annotations: false,
   arrayComprehension: true,
   arrowFunctions: true,
-  asScript: false,
+  script: false,
   asyncFunctions: false,
   blockBinding: false,
   classes: true,
@@ -426,4 +426,4 @@ addBoolOption('freeVariableChecker');
 addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
 addBoolOption('validate');
-addBoolOption('asScript');
+addBoolOption('script');

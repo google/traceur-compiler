@@ -59,7 +59,7 @@ export class Compiler {
    */
   script(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
-    options.asScript = true;
+    options.script = true;
     return this.compile(content, options);
   }
   /**
@@ -145,7 +145,7 @@ export class Compiler {
     var errorReporter = new CollectingErrorReporter();
     var sourceFile = new SourceFile(options.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
-    var tree = options.asScript ? parser.parseScript() : parser.parseModule();
+    var tree = options.script ? parser.parseScript() : parser.parseModule();
     return {
       tree: tree,
       options: options,
