@@ -17,7 +17,7 @@ suite('node public api', function() {
       moduleName: true,
 
       // ensure the source map works
-      sourceMap: true
+      sourceMaps: true
     });
 
     assert.deepEqual(compiled.errors, []);
@@ -30,6 +30,7 @@ suite('node public api', function() {
 
       'module name without backslashes'
     );
+    assert.ok(compiled.generatedSourceMap, 'has sourceMap');
   });
 
   test('modules: true', function() {
@@ -44,7 +45,7 @@ suite('node public api', function() {
       moduleName: true,
 
       // ensure the source map works
-      sourceMap: true
+      sourceMaps: true
     });
 
     assert.deepEqual(compiled.errors, []);
@@ -57,6 +58,7 @@ suite('node public api', function() {
 
       'module defines its path'
     );
+    assert.ok(compiled.generatedSourceMap, 'has sourceMap');
   });
 
   test('named amd', function() {
