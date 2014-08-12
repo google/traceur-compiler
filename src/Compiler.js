@@ -147,8 +147,8 @@ export class Compiler {
     var parser = new Parser(sourceFile, errorReporter);
     var tree = options.script ? parser.parseScript() : parser.parseModule();
     return {
-      tree: tree,
-      options: options,
+      tree,
+      options,
       errors: errorReporter.errors
     };
   }

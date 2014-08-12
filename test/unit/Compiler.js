@@ -92,7 +92,7 @@ suite('Compiler', function() {
   test('Compiler options locked', function() {
     var Options = get('src/Options').Options;
     var checkDiff =
-      new Options({blockBinding: !versionLockedOptions.blockBinding});
+        new Options({blockBinding: !versionLockedOptions.blockBinding});
     assert.equal(checkDiff.diff(versionLockedOptions).length, 1);
 
     var mismatches = traceur.options.diff(versionLockedOptions);
