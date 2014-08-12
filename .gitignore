@@ -10,6 +10,7 @@ build/compiled-by-previous-traceur.js
 build/currentSemVer.mk
 build/local.mk
 build/node
+build/npm-version-number
 build/previous-commit-traceur.js
 node_modules
 out
