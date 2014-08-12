@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
+import {
+  AttachModuleNameTransformer
+} from './codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {Parser} from './syntax/Parser';
 import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {SourceFile} from './syntax/SourceFile';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';
-import {options as traceurOptions, versionLockedOptions} from './Options';
+import {
+  Options,
+  options as traceurOptions,
+  versionLockedOptions
+} from './Options';
 import {write} from './outputgeneration/TreeWriter';
 
 function merge(...srcs) {
@@ -52,7 +58,8 @@ export class Compiler {
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
   script(content, options = {}) {
-    options.modules = false;
+    options = new Options(options);  // fresh copy, don't write on argument.
+    options.script = true;
     return this.compile(content, options);
   }
   /**
@@ -63,6 +70,7 @@ export class Compiler {
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
   module(content, options = {}) {
+    options = new Options(options);  // fresh copy, don't write on argument.
     options.modules = 'register';
     return this.compile(content, options);
   }
@@ -76,7 +84,7 @@ export class Compiler {
     var amdOptions = {
       modules: 'amd',
       filename: undefined,
-      sourceMap: false,
+      sourceMaps: false,
       moduleName: true
     };
     return merge(amdOptions, options);
@@ -91,7 +99,7 @@ export class Compiler {
     var commonjsOptions = {
       modules: 'commonjs',
       filename: '<unknown file>',
-      sourceMap: false,
+      sourceMaps: false,
       moduleName: false
     };
     return merge(commonjsOptions, options);
@@ -128,15 +136,19 @@ export class Compiler {
   }
 
   stringToTree({content, options = {}}) {
-    var mergedOptions = merge(this.defaultOptions_, options);
-    options = traceurOptions.setFromObject(mergedOptions);
+    var options = merge(this.defaultOptions_, options);
+    // Here we mutate the global/module options object to be used in parsing.
+    // We also save a copy to be passed back in the return.
+    var saveOptions = new Options(traceurOptions);
+    options = new Options(traceurOptions.setFromObject(options));
+
     var errorReporter = new CollectingErrorReporter();
-    var sourceFile = new SourceFile(mergedOptions.filename, content);
+    var sourceFile = new SourceFile(options.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
-    var tree = mergedOptions.modules ? parser.parseModule() : parser.parseScript();
+    var tree = options.script ? parser.parseScript() : parser.parseModule();
     return {
-      tree: tree,
-      options: mergedOptions,
+      tree,
+      options,
       errors: errorReporter.errors
     };
   }

@@ -26,6 +26,7 @@ export var optionsV01 = enumerableOnlyObject({
   annotations: false,
   arrayComprehension: true,
   arrowFunctions: true,
+  script: false,
   asyncFunctions: false,
   blockBinding: false,
   classes: true,
@@ -86,14 +87,14 @@ var moduleOptions = ['amd', 'commonjs', 'instantiate', 'inline', 'register'];
 export class Options {
 
   constructor(options = Object.create(null)) {
-    this.setDefaults();
-    this.setFromObject(versionLockedOptions);
-    this.setFromObject(options);
+    this.reset();
 
     // Make sure non option fields are non enumerable.
     Object.defineProperties(this, {
       modules_: {value: versionLockedOptions.modules, writable: true, enumerable: false}
     });
+
+    this.setFromObject(options);
   }
 
   /**
@@ -146,7 +147,7 @@ export class Options {
    */
   reset(allOff = undefined) {
     var useDefault = allOff === undefined;
-    Object.keys(this).forEach((name) => {
+    Object.keys(defaultValues).forEach((name) => {
       this[name] = useDefault && defaultValues[name];
     });
     this.setDefaults();
@@ -159,16 +160,41 @@ export class Options {
     this.moduleName = false;
     this.outputLanguage = 'es5';
     this.filename = undefined;
+    this.referrer = '';
+    this.typeAssertionModule = null;
   }
   /**
    * Sets the options based on an object.
    */
   setFromObject(object) {
     Object.keys(object).forEach((name) => {
-      this[name] = object[name];
+      this.setOption(name, object[name]);
     });
     this.modules = object.modules || this.modules;
     return this;
+  }
+
+  setOption(name, value) {
+    name = toCamelCase(name);
+    if (name in this) {
+      this[name] = value;
+    } else {
+      throw Error('Unknown option: ' + name);
+    }
+  }
+
+  diff(ref) {
+    var mismatches = [];
+    Object.keys(options).forEach((key) => {
+      if (this[key] !== ref[key]) {
+        mismatches.push({
+          key: key,
+          now: traceur.options[key],
+          v01: ref[key]
+        });
+      }
+    });
+    return mismatches;
   }
 
 };
@@ -216,19 +242,14 @@ export class CommandOptions extends Options {
   parseCommand(s) {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
-    if (m)
-      this.setOption(m[1], m[2] || true);
-  }
-
-  setOption(name, value) {
-    name = toCamelCase(name);
-    value = coerceOptionValue(value);
-    if (name in this) {
-      this[name] = value;
-    } else {
-      throw Error('Unknown option: ' + name);
+    if (m) {
+      var value = true;
+      if (typeof m[2] !== 'undefined')
+        value = coerceOptionValue(m[2]);
+      this.setOption(m[1],  value);
     }
   }
+
 }
 
 function coerceOptionValue(v) {
@@ -405,9 +426,4 @@ addBoolOption('freeVariableChecker');
 addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
 addBoolOption('validate');
-
-defaultValues.referrer = '';
-options.referrer = null;
-
-defaultValues.typeAssertionModule = null;
-options.typeAssertionModule = null;
+addBoolOption('script');

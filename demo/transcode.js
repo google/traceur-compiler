@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Loader} from 'traceur@0.0/src/runtime/Loader';
+import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader';
 import {
   InterceptOutputLoaderHooks
 } from 'traceur@0.0/src/runtime/InterceptOutputLoaderHooks';
@@ -43,8 +43,13 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
   var loaderHooks = new InterceptOutputLoaderHooks(null, url, options);
   loaderHooks.onTranscoded = onTranscoded;
 
-  var loader = new Loader(loaderHooks);
-  loader.module(contents, {}).then(onSuccess, onFailure);
+  var loader = new TraceurLoader(loaderHooks);
+  var p;
+  if (traceurOptions.script)
+    p = loader.script(contents, {});
+  else
+    p = loader.module(contents, {});
+  p.then(onSuccess, onFailure);
 }
 
 export function renderSourceMap(source, sourceMap) {
