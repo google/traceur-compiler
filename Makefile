@@ -257,6 +257,7 @@ bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
 updateSemver: # unless the package.json has been manually edited.
+	node build/printSemver.js > build/npm-version-number
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
 # --- Targets that push upstream.
@@ -280,8 +281,8 @@ update-version-number: npm-publish updateSemver
 	$(MAKE) test  # build version N+1
 
 git-update-version: update-version-number
-	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	cat build/npm-version-number | xargs -I VERSION git commit -a -m "VERSION"
+	cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
 
