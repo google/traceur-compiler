@@ -43,7 +43,7 @@ function checkTest(test, traceurResult) {
   }
 }
 
-System.loadscript('./node_modules/es5-compat-table/data-es6.js').then((tests) => {
+System.loadAsScript('./node_modules/es5-compat-table/data-es6.js').then((tests) => {
   var unknown = [];
   tests.forEach((test)  => {
     if (typeof test.exec !== 'function') {

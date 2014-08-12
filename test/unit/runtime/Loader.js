@@ -178,7 +178,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().loadscript('./test_script.js', {}).then(function(result) {
+    getLoader().loadAsScript('./test_script.js', {}).then(function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -188,7 +188,7 @@ suite('Loader.js', function() {
 
   test('LoaderLoad.Fail', function(done) {
     var reporter = new MutedErrorReporter();
-    getLoader(reporter).loadscript('./non_existing.js', {}).then(function(result) {
+    getLoader(reporter).loadAsScript('./non_existing.js', {}).then(function(result) {
       fail('should not have succeeded');
       done();
     }, function(error) {
@@ -198,7 +198,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoadWithReferrer', function(done) {
-    getLoader().loadscript('../test_script.js',
+    getLoader().loadAsScript('../test_script.js',
       {referrerName: 'traceur@0.0.1/bin'}).then(
       function(result) {
         assert.equal('A', result[0]);
@@ -209,9 +209,9 @@ suite('Loader.js', function() {
   });
 
 
-  test('Loader.LoadscriptAll', function(done) {
+  test('Loader.LoadAsScriptAll', function(done) {
     var names = ['./test_script.js'];
-    getLoader().loadscriptAll(names, {}).then(function(results) {
+    getLoader().loadAsScriptAll(names, {}).then(function(results) {
       var result = results[0];
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);

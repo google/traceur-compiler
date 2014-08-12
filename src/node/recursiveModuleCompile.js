@@ -150,7 +150,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     var name = input.name;
     var moduleOption = options.modules;
     if (input.type === 'script') {
-      loadFunction = loader.loadscript;
+      loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
       if (input.format === 'inline')
