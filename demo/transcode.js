@@ -44,10 +44,12 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
   loaderHooks.onTranscoded = onTranscoded;
 
   var loader = new TraceurLoader(loaderHooks);
+  var p;
   if (traceurOptions.script)
-    loader.script(contents, {}).then(onSuccess, onFailure);
+    p = loader.script(contents, {});
   else
-    loader.module(contents, {}).then(onSuccess, onFailure);
+    p = loader.module(contents, {});
+  p.then(onSuccess, onFailure);
 }
 
 export function renderSourceMap(source, sourceMap) {
