@@ -110,6 +110,7 @@ commandLine.command('*').action(function() {
 
 commandLine.parse(process.argv);
 
+// Set the global options for back compat, but try to use options by argument.
 traceurAPI.options.setFromObject(commandOptions);
 
 if (!shouldExit && !rootSources.length) {
@@ -126,10 +127,10 @@ if (!shouldExit) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile) {
       traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
-          commandLine.sourceMaps);
+          commandOptions);
     } else {
       traceurAPI.forEachRecursiveModuleCompile(out, rootSources,
-          commandLine.sourceMaps);
+          commandOptions);
     }
   } else if (dir) {
     if (rootSources.length !== 1)

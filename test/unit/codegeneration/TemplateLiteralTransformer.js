@@ -21,8 +21,7 @@ suite('TemplateLiteralTransformer', function() {
 
   function testResult(name, content, expectedResult) {
     test(name, function(done) {
-      var compiler = new Compiler();
-      compiler.script(content).then(function(result) {
+      Compiler.script(content).then(function(result) {
         var value = (0, eval)(result.js);
         assert.equal(value, expectedResult);
         done();

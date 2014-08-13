@@ -184,7 +184,7 @@ suite('context test', function() {
     var scriptFileName = './unit/node/resources/scriptUsesModuleGlobal.js';
     var inlineFileName = './unit/node/resources/moduleSetsGlobal.js';
     var command = executable + ' --out ' + tempFileName +
-      ' --inline ' + inlineFileName + ' --script ' + scriptFileName;
+      ' --modules=inline ' + inlineFileName + ' --script ' + scriptFileName;
     exec(command,
         function(error, stdout, stderr) {
           logOnError(command, error, stdout, stderr);
@@ -195,7 +195,7 @@ suite('context test', function() {
             ('global', eval)(source);
             assert.equal(global.sandwich, 'iAmGlobal pastrami');
             done();
-          }).catch(done);
+          }, true).catch(done);
         });
   });
 

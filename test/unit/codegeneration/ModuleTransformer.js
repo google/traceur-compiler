@@ -32,7 +32,7 @@ suite('ModuleTransformer', function() {
   function makeTest(name, content, included, options) {
     test(name, function() {
       var compiler = new Compiler(options || {});
-      var tree = compiler.stringToTree({content: content}).tree;
+      var tree = compiler.stringToTree(content).tree;
       var id = 0;
       var transformer = new ModuleTransformer({
         generateUniqueIdentifier: function() {

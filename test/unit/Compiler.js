@@ -42,9 +42,9 @@ suite('Compiler', function() {
   });
 
   test('Compiler synchronous, experimental option', function() {
-    var compiler = new Compiler();
+    var compiler = new Compiler({experimental: true});
     var content = 'let x = 5;';
-    var result = compiler.stringToString(content, {experimental: true});
+    var result = compiler.stringToString(content);
     assert.equal(result.errors.length, 0);
     assert.isTrue(result.js.length > 0);
   });
@@ -52,8 +52,8 @@ suite('Compiler', function() {
   test('Compiler asynchronous', function(done) {
     var compiler = new Compiler();
     var content = '';
-    var result = compiler.parse({content: content, options: {}}).then(function(result) {
-      return compiler.transform(result);
+    var result = compiler.parse(content).then(function(result) {
+      return compiler.transform(result.tree);
     }).then(function(result) {
       return compiler.write(result);
     }).then(function(result) {
@@ -78,10 +78,9 @@ suite('Compiler', function() {
   });
 
   test('Compiler script', function(done) {
-    var compiler = new Compiler();
     var content = 'var x = 42;\n';
 
-    var result = compiler.script(content).
+    var result = Compiler.script(content).
       then(function(result) {
         assert.equal(result.js, content);
         assert.equal(result.errors.length, 0);
