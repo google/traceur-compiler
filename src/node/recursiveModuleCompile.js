@@ -24,13 +24,12 @@ var treeToString = require('./NodeCompiler.js').treeToString;
 var writeCompiledCodeToFile =
     require('./NodeCompiler.js').writeCompiledCodeToFile;
 
-function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
-  var options = {sourceMaps: useSourceMaps};
-  var result = treeToString({tree: tree, options: options, errors: []});
+function writeTreeToFile(tree, filename, options) {
+  var result = treeToString({tree: tree, errors: []}, options);
   writeCompiledCodeToFile(result.js, filename, result.generatedSourceMap);
 }
 
-function recursiveModuleCompileToSingleFile(outputFile, includes, useSourceMaps) {
+function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
 
@@ -49,8 +48,8 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, useSourceMaps)
     return include;
   });
 
-  recursiveModuleCompile(resolvedIncludes, traceur.options, function(tree) {
-    writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
+  recursiveModuleCompile(resolvedIncludes, options, function(tree) {
+    writeTreeToFile(tree, resolvedOutputFile, options);
     process.exit(0);
   }, function(err) {
     console.error(err);
@@ -58,7 +57,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, useSourceMaps)
   });
 }
 
-function forEachRecursiveModuleCompile(outputDir, includes, useSourceMaps) {
+function forEachRecursiveModuleCompile(outputDir, includes, options) {
   var outputDir = path.resolve(outputDir);
 
   var current = 0;
@@ -67,11 +66,10 @@ function forEachRecursiveModuleCompile(outputDir, includes, useSourceMaps) {
     if (current === includes.length)
       process.exit(0);
 
-    recursiveModuleCompile(includes.slice(current, current + 1), traceur.options,
+    recursiveModuleCompile(includes.slice(current, current + 1), options,
         function(tree) {
           var outputFile = path.join(outputDir, includes[current].name);
-          var sourceRoot = path.relative(path.dirname(outputFile), '.');
-          writeTreeToFile(tree, outputFile, useSourceMaps, sourceRoot);
+          writeTreeToFile(tree, outputFile, options);
           current++;
           next();
         },

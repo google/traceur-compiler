@@ -48,7 +48,7 @@ function merge(...srcs) {
  */
 export class Compiler {
   constructor(overridingOptions = {}) {
-    this.defaultOptions_ = merge(this.defaultOptions(), overridingOptions);
+    this.options_ = merge(this.defaultOptions(), overridingOptions);
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -57,10 +57,10 @@ export class Compiler {
    * @param  {Object=} options Traceur options to override defaults.
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
-  script(content, options = {}) {
+  static script(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.script = true;
-    return this.compile(content, options);
+    return new Compiler(options).compile(content);
   }
   /**
    * Use Traceur to compile ES6 module source code to 'register' module format.
@@ -69,10 +69,10 @@ export class Compiler {
    * @param  {Object=} options Traceur options to override defaults.
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
-  module(content, options = {}) {
+  static module(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.modules = 'register';
-    return this.compile(content, options);
+    return new Compiler(options).compile(content);
   }
   /**
    * Options to create 'amd' module format.
@@ -112,9 +112,9 @@ export class Compiler {
    * @param {Object=} options Traceur options to override defaults.
    * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
    */
-  compile(content, options = {}) {
-    return this.parse({content, options}).
-        then((result) => this.transform(result)).
+  compile(content) {
+    return this.parse(content).
+        then((result) => this.transform(result.tree)).
         then((result) => this.write(result));
   }
 
@@ -122,33 +122,28 @@ export class Compiler {
    * Compile ES6 source code with Traceur.
    *
    * @param  {string} content ES6 source code.
-   * @param  {Object=} options Traceur options.
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
-  stringToString(content, options = {}) {
-    var output = this.stringToTree({content: content, options: options});
+  stringToString(content) {
+    var output = this.stringToTree(content);
     if (output.errors.length)
       return output;
-    output = this.treeToTree(output);
+    output = this.treeToTree(output.tree);
     if (output.errors.length)
       return output;
     return this.treeToString(output);
   }
 
-  stringToTree({content, options = {}}) {
-    var options = merge(this.defaultOptions_, options);
+  stringToTree(content) {
     // Here we mutate the global/module options object to be used in parsing.
-    // We also save a copy to be passed back in the return.
-    var saveOptions = new Options(traceurOptions);
-    options = new Options(traceurOptions.setFromObject(options));
+    traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
-    var sourceFile = new SourceFile(options.filename, content);
+    var sourceFile = new SourceFile(this.options_.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
-    var tree = options.script ? parser.parseScript() : parser.parseModule();
+    var tree = this.options_.script ? parser.parseScript() : parser.parseModule();
     return {
       tree,
-      options,
       errors: errorReporter.errors
     };
   }
@@ -157,12 +152,12 @@ export class Compiler {
     return this.promise(this.stringToTree, input);
   }
 
-  treeToTree({tree, options}) {
+  treeToTree(tree) {
     var transformer;
-    if (options.moduleName) {  // true or non-empty string.
-      var moduleName = options.moduleName;
+    if (this.options_.moduleName) {  // true or non-empty string.
+      var moduleName = this.options_.moduleName;
       if (typeof moduleName !== 'string') // true means resolve filename
-        moduleName = this.resolveModuleName(options.filename);
+        moduleName = this.resolveModuleName(this.options_.filename);
       if (moduleName) {
         transformer = new AttachModuleNameTransformer(moduleName);
         tree = transformer.transformAny(tree);
@@ -170,7 +165,7 @@ export class Compiler {
     }
 
     var errorReporter = new CollectingErrorReporter();
-    if (options.outputLanguage.toLowerCase() === 'es6') {
+    if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
       transformer = new FromOptionsTransformer(errorReporter);
@@ -186,7 +181,6 @@ export class Compiler {
     } else {
       return {
         tree: transformedTree,
-        options: options,
         errors: errorReporter.errors
       };
     }
@@ -196,13 +190,12 @@ export class Compiler {
     return this.promise(this.treeToTree, input);
   }
 
-  treeToString({tree, options, errors}) {
+  treeToString({tree, errors}) {
     var treeWriterOptions = {};
-
-    if (options.sourceMaps) {
+    if (this.options_.sourceMaps) {
       treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
-        file: options.filename,
-        sourceRoot: this.sourceRootForFilename(options.filename)
+        file: this.options_.filename,
+        sourceRoot: this.sourceRootForFilename(this.options_.filename)
       });
     }
 

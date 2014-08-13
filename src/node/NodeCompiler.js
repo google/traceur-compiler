@@ -26,8 +26,8 @@ var writeFile = util.writeFile;
 
 var Compiler = traceur.Compiler;
 
-function NodeCompiler() {
-  Compiler.call(this);
+function NodeCompiler(options) {
+  Compiler.call(this, options);
   this.cwd = process.cwd();
 }
 
@@ -45,8 +45,8 @@ NodeCompiler.prototype = {
 };
 
 function compile(content, options) {
-  return new NodeCompiler().stringToString(content,
-      Compiler.commonJSOptions(options));
+  return new NodeCompiler(Compiler.commonJSOptions(options)).
+      stringToString(content);
 }
 
 /**
@@ -56,9 +56,9 @@ function compile(content, options) {
  * @param  {Object=} options Traceur options.
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
-function moduleToCommonJS(content) {
-  return new NodeCompiler().stringToString(content,
-      Compiler.commonJSOptions({}));
+function moduleToCommonJS(content, options) {
+  return new NodeCompiler(Compiler.commonJSOptions(options)).
+      stringToString(content);
 }
 /**
  * Use Traceur to Compile ES6 module source code to amd format.
@@ -67,13 +67,13 @@ function moduleToCommonJS(content) {
  * @param  {Object=} options Traceur options.
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
-function moduleToAmd(content) {
-  return new NodeCompiler().stringToString(content,
-      Compiler.amdOptions({}));
+function moduleToAmd(content, options) {
+  return new NodeCompiler(Compiler.amdOptions(options)).
+      stringToString(content);
 }
 
-function treeToString(input) {
-  return new NodeCompiler().treeToString(input);
+function treeToString(input, options) {
+  return new NodeCompiler(options).treeToString(input);
 }
 
 function getSourceMapFileName(name) {

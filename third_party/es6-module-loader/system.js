@@ -294,13 +294,13 @@
         try {
           load.kind = 'declarative';
 
-          var compiler = new traceur.Compiler();
           var options = { modules: 'instantiate' };
-          var output = compiler.stringToTree({content: load.source, options: options});
+          var compiler = new traceur.Compiler(options);
+          var output = compiler.stringToTree(load.source);
           checkForErrors(output);
 
           depsList = getImports(output.tree);
-          output = compiler.treeToTree(output);
+          output = compiler.treeToTree(output.tree);
           checkForErrors(output);
 
           output = compiler.treeToString(output);
