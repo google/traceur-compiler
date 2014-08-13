@@ -354,7 +354,7 @@ export class InternalLoader {
     if (!exportsList) {
       if (codeUnit.result) {
         exportsList =
-          new ExportsList(codeUnit.normalizedName);
+            new ExportsList(codeUnit.normalizedName);
         exportsList.addExportsFromModule(codeUnit.result);
       } else {
         var msg = `${name} is not a module, required by ${referrer}`;
