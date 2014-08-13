@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strict';
+
 suite('context test', function() {
 
   var vm = require('vm');
@@ -74,16 +76,16 @@ suite('context test', function() {
 
   test('class', function(done) {
     var fileName = path.resolve(__dirname, 'resources/class.js');
-    executeFileWithRuntime(fileName).then(function() {
-      assert.equal(result, 2);
+    executeFileWithRuntime(fileName).then(function(value) {
+      assert.equal(value, 2);
       done();
     }).catch(done);
   });
 
   test('generator', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    executeFileWithRuntime(fileName).then(function() {
-      assert.deepEqual(result, [1, 2, 9, 16]);
+    executeFileWithRuntime(fileName).then(function(value) {
+      assert.deepEqual(value, [1, 2, 9, 16]);
       done();
     }).catch(done);
   });
@@ -91,8 +93,8 @@ suite('context test', function() {
   test('generator (symbols)', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
     traceur.options.symbols = true;
-    executeFileWithRuntime(fileName).then(function() {
-      assert.deepEqual(result, [1, 2, 9, 16]);
+    executeFileWithRuntime(fileName).then(function(value) {
+      assert.deepEqual(value, [1, 2, 9, 16]);
       done();
     }).catch(done);
   });
@@ -150,8 +152,8 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
-          var result = eval(source);
-          assert.equal(result, true);
+          var value = eval(source);
+          assert.equal(value, true);
           done();
         });
   });
@@ -187,6 +189,7 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           logOnError(command, error, stdout, stderr);
           assert.isNull(error);
+          var source = fs.readFileSync(tempFileName, 'utf-8');
           executeFileWithRuntime(tempFileName).then(function() {
             assert.equal(global.aGlobal, 'iAmGlobal');
             ('global', eval)(source);
@@ -204,8 +207,8 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
-          var result = eval(source);
-          assert.equal(result, true);
+          var value = eval(source);
+          assert.equal(value, true);
           done();
         });
   });
