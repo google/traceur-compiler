@@ -73,12 +73,10 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitExportStar(tree) {
     var name = this.moduleSpecifier.token.processedValue;
-    var moduleDescription =
-        this.getModuleDescriptionForModuleSpecifier(name);
-    if (moduleDescription) {
-      moduleDescription.getExports().forEach( (name) => {
-        this.addExport(name, tree);
-      });
+    var exportList =
+        this.getExportsListForModuleSpecifier(name);
+    if (exportList) {
+      exportList.getExports().forEach((name) => this.addExport(name, tree));
     }  // Else: we already reported an error.
   }
 

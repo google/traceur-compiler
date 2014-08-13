@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleDescription} from './ModuleSymbol';
+import {ExportsList} from './ModuleSymbol';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 import {
   MODULE_DECLARATION,
@@ -35,47 +35,13 @@ export class ModuleVisitor extends ParseTreeVisitor {
     this.moduleSymbol = moduleSymbol;
   }
 
-
   /**
    * @param {string} Module specifier, not normalized.
-   * @param {function} codeUnit -> moduleDescription.
-   * @return {ModuleDescription|null}
+   * @return {ExportsList|null}
    */
-  getModuleDescriptionFromCodeUnit_(name, codeUnitToModuleInfo) {
+  getExportsListForModuleSpecifier(name) {
     var referrer = this.moduleSymbol.normalizedName;
-    var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
-    var moduleDescription = codeUnitToModuleInfo(codeUnit);
-    if (!moduleDescription) {
-      var msg = `${name} is not a module, required by ${referrer}`;
-      this.reportError(codeUnit.metadata.tree, msg);
-      return null;
-    }
-    return moduleDescription;
-  }
-
-  /**
-   * @param {string} Module specifier, not normalized.
-   * @return {ModuleSymbol|null}
-   */
-  getModuleSymbolForModuleSpecifier(name) {
-    return this.getModuleDescriptionFromCodeUnit_(name, (codeUnit) => {
-      return codeUnit.metadata.moduleSymbol;
-    });
-  }
-
-  /**
-   * @param {string} Module specifier, not normalized.
-   * @return {ModuleDescription|null}
-   */
-  getModuleDescriptionForModuleSpecifier(name) {
-    return this.getModuleDescriptionFromCodeUnit_(name, (codeUnit) => {
-      var moduleDescription = codeUnit.metadata.moduleSymbol;
-      if (!moduleDescription && codeUnit.result) {
-        moduleDescription =
-            new ModuleDescription(codeUnit.normalizedName, codeUnit.result);
-      }
-      return moduleDescription;
-    });
+    return this.loader_.getExportsListForModuleSpecifier(name, referrer);
   }
 
   // Limit the trees to visit.

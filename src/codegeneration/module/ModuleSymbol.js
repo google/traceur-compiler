@@ -14,7 +14,7 @@
 
 import {assert} from '../../util/assert';
 
-class ExportsList {
+export class ExportsList {
   /**
    * @param {string} normalizedName
    */
@@ -50,11 +50,8 @@ class ExportsList {
   getExports() {
     return Object.keys(this.exports_);
   }
-}
 
-export class ModuleDescription extends ExportsList {
-  constructor(normalizedName, module) {
-    super(normalizedName);
+  addExportsFromModule(module) {
     Object.getOwnPropertyNames(module).forEach((name) => {
       this.addExport(name, true);
     });
