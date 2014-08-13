@@ -16,6 +16,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var Promise = require('rsvp').Promise;
 var nodeLoader = require('./nodeLoader.js');
 var util = require('./file-util.js');
 var normalizePath = util.normalizePath;
@@ -30,30 +31,29 @@ function writeTreeToFile(tree, filename, options) {
 }
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
-  var resolvedOutputFile = path.resolve(outputFile);
-  var outputDir = path.dirname(resolvedOutputFile);
+  return new Promise(function (resolve, reject) {
+    var resolvedOutputFile = path.resolve(outputFile);
+    var outputDir = path.dirname(resolvedOutputFile);
 
-  // Resolve includes before changing directory.
-  var resolvedIncludes = includes.map(function(include) {
-    include.name = path.resolve(include.name);
-    return include;
-  });
+    // Resolve includes before changing directory.
+    var resolvedIncludes = includes.map(function(include) {
+      include.name = path.resolve(include.name);
+      return include;
+    });
 
-  mkdirRecursive(outputDir);
-  process.chdir(outputDir);
+    mkdirRecursive(outputDir);
+    process.chdir(outputDir);
 
-  // Make includes relative to output dir so that sourcemap paths are correct.
-  resolvedIncludes = resolvedIncludes.map(function(include) {
-    include.name = normalizePath(path.relative(outputDir, include.name));
-    return include;
-  });
+    // Make includes relative to output dir so that sourcemap paths are correct.
+    resolvedIncludes = resolvedIncludes.map(function(include) {
+      include.name = normalizePath(path.relative(outputDir, include.name));
+      return include;
+    });
 
-  recursiveModuleCompile(resolvedIncludes, options, function(tree) {
-    writeTreeToFile(tree, resolvedOutputFile, options);
-    process.exit(0);
-  }, function(err) {
-    console.error(err);
-    process.exit(1);
+    recursiveModuleCompile(resolvedIncludes, options, function(tree) {
+      writeTreeToFile(tree, resolvedOutputFile, options);
+      resolve();
+    }, reject);
   });
 }
 
@@ -88,10 +88,10 @@ var SourceFile = traceur.syntax.SourceFile
 var moduleStore = traceur.runtime.ModuleStore;
 
 
-
 /**
  * Compiles the files in "fileNamesAndTypes" along with any associated modules,
  * into a single js file, in module dependency order.
+ * TODO: Make this function also use a promise
  *
  * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
  *     to compile and concat; type is 'module' or 'script'
