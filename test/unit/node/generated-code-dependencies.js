@@ -84,6 +84,7 @@ suite('context test', function() {
 
   test('generator', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
+    traceur.options.generatorComprehension = true;
     executeFileWithRuntime(fileName).then(function(value) {
       assert.deepEqual(value, [1, 2, 9, 16]);
       done();
@@ -92,6 +93,7 @@ suite('context test', function() {
 
   test('generator (symbols)', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
+    traceur.options.generatorComprehension = true;
     traceur.options.symbols = true;
     executeFileWithRuntime(fileName).then(function(value) {
       assert.deepEqual(value, [1, 2, 9, 16]);

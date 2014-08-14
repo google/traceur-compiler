@@ -29,7 +29,9 @@ suite('ConstChecker.js', function() {
 
   function makeTest(name, code, expectedErrors, mode) {
     test(name, function() {
+      traceur.options.arrayComprehension = true;
       traceur.options.blockBinding = true;
+      traceur.options.generatorComprehension = true;
       var reporter = new ErrorReporter();
       var parser = new Parser(new SourceFile('SOURCE', code), reporter);
       var tree = mode === 'script' ?

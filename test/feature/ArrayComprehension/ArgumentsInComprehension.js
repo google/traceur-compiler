@@ -1,3 +1,4 @@
+// Options: --array-comprehension
 // https://github.com/google/traceur-compiler/issues/1086
 
 function f() {

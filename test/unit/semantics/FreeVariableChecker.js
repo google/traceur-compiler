@@ -38,7 +38,9 @@ suite('FreeVariableChecker.js', function() {
 
   setup(function() {
     traceur.options.reset();
+    traceur.options.arrayComprehension = true;
     traceur.options.blockBinding = true;
+    traceur.options.generatorComprehension = true;
   });
 
   teardown(function() {

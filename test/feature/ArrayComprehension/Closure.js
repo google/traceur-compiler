@@ -1,4 +1,4 @@
-// Options: --block-binding
+// Options: --array-comprehension --block-binding
 // Block binding is needed to get the right scoping semantics inside the arrow
 // function in the comprehension.
 

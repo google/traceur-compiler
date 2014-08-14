@@ -24,7 +24,7 @@ function enumerableOnlyObject(obj) {
 // Traceur sets these default options and no others for v 0.1.*
 export var optionsV01 = enumerableOnlyObject({
   annotations: false,
-  arrayComprehension: true,
+  arrayComprehension: false,
   arrowFunctions: true,
   script: false,
   asyncFunctions: false,
@@ -39,7 +39,7 @@ export var optionsV01 = enumerableOnlyObject({
   filename: undefined,
   forOf: true,
   freeVariableChecker: false,
-  generatorComprehension: true,
+  generatorComprehension: false,
   generators: true,
   moduleName: false,
   modules: 'register',
@@ -395,14 +395,12 @@ function addBoolOption(name) {
 }
 
 // ON_BY_DEFAULT
-addFeatureOption('arrayComprehension', ON_BY_DEFAULT); // 11.4.1.2
 addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
 addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
 addFeatureOption('computedPropertyNames', ON_BY_DEFAULT);  // 11.1.5
 addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
 addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
-addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
 addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
 addFeatureOption('modules', 'SPECIAL');    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
@@ -414,9 +412,11 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
 addFeatureOption('annotations', EXPERIMENTAL);
+addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('exponentiation', EXPERIMENTAL);
+addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
