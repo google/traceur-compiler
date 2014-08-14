@@ -88,10 +88,10 @@ var SourceFile = traceur.syntax.SourceFile
 var moduleStore = traceur.runtime.ModuleStore;
 
 
-
 /**
  * Compiles the files in "fileNamesAndTypes" along with any associated modules,
  * into a single js file, in module dependency order.
+ * TODO: Make this function also use a promise
  *
  * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
  *     to compile and concat; type is 'module' or 'script'
