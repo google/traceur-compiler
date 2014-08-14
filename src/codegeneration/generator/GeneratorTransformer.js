@@ -28,7 +28,6 @@ import {
   createIdentifierExpression as id,
   createMemberExpression,
   createUndefinedExpression,
-  createYieldStatement
 } from '../ParseTreeFactory';
 import {
   parseExpression,
@@ -167,7 +166,7 @@ export class GeneratorTransformer extends CPSTransformer {
             $ctx.sent = ${next}.value;
             break;
           }
-          ${createYieldStatement(createMemberExpression(next, 'value'))};
+          yield ${next}.value;
         }`;
 
     // The yield above should not be treated the same way as a normal yield.

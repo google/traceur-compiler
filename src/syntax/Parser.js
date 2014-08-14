@@ -347,8 +347,8 @@ export class Parser {
 
     // yield is only allowed inside a generator and await is only allowed
     // inside an async function.
-    this.allowYield_ = false;
-    this.allowAwait_ = false;
+    this.allowYield = false;
+    this.allowAwait = false;
 
     // This is used in conjunction with ensureNoCoverInitializedNames_ to
     // determine  if there has been any added CoverInitializedName since last
@@ -362,6 +362,8 @@ export class Parser {
 
     this.annotations_ = [];
   }
+
+
 
   // 14 Script
   /**
@@ -1036,12 +1038,12 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
-    var allowYield = this.allowYield_;
-    var allowAwait = this.allowAwait_;
+    var allowYield = this.allowYield;
+    var allowAwait = this.allowAwait;
     var strictMode = this.strictMode_;
 
-    this.allowYield_ = functionKind && functionKind.type === STAR;
-    this.allowAwait_ = functionKind &&
+    this.allowYield = functionKind && functionKind.type === STAR;
+    this.allowAwait = functionKind &&
         functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
 
     var result = this.parseStatementList_(!strictMode);
@@ -1050,8 +1052,8 @@ export class Parser {
       StrictParams.visit(params, this.errorReporter_);
 
     this.strictMode_ = strictMode;
-    this.allowYield_ = allowYield;
-    this.allowAwait_ = allowAwait;
+    this.allowYield = allowYield;
+    this.allowAwait = allowAwait;
 
     this.eat_(CLOSE_CURLY);
     return new FunctionBody(this.getTreeLocation_(start), result);
@@ -2422,7 +2424,7 @@ export class Parser {
    * @return {ParseTree}
    */
   parseAssignmentExpression(expressionIn = Expression.NORMAL) {
-    if (this.allowYield_ && this.peek_(YIELD))
+    if (this.allowYield && this.peek_(YIELD))
       return this.parseYieldExpression_();
 
     var start = this.getTreeStartLocation_();
@@ -2804,7 +2806,7 @@ export class Parser {
   parseUnaryExpression_() {
     var start = this.getTreeStartLocation_();
 
-    if (this.allowAwait_ && this.peekPredefinedString_(AWAIT)) {
+    if (this.allowAwait && this.peekPredefinedString_(AWAIT)) {
       this.eatId_();
       // no newline?
       var operand = this.parseUnaryExpression_();
@@ -3239,10 +3241,10 @@ export class Parser {
     if (this.peek_(OPEN_CURLY))
       return this.parseFunctionBody_(asyncToken);
 
-    var allowAwait = this.allowAwait_;
-    this.allowAwait_ = asyncToken !== null;
+    var allowAwait = this.allowAwait;
+    this.allowAwait = asyncToken !== null;
     var expression = this.parseAssignmentExpression();
-    this.allowAwait_ = allowAwait;
+    this.allowAwait = allowAwait;
     return expression;
   }
 

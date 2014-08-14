@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ComprehensionTransformer} from './ComprehensionTransformer';
-import {createYieldStatement} from './ParseTreeFactory';
+import {parseStatement} from './PlaceholderParser';
 
 /**
  * Generator Comprehension Transformer:
@@ -45,7 +45,7 @@ export class GeneratorComprehensionTransformer extends
 
   transformGeneratorComprehension(tree) {
     var expression = this.transformAny(tree.expression);
-    var statement = createYieldStatement(expression);
+    var statement = parseStatement `yield ${expression}`;
     var isGenerator = true;
     return this.transformComprehension(tree, statement, isGenerator);
   }

@@ -74,19 +74,14 @@ import {
  */
 var NOT_FOUND = {};
 
-var PREFIX = '$__placeholder__';
-
 var cache = new Map();
 
 /**
- * @param {Array.<string>} sourceLiterals
- * @param {Array} values An array containing values or parse trees.
- * @return {ParseTree}
+ * @param {function(Parser) : ParseTree} doParse Function that calls the correct
+ *     parse method on the parser.
  */
-export function parseExpression(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parseExpression(sourceLiterals);
-  });
+function makeParseFunction(doParse) {
+  return (sourceLiterals, ...values) => parse(sourceLiterals, values, doParse);
 }
 
 /**
@@ -94,60 +89,26 @@ export function parseExpression(sourceLiterals, ...values) {
  * @param {Array} values An array containing values or parse trees.
  * @return {ParseTree}
  */
-export function parseStatement(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parseStatement(sourceLiterals);
-  });
-}
-
-/**
- * @param {Array.<string>} sourceLiterals
- * @param {Array} values An array containing values or parse trees.
- * @return {ParseTree}
- */
-export function parseModule(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parseModule(sourceLiterals);
-  });
-}
-
-/**
- * @param {Array.<string>} sourceLiterals
- * @param {Array} values An array containing values or parse trees.
- * @return {ParseTree}
- */
-export function parseScript(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parseScript(sourceLiterals);
-  });
-}
-
-/**
- * @param {Array.<string>} sourceLiterals
- * @param {Array} values An array containing values or parse trees.
- * @return {Array.<ParseTree>}
- */
-export function parseStatements(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parseStatements(sourceLiterals);
-  });
-}
-
-/**
- * @param {Array.<string>} sourceLiterals
- * @param {Array} values An array containing values or parse trees.
- * @return {ParseTree}
- */
-export function parsePropertyDefinition(sourceLiterals, ...values) {
-  return parse(sourceLiterals, values, () => {
-    return new PlaceholderParser().parsePropertyDefinition(sourceLiterals);
-  });
-}
+export var parseExpression = makeParseFunction((p) => p.parseExpression());
+export var parseStatement = makeParseFunction((p) => p.parseStatement());
+export var parseModule = makeParseFunction((p) => p.parseModule());
+export var parseScript = makeParseFunction((p) => p.parseScript());
+export var parseStatements = makeParseFunction((p) => p.parseStatements());
+export var parsePropertyDefinition =
+    makeParseFunction((p) => p.parsePropertyDefinition());
 
 function parse(sourceLiterals, values, doParse) {
   var tree = cache.get(sourceLiterals);
   if (!tree) {
-    tree = doParse();
+    var source = insertPlaceholderIdentifiers(sourceLiterals);
+    var errorReporter = new CollectingErrorReporter();
+    var parser = getParser(source, errorReporter);
+    tree = doParse(parser);
+    if (errorReporter.hadError() || !tree || !parser.isAtEnd()) {
+      throw new Error(
+          `Internal error trying to parse:\n\n${source}\n\n${
+              errorReporter.errorsAsString()}`);
+    }
     cache.set(sourceLiterals, tree);
   }
   if (!values.length)
@@ -160,87 +121,29 @@ function parse(sourceLiterals, values, doParse) {
   return new PlaceholderTransformer(values).transformList(tree);
 }
 
-var counter = 0;
+var PREFIX = '$__placeholder__';
 
 /**
- * Parses a set of strings coming from a template string and injects
- * placeholders into it. The resulting tree can later be used with the
- * |PlaceholderTransformer|.
+ * @param {Array.<string>} sourceLiterals
+ * @return {string}
  */
-export class PlaceholderParser {
-
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {ParseTree}
-   */
-  parseExpression(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parseExpression());
+function insertPlaceholderIdentifiers(sourceLiterals) {
+  var source = sourceLiterals[0];
+  for (var i = 1; i < sourceLiterals.length; i++) {
+    source += PREFIX + (i - 1) + sourceLiterals[i];
   }
+  return source;
+}
 
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {ParseTree}
-   */
-  parseStatement(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parseStatement());
-  }
+var counter = 0;
 
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {ParseTree}
-   */
-  parseModule(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parseModule());
-  }
-
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {ParseTree}
-   */
-  parseScript(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parseScript());
-  }
-
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {Array.<ParseTree>}
-   */
-  parseStatements(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parseStatements());
-  }
-
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @return {ParseTree}
-   */
-  parsePropertyDefinition(sourceLiterals) {
-    return this.parse_(sourceLiterals, (p) => p.parsePropertyDefinition());
-  }
-
-  /**
-   * @param {Array.<string>} sourceLiterals
-   * @param {function(Parser) : ParseTree} doParse
-   * @return {ParseTree}
-   * @private
-   */
-  parse_(sourceLiterals, doParse) {
-    var source = sourceLiterals[0];
-    for (var i = 1; i < sourceLiterals.length; i++) {
-      source += PREFIX + (i - 1) + sourceLiterals[i];
-    }
-
-    var file = new SourceFile(
-        '@traceur/generated/TemplateParser/' + counter++, source);
-    var errorReporter = new CollectingErrorReporter();
-    var parser = new Parser(file, errorReporter);
-    var tree = doParse(parser);
-    if (errorReporter.hadError() || !tree || !parser.isAtEnd()) {
-      throw new Error(
-          `Internal error trying to parse:\n\n${source}\n\n${
-              errorReporter.errorsAsString()}`);
-    }
-    return tree;
-  }
+function getParser(source, errorReporter) {
+  var file = new SourceFile(
+      '@traceur/generated/TemplateParser/' + counter++, source);
+  var parser = new Parser(file, errorReporter);
+  parser.allowYield = true;
+  parser.allowAwait = true;
+  return parser;
 }
 
 /**

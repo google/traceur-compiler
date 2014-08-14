@@ -694,16 +694,6 @@ export function createReturnStatement(expression) {
 
 /**
  * @param {ParseTree} expression
- * @param {boolean} isYieldFor
- * @return {ExpressionStatement}
- */
-export function createYieldStatement(expression, isYieldFor) {
-  return createExpressionStatement(new YieldExpression(null, expression,
-                                                       isYieldFor));
-}
-
-/**
- * @param {ParseTree} expression
  * @return {SpreadExpression}
  */
 function createSpreadExpression(expression) {

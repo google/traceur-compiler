@@ -44,8 +44,8 @@ suite('ExplodeExpressionTransformer.js', function() {
   function parseExpression(content) {
     var file = new SourceFile('test', content);
     var parser = new Parser(file);
-    parser.allowYield_ = true;
-    parser.allowAwait_ = true;
+    parser.allowYield = true;
+    parser.allowAwait = true;
     return parser.parseExpression();
   }
 
