@@ -16,6 +16,7 @@
 // Applies Traceur to all scripts in a Web page.
 
 import {Loader} from './runtime/Loader';
+import {TraceurLoader} from './runtime/TraceurLoader';
 import {ErrorReporter} from './util/ErrorReporter';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 import {webLoader} from './runtime/webLoader';
@@ -44,8 +45,13 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var nameInfo = {address: name, referrerName: window.location.href};
-    this.loader.module(content, nameInfo).catch(function(error) {
+    var nameInfo = {address: name, referrerName: window.location.href, name: name};
+    var loadingResult;
+    if (scriptElement.type === 'module')
+      loadingResult = this.loader.module(content, nameInfo);
+    else
+      loadingResult = this.loader.script(content, nameInfo);
+    loadingResult.catch(function(error) {
       console.error(error.stack || error);
     });
   }
@@ -95,7 +101,7 @@ export class WebPageTranscoder {
   get loader() {
     if (!this.loader_) {
       var loaderHooks = new InterceptOutputLoaderHooks(this.reporter, this.url);
-      this.loader_ = new Loader(loaderHooks);
+      this.loader_ = new TraceurLoader(loaderHooks);
     }
     return this.loader_;
   }
@@ -110,7 +116,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    var selector = 'script[type="module"]';
+    var selector = 'script[type="module"],script[type="text/traceur"]';
     var scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {

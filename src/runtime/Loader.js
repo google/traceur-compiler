@@ -36,7 +36,8 @@ export class Loader {
 
   /**
    * module - Asynchronously run the script src, first loading any imported
-   * modules that aren't already loaded.
+   * modules that aren't already loaded, with type="module" semantics (i.e.
+   * all top level variables are local to the module).
    *
    * This is the same as import but without fetching the source.
    * @param {string} source code
@@ -47,7 +48,7 @@ export class Loader {
     return this.internalLoader_.module(source, referrerName, address);
   }
 
-  /**
+    /**
    * Asynchronously install a new module under `name` from the `source` code.
    * All dependencies are installed in the registry.
    * @param {string} normalizedName

@@ -2,6 +2,8 @@
 *.sublime-project
 *.sublime-workspace
 *.swp
+.idea/*
+*.iml
 .DS_Store
 .svn
 bin/traceur-runtime.js

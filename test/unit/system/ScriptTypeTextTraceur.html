@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello, World!</title>
+    <script src="../../../bin/traceur.js"></script>
+    <script src="../../../src/bootstrap.js"></script>
+    <script>
+        traceur.options.experimental = true;
+    </script>
+</head>
+<body>
+<script type="text/traceur">
+    thisShouldBeAGlobalVariable = 'Success!';
+</script>
+<script type="text/traceur">
+      document.querySelector('#message').textContent = thisShouldBeAGlobalVariable;
+</script>
+<h1 id="message"></h1>
+</body>
+</html>
