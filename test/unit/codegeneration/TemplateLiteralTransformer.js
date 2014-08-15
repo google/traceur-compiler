@@ -20,12 +20,10 @@ suite('TemplateLiteralTransformer', function() {
   var Compiler = get('src/Compiler').Compiler;
 
   function testResult(name, content, expectedResult) {
-    test(name, function(done) {
-      Compiler.script(content).then(function(result) {
-        var value = (0, eval)(result.js);
-        assert.equal(value, expectedResult);
-        done();
-      }).catch(done);
+    test(name, function() {
+      var result = Compiler.script(content);
+      var value = (0, eval)(result.js);
+      assert.equal(value, expectedResult);
     });
   }
 

@@ -49,45 +49,6 @@ suite('Compiler', function() {
     assert.isTrue(result.js.length > 0);
   });
 
-  test('Compiler asynchronous', function(done) {
-    var compiler = new Compiler();
-    var content = '';
-    var result = compiler.parse(content).then(function(result) {
-      return compiler.transform(result.tree);
-    }).then(function(result) {
-      return compiler.write(result);
-    }).then(function(result) {
-      assert.isTrue(result.js.length > 0);
-      assert.equal(result.errors.length, 0);
-      done();
-    }).catch(done);
-  });
-
-  test('Compiler asynchronous, error', function(done) {
-    var compiler = new Compiler();
-    var content = 'syntax error';
-    var result = compiler.parse({content: content, options: {}}).then(function(result) {
-      return compiler.transform(result);
-    }).then(function(result) {
-      return compiler.write(result);
-    }).then(function(result) {
-      done(new Error('Expected error, got none'));
-    }).catch(function(ex) {
-      done();
-    });
-  });
-
-  test('Compiler script', function(done) {
-    var content = 'var x = 42;\n';
-
-    var result = Compiler.script(content).
-      then(function(result) {
-        assert.equal(result.js, content);
-        assert.equal(result.errors.length, 0);
-        done();
-      }).catch(done);
-  });
-
   test('Compiler options locked', function() {
     var Options = get('src/Options').Options;
     var checkDiff =

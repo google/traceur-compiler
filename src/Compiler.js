@@ -60,7 +60,7 @@ export class Compiler {
   static script(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.script = true;
-    return new Compiler(options).compile(content);
+    return new Compiler(options).stringToString(content);
   }
   /**
    * Use Traceur to compile ES6 module source code to 'register' module format.
@@ -72,7 +72,7 @@ export class Compiler {
   static module(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.modules = 'register';
-    return new Compiler(options).compile(content);
+    return new Compiler(options).stringToString(content);
   }
   /**
    * Options to create 'amd' module format.
@@ -106,19 +106,6 @@ export class Compiler {
   }
 
   /**
-   * Use Traceur to compile ES6 module source code
-   *
-   * @param {string} content ES6 source code.
-   * @param {Object=} options Traceur options to override defaults.
-   * @return {Promise<{js: string, errors: Array, sourceMap: string}>} Transpiled code.
-   */
-  compile(content) {
-    return this.parse(content).
-        then((result) => this.transform(result.tree)).
-        then((result) => this.write(result));
-  }
-
-  /**
    * Compile ES6 source code with Traceur.
    *
    * @param  {string} content ES6 source code.
@@ -146,10 +133,6 @@ export class Compiler {
       tree,
       errors: errorReporter.errors
     };
-  }
-
-  parse(input) {
-    return this.promise(this.stringToTree, input);
   }
 
   treeToTree(tree) {
@@ -186,10 +169,6 @@ export class Compiler {
     }
   }
 
-  transform(input) {
-    return this.promise(this.treeToTree, input);
-  }
-
   treeToString({tree, errors}) {
     var treeWriterOptions = {};
     if (this.options_.sourceMaps) {
@@ -206,10 +185,6 @@ export class Compiler {
     };
   }
 
-  write(input) {
-    return this.promise(this.treeToString, input);
-  }
-
   resolveModuleName(filename) {
     return filename;
   }
@@ -222,13 +197,4 @@ export class Compiler {
     return versionLockedOptions;
   }
 
-  promise(method, input) {
-    return new Promise((resolve, reject) => {
-      var output = method.call(this, input);
-      if (output.errors.length)
-        reject(new Error(output.errors.join('\n')));
-      else
-        resolve(output);
-    });
-  }
 }
