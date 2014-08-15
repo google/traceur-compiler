@@ -37,6 +37,13 @@ suite('SourceMap.js', function() {
     return tree;
   }
 
+  function parseModule(name, source) {
+    var sourceFile = new SourceFile(name, source);
+    var parser = new Parser(sourceFile, errorReporter);
+    var tree = parser.parseModule();
+    return tree;
+  }
+
   test('SourceMap', function() {
     var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
     var srcLines = src.split('\n');
@@ -109,7 +116,7 @@ suite('SourceMap.js', function() {
     var src = "  import {x} from 'WrapNewObjectTransformer';";
 
     var filename = 'sourceMapImportSpecifierSet.js';
-    var tree = parse(filename, src);
+    var tree = parseModule(filename, src);
 
     var generator = new SourceMapGenerator({file: filename});
     var options = {sourceMapGenerator: generator, showLineNumbers: false};

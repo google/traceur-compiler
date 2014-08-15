@@ -30,7 +30,7 @@ suite('Loader.js', function() {
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
-    traceur.options.modules = 'register';
+    traceur.options.reset();
     System.baseURL = baseURL;
   });
 

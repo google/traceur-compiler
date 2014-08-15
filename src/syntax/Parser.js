@@ -363,8 +363,6 @@ export class Parser {
     this.annotations_ = [];
   }
 
-
-
   // 14 Script
   /**
    * @return {Script}
@@ -372,42 +370,37 @@ export class Parser {
   parseScript() {
     this.strictMode_ = false;
     var start = this.getTreeStartLocation_();
-    var scriptItemList = this.parseScriptItemList_();
+    var scriptItemList = this.parseStatementList_(true);
     this.eat_(END_OF_FILE);
     return new Script(this.getTreeLocation_(start), scriptItemList);
   }
 
-  // ScriptItemList :
-  //   ScriptItem
-  //   ScriptItemList ScriptItem
+  // StatementList :
+  //   StatementListItem
+  //   StatementList StatementListItem
 
   /**
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseScriptItemList_() {
+  parseStatementList_(checkUseStrictDirective) {
     var result = [];
     var type;
 
     // We do a lot of type assignment in loops like these for performance
     // reasons.
-    var checkUseStrictDirective = true;
-    while ((type = this.peekType_()) !== END_OF_FILE) {
-      var scriptItem = this.parseScriptItem_(type, false);
-
-      // TODO(arv): We get here when we load external modules, which are always
-      // strict but we currently do not have a way to determine if we are in
-      // that case.
+    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
+      var statement = this.parseStatementListItem_(type);
       if (checkUseStrictDirective) {
-        if (!scriptItem.isDirectivePrologue()) {
+        if (!statement.isDirectivePrologue()) {
           checkUseStrictDirective = false;
-        } else if (scriptItem.isUseStrictDirective()) {
+        } else if (statement.isUseStrictDirective()) {
           this.strictMode_ = true;
           checkUseStrictDirective = false;
         }
       }
 
-      result.push(scriptItem);
+      result.push(statement);
     }
     return result;
   }
@@ -421,8 +414,9 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseScriptItem_(type, allowModuleItem) {
-    return this.parseStatement_(type, allowModuleItem, true);
+  parseStatementListItem_(type) {
+    // TODO(arv): Split into Declaration and Statement
+    return this.parseStatementWithType_(type);
   }
 
   parseModule() {
@@ -438,10 +432,24 @@ export class Parser {
     var type;
 
     while ((type = this.peekType_()) !== END_OF_FILE) {
-      var scriptItem = this.parseScriptItem_(type, true);
-      result.push(scriptItem);
+      var statement = this.parseModuleItem_(type);
+      result.push(statement);
     }
     return result;
+  }
+
+  parseModuleItem_(type) {
+    switch (type) {
+      case IMPORT:
+        return this.parseImportDeclaration_();
+      case EXPORT:
+        return this.parseExportDeclaration_();
+      case AT:
+        if (parseOptions.annotations)
+          return this.parseAnnotatedDeclarations_(true);
+        break;
+    }
+    return this.parseStatementListItem_(type);
   }
 
   parseModuleSpecifier_() {
@@ -820,15 +828,35 @@ export class Parser {
     return new ComputedPropertyName(this.getTreeLocation_(start), expression);
   }
 
+  /**
+   * Parses a single statement. This statement might be a top level statement
+   * in a Script or a Module as well as any other statement allowed in a
+   * FunctionBody.
+   * @return {ParseTree}
+   */
   parseStatement() {
-    return this.parseStatement_(this.peekType_(), false, false);
+    return this.parseModuleItem_(this.peekType_());
+  }
+
+  /**
+   * Parses one or more statements. These might be top level statements in a
+   * Script or a Module as well as any other statement allowed in a
+   * FunctionBody.
+   * @return {Array.<ParseTree>}
+   */
+  parseStatements() {
+    return this.parseModuleItemList_();
+  }
+
+  parseStatement_() {
+    return this.parseStatementWithType_(this.peekType_());
   }
 
   /**
    * @return {ParseTree}
    * @private
    */
-  parseStatement_(type, allowModuleItem, allowScriptItem) {
+  parseStatementWithType_(type) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -858,7 +886,7 @@ export class Parser {
       // Rest are just alphabetical order.
       case AT:
         if (parseOptions.annotations)
-          return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
+          return this.parseAnnotatedDeclarations_(false);
         break;
       case CLASS:
         if (parseOptions.classes)
@@ -870,14 +898,6 @@ export class Parser {
         return this.parseDebuggerStatement_();
       case DO:
         return this.parseDoWhileStatement_();
-      case EXPORT:
-        if (allowModuleItem && parseOptions.modules)
-          return this.parseExportDeclaration_();
-        break;
-      case IMPORT:
-        if (allowScriptItem && parseOptions.modules)
-          return this.parseImportDeclaration_();
-        break;
       case OPEN_CURLY:
         return this.parseBlock_();
       case SEMI_COLON:
@@ -1059,32 +1079,6 @@ export class Parser {
     return new FunctionBody(this.getTreeLocation_(start), result);
   }
 
-  parseStatements() {
-    return this.parseStatementList_(false);
-  }
-
-  /**
-   * @return {Array.<ParseTree>}
-   * @private
-   */
-  parseStatementList_(checkUseStrictDirective) {
-    var result = [];
-    var type;
-    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
-      var statement = this.parseStatement_(type, false, false);
-      if (checkUseStrictDirective) {
-        if (!statement.isDirectivePrologue()) {
-          checkUseStrictDirective = false;
-        } else if (statement.isUseStrictDirective()) {
-          this.strictMode_ = true;
-          checkUseStrictDirective = false;
-        }
-      }
-      result.push(statement);
-    }
-    return result;
-  }
-
   /**
    * @return {SpreadExpression}
    * @private
@@ -1255,7 +1249,7 @@ export class Parser {
       // 12.12 Labelled Statement
       if (this.eatIf_(COLON)) {
         var nameToken = expression.identifierToken;
-        var statement = this.parseStatement();
+        var statement = this.parseStatement_();
         return new LabelledStatement(this.getTreeLocation_(start), nameToken,
                                      statement);
       }
@@ -1276,10 +1270,10 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var ifClause = this.parseStatement();
+    var ifClause = this.parseStatement_();
     var elseClause = null;
     if (this.eatIf_(ELSE)) {
-      elseClause = this.parseStatement();
+      elseClause = this.parseStatement_();
     }
     return new IfStatement(this.getTreeLocation_(start), condition, ifClause, elseClause);
   }
@@ -1294,7 +1288,7 @@ export class Parser {
   parseDoWhileStatement_() {
     var start = this.getTreeStartLocation_();
     this.eat_(DO);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     this.eat_(WHILE);
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
@@ -1314,7 +1308,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     return new WhileStatement(this.getTreeLocation_(start), condition, body);
   }
 
@@ -1388,7 +1382,7 @@ export class Parser {
     this.eatId_(); // of
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     return new ForOfStatement(this.getTreeLocation_(start), initializer,
                               collection, body);
   }
@@ -1466,7 +1460,7 @@ export class Parser {
       increment = this.parseExpression();
     }
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     return new ForStatement(this.getTreeLocation_(start), initializer,
                             condition, increment, body);
   }
@@ -1482,7 +1476,7 @@ export class Parser {
     this.eat_(IN);
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     return new ForInStatement(this.getTreeLocation_(start), initializer,
                               collection, body);
   }
@@ -1569,7 +1563,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var expression = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement();
+    var body = this.parseStatement_();
     return new WithStatement(this.getTreeLocation_(start), expression, body);
   }
 
@@ -1639,7 +1633,7 @@ export class Parser {
         case END_OF_FILE:
           return result;
       }
-      result.push(this.parseStatement_(type, false, false));
+      result.push(this.parseStatementWithType_(type));
     }
   }
 
@@ -3776,12 +3770,19 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem) {
+  parseAnnotatedDeclarations_(parsingModuleItem) {
     this.pushAnnotations_();
-    var declaration = this.parseStatement_(this.peekType_(),
-                                           allowModuleItem, allowScriptItem);
-    if (this.annotations_.length > 0)
+
+    var declaration;
+    var type = this.peekType_();
+    if (parsingModuleItem) {
+      declaration = this.parseModuleItem_(type);
+    } else {
+      declaration = this.parseStatementListItem_(type);
+    }
+    if (this.annotations_.length > 0) {
       return this.parseSyntaxError_('Unsupported annotated expression');
+    }
     return declaration;
   }
 

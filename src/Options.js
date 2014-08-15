@@ -26,7 +26,6 @@ export var optionsV01 = enumerableOnlyObject({
   annotations: false,
   arrayComprehension: false,
   arrowFunctions: true,
-  script: false,
   asyncFunctions: false,
   blockBinding: false,
   classes: true,
@@ -49,6 +48,7 @@ export var optionsV01 = enumerableOnlyObject({
   propertyNameShorthand: true,
   referrer: '',
   restParameters: true,
+  script: false,
   sourceMaps: false,
   spread: true,
   symbols: false,
@@ -56,7 +56,7 @@ export var optionsV01 = enumerableOnlyObject({
   typeAssertionModule: null,
   typeAssertions: false,
   types: false,
-  validate: false
+  validate: false,
 });
 
 export var versionLockedOptions = optionsV01;
@@ -423,7 +423,7 @@ addFeatureOption('types', EXPERIMENTAL);
 addBoolOption('commentCallback');
 addBoolOption('debug');
 addBoolOption('freeVariableChecker');
+addBoolOption('script');
 addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
 addBoolOption('validate');
-addBoolOption('script');

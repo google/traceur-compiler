@@ -1,6 +1,7 @@
 // Options: --annotations --types
 import {
   Anno,
+  Anno2,
   X
 } from './resources/setup';
 
