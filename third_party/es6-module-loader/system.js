@@ -303,7 +303,7 @@
           output = compiler.transform(output.tree);
           checkForErrors(output);
 
-          output = compiler.treeToString(output);
+          output = compiler.write(output);
           checkForErrors(output);
           var source = output.js;
           var sourceMap = output.generatedSourceMap;

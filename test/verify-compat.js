@@ -27,7 +27,7 @@ class FindEvalVisitor extends FindVisitor {
     if (tree.operand.type === IDENTIFIER_EXPRESSION) {
       var shouldBeEval = tree.operand.identifierToken.value;
       if (shouldBeEval === 'eval') {
-        var src = compiler.treeToString({tree: tree.args}).js
+        var src = compiler.write({tree: tree.args}).js
         this.evaledSource = src.substring(2, src.length - 2);
       }
     }

@@ -118,7 +118,7 @@ export class Compiler {
     output = this.transform(output.tree);
     if (output.errors.length)
       return output;
-    return this.treeToString(output);
+    return this.write(output);
   }
 
   parse(content) {
@@ -169,7 +169,7 @@ export class Compiler {
     }
   }
 
-  treeToString({tree, errors}) {
+  write({tree, errors}) {
     var treeWriterOptions = {};
     if (this.options_.sourceMaps) {
       treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({

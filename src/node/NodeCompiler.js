@@ -72,8 +72,8 @@ function moduleToAmd(content, options) {
       stringToString(content);
 }
 
-function treeToString(input, options) {
-  return new NodeCompiler(options).treeToString(input);
+function write(input, options) {
+  return new NodeCompiler(options).write(input);
 }
 
 function getSourceMapFileName(name) {
@@ -96,6 +96,6 @@ module.exports = {
   compile: compile,
   moduleToCommonJS: moduleToCommonJS,
   moduleToAmd: moduleToAmd,
-  treeToString: treeToString,
+  write: write,
   writeCompiledCodeToFile: writeCompiledCodeToFile,
 };
