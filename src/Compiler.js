@@ -115,7 +115,7 @@ export class Compiler {
     var output = this.parse(content);
     if (output.errors.length)
       return output;
-    output = this.treeToTree(output.tree);
+    output = this.transform(output.tree);
     if (output.errors.length)
       return output;
     return this.treeToString(output);
@@ -135,7 +135,7 @@ export class Compiler {
     };
   }
 
-  treeToTree(tree) {
+  transform(tree) {
     var transformer;
     if (this.options_.moduleName) {  // true or non-empty string.
       var moduleName = this.options_.moduleName;

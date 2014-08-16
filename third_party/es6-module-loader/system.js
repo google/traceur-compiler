@@ -300,7 +300,7 @@
           checkForErrors(output);
 
           depsList = getImports(output.tree);
-          output = compiler.treeToTree(output.tree);
+          output = compiler.transform(output.tree);
           checkForErrors(output);
 
           output = compiler.treeToString(output);
