@@ -112,7 +112,7 @@ export class Compiler {
    * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
    */
   stringToString(content) {
-    var output = this.stringToTree(content);
+    var output = this.parse(content);
     if (output.errors.length)
       return output;
     output = this.treeToTree(output.tree);
@@ -121,7 +121,7 @@ export class Compiler {
     return this.treeToString(output);
   }
 
-  stringToTree(content) {
+  parse(content) {
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
 

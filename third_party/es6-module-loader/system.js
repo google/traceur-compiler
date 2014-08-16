@@ -296,7 +296,7 @@
 
           var options = { modules: 'instantiate' };
           var compiler = new traceur.Compiler(options);
-          var output = compiler.stringToTree(load.source);
+          var output = compiler.parse(load.source);
           checkForErrors(output);
 
           depsList = getImports(output.tree);

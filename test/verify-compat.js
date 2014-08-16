@@ -53,7 +53,7 @@ System.loadAsScript('./node_modules/es5-compat-table/data-es6.js').then((tests) 
 
       var m = /eval\(([^\)]*)\)/.exec(src);
       if (m) {
-        var {tree} = compiler.stringToTree(src);
+        var {tree} = compiler.parse(src);
         var visitor = new FindEvalVisitor();
         visitor.visitAny(tree);
         if (visitor.evaledSource) {
