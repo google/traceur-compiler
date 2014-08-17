@@ -41,7 +41,7 @@ module.exports = {
   compile: NodeCompiler.compile,
   moduleToCommonJS: NodeCompiler.moduleToCommonJS,
   moduleToAmd: NodeCompiler.moduleToAmd,
-  treeToString: NodeCompiler.treeToString,
+  write: NodeCompiler.write,
   writeCompiledCodeToFile: NodeCompiler.writeCompiledCodeToFile,
   RUNTIME_PATH: RUNTIME_PATH
 };

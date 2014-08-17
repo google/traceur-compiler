@@ -296,14 +296,14 @@
 
           var options = { modules: 'instantiate' };
           var compiler = new traceur.Compiler(options);
-          var output = compiler.stringToTree(load.source);
+          var output = compiler.parse(load.source);
           checkForErrors(output);
 
           depsList = getImports(output.tree);
-          output = compiler.treeToTree(output.tree);
+          output = compiler.transform(output.tree);
           checkForErrors(output);
 
-          output = compiler.treeToString(output);
+          output = compiler.write(output);
           checkForErrors(output);
           var source = output.js;
           var sourceMap = output.generatedSourceMap;

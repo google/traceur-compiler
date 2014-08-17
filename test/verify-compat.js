@@ -27,8 +27,8 @@ class FindEvalVisitor extends FindVisitor {
     if (tree.operand.type === IDENTIFIER_EXPRESSION) {
       var shouldBeEval = tree.operand.identifierToken.value;
       if (shouldBeEval === 'eval') {
-        var src = compiler.treeToString({tree: tree.args, options: {}}).js
-        this.found = src.substring(2, src.length - 2);
+        var src = compiler.write({tree: tree.args}).js
+        this.evaledSource = src.substring(2, src.length - 2);
       }
     }
   }
@@ -53,12 +53,13 @@ System.loadAsScript('./node_modules/es5-compat-table/data-es6.js').then((tests) 
 
       var m = /eval\(([^\)]*)\)/.exec(src);
       if (m) {
-        var {tree} = compiler.stringToTree(src);
+        var {tree} = compiler.parse(src);
         var visitor = new FindEvalVisitor();
         visitor.visitAny(tree);
-        if (visitor.found) {
+        if (visitor.evaledSource) {
           try {
-            (0, eval)(Compiler.module(visitor.found).js);
+            var transcoded = Compiler.script(visitor.evaledSource);
+            (0, eval)(transcoded);
             checkTest(test, true);
           } catch (ex) {
             checkTest(test, false);
