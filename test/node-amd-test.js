@@ -9,6 +9,8 @@ function onlyJsFiles(path) {
 }
 
 function moduleFromSource(src) {
+  if (!src || (src + '') === 'undefined')
+    throw new Error('Test input in ' + COMPILED_DIR + ' is undefined.');
   var module;
   var define = function(deps, factory) {
     var output = factory();
@@ -32,7 +34,8 @@ suite('amd', function() {
   });
 
   test('Transpiled module export', function(done) {
-    var module = moduleFromSource(fs.readFileSync(path.resolve(COMPILED_DIR, 'NamedExports.js')));
+    var module = moduleFromSource(
+        fs.readFileSync(path.resolve(COMPILED_DIR, 'NamedExports.js')));
     assert.equal(module.someExport, 'val');
     done();
   })

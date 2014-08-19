@@ -44,11 +44,6 @@ NodeCompiler.prototype = {
   }
 };
 
-function compile(content, options) {
-  return new NodeCompiler(Compiler.commonJSOptions(options)).
-      stringToString(content);
-}
-
 /**
  * Use Traceur to Compile ES6 module source code to commonjs format.
  *
@@ -57,8 +52,11 @@ function compile(content, options) {
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
 function moduleToCommonJS(content, options) {
-  return new NodeCompiler(Compiler.commonJSOptions(options)).
-      stringToString(content);
+  var compiler = new NodeCompiler(Compiler.commonJSOptions(options));
+  return {
+    js: compiler.compile(content),
+    sourceMap: compiler.sourceMap()
+  };
 }
 /**
  * Use Traceur to Compile ES6 module source code to amd format.
@@ -68,12 +66,11 @@ function moduleToCommonJS(content, options) {
  * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
  */
 function moduleToAmd(content, options) {
-  return new NodeCompiler(Compiler.amdOptions(options)).
-      stringToString(content);
-}
-
-function write(input, options) {
-  return new NodeCompiler(options).write(input);
+  var compiler = new NodeCompiler(Compiler.amdOptions(options));
+  return {
+    js: compiler.compile(content),
+    sourceMap: compiler.sourceMap()
+  };
 }
 
 function getSourceMapFileName(name) {
@@ -93,9 +90,8 @@ function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
 }
 
 module.exports = {
-  compile: compile,
+  NodeCompiler: NodeCompiler,
   moduleToCommonJS: moduleToCommonJS,
   moduleToAmd: moduleToAmd,
-  write: write,
   writeCompiledCodeToFile: writeCompiledCodeToFile,
 };

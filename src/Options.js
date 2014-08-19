@@ -292,7 +292,7 @@ export function addOptions(flags, commandOptions) {
         commandOptions.modules = moduleFormat;
       });
   flags.option('--moduleName <string>',
-    '__moduleName value, + sign to use filename, or empty to omit; default +',
+    '__moduleName value, + sign to use filename, or empty to omit',
     (moduleName) => {
       if (moduleName === '+')
         moduleName = true;

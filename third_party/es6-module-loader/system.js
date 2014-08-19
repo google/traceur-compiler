@@ -280,15 +280,6 @@
 
       console.assert(load.source, 'Non-empty source');
 
-      function checkForErrors(output) {
-        if (output.errors.length) {
-          output.errors.map(function(error) {
-            console.error(error);
-          });
-          throw new Error('Parse failed, ' + output.errors.length);
-        }
-      }
-
       var depsList;
       (function () {
         try {
@@ -296,17 +287,11 @@
 
           var options = { modules: 'instantiate' };
           var compiler = new traceur.Compiler(options);
-          var output = compiler.parse(load.source);
-          checkForErrors(output);
-
-          depsList = getImports(output.tree);
-          output = compiler.transform(output.tree);
-          checkForErrors(output);
-
-          output = compiler.write(output);
-          checkForErrors(output);
-          var source = output.js;
-          var sourceMap = output.generatedSourceMap;
+          var tree = compiler.parse(load.source);
+          depsList = getImports(tree);
+          tree = compiler.transform(tree);
+          source = compiler.write(tree);
+          var sourceMap = compiler.sourceMap();
 
           if (global.btoa && sourceMap)
             source += '\n//# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(sourceMap))) + '\n';

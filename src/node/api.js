@@ -21,9 +21,14 @@
 
 var path = require('path');
 var traceur = require('./traceur.js');
-var NodeCompiler = require('./NodeCompiler.js');
+var NodeCompilerModule = require('./NodeCompiler.js');
+var NodeCompiler = NodeCompilerModule.NodeCompiler;
 var recursiveModuleCompile = require('./recursiveModuleCompile.js');
 var compileAllJsFilesInDir = require('./compileAllJsFilesInDir.js');
+
+function compile(src, options) {
+  return NodeCompilerModule.moduleToCommonJS(src, options).js;
+}
 
 // The absolute path to traceur-runtime.js -- the file that should be executed
 // if you want to run Traceur-compiled scripts when the compiler isn't present.
@@ -38,10 +43,10 @@ module.exports = {
       recursiveModuleCompile.forEachRecursiveModuleCompile,
   compileAllJsFilesInDir:
     compileAllJsFilesInDir.compileAllJsFilesInDir,
-  compile: NodeCompiler.compile,
-  moduleToCommonJS: NodeCompiler.moduleToCommonJS,
-  moduleToAmd: NodeCompiler.moduleToAmd,
-  write: NodeCompiler.write,
-  writeCompiledCodeToFile: NodeCompiler.writeCompiledCodeToFile,
+  NodeCompiler: NodeCompiler,
+  compile: compile,
+  moduleToCommonJS: NodeCompilerModule.moduleToCommonJS,
+  moduleToAmd: NodeCompilerModule.moduleToAmd,
+  writeCompiledCodeToFile: NodeCompilerModule.writeCompiledCodeToFile,
   RUNTIME_PATH: RUNTIME_PATH
 };

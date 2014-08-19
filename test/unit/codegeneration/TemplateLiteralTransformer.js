@@ -22,7 +22,7 @@ suite('TemplateLiteralTransformer', function() {
   function testResult(name, content, expectedResult) {
     test(name, function() {
       var result = Compiler.script(content);
-      var value = (0, eval)(result.js);
+      var value = (0, eval)(result);
       assert.equal(value, expectedResult);
     });
   }

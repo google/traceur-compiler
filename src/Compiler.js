@@ -19,14 +19,16 @@ import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {Parser} from './syntax/Parser';
 import {PureES6Transformer} from './codegeneration/PureES6Transformer';
 import {SourceFile} from './syntax/SourceFile';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 import {
   Options,
   options as traceurOptions,
   versionLockedOptions
 } from './Options';
-import {write} from './outputgeneration/TreeWriter';
+
+import {ParseTreeMapWriter} from './outputGeneration/ParseTreeMapWriter';
+import {ParseTreeWriter} from './outputGeneration/ParseTreeWriter';
+import {SourceMapGenerator} from './outputGeneration/SourceMapIntegration';
 
 function merge(...srcs) {
   var dest = Object.create(null);
@@ -60,7 +62,7 @@ export class Compiler {
   static script(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.script = true;
-    return new Compiler(options).stringToString(content);
+    return new Compiler(options).compile(content);
   }
   /**
    * Use Traceur to compile ES6 module source code to 'register' module format.
@@ -72,7 +74,7 @@ export class Compiler {
   static module(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
     options.modules = 'register';
-    return new Compiler(options).stringToString(content);
+    return new Compiler(options).compile(content);
   }
   /**
    * Options to create 'amd' module format.
@@ -109,16 +111,15 @@ export class Compiler {
    * Compile ES6 source code with Traceur.
    *
    * @param  {string} content ES6 source code.
-   * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
+   * @return {string} equivalent ES5 source.
    */
-  stringToString(content) {
-    var output = this.parse(content);
-    if (output.errors.length)
-      return output;
-    output = this.transform(output.tree);
-    if (output.errors.length)
-      return output;
-    return this.write(output);
+  compile(content) {
+    return this.write(this.transform(this.parse(content)));
+  }
+
+  throwIfErrors(errorReporter) {
+    if (errorReporter.hadError())
+      throw errorReporter.errors;
   }
 
   parse(content) {
@@ -128,11 +129,10 @@ export class Compiler {
     var errorReporter = new CollectingErrorReporter();
     var sourceFile = new SourceFile(this.options_.filename, content);
     var parser = new Parser(sourceFile, errorReporter);
-    var tree = this.options_.script ? parser.parseScript() : parser.parseModule();
-    return {
-      tree,
-      errors: errorReporter.errors
-    };
+    var tree =
+        this.options_.script ? parser.parseScript() : parser.parseModule();
+    this.throwIfErrors(errorReporter);
+    return tree;
   }
 
   transform(tree) {
@@ -155,34 +155,34 @@ export class Compiler {
     }
 
     var transformedTree = transformer.transform(tree);
+    this.throwIfErrors(errorReporter);
+    return transformedTree;
+  }
 
-    if (errorReporter.hadError()) {
-      return {
-        js: null,
-        errors: errorReporter.errors
-      };
-    } else {
-      return {
-        tree: transformedTree,
-        errors: errorReporter.errors
-      };
+  sourceMapGenerator() {
+    if (this.options_.sourceMaps) {
+      return new SourceMapGenerator({
+          file: this.options_.filename,
+          sourceRoot: this.sourceRootForFilename(this.options_.filename)
+        });
     }
   }
 
-  write({tree, errors}) {
-    var treeWriterOptions = {};
-    if (this.options_.sourceMaps) {
-      treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
-        file: this.options_.filename,
-        sourceRoot: this.sourceRootForFilename(this.options_.filename)
-      });
-    }
+  sourceMap() {
+    return this.sourceMap_;
+  }
 
-    return {
-      js: write(tree, treeWriterOptions),
-      errors: errors,
-      generatedSourceMap: treeWriterOptions.generatedSourceMap || null
-    };
+  write(tree) {
+    var sourceMapGenerator = this.sourceMapGenerator();
+    if (sourceMapGenerator) {
+      var writer = new ParseTreeMapWriter(sourceMapGenerator, this.options_);
+      writer.visitAny(tree);
+      this.sourceMap_ = sourceMapGenerator.toString();
+      return writer.toString(tree);
+    }
+    var writer = new ParseTreeWriter(this.options_);
+    writer.visitAny(tree);
+    return writer.toString(tree);
   }
 
   resolveModuleName(filename) {

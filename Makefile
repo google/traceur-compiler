@@ -98,7 +98,7 @@ test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
 	rm -r -f test/unit/tools # only used for generated files currently.
 
-test/unit/%-run: test/unit/% bin/traceur.js
+test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
 
 test/commonjs: test/commonjs-compiled
@@ -126,7 +126,7 @@ test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
 
 test-inline-module-error:
 	./traceur --out not-written.js \
-		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d'
+		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d' > /dev/null
 
 test/commonjs-compiled: force
 	rm -f -r test.commonjs-compiled/*

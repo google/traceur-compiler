@@ -130,7 +130,7 @@ if (!shouldExit) {
         commandOptions).then(function() {
           process.exit(0);
         }).catch(function(err) {
-          console.error(err);
+          console.error(err.stack || err);
           process.exit(1);
         });
     } else {
@@ -142,7 +142,11 @@ if (!shouldExit) {
       throw new Error('Compile all in directory requires exactly one input filename');
     traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name,
         function(content) {
-          return traceurAPI.compile(content, commandOptions);
+          var compiler = new traceurAPI.NodeCompiler(commandOptions);
+          return {
+            js: compiler.compile(content),
+            sourceMap: compiler.sourceMap()
+          }
         });
   } else {
     rootSources.forEach(function(obj) {
