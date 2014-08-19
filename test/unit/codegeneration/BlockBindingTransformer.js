@@ -171,5 +171,18 @@ suite('BlockBindingTransformer.js', function() {
         'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
         '$__1(i$__0);' +
         '}');
+
+    makeTest('Function as Block Binding',
+        'for(let i = 0; i < 5; i++){ function k() {} function t(){log(k)} }',
+        // ====== '',
+        'var $__1 = function(i) {' +
+        '  function k() {}' +
+        '  function t() {' +
+        '    log(k);' +
+        '  }' +
+        '};' +
+        'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
+        '$__1(i$__0);' +
+        '}');
   })
 });
