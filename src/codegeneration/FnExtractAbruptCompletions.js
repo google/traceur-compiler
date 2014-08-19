@@ -41,10 +41,8 @@ import {
   createVariableStatement,
   createVoid0
 } from './ParseTreeFactory';
-
-import {
-  VAR
-} from '../syntax/TokenType';
+import {ARGUMENTS} from '../syntax/PredefinedName';
+import {VAR} from '../syntax/TokenType';
 
 
 /**
@@ -144,14 +142,14 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   addTempVarForArguments() {
     var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, createThisExpression()));
+        tmpVarName, createIdentifierExpression(ARGUMENTS)));
     return tmpVarName;
   }
   // alphaRenameThisAndArguments
   addTempVarForThis() {
     var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
-        tmpVarName, createIdentifierExpression(ARGUMENTS)));
+        tmpVarName, createThisExpression()));
     return tmpVarName;
   }
 

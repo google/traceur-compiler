@@ -59,7 +59,6 @@ import {
   WhileStatement
 } from '../syntax/trees/ParseTrees';
 import {IdentifierToken} from '../syntax/IdentifierToken';
-import {ARGUMENTS} from '../syntax/PredefinedName';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {

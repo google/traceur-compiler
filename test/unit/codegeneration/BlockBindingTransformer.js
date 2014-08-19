@@ -148,6 +148,15 @@ suite('BlockBindingTransformer.js', function() {
         '    }' +
         '  }' +
         '}');
-    
+
+    makeTest('This and Arguments',
+        'for(let i = 0; i < 5; i++){ console.log(this, arguments); function t(){log(i)} }',
+        // ======
+        'var $__1 = arguments,' +
+        '    $__2 = this,' +
+        '    $__3 = function(i) { console.log($__2, $__1); function t() {log(i)} };' +
+        'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
+        '$__3(i$__0);' +
+        '}');
   })
 });
