@@ -16,6 +16,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {parseStatement} from './PlaceholderParser';
 import {
+  AnonBlock,
   BreakStatement,
   ContinueStatement,
   FormalParameterList,
@@ -23,6 +24,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {
   createArgumentList,
+  createAssignmentStatement,
   createAssignmentExpression,
   createBlock,
   createCallExpression,
@@ -212,6 +214,27 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     return super(tree);
   }
 
+  transformVariableStatement(tree) {
+    if (tree.declarations.declarationType === VAR) {
+      var assignments = [];
+      tree.declarations.declarations.forEach((variableDeclaration) => {
+        var variableName = variableDeclaration.lvalue.getStringValue();
+        var initializer = super.transformAny(variableDeclaration.initializer);
+
+        this.variableDeclarations_.push(
+            createVariableDeclaration(variableName, null));
+
+        assignments.push(createAssignmentStatement(
+            createIdentifierExpression(variableName), initializer));
+      });
+
+      return new AnonBlock(null, assignments);
+    }
+
+    return super(tree);
+  }
+
+
   // don't transform children functions
   transformFunctionDeclaration(tree) {return tree;}
   transformFunctionExpression(tree) {return tree;}
@@ -219,6 +242,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   transformGetAccessor(tree) {return tree;}
   transformPropertyMethodAssignment(tree) {return tree;}
   transformArrowFunctionExpression(tree) {return tree;}
+
 
   static createIIFE(idGenerator, body, paramList, argsList, requestParentLabel) {
     return new FnExtractAbruptCompletions(idGenerator, requestParentLabel)

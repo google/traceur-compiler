@@ -158,5 +158,18 @@ suite('BlockBindingTransformer.js', function() {
         'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
         '$__3(i$__0);' +
         '}');
+
+    makeTest('Hoist Var Declaration',
+        'for(let i = 0; i < 5; i++){ var k = 1; function t(){log(i)} }',
+        // ======
+        'var k, $__1 = function(i) {' +
+        '  k = 1;' +
+        '  function t() {' +
+        '    log(i);' +
+        '  }' +
+        '};' +
+        'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
+        '$__1(i$__0);' +
+        '}');
   })
 });
