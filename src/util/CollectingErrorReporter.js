@@ -14,12 +14,12 @@
 
 import {ErrorReporter} from '../util/ErrorReporter';
 
-export class MultiError extends Error {
+export class MultipleErrors extends Error {
   constructor(errors) {
-    this.errors = errors
-  }
-  message() {
-    return this.errors.map((error) => error.message()).join('\n');
+    this.errors = errors;
+    this.name = 'MultipleErrors';
+    this.message = this.errors ?
+        this.errors.map((error) => (error + '')).join('\n') : '';
   }
 }
 
@@ -34,9 +34,9 @@ export class CollectingErrorReporter extends ErrorReporter {
     this.errors.push(message);
   }
   errorsAsString() {
-    return this.toError();
+    return this.toError().message;
   }
   toError() {
-    return new MultiError(this.errors);
+    return new MultipleErrors(this.errors);
   }
 }

@@ -233,7 +233,7 @@ export class LoaderHooks {
     var reporter = new CollectingErrorReporter();
     var result = fncOfReporter(reporter);
     if (reporter.hadError())
-      throw reporter.toException();
+      throw reporter.toError();
     return result;
   }
 
