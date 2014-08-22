@@ -126,7 +126,11 @@ export class Map {
       this.entries_[index + 1] = undefined;
 
       this.deletedCount_++;
+
+      return true; // 23.1.3.3
     }
+
+    return false; // 23.1.3.3
   }
 
   clear() {

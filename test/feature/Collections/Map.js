@@ -205,14 +205,18 @@ assertArrayEquals(arr, [
 
 
 var t3 = new Map([ [[],[]], [{},{}], [NaN,NaN] ]);
+var deleteReturnValue;
+
 assert.equal(t3.size, 3);
 assert.isTrue(t3.has(NaN));
 assert.isTrue(isNaN(t3.get(NaN)));
 assert.equal(t3.set(NaN, NaN), t3); // test of 23.1.3.9.11
-t3.delete(NaN);
+deleteReturnValue = t3.delete(NaN);
 assert.equal(t3.size, 2);
-t3.delete(NaN);
+assert.isTrue(deleteReturnValue);
+deleteReturnValue = t3.delete(NaN);
 assert.equal(t3.size, 2);
+assert.isFalse(deleteReturnValue);
 t3.clear();
 assert.equal(t3.size, 0);
 
