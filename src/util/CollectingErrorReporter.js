@@ -16,9 +16,10 @@ import {ErrorReporter} from '../util/ErrorReporter';
 
 export class MultipleErrors extends Error {
   constructor(errors) {
-    super(errors ? errors.map((error) => (error + '')).join('\n') : '');
+    this.message = errors ? errors.join('\n')  + '': '';
+    this.name = errors && (errors.length > 1) ? 'MultipleErrors' : '';
+    // Access for alternative formatting.
     this.errors = errors;
-    this.name = 'MultipleErrors';
   }
 }
 

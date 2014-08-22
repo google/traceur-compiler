@@ -21,6 +21,7 @@ suite('ErrorReporter.js', function() {
   var MutedErrorReporter = get('src/util/MutedErrorReporter').MutedErrorReporter;
   var SyntaxErrorReporter = get('src/util/SyntaxErrorReporter').SyntaxErrorReporter;
   var SourcePosition = get('src/util/SourcePosition').SourcePosition;
+  var MultipleErrors = get('src/util/CollectingErrorReporter').MultipleErrors;
 
   var originalConsoleError = console.error;
   var args;
@@ -76,6 +77,33 @@ suite('ErrorReporter.js', function() {
       assert(thrown);
       assert.equal('SyntaxError: abcde', thrown + '');
     }
+  });
+
+  test('MultipleErrors', function() {
+    var accumulated = [new SyntaxError('one'), new SyntaxError('two')];
+    var error = new MultipleErrors(accumulated);
+    assert.throws(function() {
+      throw error;
+    }, MultipleErrors);
+    assert.equal(error + '', 'MultipleErrors: ' + accumulated.join('\n'));
+  });
+
+  test('Only one MultipleErrors', function() {
+    var accumulated = [new SyntaxError('one')];
+    var error = new MultipleErrors(accumulated);
+    assert.throws(function() {
+      throw error;
+    }, MultipleErrors);
+    assert.equal(error + '', accumulated.join('\n'));
+  });
+
+  test('No MultipleErrors', function() {
+    var accumulated = null;
+    var error = new MultipleErrors(accumulated);
+    assert.throws(function() {
+      throw error;
+    }, MultipleErrors);
+    assert.equal(error + '', '');
   });
 
   test('Format', function() {
