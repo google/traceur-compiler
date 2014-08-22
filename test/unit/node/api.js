@@ -42,4 +42,11 @@ suite('api.js', function() {
     assert(result.errors.length === 0, 'expect no errors');
   });
 
+  test('api compile inline', function() {
+    var src = 'export function Half(n) {\n this.halfNumber = n / 2;\n};';
+    var api = require('../../../src/node/api');
+    var result = api.compile(src, {modules: 'inline'});
+    assert(result.errors.length === 0, 'expect no errors');
+  });
+
 });
