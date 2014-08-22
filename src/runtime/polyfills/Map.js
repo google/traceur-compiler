@@ -127,10 +127,10 @@ export class Map {
 
       this.deletedCount_++;
 
-      return true;
+      return true; // 23.1.3.3
     }
 
-    return false;
+    return false; // 23.1.3.3
   }
 
   clear() {
