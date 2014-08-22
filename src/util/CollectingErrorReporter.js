@@ -18,8 +18,8 @@ export class MultipleErrors extends Error {
   constructor(errors) {
     this.errors = errors;
     this.name = 'MultipleErrors';
-    this.message = this.errors ?
-        this.errors.map((error) => (error + '')).join('\n') : '';
+    super(this.errors ?
+       this.errors.map((error) => (error + '')).join('\n') : '');
   }
 }
 
