@@ -55,7 +55,7 @@ function moduleToCommonJS(content, options) {
   var compiler = new NodeCompiler(Compiler.commonJSOptions(options));
   return {
     js: compiler.compile(content),
-    sourceMap: compiler.sourceMap()
+    sourceMap: compiler.getSourceMap()
   };
 }
 /**
@@ -69,7 +69,7 @@ function moduleToAmd(content, options) {
   var compiler = new NodeCompiler(Compiler.amdOptions(options));
   return {
     js: compiler.compile(content),
-    sourceMap: compiler.sourceMap()
+    sourceMap: compiler.getSourceMap()
   };
 }
 

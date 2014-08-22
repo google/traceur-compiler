@@ -109,7 +109,6 @@ commandLine.command('*').action(function() {
   });
 
 commandLine.parse(process.argv);
-
 // Set the global options for back compat, but try to use options by argument.
 traceurAPI.options.setFromObject(commandOptions);
 
@@ -145,7 +144,7 @@ if (!shouldExit) {
           var compiler = new traceurAPI.NodeCompiler(commandOptions);
           return {
             js: compiler.compile(content),
-            sourceMap: compiler.sourceMap()
+            sourceMap: compiler.getSourceMap()
           }
         });
   } else {

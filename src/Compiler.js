@@ -26,9 +26,9 @@ import {
   versionLockedOptions
 } from './Options';
 
-import {ParseTreeMapWriter} from './outputGeneration/ParseTreeMapWriter';
-import {ParseTreeWriter} from './outputGeneration/ParseTreeWriter';
-import {SourceMapGenerator} from './outputGeneration/SourceMapIntegration';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 
 function merge(...srcs) {
   var dest = Object.create(null);
@@ -51,6 +51,7 @@ function merge(...srcs) {
 export class Compiler {
   constructor(overridingOptions = {}) {
     this.options_ = merge(this.defaultOptions(), overridingOptions);
+    this.sourceMapGenerator_ = null;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -123,6 +124,7 @@ export class Compiler {
   }
 
   parse(content) {
+    this.sourceMapGenerator_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
 
@@ -162,25 +164,25 @@ export class Compiler {
   sourceMapGenerator() {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
-          file: this.options_.filename,
-          sourceRoot: this.sourceRootForFilename(this.options_.filename)
-        });
+        file: this.options_.filename,
+        sourceRoot: this.sourceRootForFilename(this.options_.filename)
+      });
     }
   }
 
-  sourceMap() {
-    return this.sourceMap_;
+  getSourceMap() {
+    if (this.sourceMapGenerator_)
+      return this.sourceMapGenerator_.toString();
   }
 
   write(tree) {
-    var sourceMapGenerator = this.sourceMapGenerator();
-    if (sourceMapGenerator) {
-      var writer = new ParseTreeMapWriter(sourceMapGenerator, this.options_);
-      writer.visitAny(tree);
-      this.sourceMap_ = sourceMapGenerator.toString();
-      return writer.toString(tree);
-    }
-    var writer = new ParseTreeWriter(this.options_);
+    var writer;
+    this.sourceMapGenerator_ = this.sourceMapGenerator();
+    if (this.sourceMapGenerator_)
+      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
+    else
+      writer = new ParseTreeWriter(this.options_);
+
     writer.visitAny(tree);
     return writer.toString(tree);
   }

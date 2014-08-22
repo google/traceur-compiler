@@ -26,7 +26,7 @@ var writeCompiledCodeToFile =
     require('./NodeCompiler.js').writeCompiledCodeToFile;
 
 function writeTreeToFile(tree, filename, compiler) {
-  writeCompiledCodeToFile(compiler.write(tree), filename, compiler.sourceMap());
+  writeCompiledCodeToFile(compiler.write(tree), filename, compiler.getSourceMap());
 }
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {

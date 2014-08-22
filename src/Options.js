@@ -306,7 +306,7 @@ export function addOptions(flags, commandOptions) {
       else
         throw new Error('outputLanguage must be one of es5, es6');
   });
-  flags.option('--experimental ',
+  flags.option('--experimental',
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
   );

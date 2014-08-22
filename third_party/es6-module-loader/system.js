@@ -291,7 +291,7 @@
           depsList = getImports(tree);
           tree = compiler.transform(tree);
           source = compiler.write(tree);
-          var sourceMap = compiler.sourceMap();
+          var sourceMap = compiler.getSourceMap();
 
           if (global.btoa && sourceMap)
             source += '\n//# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(sourceMap))) + '\n';

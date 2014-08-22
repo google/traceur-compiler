@@ -29,7 +29,7 @@ suite('node public api', function() {
 
       'module name without backslashes'
     );
-    assert.ok(compiler.sourceMap(), 'has sourceMap');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
   });
 
   test('modules: true', function() {
@@ -56,7 +56,7 @@ suite('node public api', function() {
 
       'module defines its path'
     );
-    assert.ok(compiler.sourceMap(), 'has sourceMap');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
   });
 
   test('named amd', function() {
