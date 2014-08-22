@@ -53,7 +53,9 @@ export class Set {
   }
 
   add(key) {
-    return this.map_.set(key, key);
+    this.map_.set(key, key);
+
+    return this;
   }
 
   delete(key) {

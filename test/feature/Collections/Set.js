@@ -8,6 +8,7 @@ var undefinedKey = undefined;
 var nullKey = null;
 var nanKey = NaN;
 var zeroKey = 0;
+var addReturnValue;
 
 t.add(objectKey);
 t.add(stringKey);
@@ -16,9 +17,10 @@ t.add(booleanKey);
 t.add(undefinedKey);
 t.add(nullKey);
 t.add(nanKey);
-t.add(zeroKey);
+addReturnValue = t.add(zeroKey);
 
 assert.equal(t.size, 8);
+assert.equal(t, addReturnValue);
 
 assert.isTrue(!t.has({}));
 
