@@ -221,6 +221,3 @@ t3.clear();
 assert.equal(t3.size, 0);
 
 assert.equal(Map.prototype[Symbol.iterator], Map.prototype.entries);
-
-// delete
-
