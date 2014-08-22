@@ -19,9 +19,10 @@ export class Loader {
    * ES6 Loader Constructor
    * @param {!Object=} options
    */
-  constructor(loaderHooks) {
-    this.internalLoader_ = new InternalLoader(loaderHooks);
-    this.loaderHooks_ = loaderHooks;
+  constructor(loaderCompiler) {
+    this.internalLoader_ =
+      new InternalLoader(this, loaderCompiler);
+    this.loaderCompiler_ = loaderCompiler;
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any
@@ -62,33 +63,37 @@ export class Loader {
   }
 
   get(normalizedName) {
-    return this.loaderHooks_.get(normalizedName);
+    this.extendMe_();
   }
 
   set(normalizedName, module) {
-    this.loaderHooks_.set(normalizedName, module);
+    this.extendMe_();
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+    this.extendMe_();
   }
 
   locate(load) {
-    return this.loaderHooks_.locate(load);
+    this.extendMe_();
   }
 
   fetch(load) {
-    return this.loaderHooks_.fetch(load);
+    this.extendMe_();
   }
 
   translate(load) {
-    return this.loaderHooks_.translate(load);
+    this.extendMe_();
   }
 
   instantiate(load) {
-    return this.loaderHooks_.instantiate(load);
+    this.extendMe_();
+  }
+
+  extendMe_() {
+    throw new Error('Unimplemented Loader function, see extended class');
   }
 }
 
-export {LoaderHooks};
+export {LoaderCompiler};
 

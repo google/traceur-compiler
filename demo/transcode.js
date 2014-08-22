@@ -13,15 +13,13 @@
 // limitations under the License.
 
 import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader';
-import {
-  InterceptOutputLoaderHooks
-} from 'traceur@0.0/src/runtime/InterceptOutputLoaderHooks';
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
 import {
   SourceMapGenerator,
   SourceMapConsumer
 } from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {options as traceurOptions} from 'traceur@0.0/src/Options';
+import {webLoader} from 'traceur@0.0/src/runtime/webLoader';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {
@@ -32,25 +30,19 @@ class BatchErrorReporter extends ErrorReporter {
   }
 }
 
-export function transcode(contents, onSuccess, onFailure, onTranscoded) {
-  var options;
-  if (traceurOptions.sourceMaps) {
-    var config = {file: 'traceured.js'};
-    var sourceMapGenerator = new SourceMapGenerator(config);
-    options = {sourceMapGenerator: sourceMapGenerator};
-  }
+export function transcode(contents, onSuccess, onFailure) {
   var url = location.href;
-  var loaderHooks = new InterceptOutputLoaderHooks(null, url, options);
-  loaderHooks.onTranscoded = onTranscoded;
+  var metadata = {traceurOptions: traceurOptions};
+  if (traceurOptions.sourceMaps)
+    metadata.traceurOptions.filename = 'traceured.js';
 
-  var metadata = {traceurOptions: options};
-  var loader = new TraceurLoader(loaderHooks);
+  var loader = new TraceurLoader(webLoader, url);
   var p;
   if (traceurOptions.script)
     p = loader.script(contents, {metadata});
   else
     p = loader.module(contents, {metadata});
-  p.then(onSuccess, onFailure);
+  p.then((module) => onSuccess(metadata), onFailure);
 }
 
 export function renderSourceMap(source, sourceMap) {

@@ -31,7 +31,7 @@
     }
   }
 
-  var reDirectoryResources = /'([^\s]*?[\/\\]resources[\/\\][^']*)'/;
+  var reDirectoryResources = /([^\s]*?[\/\\]Modules[\/\\][^:]*)\:/;
 
   function parseProlog(source) {
     var returnValue = {
@@ -113,7 +113,8 @@
       });
 
     var expectedPath = m[1];
-    var expectedNonPath = expected.replace(expectedPath, '<PATH>');
+    var expectedNonPath =
+        expected.replace(new RegExp(expectedPath, 'g'), '<PATH>');
 
     return actualErrors.some(function (error) {
       var m = pathRe.exec(error);
@@ -121,14 +122,8 @@
         return false;
 
       var actualPath = m[1];
-      var actualNonPath = error.replace(actualPath, '<PATH>');
-
-      if (actualNonPath.indexOf(expectedNonPath) === -1)
-        return false;
-
-      actualPath = actualPath.replace(/\\/g, '/');
-
-      return actualPath.indexOf(expectedPath) !== -1;
+      var actualNonPath = error.replace(new RegExp(actualPath, 'g'), '<PATH>');
+      return actualNonPath.indexOf(expectedNonPath) !== -1;
     });
   }
 
@@ -149,12 +144,9 @@
     });
 
     test(name, function(done) {
-      var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(null, './', fileLoader);
-
-      // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
+      var baseURL = './';
       var options;
-      loaderHooks.translateSynchronous = function(load) {
+      function translateSynchronous(load) {
         var source = load.source;
         // Only top level file can set options.
         if (!options)
@@ -174,7 +166,13 @@
         return source;
       }
 
-      var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
+      var moduleLoader = new traceur.runtime.TraceurLoader(fileLoader, baseURL);
+
+      moduleLoader.translate = function(load) {
+        return new Promise(function(resolve, reject){
+          resolve(translateSynchronous(load));
+        });
+      }
 
       function handleShouldCompile(error) {
         if (!options.shouldCompile) {

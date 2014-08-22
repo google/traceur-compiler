@@ -86,7 +86,7 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
 }
 
 var TraceurLoader = traceur.runtime.TraceurLoader;
-var InlineLoaderHooks = traceur.runtime.InlineLoaderHooks;
+var InlineLoaderCompiler = traceur.runtime.InlineLoaderCompiler;
 var Options = traceur.util.Options;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
@@ -131,11 +131,9 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var hooks = new InlineLoaderHooks(basePath, elements,
-      nodeLoader,  // Load modules using node fs.
-      moduleStore);  // Look up modules in our static module store
+  var loaderCompiler = new InlineLoaderCompiler(elements);
 
-  var loader = new TraceurLoader(hooks);
+  var loader = new TraceurLoader(nodeLoader, basePath, loaderCompiler);
 
   function appendEvaluateModule(name, referrerName) {
     var normalizedName =
@@ -181,7 +179,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
           } else if (depTarget) {
             callback(null);
           } else {
-            var tree = hooks.toTree(basePath, elements);
+            var tree = loaderCompiler.toTree(basePath, elements);
             callback(tree);
           }
         }, function(err) {

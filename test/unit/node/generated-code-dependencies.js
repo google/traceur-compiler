@@ -21,6 +21,7 @@ suite('context test', function() {
   var path = require('path');
   var uuid = require('node-uuid');
   var exec = require('child_process').exec;
+  var nodeLoader = require('../../../src/node/nodeLoader.js');
 
   var tempFileName;
   var tempMapName;
@@ -39,25 +40,20 @@ suite('context test', function() {
   }
 
   function executeFileWithRuntime(fileName, options, debug) {
-    var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
     var TraceurLoader = traceur.runtime.TraceurLoader;
-
-    var loaderHooks = new InterceptOutputLoaderHooks(null, fileName);
-    var loader = new TraceurLoader(loaderHooks);
+    var loader = new TraceurLoader(nodeLoader);
     var source = fs.readFileSync(fileName, 'utf-8');
     var metadata = {traceurOptions: options};
     return loader.script(source, {metadata: metadata}).then(function() {
-      var output = loaderHooks.transcoded;
+      var output = metadata.transcoded;
 
       var runtimePath = resolve('bin/traceur-runtime.js');
       var runtime = fs.readFileSync(runtimePath, 'utf-8');
       var context = vm.createContext();
 
-      if (debug) {
-        context.console = console;
+      context.console = console;
+      if (debug)
         context.debugGenerated = true;
-        console.log(output);
-      }
 
       vm.runInNewContext(runtime + output, context, fileName);
 

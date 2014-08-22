@@ -18,7 +18,6 @@
 import {Loader} from './runtime/Loader';
 import {TraceurLoader} from './runtime/TraceurLoader';
 import {ErrorReporter} from './util/ErrorReporter';
-import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 import {webLoader} from './runtime/webLoader';
 
 export class WebPageTranscoder {
@@ -106,8 +105,7 @@ export class WebPageTranscoder {
 
   get loader() {
     if (!this.loader_) {
-      var loaderHooks = new InterceptOutputLoaderHooks(this.reporter, this.url);
-      this.loader_ = new TraceurLoader(loaderHooks);
+      this.loader_ = new TraceurLoader(webLoader, this.url);
     }
     return this.loader_;
   }

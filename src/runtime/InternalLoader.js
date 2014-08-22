@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {assert} from '../util/assert';
-import {LoaderHooks} from '../runtime/LoaderHooks';
+import {LoaderCompiler} from '../runtime/LoaderCompiler';
 import {ExportsList} from '../codegeneration/module/ModuleSymbol';
 import {Map} from './polyfills/Map';
 import {isAbsolute, resolveUrl} from '../util/url';
 import {Options} from '../Options';
-import {toSource} from '../outputgeneration/toSource';
+
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -54,16 +54,16 @@ class LoaderError extends Error {
  */
 class CodeUnit {
   /**
-   * @param {LoaderHooks} loaderHooks, callbacks for parsing/transforming.
+   * @param {LoaderCompiler} loaderCompiler, callbacks for parsing/transforming.
    * @param {string} name The normalized name of this dependency.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
    * @param {number} state
    */
-  constructor(loaderHooks, normalizedName, type, state,
+  constructor(loaderCompiler, normalizedName, type, state,
       name, referrerName, address) {
     this.promise = new Promise((res, rej) => {
-      this.loaderHooks = loaderHooks;
+      this.loaderCompiler = loaderCompiler;
       this.normalizedName = normalizedName;
       this.type = type;
       this.name_ = name;
@@ -92,7 +92,7 @@ class CodeUnit {
   }
 
   /**
-   * @return opaque value set and used by loaderHooks
+   * @return opaque value set and used by loaderCompiler
    */
   get metadata() {
     return this.data_;
@@ -127,21 +127,18 @@ class CodeUnit {
   }
 
   transform() {
-    return this.loaderHooks.transform(this);
+    return this.loaderCompiler.transform(this);
   }
 
-  instantiate(load) {
-    return this.loaderHooks.instantiate(this);
-  }
 }
 
 /**
  * CodeUnit coming from {@code Loader.set}.
  */
 class PreCompiledCodeUnit extends CodeUnit {
-  constructor(loaderHooks, normalizedName, name, referrerName, address,
+  constructor(loaderCompiler, normalizedName, name, referrerName, address,
       module) {
-    super(loaderHooks, normalizedName, 'module', COMPLETE,
+    super(loaderCompiler, normalizedName, 'module', COMPLETE,
         name, referrerName, address);
     this.result = module;
     this.resolve(this.result);
@@ -152,9 +149,9 @@ class PreCompiledCodeUnit extends CodeUnit {
  * CodeUnit coming from {@code Loader.register}.
  */
 class BundledCodeUnit extends CodeUnit {
-  constructor(loaderHooks, normalizedName, name, referrerName, address,
+  constructor(loaderCompiler, normalizedName, name, referrerName, address,
       deps, execute) {
-    super(loaderHooks, normalizedName, 'module', TRANSFORMED,
+    super(loaderCompiler, normalizedName, 'module', TRANSFORMED,
         name, referrerName, address);
     this.deps = deps;
     this.execute = execute;
@@ -164,7 +161,7 @@ class BundledCodeUnit extends CodeUnit {
   }
   evaluate() {
     var normalizedNames =
-        this.deps.map((name) => this.loaderHooks.normalize(name));
+        this.deps.map((name) => this.loader_.normalize(name));
     var module = this.execute.apply(Reflect.global, normalizedNames);
     System.set(this.normalizedName, module);
     return module;
@@ -172,14 +169,14 @@ class BundledCodeUnit extends CodeUnit {
 }
 
 /**
- * CodeUnit for sharing methods that just call back to loaderHooks
+ * CodeUnit for sharing methods that just call back to loaderCompiler
  */
 class HookedCodeUnit extends CodeUnit {
   getModuleSpecifiers() {
-    return this.loaderHooks.getModuleSpecifiers(this);
+    return this.loaderCompiler.getModuleSpecifiers(this);
   }
   evaluate() {
-    return this.loaderHooks.evaluateCodeUnit(this);
+    return this.loaderCompiler.evaluateCodeUnit(this);
   }
 }
 
@@ -191,8 +188,8 @@ class LoadCodeUnit extends HookedCodeUnit {
    * @param {InternalLoader} loader
    * @param {string} normalizedName
    */
-  constructor(loaderHooks, normalizedName, name, referrerName, address) {
-    super(loaderHooks, normalizedName, 'module', NOT_STARTED,
+  constructor(loaderCompiler, normalizedName, name, referrerName, address) {
+    super(loaderCompiler, normalizedName, 'module', NOT_STARTED,
         name, referrerName, address);
   }
 }
@@ -202,13 +199,13 @@ class LoadCodeUnit extends HookedCodeUnit {
  */
 class EvalCodeUnit extends HookedCodeUnit {
   /**
-   * @param {LoaderHooks} loaderHooks
+   * @param {LoaderCompiler} loaderCompiler
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, type = 'script',
+  constructor(loaderCompiler, code, type = 'script',
       normalizedName, referrerName, address) {
-    super(loaderHooks, normalizedName, type,
+    super(loaderCompiler, normalizedName, type,
         LOADED, null, referrerName, address);
     this.source = code;
   }
@@ -221,10 +218,13 @@ var uniqueNameCount = 0;
  */
 export class InternalLoader {
   /**
-   * @param {loaderHooks} loaderHooks
+   * @param {loaderCompiler} loaderCompiler
    */
-  constructor(loaderHooks) {
-    this.loaderHooks = loaderHooks;
+  constructor(loader, loaderCompiler) {
+    assert(loaderCompiler);
+
+    this.loader_ = loader;
+    this.loaderCompiler = loaderCompiler;
     this.cache = new Map();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
@@ -236,7 +236,7 @@ export class InternalLoader {
     return metadata;
   }
 
-  load(name, referrerName = this.loaderHooks.baseURL,
+  load(name, referrerName = this.loader_.baseURL,
       address, metadata = {}) {
     metadata = this.defaultMetadata_(metadata);
     var codeUnit = this.getCodeUnit_(name, referrerName, address, metadata);
@@ -256,16 +256,22 @@ export class InternalLoader {
         return codeUnit;
 
       codeUnit.state = LOADING;
-      codeUnit.address = this.loaderHooks.locate(codeUnit);
-      this.loaderHooks.fetch(codeUnit).then((text) => {
+      codeUnit.address = this.loader_.locate(codeUnit);
+
+      this.loader_.fetch(codeUnit).then((text) => {
         codeUnit.source = text;
         return codeUnit;
-      }).then(this.loaderHooks.translate.bind(this.loaderHooks)).then((source) => {
+      }).
+      then((load) => {
+        return this.loader_.translate(load)
+      }).
+      then((source) => {
         codeUnit.source = source;
         codeUnit.state = LOADED;
         this.handleCodeUnitLoaded(codeUnit);
         return codeUnit;
-      }).catch((err) => {
+      }).
+      catch((err) => {
         try {
           codeUnit.state = ERROR;
           codeUnit.error = err;
@@ -280,7 +286,7 @@ export class InternalLoader {
   }
 
   module(code, referrerName, address, metadata) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
+    var codeUnit = new EvalCodeUnit(this.loaderCompiler, code, 'module',
                                       null, referrerName, address);
     codeUnit.metadata = this.defaultMetadata_(metadata);
     this.cache.set({}, codeUnit);
@@ -289,7 +295,7 @@ export class InternalLoader {
   }
 
   define(normalizedName, code, address, metadata) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
+    var codeUnit = new EvalCodeUnit(this.loaderCompiler, code, 'module',
                                     normalizedName, null, address);
     var key = this.getKey(normalizedName, 'module');
     codeUnit.metadata = this.defaultMetadata_(metadata);
@@ -306,7 +312,7 @@ export class InternalLoader {
    */
   script(code, name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name || '', referrerName, address);
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
+    var codeUnit = new EvalCodeUnit(this.loaderCompiler, code, 'script',
                                     normalizedName, referrerName, address);
     var key = {};
     if (name)
@@ -346,19 +352,19 @@ export class InternalLoader {
     if (!cacheObject) {
       // All new code units need metadata set.
       assert(metadata && metadata.traceurOptions);
-      var module = this.loaderHooks.get(normalizedName);
+      var module = this.loader_.get(normalizedName);
       if (module) {
-        cacheObject = new PreCompiledCodeUnit(this.loaderHooks, normalizedName,
+        cacheObject = new PreCompiledCodeUnit(this.loaderCompiler, normalizedName,
             name, referrerName, address, module);
         cacheObject.type = 'module';
       } else {
-        var bundledModule = this.loaderHooks.bundledModule(name);
+        var bundledModule = this.loader_.bundledModule(name);
         if (bundledModule) {
-          cacheObject = new BundledCodeUnit(this.loaderHooks, normalizedName,
+          cacheObject = new BundledCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address,
               bundledModule.deps, bundledModule.execute);
         } else {
-          cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
+          cacheObject = new LoadCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address);
           cacheObject.type = type;
         }
@@ -444,7 +450,7 @@ export class InternalLoader {
   handleCodeUnitLoadError(codeUnit) {
     var message = codeUnit.error ? String(codeUnit.error) + '\n' :
         `Failed to load '${codeUnit.address}'.\n`;
-    message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+    message += codeUnit.nameTrace() + this.loader_.nameTrace(codeUnit);
 
     this.rejectOneAndAll(codeUnit, new Error(message));
   }
@@ -461,7 +467,7 @@ export class InternalLoader {
   }
 
   analyze() {
-    this.loaderHooks.analyzeDependencies(mapToValues(this.cache), this);
+    this.loaderCompiler.analyzeDependencies(mapToValues(this.cache), this);
   }
 
   transform() {
@@ -499,12 +505,10 @@ export class InternalLoader {
     var metadata = codeUnit.metadata;
     metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    var filename = codeUnit.address || codeUnit.normalizedName;
-    [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, codeUnit.metadata.traceurOptions, filename);
+    this.loaderCompiler.write(codeUnit);
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
-    codeUnit.instantiate();
+    this.loader_.instantiate(codeUnit);
   }
 
   orderDependencies() {
@@ -566,12 +570,9 @@ export class InternalLoader {
 
 }
 
-// jjb I don't understand why this is needed.
-var SystemLoaderHooks = LoaderHooks;
-
 export var internals = {
   CodeUnit,
   EvalCodeUnit,
   LoadCodeUnit,
-  LoaderHooks
+  LoaderCompiler
 };

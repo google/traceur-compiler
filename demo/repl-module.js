@@ -185,26 +185,24 @@ function resetAndCompileContents(contents, newOptions) {
 function compileContents(contents) {
 
   errorElement.hidden = true;
-  function onSuccess(mod) {
-    console.log('Module evaluation succeeded');
-  }
+
   function onFailure(error) {
      hasError = true;
      errorElement.hidden = false;
      errorElement.textContent = error.stack || error;
   }
 
-  function onTranscoded(metadata, url) {
+  function onTranscoded(metadata) {
     output.setValue(metadata.transcoded);
-    compilationResults = metadata;
     if (metadata.sourceMap) {
       compilationResults.sourceMapConsumer =
           new SourceMapConsumer(metadata.sourceMap);
-      compilationResults.sourceMapURL = url;
-      updateSourceMapVisualization(url);
+      compilationResults.sourceMapURL = metadata.sourceName;
+      updateSourceMapVisualization(metadata.sourceName);
     }
+    console.log('Module evaluation succeeded');
   }
 
   if (transcode)
-    transcode(contents, onSuccess, onFailure, onTranscoded);
+    transcode(contents, onTranscoded, onFailure);
 }

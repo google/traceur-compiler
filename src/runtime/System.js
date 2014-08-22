@@ -14,7 +14,7 @@
 
 import {ErrorReporter} from '../util/ErrorReporter';
 import {TraceurLoader} from '../runtime/TraceurLoader';
-import {LoaderHooks} from './LoaderHooks';
+import {LoaderCompiler} from './LoaderCompiler';
 import {webLoader} from './webLoader';
 
 var url;
@@ -24,8 +24,7 @@ if (typeof window !== 'undefined' && window.location) {
   fileLoader = webLoader;
 }
 
-var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
-var traceurLoader = new TraceurLoader(loaderHooks);
+var traceurLoader = new TraceurLoader(fileLoader, url);
 
 Reflect.global.System = traceurLoader;
 
