@@ -175,7 +175,7 @@
           assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
           var actualErrors = error.errors || [error];
-          actualErrors = actualErrors.map(function (error) {
+          actualErrors = actualErrors.map(function(error) {
             return error + '';
           });
           options.expectedErrors.forEach(function(expected, index) {
