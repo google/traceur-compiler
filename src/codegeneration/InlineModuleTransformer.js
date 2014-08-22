@@ -26,6 +26,8 @@ import {
 import globalThis from './globalThis';
 import scopeContainsThis from './scopeContainsThis';
 
+var anonInlineModules = 0;
+
 /**
  * Inline modules are meant for compilation of all modules to a single file.
  * They require no runtime but have slightly different semantics than ES6
@@ -34,8 +36,8 @@ import scopeContainsThis from './scopeContainsThis';
 export class InlineModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
-    assert(this.moduleName);
-    var idName = this.getTempVarNameForModuleName(this.moduleName);
+    var seed = this.moduleName || 'anon_' + ++anonInlineModules;
+    var idName = this.getTempVarNameForModuleName(seed);
 
     var body = createFunctionBody(statements);
     var moduleExpression;
