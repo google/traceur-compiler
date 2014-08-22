@@ -174,8 +174,11 @@
         if (!options.shouldCompile) {
           assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
+          var actualErrors = error.errors || [error];
+          actualErrors = actualErrors.map(function(error) {
+            return error + '';
+          });
           options.expectedErrors.forEach(function(expected, index) {
-            var actualErrors = (error + '').split('\n');
             assert.isTrue(
                 hasMatchingError(expected, actualErrors, reDirectoryResources),
                 'Missing expected error: ' + expected +
