@@ -161,7 +161,7 @@ export class Compiler {
     return transformedTree;
   }
 
-  sourceMapGenerator() {
+  createSourceMapGenerator_() {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
         file: this.options_.filename,
@@ -177,7 +177,7 @@ export class Compiler {
 
   write(tree) {
     var writer;
-    this.sourceMapGenerator_ = this.sourceMapGenerator();
+    this.sourceMapGenerator_ = this.createSourceMapGenerator_();
     if (this.sourceMapGenerator_)
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
     else
