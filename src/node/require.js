@@ -27,11 +27,9 @@ Module._extensions[ext] = function(module, filename) {
 
 function compile(filename, options) {
   var contents = fs.readFileSync(filename, 'utf-8');
-  var results = traceurAPI.compile(contents, options);
-  if (!results.js)
-    throw new Error(results.errors[0]);
-
-  return results.js;
+  options = options || {};
+  options.moduleName = filename;
+  return traceurAPI.compile(contents, options);
 }
 
 function traceurRequire(filename) {

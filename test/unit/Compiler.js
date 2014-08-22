@@ -28,25 +28,21 @@ suite('Compiler', function() {
   test('Compiler synchronous', function() {
     var compiler = new Compiler();
     var content = '';
-    var result = compiler.stringToString(content);
-    assert.isTrue(result.js.length > 0);
-    assert.equal(result.errors.length, 0);
+    var result = compiler.compile(content);
+    assert.isTrue(result.length > 0);
   });
 
   test('Compiler synchronous, errors', function() {
     var compiler = new Compiler();
     var content = 'syntax error';
-    var result = compiler.stringToString(content);
-    assert.isUndefined(result.js);
-    assert.equal(result.errors.length, 1);
+    assert.throws(function() { compiler.compile(content); });
   });
 
   test('Compiler synchronous, experimental option', function() {
     var compiler = new Compiler({experimental: true});
     var content = 'let x = 5;';
-    var result = compiler.stringToString(content);
-    assert.equal(result.errors.length, 0);
-    assert.isTrue(result.js.length > 0);
+    var result = compiler.compile(content);
+    assert.isTrue(result.length > 0);
   });
 
   test('Compiler options locked', function() {

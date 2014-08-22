@@ -6,7 +6,7 @@ suite('node public api', function() {
     fs.readFileSync(path, 'utf8');
 
   test('moduleName from filename with backslashes', function() {
-    var compiled = traceurAPI.compile(contents, {
+    var compiler = new traceurAPI.NodeCompiler({
       // windows-simulation, with .js
       filename: path.replace(/\//g,'\\'),
 
@@ -19,22 +19,21 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-
-    assert.deepEqual(compiled.errors, []);
-    assert.ok(compiled.js, 'can compile');
+    var compiled = compiler.compile(contents);
+    assert.ok(compiled, 'can compile');
     assert.include(
-      compiled.js,
+      compiled,
 
       // the module path is relative to the cwd setting when we compile it.
       'commonjs/BasicImport',
 
       'module name without backslashes'
     );
-    assert.ok(compiled.generatedSourceMap, 'has sourceMap');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
   });
 
   test('modules: true', function() {
-    var compiled = traceurAPI.compile(contents, {
+    var compiler = new traceurAPI.NodeCompiler({
       // absolute path is important
       filename: path,
 
@@ -47,18 +46,17 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-
-    assert.deepEqual(compiled.errors, []);
-    assert.ok(compiled.js, 'can compile');
+    var compiled = compiler.compile(contents);
+    assert.ok(compiled, 'can compile');
     assert.include(
-      compiled.js,
+      compiled,
 
       // the module path is relative to the cwd setting when we compile it.
       'commonjs/BasicImport',
 
       'module defines its path'
     );
-    assert.ok(compiled.generatedSourceMap, 'has sourceMap');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
   });
 
   test('named amd', function() {
@@ -73,15 +71,14 @@ suite('node public api', function() {
       moduleName: 'test-module'
     });
 
-    assert.deepEqual(compiled.errors, []);
-    assert.ok(compiled.js, 'can compile');
+    assert.ok(compiled, 'can compile');
 
     var gotName;
     var define = function(name) {
       gotName = name;
     }
 
-    eval(compiled.js);
+    eval(compiled);
 
     assert.ok(gotName == 'test-module', 'module defines into named AMD');
   });
