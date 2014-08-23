@@ -4,14 +4,16 @@
     <title>Tracuer self-compile in Web page for debugging.</title>
     <script src="../bin/traceur.js"></script>
     <script>
-    // Settings the same as the tests
-    traceur.options.debug = true;
-    // Because of issue 534 we cannot self-compile with freeVariableChecker.
-    // traceur.options.freeVariableChecker = true;
-    traceur.options.validate = true;
+    // Use settings the same as the tests.
+    // Except: issue 534 we cannot self-compile with freeVariableChecker.
+    var metadata = {
+      debug: true,
+      validate: true
+    };
+
     var url = window.location.href;
 
-    System.import('../src/traceur', {}).then(
+    System.import('../src/traceur', {metadata:metadata}).then(
         function(mod) {
           console.log('DONE');
         },

@@ -97,6 +97,8 @@ export class LoaderHooks {
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
+    // The parser reads from global traceur options.
+    options.setFromObject(codeUnit.metadata.traceurOptions);
     this.checkForErrors((reporter) => {
       var parser = new Parser(file, reporter);
       if (codeUnit.type == 'module')
@@ -150,24 +152,28 @@ export class LoaderHooks {
 
   locate_(load) {
     var normalizedModuleName = load.normalizedName;
+    var options = load.metadata.traceurOptions;
     var asJS;
-    if (load.type === 'script') {
+    if (options && options.script) {
       asJS = normalizedModuleName;
     } else {
       asJS = normalizedModuleName + '.js';
     }
 
-    if (options.referrer) {
-      if (asJS.indexOf(options.referrer) === 0) {
-        asJS = asJS.slice(options.referrer.length);
+    var referrer = options && options.referrer;
+    if (referrer) {
+      if (asJS.indexOf(referrer) === 0) {
+        asJS = asJS.slice(referrer.length);
         load.metadata.locateMap = {
-          pattern: options.referrer,
+          pattern: referrer,
           replacement: ''
         };
       }
     }
+
     if (isAbsolute(asJS))
       return asJS;
+
     var baseURL = load.metadata && load.metadata.baseURL;
     baseURL = baseURL || this.baseURL;
     if (baseURL) {
@@ -214,7 +220,7 @@ export class LoaderHooks {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
 
-      // We should not have gotten here if not all are PARSED or larget.
+      // We should not have gotten here if unless all are PARSED
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {

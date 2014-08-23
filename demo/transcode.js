@@ -43,12 +43,13 @@ export function transcode(contents, onSuccess, onFailure, onTranscoded) {
   var loaderHooks = new InterceptOutputLoaderHooks(null, url, options);
   loaderHooks.onTranscoded = onTranscoded;
 
+  var metadata = {traceurOptions: options};
   var loader = new TraceurLoader(loaderHooks);
   var p;
   if (traceurOptions.script)
-    p = loader.script(contents, {});
+    p = loader.script(contents, {metadata});
   else
-    p = loader.module(contents, {});
+    p = loader.module(contents, {metadata});
   p.then(onSuccess, onFailure);
 }
 

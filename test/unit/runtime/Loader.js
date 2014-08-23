@@ -96,9 +96,10 @@ suite('Loader.js', function() {
 
   test('Loader.Script.Named', function(done) {
     var loader = getLoader();
-    traceur.options.sourceMaps = true;
+    var src = '(function(x = 43) { return x; })()';
     var name = '43';
-    loader.script('(function(x = 43) { return x; })()', {name: name}).then(
+    var metadata = {traceurOptions: {sourceMaps: true}};
+    loader.script(src, {name: name, metadata: metadata}).then(
       function(result) {
         traceur.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
@@ -327,9 +328,9 @@ suite('Loader.js', function() {
   test('Loader.defineWithSourceMap', function(done) {
     var normalizedName = System.normalize('./test_define_with_source_map');
     var loader = getLoader();
-    traceur.options.sourceMaps = true;
+    var metadata = {traceurOptions: {sourceMaps: true}};
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
-    loader.define(normalizedName, src, {}).then(function() {
+    loader.define(normalizedName, src, {metadata: metadata}).then(function() {
       var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'module');
       assert(sourceMapInfo.sourceMap);
       var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;

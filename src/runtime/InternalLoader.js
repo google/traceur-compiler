@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {assert} from '../util/assert';
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ExportsList} from '../codegeneration/module/ModuleSymbol';
 import {Map} from './polyfills/Map';
 import {isAbsolute, resolveUrl} from '../util/url';
-import {options} from '../Options';
+import {Options} from '../Options';
 import {toSource} from '../outputgeneration/toSource';
 
 var NOT_STARTED = 0;
@@ -37,6 +38,14 @@ function mapToValues(map) {
     array.push(v);
   });
   return array;
+}
+
+class LoaderError extends Error {
+  constructor(msg, tree) {
+    this.message = msg;
+    this.tree = tree;
+    this.name = 'LoaderError';
+  }
 }
 
 /**
@@ -87,6 +96,11 @@ class CodeUnit {
    */
   get metadata() {
     return this.data_;
+  }
+
+  set metadata(value) {
+    assert(value);
+    this.data_ = value;
   }
 
   nameTrace() {
@@ -216,14 +230,21 @@ export class InternalLoader {
     this.sync_ = false;
   }
 
+  defaultMetadata_(metadata) {
+    metadata = metadata || {};
+    metadata.traceurOptions = metadata.traceurOptions || new Options();
+    return metadata;
+  }
+
   load(name, referrerName = this.loaderHooks.baseURL,
-      address, type = 'script') {
-    var codeUnit = this.load_(name, referrerName, address, type);
+      address, metadata = {}) {
+    metadata = this.defaultMetadata_(metadata);
+    var codeUnit = this.getCodeUnit_(name, referrerName, address, metadata);
+    this.load_(codeUnit);
     return codeUnit.promise.then(() => codeUnit);
   }
 
-  load_(name, referrerName, address, type) {
-    var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
+  load_(codeUnit) {
     if (codeUnit.state === ERROR) {
       return codeUnit;
     }
@@ -258,19 +279,20 @@ export class InternalLoader {
     return codeUnit;
   }
 
-  module(code, referrerName, address) {
+  module(code, referrerName, address, metadata) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                       null, referrerName, address);
+    codeUnit.metadata = this.defaultMetadata_(metadata);
     this.cache.set({}, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit.promise;
   }
 
-  define(normalizedName, code, address) {
+  define(normalizedName, code, address, metadata) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                     normalizedName, null, address);
     var key = this.getKey(normalizedName, 'module');
-
+    codeUnit.metadata = this.defaultMetadata_(metadata);
     this.cache.set(key, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit.promise;
@@ -282,14 +304,14 @@ export class InternalLoader {
    * @param {string=} referrerName,  normalized name of container
    * @param {string=} address, URL
    */
-  script(code, name, referrerName, address) {
+  script(code, name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name || '', referrerName, address);
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     normalizedName, referrerName, address);
     var key = {};
     if (name)
       key = this.getKey(normalizedName, 'script');
-
+    codeUnit.metadata = this.defaultMetadata_(metadata);
     this.cache.set(key, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit.promise;
@@ -313,11 +335,16 @@ export class InternalLoader {
     return this.urlToKey[combined] = {};
   }
 
-  getCodeUnit_(name, referrerName, address, type) {
+  getCodeUnit_(name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name, referrerName, address);
+    // TODO embed type in name
+    var type = (metadata && metadata.traceurOptions &&
+        metadata.traceurOptions.script) || 'module';
     var key = this.getKey(normalizedName, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
+      // All new code units need metadata set.
+      assert(metadata && metadata.traceurOptions);
       var module = this.loaderHooks.get(normalizedName);
       if (module) {
         cacheObject = new PreCompiledCodeUnit(this.loaderHooks, normalizedName,
@@ -335,6 +362,8 @@ export class InternalLoader {
           cacheObject.type = type;
         }
       }
+      // TODO move into CodeUnits
+      cacheObject.metadata = {traceurOptions: metadata.traceurOptions};
       this.cache.set(key, cacheObject);
     }
     return cacheObject;
@@ -345,7 +374,7 @@ export class InternalLoader {
   }
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
-    return this.getCodeUnit_(name, referrerName, null, 'module');
+    return this.getCodeUnit_(name, referrerName);
   }
 
   getExportsListForModuleSpecifier(name, referrer) {
@@ -358,7 +387,7 @@ export class InternalLoader {
         exportsList.addExportsFromModule(codeUnit.result);
       } else {
         var msg = `${name} is not a module, required by ${referrer}`;
-        this.reportError(codeUnit.metadata.tree, msg);
+        throw new LoaderError(msg, codeUnit.metadata.tree);
       }
     }
     return exportsList;
@@ -377,14 +406,15 @@ export class InternalLoader {
         return;
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
-        return this.getCodeUnit_(name, referrerName, null, 'module');
+        return this.getCodeUnit_(name, referrerName, null, codeUnit.metadata);
       });
     } catch (error) {
       this.rejectOneAndAll(codeUnit, error);
       return;
     }
+    // TODO Either
     codeUnit.dependencies.forEach((dependency) => {
-      this.load(dependency.normalizedName, null, null, 'module');
+      this.load_(dependency);
     });
 
     if (this.areAll(PARSED)) {
@@ -470,7 +500,7 @@ export class InternalLoader {
     codeUnit.state = TRANSFORMED;
     var filename = codeUnit.address || codeUnit.normalizedName;
     [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, options, filename);
+        toSource(metadata.transformedTree, codeUnit.metadata.traceurOptions, filename);
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
     codeUnit.instantiate();

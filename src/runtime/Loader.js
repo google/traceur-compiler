@@ -29,8 +29,8 @@ export class Loader {
    * @param {string} name, ModuleSpecifier-like name, not normalized.
    * @return {Promise.<Module>}
    */
-  import(name, {referrerName, address} = {}) {
-    return this.internalLoader_.load(name, referrerName, address, 'module').
+  import(name, {referrerName, address, metadata} = {}) {
+    return this.internalLoader_.load(name, referrerName, address, metadata).
         then((codeUnit) => this.get(codeUnit.normalizedName));
   }
 
@@ -44,8 +44,8 @@ export class Loader {
    * @param {Object} properties referrerName and address passed to normalize.
    * @return {Promise.<Module>}
    */
-  module(source, {referrerName, address} = {}) {
-    return this.internalLoader_.module(source, referrerName, address);
+  module(source, {referrerName, address, metadata} = {}) {
+    return this.internalLoader_.module(source, referrerName, address, metadata);
   }
 
     /**
@@ -56,7 +56,7 @@ export class Loader {
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
    * @return {Promise} fulfilled with undefined.
    */
-  define(normalizedName, source, {address, metadata} = {}) {
+  define(normalizedName, source, {address, metadata, metadata} = {}) {
     return this.internalLoader_.define(normalizedName, source, address,
                                        metadata);
   }

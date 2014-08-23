@@ -20,7 +20,7 @@ import './util/MutedErrorReporter';
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {WebPageTranscoder} from './WebPageTranscoder';
 export {options} from './Options';
-import {addOptions, CommandOptions} from './Options';
+import {addOptions, CommandOptions, Options} from './Options';
 
 import {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 
@@ -36,8 +36,9 @@ import {CollectingErrorReporter} from './util/CollectingErrorReporter';
 export var util = {
   addOptions,
   CommandOptions,
+  CollectingErrorReporter,
   ErrorReporter,
-  CollectingErrorReporter
+  Options
 };
 
 import {Parser} from './syntax/Parser';

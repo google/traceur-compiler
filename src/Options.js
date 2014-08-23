@@ -88,7 +88,6 @@ export class Options {
 
   constructor(options = Object.create(null)) {
     this.reset();
-
     // Make sure non option fields are non enumerable.
     Object.defineProperties(this, {
       modules_: {value: versionLockedOptions.modules, writable: true, enumerable: false}
