@@ -337,9 +337,10 @@ export class InternalLoader {
 
   getCodeUnit_(name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name, referrerName, address);
-    // TODO embed type in name
-    var type = (metadata && metadata.traceurOptions &&
-        metadata.traceurOptions.script) || 'module';
+    // TODO(jjb): embed type in name
+    var type = 'module';
+    if (metadata && metadata.traceurOptions && metadata.traceurOptions.script)
+      type = 'script';
     var key = this.getKey(normalizedName, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
@@ -362,7 +363,7 @@ export class InternalLoader {
           cacheObject.type = type;
         }
       }
-      // TODO move into CodeUnits
+      // TODO(jjb): move into CodeUnit constructor
       cacheObject.metadata = {traceurOptions: metadata.traceurOptions};
       this.cache.set(key, cacheObject);
     }
@@ -412,7 +413,7 @@ export class InternalLoader {
       this.rejectOneAndAll(codeUnit, error);
       return;
     }
-    // TODO Either
+
     codeUnit.dependencies.forEach((dependency) => {
       this.load_(dependency);
     });
