@@ -233,10 +233,12 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './unit/node/resources/compile-dir';
     var outDir = './unit/node/resources/compile-cjs';
+    var cwd = process.cwd();
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
+      assert.equal(process.cwd(), cwd);
       assert.equal(fileContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  p: {get: function() {\n      return p;\n    }},\n  __esModule: {value: true}\n});\nvar $__dep__;\nvar q = ($__dep__ = require(\"./dep\"), $__dep__ && $__dep__.__esModule && $__dep__ || {default: $__dep__}).q;\nvar p = 'module';\n");
       assert.equal(depContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  q: {get: function() {\n      return q;\n    }},\n  __esModule: {value: true}\n});\nvar q = 'q';\n");
       done();
