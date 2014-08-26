@@ -20,55 +20,44 @@ import {IDENTIFIER_EXPRESSION} from '../src/syntax/trees/ParseTreeType';
 
 Reflect.global.exports = {};
 
-var compiler = new Compiler();
-
-class FindEvalVisitor extends FindVisitor {
-  visitCallExpression(tree) {
-    if (tree.operand.type === IDENTIFIER_EXPRESSION) {
-      var shouldBeEval = tree.operand.identifierToken.value;
-      if (shouldBeEval === 'eval') {
-        var src = compiler.write({tree: tree.args}).js
-        this.evaledSource = src.substring(2, src.length - 2);
-      }
-    }
-  }
-}
-
 var failures = 0;
 
 function checkTest(test, traceurResult) {
   if (test.res.tr !== traceurResult) {
     failures++;
     console.error('FAIL: ' + test.name + ' should be ' + !test.res.tr);
+    return false;
   }
+  return true;
 }
 
-System.loadAsScript('./node_modules/es5-compat-table/data-es6.js').then((tests) => {
+var traceurResult;
+
+System.fetch({address: './node_modules/es5-compat-table/data-es6.js'}).then((tests) => {
   var unknown = [];
+  tests = eval(tests);
   tests.forEach((test)  => {
     if (typeof test.exec !== 'function') {
       unknown.push(test.name);
     } else {
-      var src = 'var f = ' + test.exec + '';
-
-      var m = /eval\(([^\)]*)\)/.exec(src);
-      if (m) {
-        var {tree} = compiler.parse(src);
-        var visitor = new FindEvalVisitor();
-        visitor.visitAny(tree);
-        if (visitor.evaledSource) {
-          try {
-            var transcoded = Compiler.script(visitor.evaledSource);
-            (0, eval)(transcoded);
-            checkTest(test, true);
-          } catch (ex) {
-            checkTest(test, false);
-          }
-        } else {
-          unknown.push(test.name);
-        }
+      var functionExpr = test.exec + '';
+      var m = functionExpr.match(/[^]*\/\*([^]*)\*\/\}$/);
+      functionExpr = m ? 'function x() {\n' + m[1] + '}': functionExpr;
+      functionExpr = '(' + functionExpr + '());';
+      m = functionExpr.match(/eval\(\'([^\']*)\'\)/);
+      var src = m ?  m[1] : functionExpr;
+      var options = {};
+      if (!/module/.test(test.name)) {
+        options.script = true;
       } else {
-        checkTest(test, test.exec());
+        options.moduleName = test.name;
+      }
+      try {
+        var transcoded = (new Compiler(options)).compile(src);
+        traceurResult = (0, eval)(transcoded);
+        checkTest(test, !!traceurResult);
+      } catch (ex) {
+        checkTest(test, false);
       }
     }
   });
