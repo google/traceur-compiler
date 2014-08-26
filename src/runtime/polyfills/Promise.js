@@ -125,6 +125,9 @@ export class Promise {
 
   static resolve(x) {
     if (this === $Promise) {
+      if (isPromise(x)) {
+        return x;
+      }
       // Optimized case, avoid extra closure.
       return promiseSet(new $Promise(promiseRaw), +1, x);
     } else {
@@ -142,18 +145,6 @@ export class Promise {
   }
 
   // Combinators.
-
-  static cast(x) {
-    if (x instanceof this)
-      return x;
-    if (isPromise(x)) {
-      var result = getDeferred(this);
-      chain(x, result.resolve, result.reject);
-      return result.promise;
-    }
-    return this.resolve(x);
-
-  }
 
   static all(values) {
     var deferred = getDeferred(this);
