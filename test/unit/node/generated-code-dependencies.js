@@ -146,6 +146,24 @@ suite('context test', function() {
         });
   });
 
+  test('working dir doesn\'t change when recursive compiling', function (done) {
+    var recursiveCompile = require('../../../src/node/recursiveModuleCompile')
+      .recursiveModuleCompileToSingleFile;
+    tempFileName = resolve(uuid.v4() + '.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var rootSources = [{
+      type: 'module',
+      name: inputFileName
+    }];
+    var cwd = process.cwd();
+    traceur.System.baseURL = cwd;
+    recursiveCompile(tempFileName, rootSources, traceur.options)
+      .then(function () {
+        assert.equal(process.cwd(), cwd);
+        done();
+      }).catch(done);
+  });
+
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
