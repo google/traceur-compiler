@@ -330,7 +330,7 @@ function nextRegularExpressionLiteralToken() {
   }
   next();
 
-  // flags
+  // flags (note: this supports future regular expression flags)
   while (isIdentifierPart(currentCharCode)) {
     next();
   }

@@ -35,6 +35,7 @@
   "dependencies": {
     "commander": "2.x",
     "glob": "4.x",
+    "regexpu": "0.2.1",
     "rsvp": "^3.0.13",
     "semver": "2.x"
   },

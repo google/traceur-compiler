@@ -85,7 +85,7 @@ export function findUnusedImports(filename, content) {
 
 export function main(fs) {
   if (process.argv.length < 3) {
-    console.error('Usage: node find-unused-imports pahts...')
+    console.error('Usage: node find-unused-imports paths...')
     return 1;
   }
 

@@ -57,6 +57,7 @@ export var syntax = {
 
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
+import {regexpuRewritePattern} from './outputgeneration/regexpuRewritePattern';
 import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {TreeWriter} from './outputgeneration/TreeWriter';
@@ -64,6 +65,7 @@ import {TreeWriter} from './outputgeneration/TreeWriter';
 export var outputgeneration = {
   ParseTreeMapWriter,
   ParseTreeWriter,
+  regexpuRewritePattern,
   SourceMapConsumer,
   SourceMapGenerator,
   TreeWriter

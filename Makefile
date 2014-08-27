@@ -18,6 +18,7 @@ SRC = \
   $(POLYFILL_SRC) \
   src/traceur-import.js
 TPL_GENSRC = \
+  src/outputgeneration/regexpuRewritePattern.js \
   src/outputgeneration/SourceMapIntegration.js
 GENSRC = \
   $(TPL_GENSRC) \

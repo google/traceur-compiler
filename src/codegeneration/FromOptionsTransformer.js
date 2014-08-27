@@ -37,6 +37,7 @@ import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
 import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';
+import {RegularExpressionTransformer} from './RegularExpressionTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {SpreadTransformer} from './SpreadTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
@@ -87,6 +88,9 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
+
+    if (transformOptions.unicodeExpressions)
+      append(RegularExpressionTransformer);
 
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);

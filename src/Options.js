@@ -47,6 +47,7 @@ export var optionsV01 = enumerableOnlyObject({
   propertyMethods: true,
   propertyNameShorthand: true,
   referrer: '',
+  unicodeExpressions: true,
   restParameters: true,
   script: false,
   sourceMaps: false,
@@ -407,6 +408,7 @@ addFeatureOption('modules', 'SPECIAL');    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
 addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
+addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
 addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8

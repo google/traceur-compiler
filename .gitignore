@@ -17,6 +17,7 @@ build/previous-commit-traceur.js
 node_modules
 out
 src/codegeneration/ParseTreeTransformer.js
+src/outputgeneration/regexpuRewritePattern.js
 src/outputgeneration/SourceMapIntegration.js
 src/syntax/ParseTreeVisitor.js
 src/syntax/trees/ParseTreeType.js
