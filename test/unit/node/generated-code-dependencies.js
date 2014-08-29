@@ -38,14 +38,15 @@ suite('context test', function() {
     return path.resolve(__dirname, '../../../' + name).replace(/\\/g, '/');
   }
 
-  function executeFileWithRuntime(fileName, debug) {
+  function executeFileWithRuntime(fileName, options, debug) {
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
     var TraceurLoader = traceur.runtime.TraceurLoader;
 
-    var source = fs.readFileSync(fileName, 'utf-8');
     var loaderHooks = new InterceptOutputLoaderHooks(null, fileName);
     var loader = new TraceurLoader(loaderHooks);
-    return loader.script(source).then(function() {
+    var source = fs.readFileSync(fileName, 'utf-8');
+    var metadata = {traceurOptions: options};
+    return loader.script(source, {metadata: metadata}).then(function() {
       var output = loaderHooks.transcoded;
 
       var runtimePath = resolve('bin/traceur-runtime.js');
@@ -84,8 +85,10 @@ suite('context test', function() {
 
   test('generator', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    traceur.options.generatorComprehension = true;
-    executeFileWithRuntime(fileName).then(function(value) {
+    var options = {
+      generatorComprehension: true
+    };
+    executeFileWithRuntime(fileName, options).then(function(value) {
       assert.deepEqual(value, [1, 2, 9, 16]);
       done();
     }).catch(done);
@@ -93,9 +96,11 @@ suite('context test', function() {
 
   test('generator (symbols)', function(done) {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    traceur.options.generatorComprehension = true;
-    traceur.options.symbols = true;
-    executeFileWithRuntime(fileName).then(function(value) {
+    var options = {
+      generatorComprehension: true,
+      symbols: true
+    };
+    executeFileWithRuntime(fileName, options).then(function(value) {
       assert.deepEqual(value, [1, 2, 9, 16]);
       done();
     }).catch(done);

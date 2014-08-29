@@ -18,16 +18,16 @@ var fs = require('fs');
 var traceur = require('./traceur.js');
 var nodeLoader = require('./nodeLoader.js');
 
-function interpret(filename) {
+function interpret(filename, options) {
   // Interpret the filename argument as a platform-independent,
   // normalized module name.
   var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
-  System.import(moduleName).then(function() {
-
-  }).catch(function(err) {
-    console.error(err.stack || err + '');
-    process.exit(8);
-  });
+  var metadata = {traceurOptions: options};
+  System.import(moduleName, {metadata: metadata}).
+    catch(function(err) {
+      console.error(err.stack || err + '');
+      process.exit(8);
+    });
 }
 
 module.exports = interpret;

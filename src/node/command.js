@@ -129,7 +129,10 @@ if (!shouldExit) {
         commandOptions).then(function() {
           process.exit(0);
         }).catch(function(err) {
-          console.error(err.stack || err);
+          var errors = err.errors || [err];
+          errors.forEach(function(err) {
+            console.error(err.stack || err);
+          });
           process.exit(1);
         });
     } else {
@@ -149,7 +152,7 @@ if (!shouldExit) {
         });
   } else {
     rootSources.forEach(function(obj) {
-      interpret(path.resolve(obj.name));
+      interpret(path.resolve(obj.name), commandOptions);
     });
   }
 }

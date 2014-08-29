@@ -87,6 +87,7 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
 
 var TraceurLoader = traceur.runtime.TraceurLoader;
 var InlineLoaderHooks = traceur.runtime.InlineLoaderHooks;
+var Options = traceur.util.Options;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var moduleStore = traceur.runtime.ModuleStore;
@@ -150,20 +151,27 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     var loadFunction = loader.import;
     var input = fileNamesAndTypes[loadCount];
     var name = input.name;
-    var moduleOption = options.modules;
+
+    var optionsCopy = new Options(options); // Give each load a copy of options.
+
+    var moduleOption = optionsCopy.modules;
     if (input.type === 'script') {
       loadFunction = loader.loadAsScript;
     } else {
       name = name.replace(/\.js$/,'');
       if (input.format === 'inline')
-        options.modules = 'inline';
-      else if (options.modules === 'register')
+        optionsCopy.modules = 'inline';
+      else if (optionsCopy.modules === 'register')
         doEvaluateModule = true;
     }
-    var loadOptions = {referrerName: referrerName};
+
+    var loadOptions = {
+      referrerName: referrerName,
+      metadata: {traceurOptions: optionsCopy}
+    };
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {
-          options.modules = moduleOption;
+          optionsCopy.modules = moduleOption;
           if (doEvaluateModule)
             appendEvaluateModule(name, referrerName);
 

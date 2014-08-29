@@ -16,13 +16,13 @@
 import {SourceMapConsumer}
     from '../../../../src/outputgeneration/SourceMapIntegration';
 import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
-var options = traceur.options;
 
 // Force sourceMaps on for test.
-options.sourceMaps = true;
+var metadata = {traceurOptions: {sourceMaps: true}};
 
 var testModuleName = System.normalize('./test/unit/runtime/test_a');
-var whenSourceMapMapping = System.import(testModuleName).then(() => {
+var whenSourceMapMapping =
+    System.import(testModuleName, {metadata: metadata}).then(() => {
   var mapInfo = System.sourceMapInfo(testModuleName, 'module');
   if (!mapInfo || !mapInfo.sourceMap)
     throw new Error('No source map');

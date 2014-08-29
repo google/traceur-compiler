@@ -33,14 +33,19 @@ export class TraceurLoader extends Loader {
     super(loaderHooks);
   }
 
+  locate(load) {
+    load.metadata.traceurOptions = load.metadata.traceurOptions || {};
+    return super(load);
+  }
+
   /**
     * @param {Array<string>} module names
     * @param {Object} referrerName and address passed to normalize.
     * @return {Promise} fulfilled with array of evaluated modules
     */
-  importAll(names, {referrerName, address} = {}) {
+  importAll(names, {referrerName, address, metadata} = {}) {
     return Promise.all(names.map((name) => {
-      return this.import(name, {referrerName: referrerName, address: address});
+      return this.import(name, {referrerName, address, metadata});
     }));
   }
 
@@ -57,15 +62,17 @@ export class TraceurLoader extends Loader {
    * @param {Object} referrerName and address passed to normalize.
    * @return {Promise} fulfilled with evaluation result.
    */
-  loadAsScript(name, {referrerName, address} = {}) {
-    return this.internalLoader_.load(name, referrerName, address, 'script').
+  loadAsScript(name, {referrerName, address, metadata} = {}) {
+    metadata = metadata || {};
+    metadata.traceurOptions = metadata.traceurOptions || {};
+    metadata.traceurOptions.script = true;
+    return this.internalLoader_.load(name, referrerName, address, metadata).
         then((codeUnit) => codeUnit.result);
   }
 
-  loadAsScriptAll(names, {referrerName, address} = {}) {
+  loadAsScriptAll(names, {referrerName, address, metadata} = {}) {
     return Promise.all(names.map((name) => {
-      return this.loadAsScript(name,
-          {referrerName: referrerName, address: address});
+      return this.loadAsScript(name, {referrerName, address, metadata});
     }));
   }
 
@@ -84,8 +91,9 @@ export class TraceurLoader extends Loader {
    * @return {Promise} fulfilled with evaluation result.
 
    */
-  script(source, {name, referrerName, address} = {}) {
-    return this.internalLoader_.script(source, name, referrerName, address);
+  script(source, {name, referrerName, address, metadata} = {}) {
+    return this.internalLoader_.script(source, name, referrerName, address,
+        metadata);
   }
 
   semVerRegExp_() {

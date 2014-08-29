@@ -45,7 +45,13 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var nameInfo = {address: name, referrerName: window.location.href, name: name};
+    var options = traceur.options;
+    var nameInfo = {
+      address: name,
+      referrerName: window.location.href,
+      name: name,
+      metadata: {traceurOptions: options}
+    };
     var loadingResult;
     if (scriptElement.type === 'module')
       loadingResult = this.loader.module(content, nameInfo);

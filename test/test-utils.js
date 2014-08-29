@@ -132,6 +132,16 @@
     });
   }
 
+  var Options = traceur.get('Options').Options;
+
+  function setOptions(load, options) {
+    var traceurOptions = new Options(options.traceurOptions);
+    traceurOptions.debug = true;
+    traceurOptions.freeVariableChecker = true;
+    traceurOptions.validate = true;
+    load.metadata.traceurOptions = traceurOptions;
+  }
+
   function featureTest(name, url, fileLoader) {
 
     teardown(function() {
@@ -159,12 +169,8 @@
             done(ex);
           };
         }
-        traceur.options.reset();
-        if (options.traceurOptions)
-          traceur.options.setFromObject(options.traceurOptions);
-        traceur.options.debug = true;
-        traceur.options.freeVariableChecker = true;
-        traceur.options.validate = true;
+
+        setOptions(load, options);
         return source;
       }
 
