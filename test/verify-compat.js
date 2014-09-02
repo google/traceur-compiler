@@ -46,6 +46,7 @@ System.fetch({address: './node_modules/es5-compat-table/data-es6.js'}).then((tes
       functionExpr = '(' + functionExpr + '());';
       m = functionExpr.match(/eval\(\'([^\']*)\'\)/);
       var src = m ?  m[1] : functionExpr;
+      var evalBasedTest = !!m;
       var options = {};
       if (!/module/.test(test.name)) {
         options.script = true;
@@ -55,6 +56,9 @@ System.fetch({address: './node_modules/es5-compat-table/data-es6.js'}).then((tes
       try {
         var transcoded = (new Compiler(options)).compile(src);
         traceurResult = (0, eval)(transcoded);
+        // Some of the compat-table test return status, but eval based ones
+        // do not.
+        traceurResult = evalBasedTest ? true : traceurResult;
         checkTest(test, !!traceurResult);
       } catch (ex) {
         checkTest(test, false);
