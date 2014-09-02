@@ -56,6 +56,7 @@ export var optionsV01 = enumerableOnlyObject({
   typeAssertionModule: null,
   typeAssertions: false,
   types: false,
+  unicodeEscapeSequences: true,
   validate: false,
 });
 
@@ -409,6 +410,7 @@ addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
 addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
 addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
+addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
 
 // EXPERIMENTAL
 addFeatureOption('annotations', EXPERIMENTAL);

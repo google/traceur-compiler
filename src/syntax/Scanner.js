@@ -1048,11 +1048,40 @@ function skipStringLiteralEscapeSequence() {
     case 120:  // x
       return skipHexDigit() && skipHexDigit();
     case 117:  // u
-      return skipHexDigit() && skipHexDigit() &&
-          skipHexDigit() && skipHexDigit();
+      return skipUnicodeEscapeSequence();
     default:
       return true;
   }
+}
+
+function skipUnicodeEscapeSequence() {
+  if (currentCharCode === 123) {  // {
+    next();
+    var beginIndex = index;
+
+    if (!isHexDigit(currentCharCode)) {
+      reportError('Hex digit expected');
+      return false;
+    }
+
+    skipHexDigits();
+
+    if (currentCharCode !== 125) {  // }
+      reportError('Hex digit expected');
+      return false;
+    }
+
+    var codePoint = getTokenString(beginIndex, index);
+    if (parseInt(codePoint, 16) > 0x10FFFF) { // 11.8.4.1
+      reportError('The code point in a Unicode escape sequence cannot exceed 10FFFF');
+      return false;
+    }
+
+    next();
+    return true;
+  }
+  return skipHexDigit() && skipHexDigit() &&
+      skipHexDigit() && skipHexDigit();
 }
 
 function skipHexDigit() {
