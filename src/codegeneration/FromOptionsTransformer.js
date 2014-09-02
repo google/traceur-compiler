@@ -44,6 +44,7 @@ import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer';
+import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../Options';
 
@@ -90,9 +91,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (options.types) {
+    if (options.types)
       append(TypeToExpressionTransformer);
-    }
+
+    if (transformOptions.unicodeEscapeSequences)
+      append(UnicodeEscapeSequenceTransformer);
 
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
