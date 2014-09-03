@@ -127,7 +127,7 @@
     });
   }
 
-  var Options = traceur.get('Options').Options;
+  var Options = traceur.get('./Options').Options;
 
   function setOptions(load, options) {
     var traceurOptions = new Options(options.traceurOptions);

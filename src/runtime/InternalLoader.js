@@ -54,7 +54,7 @@ class LoaderError extends Error {
  */
 class CodeUnit {
   /**
-   * @param {LoaderCompiler} loaderCompiler, callbacks for parsing/transforming.
+   * @param {LoaderCompiler} loaderCompiler Callbacks for parsing/transforming.
    * @param {string} name The normalized name of this dependency.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
@@ -73,7 +73,7 @@ class CodeUnit {
       this.state_ = state || NOT_STARTED;
       this.error = null;
       this.result = null;
-      this.data_ = {};
+      this.metadata_ = {};
       this.dependencies = [];
       this.resolve = res;
       this.reject = rej;
@@ -95,12 +95,12 @@ class CodeUnit {
    * @return opaque value set and used by loaderCompiler
    */
   get metadata() {
-    return this.data_;
+    return this.metadata_;
   }
 
   set metadata(value) {
     assert(value);
-    this.data_ = value;
+    this.metadata_ = value;
   }
 
   nameTrace() {
@@ -230,8 +230,7 @@ export class InternalLoader {
     this.sync_ = false;
   }
 
-  defaultMetadata_(metadata) {
-    metadata = metadata || {};
+  defaultMetadata_(metadata = {}) {
     metadata.traceurOptions = metadata.traceurOptions || new Options();
     return metadata;
   }
@@ -343,7 +342,8 @@ export class InternalLoader {
 
   getCodeUnit_(name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name, referrerName, address);
-    // TODO(jjb): embed type in name
+    // TODO(jjb): embed type in name per es-discuss Yehuda Katz,
+    // eg import 'name,script';
     var type = 'module';
     if (metadata && metadata.traceurOptions && metadata.traceurOptions.script)
       type = 'script';
@@ -393,8 +393,8 @@ export class InternalLoader {
             new ExportsList(codeUnit.normalizedName);
         exportsList.addExportsFromModule(codeUnit.result);
       } else {
-        var msg = `${name} is not a module, required by ${referrer}`;
-        throw new LoaderError(msg, codeUnit.metadata.tree);
+        throw new Error(
+            `InternalError: ${name} is not a module, required by ${referrer}`);
       }
     }
     return exportsList;

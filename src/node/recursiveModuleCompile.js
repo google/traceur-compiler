@@ -152,7 +152,6 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
 
     var optionsCopy = new Options(options); // Give each load a copy of options.
 
-    var moduleOption = optionsCopy.modules;
     if (input.type === 'script') {
       loadFunction = loader.loadAsScript;
     } else {
@@ -169,7 +168,6 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     };
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
         function() {
-          optionsCopy.modules = moduleOption;
           if (doEvaluateModule)
             appendEvaluateModule(name, referrerName);
 

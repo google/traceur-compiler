@@ -164,7 +164,7 @@ export class TraceurLoader extends Loader {
    * @param {Object} referrerName and address passed to normalize.
    * @return {Promise} fulfilled with evaluation result.
    */
-  loadAsScript(name, {referrerName, address, metadata} = {}) {
+  loadAsScript(name, {referrerName, address, metadata = {}} = {}) {
     metadata = metadata || {};
     metadata.traceurOptions = metadata.traceurOptions || {};
     metadata.traceurOptions.script = true;
