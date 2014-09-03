@@ -132,6 +132,21 @@ suite('context test', function() {
         });
   });
 
+  test('compiled modules with --source-maps and sourceroot', function(done) {
+    tempFileName = resolve('./out/sourceroot-test.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+
+    exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var transcoded = fs.readFileSync(tempFileName, 'utf-8');
+          assert(/sourceMappingURL=out\//.test(transcoded),
+              'URL should contain sourceroot');
+          done();
+        });
+  });
+
   test('compiled modules inline', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
