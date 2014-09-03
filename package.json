@@ -35,7 +35,8 @@
   "dependencies": {
     "commander": "2.x",
     "glob": "4.x",
-    "semver": "2.x"
+    "semver": "2.x",
+    "rsvp": "3.x"
   },
   "devDependencies": {
     "source-map": "0.1.34",
