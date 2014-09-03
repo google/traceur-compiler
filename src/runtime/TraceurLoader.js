@@ -51,7 +51,7 @@ export class TraceurLoader extends Loader {
   normalize(name, referrerName, referrerAddress) {
     var normalizedName =
         this.moduleStore_.normalize(name, referrerName, referrerAddress);
-    if (systemjs && System.map)
+    if (typeof systemjs !== 'undefined' && System.map)
       return systemjs.applyMap(System.map, normalizedName, referrerName);
 
     return normalizedName;
@@ -131,6 +131,8 @@ export class TraceurLoader extends Loader {
   }
 
   instantiate({name, metadata, address, source, sourceMap}) {
+    // We don't implement instantiate but return undefinded asynchronously
+    // to match es6-module-loader.
     return new Promise((resolve, reject) => {
       resolve(undefined);
     });
