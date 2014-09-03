@@ -44,11 +44,12 @@ suite('Loader.js', function() {
     System = require('../../../src/node/System.js');
   } else {
     url = resolveUrl(window.location.href, 'unit/runtime/modules.js');
-    fileLoader = traceur.runtime.webLoader;
+    fileLoader = get('src/runtime/webLoader');
   }
 
   function getLoader() {
-    return new traceur.runtime.TraceurLoader(fileLoader, url);
+    var TraceurLoader = get('src/runtime/TraceurLoader').TraceurLoader;
+    return new TraceurLoader(fileLoader, url);
   }
 
   test('locate', function() {

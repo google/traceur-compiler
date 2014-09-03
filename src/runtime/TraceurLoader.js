@@ -51,10 +51,10 @@ export class TraceurLoader extends Loader {
   normalize(name, referrerName, referrerAddress) {
     var normalizedName =
         this.moduleStore_.normalize(name, referrerName, referrerAddress);
-    if (System.map)
+    if (systemjs && System.map)
       return systemjs.applyMap(System.map, normalizedName, referrerName);
-    else
-      return normalizedName;
+
+    return normalizedName;
   }
 
   locate(load) {
@@ -120,7 +120,8 @@ export class TraceurLoader extends Loader {
         reject(new TypeError('fetch requires argument object'));
       else if (!load.address || typeof load.address !== 'string')
         reject(new TypeError('fetch({address}) missing required string.'));
-      else this.fileLoader_.load(load.address, resolve, reject);
+      else
+        this.fileLoader_.load(load.address, resolve, reject);
     });
   }
 

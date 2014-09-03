@@ -94,12 +94,10 @@ import {Loader} from './runtime/Loader';
 import {LoaderCompiler} from './runtime/LoaderCompiler';
 import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler';
 import {TraceurLoader} from './runtime/TraceurLoader';
-import {webLoader} from './runtime/webLoader';
 
 export var runtime = {
   InlineLoaderCompiler,
   Loader,
   LoaderCompiler,
-  TraceurLoader,
-  webLoader
+  TraceurLoader
 };

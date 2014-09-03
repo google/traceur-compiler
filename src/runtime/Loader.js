@@ -14,6 +14,10 @@
 
 import {InternalLoader} from './InternalLoader';
 
+function throwAbstractMethod() {
+  throw new Error('Unimplemented Loader function, see extended class');
+}
+
 export class Loader {
   /**
    * ES6 Loader Constructor
@@ -21,7 +25,7 @@ export class Loader {
    */
   constructor(loaderCompiler) {
     this.internalLoader_ =
-      new InternalLoader(this, loaderCompiler);
+        new InternalLoader(this, loaderCompiler);
     this.loaderCompiler_ = loaderCompiler;
   }
   /**
@@ -63,35 +67,31 @@ export class Loader {
   }
 
   get(normalizedName) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   set(normalizedName, module) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   normalize(name, referrerName, referrerAddress) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   locate(load) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   fetch(load) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   translate(load) {
-    this.extendMe_();
+    throwAbstractMethod();
   }
 
   instantiate(load) {
-    this.extendMe_();
-  }
-
-  extendMe_() {
-    throw new Error('Unimplemented Loader function, see extended class');
+    throwAbstractMethod();
   }
 }
 
