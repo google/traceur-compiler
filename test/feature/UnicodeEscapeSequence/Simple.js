@@ -7,4 +7,9 @@
 
   assert.equal("\u{10000}", "\uD800\uDC00");
   assert.equal("\u{10FFFF}", "\uDBFF\uDFFF");
+
+  assert.equal("\\u{1}", "\\u{1}");
+  assert.equal("\\\u{1}", "\\\u0001");
+
+  assert.equal("\U{1}", "\U{1}");
 })();
