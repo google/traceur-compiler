@@ -16,7 +16,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {LiteralExpression} from '../syntax/trees/ParseTrees';
 import {STRING} from '../syntax/TokenType';
 
-var re = /\\u{([0-9a-f]+)}/gi;
+var re = /(\\*)\\u{([0-9a-fA-F]+)}/g;
 
 function zeroPad(value) {
   return '0000'.slice(value.length) + value;
@@ -27,15 +27,24 @@ function needsTransform(token) {
 }
 
 function transformToken(token) {
-  return token.value.replace(re, (match, hexDigits) => {
-    var codePoint = parseInt(hexDigits, 16);
-    if (codePoint <= 0xFFFF) {
-      return '\\u' + zeroPad(codePoint.toString(16).toUpperCase());
+  return token.value.replace(re, (match, backslashes, hexDigits) => {
+    var backslashIsEscaped = backslashes.length % 2 === 1;
+    if (backslashIsEscaped) {
+      return match;
     }
-    var high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
-    var low = (codePoint - 0x10000) % 0x400 + 0xDC00;
-    return '\\u' + high.toString(16).toUpperCase() +
-           '\\u' + low.toString(16).toUpperCase();
+
+    var codePoint = parseInt(hexDigits, 16);
+    var value;
+    if (codePoint <= 0xFFFF) {
+      value = '\\u' + zeroPad(codePoint.toString(16).toUpperCase());
+    } else {
+      var high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
+      var low = (codePoint - 0x10000) % 0x400 + 0xDC00;
+      value = '\\u' + high.toString(16).toUpperCase() +
+              '\\u' + low.toString(16).toUpperCase();
+    }
+
+    return backslashes + value;
   });
 }
 
