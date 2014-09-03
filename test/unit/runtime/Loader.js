@@ -44,20 +44,16 @@ suite('Loader.js', function() {
     System = require('../../../src/node/System.js');
   } else {
     url = resolveUrl(window.location.href, 'unit/runtime/modules.js');
+    fileLoader = get('src/runtime/webLoader');
   }
 
-  function getLoaderHooks(opt_reporter) {
-    var LoaderHooks = traceur.runtime.LoaderHooks;
-    opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, fileLoader);
+  function getLoader() {
+    var TraceurLoader = get('src/runtime/TraceurLoader').TraceurLoader;
+    return new TraceurLoader(fileLoader, url);
   }
 
-  function getLoader(opt_reporter) {
-    return new traceur.runtime.TraceurLoader(getLoaderHooks(opt_reporter));
-  }
-
-  test('LoaderHooks.locate', function() {
-    var loaderHooks = getLoaderHooks();
+  test('locate', function() {
+    var loader = getLoader();
     var load = {
       metadata: {
         baseURL: 'http://example.org/a/'
@@ -65,11 +61,11 @@ suite('Loader.js', function() {
       data: {}
     }
     load.normalizedName = '@abc/def';
-    assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/@abc/def.js');
     load.normalizedName = 'abc/def';
-    assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
     load.normalizedName = 'abc/def.js';
-    assert.notEqual(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+    assert.notEqual(loader.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
@@ -312,10 +308,9 @@ suite('Loader.js', function() {
 
   test('Loader.define.Fail', function(done) {
     var name = System.normalize('./test_define');
-    var reporter = new MutedErrorReporter();
-    getLoader(reporter).import('./side-effect', {}).then(function(mod) {
+    getLoader().import('./side-effect', {}).then(function(mod) {
       var src = 'syntax error';
-      getLoader(reporter).define(name, src, {}).then(function() {
+      getLoader().define(name, src, {}).then(function() {
           fail('should not have succeeded');
           done();
         }, function(error) {

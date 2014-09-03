@@ -14,14 +14,19 @@
 
 import {InternalLoader} from './InternalLoader';
 
+function throwAbstractMethod() {
+  throw new Error('Unimplemented Loader function, see extended class');
+}
+
 export class Loader {
   /**
    * ES6 Loader Constructor
    * @param {!Object=} options
    */
-  constructor(loaderHooks) {
-    this.internalLoader_ = new InternalLoader(loaderHooks);
-    this.loaderHooks_ = loaderHooks;
+  constructor(loaderCompiler) {
+    this.internalLoader_ =
+        new InternalLoader(this, loaderCompiler);
+    this.loaderCompiler_ = loaderCompiler;
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any
@@ -62,33 +67,33 @@ export class Loader {
   }
 
   get(normalizedName) {
-    return this.loaderHooks_.get(normalizedName);
+    throwAbstractMethod();
   }
 
   set(normalizedName, module) {
-    this.loaderHooks_.set(normalizedName, module);
+    throwAbstractMethod();
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+    throwAbstractMethod();
   }
 
   locate(load) {
-    return this.loaderHooks_.locate(load);
+    throwAbstractMethod();
   }
 
   fetch(load) {
-    return this.loaderHooks_.fetch(load);
+    throwAbstractMethod();
   }
 
   translate(load) {
-    return this.loaderHooks_.translate(load);
+    throwAbstractMethod();
   }
 
   instantiate(load) {
-    return this.loaderHooks_.instantiate(load);
+    throwAbstractMethod();
   }
 }
 
-export {LoaderHooks};
+export {LoaderCompiler};
 

@@ -16,14 +16,12 @@
 
 var fs = require('fs');
 var traceur = require('./traceur.js');
-var nodeLoader = require('./nodeLoader.js');
 var path = require('path');
-var reporter = new traceur.util.ErrorReporter();
-var LoaderHooks = traceur.runtime.LoaderHooks;
-var url = (path.resolve('./') + '/').replace(/\\/g, '/');
-var loaderHooks = new LoaderHooks(reporter, url, nodeLoader);
 
-var System = new traceur.runtime.TraceurLoader(loaderHooks);
+var nodeLoader = require('./nodeLoader.js');
+var url = (path.resolve('./') + '/').replace(/\\/g, '/');
+
+var System = new traceur.runtime.TraceurLoader(nodeLoader, url);
 
 Reflect.global.System = System;
 System.map = System.semverMap(System.version);

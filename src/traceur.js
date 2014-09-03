@@ -91,15 +91,13 @@ export var codegeneration = {
 };
 
 import {Loader} from './runtime/Loader';
-import {LoaderHooks} from './runtime/LoaderHooks';
-import {InlineLoaderHooks} from './runtime/InlineLoaderHooks';
-import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+import {LoaderCompiler} from './runtime/LoaderCompiler';
+import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler';
 import {TraceurLoader} from './runtime/TraceurLoader';
 
 export var runtime = {
-  InlineLoaderHooks,
-  InterceptOutputLoaderHooks,
+  InlineLoaderCompiler,
   Loader,
-  LoaderHooks,
+  LoaderCompiler,
   TraceurLoader
 };

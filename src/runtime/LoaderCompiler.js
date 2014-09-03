@@ -22,13 +22,13 @@ import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
-import {options} from '../Options';
+import {options as globalOptions} from '../Options';
 import {SourceFile} from '../syntax/SourceFile';
 import {systemjs} from '../runtime/system-map';
+import {toSource} from '../outputgeneration/toSource';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
-import {webLoader} from './webLoader';
 
 import {assert} from '../util/assert';
 
@@ -45,39 +45,7 @@ var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
-export class LoaderHooks {
-  constructor(reporter, baseURL,
-      fileLoader = webLoader,
-      moduleStore = $traceurRuntime.ModuleStore) {
-    this.baseURL_ = baseURL;
-    this.moduleStore_ = moduleStore;
-    this.fileLoader = fileLoader;
-  }
-
-  get(normalizedName) {
-    return this.moduleStore_.get(normalizedName);
-  }
-
-  set(normalizedName, module) {
-    this.moduleStore_.set(normalizedName, module);
-  }
-
-  normalize(name, referrerName, referrerAddress) {
-    var normalizedName =
-        this.moduleStore_.normalize(name, referrerName, referrerAddress);
-    if (System.map)
-      return systemjs.applyMap(System.map, normalizedName, referrerName);
-    else
-      return normalizedName;
-  }
-
-  get baseURL() {
-    return this.baseURL_;
-  }
-
-  set baseURL(value) {
-    this.baseURL_ = String(value);
-  }
+export class LoaderCompiler {
 
   getModuleSpecifiers(codeUnit) {
     this.parse(codeUnit);
@@ -89,16 +57,18 @@ export class LoaderHooks {
     return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
+  sourceName(codeUnit) {
+    var options = codeUnit.metadata.traceurOptions;
+    return codeUnit.metadata.sourceName =
+        options.filename || codeUnit.url || codeUnit.normalizedName;
+  }
+
   parse(codeUnit) {
     assert(!codeUnit.metadata.tree);
     var reporter = new CollectingErrorReporter();
-    var normalizedName = codeUnit.normalizedName;
-    var program = codeUnit.source;
-    // For error reporting, prefer loader URL, fallback if we did not load text.
-    var url = codeUnit.url || normalizedName;
-    var file = new SourceFile(url, program);
+    var file = new SourceFile(this.sourceName(codeUnit), codeUnit.source);
     // The parser reads from global traceur options.
-    options.setFromObject(codeUnit.metadata.traceurOptions);
+    globalOptions.setFromObject(codeUnit.metadata.traceurOptions);
     this.checkForErrors((reporter) => {
       var parser = new Parser(file, reporter);
       if (codeUnit.type == 'module')
@@ -107,6 +77,7 @@ export class LoaderHooks {
         codeUnit.metadata.tree = parser.parseScript();
     });
 
+    var normalizedName = codeUnit.normalizedName;
     codeUnit.metadata.moduleSymbol =
       new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
   }
@@ -123,87 +94,11 @@ export class LoaderHooks {
     });
   }
 
-  fetch(load) {
-    return new Promise((resolve, reject) => {
-      if (!load)
-        reject(new TypeError('fetch requires argument object'));
-      else if (!load.address || typeof load.address !== 'string')
-        reject(new TypeError('fetch({address}) missing required string.'));
-      else this.fileLoader.load(load.address, resolve, reject);
-    });
-  }
-
-  translate(load) {
-    return new Promise((resolve, reject) => {
-      resolve(load.source);
-    });
-  }
-
-  instantiate({name, metadata, address, source, sourceMap}) {
-    return new Promise((resolve, reject) => {
-      resolve(undefined);
-    });
-  }
-
-  locate(load) {
-    load.url = this.locate_(load);
-    return load.url;
-  }
-
-  locate_(load) {
-    var normalizedModuleName = load.normalizedName;
-    var options = load.metadata.traceurOptions;
-    var asJS;
-    if (options && options.script) {
-      asJS = normalizedModuleName;
-    } else {
-      asJS = normalizedModuleName + '.js';
-    }
-
-    var referrer = options && options.referrer;
-    if (referrer) {
-      if (asJS.indexOf(referrer) === 0) {
-        asJS = asJS.slice(referrer.length);
-        load.metadata.locateMap = {
-          pattern: referrer,
-          replacement: ''
-        };
-      }
-    }
-
-    if (isAbsolute(asJS))
-      return asJS;
-
-    var baseURL = load.metadata && load.metadata.baseURL;
-    baseURL = baseURL || this.baseURL;
-    if (baseURL) {
-      load.metadata.baseURL = baseURL;
-      return resolveUrl(baseURL, asJS);
-    }
-    return asJS;
-  }
-
-  nameTrace(load) {
-    var trace = '';
-    if (load.metadata.locateMap) {
-      trace += this.locateMapTrace(load);
-    }
-    var base = load.metadata.baseURL || this.baseURL;
-    if (base) {
-      trace += this.baseURLTrace(base);
-    } else {
-      trace += 'No baseURL\n';
-    }
-    return trace;
-  }
-
-  locateMapTrace(load) {
-    var map = load.metadata.locateMap;
-    return `LoaderHooks.locate found \'${map.pattern}\' -> \'${map.replacement}\'\n`;
-  }
-
-  baseURLTrace(base) {
-    return 'LoaderHooks.locate resolved against base \'' + base + '\'\n';
+  write(codeUnit) {
+    var filename = codeUnit.address || codeUnit.normalizedName;
+    var metadata = codeUnit.metadata;
+    [metadata.transcoded, metadata.sourceMap] =
+        toSource(metadata.transformedTree, metadata.traceurOptions, filename);
   }
 
   evaluateCodeUnit(codeUnit) {
@@ -229,10 +124,6 @@ export class LoaderHooks {
     }
 
     this.checkForErrors((reporter) => buildExportList(deps, loader, reporter));
-  }
-
-  bundledModule(name) {
-    return this.moduleStore_.bundleStore[name];
   }
 
   checkForErrors(fncOfReporter) {

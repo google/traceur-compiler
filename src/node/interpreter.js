@@ -26,7 +26,7 @@ function interpret(filename, options) {
   System.import(moduleName, {metadata: metadata}).
     catch(function(err) {
       console.error(err.stack || err + '');
-      process.exit(8);
+      process.exit(1);
     });
 }
 

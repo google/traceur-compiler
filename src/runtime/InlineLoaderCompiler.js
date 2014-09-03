@@ -1,4 +1,4 @@
- // Copyright 2013 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LoaderHooks} from './LoaderHooks';
+import {LoaderCompiler} from './LoaderCompiler';
+import {Script} from '../syntax/trees/ParseTrees';
 
-export class InterceptOutputLoaderHooks extends LoaderHooks {
-  constructor(...args) {
-    super(...args);
-    this.sourceMap = null;
-    this.transcoded = null;
-    this.onTranscoded = () => {};
+export class InlineLoaderCompiler extends LoaderCompiler {
+
+  constructor(elements) {
+    super();
+    this.elements = elements;
   }
-  instantiate({metadata, url}) {
-    this.sourceMap = metadata.sourceMap;
-    this.transcoded = metadata.transcoded;
-    this.onTranscoded(metadata, url);
-    return undefined;
+
+  evaluateCodeUnit(codeUnit) {
+    // Don't eval. Instead append the trees to the output.
+    var tree = codeUnit.metadata.transformedTree;
+    this.elements.push(...tree.scriptItemList);
+  }
+
+  toTree() {
+    return new Script(null, this.elements);
   }
 }
+

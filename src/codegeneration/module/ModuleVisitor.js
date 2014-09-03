@@ -40,12 +40,8 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ExportsList|null}
    */
   getExportsListForModuleSpecifier(name) {
-    try {
-      var referrer = this.moduleSymbol.normalizedName;
-      return this.loader_.getExportsListForModuleSpecifier(name, referrer);
-    } catch(ex) {
-      this.reporter.reportError(ex.message, ex.tree);
-    }
+    var referrer = this.moduleSymbol.normalizedName;
+    return this.loader_.getExportsListForModuleSpecifier(name, referrer);
   }
 
   // Limit the trees to visit.
