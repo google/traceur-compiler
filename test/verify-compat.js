@@ -40,10 +40,14 @@ System.fetch({address: './node_modules/es5-compat-table/data-es6.js'}).then((tes
     if (typeof test.exec !== 'function') {
       unknown.push(test.name);
     } else {
+      // The compat-table tests are in functions under the property 'exec';
       var functionExpr = test.exec + '';
+      // Interior of the function body is surrounded by comments, because
+      //   the es6 code won't compile into a function.
       var m = functionExpr.match(/[^]*\/\*([^]*)\*\/\}$/);
       functionExpr = m ? 'function x() {\n' + m[1] + '}': functionExpr;
       functionExpr = '(' + functionExpr + '());';
+      // Except when the test is inexplicable just an eval().
       m = functionExpr.match(/eval\(\'([^\']*)\'\)/);
       var src = m ?  m[1] : functionExpr;
       var evalBasedTest = !!m;
