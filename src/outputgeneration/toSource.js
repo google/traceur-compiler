@@ -31,7 +31,7 @@ export function toSource(tree, options = undefined) {
   if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({
       file: options.filename,
-      sourceRoot: null
+      sourceRoot: options && options.sourceRoot
     });
   }
 

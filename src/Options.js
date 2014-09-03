@@ -51,6 +51,7 @@ export var optionsV01 = enumerableOnlyObject({
   restParameters: true,
   script: false,
   sourceMaps: false,
+  sourceRoot: undefined,
   spread: true,
   symbols: false,
   templateLiterals: true,
@@ -163,6 +164,7 @@ export class Options {
     this.outputLanguage = 'es5';
     this.filename = undefined;
     this.referrer = '';
+    this.sourceRoot = undefined;
     this.typeAssertionModule = null;
   }
   /**
@@ -312,6 +314,9 @@ export function addOptions(flags, commandOptions) {
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
   );
+  flags.option('--sourceRoot <path>', 'sourcemap sourceRoot', (sourceRoot) => {
+    commandOptions.sourceRoot = sourceRoot;
+  });
 
   Object.keys(commandOptions).forEach(function(name) {
     var dashedName = toDashCase(name);

@@ -127,7 +127,7 @@ suite('context test', function() {
           assert.isNull(error);
           tempMapName = tempFileName.replace('.js','') + '.map';
           var map = fs.readFileSync(tempMapName, 'utf-8');
-          assert(map);
+          assert(map, 'contains a source map');
           done();
         });
   });
@@ -141,8 +141,13 @@ suite('context test', function() {
         function(error, stdout, stderr) {
           assert.isNull(error);
           var transcoded = fs.readFileSync(tempFileName, 'utf-8');
-          assert(/sourceMappingURL=out\//.test(transcoded),
-              'URL should contain sourceroot');
+          var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+          var sourceMappingURL = m[1];
+          assert(sourceMappingURL === 'sourceroot-test.map',
+              'has the correct sourceMappingURL');
+          tempMapName = tempFileName.replace('.js','') + '.map';
+          var map = fs.readFileSync(tempMapName, 'utf-8');
+          var actualSourceRoot = JSON.parse(map).sourceRoot;
           done();
         });
   });

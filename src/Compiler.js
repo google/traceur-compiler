@@ -88,7 +88,7 @@ export class Compiler {
       modules: 'amd',
       filename: undefined,
       sourceMaps: false,
-      moduleName: true
+      moduleName: false
     };
     return merge(amdOptions, options);
   }
@@ -129,7 +129,8 @@ export class Compiler {
     traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
-    var sourceFile = new SourceFile(this.options_.filename, content);
+    var sourceName = this.sourceName(this.options_.filename);
+    var sourceFile = new SourceFile(sourceName, content);
     var parser = new Parser(sourceFile, errorReporter);
     var tree =
         this.options_.script ? parser.parseScript() : parser.parseModule();
@@ -164,8 +165,8 @@ export class Compiler {
   createSourceMapGenerator_() {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
-        file: this.options_.filename,
-        sourceRoot: this.sourceRootForFilename(this.options_.filename)
+        file: this.sourceName(this.options_.filename),
+        sourceRoot: this.sourceRoot()
       });
     }
   }
@@ -178,10 +179,11 @@ export class Compiler {
   write(tree) {
     var writer;
     this.sourceMapGenerator_ = this.createSourceMapGenerator_();
-    if (this.sourceMapGenerator_)
+    if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
-    else
+    } else {
       writer = new ParseTreeWriter(this.options_);
+    }
 
     writer.visitAny(tree);
     return writer.toString(tree);
@@ -191,8 +193,12 @@ export class Compiler {
     return filename;
   }
 
-  sourceRootForFilename(filename) {
-    return;
+  sourceName(filename) {
+    return filename;
+  }
+
+  sourceRoot() {
+    return this.options.sourceRoot;
   }
 
   defaultOptions() {

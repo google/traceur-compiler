@@ -20,9 +20,10 @@
 'use strict';
 
 var path = require('path');
-var traceur = require('./traceur.js');
+var fs = require('fs');
 var util = require('./file-util.js');
 var writeFile = util.writeFile;
+var traceur = require('./traceur.js');
 
 var Compiler = traceur.Compiler;
 
@@ -33,65 +34,47 @@ function NodeCompiler(options) {
 
 NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
+
   resolveModuleName: function(filename) {
     if (!filename)
       return;
     var moduleName = filename.replace(/\.js$/, '');
     return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
   },
-  sourceRootForFilename: function(filename) {
-    return path.relative(path.dirname(filename), '.');
+
+  sourceName: function(filename) {
+    return path.relative(this.cwd, filename);
+  },
+
+  sourceRoot: function(filename) {
+    return this.options_.sourceRoot || this.cwd + '/';
+  },
+
+  writeTreeToFile: function(tree, filename) {
+    var compiledCode = this.write(tree);
+    var sourcemap = this.getSourceMap();
+    if (sourcemap) {
+      var sourceMapFilePath = filename.replace(/\.js$/, '.map');
+      compiledCode += '\n//# sourceMappingURL=' +
+          path.basename(sourceMapFilePath) + '\n';
+      writeFile(sourceMapFilePath, sourcemap);
+    }
+    writeFile(filename, compiledCode);
+  },
+
+  compileSingleFile: function(inputFilePath, outputFilePath) {
+    fs.readFile(inputFilePath, function(err, contents) {
+      if (err)
+        throw new Error('While reading ' + inputFilePath + ': ' + err);
+
+      this.options_.filename = inputFilePath;
+      this.writeTreeToFile(this.transform(this.parse(contents.toString())),
+          outputFilePath);
+    }.bind(this));
   }
 };
 
-/**
- * Use Traceur to Compile ES6 module source code to commonjs format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-function moduleToCommonJS(content, options) {
-  var compiler = new NodeCompiler(Compiler.commonJSOptions(options));
-  return {
-    js: compiler.compile(content),
-    sourceMap: compiler.getSourceMap()
-  };
-}
-/**
- * Use Traceur to Compile ES6 module source code to amd format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-function moduleToAmd(content, options) {
-  var compiler = new NodeCompiler(Compiler.amdOptions(options));
-  return {
-    js: compiler.compile(content),
-    sourceMap: compiler.getSourceMap()
-  };
-}
-
-function getSourceMapFileName(name) {
-  return name.replace(/\.js$/, '.map');
-}
-
-function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
-  var sourceMapFilePath;
-  if (sourcemap) {
-    sourceMapFilePath = getSourceMapFileName(filename);
-    compiledCode += '\n//# sourceMappingURL=' +
-        path.basename(sourceMapFilePath) + '\n';
-  }
-  writeFile(filename, compiledCode);
-  if (sourcemap)
-    writeFile(sourceMapFilePath, sourcemap);
-}
 
 module.exports = {
-  NodeCompiler: NodeCompiler,
-  moduleToCommonJS: moduleToCommonJS,
-  moduleToAmd: moduleToAmd,
-  writeCompiledCodeToFile: writeCompiledCodeToFile,
+  NodeCompiler: NodeCompiler
 };

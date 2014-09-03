@@ -79,16 +79,28 @@ export class TraceurLoader extends Loader {
       }
     }
 
-    if (isAbsolute(asJS))
-      return asJS;
-
-    var baseURL = load.metadata && load.metadata.baseURL;
-    baseURL = baseURL || this.baseURL;
-    if (baseURL) {
-      load.metadata.baseURL = baseURL;
-      return resolveUrl(baseURL, asJS);
+    if (!isAbsolute(asJS)) {
+      var baseURL = load.metadata && load.metadata.baseURL;
+      baseURL = baseURL || this.baseURL;
+      if (baseURL) {
+        load.metadata.baseURL = baseURL;
+        asJS = resolveUrl(baseURL, asJS);
+      }
     }
     return asJS;
+  }
+
+  // The name set into the tree, and used for sourcemaps
+  sourceName(load) {
+    var options = load.metadata.traceurOptions;
+    var sourceName = load.url || load.normalizedName;
+    if (options.sourceMaps) {
+      var sourceRoot = options.sourceRoot || this.baseURL;
+      if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {
+        sourceName = sourceName.substring(sourceRoot.length);
+      }
+    }
+    return sourceName;
   }
 
   nameTrace(load) {
@@ -170,7 +182,7 @@ export class TraceurLoader extends Loader {
     metadata.traceurOptions = metadata.traceurOptions || {};
     metadata.traceurOptions.script = true;
     return this.internalLoader_.load(name, referrerName, address, metadata).
-        then((codeUnit) => codeUnit.result);
+        then((load) => load.result);
   }
 
   loadAsScriptAll(names, {referrerName, address, metadata} = {}) {
