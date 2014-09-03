@@ -167,7 +167,6 @@ export class TraceurLoader extends Loader {
    * @return {Promise} fulfilled with evaluation result.
    */
   loadAsScript(name, {referrerName, address, metadata = {}} = {}) {
-    metadata = metadata || {};
     metadata.traceurOptions = metadata.traceurOptions || {};
     metadata.traceurOptions.script = true;
     return this.internalLoader_.load(name, referrerName, address, metadata).
