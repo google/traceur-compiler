@@ -35,6 +35,7 @@
   "dependencies": {
     "commander": "2.x",
     "glob": "4.x",
+    "rsvp": "^3.0.13",
     "semver": "2.x"
   },
   "devDependencies": {
@@ -44,7 +45,6 @@
     "mocha": "1.20.x",
     "chai": "1.x",
     "node-uuid": "1.x",
-    "rsvp": "3.x",
     "requirejs": "2.x",
     "semver": "2.x",
     "traceur": "0.0.59",
