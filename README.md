@@ -23,7 +23,7 @@ Read the
 [Getting Started](https://github.com/google/traceur-compiler/wiki/GettingStarted)
 page to get up and running. You can use some language features right now and
 even try it out in your browser
-[here](http://google.github.io/traceur-compiler/demo/repl.html).
+[here](https://google.github.io/traceur-compiler/demo/repl.html).
 Just type in some code and see what Traceur produces. For an idea of what is
 available and what we have in the pipeline, see the
 [Language Features](https://github.com/google/traceur-compiler/wiki/LanguageFeatures)
