@@ -104,10 +104,7 @@ export class GeneratorTransformer extends CPSTransformer {
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
     var yieldMachine = this.stateToStateMachine_(
-        new YieldState(
-            startState,
-            fallThroughState,
-            this.transformAny(expression)),
+        new YieldState(startState, fallThroughState, expression),
         fallThroughState);
 
     if (machine)

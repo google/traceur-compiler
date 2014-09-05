@@ -26,17 +26,6 @@ export class AwaitState extends State {
     super(id),
     this.callbackState = callbackState;
     this.expression = expression;
-    this.statements_ = null;
-  }
-
-  get statements() {
-    if (!this.statements_) {
-      this.statements_ = parseStatements
-          `Promise.resolve(${this.expression}).then(
-              $ctx.createCallback(${this.callbackState}), $ctx.errback);
-          return`;
-    }
-    return this.statements_;
   }
 
   /**
@@ -58,7 +47,20 @@ export class AwaitState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    return this.statements;
+    var stateId, statements;
+    if (State.isFinallyExit(enclosingFinally, this.callbackState)) {
+      stateId = enclosingFinally.finallyState;
+      statements =
+          parseStatements `$ctx.finallyFallThrough = ${this.callbackState}`;
+    } else {
+      stateId = this.callbackState;
+      statements = [];
+    }
+
+    statements.push(
+      ...parseStatements `Promise.resolve(${this.expression}).then(
+          $ctx.createCallback(${stateId}), $ctx.errback);
+          return;`);
+    return statements;
   }
 }
-

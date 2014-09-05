@@ -109,15 +109,11 @@ export class AsyncTransformer extends CPSTransformer {
       expression = this.transformAny(inExpression);
     }
 
-
     var createTaskState = this.allocateState();
-    var callbackState = this.allocateState();
     var fallThroughState = this.allocateState();
-    if (!left)
-      callbackState = fallThroughState;
+    var callbackState = left ? this.allocateState() : fallThroughState;
 
     var states = [];
-    var expression = this.transformAny(expression);
     //  case createTaskState:
     states.push(new AwaitState(createTaskState, callbackState, expression));
 
@@ -133,9 +129,8 @@ export class AsyncTransformer extends CPSTransformer {
               left,
               operator,
               parseExpression `$ctx.value`));
-      var assignment = [statement];
       states.push(new FallThroughState(callbackState, fallThroughState,
-                                       assignment));
+                                       [statement]));
     }
 
     var awaitMachine =
