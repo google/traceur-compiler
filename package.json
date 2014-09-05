@@ -22,6 +22,12 @@
   "bin": {
     "traceur": "./traceur"
   },
+  "files": [
+    "src/node/*.js",
+    "bin/traceur.js",
+    "bin/traceur-runtime.js",
+    "traceur"
+  ],
   "scripts": {
     "test": "make test",
     "start": "make && node ./demo/expressServer.js"
