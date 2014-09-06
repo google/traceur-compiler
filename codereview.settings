@@ -1,5 +1,0 @@
-# This file is used by gcl to get repository specific information.
-CODE_REVIEW_SERVER: https://codereview.appspot.com
-VIEW_VC: http://code.google.com/p/traceur-compiler/source/detail?r=
-CC_LIST: traceur-compiler-reviews@googlegroups.com
-
