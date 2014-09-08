@@ -148,6 +148,8 @@ suite('context test', function() {
           tempMapName = tempFileName.replace('.js','') + '.map';
           var map = fs.readFileSync(tempMapName, 'utf-8');
           var actualSourceRoot = JSON.parse(map).sourceRoot;
+          assert(actualSourceRoot, process.cwd(),
+            'has the correct sourceroot')
           done();
         });
   });

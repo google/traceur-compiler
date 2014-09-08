@@ -37,14 +37,10 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
       return include;
     });
 
-    var compiler = new NodeCompiler(options);
+    var compiler = new NodeCompiler(options, cwd + '/');
 
     mkdirRecursive(outputDir);
     process.chdir(outputDir);
-
-    if (options.sourceMaps) {
-      options.sourceRoot = options.sourceRoot || cwd + '/';
-    }
 
     // Make includes relative to output dir so that sourcemap paths are correct.
     resolvedIncludes = resolvedIncludes.map(function(include) {

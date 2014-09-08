@@ -27,9 +27,9 @@ var traceur = require('./traceur.js');
 
 var Compiler = traceur.Compiler;
 
-function NodeCompiler(options) {
-  Compiler.call(this, options);
-  this.cwd = process.cwd();
+function NodeCompiler(options, sourceRoot) {
+  sourceRoot = sourceRoot || process.cwd();
+  Compiler.call(this, options, sourceRoot);
 }
 
 NodeCompiler.prototype = {
@@ -39,15 +39,11 @@ NodeCompiler.prototype = {
     if (!filename)
       return;
     var moduleName = filename.replace(/\.js$/, '');
-    return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
+    return path.relative(this.sourceRoot_, moduleName).replace(/\\/g,'/');
   },
 
   sourceName: function(filename) {
-    return path.relative(this.cwd, filename);
-  },
-
-  sourceRoot: function(filename) {
-    return this.options_.sourceRoot || this.cwd + '/';
+    return path.relative(this.sourceRoot_, filename);
   },
 
   writeTreeToFile: function(tree, filename) {

@@ -26,12 +26,12 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
  * @return source code; optional side-effect options.sourceMaps set
  */
-export function toSource(tree, options = undefined) {
+export function toSource(tree, options = undefined, sourceRoot) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
   if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({
       file: options.filename,
-      sourceRoot: options && options.sourceRoot
+      sourceRoot: sourceRoot
     });
   }
 

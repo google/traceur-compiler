@@ -95,11 +95,13 @@ export class TraceurLoader extends Loader {
     var options = load.metadata.traceurOptions;
     var sourceName = load.url || load.normalizedName;
     if (options.sourceMaps) {
-      var sourceRoot = options.sourceRoot || this.baseURL;
+      var sourceRoot = this.baseURL;
       if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {
         sourceName = sourceName.substring(sourceRoot.length);
       }
     }
+    // TODO(jjb): temp hack until we get rid of toSource
+    load.metadata.sourceRoot = this.baseURL;
     return sourceName;
   }
 

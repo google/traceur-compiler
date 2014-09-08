@@ -64,6 +64,7 @@ export class AmdTransformer extends ModuleTransformer {
 
     if (hasTopLevelThis)
       func = parseExpression `${func}.bind(${globalThis()})`;
+
     if (this.moduleName) {
       return parseStatements `define(${this.moduleName}, ${depPaths}, ${func});`;
     }

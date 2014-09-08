@@ -47,11 +47,14 @@ function merge(...srcs) {
 
 /**
  * Synchronous source to source compiler using default values for options.
+ * @{param} {Options=} overridingOptions
+ * @{param} {string} sourceRoot base path for sourcemaps, eg cwd or baseURL.
  */
 export class Compiler {
-  constructor(overridingOptions = {}) {
+  constructor(overridingOptions = {}, sourceRoot = undefined) {
     this.options_ = merge(this.defaultOptions(), overridingOptions);
     this.sourceMapGenerator_ = null;
+    this.sourceRoot_ = sourceRoot;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -166,7 +169,7 @@ export class Compiler {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
         file: this.sourceName(this.options_.filename),
-        sourceRoot: this.sourceRoot()
+        sourceRoot: this.sourceRoot_
       });
     }
   }
@@ -195,10 +198,6 @@ export class Compiler {
 
   sourceName(filename) {
     return filename;
-  }
-
-  sourceRoot() {
-    return this.options.sourceRoot;
   }
 
   defaultOptions() {

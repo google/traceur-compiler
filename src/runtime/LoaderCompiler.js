@@ -89,10 +89,10 @@ export class LoaderCompiler {
   }
 
   write(codeUnit) {
-    var filename = codeUnit.address || codeUnit.normalizedName;
+    var sourceRoot = codeUnit.metadata.sourceRoot;
     var metadata = codeUnit.metadata;
     [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, metadata.traceurOptions, filename);
+        toSource(metadata.transformedTree, metadata.traceurOptions, sourceRoot);
   }
 
   evaluateCodeUnit(codeUnit) {
