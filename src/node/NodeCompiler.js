@@ -39,11 +39,11 @@ NodeCompiler.prototype = {
     if (!filename)
       return;
     var moduleName = filename.replace(/\.js$/, '');
-    return path.relative(this.sourceRoot_, moduleName).replace(/\\/g,'/');
+    return path.relative(this.sourceRoot, moduleName).replace(/\\/g,'/');
   },
 
   sourceName: function(filename) {
-    return path.relative(this.sourceRoot_, filename);
+    return path.relative(this.sourceRoot, filename);
   },
 
   writeTreeToFile: function(tree, filename) {
@@ -51,17 +51,18 @@ NodeCompiler.prototype = {
     var sourcemap = this.getSourceMap();
     if (sourcemap) {
       var sourceMapFilePath = filename.replace(/\.js$/, '.map');
-      compiledCode += '\n//# sourceMappingURL=' +
-          path.basename(sourceMapFilePath) + '\n';
+      compiledCode += '\n//# sourceMappingURL=' + sourceMapFilePath + '\n';
       writeFile(sourceMapFilePath, sourcemap);
     }
     writeFile(filename, compiledCode);
   },
 
-  compileSingleFile: function(inputFilePath, outputFilePath) {
+  compileSingleFile: function(inputFilePath, outputFilePath, errback) {
     fs.readFile(inputFilePath, function(err, contents) {
-      if (err)
-        throw new Error('While reading ' + inputFilePath + ': ' + err);
+      if (err) {
+        errback(err);
+        return;
+      }
 
       this.options_.filename = inputFilePath;
       this.writeTreeToFile(this.transform(this.parse(contents.toString())),
