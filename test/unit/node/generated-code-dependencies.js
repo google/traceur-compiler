@@ -143,7 +143,6 @@ suite('context test', function() {
           var transcoded = fs.readFileSync(tempFileName, 'utf-8');
           var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
           var sourceMappingURL = m[1];
-          console.log('sourceMappingURL ' + sourceMappingURL)
           assert(sourceMappingURL === 'sourceroot-test.map',
               'has the correct sourceMappingURL');
           tempMapName = tempFileName.replace('.js','') + '.map';

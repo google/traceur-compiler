@@ -93,7 +93,7 @@ export class TraceurLoader extends Loader {
   // The name set into the tree, and used for sourcemaps
   sourceName(load) {
     var options = load.metadata.traceurOptions;
-    var sourceName = load.url || load.normalizedName;
+    var sourceName = load.url;
     if (options.sourceMaps) {
       var sourceRoot = this.baseURL;
       if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {
