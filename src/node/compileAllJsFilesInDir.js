@@ -14,40 +14,23 @@
 
 'use strict';
 
-var glob = require("glob")
-var fs = require('fs');
+var glob = require('glob');
 var path = require('path');
-var writeCompiledCodeToFile =
-    require('./NodeCompiler.js').writeCompiledCodeToFile;
+var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 
-function compileSingleFile(inputFilePath, outputFilePath, compile) {
-  return fs.readFile(inputFilePath, function(err, contents) {
-    if (err)
-      throw new Error('While reading ' + inputFilePath + ': ' + err);
-
-    var result = compile(contents.toString());
-
-    if (result.error)
-      throw new Error(result.errors.join('\n'));
-
-    writeCompiledCodeToFile(result.js, outputFilePath, result.sourceMap);
-  });
-}
-
-function compileAllJsFilesInDir(inputDir, outputDir, compile) {
-  if (typeof compile !== 'function')
-    throw new Error('Missing required function(string) -> result');
-
+function compileAllJsFilesInDir(inputDir, outputDir, options) {
   inputDir = path.normalize(inputDir).replace(/\\/g, '/');
   outputDir = path.normalize(outputDir).replace(/\\/g, '/');
-
   glob(inputDir + '/**/*.js', {}, function (er, files) {
     if (er)
       throw new Error('While scanning ' + inputDir + ': ' + er);
 
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      compileSingleFile(inputFilePath, outputFilePath, compile);
+      var compiler = new NodeCompiler(options);
+      compiler.compileSingleFile(inputFilePath, outputFilePath, function(err) {
+        throw new Error('While reading ' + inputFilePath + ': ' + err);
+      });
     });
   });
 }

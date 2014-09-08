@@ -44,7 +44,7 @@ suite('Loader.js', function() {
     System = require('../../../src/node/System.js');
   } else {
     url = resolveUrl(window.location.href, 'unit/runtime/modules.js');
-    fileLoader = get('src/runtime/webLoader');
+    fileLoader = get('src/runtime/webLoader').webLoader;
   }
 
   function getLoader() {

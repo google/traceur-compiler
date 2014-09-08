@@ -20,78 +20,63 @@
 'use strict';
 
 var path = require('path');
-var traceur = require('./traceur.js');
+var fs = require('fs');
 var util = require('./file-util.js');
 var writeFile = util.writeFile;
+var traceur = require('./traceur.js');
 
 var Compiler = traceur.Compiler;
 
-function NodeCompiler(options) {
-  Compiler.call(this, options);
-  this.cwd = process.cwd();
+function NodeCompiler(options, sourceRoot) {
+  sourceRoot = sourceRoot || process.cwd();
+  Compiler.call(this, options, sourceRoot);
 }
 
 NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
+
   resolveModuleName: function(filename) {
     if (!filename)
       return;
     var moduleName = filename.replace(/\.js$/, '');
-    return path.relative(this.cwd, moduleName).replace(/\\/g,'/');
+    return path.relative(this.sourceRoot, moduleName).replace(/\\/g,'/');
   },
-  sourceRootForFilename: function(filename) {
-    return path.relative(path.dirname(filename), '.');
+
+  sourceName: function(filename) {
+    return path.relative(this.sourceRoot, filename);
+  },
+
+  writeTreeToFile: function(tree, filename) {
+    var compiledCode = this.write(tree);
+    var sourcemap = this.getSourceMap();
+    if (sourcemap) {
+      // Assume that the .map and .js will be in the same subdirectory,
+      // Use the rule from Source Map Revision 3: 
+      // If the generated code is associated with a script element and the 
+      // script element has a “src” attribute, the “src” attribute of the script 
+      // element will be the source origin.
+      var sourceMapFilePath = path.basename(filename.replace(/\.js$/, '.map'));
+      compiledCode += '\n//# sourceMappingURL=' + sourceMapFilePath + '\n';
+      writeFile(sourceMapFilePath, sourcemap);
+    }
+    writeFile(filename, compiledCode);
+  },
+
+  compileSingleFile: function(inputFilePath, outputFilePath, errback) {
+    fs.readFile(inputFilePath, function(err, contents) {
+      if (err) {
+        errback(err);
+        return;
+      }
+
+      this.options_.filename = inputFilePath;
+      this.writeTreeToFile(this.transform(this.parse(contents.toString())),
+          outputFilePath);
+    }.bind(this));
   }
 };
 
-/**
- * Use Traceur to Compile ES6 module source code to commonjs format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-function moduleToCommonJS(content, options) {
-  var compiler = new NodeCompiler(Compiler.commonJSOptions(options));
-  return {
-    js: compiler.compile(content),
-    sourceMap: compiler.getSourceMap()
-  };
-}
-/**
- * Use Traceur to Compile ES6 module source code to amd format.
- *
- * @param  {string} content ES6 source code.
- * @param  {Object=} options Traceur options.
- * @return {{js: string, errors: Array, sourceMap: string} Transpiled code.
- */
-function moduleToAmd(content, options) {
-  var compiler = new NodeCompiler(Compiler.amdOptions(options));
-  return {
-    js: compiler.compile(content),
-    sourceMap: compiler.getSourceMap()
-  };
-}
-
-function getSourceMapFileName(name) {
-  return name.replace(/\.js$/, '.map');
-}
-
-function writeCompiledCodeToFile(compiledCode, filename, sourcemap) {
-  var sourceMapFilePath;
-  if (sourcemap) {
-    sourceMapFilePath = getSourceMapFileName(filename);
-    compiledCode += '\n//# sourceMappingURL=' +
-        path.basename(sourceMapFilePath) + '\n';
-  }
-  writeFile(filename, compiledCode);
-  if (sourcemap)
-    writeFile(sourceMapFilePath, sourcemap);
-}
 
 module.exports = {
-  NodeCompiler: NodeCompiler,
-  moduleToCommonJS: moduleToCommonJS,
-  moduleToAmd: moduleToAmd,
-  writeCompiledCodeToFile: writeCompiledCodeToFile,
+  NodeCompiler: NodeCompiler
 };

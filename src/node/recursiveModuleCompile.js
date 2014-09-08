@@ -22,26 +22,22 @@ var util = require('./file-util.js');
 var normalizePath = util.normalizePath;
 var mkdirRecursive = util.mkdirRecursive;
 var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
-var writeCompiledCodeToFile =
-    require('./NodeCompiler.js').writeCompiledCodeToFile;
 
 var cwd = process.cwd();
 
-function writeTreeToFile(tree, filename, compiler) {
-  writeCompiledCodeToFile(compiler.write(tree), filename, compiler.getSourceMap());
-}
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   return new Promise(function (resolve, reject) {
     var resolvedOutputFile = path.resolve(outputFile);
     var outputDir = path.dirname(resolvedOutputFile);
-    var compiler = new NodeCompiler(options);
 
     // Resolve includes before changing directory.
     var resolvedIncludes = includes.map(function(include) {
       include.name = path.resolve(include.name);
       return include;
     });
+
+    var compiler = new NodeCompiler(options, cwd + '/');
 
     mkdirRecursive(outputDir);
     process.chdir(outputDir);
@@ -53,7 +49,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
     });
 
     recursiveModuleCompile(resolvedIncludes, options, function(tree) {
-      writeTreeToFile(tree, resolvedOutputFile, compiler);
+      compiler.writeTreeToFile(tree, resolvedOutputFile);
       process.chdir(cwd);
       resolve();
     }, reject);
@@ -73,7 +69,7 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
     recursiveModuleCompile(includes.slice(current, current + 1), options,
         function(tree) {
           var outputFileName = path.join(outputDir, includes[current].name);
-          writeTreeToFile(tree, outputFileName, compiler);
+          compiler.writeTreeToFile(tree, outputFileName);
           current++;
           next();
         },
@@ -88,9 +84,6 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
 var TraceurLoader = traceur.runtime.TraceurLoader;
 var InlineLoaderCompiler = traceur.runtime.InlineLoaderCompiler;
 var Options = traceur.util.Options;
-var Script = traceur.syntax.trees.Script;
-var SourceFile = traceur.syntax.SourceFile
-var moduleStore = traceur.runtime.ModuleStore;
 
 
 /**
@@ -161,7 +154,6 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
       else if (optionsCopy.modules === 'register')
         doEvaluateModule = true;
     }
-
     var loadOptions = {
       referrerName: referrerName,
       metadata: {traceurOptions: optionsCopy}

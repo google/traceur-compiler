@@ -125,6 +125,7 @@ if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile) {
+      commandOptions.filename = out;
       traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
         commandOptions).then(function() {
           process.exit(0);
@@ -142,14 +143,7 @@ if (!shouldExit) {
   } else if (dir) {
     if (rootSources.length !== 1)
       throw new Error('Compile all in directory requires exactly one input filename');
-    traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name,
-        function(content) {
-          var compiler = new traceurAPI.NodeCompiler(commandOptions);
-          return {
-            js: compiler.compile(content),
-            sourceMap: compiler.getSourceMap()
-          }
-        });
+    traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name, commandOptions);
   } else {
     rootSources.forEach(function(obj) {
       interpret(path.resolve(obj.name), commandOptions);

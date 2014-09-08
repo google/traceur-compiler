@@ -44,7 +44,7 @@ suite('InlineModuleTransformer.js', function() {
   suite('wrapModule', function() {
     function writeArray(arr) {
       return arr.map(function(item) {
-        return write(item);
+        return write(item, undefined, '/');
       }).join('');
     }
 

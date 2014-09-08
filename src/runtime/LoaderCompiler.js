@@ -57,16 +57,10 @@ export class LoaderCompiler {
     return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
-  sourceName(codeUnit) {
-    var options = codeUnit.metadata.traceurOptions;
-    return codeUnit.metadata.sourceName =
-        options.filename || codeUnit.url || codeUnit.normalizedName;
-  }
-
   parse(codeUnit) {
     assert(!codeUnit.metadata.tree);
     var reporter = new CollectingErrorReporter();
-    var file = new SourceFile(this.sourceName(codeUnit), codeUnit.source);
+    var file = new SourceFile(codeUnit.metadata.sourceName, codeUnit.source);
     // The parser reads from global traceur options.
     globalOptions.setFromObject(codeUnit.metadata.traceurOptions);
     this.checkForErrors((reporter) => {
@@ -95,10 +89,10 @@ export class LoaderCompiler {
   }
 
   write(codeUnit) {
-    var filename = codeUnit.address || codeUnit.normalizedName;
+    var sourceRoot = codeUnit.metadata.sourceRoot;
     var metadata = codeUnit.metadata;
     [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, metadata.traceurOptions, filename);
+        toSource(metadata.transformedTree, metadata.traceurOptions, sourceRoot);
   }
 
   evaluateCodeUnit(codeUnit) {

@@ -55,7 +55,7 @@ class LoaderError extends Error {
 class CodeUnit {
   /**
    * @param {LoaderCompiler} loaderCompiler Callbacks for parsing/transforming.
-   * @param {string} name The normalized name of this dependency.
+   * @param {string} normalizedName The normalized name of this dependency.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
    * @param {number} state
@@ -405,6 +405,8 @@ export class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
+    codeUnit.metadata.sourceName = this.loader_.sourceName(codeUnit);
+
     var referrerName = codeUnit.normalizedName;
     try {
       var moduleSpecifiers = codeUnit.getModuleSpecifiers();
