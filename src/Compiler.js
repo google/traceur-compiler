@@ -114,11 +114,13 @@ export class Compiler {
    *
    * @param {string} content ES6 source code.
    * @param {string} sourceName
+   * @param {string} outputName
    * @return {string} equivalent ES5 source.
    */
-  compile(content, sourceName) {
-    sourceName = sourceName || '<aCompiler.compileSource>';
-    return this.write(this.transform(this.parse(content, sourceName)));
+  compile(content, sourceName = '<compileSource>',
+      outputName = '<compileOutput>') {
+    return this.write(this.transform(
+        this.parse(content, sourceName)), outputName);
   }
 
   throwIfErrors(errorReporter) {
@@ -168,15 +170,13 @@ export class Compiler {
 
     var transformedTree = transformer.transform(tree);
     this.throwIfErrors(errorReporter);
-    if (!transformedTree.location)
-      throw new Error('Compiler: transformed tree has no location information');
     return transformedTree;
   }
 
-  createSourceMapGenerator_(tree) {
+  createSourceMapGenerator_(outputName) {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
-        file: this.sourceName(this.sourceNameFromTree(tree)),
+        file: outputName,
         sourceRoot: this.sourceRoot
       });
     }
@@ -187,9 +187,9 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  write(tree) {
+  write(tree, outputName) {
     var writer;
-    this.sourceMapGenerator_ = this.createSourceMapGenerator_(tree);
+    this.sourceMapGenerator_ = this.createSourceMapGenerator_(outputName);
     if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
     } else {

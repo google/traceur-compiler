@@ -24,15 +24,15 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  *     showLineNumbers: {boolean} add comments giving input line numbers
  *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
- * @param {string} sourceName the sourcemap file value.
+ * @param {string} outputName the sourcemap file value.
  * @param {string} sourceRoot the sourcemap sourceroot.
  * @return source code; optional side-effect options.sourceMaps set
  */
-export function toSource(tree, options = undefined, sourceName, sourceRoot) {
+export function toSource(tree, options = undefined, outputName, sourceRoot) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
   if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({
-      file: sourceName,
+      file: outputName,
       sourceRoot: sourceRoot
     });
   }

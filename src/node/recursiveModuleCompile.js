@@ -49,9 +49,6 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
     });
 
     recursiveModuleCompile(resolvedIncludes, options, function(tree) {
-      if (!tree.location)
-        throw new Error('Transformed tree has no location information.');
-
       compiler.writeTreeToFile(tree, resolvedOutputFile);
       process.chdir(cwd);
       resolve();
