@@ -49,6 +49,9 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
     });
 
     recursiveModuleCompile(resolvedIncludes, options, function(tree) {
+      if (!tree.location)
+        throw new Error('Transformed tree has no location information.');
+
       compiler.writeTreeToFile(tree, resolvedOutputFile);
       process.chdir(cwd);
       resolve();
@@ -132,8 +135,8 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     var normalizedName =
         traceur.ModuleStore.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
-    var tree =
-        traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);
+    var moduleModule = traceur.codegeneration.module;
+    var tree = moduleModule.createModuleEvaluationStatement(normalizedName);
     elements.push(tree);
   }
 

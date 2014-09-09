@@ -287,7 +287,7 @@
 
           var options = { modules: 'instantiate' };
           var compiler = new traceur.Compiler(options);
-          var tree = compiler.parse(load.source);
+          var tree = compiler.parse(load.source, load.address);
           depsList = getImports(tree);
           tree = compiler.transform(tree);
           source = compiler.write(tree);

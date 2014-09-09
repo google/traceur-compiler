@@ -35,7 +35,6 @@ export var optionsV01 = enumerableOnlyObject({
   defaultParameters: true,
   destructuring: true,
   exponentiation: false,
-  filename: undefined,
   forOf: true,
   freeVariableChecker: false,
   generatorComprehension: false,
@@ -161,7 +160,6 @@ export class Options {
     this.modules = 'register';
     this.moduleName = false;
     this.outputLanguage = 'es5';
-    this.filename = undefined;
     this.referrer = '';
     this.typeAssertionModule = null;
   }
@@ -294,7 +292,7 @@ export function addOptions(flags, commandOptions) {
         commandOptions.modules = moduleFormat;
       });
   flags.option('--moduleName <string>',
-    '__moduleName value, + sign to use filename, or empty to omit',
+    '__moduleName value, + sign to use source name, or empty to omit',
     (moduleName) => {
       if (moduleName === '+')
         moduleName = true;
