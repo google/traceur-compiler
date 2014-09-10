@@ -26,7 +26,8 @@ import {toSource} from './toSource';
  * @param {string} sourceRoot the sourcemap sourceroot.
  * @return source code; optional side-effect options.generatedSourceMap set
  */
-export function write(tree, options = undefined, outputName, sourceRoot) {
+export function write(tree, options = undefined,
+		outputName = '<TreeWriter-output>', sourceRoot = undefined) {
   var [result, sourceMap] = toSource(tree, options, outputName, sourceRoot);
   if (sourceMap)
     options.generatedSourceMap = sourceMap;

@@ -28,7 +28,8 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  * @param {string} sourceRoot the sourcemap sourceroot.
  * @return source code; optional side-effect options.sourceMaps set
  */
-export function toSource(tree, options = undefined, outputName, sourceRoot) {
+export function toSource(tree, options = undefined,
+    outputName = '<toSourceOutput>', sourceRoot = undefined) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
   if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({

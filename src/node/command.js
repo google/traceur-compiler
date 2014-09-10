@@ -125,8 +125,6 @@ if (!shouldExit) {
   if (out) {
     var isSingleFileCompile = /\.js$/.test(out);
     if (isSingleFileCompile) {
-      if (commandOptions.filename)
-        console.trace();
       traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
         commandOptions).then(function() {
           process.exit(0);
