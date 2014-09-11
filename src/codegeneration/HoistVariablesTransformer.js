@@ -108,7 +108,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
 
   getVariableStatement() {
     if (!this.hasVariables())
-      return null;
+      return new AnonBlock(null, []);
 
     var declarations = this.getVariableNames().map((name) => {
       return createVariableDeclaration(name, null);

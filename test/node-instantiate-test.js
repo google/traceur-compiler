@@ -92,4 +92,10 @@ suite('instantiate', function() {
       });
     }).catch(done);
   });
+
+  test('Generator exports', function(done) {
+    System.import('generator').then(function(m) {
+      done();
+    }).catch(done);
+  });
 });
