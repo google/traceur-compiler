@@ -62,8 +62,8 @@ suite('BlockBindingTransformer.js', function() {
   makeTest('Let to Var In ForLoop', 'for(let i = 0; i < 5; i++){ log(i); function t(){} }',
     'var t$__1;' +
     'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
-    '  log(i$__0);' +
     '  t$__1 = function() {};' +
+    '  log(i$__0);' +
     '}');
 
 
@@ -127,15 +127,15 @@ suite('BlockBindingTransformer.js', function() {
         '  var $__1 = function (i) {' +
         '    var t$__3;' +
         '    inner: while (true) {' +
+        '      t$__3 = function () {' +
+        '        return i;' +
+        '      };' +
         '      break;' +
         '      return 0;' +
         '      break inner;' +
         '      continue;' +
         '      return 1;' +
         '      continue inner;' +
-        '      t$__3 = function () {' +
-        '        return i;' +
-        '      };' +
         '    }' +
         '  }, $__2;' +
         '  for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
@@ -174,7 +174,7 @@ suite('BlockBindingTransformer.js', function() {
 
     makeTest('Function as Block Binding',
         'for(let i = 0; i < 5; i++){ function k() {} function t(){log(k)} }',
-        // ====== '',
+        // ======
         'var $__1 = function(i) {' +
         '  function k() {}' +
         '  function t() {' +
@@ -184,5 +184,23 @@ suite('BlockBindingTransformer.js', function() {
         'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
         '$__1(i$__0);' +
         '}');
-  })
+  });
+
+
+  suite('Hoisting', function () {
+    makeTest('Function hoist in block',
+        'if (true) { f(); function f() { other() } }',
+        // ======
+        'var f$__0;' +
+        'if (true) {' +
+        '  f$__0 = function() {' +
+        '    other();' +
+        '  };' +
+        'f$__0();' +
+        '}');
+
+    makeTest('Function are untouched when outside block',
+        'f(); function f() { other() }',
+        'f(); function f() { other() }');
+  });
 });
