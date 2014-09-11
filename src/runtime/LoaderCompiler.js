@@ -100,8 +100,9 @@ export class LoaderCompiler {
   evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
+    var src = codeUnit.metadata.transcoded + '\n//@ sourceURL=' + codeUnit.address + '\n';
     // TODO(arv): Eval in the right context.
-    var result = ('global', eval)(codeUnit.metadata.transcoded);
+    var result = ('global', eval)(src);
     codeUnit.metadata.transformedTree = null;
     return result;
   }
