@@ -233,6 +233,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     this.labelledLoops_ = new Map() // of {loopTree: labelName};
     this.prependStatement_ = [];
+    this.prependBlockStatement_ = [];
     this.blockRenames_ = [];
     this.rootTree_ = tree;
     if (latestScope) {
@@ -421,6 +422,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   transformBlock(tree) {
     var scope = this.pushScope(tree);
     tree = super(tree);
+    if (this.prependBlockStatement_.length) {
+      tree = new Block(tree.location, prependStatements(tree.statements,
+          ...this.prependBlockStatement_));
+      this.prependBlockStatement_ = [];
+    }
     tree = this.flushRenames(tree);
     this.popScope(scope);
     return tree;
@@ -471,13 +477,16 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       fnName = uniqueName;
 
       // f = function( ... ) { ... }
-      tree = createExpressionStatement(
+      var functionExpression = createExpressionStatement(
           createAssignmentExpression(
               createIdentifierExpression(fnName),
               new FunctionExpression(tree.location, null, tree.functionKind,
                   tree.parameterList, tree.typeAnnotation,
                   tree.annotations, tree.body)));
 
+      this.revisitTreeForScopes(functionExpression);
+      this.prependBlockStatement_.push(
+          this.transformAny(functionExpression));
 
       this.prependStatement_.push(
           new VariableStatement(null,
@@ -486,8 +495,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                       createBindingIdentifier(fnName), null, null)]
               )));
 
-      this.revisitTreeForScopes(tree);
-      return this.transformAny(tree);
+      return new AnonBlock(null, []);
     }
 
     return this.transformFunctionForScope_(() => super(tree), tree);
