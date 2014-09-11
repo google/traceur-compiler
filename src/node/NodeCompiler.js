@@ -51,9 +51,9 @@ NodeCompiler.prototype = {
     var sourcemap = this.getSourceMap();
     if (sourcemap) {
       // Assume that the .map and .js will be in the same subdirectory,
-      // Use the rule from Source Map Revision 3: 
-      // If the generated code is associated with a script element and the 
-      // script element has a “src” attribute, the “src” attribute of the script 
+      // Use the rule from Source Map Revision 3:
+      // If the generated code is associated with a script element and the
+      // script element has a “src” attribute, the “src” attribute of the script
       // element will be the source origin.
       var sourceMapFilePath = path.basename(filename.replace(/\.js$/, '.map'));
       compiledCode += '\n//# sourceMappingURL=' + sourceMapFilePath + '\n';
@@ -69,9 +69,8 @@ NodeCompiler.prototype = {
         return;
       }
 
-      this.options_.filename = inputFilePath;
-      this.writeTreeToFile(this.transform(this.parse(contents.toString())),
-          outputFilePath);
+      this.writeTreeToFile(this.transform(
+          this.parse(contents.toString(), inputFilePath)), outputFilePath);
     }.bind(this));
   }
 };

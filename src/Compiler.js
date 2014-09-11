@@ -89,7 +89,6 @@ export class Compiler {
   static amdOptions(options = {}) {
     var amdOptions = {
       modules: 'amd',
-      filename: undefined,
       sourceMaps: false,
       moduleName: false
     };
@@ -104,7 +103,6 @@ export class Compiler {
   static commonJSOptions(options = {}) {
     var commonjsOptions = {
       modules: 'commonjs',
-      filename: '<unknown file>',
       sourceMaps: false,
       moduleName: false
     };
@@ -114,11 +112,15 @@ export class Compiler {
   /**
    * Compile ES6 source code with Traceur.
    *
-   * @param  {string} content ES6 source code.
+   * @param {string} content ES6 source code.
+   * @param {string} sourceName
+   * @param {string} outputName
    * @return {string} equivalent ES5 source.
    */
-  compile(content) {
-    return this.write(this.transform(this.parse(content)));
+  compile(content, sourceName = '<compileSource>',
+      outputName = '<compileOutput>') {
+    return this.write(this.transform(
+        this.parse(content, sourceName)), outputName);
   }
 
   throwIfErrors(errorReporter) {
@@ -126,13 +128,19 @@ export class Compiler {
       throw errorReporter.errors;
   }
 
-  parse(content) {
+  parse(content, sourceName) {
+    if (!content) {
+      throw new Error('Compiler: no content to compile.');
+    } else if (!sourceName) {
+      throw new Error('Compiler: no source name for content.');
+    }
+
     this.sourceMapGenerator_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
-    var sourceName = this.sourceName(this.options_.filename);
+    sourceName = this.sourceName(sourceName);
     var sourceFile = new SourceFile(sourceName, content);
     var parser = new Parser(sourceFile, errorReporter);
     var tree =
@@ -146,7 +154,7 @@ export class Compiler {
     if (this.options_.moduleName) {  // true or non-empty string.
       var moduleName = this.options_.moduleName;
       if (typeof moduleName !== 'string') // true means resolve filename
-        moduleName = this.resolveModuleName(this.options_.filename);
+        moduleName = this.resolveModuleName(this.sourceNameFromTree(tree));
       if (moduleName) {
         transformer = new AttachModuleNameTransformer(moduleName);
         tree = transformer.transformAny(tree);
@@ -165,10 +173,10 @@ export class Compiler {
     return transformedTree;
   }
 
-  createSourceMapGenerator_() {
+  createSourceMapGenerator_(outputName) {
     if (this.options_.sourceMaps) {
       return new SourceMapGenerator({
-        file: this.sourceName(this.options_.filename),
+        file: outputName,
         sourceRoot: this.sourceRoot
       });
     }
@@ -179,9 +187,9 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  write(tree) {
+  write(tree, outputName) {
     var writer;
-    this.sourceMapGenerator_ = this.createSourceMapGenerator_();
+    this.sourceMapGenerator_ = this.createSourceMapGenerator_(outputName);
     if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
     } else {
@@ -198,6 +206,10 @@ export class Compiler {
 
   sourceName(filename) {
     return filename;
+  }
+
+  sourceNameFromTree(tree) {
+    return tree.location.start.source.name;
   }
 
   defaultOptions() {

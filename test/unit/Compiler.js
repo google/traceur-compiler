@@ -27,7 +27,7 @@ suite('Compiler', function() {
 
   test('Compiler synchronous', function() {
     var compiler = new Compiler();
-    var content = '';
+    var content = 'var x = 5;';
     var result = compiler.compile(content);
     assert.isTrue(result.length > 0);
   });

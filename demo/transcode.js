@@ -32,17 +32,17 @@ class BatchErrorReporter extends ErrorReporter {
 
 export function transcode(contents, onSuccess, onFailure) {
   var url = location.href;
-  var metadata = {traceurOptions: traceurOptions};
-  if (traceurOptions.sourceMaps)
-    metadata.traceurOptions.filename = 'traceured.js';
+  var loadOptions = {
+    address: 'traceured.js',
+    metadata: {
+      traceurOptions: traceurOptions
+    }
+  };
 
   var loader = new TraceurLoader(webLoader, url);
-  var p;
-  if (traceurOptions.script)
-    p = loader.script(contents, {metadata});
-  else
-    p = loader.module(contents, {metadata});
-  p.then((module) => onSuccess(metadata), onFailure);
+  var load = traceurOptions.script ? loader.script : loader.module;
+  load.call(loader, content, options).
+      then((module) => onSuccess(metadata), onFailure);
 }
 
 export function renderSourceMap(source, sourceMap) {

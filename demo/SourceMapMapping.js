@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SourceMapConsumer}
+import {SourceMapConsumer, join}
     from '../src/outputgeneration/SourceMapIntegration';
 
 
@@ -124,7 +124,7 @@ export class OriginalSourceMapMapping extends SourceMapMapping {
     super(consumer);
 
     consumer.eachMapping((mapping) => {
-      if (url && mapping.source !== url)
+      if (url && mapping.source !== join(consumer.sourceRoot, url))
         return;
       var line = mapping.originalLine;
       this.columnsByLine_[line] = this.columnsByLine_[line] || [];
@@ -145,7 +145,7 @@ export class GeneratedSourceMapMapping extends SourceMapMapping {
   constructor(consumer, url) {
     super(consumer);
     consumer.eachMapping((mapping) => {
-      if (url && mapping.source !== url)
+      if (url && mapping.source !== sourceMapUtilJoin(consumer.sourceRoot, url))
         return;
       var line = mapping.generatedLine;
       this.columnsByLine_[line] = this.columnsByLine_[line] || [];

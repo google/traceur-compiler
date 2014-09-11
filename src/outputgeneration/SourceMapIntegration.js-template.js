@@ -53,3 +53,4 @@ define = makeDefine(m, './source-node');
 export var SourceMapGenerator = m['./source-map-generator'].SourceMapGenerator;
 export var SourceMapConsumer = m['./source-map-consumer'].SourceMapConsumer;
 export var SourceNode = m['./source-node'].SourceNode;
+export var join = m['./util'].join;

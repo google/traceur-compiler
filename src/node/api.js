@@ -30,8 +30,11 @@ var compileAllJsFilesInDir = require('./compileAllJsFilesInDir.js');
 
 var Compiler = traceur.Compiler;
 
-function compile(src, options) {
-  return new NodeCompiler(Compiler.commonJSOptions(options)).compile(src);
+function compile(src, options, sourceName, outputName) {
+  sourceName = sourceName || '<compile-source>';
+  outputName = outputName || '<compile-output>';
+  return new NodeCompiler(Compiler.commonJSOptions(options)).
+      compile(src, sourceName, outputName);
 }
 
 // The absolute path to traceur-runtime.js -- the file that should be executed

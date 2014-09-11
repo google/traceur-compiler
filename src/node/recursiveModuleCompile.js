@@ -132,8 +132,8 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
     var normalizedName =
         traceur.ModuleStore.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
-    var tree =
-        traceur.codegeneration.module.createModuleEvaluationStatement(normalizedName);
+    var moduleModule = traceur.codegeneration.module;
+    var tree = moduleModule.createModuleEvaluationStatement(normalizedName);
     elements.push(tree);
   }
 

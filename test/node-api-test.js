@@ -7,9 +7,6 @@ suite('node public api', function() {
 
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
-      // windows-simulation, with .js
-      filename: path.replace(/\//g,'\\'),
-
       // build ES6 style modules rather then cjs
       modules: 'register',
 
@@ -19,7 +16,8 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-    var compiled = compiler.compile(contents);
+    // windows-simulation, with .js
+    var compiled = compiler.compile(contents, path.replace(/\//g,'\\'));
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -34,8 +32,6 @@ suite('node public api', function() {
 
   test('modules: true', function() {
     var compiler = new traceurAPI.NodeCompiler({
-      // absolute path is important
-      filename: path,
 
       // build ES6 style modules rather then cjs
       modules: 'register',
@@ -46,7 +42,7 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-    var compiled = compiler.compile(contents);
+    var compiled = compiler.compile(contents, path);
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -61,15 +57,12 @@ suite('node public api', function() {
 
   test('named amd', function() {
     var compiled = traceurAPI.compile(contents, {
-      // absolute path is important
-      filename: path,
-
       // build ES6 style modules rather then cjs
       modules: 'amd',
 
       // enforce a module name in the AMD define
       moduleName: 'test-module'
-    });
+    }, path);
 
     assert.ok(compiled, 'can compile');
 

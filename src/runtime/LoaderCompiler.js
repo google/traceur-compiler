@@ -91,8 +91,10 @@ export class LoaderCompiler {
   write(codeUnit) {
     var sourceRoot = codeUnit.metadata.sourceRoot;
     var metadata = codeUnit.metadata;
+    var outputName = codeUnit.metadata.outputName || '<loaderOutput>';
     [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, metadata.traceurOptions, sourceRoot);
+        toSource(metadata.transformedTree, metadata.traceurOptions, outputName,
+            sourceRoot);
   }
 
   evaluateCodeUnit(codeUnit) {
