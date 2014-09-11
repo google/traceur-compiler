@@ -42,12 +42,42 @@
 
     constructor(erroneousModuleName, cause) {
       this.message =
-          this.constructor.name + (cause ? ': \'' + cause + '\'' : '') +
+          this.constructor.name + ': ' + this.stripCause(cause) +
           ' in ' + erroneousModuleName;
+
+      if (!(cause instanceof ModuleEvaluationError) && cause.stack)
+        this.stack = this.stripStack(cause.stack);
+      else
+        this.stack = '';
     }
+
+    stripError(message) {
+      return message.replace(/.*Error:/, this.constructor.name + ':');
+    }
+
+    stripCause(cause) {
+      if (!cause)
+        return '';
+      if (!cause.message)
+        return cause + '';
+      return this.stripError(cause.message);
+    }
+
     loadedBy(moduleName) {
-      this.message += '\n loaded by ' + moduleName;
+      this.stack += '\n loaded by ' + moduleName;
     }
+
+    stripStack(causeStack) {
+      var stack = [];
+      causeStack.split('\n').some((frame) => {
+        if (/UncoatedModuleInstantiator/.test(frame))
+          return true;
+        stack.push(frame);
+      });
+      stack[0] = this.stripError(stack[0]);
+      return stack.join('\n');
+    }
+
   }
 
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
