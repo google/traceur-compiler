@@ -95,18 +95,25 @@
   // exposed to user code.
   var privateNames = $create(null);
 
+  function isPrivateName(s) {
+    return privateNames[s];
+  }
+
   function createPrivateName() {
     var s = newUniqueString();
     privateNames[s] = true;
     return s;
   }
 
-  function isSymbol(symbol) {
+  /**
+   * Whether symbol is an emulated symbol.
+   */
+  function isShimSymbol(symbol) {
     return typeof symbol === 'object' && symbol instanceof SymbolValue;
   }
 
   function typeOf(v) {
-    if (isSymbol(v))
+    if (isShimSymbol(v))
       return 'symbol';
     return typeof v;
   }
@@ -219,29 +226,40 @@
     return $seal.apply(this, arguments);
   }
 
-  Symbol.iterator = Symbol();
   freeze(SymbolValue.prototype);
 
+  /**
+   * Checks if the string is a string that is used to represent an emulated
+   * symbol. This is used to filter out symbols in Object.keys,
+   * getOwnPropertyKeys and for-in loops.
+   */
+  function isSymbolString(s) {
+    return symbolValues[s] || privateNames[s];
+  }
+
   function toProperty(name) {
-    if (isSymbol(name))
+    if (isShimSymbol(name))
       return name[symbolInternalProperty];
     return name;
   }
 
-  // Override getOwnPropertyNames to filter out private name keys.
-  function getOwnPropertyNames(object) {
+  // Override getOwnPropertyNames to filter out symbols keys.
+  function removeSymbolKeys(array) {
     var rv = [];
-    var names = $getOwnPropertyNames(object);
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      if (!symbolValues[name] && !privateNames[name])
-        rv.push(name);
+    for (var i = 0; i < array.length; i++) {
+      if (!isSymbolString(array[i])) {
+        rv.push(array[i]);
+      }
     }
     return rv;
   }
 
-  function getOwnPropertyDescriptor(object, name) {
-    return $getOwnPropertyDescriptor(object, toProperty(name));
+  function getOwnPropertyNames(object) {
+    return removeSymbolKeys($getOwnPropertyNames(object));
+  }
+
+  function keys(object) {
+    return removeSymbolKeys($keys(object));
   }
 
   function getOwnPropertySymbols(object) {
@@ -249,10 +267,15 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var symbol = symbolValues[names[i]];
-      if (symbol)
+      if (symbol) {
         rv.push(symbol);
+      }
     }
     return rv;
+  }
+
+  function getOwnPropertyDescriptor(object, name) {
+    return $getOwnPropertyDescriptor(object, toProperty(name));
   }
 
   // Override Object.prototpe.hasOwnProperty to always return false for
@@ -265,32 +288,11 @@
     return global.traceur && global.traceur.options[name];
   }
 
-  function setProperty(object, name, value) {
-    var sym, desc;
-    if (isSymbol(name)) {
-      sym = name;
-      name = name[symbolInternalProperty];
-    }
-    object[name] = value;
-    if (sym && (desc = $getOwnPropertyDescriptor(object, name)))
-      $defineProperty(object, name, {enumerable: false});
-    return value;
-  }
-
   function defineProperty(object, name, descriptor) {
-    if (isSymbol(name)) {
-      // Symbols should not be enumerable. We need to create a new descriptor
-      // before calling the original defineProperty because the property might
-      // be made non configurable.
-      if (descriptor.enumerable) {
-        descriptor = $create(descriptor, {
-          enumerable: {value: false}
-        });
-      }
+    if (isShimSymbol(name)) {
       name = name[symbolInternalProperty];
     }
     $defineProperty(object, name, descriptor);
-
     return object;
   }
 
@@ -302,14 +304,11 @@
                     {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
-    $defineProperty(Object, 'freeze',
-                    {value: freeze});
-    $defineProperty(Object, 'preventExtensions',
-                    {value: preventExtensions});
-    $defineProperty(Object, 'seal',
-                    {value: seal});
-
-    Object.getOwnPropertySymbols = getOwnPropertySymbols;
+    $defineProperty(Object, 'freeze', {value: freeze});
+    $defineProperty(Object, 'preventExtensions', {value: preventExtensions});
+    $defineProperty(Object, 'seal', {value: seal});
+    $defineProperty(Object, 'keys', {value: keys});
+    // getOwnPropertySymbols is added in polyfillSymbol.
   }
 
   function exportStar(object) {
@@ -317,8 +316,7 @@
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
         var name = names[j];
-        if (privateNames[name])
-          continue;
+        if (isSymbolString(name)) continue;
         (function(mod, name) {
           $defineProperty(object, name, {
             get: function() { return mod[name]; },
@@ -348,9 +346,18 @@
     return argument;
   }
 
-  function setupGlobals(global) {
-    global.Symbol = Symbol;
+  function polyfillSymbol(global, Symbol) {
+    if (!global.Symbol) {
+      global.Symbol = Symbol;
+      Object.getOwnPropertySymbols = getOwnPropertySymbols;
+    }
+    if (!global.Symbol.iterator) {
+      global.Symbol.iterator = Symbol('Symbol.iterator');
+    }
+  }
 
+  function setupGlobals(global) {
+    polyfillSymbol(global, Symbol)
     global.Reflect = global.Reflect || {};
     global.Reflect.global = global.Reflect.global || global;
 
@@ -360,28 +367,23 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
+    checkObjectCoercible: checkObjectCoercible,
     createPrivateName: createPrivateName,
+    defineProperties: $defineProperties,
+    defineProperty: $defineProperty,
     exportStar: exportStar,
     getOwnHashObject: getOwnHashObject,
-    privateNames: privateNames,
-    setProperty: setProperty,
+    getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+    getOwnPropertyNames: $getOwnPropertyNames,
+    isObject: isObject,
+    isPrivateName: isPrivateName,
+    isSymbolString: isSymbolString,
+    keys: $keys,
     setupGlobals: setupGlobals,
     toObject: toObject,
-    isObject: isObject,
     toProperty: toProperty,
     type: types,
     typeof: typeOf,
-    checkObjectCoercible: checkObjectCoercible,
-    hasOwnProperty: function (o, p) {
-      return hasOwnProperty.call(o, p);
-    },
-
-    // TODO(arv): Remove these once the symbol overrides have been extracted.
-    defineProperties: $defineProperties,
-    defineProperty: $defineProperty,
-    getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
-    getOwnPropertyNames: $getOwnPropertyNames,
-    keys: $keys,
   };
 
 })(typeof global !== 'undefined' ? global : this);

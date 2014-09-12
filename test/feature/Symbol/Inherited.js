@@ -1,4 +1,5 @@
 // Options: --symbols
+'use strict';
 
 var s = Symbol();
 var p = {};

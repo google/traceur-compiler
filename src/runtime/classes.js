@@ -24,6 +24,11 @@
   var $getOwnPropertyNames = $traceurRuntime.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
 
+  var {
+    getOwnPropertyNames,
+    getOwnPropertySymbols
+  } = Object;
+
   function superDescriptor(homeObject, name) {
     var proto = $getPrototypeOf(homeObject);
     do {
@@ -56,14 +61,21 @@
       descriptor.set.call(self, value);
       return value;
     }
-    throw $TypeError("super has no setter '" + name + "'.");
+    throw $TypeError(`super has no setter '${name}'.`);
   }
 
   function getDescriptors(object) {
-    var descriptors = {}, name, names = $getOwnPropertyNames(object);
+    var descriptors = {};
+    var names = getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
       descriptors[name] = $getOwnPropertyDescriptor(object, name);
+    }
+    var symbols = getOwnPropertySymbols(object);
+    for (var i = 0; i < symbols.length; i++) {
+      var symbol = symbols[i];
+      descriptors[$traceurRuntime.toProperty(symbol)] =
+          $getOwnPropertyDescriptor(object, $traceurRuntime.toProperty(symbol));
     }
     return descriptors;
   }

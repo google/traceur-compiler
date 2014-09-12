@@ -70,12 +70,10 @@ export class ForInTransformPass extends TempVarTransformer {
   //   statement
   // }
   /**
-   * @param {ForInStatement} original
+   * @param {ForInStatement} tree
    * @return {ParseTree}
    */
-  transformForInStatement(original) {
-    var tree = original;
-
+  transformForInStatement(tree) {
     // Transform body first
     var bodyStatements = [];
     var body = this.transformAny(tree.body);

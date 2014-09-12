@@ -3,7 +3,8 @@ import {
   isObject
 } from './utils';
 
-var {hasOwnProperty, toProperty} = $traceurRuntime;
+var {toProperty} = $traceurRuntime;
+var {hasOwnProperty} = Object.prototype;
 
 // 21.1.5.3 Properties of String Iterator Instances
 
@@ -20,7 +21,7 @@ class StringIterator {
   next() {
     var o = this;
 
-    if (!isObject(o) || !hasOwnProperty(o, iteratedString)) {
+    if (!isObject(o) || !hasOwnProperty.call(o, iteratedString)) {
       throw new TypeError('this must be a StringIterator object');
     }
 

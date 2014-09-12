@@ -157,7 +157,6 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   getPropertyName_(nameTree) {
-    // TODO(arv): Computed property names
     var token = nameTree.literalToken;
     switch (token.type) {
       case IDENTIFIER:
