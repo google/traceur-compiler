@@ -138,7 +138,7 @@ export class Map {
   }
 
   forEach(callbackFn, thisArg = undefined) {
-    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0; i < this.entries_.length; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
 
@@ -150,7 +150,7 @@ export class Map {
   }
 
   *entries() {
-    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0; i < this.entries_.length; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
 
@@ -162,7 +162,7 @@ export class Map {
   }
 
   *keys() {
-    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0; i < this.entries_.length; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
 
@@ -174,7 +174,7 @@ export class Map {
   }
 
   *values() {
-    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0; i < this.entries_.length; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
 

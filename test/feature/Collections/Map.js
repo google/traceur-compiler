@@ -69,12 +69,16 @@ var arrKeys = [];
 var arr = [];
 var cnt = 0;
 t.forEach(function (value, key, map) {
+  if (cnt === 0) {
+    t.set('foo', 42);
+  }
   assert.equal(map, t);
   arrKeys.push(key);
   arr.push(value);
   cnt++;
 });
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
+t.delete('foo');
 
 assertArrayEquals(arrKeys, [
   undefinedKey,
@@ -84,7 +88,8 @@ assertArrayEquals(arrKeys, [
   booleanKey,
   objectKey,
   nanKey,
-  zeroKey
+  zeroKey,
+  'foo'
 ]);
 assertArrayEquals(arr, [
   'value8',
@@ -94,7 +99,8 @@ assertArrayEquals(arr, [
   'value7',
   'value1',
   'value10',
-  'value11'
+  'value11',
+  42
 ]);
 
 // iterator
@@ -103,16 +109,20 @@ arr = [];
 cnt = 0;
 
 for (var mapIterItem of t) {
+  if (cnt === 0) {
+    t.set('foo', 42);
+  }
   var [mapIterItemKey, mapIterItemVal] = mapIterItem;
   arrKeys.push(mapIterItemKey);
   arr.push(mapIterItemVal);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
+t.delete('foo');
 
 assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
     numberKey, booleanKey, objectKey,
-    nanKey, zeroKey ]);
+    nanKey, zeroKey, 'foo' ]);
 assertArrayEquals(arr, [
   'value8',
   'value9',
@@ -121,7 +131,8 @@ assertArrayEquals(arr, [
   'value7',
   'value1',
   'value10',
-  'value11'
+  'value11',
+  42
 ]);
 
 
