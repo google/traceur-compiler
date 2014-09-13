@@ -184,5 +184,18 @@ suite('BlockBindingTransformer.js', function() {
         'for (var i$__0 = 0; i$__0 < 5; i$__0++) {' +
         '$__1(i$__0);' +
         '}');
-  })
+
+    makeTest('Loop with Var initializer remains untouched',
+        'for(var i = 0; i < 5; i++){ let x = 10; function t() {console.log(x)} }',
+        // ======
+        'var $__0 = function() {' +
+        '  var x = 10;' +
+        '  function t() {' +
+        '    console.log(x);' +
+        '  }' +
+        '};' +
+        'for (var i = 0; i < 5; i++) {' +
+        '  $__0();' +
+        '}');
+  });
 });

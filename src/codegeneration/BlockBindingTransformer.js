@@ -549,10 +549,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       // switch to var and rename variables, holding them in potential
       // iife argument/parameter list
       if (tree.initializer &&
-          tree.initializer.type === VARIABLE_DECLARATION_LIST) {
+          tree.initializer.type === VARIABLE_DECLARATION_LIST &&
+          tree.initializer.declarationType !== VAR) {
         initializer = new VariableDeclarationList(null, VAR,
             tree.initializer.declarations.map((declaration) => {
-          var variableName = this.getVariableName_(declaration);
+              var variableName = this.getVariableName_(declaration);
               var uniqueName = variableName +
                   this.idGenerator_.generateUniqueIdentifier();
 
@@ -569,6 +570,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
             }));
 
         initializer = renameAll(renames, initializer);
+      } else {
+        initializer = this.transformAny(tree.initializer);
       }
 
       // the loop might already have a label, let's keep it with us
