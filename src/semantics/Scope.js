@@ -75,6 +75,25 @@ export class Scope {
     this.lexicalDeclarations[name] = {type, tree};
   }
 
+  // we deduce the oldType
+  renameBinding(oldName, newTree, newType, reporter) {
+    var name = newTree.getStringValue();
+    if (newType == VAR) {
+      if (this.lexicalDeclarations[oldName]) {
+        delete this.lexicalDeclarations[oldName];
+        this.addVar(newTree, reporter);
+      }
+    } else {
+      if (this.variableDeclarations[oldName]) {
+        delete this.variableDeclarations[oldName];
+        this.addDeclaration(newTree, newType, reporter);
+        if (!this.isVarScope && this.parent) {
+          this.parent.renameBinding(oldName, newTree, newType);
+        }
+      }
+    }
+  }
+
   get isVarScope() {
     switch (this.tree.type) {
       case BLOCK:
