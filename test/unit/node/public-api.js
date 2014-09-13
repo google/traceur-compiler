@@ -23,28 +23,34 @@ suite('api.js', function() {
   });
 
   test('api compile script function declaration', function() {
-    var api = require('../../../src/node/api');
+    var api = require('../../../src/node/public-api');
     var result = api.compile('function foo() {};',
-        {modules: false});
+        {script: true});
     assert(result.length > 0);
   });
 
   test('api compile script function expression', function() {
-    var api = require('../../../src/node/api');
+    var api = require('../../../src/node/public-api');
     var result = api.compile('var foo = function() {};',
-        {modules: false});
+        {script: true});
     assert(result.length > 0);
   });
 
   test('api compile experimental', function() {
-    var api = require('../../../src/node/api');
+    var api = require('../../../src/node/public-api');
     var result = api.compile('let a = 1;', {blockBinding: true});
+    assert(result.length > 0);
+  });
+
+  test('api compile module', function() {
+    var api = require('../../../src/node/public-api');
+    var result = api.compile('export var x = 1;');
     assert(result.length > 0);
   });
 
   test('api compile inline', function() {
     var src = 'export function Half(n) {\n this.halfNumber = n / 2;\n};';
-    var api = require('../../../src/node/api');
+    var api = require('../../../src/node/public-api');
     var result = api.compile(src, {modules: 'inline'});
     assert(result.length > 0);
   });

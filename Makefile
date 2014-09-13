@@ -159,6 +159,9 @@ test-compat-table: node_modules/es5-compat-table/data-es6.js bin/traceur.js
 test-experimental: bin/traceur.js
 	./traceur --experimental -- ./test/unit/node/resources/let-x.js
 
+test-public-api: src/node/public-api.js bin/traceur.js demo/public-api.js
+	node demo/public-api.js | diff - test/demo/public-api.txt
+
 boot: clean build
 
 clean: wikiclean
