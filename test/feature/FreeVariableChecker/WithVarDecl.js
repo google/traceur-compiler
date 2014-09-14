@@ -1,9 +1,11 @@
 var o = {xW: 0, yW: 0, propW: {xW: 0, yW: 0, funcW: null}};
+var funcW;
 
 with (o) {
   xW = 20;
   yW = xW * xW;
-  function funcW(x, y) { return y / x + x; }
+  // https://github.com/google/traceur-compiler/issues/1346
+  funcW = function(x, y) { return y / x + x; }
   var withVar;
 }
 

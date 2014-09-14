@@ -294,7 +294,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.scopeBuilder_.scope = null;
   }
 
-  newNameFromOrig(origName, renames = this.blockRenames_) {
+  newNameFromOrig(origName, renames) {
     var newName;
     if (this.usedVars_[origName]) {
       newName = origName + this.idGenerator_.generateUniqueIdentifier();
@@ -405,7 +405,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var assignments = [];
     tree.declarations.forEach((variableDeclaration) => {
       var origName = this.getVariableName_(variableDeclaration);
-      var newName = this.newNameFromOrig(origName);
+      var newName = this.newNameFromOrig(origName, this.blockRenames_);
 
       var lvalue = createIdentifierExpression(newName);
       var initializer = super.transformAny(variableDeclaration.initializer);
@@ -484,7 +484,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // Hoist the function name and assign it in the current location
     if (!this.scope_.isVarScope) {
       var origName = tree.name.getStringValue();
-      var newName = this.newNameFromOrig(origName);
+      var newName = this.newNameFromOrig(origName, this.blockRenames_);
 
       // f = function( ... ) { ... }
       var functionExpression = createExpressionStatement(

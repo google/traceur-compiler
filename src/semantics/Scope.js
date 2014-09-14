@@ -83,13 +83,11 @@ export class Scope {
         delete this.lexicalDeclarations[oldName];
         this.addVar(newTree, reporter);
       }
-    } else {
-      if (this.variableDeclarations[oldName]) {
-        delete this.variableDeclarations[oldName];
-        this.addDeclaration(newTree, newType, reporter);
-        if (!this.isVarScope && this.parent) {
-          this.parent.renameBinding(oldName, newTree, newType);
-        }
+    } else if (this.variableDeclarations[oldName]) {
+      delete this.variableDeclarations[oldName];
+      this.addDeclaration(newTree, newType, reporter);
+      if (!this.isVarScope && this.parent) {
+        this.parent.renameBinding(oldName, newTree, newType);
       }
     }
   }

@@ -27,7 +27,7 @@ export var optionsV01 = enumerableOnlyObject({
   arrayComprehension: false,
   arrowFunctions: true,
   asyncFunctions: false,
-  blockBinding: false,
+  blockBinding: true,
   classes: true,
   commentCallback: false,
   computedPropertyNames: true,
@@ -396,6 +396,7 @@ function addBoolOption(name) {
 
 // ON_BY_DEFAULT
 addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
+addFeatureOption('blockBinding', ON_BY_DEFAULT);       // 12.1
 addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
 addFeatureOption('computedPropertyNames', ON_BY_DEFAULT);  // 11.1.5
 addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
@@ -406,17 +407,16 @@ addFeatureOption('modules', 'SPECIAL');    // 14
 addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
 addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
-addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
 addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
+addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 
 // EXPERIMENTAL
 addFeatureOption('annotations', EXPERIMENTAL);
 addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
-addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
