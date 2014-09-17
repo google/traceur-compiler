@@ -235,10 +235,16 @@ export class InternalLoader {
     return metadata;
   }
 
+  defaultModuleMetadata_(metadata = {}) {
+    var metadata = this.defaultMetadata_(metadata);
+    metadata.traceurOptions.script = false;
+    return metadata;
+  }
+
   load(name, referrerName = this.loader_.baseURL,
       address, metadata = {}) {
     metadata = this.defaultMetadata_(metadata);
-    var codeUnit = this.getCodeUnit_(name, referrerName, address, metadata);
+    var codeUnit = this.getOrCreateCodeUnit_(name, referrerName, address, metadata);
     this.load_(codeUnit);
     return codeUnit.promise.then(() => codeUnit);
   }
@@ -340,40 +346,46 @@ export class InternalLoader {
     return this.urlToKey[combined] = {};
   }
 
-  getCodeUnit_(name, referrerName, address, metadata) {
+  getCodeUnit_(normalizedName, type) {
+    var key = this.getKey(normalizedName, type);
+    var codeUnit = this.cache.get(key);
+    return {key, codeUnit};
+  }
+
+  getOrCreateCodeUnit_(name, referrerName, address, metadata) {
     var normalizedName = System.normalize(name, referrerName, address);
     // TODO(jjb): embed type in name per es-discuss Yehuda Katz,
     // eg import 'name,script';
     var type = 'module';
     if (metadata && metadata.traceurOptions && metadata.traceurOptions.script)
       type = 'script';
-    var key = this.getKey(normalizedName, type);
-    var cacheObject = this.cache.get(key);
-    if (!cacheObject) {
+    var {key, codeUnit} = this.getCodeUnit_(normalizedName, type);
+
+    if (!codeUnit) {
       // All new code units need metadata set.
       assert(metadata && metadata.traceurOptions);
       var module = this.loader_.get(normalizedName);
       if (module) {
-        cacheObject = new PreCompiledCodeUnit(this.loaderCompiler, normalizedName,
+        codeUnit = new PreCompiledCodeUnit(this.loaderCompiler, normalizedName,
             name, referrerName, address, module);
-        cacheObject.type = 'module';
+        codeUnit.type = 'module';
       } else {
         var bundledModule = this.loader_.bundledModule(name);
         if (bundledModule) {
-          cacheObject = new BundledCodeUnit(this.loaderCompiler, normalizedName,
+          codeUnit = new BundledCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address,
               bundledModule.deps, bundledModule.execute);
         } else {
-          cacheObject = new LoadCodeUnit(this.loaderCompiler, normalizedName,
+          codeUnit = new LoadCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address);
-          cacheObject.type = type;
+          codeUnit.type = type;
         }
       }
       // TODO(jjb): move into CodeUnit constructor
-      cacheObject.metadata = {traceurOptions: metadata.traceurOptions};
-      this.cache.set(key, cacheObject);
+      codeUnit.metadata = {traceurOptions: metadata.traceurOptions};
+      this.cache.set(key, codeUnit);
     }
-    return cacheObject;
+    return codeUnit;
   }
 
   areAll(state) {
@@ -381,7 +393,8 @@ export class InternalLoader {
   }
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
-    return this.getCodeUnit_(name, referrerName);
+    var normalizedName = this.loader_.normalize(name, referrerName);
+    return this.getCodeUnit_(normalizedName, 'module').codeUnit;
   }
 
   getExportsListForModuleSpecifier(name, referrer) {
@@ -406,6 +419,10 @@ export class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     codeUnit.metadata.sourceName = this.loader_.sourceName(codeUnit);
+    if (!codeUnit.source) {
+      codeUnit.resolve();
+      return;
+    }
 
     var referrerName = codeUnit.normalizedName;
     try {
@@ -415,7 +432,8 @@ export class InternalLoader {
         return;
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
-        return this.getCodeUnit_(name, referrerName, null, codeUnit.metadata);
+        return this.getOrCreateCodeUnit_(name, referrerName, null,
+          this.defaultModuleMetadata_(codeUnit.metadata));
       });
     } catch (error) {
       this.rejectOneAndAll(codeUnit, error);

@@ -17,6 +17,7 @@ import {
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {buildExportList} from '../codegeneration/module/ExportListBuilder';
+import {Compiler} from '../Compiler';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
@@ -59,19 +60,16 @@ export class LoaderCompiler {
 
   parse(codeUnit) {
     assert(!codeUnit.metadata.tree);
-    var reporter = new CollectingErrorReporter();
-    var file = new SourceFile(codeUnit.metadata.sourceName, codeUnit.source);
-    // The parser reads from global traceur options.
-    globalOptions.setFromObject(codeUnit.metadata.traceurOptions);
-    this.checkForErrors((reporter) => {
-      var parser = new Parser(file, reporter);
-      if (codeUnit.type == 'module')
-        codeUnit.metadata.tree = parser.parseModule();
-      else
-        codeUnit.metadata.tree = parser.parseScript();
-    });
+    var metadata = codeUnit.metadata;
+    var options = metadata.traceurOptions;
+    if (codeUnit.type === 'script')
+      options.script = true;
 
-    var normalizedName = codeUnit.normalizedName;
+    metadata.compiler = new Compiler(options);
+    if (!codeUnit.source)
+      throw new Error("wheres the beef")
+    metadata.tree = metadata.compiler.parse(codeUnit.source,
+      codeUnit.metadata.sourceName);
   }
 
   transform(codeUnit) {

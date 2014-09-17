@@ -1,9 +1,9 @@
 function causeAnError() {
-	throw new Error('dep error');
+  throw new Error('dep error');
 }
 
 function seeAStack() {
-	causeAnError();
+  causeAnError();
 }
 
 seeAStack();
