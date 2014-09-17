@@ -145,7 +145,7 @@ export class GeneratedSourceMapMapping extends SourceMapMapping {
   constructor(consumer, url) {
     super(consumer);
     consumer.eachMapping((mapping) => {
-      if (url && mapping.source !== sourceMapUtilJoin(consumer.sourceRoot, url))
+      if (url && mapping.source !== join(consumer.sourceRoot, url))
         return;
       var line = mapping.generatedLine;
       this.columnsByLine_[line] = this.columnsByLine_[line] || [];
