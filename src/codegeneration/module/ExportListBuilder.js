@@ -21,7 +21,7 @@ import {transformOptions} from '../../Options';
 
 /**
  * Builds up all module symbols and validates them.
- * @param {Array.<Object>} deps, {moduleSymbol, tree}
+ * @param {Array.<ModuleSymbole>} deps
  * @param {Loader} loader
  * @return {void}
  */
@@ -31,14 +31,14 @@ export function buildExportList(deps, loader, reporter) {
 
   function doVisit(ctor) {
     for (var i = 0; i < deps.length; i++) {
-      var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+      var visitor = new ctor(reporter, loader, deps[i]);
       visitor.visitAny(deps[i].tree);
     }
   }
 
   function reverseVisit(ctor) {
     for (var i = deps.length - 1; i >= 0; i--) {
-      var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+      var visitor = new ctor(reporter, loader, deps[i]);
       visitor.visitAny(deps[i].tree);
     }
   }
