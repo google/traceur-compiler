@@ -66,22 +66,15 @@ export class LoaderCompiler {
       options.script = true;
 
     metadata.compiler = new Compiler(options);
-    if (!codeUnit.source)
-      throw new Error("wheres the beef")
     metadata.tree = metadata.compiler.parse(codeUnit.source,
       codeUnit.metadata.sourceName);
   }
 
   transform(codeUnit) {
-    var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
-    var transformedTree = transformer.transformAny(codeUnit.metadata.tree);
+    var metadata = codeUnit.metadata;
+    metadata.transformedTree =
+        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName);
 
-    return this.checkForErrors((reporter) => {
-      transformer = new FromOptionsTransformer(reporter,
-          identifierGenerator);
-
-      return transformer.transform(transformedTree);
-    });
   }
 
   write(codeUnit) {
@@ -91,15 +84,22 @@ export class LoaderCompiler {
     [metadata.transcoded, metadata.sourceMap] =
         toSource(metadata.transformedTree, metadata.traceurOptions, outputName,
             sourceRoot);
+
+    if (codeUnit.address && metadata.transcoded)
+      metadata.transcoded += '//# sourceURL=' + codeUnit.address;
   }
 
   evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
-    var src = codeUnit.metadata.transcoded + '\n//@ sourceURL=' + codeUnit.address + '\n';
-    var result = ('global', eval)(src);
+    try {
+    var result = ('global', eval)(codeUnit.metadata.transcoded);
     codeUnit.metadata.transformedTree = null;
     return result;
+    } catch (ex) {
+      throw ex;
+    }
+
   }
 
   analyzeDependencies(dependencies, loader) {

@@ -126,10 +126,6 @@ class CodeUnit {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
-  transform() {
-    return this.loaderCompiler.transform(this);
-  }
-
 }
 
 /**
@@ -522,12 +518,9 @@ export class InternalLoader {
     if (codeUnit.state === ERROR)
       return;
 
-    var metadata = codeUnit.metadata;
-    metadata.transformedTree = codeUnit.transform();
+    this.loaderCompiler.transform(codeUnit);
     codeUnit.state = TRANSFORMED;
     this.loaderCompiler.write(codeUnit);
-    if (codeUnit.address && metadata.transcoded)
-      metadata.transcoded += '//# sourceURL=' + codeUnit.address;
     this.loader_.instantiate(codeUnit);
   }
 

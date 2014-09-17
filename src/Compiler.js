@@ -119,8 +119,17 @@ export class Compiler {
    */
   compile(content, sourceName = '<compileSource>',
       outputName = '<compileOutput>') {
-    return this.write(this.transform(
-        this.parse(content, sourceName)), outputName);
+
+    var tree = this.parse(content, sourceName);
+
+    var moduleName = this.options_.moduleName;
+    if (moduleName) {  // true or non-empty string.
+      if (typeof moduleName !== 'string') // true means resolve filename
+        moduleName = sourceName.replace(/\.js$/, '').replace(/\\/g,'/');
+    }
+    tree = this.transform(tree, moduleName);
+
+    return this.write(tree, outputName);
   }
 
   throwIfErrors(errorReporter) {
@@ -146,22 +155,20 @@ export class Compiler {
     var tree =
         this.options_.script ? parser.parseScript() : parser.parseModule();
     this.throwIfErrors(errorReporter);
+
     return tree;
   }
 
-  transform(tree) {
+  transform(tree, moduleName) {
     var transformer;
-    if (this.options_.moduleName) {  // true or non-empty string.
-      var moduleName = this.options_.moduleName;
-      if (typeof moduleName !== 'string') // true means resolve filename
-        moduleName = this.resolveModuleName(this.sourceNameFromTree(tree));
-      if (moduleName) {
-        transformer = new AttachModuleNameTransformer(moduleName);
-        tree = transformer.transformAny(tree);
-      }
+
+    if (moduleName) {
+      var transformer = new AttachModuleNameTransformer(moduleName);
+      tree = transformer.transformAny(tree);
     }
 
     var errorReporter = new CollectingErrorReporter();
+
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
