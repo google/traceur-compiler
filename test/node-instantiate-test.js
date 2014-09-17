@@ -98,4 +98,12 @@ suite('instantiate', function() {
       done();
     }).catch(done);
   });
+
+  test('Export default function parsing', function(done) {
+    System.import('export-default-fn').then(function(m) {
+      assert.equal(m.test, undefined);
+      done();
+    }).catch(done);
+  });
+
 });

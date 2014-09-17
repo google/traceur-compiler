@@ -565,6 +565,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // =>
     // $__export('default', ...)
     //
+    this.inExport_ = false;
     var expression = this.transformAny(tree.expression);
     this.addLocalExportBinding('default');
     if (expression.type === FUNCTION_DECLARATION) {
