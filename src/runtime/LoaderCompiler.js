@@ -113,9 +113,9 @@ export class LoaderCompiler {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        codeUnit.metadata.moduleSymbol =
+        var symbol = codeUnit.metadata.moduleSymbol =
             new ModuleSymbol(codeUnit.metadata.tree, codeUnit.normalizedName);
-        deps.push(codeUnit.metadata.moduleSymbol);
+        deps.push(symbol);
       }
     }
 
