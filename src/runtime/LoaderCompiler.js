@@ -74,17 +74,16 @@ export class LoaderCompiler {
     var metadata = codeUnit.metadata;
     metadata.transformedTree =
         metadata.compiler.transform(metadata.tree, codeUnit.normalizedName);
-
   }
 
   write(codeUnit) {
-    var sourceRoot = codeUnit.metadata.sourceRoot;
     var metadata = codeUnit.metadata;
-    var outputName = codeUnit.metadata.outputName || '<loaderOutput>';
-    [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, metadata.traceurOptions, outputName,
-            sourceRoot);
-
+    var outputName = metadata.outputName || '<loaderOutput>';
+    var sourceRoot = metadata.sourceRoot;
+    metadata.transcoded =
+        metadata.compiler.write(metadata.transformedTree, outputName);
+    metadata.sourceMap =
+        metadata.compiler.getSourceMap();
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
   }
