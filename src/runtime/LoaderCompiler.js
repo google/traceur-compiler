@@ -72,8 +72,6 @@ export class LoaderCompiler {
     });
 
     var normalizedName = codeUnit.normalizedName;
-    codeUnit.metadata.moduleSymbol =
-      new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
   }
 
   transform(codeUnit) {
@@ -107,7 +105,7 @@ export class LoaderCompiler {
   }
 
   analyzeDependencies(dependencies, loader) {
-    var deps = [];  // metadata for each dependency
+    var deps = [];  // moduleSymbol for each dependency
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
 
@@ -115,7 +113,9 @@ export class LoaderCompiler {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        deps.push(codeUnit.metadata);
+        var symbol = codeUnit.metadata.moduleSymbol =
+            new ModuleSymbol(codeUnit.metadata.tree, codeUnit.normalizedName);
+        deps.push(symbol);
       }
     }
 
