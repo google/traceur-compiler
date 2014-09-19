@@ -13,10 +13,7 @@
 // limitations under the License.
 
 import {ModuleTransformer} from './ModuleTransformer';
-import {
-  createBindingIdentifier,
-  createIdentifierExpression
-} from './ParseTreeFactory';
+import {createIdentifierExpression} from './ParseTreeFactory';
 import globalThis from './globalThis';
 import {
   parseExpression,

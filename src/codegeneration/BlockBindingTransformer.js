@@ -16,116 +16,42 @@ import {AlphaRenamer} from './AlphaRenamer';
 import {
   ANON_BLOCK,
   BINDING_IDENTIFIER,
-  BLOCK,
-  FUNCTION_DECLARATION,
-  RETURN_STATEMENT,
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType';
 import {
   AnonBlock,
-  ArgumentList,
-  AssignmentElement,
   BindingElement,
-  BindingIdentifier,
   Block,
-  BreakStatement,
-  CallExpression,
-  CaseClause,
   Catch,
-  ContinueStatement,
-  DefaultClause,
   DoWhileStatement,
-  ExpressionStatement,
   ForInStatement,
   ForStatement,
   FormalParameter,
-  FormalParameterList,
   FunctionBody,
-  FunctionDeclaration,
   FunctionExpression,
-  IdentifierExpression,
-  IfStatement,
   LabelledStatement,
-  LiteralExpression,
   Module,
-  ParenExpression,
-  ReturnStatement,
   Script,
-  SwitchStatement,
-  ThisExpression,
   VariableDeclaration,
   VariableDeclarationList,
   VariableStatement,
   WhileStatement
 } from '../syntax/trees/ParseTrees';
-import {IdentifierToken} from '../syntax/IdentifierToken';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+import {VAR} from '../syntax/TokenType';
 import {
-  AND,
-  CONST,
-  LET,
-  VAR
-} from '../syntax/TokenType';
-import {
-  createArgumentList,
   createAssignmentExpression,
   createAssignmentStatement,
-  createBinaryExpression,
   createBindingIdentifier,
-  createBlock,
-  createCallExpression,
-  createCatch,
-  createEmptyStatement,
   createExpressionStatement,
-  createFinally,
-  createForInStatement,
-  createForStatement,
-  createFunctionBody,
   createIdentifierExpression,
-  createIdentifierToken,
-  createMemberExpression,
-  createObjectLiteral,
-  createOperatorToken,
-  createStringLiteral,
-  createThrowStatement,
-  createTryStatement,
-  createUndefinedExpression,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement,
-  createVoid0
+  createIdentifierToken
 } from './ParseTreeFactory';
 import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder';
 import {prependStatements} from './PrependStatements';
 import {FindVisitor} from './FindVisitor';
 import {FindIdentifiers} from './FindIdentifiers';
 import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
-
-/**
- * Transforms the block bindings from traceur to js.
- * The scope for let binding is just the containing block which can be achieved
- * in javascript in two ways: nested function or catch block.
- *
- * Nested function only works if there is no control flow passing through the
- * let block (break, continue, return), there is no const variable contained
- * anywhere within the let block and 'this' or 'arguments' are not used.
- * Given how uncommon the let block unaffected by any of these is, all blocks
- * are transformed using catch:
- *
- * try { throw uninitialised; } catch (let_var) { ... }
- *
- * const variables and nested function declarations are handled the same way,
- * the final solution for const is to be implemented.
- *
- * 'var' variables are unaffected by the rewrite because their scope is whole
- * function, and that is not affected by try .. catch blocks.
- *
- * The block binding rewrite pass assumes that deconstructing assignments
- * and variable declarations have already been desugared. See getVariableName_.
- *
- */
-
 
 /**
  * Transforms the block bindings from traceur to js.

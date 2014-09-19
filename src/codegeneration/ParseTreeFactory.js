@@ -88,8 +88,7 @@ import {
   VariableDeclarationList,
   VariableStatement,
   WhileStatement,
-  WithStatement,
-  YieldExpression
+  WithStatement
 } from '../syntax/trees/ParseTrees';
 
 // Helpers so we can use these on Arguments objects.

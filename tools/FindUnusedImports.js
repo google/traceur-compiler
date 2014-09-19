@@ -68,8 +68,7 @@ class FilterFoundImports extends ScopeVisitor {
 }
 
 export function findUnusedImports(filename, content) {
-  var options = {filename};
-  var {tree, errors} = new Compiler().stringToTree({content, options});
+  var tree = new Compiler().parse(content, filename);
 
   var reporter = new CollectingErrorReporter();
   var builder = new ImportAndScopeChainBuilder(reporter);
