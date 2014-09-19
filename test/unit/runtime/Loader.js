@@ -345,13 +345,14 @@ suite('Loader.js', function() {
     assert(!m);
     m = semVerRegExp.exec('Any');
     assert(!m);
-
+    m = semVerRegExp.exec('1.0.0');
+    assert.equal(1, m[1]);
     var version = System.map['traceur'];
     assert(version);
     // This test must be updated if the major or minor version number changes.
     // If the change is intended, this is a reminder to update the documentation.
-    assert.equal(version, System.map['traceur@0']);
-    assert.equal(version, System.map['traceur@0.0']);
+    assert.equal(version, System.map['traceur@1'], 'Update API docs');
+    assert.equal(version, System.map['traceur@1.0'], 'Update Release docs');
   });
 
   test('System.map', function() {

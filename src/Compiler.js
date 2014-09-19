@@ -189,6 +189,7 @@ export class Compiler {
 
   write(tree, outputName) {
     var writer;
+
     this.sourceMapGenerator_ = this.createSourceMapGenerator_(outputName);
     if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
@@ -197,7 +198,16 @@ export class Compiler {
     }
 
     writer.visitAny(tree);
-    return writer.toString(tree);
+
+    var compiledCode = writer.toString(tree);
+
+    if (this.sourceMapGenerator_) {
+      if (!outputName)
+        throw new Error('Internal Error: no outputName');
+      var sourceMapFileName = this.sourceMapFileName(outputName);
+      compiledCode += '\n//# sourceMappingURL=' + sourceMapFileName + '\n';
+    }
+    return compiledCode;
   }
 
   resolveModuleName(filename) {
@@ -206,6 +216,10 @@ export class Compiler {
 
   sourceName(filename) {
     return filename;
+  }
+
+  sourceMapFileName(filename) {
+    return filename.replace(/\.js$/, '.map');
   }
 
   sourceNameFromTree(tree) {

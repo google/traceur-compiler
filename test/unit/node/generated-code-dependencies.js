@@ -148,7 +148,7 @@ suite('context test', function() {
           tempMapName = tempFileName.replace('.js','') + '.map';
           var map = fs.readFileSync(tempMapName, 'utf-8');
           var actualSourceRoot = JSON.parse(map).sourceRoot;
-          // Trailing slash as in the example, 
+          // Trailing slash as in the example,
           // https://github.com/mozilla/source-map
           assert.equal(actualSourceRoot, process.cwd() + '/',
             'has the correct sourceroot')

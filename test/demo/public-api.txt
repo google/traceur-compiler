@@ -1,0 +1,7 @@
+Traceur input  function foo() { return 1; }
+Traceur options  {}
+Traceur output  "use strict";
+function foo() {
+  return 1;
+}
+
