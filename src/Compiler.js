@@ -48,13 +48,11 @@ function merge(...srcs) {
 /**
  * Synchronous source to source compiler using default values for options.
  * @param {Options=} overridingOptions
- * @param {string} sourceRoot base path for sourcemaps, eg cwd or baseURL.
  */
 export class Compiler {
-  constructor(overridingOptions = {}, sourceRoot = undefined) {
+  constructor(overridingOptions = {}) {
     this.options_ = merge(this.defaultOptions(), overridingOptions);
     this.sourceMapGenerator_ = null;
-    this.sourceRoot = sourceRoot;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -115,10 +113,11 @@ export class Compiler {
    * @param {string} content ES6 source code.
    * @param {string} sourceName
    * @param {string} outputName
+   * @param {string} opt_sourceRoot or undefined, defaults to dir of outputName
    * @return {string} equivalent ES5 source.
    */
   compile(content, sourceName = '<compileSource>',
-      outputName = '<compileOutput>') {
+      outputName = '<compileOutput>', opt_sourceRoot) {
 
     var tree = this.parse(content, sourceName);
 
@@ -129,7 +128,7 @@ export class Compiler {
     }
     tree = this.transform(tree, moduleName);
 
-    return this.write(tree, outputName);
+    return this.write(tree, outputName, opt_sourceRoot);
   }
 
   throwIfErrors(errorReporter) {
@@ -137,6 +136,10 @@ export class Compiler {
       throw errorReporter.errors;
   }
 
+  /**
+   * @param {string} content to be compiled.
+   * @param {string} sourceName inserted into sourceMaps
+   */
   parse(content, sourceName) {
     if (!content) {
       throw new Error('Compiler: no content to compile.');
@@ -149,7 +152,6 @@ export class Compiler {
     traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
-    sourceName = this.sourceName(sourceName);
     var sourceFile = new SourceFile(sourceName, content);
     var parser = new Parser(sourceFile, errorReporter);
     var tree =
@@ -180,11 +182,21 @@ export class Compiler {
     return transformedTree;
   }
 
-  createSourceMapGenerator_(outputName) {
+  basePath_(name) {
+    if (!name)
+      return null;
+    var lastSlash = name.lastIndexOf('/');
+    if (lastSlash < 0)
+      return null;
+    return name.substring(0, lastSlash + 1);
+  }
+
+  createSourceMapGenerator_(outputName, opt_sourceRoot) {
     if (this.options_.sourceMaps) {
+      var sourceRoot = opt_sourceRoot || this.basePath_(outputName);
       return new SourceMapGenerator({
         file: outputName,
-        sourceRoot: this.sourceRoot
+        sourceRoot: sourceRoot
       });
     }
   }
@@ -194,9 +206,10 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  write(tree, outputName) {
+  write(tree, outputName, opt_sourceRoot) {
     var writer;
-    this.sourceMapGenerator_ = this.createSourceMapGenerator_(outputName);
+    this.sourceMapGenerator_ =
+        this.createSourceMapGenerator_(outputName, opt_sourceRoot);
     if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
     } else {
@@ -205,10 +218,6 @@ export class Compiler {
 
     writer.visitAny(tree);
     return writer.toString(tree);
-  }
-
-  resolveModuleName(filename) {
-    return filename;
   }
 
   sourceName(filename) {

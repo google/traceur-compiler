@@ -122,7 +122,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       column: position.column || 0  // source map uses zero based columns
     };
     if (position.source.name !== this.sourceName_) {
-      this.sourceName_ = position.source.name;
+      this.sourceName_ = relativeToSourceRoot(position.source.name,
+              this.sourceMapGenerator_._sourceRoot);
       this.sourceMapGenerator_.setSourceContent(position.source.name,
           position.source.contents);
     }
@@ -161,4 +162,32 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.sourceMapGenerator_.addMapping(mapping);
     this.previousMapping_ = mapping;
   }
+
+}
+
+export function relativeToSourceRoot(name, sourceRoot) {
+  if (!name || name[0] !== '/')  // @ means internal name
+    return name;
+  if (!sourceRoot)
+    return name;
+
+  var nameSegments = name.split('/');
+  var rootSegments = sourceRoot.split('/');
+  var commonSegmentsLength = 0;
+  var uniqueSegments = [];
+  nameSegments.forEach(function(segment, index) {
+    if (segment === rootSegments[index]) {
+      commonSegmentsLength++;
+      return false;
+    }
+    uniqueSegments.push(segment);
+  });
+  if (commonSegmentsLength < 1)
+    return name;
+
+  var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
+  while(dotDotSegments--) {
+    uniqueSegments.unshift('..');
+  }
+  return uniqueSegments.join('/');
 }

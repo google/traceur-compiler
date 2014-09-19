@@ -69,7 +69,6 @@ class CodeUnit {
       this.name_ = name;
       this.referrerName_ = referrerName;
       this.address = address;
-      this.url = InternalLoader.uniqueName(normalizedName, address);
       this.state_ = state || NOT_STARTED;
       this.error = null;
       this.result = null;
@@ -327,9 +326,10 @@ export class InternalLoader {
   sourceMapInfo(normalizedName, type) {
     var key = this.getKey(normalizedName, type);
     var codeUnit = this.cache.get(key);
+    var metadata = codeUnit && codeUnit.metadata;
     return {
-      sourceMap: codeUnit && codeUnit.metadata && codeUnit.metadata.sourceMap,
-      url: codeUnit && codeUnit.url
+      sourceMap: metadata.sourceMap,
+      sourceName: metadata.sourceName
     };
   }
 
@@ -414,7 +414,6 @@ export class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
-    codeUnit.metadata.sourceName = this.loader_.sourceName(codeUnit);
     if (!codeUnit.source) {
       codeUnit.resolve();
       return;
@@ -571,14 +570,6 @@ export class InternalLoader {
       codeUnit.state = COMPLETE;
       codeUnit.resolve(codeUnit.result);
     }
-  }
-
-  static uniqueName(normalizedName, referrerAddress) {
-    var importerAddress = referrerAddress || System.baseURL;
-    if (!importerAddress)
-      throw new Error('The System.baseURL is an empty string');
-    var path = normalizedName || String(uniqueNameCount++);
-    return resolveUrl(importerAddress, path);
   }
 
 }

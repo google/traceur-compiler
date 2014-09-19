@@ -23,10 +23,10 @@ var metadata = {traceurOptions: {sourceMaps: true}};
 var testModuleName = System.normalize('./test/unit/runtime/test_a');
 var whenSourceMapMapping =
     System.import(testModuleName, {metadata: metadata}).then(() => {
-  var mapInfo = System.sourceMapInfo(testModuleName, 'module');
-  if (!mapInfo || !mapInfo.sourceMap)
-    throw new Error('No source map');
-  var consumer = new SourceMapConsumer(mapInfo.sourceMap);
+  var sourceMapInfo = System.sourceMapInfo(testModuleName, 'module');
+  if (!sourceMapInfo || !sourceMapInfo.sourceMap)
+    throw new Error('No source map for ' + testModuleName);
+  var consumer = new SourceMapConsumer(sourceMapInfo.sourceMap);
   var sourceMapMapping = new OriginalSourceMapMapping(consumer);
   return sourceMapMapping;
 }).catch(function(ex) {

@@ -45,6 +45,7 @@ var COMPLETE = 6;
 var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
+var anonymousSourcesSeen = 0;
 
 export class LoaderCompiler {
 
@@ -66,8 +67,11 @@ export class LoaderCompiler {
       options.script = true;
 
     metadata.compiler = new Compiler(options);
-    metadata.tree = metadata.compiler.parse(codeUnit.source,
-      codeUnit.metadata.sourceName);
+
+    // The name used in sourceMaps
+    var sourceName = codeUnit.metadata.sourceName =
+        codeUnit.address || String(++anonymousSourcesSeen);
+    metadata.tree = metadata.compiler.parse(codeUnit.source, sourceName);
   }
 
   transform(codeUnit) {
@@ -91,14 +95,9 @@ export class LoaderCompiler {
   evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
-    try {
     var result = ('global', eval)(codeUnit.metadata.transcoded);
     codeUnit.metadata.transformedTree = null;
     return result;
-    } catch (ex) {
-      throw ex;
-    }
-
   }
 
   analyzeDependencies(dependencies, loader) {
