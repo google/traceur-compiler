@@ -91,7 +91,7 @@ function createOptionRow(traceurOptions, name) {
   var checked = traceurOptions[name];
   cb.checked = checked;
   cb.indeterminate = checked === null;
-  cb.onclick = function() {
+  cb.onclick = () => {
     traceurOptions[name] = cb.checked;
     optionChangeHandler(traceurOptions);
   };
@@ -111,44 +111,39 @@ function createMatchingOptionControls(traceurOptions) {
   optionsDiv.textContent = '';
   if (showAllOpts) {
     var i = 0;
-    Object.keys(traceurOptions).forEach(function(name) {
+    Object.keys(traceurOptions).forEach((name) => {
       if (i++ >= showMax || extraOptions.lastIndexOf(name) >= 0)
         return;
       optionsDiv.appendChild(createOptionRow(traceurOptions, name));
     });
     optionsDiv.appendChild(document.createElement('hr'));
   }
-  extraOptions.forEach(function(name) {
+  extraOptions.forEach((name) => {
     optionsDiv.appendChild(createOptionRow(traceurOptions, name));
   });
 }
 
 function rebuildOptions(traceurOptions) {
   var optionsDiv = document.querySelector('.traceur-options');
-  optionsDiv.innerHTML = '';
-  optionChangeHandler(traceurOptions);
+  createMatchingOptionControls(traceurOptions);
 }
 
-document.querySelector('.reset-all').addEventListener('click',
-    function() {
-      traceurOptions.reset();
-      rebuildOptions(traceurOptions);
-    });
+document.querySelector('.reset-all').addEventListener('click', () => {
+  traceurOptions.reset();
+  rebuildOptions(traceurOptions);
+});
 
-document.querySelector('.all-off').addEventListener('click',
-    function() {
-      traceurOptions.reset(true);
-      rebuildOptions(traceurOptions);
-    });
+document.querySelector('.all-off').addEventListener('click', () => {
+  traceurOptions.reset(true);
+  rebuildOptions(traceurOptions);
+});
 
-document.querySelector('.show-all-toggle').addEventListener('click',
-    function() {
-      showAllOpts = !showAllOpts;
-      rebuildOptions(traceurOptions);
-    });
+document.querySelector('.show-all-toggle').addEventListener('click', () => {
+  showAllOpts = !showAllOpts;
+  rebuildOptions(traceurOptions);
+});
 
-document.querySelector('.option-button').addEventListener('click',
-    function() {
-      var optionsDiv = document.querySelector('.options');
-      optionsDiv.hidden = !optionsDiv.hidden;
-    });
+document.querySelector('.option-button').addEventListener('click', () => {
+  var optionsDiv = document.querySelector('.options');
+  optionsDiv.hidden = !optionsDiv.hidden;
+});

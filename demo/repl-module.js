@@ -44,13 +44,10 @@ var evalCheckbox = document.querySelector('input.eval');
 var errorElement = document.querySelector('pre.error');
 var sourceMapElement = document.querySelector('pre.source-map');
 
-if (location.hash)
-  input.setValue(decodeURIComponent(location.hash.slice(1)));
-
-outputCheckbox.addEventListener('click', function(e) {
+outputCheckbox.addEventListener('click', (e) => {
   document.documentElement.classList[
       outputCheckbox.checked ? 'remove' : 'add']('hide-output');
-}, false);
+});
 
 /**
  * debounce time = min(tmin + [func's execution time], tmax).
@@ -77,7 +74,7 @@ function debounced(func, tmin, tmax) {
     id = setTimeout(wrappedFunc, t);
   }
   // id is nonzero only when a debounced function is pending.
-  debouncedFunc.delay = function() { id && debouncedFunc(); }
+  debouncedFunc.delay = () => { id && debouncedFunc(); }
   return debouncedFunc;
 }
 
@@ -163,14 +160,10 @@ function compile() {
   try {
     traceurOptions.setFromObject(
         setOptionsFromSource(contents, resetAndCompileContents));
-  } catch(ex) {
-    errorElement.hidden = false;
-    errorElement.textContent = ex.stack || ex;
-    console.error(ex);
-    return;
+    compileContents(contents);
+  } catch (ex) {
+    onFailure(ex);
   }
-
-  compileContents(contents);
 }
 
 // When options are changed we write // Options back into the source
@@ -182,15 +175,14 @@ function resetAndCompileContents(contents, newOptions) {
   compileContents(contents);
 }
 
+function onFailure(error) {
+  hasError = true;
+  errorElement.hidden = false;
+  errorElement.textContent = error.stack || error;
+}
+
 function compileContents(contents) {
-
   errorElement.hidden = true;
-
-  function onFailure(error) {
-     hasError = true;
-     errorElement.hidden = false;
-     errorElement.textContent = error.stack || error;
-  }
 
   function onTranscoded(metadata) {
     output.setValue(metadata.transcoded);
@@ -200,9 +192,14 @@ function compileContents(contents) {
       compilationResults.sourceMapURL = metadata.sourceName;
       updateSourceMapVisualization(metadata.sourceName);
     }
-    console.log('Module evaluation succeeded');
   }
 
   if (transcode)
     transcode(contents, onTranscoded, onFailure);
+}
+
+if (location.hash) {
+  input.setValue(decodeURIComponent(location.hash.slice(1)));
+} else {
+  compile();
 }
