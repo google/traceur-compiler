@@ -113,10 +113,10 @@ export class Scope {
 
   getBinding(tree) {
     var name = tree.getStringValue();
-    return this.getBinding_(name);
+    return this.getBindingByName(name);
   }
 
-  getBinding_(name) {
+  getBindingByName(name) {
     var b = this.lexicalDeclarations[name];
     if (b) {
       return b;
@@ -127,7 +127,7 @@ export class Scope {
       return b;
     }
     if (this.parent) {
-      return this.parent.getBinding_(name);
+      return this.parent.getBindingByName(name);
     }
     return null;
   }

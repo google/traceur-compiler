@@ -47,11 +47,11 @@ import {
   createIdentifierExpression,
   createIdentifierToken
 } from './ParseTreeFactory';
+import {FindIdentifiers} from './FindIdentifiers';
+import {FindVisitor} from './FindVisitor';
+import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
 import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder';
 import {prependStatements} from './PrependStatements';
-import {FindVisitor} from './FindVisitor';
-import {FindIdentifiers} from './FindIdentifiers';
-import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
 
 /**
  * Transforms the block bindings from traceur to js.
@@ -220,9 +220,21 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.scopeBuilder_.scope = null;
   }
 
+  needsRename_(name) {
+    if (this.usedVars_[name]) return true;
+    var scope = this.scope_;
+    var parent = scope.parent;
+    if (!parent || scope.isVarScope) return false;
+    var parentBinding = parent.getBindingByName(name);
+    if (!parentBinding) return false;
+    var currentBinding = scope.getBindingByName(name);
+    if (currentBinding.tree === parentBinding.tree) return false;
+    return true;
+  }
+
   newNameFromOrig(origName, renames) {
     var newName;
-    if (this.usedVars_[origName]) {
+    if (this.needsRename_(origName)) {
       newName = origName + this.idGenerator_.generateUniqueIdentifier();
       renames.push(new Rename(origName, newName));
     } else {
