@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --block-binding
+// Options: --free-variable-checker
 // Error: inner is not defined
 
 function testBlock() {
@@ -11,4 +11,3 @@ function testBlock() {
 }
 
 // ----------------------------------------------------------------------------
-

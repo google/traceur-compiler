@@ -34,7 +34,7 @@ export class FindIdentifiers extends ScopeVisitor {
   }
 
   visitIdentifierExpression(tree) {
-    if (this.filterFunction_(tree.identifierToken.value, this.scope.tree)) {
+    if (this.filterFunction_(tree.identifierToken, this.scope.tree)) {
       this.found = true;
     }
   }

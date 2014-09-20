@@ -50,6 +50,7 @@ import {
 import {FindIdentifiers} from './FindIdentifiers';
 import {FindVisitor} from './FindVisitor';
 import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
+import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder';
 import {prependStatements} from './PrependStatements';
 
@@ -225,6 +226,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var scope = this.scope_;
     var parent = scope.parent;
     if (!parent || scope.isVarScope) return false;
+
+    // Look for free variables with the same name in the current var scope.
+    var varScope = scope.getVarScope();
+    if (varScope) {
+      var finder = new FindFreeVarByName(name, this.scopeBuilder_,
+                                         this.reporter_);
+      finder.visitAny(varScope.tree);
+      if (finder.found) return true;
+    }
     var parentBinding = parent.getBindingByName(name);
     if (!parentBinding) return false;
     var currentBinding = scope.getBindingByName(name);
@@ -672,22 +682,23 @@ class FindBlockBindingInLoop extends FindVisitor {
   visitArrowFunctionExpression(tree) {this.visitFunction_(tree);}
   visitFunction_(tree) {
     this.found = new FindIdentifiers(tree,
-        (identifierToken, identScope) => {
-          identScope = this.scopeBuilder_.getScopeForTree(identScope);
+        (identifierToken, scopeTree) => {
+          var name = identifierToken.value;
+          var identScope = this.scopeBuilder_.getScopeForTree(scopeTree);
           var fnScope = this.outOfScope_ ||
               this.scopeBuilder_.getScopeForTree(tree);
-          if (identScope.hasLexicalBindingName(identifierToken)) {
+          if (identScope.hasLexicalBindingName(name)) {
             return false;
           }
 
           while (identScope !== fnScope && (identScope = identScope.parent)) {
-            if (identScope.hasLexicalBindingName(identifierToken)) {
+            if (identScope.hasLexicalBindingName(name)) {
               return false;
             }
           }
 
           while (fnScope = fnScope.parent) {
-            if (fnScope.hasLexicalBindingName(identifierToken)) {
+            if (fnScope.hasLexicalBindingName(name)) {
               return true;
             }
             if (fnScope === this.topScope_) break;
@@ -695,4 +706,30 @@ class FindBlockBindingInLoop extends FindVisitor {
           return false;
         }).found;
   }
+}
+
+class FindFreeVarByName extends FreeVariableChecker {
+  constructor(name, scopeBuilder, reporter) {
+    super(scopeBuilder, reporter, Object.create(null));
+    this.name_ = name;
+    this.found = false;
+  }
+
+  freeVariableFound(tree, name) {
+    if (name === this.name_) {
+      this.found = true;
+    }
+  }
+
+  /**
+   * Override to exit early.
+   */
+  visitList(list) {
+    if (list) {
+      for (var i = 0; !this.found && i < list.length; i++) {
+        this.visitAny(list[i]);
+      }
+    }
+  }
+
 }
