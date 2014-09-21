@@ -13,6 +13,7 @@ POLYFILL_SRC = \
   src/runtime/polyfills/Array.js \
   src/runtime/polyfills/Object.js \
   src/runtime/polyfills/Number.js \
+  src/runtime/polyfills/Function.js \
   src/runtime/polyfills/polyfills.js
 SRC = \
   $(POLYFILL_SRC) \
