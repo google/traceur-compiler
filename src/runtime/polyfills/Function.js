@@ -24,7 +24,7 @@ export function getFunctionName(fn) {
     if (matchResults)
         return matchResults[1];
     else
-        return undefined;
+        return '';
 }
 
 export function polyfillFunction(global) {

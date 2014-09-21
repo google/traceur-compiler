@@ -1,7 +1,10 @@
 import {getFunctionName} from '../../../src/runtime/polyfills/Function';
 
-function namedFn () {}
-var anonymousFn = function() {};
+assert.isTrue(getFunctionName(function funcDecl(){}) === "funcDecl");
+assert.isTrue(getFunctionName((function funcExpr(){})) === "funcExpr");
+assert.isTrue(getFunctionName((function(){})) === '');
 
-assert.isTrue(getFunctionName(namedFn) === "namedFn");
-assert.isTrue(getFunctionName(anonymousFn) === undefined);
+assert.isTrue(getFunctionName(class ClassDecl {}) === "ClassDecl");
+assert.isTrue(getFunctionName((class ClassExpr {})) === "ClassExpr");
+
+assert.isTrue(getFunctionName((new Function)) === "anonymous");
