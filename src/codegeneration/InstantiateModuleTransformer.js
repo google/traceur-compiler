@@ -20,6 +20,7 @@ import {
   ExpressionStatement
 } from '../syntax/trees/ParseTrees';
 import {
+  CLASS_DECLARATION,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
   IMPORT_SPECIFIER_SET
@@ -561,6 +562,11 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // =>
     // function p() {}
     //
+    // export default class Q ...
+    // =>
+    // $__export('default', ...expression...)
+    // (classes don't hoist)
+    //
     // export default ...
     // =>
     // $__export('default', ...)
@@ -568,6 +574,13 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.inExport_ = false;
     var expression = this.transformAny(tree.expression);
     this.addLocalExportBinding('default');
+
+    // convert class into a class expression
+    if (expression.type === CLASS_DECLARATION) {
+      expression = new ClassExpression(expression.location, expression.name, 
+          expression.superClass, expression.elements, expression.annotations);
+    }
+
     if (expression.type === FUNCTION_DECLARATION) {
       this.addExportFunction('default', expression.name.identifierToken.value);
       return expression;

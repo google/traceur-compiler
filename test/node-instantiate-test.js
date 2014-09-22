@@ -106,4 +106,12 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('Export default class', function(done) {
+    System.import('export-default-class').then(function(m) {
+      var f = new m.default();
+      assert.equal(f.foo(), 'foo');
+      done();
+    }).catch(done);
+  });
+
 });
