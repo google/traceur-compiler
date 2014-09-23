@@ -151,12 +151,12 @@ suite('context test', function() {
           // Trailing slash as in the example,
           // https://github.com/mozilla/source-map
           assert.equal(actualSourceRoot, resolve('./out') + '/',
-            'has the correct sourceroot');
+              'has the correct sourceroot');
           var foundInput = map.sources.some(function(name) {
             return inputFileName === path.resolve(actualSourceRoot, name);
           });
           assert(foundInput,
-            'the inputFileName is one of the sourcemap sources');
+              'the inputFileName is one of the sourcemap sources');
           done();
         });
   });

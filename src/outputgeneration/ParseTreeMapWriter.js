@@ -162,7 +162,6 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.sourceMapGenerator_.addMapping(mapping);
     this.previousMapping_ = mapping;
   }
-
 }
 
 export function relativeToSourceRoot(name, sourceRoot) {
@@ -175,19 +174,22 @@ export function relativeToSourceRoot(name, sourceRoot) {
   var rootSegments = sourceRoot.split('/');
   var commonSegmentsLength = 0;
   var uniqueSegments = [];
-  nameSegments.forEach(function(segment, index) {
+  nameSegments.forEach((segment, index)  => {
     if (segment === rootSegments[index]) {
       commonSegmentsLength++;
       return false;
     }
     uniqueSegments.push(segment);
   });
+
   if (commonSegmentsLength < 1)
     return name;
 
   var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
-  while(dotDotSegments--) {
-    uniqueSegments.unshift('..');
+  var segments = [];
+  while (dotDotSegments--) {
+    segments.push('..');
   }
-  return uniqueSegments.join('/');
+  segments.push(...uniqueSegments);
+  return segments.join('/');
 }

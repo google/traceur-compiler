@@ -17,8 +17,8 @@ import {
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {buildExportList} from '../codegeneration/module/ExportListBuilder';
-import {Compiler} from '../Compiler';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
+import {Compiler} from '../Compiler';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';

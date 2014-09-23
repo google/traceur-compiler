@@ -113,22 +113,22 @@ export class Compiler {
    * @param {string} content ES6 source code.
    * @param {string} sourceName
    * @param {string} outputName
-   * @param {string} opt_sourceRoot or undefined, defaults to dir of outputName
+   * @param {string} sourceRoot defaults to dir of outputName
    * @return {string} equivalent ES5 source.
    */
   compile(content, sourceName = '<compileSource>',
-      outputName = '<compileOutput>', opt_sourceRoot) {
+      outputName = '<compileOutput>', sourceRoot = undefined) {
 
     var tree = this.parse(content, sourceName);
 
     var moduleName = this.options_.moduleName;
     if (moduleName) {  // true or non-empty string.
-      if (typeof moduleName !== 'string') // true means resolve filename
+      if (typeof moduleName !== 'string')  // true means resolve filename
         moduleName = sourceName.replace(/\.js$/, '').replace(/\\/g,'/');
     }
     tree = this.transform(tree, moduleName);
 
-    return this.write(tree, outputName, opt_sourceRoot);
+    return this.write(tree, outputName, sourceRoot);
   }
 
   throwIfErrors(errorReporter) {
@@ -161,6 +161,13 @@ export class Compiler {
     return tree;
   }
 
+  /**
+    * Apply transformations selected by options to tree.
+    * @param {ParseTree} tree
+    * @param {string} moduleName Value for __moduleName or true
+    *   to use input filename.
+    * @return {ParseTree}
+    */
   transform(tree, moduleName) {
     var transformer;
 
@@ -191,9 +198,9 @@ export class Compiler {
     return name.substring(0, lastSlash + 1);
   }
 
-  createSourceMapGenerator_(outputName, opt_sourceRoot) {
+  createSourceMapGenerator_(outputName, sourceRoot = undefined) {
     if (this.options_.sourceMaps) {
-      var sourceRoot = opt_sourceRoot || this.basePath_(outputName);
+      var sourceRoot = sourceRoot || this.basePath_(outputName);
       return new SourceMapGenerator({
         file: outputName,
         sourceRoot: sourceRoot
@@ -206,10 +213,17 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  write(tree, outputName, opt_sourceRoot) {
+  /**
+   * Produce output source from tree.
+   * @param {ParseTree} tree
+   * @param {string} outputName used for sourceMap URL and defaut sourceRoot.
+   * @param {string} sourceRoot base for sourceMap sources
+   * @return {string}
+   */
+  write(tree, outputName, sourceRoot = undefined) {
     var writer;
     this.sourceMapGenerator_ =
-        this.createSourceMapGenerator_(outputName, opt_sourceRoot);
+        this.createSourceMapGenerator_(outputName, sourceRoot);
     if (this.sourceMapGenerator_) {
       writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
     } else {

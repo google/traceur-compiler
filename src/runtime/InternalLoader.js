@@ -428,7 +428,7 @@ export class InternalLoader {
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
         return this.getOrCreateCodeUnit_(name, referrerName, null,
-          this.defaultModuleMetadata_(codeUnit.metadata));
+            this.defaultModuleMetadata_(codeUnit.metadata));
       });
     } catch (error) {
       this.rejectOneAndAll(codeUnit, error);
