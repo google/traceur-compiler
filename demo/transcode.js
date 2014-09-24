@@ -42,7 +42,8 @@ export function transcode(contents, onSuccess, onFailure) {
   var loader = new TraceurLoader(webLoader, url);
   var load = traceurOptions.script ? loader.script : loader.module;
   load.call(loader, contents, loadOptions).
-      then((module) => onSuccess(loadOptions.metadata), onFailure);
+      then(() => onSuccess(loadOptions.metadata),
+          (error) => onFailure(error, loadOptions.metadata));
 }
 
 export function renderSourceMap(source, sourceMap) {

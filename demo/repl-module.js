@@ -175,7 +175,9 @@ function resetAndCompileContents(contents, newOptions) {
   compileContents(contents);
 }
 
-function onFailure(error) {
+function onFailure(error, metadata) {
+  if (metadata.transcoded)
+    output.setValue(metadata.transcoded);
   hasError = true;
   errorElement.hidden = false;
   errorElement.textContent = error.stack || error;
