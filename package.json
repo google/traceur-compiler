@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.66",
+  "version": "0.0.67",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -54,7 +54,7 @@
     "node-uuid": "1.x",
     "requirejs": "2.x",
     "semver": "2.x",
-    "traceur": "0.0.65",
+    "traceur": "0.0.66",
     "promises-aplus-tests": "2.x",
     "compat-table": "git+https://github.com/kangax/compat-table.git#gh-pages",
     "colors": "~0.6.0-1",
