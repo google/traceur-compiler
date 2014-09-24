@@ -56,10 +56,12 @@ suite('BlockBindingTransformer.js', function() {
   }
 
   makeTest('Let to Var', 'let x;', 'var x;');
-  makeTest('Let to Var In Block', '1; { 2; let x; }',
-      'var x; 1; { 2; }');
-  makeTest('Let to Var In Block', '1; if (true) { 2; let x = 5; }',
-      'var x; 1; if(true) { 2; x = 5; }');
+  makeTest('Let to Var In Block',
+      '1; { 2; let x; }',
+      '1; { 2; var x; }');
+  makeTest('Let to Var In Block',
+      '1; if (true) { 2; let x = 5; }',
+      '1; if (true) { 2; var x = 5; }');
 
 
   makeTest('Let to Var In ForLoop',
@@ -68,19 +70,19 @@ suite('BlockBindingTransformer.js', function() {
   makeTest('Let to Var In ForLoop 2',
       'for (let i = 0; i < 5; i++) { log(i); function t(){} }',
       // =======
-      'var t;' +
       'for (var i = 0; i < 5; i++) {' +
-      '  t = function() {};' +
+      '  var t = function() {};' +
       '  log(i);' +
       '}');
 
 
   makeTest('Let to Var In ForLoop with Fn using local var',
-      'for (let i = 0; i < 5; i++){ function t(){alert(i); let i = 5;} }',
+      'for (let i = 0; i < 5; i++) {' +
+      '  function t(){alert(i); let i = 5;}' +
+      '}',
       // =======
-      'var t;' +
       'for (var i = 0; i < 5; i++) {' +
-      '  t = function() {alert(i); var i = 5;};' +
+      '  var t = function() {alert(i); var i = 5;};' +
       '}');
 
 
@@ -88,13 +90,11 @@ suite('BlockBindingTransformer.js', function() {
      'if (true) { let x = 5; }'+
      'if (true) { let x = 5; }',
      // =======
-      'var x;' +
-      'var x$__0;' +
       'if (true) {' +
-      '  x = 5;' +
+      '  var x = 5;' +
       '}' +
       'if (true) {' +
-      '  x$__0 = 5;' +
+      '  var x$__0 = 5;' +
       '}');
 
   suite('Loops with Fns using block variables', function() {
@@ -140,24 +140,24 @@ suite('BlockBindingTransformer.js', function() {
     makeTest('Break and Continue in Fn',
         '"use strict";' +
         'outer: while(true) {' +
-        ' for(let i = 0; i < 5; i++){ ' +
-        '   inner: while(true) {' +
-        '     break;' +
-        '     break outer;' +
-        '     break inner;' +
-        '     continue;' +
-        '     continue outer;' +
-        '     continue inner;' +
-        '     function t(){return i;} }' +
-        '   }' +
-        ' }',
+        '  for (let i = 0; i < 5; i++) { ' +
+        '    inner: while (true) {' +
+        '      break;' +
+        '      break outer;' +
+        '      break inner;' +
+        '      continue;' +
+        '      continue outer;' +
+        '      continue inner;' +
+        '      function t() {return i;}' +
+        '    }' +
+        '  }' +
+        '}',
         // ======
         '"use strict";' +
         'outer: while (true) {' +
         '  var $__0 = function (i) {' +
-        '    var t;' +
         '    inner: while (true) {' +
-        '      t = function() {' +
+        '      var t = function() {' +
         '        return i;' +
         '      };' +
         '      break;' +
@@ -243,9 +243,8 @@ suite('BlockBindingTransformer.js', function() {
     makeTest('Function hoist in block',
         'if (true) { f(); function f() { other() } }',
         // ======
-        'var f$__0;' +
         'if (true) {' +
-        '  f$__0 = function() {' +
+        '  var f$__0 = function() {' +
         '    other();' +
         '  };' +
         'f$__0();' +
@@ -255,4 +254,47 @@ suite('BlockBindingTransformer.js', function() {
         'f(); function f() { other() }',
         'f(); function f() { other() }');
   });
+
+  makeTest('Rename in destructuring',
+      'let x = 1; { let {x, y} = {}; }',
+      'var x = 1; { var {x: x$__0, y} = {}; }');
+  makeTest('Rename in destructuring 2',
+      'let x = 1; { let {y, x} = {}; }',
+      'var x = 1; { var {y, x: x$__0} = {}; }');
+
+  makeTest('Rename in destructuring 3',
+      'let x = 1; { let {x: x, y} = {}; }',
+      'var x = 1; { var {x: x$__0, y} = {}; }');
+  makeTest('Rename in destructuring 4',
+      'let x = 1; { let {y, x: x} = {}; }',
+      'var x = 1; { var {y, x: x$__0} = {}; }');
+
+  makeTest('Rename in destructuring with initializer',
+      'let x = 1; { let {x, y = x} = {}; }',
+      'var x = 1; { var {x: x$__0, y = x$__0} = {}; }');
+  makeTest('Rename in destructuring with initializer with binding',
+      'let x = 1; { let {x = function x() {}} = {}; }',
+      'var x = 1; { var {x: x$__0 = function x() {}} = {}; }');
+  makeTest('Rename in destructuring with initializer',
+      'let x = 1; { let {x: x = function x() {}} = {}; }',
+      'var x = 1; { var {x: x$__0 = function x() {}} = {}; }');
+  makeTest('Rename in destructuring with reference in initializer',
+      'let x = 1; { let {x = () => x} = {}; }',
+      'var x = 1; { var {x: x$__0 = () => x$__0} = {}; }');
+
+  makeTest('Rename in nested destructuring',
+      'let x = 1; { let {x: {x}} = {}; }',
+      'var x = 1; { var {x: {x: x$__0}} = {}; }');
+  makeTest('Rename in nested destructuring 2',
+      'let x = 1; { let {x: {x = function x() {}}} = {}; }',
+      'var x = 1; { var {x: {x: x$__0 = function x() {}}} = {}; }');
+
+  makeTest('Rename, make sure function name in initializer is not renamed',
+      'let x = 1; { let y = function x() {}; }',
+      'var x = 1; { var y = function x() {}; }');
+
+  makeTest('Rename, make sure function name in initializer is not renamed 2',
+      'let x = 1; { let y = class x {}; }',
+      'var x = 1; { var y = class x {}; }');
+
 });

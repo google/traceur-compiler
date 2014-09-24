@@ -21,6 +21,7 @@ import {
 import {
   AnonBlock,
   BindingElement,
+  BindingIdentifier,
   Block,
   Catch,
   DoWhileStatement,
@@ -30,7 +31,9 @@ import {
   FunctionBody,
   FunctionExpression,
   LabelledStatement,
+  LiteralPropertyName,
   Module,
+  ObjectPatternField,
   Script,
   VariableDeclaration,
   VariableDeclarationList,
@@ -40,10 +43,7 @@ import {
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {VAR} from '../syntax/TokenType';
 import {
-  createAssignmentExpression,
-  createAssignmentStatement,
   createBindingIdentifier,
-  createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken
 } from './ParseTreeFactory';
@@ -168,6 +168,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       this.pushScope(tree);
     }
     this.usedVars_ = this.scope_.getAllBindingNames();
+    this.maybeRename_ = false;
+    this.inObjectPattern_ = false;
   }
 
   /**
@@ -177,7 +179,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   getVariableName_(variable) {
     var lvalue = variable.lvalue;
     if (lvalue.type == BINDING_IDENTIFIER) {
-      return lvalue.identifierToken.value;
+      return lvalue.getStringValue();
     }
     throw new Error('Unexpected destructuring declaration found.');
   }
@@ -332,41 +334,85 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return super(tree);
     }
 
-    // just switch it to VAR
-    if (this.scope_.isVarScope) {
-      var declarations = this.transformList(tree.declarations);
-      return new VariableDeclarationList(null, VAR, declarations);
+    // If we are at a var scope we do not need to rename.
+    this.maybeRename_ = !this.scope_.isVarScope;
+    var declarations = this.transformList(tree.declarations);
+    this.maybeRename_ = false;
+    return new VariableDeclarationList(tree.location, VAR, declarations);
+  }
+
+  transformVariableDeclaration(tree) {
+    var maybeRename = this.maybeRename_;
+    var lvalue = this.transformAny(tree.lvalue);
+    this.maybeRename_ = false;
+    var initializer = this.transformAny(tree.initializer);
+    this.maybeRename_ = maybeRename;
+    if (tree.lvalue === lvalue && tree.initializer === initializer) {
+      return tree;
+    }
+    return new VariableDeclaration(tree.location, lvalue, tree.typeAnnotation,
+                                   initializer);
+  }
+
+  transformBindingIdentifier(tree) {
+    if (this.maybeRename_) {
+      var origName = tree.getStringValue()
+      var newName = this.newNameFromOrig(origName, this.blockRenames_);
+      if (origName === newName) {
+        return tree;
+      }
+      var bindingIdentifier = new BindingIdentifier(tree.location, newName);
+      this.scope_.renameBinding(origName, bindingIdentifier, VAR,
+                                this.reporter_);
+      return bindingIdentifier;
+    }
+    return super(tree);
+  }
+
+  transformBindingElement(tree) {
+    var maybeRename = this.maybeRename_;
+    var inObjectPattern = this.inObjectPattern_;
+    var binding = this.transformAny(tree.binding);
+    this.maybeRename_ = false;
+    this.inObjectPattern_ = false;
+    var initializer = this.transformAny(tree.initializer);
+    this.maybeRename_ = maybeRename;
+    this.inObjectPattern_ = inObjectPattern;
+    if (tree.binding === binding && tree.initializer === initializer) {
+      return tree;
     }
 
-    // hoist variable declarations and assign them a value at the current place
-    var variablesToDeclare = [];
-    var assignments = [];
-    tree.declarations.forEach((variableDeclaration) => {
-      var origName = this.getVariableName_(variableDeclaration);
-      var newName = this.newNameFromOrig(origName, this.blockRenames_);
+    var bindingElement =
+        new BindingElement(tree.location, binding, initializer);
 
-      var lvalue = createIdentifierExpression(newName);
-      var initializer = super.transformAny(variableDeclaration.initializer);
+    // Need to transform {x} into {x: x$__0}
+    if (this.inObjectPattern_ && tree.binding !== binding &&
+        tree.binding.type === BINDING_IDENTIFIER) {
+      return new ObjectPatternField(tree.location,
+          new LiteralPropertyName(tree.location, tree.binding.identifierToken),
+          bindingElement);
+    }
 
-      variablesToDeclare.push([origName, newName]);
+    return bindingElement;
+  }
 
-      if (initializer) {
-        assignments.push(createAssignmentStatement(lvalue, initializer));
-      }
-    });
+  transformObjectPattern(tree) {
+    var inObjectPattern = this.inObjectPattern_;
+    this.inObjectPattern_ = true;
+    var transformed = super(tree);
+    this.inObjectPattern_ = inObjectPattern;
+    return transformed;
+  }
 
-    this.prependStatement_.push(
-        new VariableStatement(null,
-            new VariableDeclarationList(null, VAR,
-                variablesToDeclare.map(([origName, newName]) => {
-                  var bindingIdentifier = createBindingIdentifier(newName);
-                  this.scope_.renameBinding(origName, bindingIdentifier,
-                      VAR, this.reporter_);
-                  return new VariableDeclaration(null,
-                      bindingIdentifier, null, null);
-                })
-            )));
-    return new AnonBlock(null, assignments);
+  transformObjectPatternField(tree) {
+    var name = this.transformAny(tree.name);
+    this.inObjectPattern_ = false;
+    var element = this.transformAny(tree.element);
+    this.inObjectPattern_ = true;
+    if (tree.name === name && tree.element === element) {
+      return tree;
+    }
+    return new ObjectPatternField(tree.location, name, element);
   }
 
   transformBlock(tree) {
@@ -419,31 +465,26 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformFunctionDeclaration(tree) {
     // Named function in a block scope is only scoped to the block.
-    // Hoist the function name and assign it in the current location
+    // Change to variable statement and "hoist" it to the top of the block.
     if (!this.scope_.isVarScope) {
       var origName = tree.name.getStringValue();
       var newName = this.newNameFromOrig(origName, this.blockRenames_);
 
-      // f = function( ... ) { ... }
-      var functionExpression = createExpressionStatement(
-          createAssignmentExpression(
-              createIdentifierExpression(newName),
-              new FunctionExpression(tree.location, null, tree.functionKind,
-                  tree.parameterList, tree.typeAnnotation,
-                  tree.annotations, tree.body)));
-
+      // var f = function( ... ) { ... }
+      var functionExpression =
+          new FunctionExpression(tree.location, null, tree.functionKind,
+                                 tree.parameterList, tree.typeAnnotation,
+                                 tree.annotations, tree.body);
       this.revisitTreeForScopes(functionExpression);
-      this.prependBlockStatement_.push(
-          this.transformAny(functionExpression));
-
+      functionExpression = this.transformAny(functionExpression);
       var bindingIdentifier = createBindingIdentifier(newName);
-      this.scope_.renameBinding(origName, bindingIdentifier, VAR, this.reporter_);
-      this.prependStatement_.push(
-          new VariableStatement(null,
-              new VariableDeclarationList(null, VAR,
-                  [new VariableDeclaration(null,
-                      bindingIdentifier, null, null)]
-              )));
+      var statement = new VariableStatement(tree.location,
+          new VariableDeclarationList(tree.location, VAR,
+              [new VariableDeclaration(tree.location, bindingIdentifier,
+                                       null, functionExpression)]));
+      this.scope_.renameBinding(origName, bindingIdentifier, VAR,
+                                this.reporter_);
+      this.prependBlockStatement_.push(statement);
 
       return new AnonBlock(null, []);
     }
