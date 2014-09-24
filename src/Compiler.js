@@ -45,6 +45,15 @@ function merge(...srcs) {
   return dest;
 }
 
+function basePath(name) {
+  if (!name)
+    return null;
+  var lastSlash = name.lastIndexOf('/');
+  if (lastSlash < 0)
+    return null;
+  return name.substring(0, lastSlash + 1);
+}
+
 /**
  * Synchronous source to source compiler using default values for options.
  * @param {Options=} overridingOptions
@@ -162,12 +171,12 @@ export class Compiler {
   }
 
   /**
-    * Apply transformations selected by options to tree.
-    * @param {ParseTree} tree
-    * @param {string} moduleName Value for __moduleName or true
-    *   to use input filename.
-    * @return {ParseTree}
-    */
+   * Apply transformations selected by options to tree.
+   * @param {ParseTree} tree
+   * @param {string} moduleName Value for __moduleName or true
+   *     to use input filename.
+   * @return {ParseTree}
+   */
   transform(tree, moduleName) {
     var transformer;
 
@@ -189,18 +198,9 @@ export class Compiler {
     return transformedTree;
   }
 
-  basePath_(name) {
-    if (!name)
-      return null;
-    var lastSlash = name.lastIndexOf('/');
-    if (lastSlash < 0)
-      return null;
-    return name.substring(0, lastSlash + 1);
-  }
-
   createSourceMapGenerator_(outputName, sourceRoot = undefined) {
     if (this.options_.sourceMaps) {
-      var sourceRoot = sourceRoot || this.basePath_(outputName);
+      var sourceRoot = sourceRoot || basePath(outputName);
       return new SourceMapGenerator({
         file: outputName,
         sourceRoot: sourceRoot
@@ -225,7 +225,8 @@ export class Compiler {
     this.sourceMapGenerator_ =
         this.createSourceMapGenerator_(outputName, sourceRoot);
     if (this.sourceMapGenerator_) {
-      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
+      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, sourceRoot,
+          this.options_);
     } else {
       writer = new ParseTreeWriter(this.options_);
     }

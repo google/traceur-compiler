@@ -20,9 +20,10 @@ import {ParseTreeWriter} from './ParseTreeWriter';
 export class ParseTreeMapWriter extends ParseTreeWriter {
   /**
    * @param {SourceMapGenerator} sourceMapGenerator
+   * @param {string} sourceRoot must be same on used in sourcemapGenerator
    * @param {Object} options for ParseTreeWriter
    */
-  constructor(sourceMapGenerator, options = undefined) {
+  constructor(sourceMapGenerator, sourceRoot, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapGenerator;
     this.outputLineCount_ = 1;
