@@ -177,7 +177,7 @@ export class Compiler {
    *     to use input filename.
    * @return {ParseTree}
    */
-  transform(tree, moduleName) {
+  transform(tree, moduleName = undefined) {
     var transformer;
 
     if (moduleName) {
@@ -220,7 +220,7 @@ export class Compiler {
    * @param {string} sourceRoot base for sourceMap sources
    * @return {string}
    */
-  write(tree, outputName, sourceRoot = undefined) {
+  write(tree, outputName = undefined, sourceRoot = undefined) {
     var writer;
     this.sourceMapGenerator_ =
         this.createSourceMapGenerator_(outputName, sourceRoot);
