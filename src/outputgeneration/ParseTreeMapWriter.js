@@ -26,6 +26,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   constructor(sourceMapGenerator, sourceRoot, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapGenerator;
+    this.sourceRoot_ = sourceRoot;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
   }
@@ -124,7 +125,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     };
     if (position.source.name !== this.sourceName_) {
       this.sourceName_ = relativeToSourceRoot(position.source.name,
-              this.sourceMapGenerator_._sourceRoot);
+              this.sourceRoot_);
       this.sourceMapGenerator_.setSourceContent(position.source.name,
           position.source.contents);
     }
