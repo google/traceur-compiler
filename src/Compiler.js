@@ -149,13 +149,7 @@ export class Compiler {
    * @param {string} content to be compiled.
    * @param {string} sourceName inserted into sourceMaps
    */
-  parse(content, sourceName) {
-    if (!content) {
-      throw new Error('Compiler: no content to compile.');
-    } else if (!sourceName) {
-      throw new Error('Compiler: no source name for content.');
-    }
-
+  parse(content, sourceName = '<compiler-parse-input>') {
     this.sourceMapGenerator_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);

@@ -414,11 +414,6 @@ export class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
-    if (!codeUnit.source) {
-      codeUnit.resolve();
-      return;
-    }
-
     var referrerName = codeUnit.normalizedName;
     try {
       var moduleSpecifiers = codeUnit.getModuleSpecifiers();
