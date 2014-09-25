@@ -325,4 +325,4 @@
   exports.featureSuite = featureSuite;
 
 })(typeof exports !== 'undefined' ? exports : this,
-   typeof global !== 'undefined' ? global : this);
+   typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);
