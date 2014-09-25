@@ -100,7 +100,7 @@ suite('Loader.js', function() {
         traceur.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
         var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'script');
-        assert(sourceMapInfo.sourceMap);
+        assert(sourceMapInfo, 'the sourceMap is defined');
         assert.equal(43, result);
         done();
       }).catch(done);
@@ -327,11 +327,11 @@ suite('Loader.js', function() {
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {metadata: metadata}).then(function() {
       var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'module');
-      assert(sourceMapInfo.sourceMap);
+      assert(sourceMapInfo.sourceMap, normalizedName + ' has a sourceMap');
       var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
       var consumer = new SourceMapConsumer(sourceMapInfo.sourceMap);
-      var sourceContent = consumer.sourceContentFor(sourceMapInfo.url);
-      assert.equal(sourceContent, src);
+      var sourceContent = consumer.sourceContentFor(sourceMapInfo.sourceName);
+      assert.equal(sourceContent, src, 'the sourceContent is correct');
       done();
     }).catch(done);
   });

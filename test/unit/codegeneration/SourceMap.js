@@ -44,6 +44,22 @@ suite('SourceMap.js', function() {
     return tree;
   }
 
+  test('relativeToSource', function() {
+    var relativeToSourceRoot =
+        get('src/outputgeneration/ParseTreeMapWriter').relativeToSourceRoot;
+    assert.equal(relativeToSourceRoot('@foo', '/w/t/out/'), '@foo',
+        '@ names are unchanged');
+
+    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out/'), '../src/foo.js',
+        'relative to sourceRoot in /out');
+
+    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/'),
+        '../src/bar/foo.js', 'deeper left side');
+
+    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
+        '../../src/bar/foo.js', 'deeper both side');
+  });
+
   test('SourceMap', function() {
     var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
     var srcLines = src.split('\n');

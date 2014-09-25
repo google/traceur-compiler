@@ -18,6 +18,7 @@ import {LoaderCompiler} from '../runtime/LoaderCompiler';
 import {systemjs} from '../runtime/system-map';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));
+var uniqueNameCount = 0;
 
 export class TraceurLoader extends Loader {
 
@@ -93,12 +94,17 @@ export class TraceurLoader extends Loader {
   // The name set into the tree, and used for sourcemaps
   sourceName(load) {
     var options = load.metadata.traceurOptions;
-    var sourceName = load.url;
+    var sourceName = load.address;
     if (options.sourceMaps) {
       var sourceRoot = this.baseURL;
-      if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {
-        sourceName = sourceName.substring(sourceRoot.length);
+      if (sourceName) {
+        if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {
+          sourceName = sourceName.substring(sourceRoot.length);
+        }
+      } else {
+        sourceName = this.baseURL + String(uniqueNameCount++);
       }
+
     }
     // TODO(jjb): temp hack until we get rid of toSource
     load.metadata.sourceRoot = this.baseURL;
@@ -249,6 +255,7 @@ export class TraceurLoader extends Loader {
   /**
    * @param {string} normalizedName
    * @param {string} 'module' or 'script'
+   * @return {sourceMap, sourceName}
    */
   sourceMapInfo(normalizedName, type) {
     return this.internalLoader_.sourceMapInfo(normalizedName, type);

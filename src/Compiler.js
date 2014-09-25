@@ -45,16 +45,23 @@ function merge(...srcs) {
   return dest;
 }
 
+function basePath(name) {
+  if (!name)
+    return null;
+  var lastSlash = name.lastIndexOf('/');
+  if (lastSlash < 0)
+    return null;
+  return name.substring(0, lastSlash + 1);
+}
+
 /**
  * Synchronous source to source compiler using default values for options.
  * @param {Options=} overridingOptions
- * @param {string} sourceRoot base path for sourcemaps, eg cwd or baseURL.
  */
 export class Compiler {
-  constructor(overridingOptions = {}, sourceRoot = undefined) {
+  constructor(overridingOptions = {}) {
     this.options_ = merge(this.defaultOptions(), overridingOptions);
     this.sourceMapGenerator_ = null;
-    this.sourceRoot = sourceRoot;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -115,12 +122,22 @@ export class Compiler {
    * @param {string} content ES6 source code.
    * @param {string} sourceName
    * @param {string} outputName
+   * @param {string} sourceRoot defaults to dir of outputName
    * @return {string} equivalent ES5 source.
    */
   compile(content, sourceName = '<compileSource>',
-      outputName = '<compileOutput>') {
-    return this.write(this.transform(
-        this.parse(content, sourceName)), outputName);
+      outputName = '<compileOutput>', sourceRoot = undefined) {
+
+    var tree = this.parse(content, sourceName);
+
+    var moduleName = this.options_.moduleName;
+    if (moduleName) {  // true or non-empty string.
+      if (typeof moduleName !== 'string')  // true means resolve filename
+        moduleName = sourceName.replace(/\.js$/, '').replace(/\\/g,'/');
+    }
+    tree = this.transform(tree, moduleName);
+
+    return this.write(tree, outputName, sourceRoot);
   }
 
   throwIfErrors(errorReporter) {
@@ -128,40 +145,42 @@ export class Compiler {
       throw errorReporter.errors;
   }
 
-  parse(content, sourceName) {
-    if (!content) {
-      throw new Error('Compiler: no content to compile.');
-    } else if (!sourceName) {
-      throw new Error('Compiler: no source name for content.');
-    }
-
+  /**
+   * @param {string} content to be compiled.
+   * @param {string} sourceName inserted into sourceMaps
+   */
+  parse(content, sourceName = '<compiler-parse-input>') {
     this.sourceMapGenerator_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
-    sourceName = this.sourceName(sourceName);
     var sourceFile = new SourceFile(sourceName, content);
     var parser = new Parser(sourceFile, errorReporter);
     var tree =
         this.options_.script ? parser.parseScript() : parser.parseModule();
     this.throwIfErrors(errorReporter);
+
     return tree;
   }
 
-  transform(tree) {
+  /**
+   * Apply transformations selected by options to tree.
+   * @param {ParseTree} tree
+   * @param {string} moduleName Value for __moduleName or true
+   *     to use input filename.
+   * @return {ParseTree}
+   */
+  transform(tree, moduleName = undefined) {
     var transformer;
-    if (this.options_.moduleName) {  // true or non-empty string.
-      var moduleName = this.options_.moduleName;
-      if (typeof moduleName !== 'string') // true means resolve filename
-        moduleName = this.resolveModuleName(this.sourceNameFromTree(tree));
-      if (moduleName) {
-        transformer = new AttachModuleNameTransformer(moduleName);
-        tree = transformer.transformAny(tree);
-      }
+
+    if (moduleName) {
+      var transformer = new AttachModuleNameTransformer(moduleName);
+      tree = transformer.transformAny(tree);
     }
 
     var errorReporter = new CollectingErrorReporter();
+
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
@@ -173,11 +192,12 @@ export class Compiler {
     return transformedTree;
   }
 
-  createSourceMapGenerator_(outputName) {
+  createSourceMapGenerator_(outputName, sourceRoot = undefined) {
     if (this.options_.sourceMaps) {
+      var sourceRoot = sourceRoot || basePath(outputName);
       return new SourceMapGenerator({
         file: outputName,
-        sourceRoot: this.sourceRoot
+        sourceRoot: sourceRoot
       });
     }
   }
@@ -187,21 +207,26 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  write(tree, outputName) {
+  /**
+   * Produce output source from tree.
+   * @param {ParseTree} tree
+   * @param {string} outputName used for sourceMap URL and defaut sourceRoot.
+   * @param {string} sourceRoot base for sourceMap sources
+   * @return {string}
+   */
+  write(tree, outputName = undefined, sourceRoot = undefined) {
     var writer;
-    this.sourceMapGenerator_ = this.createSourceMapGenerator_(outputName);
+    this.sourceMapGenerator_ =
+        this.createSourceMapGenerator_(outputName, sourceRoot);
     if (this.sourceMapGenerator_) {
-      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, this.options_);
+      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, sourceRoot,
+          this.options_);
     } else {
       writer = new ParseTreeWriter(this.options_);
     }
 
     writer.visitAny(tree);
     return writer.toString(tree);
-  }
-
-  resolveModuleName(filename) {
-    return filename;
   }
 
   sourceName(filename) {

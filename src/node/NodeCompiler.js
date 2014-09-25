@@ -35,19 +35,8 @@ function NodeCompiler(options, sourceRoot) {
 NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
 
-  resolveModuleName: function(filename) {
-    if (!filename)
-      return;
-    var moduleName = filename.replace(/\.js$/, '');
-    return path.relative(this.sourceRoot, moduleName).replace(/\\/g,'/');
-  },
-
-  sourceName: function(filename) {
-    return path.relative(this.sourceRoot, filename);
-  },
-
   writeTreeToFile: function(tree, filename) {
-    var compiledCode = this.write(tree);
+    var compiledCode = this.write(tree, filename);
     var sourcemap = this.getSourceMap();
     if (sourcemap) {
       // Assume that the .map and .js will be in the same subdirectory,

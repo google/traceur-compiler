@@ -423,7 +423,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
-    return new Module(this.getTreeLocation_(start), scriptItemList);
+    return new Module(this.getTreeLocation_(start), scriptItemList, null);
   }
 
   parseModuleItemList_() {

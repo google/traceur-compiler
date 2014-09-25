@@ -18,6 +18,7 @@ import {
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {buildExportList} from '../codegeneration/module/ExportListBuilder';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
+import {Compiler} from '../Compiler';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
@@ -44,6 +45,7 @@ var COMPLETE = 6;
 var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
+var anonymousSourcesSeen = 0;
 
 export class LoaderCompiler {
 
@@ -59,47 +61,41 @@ export class LoaderCompiler {
 
   parse(codeUnit) {
     assert(!codeUnit.metadata.tree);
-    var reporter = new CollectingErrorReporter();
-    var file = new SourceFile(codeUnit.metadata.sourceName, codeUnit.source);
-    // The parser reads from global traceur options.
-    globalOptions.setFromObject(codeUnit.metadata.traceurOptions);
-    this.checkForErrors((reporter) => {
-      var parser = new Parser(file, reporter);
-      if (codeUnit.type == 'module')
-        codeUnit.metadata.tree = parser.parseModule();
-      else
-        codeUnit.metadata.tree = parser.parseScript();
-    });
+    var metadata = codeUnit.metadata;
+    var options = metadata.traceurOptions;
+    if (codeUnit.type === 'script')
+      options.script = true;
 
-    var normalizedName = codeUnit.normalizedName;
+    metadata.compiler = new Compiler(options);
+
+    // The name used in sourceMaps
+    var sourceName = codeUnit.metadata.sourceName =
+        codeUnit.address || String(++anonymousSourcesSeen);
+    metadata.tree = metadata.compiler.parse(codeUnit.source, sourceName);
   }
 
   transform(codeUnit) {
-    var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
-    var transformedTree = transformer.transformAny(codeUnit.metadata.tree);
-
-    return this.checkForErrors((reporter) => {
-      transformer = new FromOptionsTransformer(reporter,
-          identifierGenerator);
-
-      return transformer.transform(transformedTree);
-    });
+    var metadata = codeUnit.metadata;
+    metadata.transformedTree =
+        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName);
   }
 
   write(codeUnit) {
-    var sourceRoot = codeUnit.metadata.sourceRoot;
     var metadata = codeUnit.metadata;
-    var outputName = codeUnit.metadata.outputName || '<loaderOutput>';
-    [metadata.transcoded, metadata.sourceMap] =
-        toSource(metadata.transformedTree, metadata.traceurOptions, outputName,
-            sourceRoot);
+    var outputName = metadata.outputName || '<loaderOutput>';
+    var sourceRoot = metadata.sourceRoot;
+    metadata.transcoded =
+        metadata.compiler.write(metadata.transformedTree, outputName);
+    metadata.sourceMap =
+        metadata.compiler.getSourceMap();
+    if (codeUnit.address && metadata.transcoded)
+      metadata.transcoded += '//# sourceURL=' + codeUnit.address;
   }
 
   evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
-    var src = codeUnit.metadata.transcoded + '\n//@ sourceURL=' + codeUnit.address + '\n';
-    var result = ('global', eval)(src);
+    var result = ('global', eval)(codeUnit.metadata.transcoded);
     codeUnit.metadata.transformedTree = null;
     return result;
   }

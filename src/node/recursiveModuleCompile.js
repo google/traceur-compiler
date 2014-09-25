@@ -37,7 +37,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
       return include;
     });
 
-    var compiler = new NodeCompiler(options, cwd + '/');
+    var compiler = new NodeCompiler(options);
 
     mkdirRecursive(outputDir);
     process.chdir(outputDir);

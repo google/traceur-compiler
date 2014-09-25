@@ -118,13 +118,14 @@ export class SourceMapMapping {
 export class OriginalSourceMapMapping extends SourceMapMapping {
   /**
    * @param {SourceMapConsumer} consumer
-   * @param {string} which source to iterate
+   * @param {string} path which source to analyze
     */
-  constructor(consumer, url) {
+  constructor(consumer, path) {
     super(consumer);
 
+    var url = consumer.sourceRoot ? join(consumer.sourceRoot, path) : path;
     consumer.eachMapping((mapping) => {
-      if (url && mapping.source !== join(consumer.sourceRoot, url))
+      if (url && mapping.source !== url)
         return;
       var line = mapping.originalLine;
       this.columnsByLine_[line] = this.columnsByLine_[line] || [];
@@ -142,10 +143,11 @@ export class GeneratedSourceMapMapping extends SourceMapMapping {
    * @param {SourceMapConsumer} consumer
    * @param {string} which source to iterate
    */
-  constructor(consumer, url) {
+  constructor(consumer, path) {
     super(consumer);
+    var url = consumer.sourceRoot ? join(consumer.sourceRoot, path) : path;
     consumer.eachMapping((mapping) => {
-      if (url && mapping.source !== join(consumer.sourceRoot, url))
+      if (url && mapping.source !== url)
         return;
       var line = mapping.generatedLine;
       this.columnsByLine_[line] = this.columnsByLine_[line] || [];
