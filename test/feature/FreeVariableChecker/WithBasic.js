@@ -1,3 +1,4 @@
+// Options: --free-variable-checker
 var o = {
   unicorns: 42,
   fairyGodmothers: 3

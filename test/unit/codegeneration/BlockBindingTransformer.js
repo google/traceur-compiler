@@ -76,7 +76,9 @@ suite('BlockBindingTransformer.js', function() {
 
 
   makeTest('Let to Var In ForLoop with Fn using local var',
-      'for (let i = 0; i < 5; i++){ function t(){alert(i); let i = 5;} }',
+      'for (let i = 0; i < 5; i++) {' +
+      '  function t() { alert(i); let i = 5; }' +
+      '}',
       // =======
       'var t;' +
       'for (var i = 0; i < 5; i++) {' +

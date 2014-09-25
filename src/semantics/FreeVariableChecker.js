@@ -51,7 +51,7 @@ function inModuleScope(scope) {
 /**
  * Checks for free variables and reports an error for each of them.
  */
-class FreeVariableChecker extends ScopeVisitor {
+export class FreeVariableChecker extends ScopeVisitor {
   /**
    * @param {ScopeVisitor} scopeBuilder
    * @param {ErrorReporter} reporter
@@ -102,9 +102,12 @@ class FreeVariableChecker extends ScopeVisitor {
     }
 
     if (!(name in this.global_)) {
-      this.reporter_.reportError(tree.location.start,
-                                 `${name} is not defined`);
+      this.freeVariableFound(tree, name);
     }
+  }
+
+  freeVariableFound(tree, name) {
+    this.reporter_.reportError(tree.location.start, `${name} is not defined`);
   }
 }
 

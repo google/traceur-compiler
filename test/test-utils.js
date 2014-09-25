@@ -132,7 +132,6 @@
   function setOptions(load, options) {
     var traceurOptions = new Options(options.traceurOptions);
     traceurOptions.debug = true;
-    traceurOptions.freeVariableChecker = true;
     traceurOptions.validate = true;
     load.metadata.traceurOptions = traceurOptions;
   }

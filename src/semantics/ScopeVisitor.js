@@ -48,9 +48,9 @@ export class ScopeVisitor extends ParseTreeVisitor {
    * @param {Scope} scope
    */
   popScope(scope) {
-    if (this.scope !== scope) {
-      throw new Error('ScopeVisitor scope mismatch');
-    }
+    // if (this.scope !== scope) {
+    //   throw new Error('ScopeVisitor scope mismatch');
+    // }
 
     this.scope = scope.parent;
   }

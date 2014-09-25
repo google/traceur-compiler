@@ -1,3 +1,4 @@
+// Options: --free-variable-checker
 function f() {
   if (typeof x1)
   x1;

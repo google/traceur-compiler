@@ -1,3 +1,4 @@
+// Options: --free-variable-checker
 var o = {xW: 0, yW: 0, propW: {xW: 0, yW: 0, funcW: null}};
 var funcW;
 
