@@ -269,4 +269,4 @@
     return instantiator && instantiator.getUncoatedModule();
   };
 
-})(typeof global !== 'undefined' ? global : this);
+})(typeof window != 'undefined' ? window : (typeof WorkerGlobalScope != 'undefined' ? self : global));
