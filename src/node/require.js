@@ -29,7 +29,7 @@ function compile(filename, options) {
   var contents = fs.readFileSync(filename, 'utf-8');
   options = options || {};
   options.moduleName = filename;
-  return traceurAPI.compile(contents, options);
+  return traceurAPI.compile(contents, options, filename);
 }
 
 function traceurRequire(filename) {

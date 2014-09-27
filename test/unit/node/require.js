@@ -23,6 +23,19 @@ suite('require.js', function() {
     assert.equal(x, 'x');
   });
 
+  test('traceurRequire errors', function() {
+    var traceurRequire = require('../../../src/node/require');
+    try {
+      var filename = 'resources/syntax-error.js';
+      traceurRequire(path.join(__dirname, './' + filename));
+      assert.notOk(true);
+    } catch (ex) {
+      assert.equal(ex.length, 1, 'One error is reported');
+      assert(ex[0].indexOf(filename) !== -1,
+          'The error message contains the filename');
+    }
+  });
+
   test('traceurRequire.makeDefault options', function() {
     var traceurRequire = require('../../../src/node/require');
     // TODO(arv): The path below is sucky...
