@@ -196,11 +196,15 @@ export function polyfillMap(global) {
   var {Object, Symbol} = global;
   if (!global.Map)
     global.Map = Map;
+
   var mapPrototype = global.Map.prototype;
+  if (mapPrototype.entries === undefined)
+    global.Map = Map;
+
   if (mapPrototype.entries) {
     maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
     maybeAddIterator(Object.getPrototypeOf(new global.Map().entries()),
-        function() { return this; }, Symbol);
+      function () { return this; }, Symbol);
   }
 }
 
