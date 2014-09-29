@@ -204,7 +204,7 @@ export function polyfillMap(global) {
   if (mapPrototype.entries) {
     maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
     maybeAddIterator(Object.getPrototypeOf(new global.Map().entries()),
-        function() { return this; }, Symbol);
+      function () { return this; }, Symbol);
   }
 }
 
