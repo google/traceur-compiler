@@ -129,15 +129,16 @@ export class Compiler {
   compile(content, sourceName = '<compileSource>',
       outputName = '<compileOutput>', sourceRoot = undefined) {
 
+    sourceName = this.normalize(sourceName);
+    outputName = this.normalize(outputName);
     var tree = this.parse(content, sourceName);
 
     var moduleName = this.options_.moduleName;
     if (moduleName) {  // true or non-empty string.
       if (typeof moduleName !== 'string')  // true means resolve filename
-        moduleName = sourceName.replace(/\.js$/, '').replace(/\\/g,'/');
+        moduleName = sourceName.replace(/\.js$/, '');
     }
     tree = this.transform(tree, moduleName);
-
     return this.write(tree, outputName, sourceRoot);
   }
 
@@ -151,6 +152,7 @@ export class Compiler {
    * @param {string} sourceName inserted into sourceMaps
    */
   parse(content, sourceName = '<compiler-parse-input>') {
+    sourceName = this.normalize(sourceName);
     this.sourceMapGenerator_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
@@ -216,6 +218,8 @@ export class Compiler {
    * @return {string}
    */
   write(tree, outputName = undefined, sourceRoot = undefined) {
+    outputName = this.normalize(outputName);
+    sourceRoot = this.normalize(sourceRoot);
     var writer;
     this.sourceMapGenerator_ =
         this.createSourceMapGenerator_(outputName, sourceRoot);
@@ -261,4 +265,7 @@ export class Compiler {
     return versionLockedOptions;
   }
 
+  normalize(name) {
+    return name && name.replace(/\\/g,'/');
+  }
 }

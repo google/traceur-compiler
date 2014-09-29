@@ -36,6 +36,7 @@ NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
 
   writeTreeToFile: function(tree, filename) {
+    filename = this.normalize(filename);
     var compiledCode = this.write(tree, filename);
     if (this.options_.sourceMaps === 'file') {
       var sourcemap = this.getSourceMap();
@@ -48,6 +49,8 @@ NodeCompiler.prototype = {
   },
 
   compileSingleFile: function(inputFilePath, outputFilePath, errback) {
+    inputFilePath = this.normalize(inputFilePath);
+    outputFilePath = this.normalize(outputFilePath);
     fs.readFile(inputFilePath, function(err, contents) {
       if (err) {
         errback(err);

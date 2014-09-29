@@ -58,6 +58,12 @@ suite('SourceMap.js', function() {
 
     assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
         '../../src/bar/foo.js', 'deeper both side');
+
+    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/src/'),
+        'foo.js', 'same directory  ');
+
+    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out'),
+        '../src/foo.js', 'missing trailing slash');
   });
 
   test('SourceMap', function() {

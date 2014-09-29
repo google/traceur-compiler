@@ -174,6 +174,10 @@ export function relativeToSourceRoot(name, sourceRoot) {
 
   var nameSegments = name.split('/');
   var rootSegments = sourceRoot.split('/');
+  // Handle dir name without /
+  if(rootSegments[rootSegments.length - 1]) {
+    rootSegments.push('');
+  }
   var commonSegmentsLength = 0;
   var uniqueSegments = [];
   nameSegments.forEach((segment, index)  => {
@@ -184,7 +188,7 @@ export function relativeToSourceRoot(name, sourceRoot) {
     uniqueSegments.push(segment);
   });
 
-  if (commonSegmentsLength < 1)
+  if (commonSegmentsLength < 1 || commonSegmentsLength === rootSegments.length)
     return name;
 
   var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;

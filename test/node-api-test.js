@@ -1,9 +1,10 @@
 var fs = require('fs');
+var path = require('path');
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
-  var path = __dirname + '/commonjs/BasicImport.js';
+  var filename = __dirname + '/commonjs/BasicImport.js';
   var contents =
-    fs.readFileSync(path, 'utf8');
+    fs.readFileSync(filename, 'utf8');
 
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
@@ -17,7 +18,7 @@ suite('node public api', function() {
       sourceMaps: 'file'
     });
     // windows-simulation, with .js
-    var compiled = compiler.compile(contents, path.replace(/\//g,'\\'));
+    var compiled = compiler.compile(contents, filename.replace(/\//g,'\\'));
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -28,6 +29,27 @@ suite('node public api', function() {
       'module name without backslashes'
     );
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
+  });
+
+  test('sourceRoot with backslashes', function() {
+    var compiler = new traceurAPI.NodeCompiler({
+      // build ES6 style modules rather then cjs
+      modules: 'register',
+
+      // ensure the source map works
+      sourceMaps: true
+    });
+    // windows-simulation, with .js
+    var compiled = compiler.compile(contents, filename.replace(/\//g,'\\'),
+      filename.replace(/\//g,'\\'),
+      path.dirname(filename).replace(/\//g,'\\'));
+    assert.ok(compiled, 'can compile');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
+    var sourceMap = JSON.parse(compiler.getSourceMap());
+    assert.equal(__dirname + '/commonjs', sourceMap.sourceRoot, 'has correct sourceRoot');
+    assert(sourceMap.sources.some(function(name) {
+      return (sourceMap.sourceRoot + '/' + name) === filename;
+    }), 'One of the sources is the source');
   });
 
   test('modules: true', function() {
@@ -42,7 +64,7 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-    var compiled = compiler.compile(contents, path);
+    var compiled = compiler.compile(contents, filename);
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -62,7 +84,7 @@ suite('node public api', function() {
 
       // enforce a module name in the AMD define
       moduleName: 'test-module'
-    }, path);
+    }, filename);
 
     assert.ok(compiled, 'can compile');
 
