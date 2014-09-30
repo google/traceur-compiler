@@ -19,8 +19,12 @@ var path = require('path');
 var print = console.log.bind(console);
 
 function isParseTreeType(type, trees) {
-    return type in trees || type === 'ParseTree';
-  };
+  return type in trees || type === 'ParseTree';
+}
+
+function isBlockOrStatementType(types, trees) {
+  return types[0] === 'Block' && isParseTreeType(types[1], trees);
+}
 
 module.exports = {
   print: print,
@@ -51,10 +55,12 @@ module.exports = {
   },
 
   isParseTreeType: isParseTreeType,
+  isBlockOrStatementType: isBlockOrStatementType,
 
   isParseTreeListType: function(type, trees) {
-    return (type.lastIndexOf('Array.<', 0) === 0) &&
-      isParseTreeType(type.substring('Array.<'.length, type.length - 1), trees);
+    return type.lastIndexOf('Array<', 0) === 0 &&
+        isParseTreeType(type.substring('Array<'.length, type.length - 1),
+                        trees);
   },
 
   // Filters out keys that are used as comments.
