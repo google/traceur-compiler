@@ -40,15 +40,42 @@ suite('node public api', function() {
       sourceMaps: true
     });
     // windows-simulation, with .js
-    var compiled = compiler.compile(contents, filename.replace(/\//g,'\\'),
-      filename.replace(/\//g,'\\'),
-      path.dirname(filename).replace(/\//g,'\\'));
+    var windowsLikeFilename = filename.replace(/\//g,'\\');
+    var windowsLikeDirname  = path.dirname(filename).replace(/\//g,'\\');
+    var compiled = compiler.compile(contents, windowsLikeFilename,
+        windowsLikeFilename, windowsLikeDirname);
     assert.ok(compiled, 'can compile');
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
     var sourceMap = JSON.parse(compiler.getSourceMap());
-    assert.equal(__dirname + '/commonjs', sourceMap.sourceRoot, 'has correct sourceRoot');
+    assert.equal(__dirname + '/commonjs/', sourceMap.sourceRoot,
+        'has correct sourceRoot');
     assert(sourceMap.sources.some(function(name) {
-      return (sourceMap.sourceRoot + '/' + name) === filename;
+      return (sourceMap.sourceRoot + name) === filename;
+    }), 'One of the sources is the source');
+  });
+
+
+  test('sourceRoot with full windows path and backslashes', function() {
+    var compiler = new traceurAPI.NodeCompiler({
+      // build ES6 style modules rather then cjs
+      modules: 'register',
+
+      // ensure the source map works
+      sourceMaps: true
+    });
+    // windows-simulation, with .js
+    var windowsLikeDirname = 'D:\\traceur\\test\\commonjs\\';
+    var windowsLikeFilename = windowsLikeDirname + 'BasicImport.js';
+    var compiled = compiler.compile(contents, windowsLikeFilename,
+        windowsLikeFilename, windowsLikeDirname);
+    assert.ok(compiled, 'can compile');
+    assert.ok(compiler.getSourceMap(), 'has sourceMap');
+    var sourceMap = JSON.parse(compiler.getSourceMap());
+    assert.equal(windowsLikeDirname.replace(/\\/g,'/'), sourceMap.sourceRoot,
+        'has correct sourceRoot');
+    var forwardSlashedName = windowsLikeFilename.replace(/\\/g,'/');
+    assert(sourceMap.sources.some(function(name) {
+      return (sourceMap.sourceRoot + name) === forwardSlashedName;
     }), 'One of the sources is the source');
   });
 

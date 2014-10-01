@@ -220,6 +220,9 @@ export class Compiler {
   write(tree, outputName = undefined, sourceRoot = undefined) {
     outputName = this.normalize(outputName);
     sourceRoot = this.normalize(sourceRoot);
+    if (sourceRoot && sourceRoot[sourceRoot.length - 1] !== '/')
+      sourceRoot += '/';
+
     var writer;
     this.sourceMapGenerator_ =
         this.createSourceMapGenerator_(outputName, sourceRoot);
