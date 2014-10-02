@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
+  var sourceMapUtil = require('source-map/lib/source-map/util.js');
   var filename = __dirname + '/commonjs/BasicImport.js';
   var contents =
     fs.readFileSync(filename, 'utf8');
@@ -47,10 +48,10 @@ suite('node public api', function() {
     assert.ok(compiled, 'can compile');
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
     var sourceMap = JSON.parse(compiler.getSourceMap());
-    assert.equal(__dirname + '/commonjs/', sourceMap.sourceRoot,
+    assert.equal(__dirname + '/commonjs', sourceMap.sourceRoot,
         'has correct sourceRoot');
     assert(sourceMap.sources.some(function(name) {
-      return (sourceMap.sourceRoot + name) === filename;
+      return sourceMapUtil.join(sourceMap.sourceRoot, name) === filename;
     }), 'One of the sources is the source');
   });
 
