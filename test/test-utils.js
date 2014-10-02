@@ -31,8 +31,6 @@
     }
   }
 
-  var reDirectoryResources = /([^\s]*?[\/\\]Modules[\/\\][^:]*)\:/;
-
   function parseProlog(source) {
     var returnValue = {
       onlyInBrowser: false,
@@ -105,25 +103,21 @@
     throw new chai.AssertionError(message);
   }
 
-  function hasMatchingError(expected, actualErrors, pathRe) {
-    var m;
-    if (!pathRe || !(m = pathRe.exec(expected)))
-      return actualErrors.some(function(error) {
-        return error.indexOf(expected) !== -1;
+  function hasMatchingError(expected, actualErrors) {
+    // We normally report errors using relative UNIX paths but we have a test
+    // that reports a file not found with the following string on Windows.
+    //
+    // File not found 'c:\src\traceur\test\feature\Modules\resources\no_such_file.js'
+    //
+    // We therefore replace strings matching '<Windows Path>' with a relative
+    // UNIX path instead.
+    var pathRe = /'[^']*(?:\\|\/)?(feature(?:\\|\/)[^']*)'/g;
+    return actualErrors.some(function(error) {
+      var adjustedError = error.replace(pathRe, function(_, p2) {
+        return "'" + p2.replace(/\\/g, '/') + "'";
       });
 
-    var expectedPath = m[1];
-    var expectedNonPath =
-        expected.replace(new RegExp(expectedPath, 'g'), '<PATH>');
-
-    return actualErrors.some(function (error) {
-      var m = pathRe.exec(error);
-      if (!m)
-        return false;
-
-      var actualPath = m[1];
-      var actualNonPath = error.replace(new RegExp(actualPath, 'g'), '<PATH>');
-      return actualNonPath.indexOf(expectedNonPath) !== -1;
+      return adjustedError.indexOf(expected) !== -1;
     });
   }
 
@@ -184,7 +178,7 @@
           });
           options.expectedErrors.forEach(function(expected, index) {
             assert.isTrue(
-                hasMatchingError(expected, actualErrors, reDirectoryResources),
+                hasMatchingError(expected, actualErrors),
                 'Missing expected error: ' + expected +
                 '\nActual errors:\n' + actualErrors);
           });
