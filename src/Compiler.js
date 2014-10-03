@@ -193,7 +193,7 @@ export class Compiler {
   }
 
   createSourceMapGenerator_(outputName, sourceRoot = undefined) {
-    if (this.options_.sourceMaps) {
+    if (this.options_.sourceMaps || this.options_.inlineSourceMaps) {
       var sourceRoot = sourceRoot || basePath(outputName);
       return new SourceMapGenerator({
         file: outputName,
@@ -210,7 +210,7 @@ export class Compiler {
   /**
    * Produce output source from tree.
    * @param {ParseTree} tree
-   * @param {string} outputName used for sourceMap URL and defaut sourceRoot.
+   * @param {string} outputName used for sourceMap URL and default sourceRoot.
    * @param {string} sourceRoot base for sourceMap sources
    * @return {string}
    */
@@ -226,11 +226,28 @@ export class Compiler {
     }
 
     writer.visitAny(tree);
-    return writer.toString(tree);
+
+    var compiledCode = writer.toString(tree);
+
+    if (this.sourceMapGenerator_) {
+      var sourceMappingURL = this.sourceMappingURL(outputName);
+      compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
+    }
+    return compiledCode;
   }
 
   sourceName(filename) {
     return filename;
+  }
+
+  sourceMappingURL(filename) {
+    if (this.options_.inlineSourceMaps) {
+      if (Reflect.global.window && Reflect.global.btoa) {
+        return 'data:application/json;base64,' +
+            btoa(unescape(encodeURIComponent(this.getSourceMap()))) + '\n';
+      }
+    }
+    return filename.split('/').pop().replace(/\.js$/, '.map');
   }
 
   sourceNameFromTree(tree) {

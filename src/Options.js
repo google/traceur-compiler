@@ -39,6 +39,7 @@ export var optionsV01 = enumerableOnlyObject({
   freeVariableChecker: false,
   generatorComprehension: false,
   generators: true,
+  inlineSourceMaps: false,
   moduleName: false,
   modules: 'register',
   numericLiterals: true,
@@ -209,6 +210,7 @@ export var options = new Options();
 var descriptions = {
   experimental: 'Turns on all experimental features',
   sourceMaps: 'generate source map and write to .map',
+  inlineSourceMaps: 'generate source map and append as data: URL'
 };
 
 export class CommandOptions extends Options {
@@ -425,6 +427,7 @@ addFeatureOption('types', EXPERIMENTAL);
 addBoolOption('commentCallback');
 addBoolOption('debug');
 addBoolOption('freeVariableChecker');
+addBoolOption('inlineSourceMaps');
 addBoolOption('script');
 addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
