@@ -62,7 +62,7 @@ NodeCompiler.prototype = {
   sourceMappingURL: function(filename) {
     if (this.options_.inlineSourceMaps) {
       var base64sm = new Buffer(this.getSourceMap()).toString('base64');
-      return 'data:application/json;base64,' + base64sm + '\n';
+      return 'data:application/json;base64,' + base64sm;
     }
     return Compiler.prototype.sourceMappingURL.call(this, filename);
   }

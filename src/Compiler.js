@@ -244,7 +244,7 @@ export class Compiler {
     if (this.options_.inlineSourceMaps) {
       if (Reflect.global.window && Reflect.global.btoa) {
         return 'data:application/json;base64,' +
-            btoa(unescape(encodeURIComponent(this.getSourceMap()))) + '\n';
+            btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
     return filename.split('/').pop().replace(/\.js$/, '.map');
