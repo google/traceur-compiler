@@ -95,7 +95,7 @@ export class TraceurLoader extends Loader {
   sourceName(load) {
     var options = load.metadata.traceurOptions;
     var sourceName = load.address;
-    if (options.sourceMaps || options.inlineSourceMaps) {
+    if (options.sourceMaps) {
       var sourceRoot = this.baseURL;
       if (sourceName) {
         if (sourceRoot && sourceName.indexOf(sourceRoot) === 0) {

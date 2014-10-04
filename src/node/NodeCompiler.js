@@ -37,7 +37,7 @@ NodeCompiler.prototype = {
 
   writeTreeToFile: function(tree, filename) {
     var compiledCode = this.write(tree, filename);
-    if (!this.options_.inlineSourceMaps) {
+    if (this.options_.sourceMaps === 'file') {
       var sourcemap = this.getSourceMap();
       if (sourcemap) {
         writeFile(this.sourceMappingURL(filename), sourcemap);
@@ -60,7 +60,7 @@ NodeCompiler.prototype = {
   },
 
   sourceMappingURL: function(filename) {
-    if (this.options_.inlineSourceMaps) {
+    if (this.options_.sourceMaps === 'inline') {
       var base64sm = new Buffer(this.getSourceMap()).toString('base64');
       return 'data:application/json;base64,' + base64sm;
     }

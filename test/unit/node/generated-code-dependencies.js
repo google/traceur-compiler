@@ -142,6 +142,7 @@ suite('context test', function() {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+      assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
       assert(sourceMappingURL === 'sourceroot-test.map',
           'expected sourceroot-test.map but got ' + sourceMappingURL);
@@ -161,11 +162,11 @@ suite('context test', function() {
     });
   });
 
-  test('compiled modules with --inline-source-maps and sourceroot', function(done) {
+  test('compiled modules with --source-maps=inline and sourceroot', function(done) {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-x.js');
-    var commandLine = executable + ' --inline-source-maps --out ' +
+    var commandLine = executable + ' --source-maps=inline --out ' +
         tempFileName + ' -- ' + inputFileName;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -295,7 +296,8 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './unit/node/resources/compile-dir';
     var outDir = './unit/node/resources/compile-amd';
-    exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd', function(error, stdout, stderr) {
+    var cmd = executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd';
+    exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));

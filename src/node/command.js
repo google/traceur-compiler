@@ -108,7 +108,14 @@ commandLine.command('*').action(function() {
     }
   });
 
+commandLine.sourceMaps = false;
 commandLine.parse(process.argv);
+
+// commanderjs sets self[name]=defaultValue if the argument is null.
+// To support --source-maps a legacy boolean we need to transfer the
+// the self value here.
+commandOptions.sourceMaps = commandLine.sourceMaps;
+
 // Set the global options for back compat, but try to use options by argument.
 traceurAPI.options.setFromObject(commandOptions);
 

@@ -14,7 +14,7 @@ suite('node public api', function() {
       moduleName: true,
 
       // ensure the source map works
-      sourceMaps: true
+      sourceMaps: 'file'
     });
     // windows-simulation, with .js
     var compiled = compiler.compile(contents, path.replace(/\//g,'\\'));

@@ -60,7 +60,8 @@ function basePath(name) {
  */
 export class Compiler {
   constructor(overridingOptions = {}) {
-    this.options_ = merge(this.defaultOptions(), overridingOptions);
+    this.options_ = new Options(this.defaultOptions());
+    this.options_.setFromObject(overridingOptions);
     this.sourceMapGenerator_ = null;
   }
   /**
@@ -193,7 +194,7 @@ export class Compiler {
   }
 
   createSourceMapGenerator_(outputName, sourceRoot = undefined) {
-    if (this.options_.sourceMaps || this.options_.inlineSourceMaps) {
+    if (this.options_.sourceMaps) {
       var sourceRoot = sourceRoot || basePath(outputName);
       return new SourceMapGenerator({
         file: outputName,
@@ -241,7 +242,7 @@ export class Compiler {
   }
 
   sourceMappingURL(filename) {
-    if (this.options_.inlineSourceMaps) {
+    if (this.options_.sourceMaps === 'inline') {
       if (Reflect.global.window && Reflect.global.btoa) {
         return 'data:application/json;base64,' +
             btoa(unescape(encodeURIComponent(this.getSourceMap())));

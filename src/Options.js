@@ -39,7 +39,6 @@ export var optionsV01 = enumerableOnlyObject({
   freeVariableChecker: false,
   generatorComprehension: false,
   generators: true,
-  inlineSourceMaps: false,
   moduleName: false,
   modules: 'register',
   numericLiterals: true,
@@ -93,7 +92,16 @@ export class Options {
 
     // Make sure non option fields are non enumerable.
     Object.defineProperties(this, {
-      modules_: {value: versionLockedOptions.modules, writable: true, enumerable: false}
+      modules_: {
+        value: versionLockedOptions.modules,
+        writable: true,
+        enumerable: false
+      },
+      sourceMaps_: {
+        value: versionLockedOptions.sourceMaps,
+        writable: true,
+        enumerable: false
+      }
     });
 
     this.setFromObject(options);
@@ -142,6 +150,24 @@ export class Options {
     }
     this.modules_ = value;
   }
+
+  get sourceMaps() {
+    return this.sourceMaps_;
+  }
+
+  set sourceMaps(value) {
+    if (value === null || typeof value === 'boolean') {
+      this.sourceMaps_ = value ? 'file' : false;
+      return;
+    }
+    if (value === 'file' || value === 'inline') {
+      this.sourceMaps_ = value;
+    }
+    else {
+      throw new Error('Option sourceMaps should be ' +
+          '[false|inline|file], not ' + value);
+    }
+  }
   /**
    * Resets all options to the default value or to false if |allOff| is
    * true.
@@ -162,16 +188,22 @@ export class Options {
     this.moduleName = false;
     this.outputLanguage = 'es5';
     this.referrer = '';
+    this.sourceMaps = false;
     this.typeAssertionModule = null;
   }
   /**
    * Sets the options based on an object.
    */
   setFromObject(object) {
-    Object.keys(object).forEach((name) => {
-      this.setOption(name, object[name]);
+    Object.keys(this).forEach((name) => {
+      if (name in object)
+        this.setOption(name, object[name]);
     });
     this.modules = object.modules || this.modules;
+    if (typeof object.sourceMaps === 'boolean' ||
+        typeof object.sourceMaps === 'string') {
+      this.sourceMaps = object.sourceMaps;
+    }
     return this;
   }
 
@@ -209,8 +241,8 @@ export var options = new Options();
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
   experimental: 'Turns on all experimental features',
-  sourceMaps: 'generate source map and write to .map',
-  inlineSourceMaps: 'generate source map and append as data: URL'
+  sourceMaps: 'Generate source map and (\'file\') write to .map' +
+      ' or (\'inline\') append data URL',
 };
 
 export class CommandOptions extends Options {
@@ -308,6 +340,10 @@ export function addOptions(flags, commandOptions) {
       else
         throw new Error('outputLanguage must be one of es5, es6');
   });
+  flags.option('--source-maps [file|inline]',
+    'sourceMaps generated to file or inline with data: URL',
+    (to) => { return commandOptions.sourceMaps = to; }
+  );
   flags.option('--experimental',
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
@@ -410,6 +446,7 @@ addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
 addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
 addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
+addFeatureOption('sourceMaps', 'SPECIAL');
 addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
@@ -427,8 +464,6 @@ addFeatureOption('types', EXPERIMENTAL);
 addBoolOption('commentCallback');
 addBoolOption('debug');
 addBoolOption('freeVariableChecker');
-addBoolOption('inlineSourceMaps');
 addBoolOption('script');
-addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
 addBoolOption('validate');

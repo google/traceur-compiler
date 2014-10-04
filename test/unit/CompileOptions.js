@@ -34,6 +34,7 @@ suite('options', function() {
     assert.throws(function() {
       options.modules = true
     }, Error);
+    assert.isFalse(options.sourceMaps, 'sourceMaps option default false');
   });
 
   test('Options reset', function() {
@@ -42,6 +43,7 @@ suite('options', function() {
     options.reset();
     assert.isFalse(options.experimental);
     assert.isTrue(options.classes);
+    assert.isFalse(options.sourceMaps);
     options.reset(true);
     assert.isFalse(options.classes);
   });
@@ -51,8 +53,12 @@ suite('options', function() {
     assert.isTrue(mutatedOptions.classes);
     mutatedOptions.classes = false;
     assert.isFalse(mutatedOptions.classes);
+    assert.isFalse(mutatedOptions.sourceMaps);
+    mutatedOptions.sourceMaps = 'inline';
+    assert.equal(mutatedOptions.sourceMaps, 'inline');
     var options = new Options(mutatedOptions);
     assert.isFalse(options.classes);
+    assert.equal(mutatedOptions.sourceMaps, 'inline');
     var moreOptions = new Options();
     mutatedOptions.modules = 'amd';
     assert.equal(mutatedOptions.modules,'amd');
@@ -70,5 +76,10 @@ suite('options', function() {
     assert.equal(CommandOptions.fromString('--modules=false').modules, 'register');
     assert.equal(CommandOptions.fromString('--referrer=traceur@0.0.1').
       referrer,'traceur@0.0.1');
+
+    assert.equal(CommandOptions.fromString('--source-maps=inline').sourceMaps,
+        'inline');
+    assert.equal(CommandOptions.fromString(' --source-maps  --blockBinding').sourceMaps,
+        'file');
   });
 });
