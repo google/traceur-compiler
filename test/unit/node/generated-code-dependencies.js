@@ -163,7 +163,7 @@ suite('context test', function() {
   });
 
   test('compiled modules with --source-maps=inline and sourceroot', function(done) {
-    tempFileName = resolve('./out/sourceroot-test.js');
+    tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-x.js');
     var commandLine = executable + ' --source-maps=inline --out ' +
@@ -179,7 +179,7 @@ suite('context test', function() {
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
       // https://github.com/mozilla/source-map
-      assert.equal(actualSourceRoot, resolve('./out') + '/',
+      assert.equal(actualSourceRoot, resolve('./') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
         return inputFileName === path.resolve(actualSourceRoot, name);

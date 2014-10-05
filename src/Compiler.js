@@ -242,8 +242,10 @@ export class Compiler {
   }
 
   sourceMappingURL(filename) {
+    // This implementation works for browsers. The NodeCompiler overrides
+    // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {
-      if (Reflect.global.window && Reflect.global.btoa) {
+      if (Reflect.global.btoa) {
         return 'data:application/json;base64,' +
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
