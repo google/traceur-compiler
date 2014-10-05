@@ -142,15 +142,44 @@ suite('context test', function() {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+      assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
       assert(sourceMappingURL === 'sourceroot-test.map',
-          'has the correct sourceMappingURL');
+          'expected sourceroot-test.map but got ' + sourceMappingURL);
       tempMapName = tempFileName.replace('.js','') + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
       // https://github.com/mozilla/source-map
       assert.equal(actualSourceRoot, resolve('./out') + '/',
+          'has the correct sourceroot');
+      var foundInput = map.sources.some(function(name) {
+        return inputFileName === path.resolve(actualSourceRoot, name);
+      });
+      assert(foundInput,
+          'the inputFileName is one of the sourcemap sources');
+      done();
+    });
+  });
+
+  test('compiled modules with --source-maps=inline and sourceroot', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var commandLine = executable + ' --source-maps=inline --out ' +
+        tempFileName + ' -- ' + inputFileName;
+    exec(commandLine, function(error, stdout, stderr) {
+      assert.isNull(error);
+      var transcoded = fs.readFileSync(tempFileName, 'utf-8');
+      var m = /\/\/#\s*sourceMappingURL=data:application\/json;base64,(.*)/.exec(transcoded);
+      var b64string = m[1];
+      assert(b64string, 'expected data: URL');
+      var mapText = new Buffer(b64string, 'base64');
+      var map = JSON.parse(mapText);
+      var actualSourceRoot = map.sourceRoot;
+      // Trailing slash as in the example,
+      // https://github.com/mozilla/source-map
+      assert.equal(actualSourceRoot, resolve('./') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
         return inputFileName === path.resolve(actualSourceRoot, name);
@@ -267,7 +296,8 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './unit/node/resources/compile-dir';
     var outDir = './unit/node/resources/compile-amd';
-    exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd', function(error, stdout, stderr) {
+    var cmd = executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd';
+    exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));

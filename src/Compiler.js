@@ -60,7 +60,8 @@ function basePath(name) {
  */
 export class Compiler {
   constructor(overridingOptions = {}) {
-    this.options_ = merge(this.defaultOptions(), overridingOptions);
+    this.options_ = new Options(this.defaultOptions());
+    this.options_.setFromObject(overridingOptions);
     this.sourceMapGenerator_ = null;
   }
   /**
@@ -210,7 +211,7 @@ export class Compiler {
   /**
    * Produce output source from tree.
    * @param {ParseTree} tree
-   * @param {string} outputName used for sourceMap URL and defaut sourceRoot.
+   * @param {string} outputName used for sourceMap URL and default sourceRoot.
    * @param {string} sourceRoot base for sourceMap sources
    * @return {string}
    */
@@ -226,11 +227,30 @@ export class Compiler {
     }
 
     writer.visitAny(tree);
-    return writer.toString(tree);
+
+    var compiledCode = writer.toString(tree);
+
+    if (this.sourceMapGenerator_) {
+      var sourceMappingURL = this.sourceMappingURL(outputName);
+      compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
+    }
+    return compiledCode;
   }
 
   sourceName(filename) {
     return filename;
+  }
+
+  sourceMappingURL(filename) {
+    // This implementation works for browsers. The NodeCompiler overrides
+    // to use nodejs functions.
+    if (this.options_.sourceMaps === 'inline') {
+      if (Reflect.global.btoa) {
+        return 'data:application/json;base64,' +
+            btoa(unescape(encodeURIComponent(this.getSourceMap())));
+      }
+    }
+    return filename.split('/').pop().replace(/\.js$/, '.map');
   }
 
   sourceNameFromTree(tree) {
