@@ -47,7 +47,8 @@ export class ForOfTransformer extends TempVarTransformer {
 
     return parseStatement `
         for (var ${iter} =
-                 ${tree.collection}[Symbol.iterator](),
+                 ${tree.collection}[
+                     $traceurRuntime.toProperty(Symbol.iterator)](),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
