@@ -1,4 +1,3 @@
-// Should not compile.
-// Error: :4:11: Unexpected token FROM
+// Error: :3:11: Unexpected token FROM
 
 import {} FROM 'abc';

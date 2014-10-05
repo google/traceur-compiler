@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :5:9: Unexpected token ...
+// Error: :4:9: Unexpected token ...
 
 var object = {
   set x(...rest) {

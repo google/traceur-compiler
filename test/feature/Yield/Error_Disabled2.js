@@ -1,5 +1,5 @@
-// Should not compile.
 // Options: --forOf=false
+// Error: :5:12: Unexpected token of
 
 var s = [];
 for (var i of yieldFor()) {

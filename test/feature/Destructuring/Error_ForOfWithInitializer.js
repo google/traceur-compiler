@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :4:19: Unexpected token of
+// Error: :3:19: Unexpected token of
 
 for (var {k} = {} of []) {
 }

@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :6:15: Unexpected token =
+// Error: :5:15: Unexpected token =
 
 var object = {
   // Default parameters are not allowed on setters.

@@ -1,6 +1,5 @@
-// Should not compile.
 // Disabled by default.
-// Error: :14:21: Semi-colon expected
+// Error: :13:21: Semi-colon expected
 
 function asyncComplete() {
   return new Promise((resolve) => {

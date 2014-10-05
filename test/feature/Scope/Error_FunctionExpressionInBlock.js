@@ -1,4 +1,3 @@
-// Should not compile.
 // Options: --block-binding
 // Error: functionExpression is not defined
 

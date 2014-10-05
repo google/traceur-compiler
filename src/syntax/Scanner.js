@@ -705,7 +705,7 @@ function scanToken() {
         }
         return createToken(EQUAL_EQUAL, beginIndex);
       }
-      if (currentCharCode === 62) {  // >
+      if (currentCharCode === 62 && parseOptions.arrowFunctions) {  // >
         next();
         return createToken(ARROW, beginIndex);
       }
@@ -725,7 +725,7 @@ function scanToken() {
         next();
         return createToken(STAR_EQUAL, beginIndex);
       }
-      if (parseOptions.exponentiation && currentCharCode === 42) {
+      if (currentCharCode === 42 && parseOptions.exponentiation) {
         next();
         if (currentCharCode === 61) {  // =
           next();
@@ -1055,7 +1055,7 @@ function skipStringLiteralEscapeSequence() {
 }
 
 function skipUnicodeEscapeSequence() {
-  if (currentCharCode === 123) {  // {
+  if (currentCharCode === 123 && parseOptions.unicodeEscapeSequences) {  // {
     next();
     var beginIndex = index;
 

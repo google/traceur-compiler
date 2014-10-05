@@ -1,6 +1,5 @@
-// Should not compile.
 // Options: --block-binding
-// Error: :8:22: Unexpected token in
+// Error: :7:22: Unexpected token in
 
 var x = 0;
 

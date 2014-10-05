@@ -1,5 +1,5 @@
-// Should not compile.
 // Options: --block-binding
+// Error: :8:18: Unexpected token of
 
 function* gen() {
   yield 1;

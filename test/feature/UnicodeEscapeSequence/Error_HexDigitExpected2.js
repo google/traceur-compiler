@@ -1,5 +1,4 @@
-// Should not compile.
 // Options: --unicode-escape-sequences
-// Error: :5:6: Hex digit expected
+// Error: :4:6: Hex digit expected
 
 "\u{1";

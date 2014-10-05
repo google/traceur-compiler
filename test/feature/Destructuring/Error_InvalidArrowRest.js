@@ -1,4 +1,3 @@
-// Should not compile.
-// Error: :4:16: Unexpected token ,
+// Error: :3:16: Unexpected token ,
 
 var f = ([...xs, ys]) => xs;

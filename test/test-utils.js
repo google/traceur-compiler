@@ -35,7 +35,9 @@
     var returnValue = {
       onlyInBrowser: false,
       skip: false,
-      shouldCompile: true,
+      get shouldHaveErrors() {
+        return this.expectedErrors.length !== 0;
+      },
       expectedErrors: [],
       async: false
     };
@@ -43,8 +45,6 @@
       var m;
       if (line.indexOf('// Only in browser.') === 0) {
         returnValue.onlyInBrowser = true;
-      } else if (line.indexOf('// Should not compile.') === 0) {
-        returnValue.shouldCompile = false;
       } else if (line.indexOf('// Skip.') === 0) {
         returnValue.skip = true;
       } else if (line.indexOf('// Async.') === 0) {
@@ -151,7 +151,7 @@
 
         if (options.async) {
           global.done = function(ex) {
-            handleShouldCompile(ex);
+            handleExpectedErrors(ex);
             done(ex);
           };
         }
@@ -168,8 +168,8 @@
         });
       }
 
-      function handleShouldCompile(error) {
-        if (!options.shouldCompile) {
+      function handleExpectedErrors(error) {
+        if (options.shouldHaveErrors) {
           assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
           var actualErrors = error.errors || [error];
@@ -194,13 +194,13 @@
         if (options.async)
           return;
 
-        handleShouldCompile();
+        handleExpectedErrors();
         done();
       }
 
       function handleFailure(error) {
-        handleShouldCompile(error);
-        if (options.shouldCompile) {
+        handleExpectedErrors(error);
+        if (!options.shouldHaveErrors) {
           done(error)
         } else {
           done();
@@ -224,7 +224,7 @@
 
     function doTest(source) {
       var options = parseProlog(source);
-      if (options.skip || !options.shouldCompile) {
+      if (options.skip || options.shouldHaveErrors) {
         return;
       }
 

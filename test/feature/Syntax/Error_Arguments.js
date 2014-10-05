@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :7:6: Unexpected token )
+// Error: :6:6: Unexpected token )
 
 function f(x) {
 }

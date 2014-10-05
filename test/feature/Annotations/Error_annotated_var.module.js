@@ -1,6 +1,5 @@
-// Should not compile.
 // Options: --annotations
-// Error: :9:1: Unsupported annotated expression
+// Error: :8:1: Unsupported annotated expression
 import {Anno} from './resources/setup';
 
 @Anno
