@@ -181,7 +181,8 @@ export class Options {
     this.setDefaults();
   }
   /**
-   * Set values into options which should not have boolean false values.
+   * Set values for non-boolean options.  Some non-boolean options allow
+   * boolean values.
    */
   setDefaults() {
     this.modules = 'register';

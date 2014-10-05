@@ -31,7 +31,7 @@ import {SourceMapGenerator} from './SourceMapIntegration';
 export function toSource(tree, options = undefined,
     outputName = '<toSourceOutput>', sourceRoot = undefined) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
-  var sourcemaps = options && (options.sourceMaps);
+  var sourcemaps = options && options.sourceMaps;
   if (!sourceMapGenerator && sourcemaps)  {
     sourceMapGenerator = new SourceMapGenerator({
       file: outputName,
