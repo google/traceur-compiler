@@ -31,8 +31,8 @@ suite('require.js', function() {
       assert.notOk(true);
     } catch (ex) {
       assert.equal(ex.length, 1, 'One error is reported');
-      assert(ex[0].indexOf(filename) !== -1,
-          'The error message contains the filename');
+      assert.include(ex[0].replace(/\\/g, '/'), filename,
+          'The error message should contain the filename');
     }
   });
 
