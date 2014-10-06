@@ -3,9 +3,32 @@ var path = require('path');
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
   var sourceMapUtil = require('source-map/lib/source-map/util.js');
-  var filename = __dirname + '/commonjs/BasicImport.js';
-  var contents =
-    fs.readFileSync(filename, 'utf8');
+
+
+  var nativeFilename = path.join(__dirname + '/commonjs/BasicImport.js');
+  var nativeDirname = __dirname;
+  assert(nativeDirname[nativeDirname.length -1] !== path.sep,
+      'expect no trailing slash');
+
+  // Non-native path separators
+  function swapSlash(s) {
+    if (path.sep === '/') {
+      return s.replace(/\//g, '\\');
+    } else {
+      return s.replace(/\\/g, '/');
+    }
+  }
+  var swapSlashFilename = swapSlash(nativeFilename);
+  var swapSlashDirname  = swapSlash(nativeDirname);
+
+  // Traceur uses forward slashes since these work cross platform in APIs.
+  function forwardSlash(s) {
+    return s.replace(/\\/g, '/');
+  }
+  var traceurFilename = forwardSlash(nativeFilename);
+  var traceurDirname = forwardSlash(nativeDirname);
+
+  var contents = fs.readFileSync(nativeFilename, 'utf8');
 
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
@@ -19,7 +42,7 @@ suite('node public api', function() {
       sourceMaps: 'file'
     });
     // windows-simulation, with .js
-    var compiled = compiler.compile(contents, filename.replace(/\//g,'\\'));
+    var compiled = compiler.compile(contents, swapSlashFilename);
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -41,17 +64,15 @@ suite('node public api', function() {
       sourceMaps: true
     });
     // windows-simulation, with .js
-    var windowsLikeFilename = filename.replace(/\//g,'\\');
-    var windowsLikeDirname  = path.dirname(filename).replace(/\//g,'\\');
-    var compiled = compiler.compile(contents, windowsLikeFilename,
-        windowsLikeFilename, windowsLikeDirname);
+    var compiled = compiler.compile(contents, swapSlashFilename,
+        swapSlashFilename, swapSlashDirname);
     assert.ok(compiled, 'can compile');
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
     var sourceMap = JSON.parse(compiler.getSourceMap());
-    assert.equal(__dirname + '/commonjs', sourceMap.sourceRoot,
+    assert.equal(traceurDirname, sourceMap.sourceRoot,
         'has correct sourceRoot');
     assert(sourceMap.sources.some(function(name) {
-      return sourceMapUtil.join(sourceMap.sourceRoot, name) === filename;
+      return sourceMapUtil.join(sourceMap.sourceRoot, name) === traceurFilename;
     }), 'One of the sources is the source');
   });
 
@@ -65,18 +86,15 @@ suite('node public api', function() {
       sourceMaps: true
     });
     // windows-simulation, with .js
-    var windowsLikeDirname = 'D:\\traceur\\test\\commonjs\\';
-    var windowsLikeFilename = windowsLikeDirname + 'BasicImport.js';
-    var compiled = compiler.compile(contents, windowsLikeFilename,
-        windowsLikeFilename, windowsLikeDirname);
+    var compiled = compiler.compile(contents, swapSlashFilename,
+        swapSlashFilename, swapSlashDirname);
     assert.ok(compiled, 'can compile');
     assert.ok(compiler.getSourceMap(), 'has sourceMap');
     var sourceMap = JSON.parse(compiler.getSourceMap());
-    assert.equal(windowsLikeDirname.replace(/\\/g,'/'), sourceMap.sourceRoot,
+    assert.equal(traceurDirname, sourceMap.sourceRoot,
         'has correct sourceRoot');
-    var forwardSlashedName = windowsLikeFilename.replace(/\\/g,'/');
     assert(sourceMap.sources.some(function(name) {
-      return (sourceMap.sourceRoot + name) === forwardSlashedName;
+      return (sourceMap.sourceRoot + '/' + name) === traceurFilename;
     }), 'One of the sources is the source');
   });
 
@@ -92,7 +110,7 @@ suite('node public api', function() {
       // ensure the source map works
       sourceMaps: true
     });
-    var compiled = compiler.compile(contents, filename);
+    var compiled = compiler.compile(contents, nativeFilename);
     assert.ok(compiled, 'can compile');
     assert.include(
       compiled,
@@ -112,7 +130,7 @@ suite('node public api', function() {
 
       // enforce a module name in the AMD define
       moduleName: 'test-module'
-    }, filename);
+    }, nativeFilename);
 
     assert.ok(compiled, 'can compile');
 
