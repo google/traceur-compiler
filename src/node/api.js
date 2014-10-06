@@ -39,7 +39,7 @@ function compile(src, options, sourceName, outputName) {
 
 // The absolute path to traceur-runtime.js -- the file that should be executed
 // if you want to run Traceur-compiled scripts when the compiler isn't present.
-var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
+var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js').replace(/\\/g, '/');
 
 // extend traceur module
 module.exports = {
