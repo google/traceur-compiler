@@ -54,8 +54,9 @@ suite('context test', function() {
       var runtimePath = resolve('bin/traceur-runtime.js');
       var runtime = fs.readFileSync(runtimePath, 'utf-8');
       var context = vm.createContext();
-
       context.console = console;
+      // The context does not have the builtins. Add the ones the tests need.
+      context.Float32Array = Float32Array;
       if (debug)
         context.debugGenerated = true;
 
