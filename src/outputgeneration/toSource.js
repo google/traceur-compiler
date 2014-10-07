@@ -41,7 +41,7 @@ export function toSource(tree, options = undefined,
 
   var writer;
   if (sourceMapGenerator)
-    writer = new ParseTreeMapWriter(sourceMapGenerator, options);
+    writer = new ParseTreeMapWriter(sourceMapGenerator, sourceRoot, options);
   else
     writer = new ParseTreeWriter(options);
 

@@ -167,13 +167,17 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
 }
 
 export function relativeToSourceRoot(name, sourceRoot) {
-  if (!name || name[0] !== '/')  // @ means internal name
+  if (!name || name[0] === '@')  // @ means internal name
     return name;
   if (!sourceRoot)
     return name;
 
   var nameSegments = name.split('/');
   var rootSegments = sourceRoot.split('/');
+  // Handle dir name without /
+  if (rootSegments[rootSegments.length - 1]) {
+    rootSegments.push('');
+  }
   var commonSegmentsLength = 0;
   var uniqueSegments = [];
   nameSegments.forEach((segment, index)  => {
@@ -184,7 +188,7 @@ export function relativeToSourceRoot(name, sourceRoot) {
     uniqueSegments.push(segment);
   });
 
-  if (commonSegmentsLength < 1)
+  if (commonSegmentsLength < 1 || commonSegmentsLength === rootSegments.length)
     return name;
 
   var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
