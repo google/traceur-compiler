@@ -4,19 +4,14 @@ suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
   var sourceMapUtil = require('source-map/lib/source-map/util.js');
 
-
   var nativeFilename = path.join(__dirname + '/commonjs/BasicImport.js');
   var nativeDirname = __dirname;
-  assert(nativeDirname[nativeDirname.length -1] !== path.sep,
+  assert(nativeDirname[nativeDirname.length - 1] !== path.sep,
       'expect no trailing slash');
 
   // Non-native path separators
   function swapSlash(s) {
-    if (path.sep === '/') {
-      return s.replace(/\//g, '\\');
-    } else {
-      return s.replace(/\\/g, '/');
-    }
+    return s.split(path.sep).join(path.sep === '/' ? '\\' : '/');
   }
   var swapSlashFilename = swapSlash(nativeFilename);
   var swapSlashDirname  = swapSlash(nativeDirname);
