@@ -5,6 +5,15 @@ global.System = traceurSystem;
 
 System.baseURL = __dirname + '/instantiate/';
 
+
+// Parse Traceur options from prolog (comment at the top of a source file).
+var parseProlog = require('./test-utils').parseProlog;
+System.translate = function(load) {
+  load.metadata.traceurOptions = parseProlog(load.source).traceurOptions;
+  return load.source;
+};
+
+
 suite('instantiate', function() {
   test('Inheritance', function(done) {
     System.import('inheritance').then(function(m) {
@@ -26,6 +35,36 @@ suite('instantiate', function() {
       System.import('circular2').then(function(m2) {
         assert.equal(m2.output, 'test circular 1');
         assert.equal(m1.output, 'test circular 2');
+        done();
+      }).catch(done);
+    }).catch(done);
+  });
+
+  test('Circular annotations', function(done) {
+    System.import('circular_annotation1').then(function(m1) {
+      System.import('circular_annotation2').then(function(m2) {
+        assert.instanceOf(m1.BarAnnotation.annotations[0], m2.FooAnnotation);
+        assert.instanceOf(m2.FooAnnotation.annotations[0], m1.BarAnnotation);
+        done();
+      }).catch(done);
+    }).catch(done);
+  });
+
+  test('Circular parameter annotations', function(done) {
+    System.import('circular_annotation1').then(function(m1) {
+      System.import('circular_annotation2').then(function(m2) {
+        assert.instanceOf(m1.BarAnnotation.parameters[0][0], m2.FooAnnotation);
+        assert.instanceOf(m2.FooAnnotation.parameters[0][0], m1.BarAnnotation);
+        done();
+      }).catch(done);
+    }).catch(done);
+  });
+
+  test('Circular type annotations', function(done) {
+    System.import('circular_annotation1').then(function(m1) {
+      System.import('circular_annotation2').then(function(m2) {
+        assert.equal(m1.BarAnnotation.parameters[1][0], m2.FooAnnotation);
+        assert.equal(m2.FooAnnotation.parameters[1][0], m1.BarAnnotation);
         done();
       }).catch(done);
     }).catch(done);

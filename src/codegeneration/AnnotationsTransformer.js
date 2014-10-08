@@ -38,7 +38,7 @@ import {
   createNewExpression,
   createStringLiteralToken
 } from './ParseTreeFactory';
-import {parseExpression} from './PlaceholderParser';
+import {parseExpression, parseStatement} from './PlaceholderParser';
 
 class AnnotationsScope {
   constructor() {
@@ -292,21 +292,24 @@ class AnnotationsScope {
     if (annotations !== null) {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
-        metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(target, 'annotations'),
-            createArrayLiteralExpression(annotations)));
+        metadataStatements.push(this.createDefinePropertyStatement_(target,
+            'annotations', createArrayLiteralExpression(annotations)));
       }
     }
 
     if (parameters !== null) {
       parameters = this.transformParameters_(parameters);
       if (parameters.length > 0) {
-        metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(target, 'parameters'),
-            createArrayLiteralExpression(parameters)));
+        metadataStatements.push(this.createDefinePropertyStatement_(target,
+            'parameters', createArrayLiteralExpression(parameters)));
       }
     }
     return metadataStatements;
+  }
+
+  createDefinePropertyStatement_(target, property, value) {
+    return parseStatement `Object.defineProperty(${target}, ${property},
+        {get: function() {return ${value}}});`
   }
 
   createLiteralStringExpression_(tree) {

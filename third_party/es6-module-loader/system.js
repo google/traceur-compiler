@@ -285,7 +285,9 @@
         try {
           load.kind = 'declarative';
 
-          var options = { modules: 'instantiate' };
+          var options = load.metadata.traceurOptions || {};
+          options.modules = 'instantiate';
+
           var compiler = new traceur.Compiler(options);
           var tree = compiler.parse(load.source, load.address);
           depsList = getImports(tree);
