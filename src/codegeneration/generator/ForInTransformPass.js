@@ -32,7 +32,7 @@ import {
 import {
   createArgumentList,
   createAssignmentStatement,
-  createBinaryOperator,
+  createBinaryExpression,
   createBlock,
   createCallStatement,
   createContinueStatement,
@@ -70,12 +70,10 @@ export class ForInTransformPass extends TempVarTransformer {
   //   statement
   // }
   /**
-   * @param {ForInStatement} original
+   * @param {ForInStatement} tree
    * @return {ParseTree}
    */
-  transformForInStatement(original) {
-    var tree = original;
-
+  transformForInStatement(tree) {
     // Transform body first
     var bodyStatements = [];
     var body = this.transformAny(tree.body);
@@ -108,7 +106,7 @@ export class ForInTransformPass extends TempVarTransformer {
             // $keys.push($p)
             createCallStatement(
                 createMemberExpression(keys, PUSH),
-                createArgumentList(createIdentifierExpression(p)))));
+                createArgumentList([createIdentifierExpression(p)]))));
 
     var i = this.getTempIdentifier();
 
@@ -143,7 +141,7 @@ export class ForInTransformPass extends TempVarTransformer {
             createUnaryExpression(
                 createOperatorToken(BANG),
                 createParenExpression(
-                    createBinaryOperator(
+                    createBinaryExpression(
                         originalKey,
                         createOperatorToken(IN),
                         createIdentifierExpression(collection)))),
@@ -160,7 +158,7 @@ export class ForInTransformPass extends TempVarTransformer {
             // var $i = 0
             createVariableDeclarationList(VAR, i, createNumberLiteral(0)),
             // $i < $keys.length
-            createBinaryOperator(
+            createBinaryExpression(
                 createIdentifierExpression(i),
                 createOperatorToken(OPEN_ANGLE),
                 createMemberExpression(keys, LENGTH)),

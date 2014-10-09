@@ -37,7 +37,7 @@ function awaitTimeout(ms) {
   });
 }
 
-function animateAsync() {
+async function animateAsync() {
   var box = document.getElementById('box');
   var timeout = 10;
   while (true) {
@@ -52,7 +52,7 @@ function animateAsync() {
   }
 }
 
-function animateAsyncVertical() {
+async function animateAsyncVertical() {
   var box = document.getElementById('box');
   var timeout = 15;
   while (true) {

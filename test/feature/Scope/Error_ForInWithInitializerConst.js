@@ -1,6 +1,5 @@
-// Should not compile.
 // Options: --block-binding
-// Error: let/const in for-in statement may not have initializer
+// Error: :4:18: Unexpected token in
 
 for (const i = 0 in {}) {
 }

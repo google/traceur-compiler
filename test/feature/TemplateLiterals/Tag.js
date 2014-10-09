@@ -63,7 +63,7 @@
   assertArrayEquals(['a', 'b'], expose`a${x}b`[0].raw);
   assertArrayEquals(['a', 'b'], expose`a${x}b`[0]);
 
-  // Thes have tab characters in them.
+  // These have tab characters in them.
   assertArrayEquals(['\t', '\\t'], expose`	${x}\t`[0].raw);
   assertArrayEquals(['\t', '\t'], expose`	${x}\t`[0]);
 

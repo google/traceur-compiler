@@ -20,11 +20,13 @@ import {ParseTreeWriter} from './ParseTreeWriter';
 export class ParseTreeMapWriter extends ParseTreeWriter {
   /**
    * @param {SourceMapGenerator} sourceMapGenerator
+   * @param {string} sourceRoot must be same on used in sourcemapGenerator
    * @param {Object} options for ParseTreeWriter
    */
-  constructor(sourceMapGenerator, options = undefined) {
+  constructor(sourceMapGenerator, sourceRoot, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapGenerator;
+    this.sourceRoot_ = sourceRoot;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
   }
@@ -64,8 +66,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     // Every time we write an output line, then next mapping will start
     // on column 1.
     this.generated_ = {
-      line: this.outputLineCount_,
-      column: 1
+      line: this.outputLineCount_,  // lines are one based.
+      column: 0 // columns are zero based.
     };
     this.flushMappings();
   }
@@ -83,9 +85,10 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   generate() {
+    var column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
     this.generated_ = {
       line: this.outputLineCount_,
-      column: this.currentLine_.length
+      column: column
     };
     this.flushMappings();
   }
@@ -96,22 +99,33 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   exitBranch(location) {
-    this.originate(location.end);
+    var position = location.end;
+    var endOfPreviousToken = {
+      line: position.line,
+      column: position.column ? position.column - 1 : 0,
+      source : {name: position.source.name, contents: position.source.contents},
+    }
+    this.originate(endOfPreviousToken);
     this.entered_ = false;
   }
 
+  /**
+  * Set the original coordinates for the generated position.
+  * @param {Object} position Traceur SourcePosition, line and col zero based.
+  */
   originate(position) {
-    var line = position.line + 1;
+    var line = position.line + 1;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
     if (this.original_ && this.original_.line !== line)
       this.flushMappings();
     // The first mapping on each output line must cover beginning columns.
     this.original_ = {
       line: line,
-      column: position.column || 0
+      column: position.column || 0  // source map uses zero based columns
     };
     if (position.source.name !== this.sourceName_) {
-      this.sourceName_ = position.source.name;
+      this.sourceName_ = relativeToSourceRoot(position.source.name,
+              this.sourceRoot_);
       this.sourceMapGenerator_.setSourceContent(position.source.name,
           position.source.contents);
     }
@@ -150,4 +164,38 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.sourceMapGenerator_.addMapping(mapping);
     this.previousMapping_ = mapping;
   }
+}
+
+export function relativeToSourceRoot(name, sourceRoot) {
+  if (!name || name[0] === '@')  // @ means internal name
+    return name;
+  if (!sourceRoot)
+    return name;
+
+  var nameSegments = name.split('/');
+  var rootSegments = sourceRoot.split('/');
+  // Handle dir name without /
+  if (rootSegments[rootSegments.length - 1]) {
+    rootSegments.push('');
+  }
+  var commonSegmentsLength = 0;
+  var uniqueSegments = [];
+  nameSegments.forEach((segment, index)  => {
+    if (segment === rootSegments[index]) {
+      commonSegmentsLength++;
+      return false;
+    }
+    uniqueSegments.push(segment);
+  });
+
+  if (commonSegmentsLength < 1 || commonSegmentsLength === rootSegments.length)
+    return name;
+
+  var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
+  var segments = [];
+  while (dotDotSegments--) {
+    segments.push('..');
+  }
+  segments.push(...uniqueSegments);
+  return segments.join('/');
 }

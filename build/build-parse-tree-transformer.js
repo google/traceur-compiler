@@ -81,8 +81,14 @@ function printTransformBody(name, tree, trees) {
       if (fieldName == 'location') {
         return;
       }
-      var fieldType = tree[fieldName][0];
-      if (util.isParseTreeType(fieldType, trees)) {
+      var fieldTypes = tree[fieldName];
+      var fieldType = fieldTypes[0];
+      if (util.isBlockOrStatementType(fieldTypes, trees)) {
+        util.print('    var ' + fieldName +
+                   ' = this.transformToBlockOrStatement(tree.' + fieldName +
+                   ');');
+        addTest(fieldName);
+      } else if (util.isParseTreeType(fieldType, trees)) {
         util.print('    var ' + fieldName + ' = this.transformAny(tree.' +
             fieldName + ');');
         addTest(fieldName);

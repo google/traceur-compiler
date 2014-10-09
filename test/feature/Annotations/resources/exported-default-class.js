@@ -4,4 +4,4 @@ import {Anno} from './setup';
 export default class {
   @Anno
   annotatedMethod() {}
-}
+};

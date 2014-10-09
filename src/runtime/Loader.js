@@ -14,14 +14,19 @@
 
 import {InternalLoader} from './InternalLoader';
 
+function throwAbstractMethod() {
+  throw new Error('Unimplemented Loader function, see extended class');
+}
+
 export class Loader {
   /**
    * ES6 Loader Constructor
    * @param {!Object=} options
    */
-  constructor(loaderHooks) {
-    this.internalLoader_ = new InternalLoader(loaderHooks);
-    this.loaderHooks_ = loaderHooks;
+  constructor(loaderCompiler) {
+    this.internalLoader_ =
+        new InternalLoader(this, loaderCompiler);
+    this.loaderCompiler_ = loaderCompiler;
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any
@@ -29,25 +34,26 @@ export class Loader {
    * @param {string} name, ModuleSpecifier-like name, not normalized.
    * @return {Promise.<Module>}
    */
-  import(name, {referrerName, address} = {}) {
-    return this.internalLoader_.load(name, referrerName, address, 'module').
+  import(name, {referrerName, address, metadata} = {}) {
+    return this.internalLoader_.load(name, referrerName, address, metadata).
         then((codeUnit) => this.get(codeUnit.normalizedName));
   }
 
   /**
    * module - Asynchronously run the script src, first loading any imported
-   * modules that aren't already loaded.
+   * modules that aren't already loaded, with type="module" semantics (i.e.
+   * all top level variables are local to the module).
    *
    * This is the same as import but without fetching the source.
    * @param {string} source code
    * @param {Object} properties referrerName and address passed to normalize.
    * @return {Promise.<Module>}
    */
-  module(source, {referrerName, address} = {}) {
-    return this.internalLoader_.module(source, referrerName, address);
+  module(source, {referrerName, address, metadata} = {}) {
+    return this.internalLoader_.module(source, referrerName, address, metadata);
   }
 
-  /**
+    /**
    * Asynchronously install a new module under `name` from the `source` code.
    * All dependencies are installed in the registry.
    * @param {string} normalizedName
@@ -55,39 +61,39 @@ export class Loader {
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
    * @return {Promise} fulfilled with undefined.
    */
-  define(normalizedName, source, {address, metadata} = {}) {
+  define(normalizedName, source, {address, metadata, metadata} = {}) {
     return this.internalLoader_.define(normalizedName, source, address,
                                        metadata);
   }
 
   get(normalizedName) {
-    return this.loaderHooks_.get(normalizedName);
+    throwAbstractMethod();
   }
 
   set(normalizedName, module) {
-    this.loaderHooks_.set(normalizedName, module);
+    throwAbstractMethod();
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+    throwAbstractMethod();
   }
 
   locate(load) {
-    return this.loaderHooks_.locate(load);
+    throwAbstractMethod();
   }
 
   fetch(load) {
-    return this.loaderHooks_.fetch(load);
+    throwAbstractMethod();
   }
 
   translate(load) {
-    return this.loaderHooks_.translate(load);
+    throwAbstractMethod();
   }
 
   instantiate(load) {
-    return this.loaderHooks_.instantiate(load);
+    throwAbstractMethod();
   }
 }
 
-export {LoaderHooks};
+export {LoaderCompiler};
 

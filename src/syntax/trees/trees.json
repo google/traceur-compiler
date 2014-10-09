@@ -15,7 +15,7 @@
       "SourceRange"
     ],
     "statements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ArgumentList": {
@@ -23,7 +23,7 @@
       "SourceRange"
     ],
     "args": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ArrayComprehension": {
@@ -31,7 +31,7 @@
       "SourceRange"
     ],
     "comprehensionList": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "expression": [
       "ParseTree"
@@ -42,7 +42,7 @@
       "SourceRange"
     ],
     "elements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ArrayPattern": {
@@ -50,17 +50,31 @@
       "SourceRange"
     ],
     "elements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ArrowFunctionExpression": {
     "location": [
       "SourceRange"
     ],
+    "functionKind": [
+      "Token"
+    ],
     "parameterList": [
       "FormalParameterList"
     ],
-    "functionBody": [
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "AssignmentElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "assignment": [
+      "ParseTree"
+    ],
+    "initializer": [
       "ParseTree"
     ]
   },
@@ -72,7 +86,7 @@
       "ParseTree"
     ]
   },
-  "BinaryOperator": {
+  "BinaryExpression": {
     "location": [
       "SourceRange"
     ],
@@ -112,7 +126,7 @@
       "SourceRange"
     ],
     "statements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "BreakStatement": {
@@ -142,7 +156,7 @@
       "ParseTree"
     ],
     "statements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "Catch": {
@@ -167,10 +181,10 @@
       "ParseTree"
     ],
     "elements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ClassExpression": {
@@ -184,10 +198,10 @@
       "ParseTree"
     ],
     "elements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "CommaExpression": {
@@ -195,7 +209,7 @@
       "SourceRange"
     ],
     "expressions": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ComprehensionFor": {
@@ -252,10 +266,10 @@
       "SourceRange"
     ],
     "expressions": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
-  "CoverInitialisedName": {
+  "CoverInitializedName": {
     "location": [
       "SourceRange"
     ],
@@ -279,7 +293,7 @@
       "SourceRange"
     ],
     "statements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "DoWhileStatement": {
@@ -287,6 +301,7 @@
       "SourceRange"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ],
     "condition": [
@@ -306,7 +321,7 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ExportDefault": {
@@ -333,7 +348,7 @@
       "SourceRange"
     ],
     "specifiers": [
-      "Array.<ExportSpecifier>"
+      "Array<ExportSpecifier>"
     ]
   },
   "ExportStar": {
@@ -368,6 +383,7 @@
       "ParseTree"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ]
   },
@@ -382,6 +398,7 @@
       "ParseTree"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ]
   },
@@ -399,6 +416,7 @@
       "ParseTree"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ]
   },
@@ -414,7 +432,7 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<Annotation>"
+      "Array<Annotation>"
     ]
   },
   "FormalParameterList": {
@@ -422,7 +440,7 @@
       "SourceRange"
     ],
     "parameters": [
-      "Array.<FormalParameter>"
+      "Array<FormalParameter>"
     ]
   },
   "FunctionBody": {
@@ -430,7 +448,7 @@
       "SourceRange"
     ],
     "statements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
@@ -451,9 +469,9 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },
@@ -474,9 +492,9 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },
@@ -485,7 +503,7 @@
       "SourceRange"
     ],
     "comprehensionList": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "expression": [
       "ParseTree"
@@ -505,7 +523,7 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "body": [
       "FunctionBody"
@@ -527,9 +545,11 @@
       "ParseTree"
     ],
     "ifClause": [
+      "Block",
       "ParseTree"
     ],
     "elseClause": [
+      "Block",
       "ParseTree"
     ]
   },
@@ -556,10 +576,10 @@
     "location": [
       "SourceRange"
     ],
-    "lhs": [
-      "IdentifierToken"
+    "binding": [
+      "ImportedBinding"
     ],
-    "rhs": [
+    "name": [
       "IdentifierToken"
     ]
   },
@@ -568,8 +588,7 @@
       "SourceRange"
     ],
     "specifiers": [
-      "Array.<ImportSpecifier>",
-      "Token"
+      "Array<ImportSpecifier>"
     ]
   },
   "LabelledStatement": {
@@ -626,7 +645,7 @@
       "SourceRange"
     ],
     "scriptItemList": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "moduleName": [
       "string"
@@ -636,8 +655,8 @@
     "location": [
       "SourceRange"
     ],
-    "identifier": [
-      "IdentifierToken"
+    "binding": [
+      "ImportedBinding"
     ],
     "expression": [
       "ParseTree"
@@ -678,7 +697,7 @@
       "SourceRange"
     ],
     "propertyNameAndValues": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ObjectPattern": {
@@ -686,7 +705,7 @@
       "SourceRange"
     ],
     "fields": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "ObjectPatternField": {
@@ -732,7 +751,7 @@
       "SourceRange"
     ],
     "scriptItemList": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "moduleName": [
       "string"
@@ -758,9 +777,9 @@
       "ParseTree"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
-    "functionBody": [
+    "body": [
       "FunctionBody"
     ]
   },
@@ -813,7 +832,7 @@
       "FormalParameterList"
     ],
     "annotations": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ],
     "body": [
       "FunctionBody"
@@ -848,7 +867,7 @@
       "ParseTree"
     ],
     "caseClauses": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "SyntaxErrorTree": {
@@ -870,7 +889,7 @@
       "ParseTree"
     ],
     "elements": [
-      "Array.<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "TemplateLiteralPortion": {
@@ -960,7 +979,7 @@
       "TokenType"
     ],
     "declarations": [
-      "Array.<VariableDeclaration>"
+      "Array<VariableDeclaration>"
     ]
   },
   "VariableStatement": {
@@ -979,6 +998,7 @@
       "ParseTree"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ]
   },
@@ -990,6 +1010,7 @@
       "ParseTree"
     ],
     "body": [
+      "Block",
       "ParseTree"
     ]
   },

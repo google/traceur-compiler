@@ -47,7 +47,7 @@ import {parseStatement} from './PlaceholderParser';
 export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
   transformArrayComprehension(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var expression = this.transformAny(tree.expression);
 
@@ -62,7 +62,7 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
     var result = this.transformComprehension(tree, statement, functionKind,
                                              tempVarsStatatement,
                                              returnStatement);
-    this.popTempVarState();
+    this.popTempScope();
     return result;
   }
 }

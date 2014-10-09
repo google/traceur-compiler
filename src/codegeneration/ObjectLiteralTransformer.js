@@ -14,16 +14,12 @@
 
 import {FindVisitor} from './FindVisitor';
 import {
-  FormalParameterList,
   FunctionExpression,
   IdentifierExpression,
   LiteralExpression
 } from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
-import {
-  IDENTIFIER,
-  STRING
-} from '../syntax/TokenType';
+import {IDENTIFIER} from '../syntax/TokenType';
 import {
   COMPUTED_PROPERTY_NAME,
   LITERAL_PROPERTY_NAME
@@ -42,7 +38,7 @@ import {
   createStringLiteral
 } from './ParseTreeFactory';
 import {propName} from '../staticsemantics/PropName';
-import {transformOptions} from '../options';
+import {transformOptions} from '../Options';
 
 /**
  * FindAdvancedProperty class that finds if an object literal contains a
@@ -161,7 +157,6 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   getPropertyName_(nameTree) {
-    // TODO(arv): Computed property names
     var token = nameTree.literalToken;
     switch (token.type) {
       case IDENTIFIER:
@@ -282,7 +277,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   transformPropertyMethodAssignment(tree) {
     var func = new FunctionExpression(tree.location, null, tree.functionKind,
         this.transformAny(tree.parameterList), tree.typeAnnotation, [],
-        this.transformAny(tree.functionBody));
+        this.transformAny(tree.body));
     if (!this.needsAdvancedTransform) {
       // m() { }
       //  =>

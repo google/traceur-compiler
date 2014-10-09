@@ -23,21 +23,19 @@ import {
   ExportSpecifier,
   ExportStar,
   IdentifierExpression,
-  ImportSpecifier,
   LiteralExpression,
   ModuleSpecifier,
   PredefinedType,
   PropertyNameShorthand,
   TemplateLiteralPortion,
-  RestParameter,
   SuperExpression,
-  ThisExpression 
+  ThisExpression
 } from '../syntax/trees/ParseTrees';
 
 /**
  * Duplicates a ParseTree. Simply creates new leaf nodes so the
  * ParseTreeTransformer branch methods all see changes values and
- * thus create new branch nodes. 
+ * thus create new branch nodes.
  */
 export class CloneTreeTransformer extends ParseTreeTransformer {
 
@@ -103,14 +101,6 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    */
   transformIdentifierExpression(tree) {
     return new IdentifierExpression(tree.location, tree.identifierToken);
-  }
-
-  /**
-   * @param {ImportSpecifier} tree
-   * @return {ParseTree}
-   */
-  transformImportSpecifier(tree) {
-    return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
   }
 
   /**

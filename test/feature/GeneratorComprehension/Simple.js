@@ -1,3 +1,5 @@
+// Options: --generator-comprehension
+
 function accumulate(iterator) {
   var result = '';
   for (var value of iterator) {

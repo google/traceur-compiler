@@ -35,3 +35,8 @@ assert.equal(5, y);
 var x;
 ({x = 6} = {});
 assert.equal(x, 6);
+
+var z;
+({x: {y = 7}, z = 8} = {x: {}});
+assert.equal(y, 7);
+assert.equal(z, 8);

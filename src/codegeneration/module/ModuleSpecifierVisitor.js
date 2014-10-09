@@ -13,10 +13,7 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
-import {STRING} from '../../syntax/TokenType';
-import {LiteralToken} from '../../syntax/LiteralToken';
-import {canonicalizeUrl} from '../../util/url';
-import {options} from '../../options';
+import {options} from '../../Options';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -24,13 +21,11 @@ import {options} from '../../options';
 /**
  * Visits a parse tree and finds all ModuleSpecifiers in it.
  *
- *   module m from "url"
+ *   import * as m from "url"
  */
 export class ModuleSpecifierVisitor extends ParseTreeVisitor {
-  /**
-   * @param {traceur.util.ErrorReporter} reporter
-   */
-  constructor(reporter) {
+
+  constructor() {
     super();
     this.moduleSpecifiers_ = Object.create(null);
   }

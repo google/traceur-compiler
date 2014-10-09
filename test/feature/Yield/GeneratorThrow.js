@@ -9,7 +9,7 @@ function assertThrownEquals(x, func) {
 }
 
 function assertClosed(g) {
-  assert.throw(() => g.next(), '"next" on closed generator');
+  assert.deepEqual({value: undefined, done: true}, g.next());
 }
 
 //-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ closeMethods.forEach((closeMethod) => {
   g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
-    assert.throw(() => g.throw(44), '"throw" on closed generator');
+    assertThrownEquals(44, () => g.throw(44));
   }
 });
 

@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import globalThis from '../codegeneration/globalThis';
 import {ErrorReporter} from '../util/ErrorReporter';
 import {TraceurLoader} from '../runtime/TraceurLoader';
-import {LoaderHooks} from './LoaderHooks';
-import {options} from '../options';
+import {LoaderCompiler} from './LoaderCompiler';
 import {webLoader} from './webLoader';
 
 var url;
@@ -26,15 +24,10 @@ if (typeof window !== 'undefined' && window.location) {
   fileLoader = webLoader;
 }
 
-var loaderHooks = new LoaderHooks(new ErrorReporter(), url, fileLoader);
-var traceurLoader = new TraceurLoader(loaderHooks);
+var traceurLoader = new TraceurLoader(fileLoader, url);
 
-if (typeof window !== 'undefined')
-  window.System = traceurLoader;
-if (typeof global !== 'undefined')
-  global.System = traceurLoader;
+Reflect.global.System = traceurLoader;
 
 export { traceurLoader as System }
 
 traceurLoader.map = traceurLoader.semverMap(__moduleName);
-

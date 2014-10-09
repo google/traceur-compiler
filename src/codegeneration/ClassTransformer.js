@@ -45,7 +45,6 @@ import {
   createVariableStatement
 } from './ParseTreeFactory';
 import {hasUseStrict} from '../semantics/util';
-import {parseOptions} from '../options';
 import {
   parseExpression,
   parseStatement,
@@ -187,7 +186,7 @@ export class ClassTransformer extends TempVarTransformer{
           if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             hasConstructor = true;
             constructorParams = transformed.parameterList;
-            constructorBody = transformed.functionBody;
+            constructorBody = transformed.body;
           } else {
             elements.push(transformed);
           }
@@ -262,7 +261,7 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformClassExpression(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     var name;
     if (tree.name)
@@ -280,46 +279,46 @@ export class ClassTransformer extends TempVarTransformer{
 
     var expression;
 
-    if (hasSuper) {
+    if (hasSuper || tree.name) {
       // We need a binding name that can be referenced in the super calls and
       // we hide this name in an IIFE.
       // TODO(arv): Use const.
-      expression = parseExpression `function($__super) {
-        var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object},
-                                             ${staticObject}, $__super);
-      }(${superClass})`;
-    } else if (tree.name) {
-      // The name should be locally bound in the class body.
-      // TODO(arv): Use const.
-      expression = parseExpression `function() {
-        var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object},
-                                             ${staticObject});
-      }()`;
+      if (superClass) {
+        expression = parseExpression `function($__super) {
+          var ${name} = ${func};
+          return ($traceurRuntime.createClass)(${name}, ${object},
+                                               ${staticObject}, $__super);
+        }(${superClass})`;
+      } else {
+        expression = parseExpression `function() {
+          var ${name} = ${func};
+          return ($traceurRuntime.createClass)(${name}, ${object},
+                                               ${staticObject});
+        }()`;
+      }
     } else {
       expression = classCall(func, object, staticObject, superClass);
     }
 
-    this.popTempVarState();
+    this.popTempScope();
 
     return createParenExpression(this.makeStrict_(expression));
   }
 
   transformPropertyMethodAssignment_(tree, internalName) {
     var parameterList = this.transformAny(tree.parameterList);
-    var functionBody = this.transformSuperInFunctionBody_(tree,
-        tree.functionBody, internalName);
+    var body = this.transformSuperInFunctionBody_(tree,
+        tree.body, internalName);
     if (!tree.isStatic &&
         parameterList === tree.parameterList &&
-        functionBody === tree.functionBody) {
+        body === tree.body) {
       return tree;
     }
 
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
-        tree.annotations, functionBody);
+        tree.annotations, body);
   }
 
   transformGetAccessor_(tree, internalName) {
@@ -341,7 +340,7 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformSuperInFunctionBody_(methodTree, tree, internalName) {
-    this.pushTempVarState();
+    this.pushTempScope();
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
@@ -354,7 +353,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (superTransformer.hasSuper)
       this.state_.hasSuper = true;
 
-    this.popTempVarState();
+    this.popTempScope();
 
     if (superTransformer.nestedSuper)
       return createFunctionBody([thisDecl].concat(transformedTree.statements));

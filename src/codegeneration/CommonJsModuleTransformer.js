@@ -31,14 +31,39 @@ import scopeContainsThis from './scopeContainsThis';
 import {
   createEmptyParameterList,
   createFunctionExpression,
+  createIdentifierExpression,
   createObjectLiteralExpression,
-  createPropertyNameAssignment
+  createPropertyNameAssignment,
+  createVariableStatement,
+  createVariableDeclaration,
+  createVariableDeclarationList
 } from './ParseTreeFactory';
+import {VAR} from '../syntax/TokenType';
 import {prependStatements} from './PrependStatements';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
+  constructor(identifierGenerator) {
+    super(identifierGenerator);
+    this.moduleVars_ = [];
+  }
+
+  moduleProlog() {
+    var statements = super();
+
+    // declare temp vars in prolog
+    if (this.moduleVars_.length) {
+      var tmpVarDeclarations = createVariableStatement(createVariableDeclarationList(VAR,
+          this.moduleVars_.map((varName) => createVariableDeclaration(varName, null))));
+
+      statements.push(tmpVarDeclarations);
+    }
+
+    return statements;
+  }
+
   wrapModule(statements) {
+
     var needsIife = statements.some(scopeContainsThis);
 
     if (needsIife) {
@@ -91,7 +116,17 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    return parseExpression `require(${tree.token})`;
+    var moduleName = tree.token.processedValue;
+    var tmpVar = this.getTempVarNameForModuleSpecifier(tree);
+    this.moduleVars_.push(tmpVar);
+    var tvId = createIdentifierExpression(tmpVar);
+
+    // require the module, if it is not marked as an ES6 module, treat it as { default: module }
+    // this allows for an unlinked CommonJS / ES6 interop
+    // note that future implementations should also check for native Module with 
+    //   Reflect.isModule or similar
+    return parseExpression `(${tvId} = require(${moduleName}), 
+        ${tvId} && ${tvId}.__esModule && ${tvId} || {default: ${tvId}})`;
   }
 
   getExportProperties() {

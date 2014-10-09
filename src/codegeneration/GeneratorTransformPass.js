@@ -12,29 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {AsyncTransformer} from './generator/AsyncTransformer';
 import {ForInTransformPass} from './generator/ForInTransformPass';
-import {
-  GetAccessor,
-  SetAccessor
-} from '../syntax/trees/ParseTrees';
 import {GeneratorTransformer} from './generator/GeneratorTransformer';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser';
 import {TempVarTransformer} from './TempVarTransformer';
-import {
-  EQUAL,
-  STAR
-} from '../syntax/TokenType';
-import {
-  BINARY_OPERATOR,
-  COMMA_EXPRESSION,
-  PAREN_EXPRESSION,
-  YIELD_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
 import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   AnonBlock,
@@ -42,25 +28,11 @@ import {
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
 import {
-  createAssignmentExpression,
-  createAssignmentStatement,
   createBindingIdentifier,
-  createBlock,
-  createCommaExpression,
-  createExpressionStatement,
   createIdentifierExpression as id,
-  createIdentifierToken,
-  createMemberExpression,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement,
-  createYieldStatement
+  createIdentifierToken
 } from './ParseTreeFactory';
-import {prependStatements} from './PrependStatements';
-import {
-  transformOptions,
-  options
-} from '../options';
+import {transformOptions} from '../Options';
 
 class ForInFinder extends FindInFunctionScope {
   visitForInStatement(tree) {
@@ -96,6 +68,13 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
+    if (tree.isGenerator())
+      return this.transformGeneratorDeclaration_(tree);
+
+    return this.transformFunction_(tree, FunctionDeclaration, null);
+  }
+
+  transformGeneratorDeclaration_(tree) {
     var nameIdExpression = id(tree.name.identifierToken);
 
     var setupPrototypeExpression = parseExpression
@@ -125,6 +104,13 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!needsTransform(tree))
       return super(tree);
 
+    if (tree.isGenerator())
+      return this.transformGeneratorExpression_(tree);
+
+    return this.transformFunction_(tree, FunctionExpression, null);
+  }
+
+  transformGeneratorExpression_(tree) {
     var name;
     if (!tree.name) {
       // We need a name to be able to reference the function object.
@@ -132,7 +118,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
       tree = new FunctionExpression(tree.location,
           createBindingIdentifier(name), tree.functionKind,
           tree.parameterList, tree.typeAnnotation, tree.annotations,
-          tree.functionBody);
+          tree.body);
     } else {
       name = tree.name.identifierToken;
     }
@@ -144,7 +130,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   transformFunction_(tree, constructor, nameExpression) {
-    var body = super.transformAny(tree.functionBody);
+    var body = super.transformAny(tree.body);
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
@@ -167,8 +153,15 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var functionKind = null;
 
     return new constructor(tree.location, tree.name, functionKind,
-                           tree.parameterList, tree.typeAnnotation,
-                           tree.annotations, body);
+                           tree.parameterList, tree.typeAnnotation || null,
+                           tree.annotations || null, body);
+  }
+
+  transformArrowFunctionExpression(tree) {
+    if (!tree.isAsyncFunction())
+      return super(tree);
+
+    return this.transformAny(ArrowFunctionTransformer.transform(this, tree));
   }
 
   transformBlock(tree) {

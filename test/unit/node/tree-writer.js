@@ -35,5 +35,4 @@ suite('tree writer', function() {
 
   testWriteModule('resources/export-default.js');
   testWriteModule('resources/export-default-class.js');
-
 });

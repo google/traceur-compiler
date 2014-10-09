@@ -20,10 +20,8 @@ import {
 import {SourceMapConsumer}
     from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
 import {transcode, renderSourceMap} from './transcode';
-import {options as traceurOptions} from 'traceur@0.0/src/options';
-import {
-  setOptionsFromSource
-} from './replOptions';
+import {options as traceurOptions} from 'traceur@0.0/src/Options';
+import {setOptionsFromSource} from './replOptions';
 
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);
@@ -46,13 +44,10 @@ var evalCheckbox = document.querySelector('input.eval');
 var errorElement = document.querySelector('pre.error');
 var sourceMapElement = document.querySelector('pre.source-map');
 
-if (location.hash)
-  input.setValue(decodeURIComponent(location.hash.slice(1)));
-
-outputCheckbox.addEventListener('click', function(e) {
+outputCheckbox.addEventListener('click', (e) => {
   document.documentElement.classList[
       outputCheckbox.checked ? 'remove' : 'add']('hide-output');
-}, false);
+});
 
 /**
  * debounce time = min(tmin + [func's execution time], tmax).
@@ -79,7 +74,7 @@ function debounced(func, tmin, tmax) {
     id = setTimeout(wrappedFunc, t);
   }
   // id is nonzero only when a debounced function is pending.
-  debouncedFunc.delay = function() { id && debouncedFunc(); }
+  debouncedFunc.delay = () => { id && debouncedFunc(); }
   return debouncedFunc;
 }
 
@@ -148,39 +143,65 @@ function showRange(range) {
 
 var compilationResults = {};
 
+function updateLocation(contents) {
+  if (history.replaceState) {
+    history.replaceState(null, document.title,
+                         '#' + encodeURIComponent(contents));
+  }
+}
+
 function compile() {
   hasError = false;
   output.setValue('');
 
   var name = 'repl';
   var contents = input.getValue();
-  if (history.replaceState)
-    history.replaceState(null, document.title,
-                         '#' + encodeURIComponent(contents));
-
-  setOptionsFromSource(contents, compile);
-
-  errorElement.hidden = true;
-  function onSuccess(mod) {
-    // Empty for now.
+  updateLocation(contents);
+  try {
+    traceurOptions.setFromObject(
+        setOptionsFromSource(contents, resetAndCompileContents));
+    compileContents(contents);
+  } catch (ex) {
+    onFailure(ex);
   }
-  function onFailure(errors) {
-     hasError = true;
-     errorElement.hidden = false;
-     errorElement.textContent = errors.join('\n');
-  }
+}
 
-  function onTranscoded(metadata, url) {
+// When options are changed we write // Options back into the source
+// and recompile with these options.
+function resetAndCompileContents(contents, newOptions) {
+  input.setValue(contents);
+  updateLocation(contents);
+  traceurOptions.setFromObject(newOptions);
+  compileContents(contents);
+}
+
+function onFailure(error, metadata) {
+  if (metadata.transcoded)
     output.setValue(metadata.transcoded);
-    compilationResults = metadata;
+  hasError = true;
+  errorElement.hidden = false;
+  errorElement.textContent = error.stack || error;
+}
+
+function compileContents(contents) {
+  errorElement.hidden = true;
+
+  function onTranscoded(metadata) {
+    output.setValue(metadata.transcoded);
     if (metadata.sourceMap) {
       compilationResults.sourceMapConsumer =
           new SourceMapConsumer(metadata.sourceMap);
-      compilationResults.sourceMapURL = url;
-      updateSourceMapVisualization(url);
+      compilationResults.sourceMapURL = metadata.sourceName;
+      updateSourceMapVisualization(metadata.sourceName);
     }
   }
 
   if (transcode)
-    transcode(contents, onSuccess, onFailure, onTranscoded);
+    transcode(contents, onTranscoded, onFailure);
+}
+
+if (location.hash) {
+  input.setValue(decodeURIComponent(location.hash.slice(1)));
+} else {
+  compile();
 }

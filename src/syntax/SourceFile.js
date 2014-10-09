@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {LineNumberTable} from './LineNumberTable';
-import {getUid} from '../util/uid';
 
 /**
  * A source file.
@@ -29,6 +28,5 @@ export class SourceFile {
     this.name = name;
     this.contents = contents;
     this.lineNumberTable = new LineNumberTable(this);
-    this.uid = getUid();
   }
 }

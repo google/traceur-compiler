@@ -18,6 +18,7 @@
 //   https://github.com/domenic/promises-unwrapping/blob/master/testable-implementation.js
 
 import async from '../../../node_modules/rsvp/lib/rsvp/asap';
+import {registerPolyfill} from './utils';
 
 // Status values: 0 = pending, +1 = resolved, -1 = rejected
 
@@ -124,6 +125,9 @@ export class Promise {
 
   static resolve(x) {
     if (this === $Promise) {
+      if (isPromise(x)) {
+        return x;
+      }
       // Optimized case, avoid extra closure.
       return promiseSet(new $Promise(promiseRaw), +1, x);
     } else {
@@ -141,18 +145,6 @@ export class Promise {
   }
 
   // Combinators.
-
-  static cast(x) {
-    if (x instanceof this)
-      return x;
-    if (isPromise(x)) {
-      var result = getDeferred(this);
-      chain(x, result.resolve, result.reject);
-      return result.promise;
-    }
-    return this.resolve(x);
-
-  }
 
   static all(values) {
     var deferred = getDeferred(this);
@@ -270,3 +262,10 @@ function promiseCoerce(constructor, x) {
   }
   return x;
 }
+
+export function polyfillPromise(global) {
+  if (!global.Promise)
+    global.Promise = Promise;
+}
+
+registerPolyfill(polyfillPromise);

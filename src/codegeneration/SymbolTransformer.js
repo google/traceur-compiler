@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import {
-  BinaryOperator,
+  BinaryExpression,
   MemberLookupExpression,
+  ForInStatement,
   UnaryExpression
 } from '../syntax/trees/ParseTrees';
 import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer';
 import {
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
-  MEMBER_LOOKUP_EXPRESSION,
-  UNARY_EXPRESSION
+  UNARY_EXPRESSION,
+  VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
-  EQUAL,
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
   IN,
@@ -35,8 +35,11 @@ import {
   STRING,
   TYPEOF
 } from '../syntax/TokenType';
-import {createParenExpression} from './ParseTreeFactory';
-import {parseExpression} from './PlaceholderParser';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser';
+
 
 class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
   transformArrowFunctionExpression(tree) {
@@ -89,7 +92,7 @@ function isSafeTypeofString(tree) {
  *
  *   operand[memberExpression] = value
  *   =>
- *   $traceurRuntime.setProperty(operand, memberExpression}, value)
+ *   operand[$traceurRuntime.toProperty(memberExpression)] = value
  */
 export class SymbolTransformer extends TempVarTransformer {
 
@@ -102,13 +105,13 @@ export class SymbolTransformer extends TempVarTransformer {
     return new UnaryExpression(tree.location, tree.operator, operand);
   }
 
-  transformBinaryOperator(tree) {
+  transformBinaryExpression(tree) {
     if (tree.operator.type === IN) {
       var name = this.transformAny(tree.left);
       var object = this.transformAny(tree.right);
 
       if (name.type === LITERAL_EXPRESSION)
-        return new BinaryOperator(tree.location, name, tree.operator, object);
+        return new BinaryExpression(tree.location, name, tree.operator, object);
 
       // name in object
       // =>
@@ -124,35 +127,17 @@ export class SymbolTransformer extends TempVarTransformer {
       if (isTypeof(tree.left) && isSafeTypeofString(tree.right)) {
         var left = this.transformTypeofOperand_(tree.left);
         var right = tree.right;
-        return new BinaryOperator(tree.location, left, tree.operator, right);
+        return new BinaryExpression(tree.location, left, tree.operator, right);
       }
 
       if (isTypeof(tree.right) && isSafeTypeofString(tree.left)) {
         var left = tree.left;
         var right = this.transformTypeofOperand_(tree.right);
-        return new BinaryOperator(tree.location, left, tree.operator, right);
+        return new BinaryExpression(tree.location, left, tree.operator, right);
       }
     }
 
-    if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
-        tree.operator.isAssignmentOperator()) {
-
-      if (tree.operator.type !== EQUAL) {
-        var exploded = new ExplodeSymbolExpression(this).transformAny(tree);
-        return this.transformAny(createParenExpression(exploded));
-      }
-
-      var operand = this.transformAny(tree.left.operand);
-      var memberExpression = this.transformAny(tree.left.memberExpression);
-      var value = this.transformAny(tree.right);
-
-      // operand[memberExpr] = value
-      // =>
-      return parseExpression `$traceurRuntime.setProperty(${operand},
-          ${memberExpression}, ${value})`;
-    }
-
-    return super.transformBinaryOperator(tree);
+    return super.transformBinaryExpression(tree);
   }
 
   transformMemberLookupExpression(tree) {
@@ -177,8 +162,7 @@ export class SymbolTransformer extends TempVarTransformer {
       return super.transformUnaryExpression(tree);
 
     var operand = this.transformAny(tree.operand);
-
-    var expression = parseExpression `$traceurRuntime.typeof(${operand})`;
+    var expression = this.getRuntimeTypeof(operand);
 
     if (operand.type === IDENTIFIER_EXPRESSION) {
       // For ident we cannot just call the function since the ident might not
@@ -189,5 +173,39 @@ export class SymbolTransformer extends TempVarTransformer {
     }
 
     return expression;
+  }
+
+  getRuntimeTypeof(operand) {
+    return parseExpression `$traceurRuntime.typeof(${operand})`;
+  }
+
+  /**
+   * Transform for-in to filter out shim symbols keys.
+   */
+  transformForInStatement(tree) {
+    // for (i in coll) ...
+    //
+    // =>
+    //
+    // for (i in coll) if (!isSymbol(i)) ...
+    var initializer = this.transformAny(tree.initializer);
+    var collection = this.transformAny(tree.collection);
+    var body = this.transformAny(tree.body);
+
+    var initIdentToken;
+    if (initializer.type === VARIABLE_DECLARATION_LIST) {
+      initIdentToken = initializer.declarations[0].lvalue.identifierToken;
+    } else {
+      initIdentToken = initializer.identifierToken;
+    }
+
+    if (!initIdentToken) {
+      // Destructuring is not yet supported here.
+      throw new Error('Not implemented');
+    }
+
+    body = parseStatement
+        `if (!$traceurRuntime.isSymbolString(${initIdentToken})) ${body}`;
+    return new ForInStatement(tree.location, initializer, collection, body);
   }
 }

@@ -12,7 +12,84 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {toInteger, toLength, toObject, isCallable} from './utils';
+import {
+  entries,
+  keys,
+  values
+} from './ArrayIterator';
+import {
+  checkIterable,
+  isCallable,
+  isConstructor,
+  maybeAddFunctions,
+  maybeAddIterator,
+  registerPolyfill,
+  toInteger,
+  toLength,
+  toObject
+} from './utils';
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.1
+export function from(arrLike, mapFn = undefined, thisArg = undefined) {
+  var C = this;
+  var items = toObject(arrLike);
+  var mapping = mapFn !== undefined;
+  var k = 0;
+  var arr, len;
+
+  // mapFn must be callable if mapping
+  if (mapping && !isCallable(mapFn)) {
+    throw TypeError();
+  }
+
+  if (checkIterable(items)) {
+    arr = isConstructor(C) ? new C() : [];
+
+    for (var item of items) {
+      if (mapping) {
+        arr[k] = mapFn.call(thisArg, item, k);
+      } else {
+        arr[k] = item;
+      }
+
+      k++;
+    }
+
+    arr.length = k;
+
+    return arr;
+  }
+
+  len = toLength(items.length);
+  arr = isConstructor(C) ? new C(len) : new Array(len);
+
+  for (; k < len; k++) {
+    if (mapping) {
+      arr[k] = typeof thisArg === 'undefined' ? mapFn(items[k], k) : mapFn.call(thisArg, items[k], k);
+    } else {
+      arr[k] = items[k];
+    }
+  }
+
+  arr.length = len;
+
+  return arr;
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.3
+export function of(...items) {
+  var C = this;
+  var len = items.length;
+  var arr = isConstructor(C) ? new C(len) : new Array(len);
+
+  for (var k = 0; k < len; k++) {
+    arr[k] = items[k];
+  }
+
+  arr.length = len;
+
+  return arr;
+}
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.6
 export function fill(value, start = 0, end = undefined) {
@@ -67,3 +144,26 @@ function findHelper(self, predicate, thisArg = undefined, returnIndex = false) {
 
   return returnIndex ? -1 : undefined;
 }
+
+export function polyfillArray(global) {
+  var {Array, Object, Symbol} = global;
+  maybeAddFunctions(Array.prototype, [
+    'entries', entries,
+    'keys', keys,
+    'values', values,
+    'fill', fill,
+    'find', find,
+    'findIndex', findIndex,
+  ]);
+
+  maybeAddFunctions(Array, [
+    'from', from,
+    'of', of
+  ]);
+
+  maybeAddIterator(Array.prototype, values, Symbol);
+  maybeAddIterator(Object.getPrototypeOf([].values()),
+      function() { return this; }, Symbol);
+}
+
+registerPolyfill(polyfillArray);

@@ -16,7 +16,8 @@
 
 import {
   toObject,
-  toUint32
+  toUint32,
+  createIteratorResultObject
 } from './utils';
 
 var ARRAY_ITERATOR_KIND_KEYS = 1;
@@ -69,11 +70,6 @@ function createArrayIterator(array, kind) {
   iterator.arrayIteratorNextIndex_ = 0;
   iterator.arrayIterationKind_ = kind;
   return iterator;
-}
-
-// 15.19.4.3.4 CreateItrResultObject
-function createIteratorResultObject(value, done) {
-  return {value: value, done: done};
 }
 
 export function entries() {

@@ -24,20 +24,24 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  *     showLineNumbers: {boolean} add comments giving input line numbers
  *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
- * @return source code; optional side-effect options.sourceMap set
+ * @param {string} outputName the sourcemap file value.
+ * @param {string} sourceRoot the sourcemap sourceroot.
+ * @return source code; optional side-effect options.sourceMaps set
  */
-export function toSource(tree, options = undefined) {
+export function toSource(tree, options = undefined,
+    outputName = '<toSourceOutput>', sourceRoot = undefined) {
   var sourceMapGenerator = options && options.sourceMapGenerator;
-  if (!sourceMapGenerator && options && options.sourceMaps) {
+  var sourcemaps = options && options.sourceMaps;
+  if (!sourceMapGenerator && sourcemaps)  {
     sourceMapGenerator = new SourceMapGenerator({
-      file: options.filename,
-      sourceRoot: null
+      file: outputName,
+      sourceRoot: sourceRoot
     });
   }
 
   var writer;
   if (sourceMapGenerator)
-    writer = new ParseTreeMapWriter(sourceMapGenerator, options);
+    writer = new ParseTreeMapWriter(sourceMapGenerator, sourceRoot, options);
   else
     writer = new ParseTreeWriter(options);
 

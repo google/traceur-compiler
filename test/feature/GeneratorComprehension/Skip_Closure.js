@@ -1,3 +1,4 @@
+// Options: --generator-comprehension
 // Skip. The sugaring uses var instead of let which leads to wrong closure.
 
 var iter = (for (x of [0, 1]) for (y of [2, 3]) () => [x, y] );

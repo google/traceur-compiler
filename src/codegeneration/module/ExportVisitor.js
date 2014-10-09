@@ -21,11 +21,11 @@ import {assert} from '../../util/assert';
 export class ExportVisitor extends ModuleVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
-   * @param {LoaderHooks} loaderHooks
+   * @param {Loader} loader
    * @param {ModuleSymbol} moduleSymbol The root of the module system.
    */
-  constructor(reporter, loaderHooks, moduleSymbol) {
-    super(reporter, loaderHooks, moduleSymbol);
+  constructor(reporter, loader, moduleSymbol) {
+    super(reporter, loader, moduleSymbol);
     this.inExport_ = false;
     this.moduleSpecifier = null;
   }
@@ -73,24 +73,23 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitExportStar(tree) {
     var name = this.moduleSpecifier.token.processedValue;
-    var moduleDescription =
-        this.getModuleDescriptionForModuleSpecifier(name);
-    if (moduleDescription) {
-      moduleDescription.getExports().forEach( (name) => {
-        this.addExport(name, tree);
-      });
+    var exportList =
+        this.getExportsListForModuleSpecifier(name);
+    if (exportList) {
+      exportList.getExports().forEach((name) => this.addExport(name, tree));
     }  // Else: we already reported an error.
   }
 
   visitFunctionDeclaration(tree) {
-    this.addExport_(tree.name.identifierToken.value, tree);
+    this.addExport_(tree.name.getStringValue(), tree);
   }
 
   visitModuleDeclaration(tree) {
-    this.addExport_(tree.identifier.value, tree);
+    var name = tree.binding.getStringValue();
+    this.addExport_(name, tree);
   }
 
   visitVariableDeclaration(tree) {
-    this.addExport_(tree.lvalue.identifierToken.value, tree);
+    this.addExport_(tree.lvalue.getStringValue(), tree);
   }
 }

@@ -1,4 +1,3 @@
-// Should not compile.
 // Error: missingVarWith is not defined
 var o = {};
 with (o) {

@@ -38,6 +38,48 @@
     }
   }
 
+  class ModuleEvaluationError extends Error {
+
+    constructor(erroneousModuleName, cause) {
+      this.message =
+          this.constructor.name + ': ' + this.stripCause(cause) +
+          ' in ' + erroneousModuleName;
+
+      if (!(cause instanceof ModuleEvaluationError) && cause.stack)
+        this.stack = this.stripStack(cause.stack);
+      else
+        this.stack = '';
+    }
+
+    stripError(message) {
+      return message.replace(/.*Error:/, this.constructor.name + ':');
+    }
+
+    stripCause(cause) {
+      if (!cause)
+        return '';
+      if (!cause.message)
+        return cause + '';
+      return this.stripError(cause.message);
+    }
+
+    loadedBy(moduleName) {
+      this.stack += '\n loaded by ' + moduleName;
+    }
+
+    stripStack(causeStack) {
+      var stack = [];
+      causeStack.split('\n').some((frame) => {
+        if (/UncoatedModuleInstantiator/.test(frame))
+          return true;
+        stack.push(frame);
+      });
+      stack[0] = this.stripError(stack[0]);
+      return stack.join('\n');
+    }
+
+  }
+
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
     constructor(url, func) {
       super(url, null);
@@ -47,7 +89,15 @@
     getUncoatedModule() {
       if (this.value_)
         return this.value_;
-      return this.value_ = this.func.call(global);
+      try {
+        return this.value_ = this.func.call(global);
+      } catch(ex) {
+        if (ex instanceof ModuleEvaluationError) {
+          ex.loadedBy(this.url);
+          throw ex;
+        }
+        throw new ModuleEvaluationError(this.url, ex);
+      }
     }
   }
 
@@ -66,8 +116,8 @@
     var coatedModule = Object.create(null);
     Object.getOwnPropertyNames(uncoatedModule).forEach((name) => {
       var getter, value;
-      // Module instances acquired using `module m from 'name'` should have live
-      // references so when we create these internally we pass a sentinel.
+      // Module instances acquired using `import * as m from 'name'` should have
+      // live references so when we create these internally we pass a sentinel.
       if (isLive === liveModuleSentinel) {
         var descr = Object.getOwnPropertyDescriptor(uncoatedModule, name);
         // Some internal modules do not use getters at this point.
@@ -158,9 +208,9 @@
 
             // TODO: separate into two-phase declaration / execution
             var registryEntry = func.call(this, depMap);
-            
+
             registryEntry.execute.call(this);
-            
+
             return registryEntry.exports;
           }
         };

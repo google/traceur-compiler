@@ -1,5 +1,5 @@
-// Should not compile.
 // Options: --freeVariableChecker
+// Error: :4:11: xxx is not defined
 try {
   var y = xxx;
 } catch (e) {}

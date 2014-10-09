@@ -26,7 +26,6 @@ export var CONFIGURABLE = 'configurable';
 export var CONSTRUCTOR = 'constructor';
 export var CREATE = 'create';
 export var CURRENT = 'current';
-export var DEFINE_PROPERTIES = 'defineProperties';
 export var DEFINE_PROPERTY = 'defineProperty';
 export var ENUMERABLE = 'enumerable';
 export var FREEZE = 'freeze';
@@ -43,14 +42,9 @@ export var OF = 'of';
 export var PREVENT_EXTENSIONS = 'preventExtensions';
 export var PROTOTYPE = 'prototype';
 export var PUSH = 'push';
-export var RAW = 'raw';
 export var SET = 'set';
 export var SLICE = 'slice';
 export var THIS = 'this';
 export var TRACEUR_RUNTIME = '$traceurRuntime';
 export var UNDEFINED = 'undefined';
 export var WRITABLE = 'writable';
-export function getParameterName(index) {
-  // TODO: consider caching these
-  return '$' + index;
-};

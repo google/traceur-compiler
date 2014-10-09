@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SourceMapConsumer}
+import {SourceMapConsumer, join}
     from '../src/outputgeneration/SourceMapIntegration';
 
 
@@ -118,11 +118,12 @@ export class SourceMapMapping {
 export class OriginalSourceMapMapping extends SourceMapMapping {
   /**
    * @param {SourceMapConsumer} consumer
-   * @param {string} which source to iterate
+   * @param {string} path which source to analyze
     */
-  constructor(consumer, url) {
+  constructor(consumer, path) {
     super(consumer);
 
+    var url = consumer.sourceRoot ? join(consumer.sourceRoot, path) : path;
     consumer.eachMapping((mapping) => {
       if (url && mapping.source !== url)
         return;
@@ -142,8 +143,9 @@ export class GeneratedSourceMapMapping extends SourceMapMapping {
    * @param {SourceMapConsumer} consumer
    * @param {string} which source to iterate
    */
-  constructor(consumer, url) {
+  constructor(consumer, path) {
     super(consumer);
+    var url = consumer.sourceRoot ? join(consumer.sourceRoot, path) : path;
     consumer.eachMapping((mapping) => {
       if (url && mapping.source !== url)
         return;

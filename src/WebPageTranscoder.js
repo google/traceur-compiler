@@ -16,8 +16,8 @@
 // Applies Traceur to all scripts in a Web page.
 
 import {Loader} from './runtime/Loader';
+import {TraceurLoader} from './runtime/TraceurLoader';
 import {ErrorReporter} from './util/ErrorReporter';
-import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 import {webLoader} from './runtime/webLoader';
 
 export class WebPageTranscoder {
@@ -38,13 +38,27 @@ export class WebPageTranscoder {
       if (--this.numPending_ <= 0)
         onScriptsReady();
     }, (error) => {
-      console.error('WebPageTranscoder FAILED to load ' + url, error);
+      console.error('WebPageTranscoder FAILED to load ' +
+          url, error.stack || error);
     });
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var source = content + '//# sourceURL=' + name + '\n';
-    this.loader.module(source);
+    var options = traceur.options;
+    var nameInfo = {
+      address: name,
+      referrerName: window.location.href,
+      name: name,
+      metadata: {traceurOptions: options}
+    };
+    var loadingResult;
+    if (scriptElement.type === 'module')
+      loadingResult = this.loader.module(content, nameInfo);
+    else
+      loadingResult = this.loader.script(content, nameInfo);
+    loadingResult.catch(function(error) {
+      console.error(error.stack || error);
+    });
   }
 
   /**
@@ -91,8 +105,7 @@ export class WebPageTranscoder {
 
   get loader() {
     if (!this.loader_) {
-      var loaderHooks = new InterceptOutputLoaderHooks(this.reporter, this.url);
-      this.loader_ = new Loader(loaderHooks);
+      this.loader_ = new TraceurLoader(webLoader, this.url);
     }
     return this.loader_;
   }
@@ -107,7 +120,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    var selector = 'script[type="module"]';
+    var selector = 'script[type="module"],script[type="text/traceur"]';
     var scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {

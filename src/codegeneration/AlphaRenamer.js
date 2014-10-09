@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ScopeTransformer } from './ScopeTransformer';
 import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
-  ARGUMENTS,
   THIS
 } from '../syntax/PredefinedName';
 import {
   createIdentifierExpression
 } from './ParseTreeFactory';
-import {
-  variablesInBlock,
-  variablesInFunction
-} from '../semantics/VariableBinder';
 
 /**
  * Replaces one identifier with another identifier (alpha
@@ -38,30 +33,16 @@ import {
  * {@code eval} or in a property binding, and so on.
  *
  * Creates an {@code AlphaRenamer} that will replace uses of the
- * identifier {@code oldName} with {@code newName}.
+ * identifier {@code varName} with {@code newName}.
  */
-export class AlphaRenamer extends ParseTreeTransformer {
+export class AlphaRenamer extends ScopeTransformer {
   /**
-   * @param {string} oldName
+   * @param {string} varName
    * @param {string} newName
    */
-  constructor(oldName, newName) {
-    super();
-    this.oldName_ = oldName;
+  constructor(varName, newName) {
+    super(varName);
     this.newName_ = newName;
-  }
-
-  /**
-   * @param {Block} tree
-   * @return {ParseTree}
-   */
-  transformBlock(tree) {
-    if (this.oldName_ in variablesInBlock(tree)) {
-      // the old name is bound in the block, skip rename
-      return tree;
-    } else {
-      return super.transformBlock(tree);
-    }
   }
 
   /**
@@ -69,7 +50,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformIdentifierExpression(tree) {
-    if (this.oldName_ == tree.identifierToken.value) {
+    if (this.varName_ == tree.identifierToken.value) {
       return createIdentifierExpression(this.newName_);
     } else {
       return tree;
@@ -77,7 +58,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
   }
 
   transformThisExpression(tree) {
-    if (this.oldName_ !== THIS)
+    if (this.varName_ !== THIS)
       return tree;
     return createIdentifierExpression(this.newName_);
   }
@@ -87,15 +68,12 @@ export class AlphaRenamer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    if (this.oldName_ === tree.name) {
+    if (this.varName_ === tree.name) {
       // it is the function that is being renamed
       tree = new FunctionDeclaration(tree.location, this.newName_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
-          tree.annotations, tree.functionBody);
+          tree.annotations, tree.body);
     }
-
-    if (this.getDoNotRecurse(tree))
-      return tree;
     return super.transformFunctionDeclaration(tree);
   }
 
@@ -104,49 +82,21 @@ export class AlphaRenamer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
-    if (this.oldName_ === tree.name) {
+    if (this.varName_ === tree.name) {
       // it is the function that is being renamed
       tree = new FunctionExpression(tree.location, this.newName_,
           tree.functionKind, tree.parameterList, tree.typeAnnotation,
-          tree.annotations, tree.functionBody);
+          tree.annotations, tree.body);
     }
-
-    if (this.getDoNotRecurse(tree))
-      return tree;
     return super.transformFunctionExpression(tree);
   }
 
-  // Do not recurse into functions if:
-  //  - 'arguments' is implicitly bound in function bodies
-  //  - 'this' is implicitly bound in function bodies
-  //  - this.oldName_ is rebound in the new nested scope
-  getDoNotRecurse(tree) {
-    return this.oldName_ === ARGUMENTS ||
-        this.oldName_ === THIS ||
-        this.oldName_ in variablesInFunction(tree);
-  }
-
   /**
-   * @param {Catch} tree
-   * @return {ParseTree}
-   */
-  transformCatch(tree) {
-    if (!tree.binding.isPattern() &&
-        this.oldName_ === tree.binding.identifierToken.value) {
-      // this.oldName_ is rebound in the catch block, so don't recurse
-      return tree;
-    }
-
-    // TODO(arv): Compare the old name to the bindings in the pattern.
-    return super.transformCatch(tree);
-  }
-
-  /**
-   * Alpha-renames {@code oldName} to {@code newName} in {@code tree}
+   * Alpha-renames {@code varName} to {@code newName} in {@code tree}
    * and returns the new {@code ParseTree}.
    *
    * <p>Renaming is applied throughout the lexical scope of the
-   * variable. If the old name is freshly bound alpha-renaming doesn't
+   * variable. If the var name is freshly bound alpha-renaming doesn't
    * propagate there; for example, renaming {@code "a"} to {@code "b"}
    * in the following program:
    *
@@ -163,12 +113,12 @@ export class AlphaRenamer extends ParseTreeTransformer {
    * </pre>
    *
    * @param {ParseTree} tree the tree to substitute names in.
-   * @param {string} oldName the identifier to be replaced.
-   * @param {string} newName the identifier that will appear instead of |oldName|.
+   * @param {string} varName the identifier to be replaced.
+   * @param {string} newName the identifier that will appear instead of |varName|.
    * @return {ParseTree} a copy of {@code tree} with replacements.
    */
-  static rename(tree, oldName, newName) {
-    return new AlphaRenamer(oldName, newName).transformAny(tree);
+  static rename(tree, varName, newName) {
+    return new AlphaRenamer(varName, newName).transformAny(tree);
   }
 }
 

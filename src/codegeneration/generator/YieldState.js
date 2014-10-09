@@ -12,16 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CURRENT} from '../../syntax/PredefinedName';
 import {State} from './State';
-import {
-  createAssignmentStatement,
-  createIdentifierExpression,
-  createMemberExpression,
-  createReturnStatement,
-  createThisExpression,
-  createTrueLiteral
-} from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';
 
 /**

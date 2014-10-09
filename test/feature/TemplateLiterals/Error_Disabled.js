@@ -1,5 +1,4 @@
-// Should not compile.
 // Options: --template-literals=false
-// Error: :5:1: Unexpected token `
+// Error: :4:1: Unexpected token `
 
 `abc`;

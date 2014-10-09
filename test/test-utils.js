@@ -31,13 +31,13 @@
     }
   }
 
-  var reDirectoryResources = /'([^\s]*?[\/\\]resources[\/\\][^']*)'/;
-
   function parseProlog(source) {
     var returnValue = {
       onlyInBrowser: false,
       skip: false,
-      shouldCompile: true,
+      get shouldHaveErrors() {
+        return this.expectedErrors.length !== 0;
+      },
       expectedErrors: [],
       async: false
     };
@@ -45,14 +45,12 @@
       var m;
       if (line.indexOf('// Only in browser.') === 0) {
         returnValue.onlyInBrowser = true;
-      } else if (line.indexOf('// Should not compile.') === 0) {
-        returnValue.shouldCompile = false;
       } else if (line.indexOf('// Skip.') === 0) {
         returnValue.skip = true;
       } else if (line.indexOf('// Async.') === 0) {
         returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
-        traceur.options.fromString(m[1]);
+        returnValue.traceurOptions = traceur.util.CommandOptions.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
         returnValue.expectedErrors.push(m[1]);
       }
@@ -105,13 +103,32 @@
     throw new chai.AssertionError(message);
   }
 
-  function runCode(code, name) {
-    try {
-      ('global', eval)(code);
-    } catch (e) {
-      fail('Error running compiled output for : ' + name + '\n' + e + '\n' +
-           code);
-    }
+  function hasMatchingError(expected, actualErrors) {
+    // We normally report errors using relative UNIX paths but we have a test
+    // that reports a file not found with the following string on Windows.
+    //
+    // File not found 'c:\src\traceur\test\feature\Modules\resources\no_such_file.js'
+    //
+    // We therefore replace strings matching '<Windows Path>' with a relative
+    // UNIX path instead.
+    var pathRe = /'[^']*(?:\\|\/)?(feature(?:\\|\/)[^']*)'/g;
+    return actualErrors.some(function(error) {
+      var adjustedError = error.replace(pathRe, function(_, p2) {
+        return "'" + p2.replace(/\\/g, '/') + "'";
+      });
+
+      return adjustedError.indexOf(expected) !== -1;
+    });
+  }
+
+  var Options = traceur.get('./Options').Options;
+
+  function setOptions(load, options) {
+    var traceurOptions = new Options(options.traceurOptions);
+    traceurOptions.debug = true;
+    traceurOptions.freeVariableChecker = true;
+    traceurOptions.validate = true;
+    load.metadata.traceurOptions = traceurOptions;
   }
 
   function featureTest(name, url, fileLoader) {
@@ -121,17 +138,9 @@
     });
 
     test(name, function(done) {
-      traceur.options.debug = true;
-      traceur.options.freeVariableChecker = true;
-      traceur.options.validate = true;
-
-      var reporter = new traceur.util.TestErrorReporter(reDirectoryResources);
-      var LoaderHooks = traceur.runtime.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', fileLoader);
-
-      // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
+      var baseURL = './';
       var options;
-      loaderHooks.translateSynchronous = function(load) {
+      function translateSynchronous(load) {
         var source = load.source;
         // Only top level file can set options.
         if (!options)
@@ -141,27 +150,37 @@
           return '';
 
         if (options.async) {
-          global.done = function() {
-            handleShouldCompile();
-            done();
+          global.done = function(ex) {
+            handleExpectedErrors(ex);
+            done(ex);
           };
         }
 
+        setOptions(load, options);
         return source;
       }
 
-      var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
+      var moduleLoader = new traceur.runtime.TraceurLoader(fileLoader, baseURL);
 
-      function handleShouldCompile() {
-        if (!options.shouldCompile) {
-          assert.isTrue(reporter.hadError(),
+      moduleLoader.translate = function(load) {
+        return new Promise(function(resolve, reject){
+          resolve(translateSynchronous(load));
+        });
+      }
+
+      function handleExpectedErrors(error) {
+        if (options.shouldHaveErrors) {
+          assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
-
-          options.expectedErrors.forEach(function(expected) {
-            assert.isTrue(reporter.hasMatchingError(expected),
-                          'Missing expected error: ' + expected +
-                          '\nActual errors:\n' +
-                          reporter.errors.join('\n'));
+          var actualErrors = error.errors || [error];
+          actualErrors = actualErrors.map(function(error) {
+            return error + '';
+          });
+          options.expectedErrors.forEach(function(expected, index) {
+            assert.isTrue(
+                hasMatchingError(expected, actualErrors),
+                'Missing expected error: ' + expected +
+                '\nActual errors:\n' + actualErrors);
           });
         }
       }
@@ -175,16 +194,17 @@
         if (options.async)
           return;
 
-        handleShouldCompile();
+        handleExpectedErrors();
         done();
       }
 
       function handleFailure(error) {
-        handleShouldCompile();
-        // TODO(arv): Improve how errors are passed through the module loader.
-        if (options.shouldCompile)
-          throw reporter.errors[0];
-        done();
+        handleExpectedErrors(error);
+        if (!options.shouldHaveErrors) {
+          done(error)
+        } else {
+          done();
+        }
       }
 
       if (/\.module\.js$/.test(url)) {
@@ -204,11 +224,15 @@
 
     function doTest(source) {
       var options = parseProlog(source);
-      if (options.skip || !options.shouldCompile) {
+      if (options.skip || options.shouldHaveErrors) {
         return;
       }
 
-      var reporter = new traceur.util.TestErrorReporter();
+      traceur.options.reset();
+      if (options.traceurOptions)
+        traceur.options.setFromObject(options.traceurOptions);
+
+      var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
@@ -224,7 +248,7 @@
 
       if (reporter.hadError()) {
         fail('Error compiling ' + name + '.\n' +
-             reporter.errors.join('\n'));
+             reporter.errorsAsString());
         return;
       }
 

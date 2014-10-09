@@ -31,7 +31,6 @@
   var $freeze = $Object.freeze;
   var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
-  var $getPrototypeOf = $Object.getPrototypeOf;
   var $keys = $Object.keys;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
   var $toString = $Object.prototype.toString;
@@ -96,18 +95,25 @@
   // exposed to user code.
   var privateNames = $create(null);
 
+  function isPrivateName(s) {
+    return privateNames[s];
+  }
+
   function createPrivateName() {
     var s = newUniqueString();
     privateNames[s] = true;
     return s;
   }
 
-  function isSymbol(symbol) {
+  /**
+   * Whether symbol is an emulated symbol.
+   */
+  function isShimSymbol(symbol) {
     return typeof symbol === 'object' && symbol instanceof SymbolValue;
   }
 
   function typeOf(v) {
-    if (isSymbol(v))
+    if (isShimSymbol(v))
       return 'symbol';
     return typeof v;
   }
@@ -220,29 +226,40 @@
     return $seal.apply(this, arguments);
   }
 
-  Symbol.iterator = Symbol();
   freeze(SymbolValue.prototype);
 
+  /**
+   * Checks if the string is a string that is used to represent an emulated
+   * symbol. This is used to filter out symbols in Object.keys,
+   * getOwnPropertyKeys and for-in loops.
+   */
+  function isSymbolString(s) {
+    return symbolValues[s] || privateNames[s];
+  }
+
   function toProperty(name) {
-    if (isSymbol(name))
+    if (isShimSymbol(name))
       return name[symbolInternalProperty];
     return name;
   }
 
-  // Override getOwnPropertyNames to filter out private name keys.
-  function getOwnPropertyNames(object) {
+  // Override getOwnPropertyNames to filter out symbols keys.
+  function removeSymbolKeys(array) {
     var rv = [];
-    var names = $getOwnPropertyNames(object);
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      if (!symbolValues[name] && !privateNames[name])
-        rv.push(name);
+    for (var i = 0; i < array.length; i++) {
+      if (!isSymbolString(array[i])) {
+        rv.push(array[i]);
+      }
     }
     return rv;
   }
 
-  function getOwnPropertyDescriptor(object, name) {
-    return $getOwnPropertyDescriptor(object, toProperty(name));
+  function getOwnPropertyNames(object) {
+    return removeSymbolKeys($getOwnPropertyNames(object));
+  }
+
+  function keys(object) {
+    return removeSymbolKeys($keys(object));
   }
 
   function getOwnPropertySymbols(object) {
@@ -250,10 +267,15 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var symbol = symbolValues[names[i]];
-      if (symbol)
+      if (symbol) {
         rv.push(symbol);
+      }
     }
     return rv;
+  }
+
+  function getOwnPropertyDescriptor(object, name) {
+    return $getOwnPropertyDescriptor(object, toProperty(name));
   }
 
   // Override Object.prototpe.hasOwnProperty to always return false for
@@ -266,32 +288,11 @@
     return global.traceur && global.traceur.options[name];
   }
 
-  function setProperty(object, name, value) {
-    var sym, desc;
-    if (isSymbol(name)) {
-      sym = name;
-      name = name[symbolInternalProperty];
-    }
-    object[name] = value;
-    if (sym && (desc = $getOwnPropertyDescriptor(object, name)))
-      $defineProperty(object, name, {enumerable: false});
-    return value;
-  }
-
   function defineProperty(object, name, descriptor) {
-    if (isSymbol(name)) {
-      // Symbols should not be enumerable. We need to create a new descriptor
-      // before calling the original defineProperty because the property might
-      // be made non configurable.
-      if (descriptor.enumerable) {
-        descriptor = $create(descriptor, {
-          enumerable: {value: false}
-        });
-      }
+    if (isShimSymbol(name)) {
       name = name[symbolInternalProperty];
     }
     $defineProperty(object, name, descriptor);
-
     return object;
   }
 
@@ -303,59 +304,11 @@
                     {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
-    $defineProperty(Object, 'freeze',
-                    {value: freeze});
-    $defineProperty(Object, 'preventExtensions',
-                    {value: preventExtensions});
-    $defineProperty(Object, 'seal',
-                    {value: seal});
-
-    Object.getOwnPropertySymbols = getOwnPropertySymbols;
-
-    // Object.is
-
-    // Unlike === this returns true for (NaN, NaN) and false for (0, -0).
-    function is(left, right) {
-      if (left === right)
-        return left !== 0 || 1 / left === 1 / right;
-      return left !== left && right !== right;
-    }
-
-    $defineProperty(Object, 'is', method(is));
-
-    // Object.assign (19.1.3.1)
-    function assign(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        var props = $keys(source);
-        var p, length = props.length;
-        for (p = 0; p < length; p++) {
-          var name = props[p];
-          if (privateNames[name])
-            continue;
-          target[name] = source[name];
-        }
-      }
-      return target;
-    }
-
-    $defineProperty(Object, 'assign', method(assign));
-
-    // Object.mixin (19.1.3.15)
-    function mixin(target, source) {
-      var props = $getOwnPropertyNames(source);
-      var p, descriptor, length = props.length;
-      for (p = 0; p < length; p++) {
-        var name = props[p];
-        if (privateNames[name])
-          continue;
-        descriptor = $getOwnPropertyDescriptor(source, props[p]);
-        $defineProperty(target, props[p], descriptor);
-      }
-      return target;
-    }
-
-    $defineProperty(Object, 'mixin', method(mixin));
+    $defineProperty(Object, 'freeze', {value: freeze});
+    $defineProperty(Object, 'preventExtensions', {value: preventExtensions});
+    $defineProperty(Object, 'seal', {value: seal});
+    $defineProperty(Object, 'keys', {value: keys});
+    // getOwnPropertySymbols is added in polyfillSymbol.
   }
 
   function exportStar(object) {
@@ -363,8 +316,7 @@
       var names = $getOwnPropertyNames(arguments[i]);
       for (var j = 0; j < names.length; j++) {
         var name = names[j];
-        if (privateNames[name])
-          continue;
+        if (isSymbolString(name)) continue;
         (function(mod, name) {
           $defineProperty(object, name, {
             get: function() { return mod[name]; },
@@ -386,335 +338,28 @@
     return $Object(x);
   }
 
-  function assertObject(x) {
-    if (!isObject(x))
-      throw $TypeError(x + ' is not an Object');
-    return x;
-  }
-
-  function superDescriptor(homeObject, name) {
-    var proto = $getPrototypeOf(homeObject);
-    do {
-      var result = $getOwnPropertyDescriptor(proto, name);
-      if (result)
-        return result;
-      proto = $getPrototypeOf(proto);
-    } while (proto)
-
-    return undefined;
-  }
-
-  function superCall(self, homeObject, name, args) {
-    return superGet(self, homeObject, name).apply(self, args);
-  }
-
-  function superGet(self, homeObject, name) {
-    var descriptor = superDescriptor(homeObject, name);
-    if (descriptor) {
-      if (!descriptor.get)
-        return descriptor.value;
-      return descriptor.get.call(self);
+  // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
+  function checkObjectCoercible(argument) {
+    if (argument == null) {
+      throw new TypeError('Value cannot be converted to an Object');
     }
-    return undefined;
+    return argument;
   }
 
-  function superSet(self, homeObject, name, value) {
-    var descriptor = superDescriptor(homeObject, name);
-    if (descriptor && descriptor.set) {
-      descriptor.set.call(self, value);
-      return value;
+  function polyfillSymbol(global, Symbol) {
+    if (!global.Symbol) {
+      global.Symbol = Symbol;
+      Object.getOwnPropertySymbols = getOwnPropertySymbols;
     }
-    throw $TypeError("super has no setter '" + name + "'.");
-  }
-
-  function getDescriptors(object) {
-    var descriptors = {}, name, names = $getOwnPropertyNames(object);
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      descriptors[name] = $getOwnPropertyDescriptor(object, name);
+    if (!global.Symbol.iterator) {
+      global.Symbol.iterator = Symbol('Symbol.iterator');
     }
-    return descriptors;
-  }
-
-  // The next three functions are more or less identical to
-  // ClassDefinitionEvaluation in the ES6 draft.
-
-  function createClass(ctor, object, staticObject, superClass) {
-    $defineProperty(object, 'constructor', {
-      value: ctor,
-       configurable: true,
-       enumerable: false,
-       writable: true
-    });
-
-    if (arguments.length > 3) {
-      if (typeof superClass === 'function')
-        ctor.__proto__ = superClass;
-      ctor.prototype = $create(getProtoParent(superClass),
-                               getDescriptors(object));
-    } else {
-      ctor.prototype = object;
-    }
-    $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
-    return $defineProperties(ctor, getDescriptors(staticObject));
-  }
-
-  function getProtoParent(superClass) {
-    if (typeof superClass === 'function') {
-      var prototype = superClass.prototype;
-      if ($Object(prototype) === prototype || prototype === null)
-        return superClass.prototype;
-    }
-    if (superClass === null)
-      return null;
-    throw new TypeError();
-  }
-
-  function defaultSuperCall(self, homeObject, args) {
-    if ($getPrototypeOf(homeObject) !== null)
-      superCall(self, homeObject, 'constructor', args);
-  }
-
-  // Generator states. Terminology roughly matches that of
-  //   http://wiki.ecmascript.org/doku.php?id=harmony:generators
-  // Since 'state' is already taken, use 'GState' instead to denote what's
-  // referred to as "G.[[State]]" on that page.
-  var ST_NEWBORN = 0;
-  var ST_EXECUTING = 1;
-  var ST_SUSPENDED = 2;
-  var ST_CLOSED = 3;
-
-  var END_STATE = -2;
-  var RETHROW_STATE = -3;
-
-
-  function getInternalError(state) {
-    return new Error('Traceur compiler bug: invalid state in state machine: ' +
-                      state);
-  }
-
-  function GeneratorContext() {
-    this.state = 0;
-    this.GState = ST_NEWBORN;
-    this.storedException = undefined;
-    this.finallyFallThrough = undefined;
-    this.sent_ = undefined;
-    this.returnValue = undefined;
-    this.tryStack_ = [];
-  }
-  GeneratorContext.prototype = {
-    pushTry: function(catchState, finallyState) {
-      if (finallyState !== null) {
-        var finallyFallThrough = null;
-        for (var i = this.tryStack_.length - 1; i >= 0; i--) {
-          if (this.tryStack_[i].catch !== undefined) {
-            finallyFallThrough = this.tryStack_[i].catch;
-            break;
-          }
-        }
-        if (finallyFallThrough === null)
-          finallyFallThrough = RETHROW_STATE;
-
-        this.tryStack_.push({
-          finally: finallyState,
-          finallyFallThrough: finallyFallThrough
-        });
-      }
-
-      if (catchState !== null) {
-        this.tryStack_.push({catch: catchState});
-      }
-    },
-    popTry: function() {
-      this.tryStack_.pop();
-    },
-    get sent() {
-      this.maybeThrow();
-      return this.sent_;
-    },
-    set sent(v) {
-      this.sent_ = v;
-    },
-    get sentIgnoreThrow() {
-      return this.sent_;
-    },
-    maybeThrow: function() {
-      if (this.action === 'throw') {
-        this.action = 'next';
-        throw this.sent_;
-      }
-    },
-    end: function() {
-      switch (this.state) {
-        case END_STATE:
-          return this;
-        case RETHROW_STATE:
-          throw this.storedException;
-        default:
-          throw getInternalError(this.state);
-      }
-    },
-    handleException: function(ex) {
-      this.GState = ST_CLOSED;
-      this.state = END_STATE;
-      throw ex;
-    }
-  };
-
-  function nextOrThrow(ctx, moveNext, action, x) {
-    switch (ctx.GState) {
-      case ST_EXECUTING:
-        throw new Error(`"${action}" on executing generator`);
-
-      case ST_CLOSED:
-        throw new Error(`"${action}" on closed generator`);
-
-      case ST_NEWBORN:
-        if (action === 'throw') {
-          ctx.GState = ST_CLOSED;
-          throw x;
-        }
-        if (x !== undefined)
-          throw $TypeError('Sent value to newborn generator');
-        // fall through
-
-      case ST_SUSPENDED:
-        ctx.GState = ST_EXECUTING;
-        ctx.action = action;
-        ctx.sent = x;
-        var value = moveNext(ctx);
-        var done = value === ctx;
-        if (done)
-          value = ctx.returnValue;
-        ctx.GState = done ? ST_CLOSED : ST_SUSPENDED;
-        return {value: value, done: done};
-    }
-  }
-
-  var ctxName = createPrivateName();
-  var moveNextName = createPrivateName();
-
-  function GeneratorFunction() {}
-
-  function GeneratorFunctionPrototype() {}
-
-  GeneratorFunction.prototype = GeneratorFunctionPrototype;
-
-  $defineProperty(GeneratorFunctionPrototype, 'constructor',
-      nonEnum(GeneratorFunction));
-
-  GeneratorFunctionPrototype.prototype = {
-    constructor: GeneratorFunctionPrototype,
-    next: function(v) {
-      return nextOrThrow(this[ctxName], this[moveNextName], 'next', v);
-    },
-    throw: function(v) {
-      return nextOrThrow(this[ctxName], this[moveNextName], 'throw', v);
-    }
-  };
-
-  $defineProperties(GeneratorFunctionPrototype.prototype, {
-    constructor: {enumerable: false},
-    next: {enumerable: false},
-    throw: {enumerable: false},
-  });
-
-  defineProperty(GeneratorFunctionPrototype.prototype, Symbol.iterator,
-      nonEnum(function() {
-        return this;
-      }));
-
-  function createGeneratorInstance(innerFunction, functionObject, self) {
-    // TODO(arv): Use [[GeneratorState]]
-    var moveNext = getMoveNext(innerFunction, self);
-    var ctx = new GeneratorContext();
-
-    var object = $create(functionObject.prototype);
-    object[ctxName] = ctx;
-    object[moveNextName] = moveNext;
-    return object;
-  }
-
-  function initGeneratorFunction(functionObject) {
-    functionObject.prototype = $create(GeneratorFunctionPrototype.prototype);
-    functionObject.__proto__ = GeneratorFunctionPrototype;
-    return functionObject;
-  }
-
-  function AsyncFunctionContext() {
-    GeneratorContext.call(this);
-    this.err = undefined;
-    var ctx = this;
-    ctx.result = new Promise(function(resolve, reject) {
-      ctx.resolve = resolve;
-      ctx.reject = reject;
-    });
-  }
-  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
-  AsyncFunctionContext.prototype.end = function() {
-    switch (this.state) {
-      case END_STATE:
-        this.resolve(this.returnValue);
-        break;
-      case RETHROW_STATE:
-        this.reject(this.storedException);
-        break;
-      default:
-        this.reject(getInternalError(this.state));
-    }
-  };
-  AsyncFunctionContext.prototype.handleException = function() {
-    this.state = RETHROW_STATE;
-  };
-
-  function asyncWrap(innerFunction, self) {
-    var moveNext = getMoveNext(innerFunction, self);
-    var ctx = new AsyncFunctionContext();
-    ctx.createCallback = function(newState) {
-      return function (value) {
-        ctx.state = newState;
-        ctx.value = value;
-        moveNext(ctx);
-      };
-    }
-
-    ctx.errback = function(err) {
-      handleCatch(ctx, err);
-      moveNext(ctx);
-    };
-
-    moveNext(ctx);
-    return ctx.result;
-  }
-
-  function getMoveNext(innerFunction, self) {
-    return function(ctx) {
-      while (true) {
-        try {
-          return innerFunction.call(self, ctx);
-        } catch (ex) {
-          handleCatch(ctx, ex);
-        }
-      }
-    };
-  }
-
-  function handleCatch(ctx, ex) {
-    ctx.storedException = ex;
-    var last = ctx.tryStack_[ctx.tryStack_.length - 1];
-    if (!last) {
-      ctx.handleException(ex);
-      return;
-    }
-
-    ctx.state = last.catch !== undefined ? last.catch : last.finally;
-
-    if (last.finallyFallThrough !== undefined)
-      ctx.finallyFallThrough = last.finallyFallThrough;
   }
 
   function setupGlobals(global) {
-    global.Symbol = Symbol;
+    polyfillSymbol(global, Symbol)
+    global.Reflect = global.Reflect || {};
+    global.Reflect.global = global.Reflect.global || global;
 
     polyfillObject(global.Object);
   }
@@ -722,19 +367,19 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
-    assertObject: assertObject,
-    asyncWrap: asyncWrap,
-    createClass: createClass,
-    defaultSuperCall: defaultSuperCall,
+    checkObjectCoercible: checkObjectCoercible,
+    createPrivateName: createPrivateName,
+    defineProperties: $defineProperties,
+    defineProperty: $defineProperty,
     exportStar: exportStar,
-    initGeneratorFunction: initGeneratorFunction,
-    createGeneratorInstance: createGeneratorInstance,
     getOwnHashObject: getOwnHashObject,
-    setProperty: setProperty,
+    getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+    getOwnPropertyNames: $getOwnPropertyNames,
+    isObject: isObject,
+    isPrivateName: isPrivateName,
+    isSymbolString: isSymbolString,
+    keys: $keys,
     setupGlobals: setupGlobals,
-    superCall: superCall,
-    superGet: superGet,
-    superSet: superSet,
     toObject: toObject,
     toProperty: toProperty,
     type: types,

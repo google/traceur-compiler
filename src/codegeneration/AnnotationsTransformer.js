@@ -16,10 +16,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
-import {
-  IDENTIFIER,
-  STRING
-} from '../syntax/TokenType';
+import {STRING} from '../syntax/TokenType';
 import {
   AnonBlock,
   ClassDeclaration,
@@ -31,10 +28,6 @@ import {
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
-import {
-  BINDING_IDENTIFIER,
-  IDENTIFIER_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
 import {propName} from '../staticsemantics/PropName';
 import {
   createArgumentList,
@@ -43,10 +36,9 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createNewExpression,
-  createStatementList,
   createStringLiteralToken
 } from './ParseTreeFactory';
-import {parseExpression} from './PlaceholderParser';
+import {parseExpression, parseStatement} from './PlaceholderParser';
 
 class AnnotationsScope {
   constructor() {
@@ -165,7 +157,7 @@ class AnnotationsScope {
     tree = super(tree);
     if (tree.annotations.length > 0) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
-          tree.parameterList, tree.typeAnnotation, [], tree.functionBody);
+          tree.parameterList, tree.typeAnnotation, [], tree.body);
     }
     return this.appendMetadata_(tree);
   }
@@ -230,7 +222,7 @@ class AnnotationsScope {
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
           tree.functionKind, tree.name, parameterList,
-          tree.typeAnnotation, [], tree.functionBody);
+          tree.typeAnnotation, [], tree.body);
     }
     return super(tree);
   }
@@ -260,8 +252,10 @@ class AnnotationsScope {
   }
 
   transformAccessor_(tree, className, accessor) {
-    var args = createArgumentList([this.transformClassReference_(tree, className),
-        this.createLiteralStringExpression_(tree.name)]);
+    var args = createArgumentList([
+      this.transformClassReference_(tree, className),
+      this.createLiteralStringExpression_(tree.name)
+    ]);
 
     var descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);
@@ -298,21 +292,24 @@ class AnnotationsScope {
     if (annotations !== null) {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
-        metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(target, 'annotations'),
-            createArrayLiteralExpression(annotations)));
+        metadataStatements.push(this.createDefinePropertyStatement_(target,
+            'annotations', createArrayLiteralExpression(annotations)));
       }
     }
 
     if (parameters !== null) {
       parameters = this.transformParameters_(parameters);
       if (parameters.length > 0) {
-        metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(target, 'parameters'),
-            createArrayLiteralExpression(parameters)));
+        metadataStatements.push(this.createDefinePropertyStatement_(target,
+            'parameters', createArrayLiteralExpression(parameters)));
       }
     }
     return metadataStatements;
+  }
+
+  createDefinePropertyStatement_(target, property, value) {
+    return parseStatement `Object.defineProperty(${target}, ${property},
+        {get: function() {return ${value}}});`
   }
 
   createLiteralStringExpression_(tree) {

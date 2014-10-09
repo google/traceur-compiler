@@ -18,11 +18,6 @@ import {
 } from '../../semantics/util';
 import {YieldState} from './YieldState';
 import {State} from './State';
-import {
-  createAssignmentStatement,
-  createMemberExpression,
-  createThisExpression
-} from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';
 
 /**

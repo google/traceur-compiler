@@ -196,7 +196,7 @@ export class SuperTransformer extends ParseTreeTransformer {
     return super.transformMemberLookupExpression(tree);
   }
 
-  transformBinaryOperator(tree) {
+  transformBinaryExpression(tree) {
     if (tree.operator.isAssignmentOperator() &&
         hasSuperMemberExpression(tree.left)) {
       if (tree.operator.type !== EQUAL) {
@@ -218,7 +218,7 @@ export class SuperTransformer extends ParseTreeTransformer {
                                     ${right})`;
     }
 
-    return super.transformBinaryOperator(tree);
+    return super.transformBinaryExpression(tree);
   }
 
   transformUnaryExpression(tree) {

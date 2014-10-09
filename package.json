@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.42",
+  "version": "0.0.67",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -22,9 +22,15 @@
   "bin": {
     "traceur": "./traceur"
   },
+  "files": [
+    "src/node/*.js",
+    "bin/traceur.js",
+    "bin/traceur-runtime.js",
+    "traceur"
+  ],
   "scripts": {
     "test": "make test",
-    "start": "node ./demo/expressServer.js"
+    "start": "make && node ./demo/expressServer.js"
   },
   "homepage": "https://github.com/google/traceur-compiler",
   "bugs": "https://github.com/google/traceur-compiler/issues",
@@ -33,20 +39,26 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": ">=1.1",
-    "q-io": "~1.10.6",
-    "semver": "*"
+    "commander": "2.x",
+    "glob": "4.x",
+    "regexpu": "0.2.1",
+    "rsvp": "^3.0.13",
+    "semver": "2.x"
   },
   "devDependencies": {
-    "source-map": "0.1.30",
-    "mocha": ">=1.9",
-    "chai": ">=1.5",
-    "node-uuid": ">=1.4",
-    "rsvp": "3.0.3",
-    "requirejs": "~2.1.9",
-    "semver": "2.2.1",
-    "traceur": "0.0.41",
-    "promises-aplus-tests": "~2.0.4"
+    "source-map": "0.1.34",
+    "express": "4.x",
+    "serve-index": "1.x",
+    "mocha": "1.20.x",
+    "chai": "1.x",
+    "node-uuid": "1.x",
+    "requirejs": "2.x",
+    "semver": "2.x",
+    "traceur": "0.0.66",
+    "promises-aplus-tests": "2.x",
+    "compat-table": "git+https://github.com/kangax/compat-table.git#gh-pages",
+    "colors": "~0.6.0-1",
+    "cheerio": "~0.10.1"
   },
   "subdomain": "traceur"
 }

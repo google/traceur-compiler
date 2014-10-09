@@ -22,3 +22,10 @@ export class ParseTreeTransformer {
   transformStateMachine(tree) {
     throw Error('State machines should not live outside of the GeneratorTransformer.');
   }
+  transformToBlockOrStatement(tree) {
+    var transformed = this.transformAny(tree);
+    if (transformed instanceof AnonBlock) {
+      return new Block(transformed.location, transformed.statements);
+    }
+    return transformed;
+  }

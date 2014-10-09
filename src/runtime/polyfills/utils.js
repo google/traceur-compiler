@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var $ceil = Math.ceil;
+var $floor = Math.floor;
+var $isFinite = isFinite;
+var $isNaN = isNaN;
+var $pow = Math.pow;
+var $min = Math.min;
+
 export var toObject = $traceurRuntime.toObject;
 
 export function toUint32(x) {
-  return x | 0;
+  return x >>> 0;
 }
 
 export function isObject(x) {
@@ -27,18 +34,103 @@ export function isCallable(x) {
   return typeof x === 'function';
 }
 
+export function isNumber(x) {
+  return typeof x === 'number';
+}
+
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
 export function toInteger(x) {
   x = +x;
-  if (isNaN(x)) return 0;
-  if (!isFinite(x) || x === 0) return x;
-  return x > 0 ? Math.floor(x) : Math.ceil(x);
+  if ($isNaN(x)) return 0;
+  if (x === 0 || !$isFinite(x)) return x;
+  return x > 0 ? $floor(x) : $ceil(x);
 }
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-var MAX_SAFE_LENGTH = Math.pow(2, 53) - 1;
+var MAX_SAFE_LENGTH = $pow(2, 53) - 1;
 
 export function toLength(x) {
   var len = toInteger(x);
-  return len < 0 ? 0 : Math.min(len, MAX_SAFE_LENGTH);
+  return len < 0 ? 0 : $min(len, MAX_SAFE_LENGTH);
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable
+export function checkIterable(x) {
+  return !isObject(x) ? undefined : x[Symbol.iterator];
+}
+
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
+export function isConstructor(x) {
+  return isCallable(x);
+}
+
+// 15.19.4.3.4 CreateIterResultObject
+export function createIteratorResultObject(value, done) {
+  return {value: value, done: done};
+}
+
+export function maybeDefine(object, name, descr) {
+  if (!(name in object)) {
+    Object.defineProperty(object, name, descr);
+  }
+}
+
+export function maybeDefineMethod(object, name, value) {
+  maybeDefine(object, name, {
+    value: value,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
+export function maybeDefineConst(object, name, value) {
+  maybeDefine(object, name, {
+    value: value,
+    configurable: false,
+    enumerable: false,
+    writable: false
+  });
+}
+
+export function maybeAddFunctions(object, functions) {
+  for (var i = 0; i < functions.length; i += 2) {
+    var name = functions[i];
+    var value = functions[i + 1];
+    maybeDefineMethod(object, name, value);
+  }
+}
+
+export function maybeAddConsts(object, consts) {
+  for (var i = 0; i < consts.length; i += 2) {
+    var name = consts[i];
+    var value = consts[i + 1];
+    maybeDefineConst(object, name, value);
+  }
+}
+
+export function maybeAddIterator(object, func, Symbol) {
+  if (!Symbol || !Symbol.iterator || object[Symbol.iterator])
+    return;
+
+  // Firefox does not have symbols so they use a hack.
+  if (object['@@iterator'])
+    func = object['@@iterator'];
+
+  Object.defineProperty(object, Symbol.iterator, {
+    value: func,
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+}
+
+var polyfills = [];
+
+export function registerPolyfill(func) {
+  polyfills.push(func);
+}
+
+export function polyfillAll(global) {
+  polyfills.forEach((f) => f(global));
 }

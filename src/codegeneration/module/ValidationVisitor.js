@@ -62,7 +62,7 @@ export class ValidationVisitor extends ModuleVisitor {
     if (tree.moduleSpecifier) {
       var name = tree.moduleSpecifier.token.processedValue;
       var moduleDescription =
-          this.getModuleDescriptionForModuleSpecifier(name);
+          this.getExportsListForModuleSpecifier(name);
       this.visitAndValidate_(moduleDescription, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
@@ -77,18 +77,19 @@ export class ValidationVisitor extends ModuleVisitor {
   visitImportDeclaration(tree) {
     var name = tree.moduleSpecifier.token.processedValue;
     var moduleDescription =
-        this.getModuleDescriptionForModuleSpecifier(name);
+        this.getExportsListForModuleSpecifier(name);
     this.visitAndValidate_(moduleDescription, tree.importClause);
   }
 
   visitImportSpecifier(tree) {
-    var importName = tree.rhs ? tree.rhs.value : tree.lhs.value;
+    var importName = tree.binding.getStringValue();
+    var exportName = tree.name ? tree.name.value : importName;
     this.checkImport_(tree, importName);
-    this.checkExport_(tree, tree.lhs.value);
+    this.checkExport_(tree, exportName);
   }
 
   visitImportedBinding(tree) {
-    var importName = tree.binding.identifierToken.value;
+    var importName = tree.binding.getStringValue();
     this.checkImport_(tree, importName);
     this.checkExport_(tree, 'default');
   }

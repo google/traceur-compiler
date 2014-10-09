@@ -18,7 +18,7 @@ var expr;
 
 function globalThis() {
   if (!expr)
-    expr = parseExpression `typeof global !== 'undefined' ? global : this`;
+    expr = parseExpression `Reflect.global`;
   return expr;
 }
 

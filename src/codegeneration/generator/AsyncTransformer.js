@@ -14,16 +14,15 @@
 
 import {AwaitState} from './AwaitState';
 import {
-  BinaryOperator,
-  ExpressionStatement,
-  IdentifierExpression
+  BinaryExpression,
+  ExpressionStatement
 } from '../../syntax/trees/ParseTrees';
 import {CPSTransformer} from './CPSTransformer';
 import {EndState} from './EndState';
 import {FallThroughState} from './FallThroughState';
 import {
   AWAIT_EXPRESSION,
-  BINARY_OPERATOR,
+  BINARY_EXPRESSION,
   STATE_MACHINE
 } from '../../syntax/trees/ParseTreeType';
 import {
@@ -31,28 +30,16 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
-import {
-  EQUAL,
-  VAR
-} from '../../syntax/TokenType';
 import {FindInFunctionScope} from '../FindInFunctionScope'
-import {
-  createAssignStateStatement,
-  createBreakStatement,
-  createOperatorToken,
-  createReturnStatement,
-  createStatementList,
-  createUndefinedExpression
-} from '../ParseTreeFactory';
+import {createUndefinedExpression} from '../ParseTreeFactory';
 
 /**
  * @param {ParseTree} tree Expression tree
  * @return {boolean}
  */
 function isAwaitAssign(tree) {
-  return tree.type === BINARY_OPERATOR &&
+  return tree.type === BINARY_EXPRESSION &&
       tree.operator.isAssignmentOperator() &&
       tree.right.type === AWAIT_EXPRESSION &&
       tree.left.isLeftHandSideExpression();
@@ -114,15 +101,19 @@ export class AsyncTransformer extends CPSTransformer {
                                 tree.operator);
   }
 
-  transformAwait_(tree, expression, left, operator) {
+  transformAwait_(tree, inExpression, left, operator) {
+    var expression, machine;
+    if (this.expressionNeedsStateMachine(inExpression)) {
+      ({expression, machine} = this.expressionToStateMachine(inExpression));
+    } else {
+      expression = this.transformAny(inExpression);
+    }
+
     var createTaskState = this.allocateState();
-    var callbackState = this.allocateState();
     var fallThroughState = this.allocateState();
-    if (!left)
-      callbackState = fallThroughState;
+    var callbackState = left ? this.allocateState() : fallThroughState;
 
     var states = [];
-    var expression = this.transformAny(expression);
     //  case createTaskState:
     states.push(new AwaitState(createTaskState, callbackState, expression));
 
@@ -133,17 +124,23 @@ export class AsyncTransformer extends CPSTransformer {
     if (left) {
       var statement = new ExpressionStatement(
           tree.location,
-          new BinaryOperator(
+          new BinaryExpression(
               tree.location,
               left,
               operator,
               parseExpression `$ctx.value`));
-      var assignment = [statement];
       states.push(new FallThroughState(callbackState, fallThroughState,
-                                       assignment));
+                                       [statement]));
     }
 
-    return new StateMachine(createTaskState, fallThroughState, states, []);
+    var awaitMachine =
+        new StateMachine(createTaskState, fallThroughState, states, []);
+
+    if (machine) {
+      awaitMachine = machine.append(awaitMachine);
+    }
+
+    return awaitMachine;
   }
 
   /**

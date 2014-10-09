@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :6:7: Unexpected token *
+// Error: :5:7: Unexpected token *
 
 function* yieldStarNewLine() {
   yield

@@ -19,10 +19,13 @@ import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
+import {ExponentiationTransformer} from './ExponentiationTransformer';
+import {validate as validateConst} from '../semantics/ConstChecker';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
-import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
+import {validate as validateFreeVariables} from
+    '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
@@ -31,11 +34,10 @@ import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
-import {ObjectMap} from '../util/ObjectMap';
-import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
 import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';
+import {RegularExpressionTransformer} from './RegularExpressionTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {SpreadTransformer} from './SpreadTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
@@ -43,8 +45,9 @@ import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer';
+import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options, transformOptions} from '../options';
+import {options, transformOptions} from '../Options';
 
 /**
  * MultiTransformer built from global options settings
@@ -52,7 +55,7 @@ import {options, transformOptions} from '../options';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdGenerator=} idGenerator
+   * @param {UniqueIdentifierGenerator=} idGenerator
    */
   constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
     super(reporter, options.validate);
@@ -63,24 +66,53 @@ export class FromOptionsTransformer extends MultiTransformer {
       });
     };
 
+    if (transformOptions.blockBinding) {
+      this.append((tree) => {
+        validateConst(tree, reporter);
+        return tree;
+      });
+    }
+
+    // Issue errors for any unbound variables
+    if (options.freeVariableChecker) {
+      this.append((tree) => {
+        validateFreeVariables(tree, reporter);
+        return tree;
+      });
+    }
+
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
+    if (transformOptions.exponentiation)
+      append(ExponentiationTransformer);
 
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
 
+    if (transformOptions.unicodeExpressions)
+      append(RegularExpressionTransformer);
+
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (options.types) {
+    if (options.types)
       append(TypeToExpressionTransformer);
-    }
+
+    if (transformOptions.unicodeEscapeSequences)
+      append(UnicodeEscapeSequenceTransformer);
 
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
 
     if (options.typeAssertions)
       append(TypeAssertionTransformer);
+
+    // PropertyNameShorthandTransformer needs to come before
+    // module transformers. See #1120 or
+    // test/node-instantiate-test.js test "Shorthand syntax with import"
+    // for detailed info.
+    if (transformOptions.propertyNameShorthand)
+      append(PropertyNameShorthandTransformer);
 
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
@@ -111,9 +143,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
       append(ClassTransformer);
-
-    if (transformOptions.propertyNameShorthand)
-      append(PropertyNameShorthandTransformer);
 
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames) {
@@ -152,22 +181,19 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.spread)
       append(SpreadTransformer);
 
-    if (transformOptions.blockBinding)
-      append(BlockBindingTransformer);
+    if (transformOptions.blockBinding) {
+      this.append((tree) => {
+        // this transformer need to be aware of the tree it will be working on
+        var transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
+        return transformer.transformAny(tree);
+      });
+    }
 
     // generator must come after for of and rest parameters
-    if (transformOptions.generators || transformOptions.asyncFuntions)
+    if (transformOptions.generators || transformOptions.asyncFunctions)
       append(GeneratorTransformPass);
 
     if (transformOptions.symbols)
       append(SymbolTransformer);
-
-    // Issue errors for any unbound variables
-    if (options.freeVariableChecker) {
-      this.append((tree) => {
-        FreeVariableChecker.checkScript(reporter, tree);
-        return tree;
-      });
-    }
   }
 }

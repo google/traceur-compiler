@@ -1,1 +1,1 @@
-module c from './c';
+import * as c from './c';

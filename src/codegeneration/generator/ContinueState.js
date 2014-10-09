@@ -14,7 +14,6 @@
 
 import {FallThroughState} from './FallThroughState';
 import {State} from './State';
-import {createStatementList} from '../ParseTreeFactory';
 
 export class ContinueState extends State {
   /**

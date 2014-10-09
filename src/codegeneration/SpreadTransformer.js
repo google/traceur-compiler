@@ -63,20 +63,11 @@ export class SpreadTransformer extends TempVarTransformer {
    *   _spread(xs, [x], ys, [y, z])
    *
    * @param {Array.<ParseTree>} elements
-   * @param {boolean} needsNewArray In the case of a spread call we can
-   *     sometimes get away with out creating a new array.
    * @return {CallExpression}
    * @private
    */
-  createArrayFromElements_(elements, needsNewArray) {
+  createArrayFromElements_(elements) {
     var length = elements.length;
-
-    // If only one argument we know it must be a spread expression so all we
-    // need to do is to ensure it is an object.
-    if (length === 1 && !needsNewArray) {
-      var args = createArgumentList(this.transformAny(elements[0].expression));
-      return parseExpression `$traceurRuntime.toObject(${args})`;
-    }
 
     // Coalesce multiple non spread elements.
     var args = [];
@@ -107,7 +98,7 @@ export class SpreadTransformer extends TempVarTransformer {
     var operand = this.transformAny(tree.operand);
     var functionObject, contextObject;
 
-    this.pushTempVarState();
+    this.pushTempScope();
 
     if (operand.type == MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
@@ -146,13 +137,13 @@ export class SpreadTransformer extends TempVarTransformer {
       functionObject = operand;
     }
 
-    this.popTempVarState();
+    this.popTempScope();
 
     // functionObject.apply(contextObject, expandedArgs)
-    var arrayExpression = this.createArrayFromElements_(tree.args.args, false);
+    var arrayExpression = this.createArrayFromElements_(tree.args.args);
     return createCallExpression(
         createMemberExpression(functionObject, APPLY),
-        createArgumentList(contextObject, arrayExpression));
+        createArgumentList([contextObject, arrayExpression]));
   }
 
   desugarNewSpread_(tree) {
@@ -161,21 +152,22 @@ export class SpreadTransformer extends TempVarTransformer {
     // new (Function.prototype.bind.apply(Fun, [null, ... args]))
 
     var arrayExpression = [createNullLiteral(), ...tree.args.args];
-    arrayExpression = this.createArrayFromElements_(arrayExpression, false);
+    arrayExpression = this.createArrayFromElements_(arrayExpression);
 
     return createNewExpression(
         createParenExpression(
             createCallExpression(
               createMemberExpression(FUNCTION, PROTOTYPE, BIND, APPLY),
-              createArgumentList(
-                  this.transformAny(tree.operand),
-                  arrayExpression))),
+              createArgumentList([
+                this.transformAny(tree.operand),
+                arrayExpression
+              ]))),
         createEmptyArgumentList());
   }
 
   transformArrayLiteralExpression(tree) {
     if (hasSpreadMember(tree.elements)) {
-      return this.createArrayFromElements_(tree.elements, true);
+      return this.createArrayFromElements_(tree.elements);
     }
     return super.transformArrayLiteralExpression(tree);
   }

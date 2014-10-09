@@ -33,6 +33,8 @@ import {
   SLASH_EQUAL,
   STAR,
   STAR_EQUAL,
+  STAR_STAR,
+  STAR_STAR_EQUAL,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
 } from '../syntax/TokenType';
@@ -45,6 +47,8 @@ function assignmentOperatorToBinaryOperator(type) {
   switch (type) {
     case STAR_EQUAL:
       return STAR;
+    case STAR_STAR_EQUAL:
+      return STAR_STAR;
     case SLASH_EQUAL:
       return SLASH;
     case PERCENT_EQUAL:

@@ -11,5 +11,5 @@ throwInResolve.then((v) => {
 	// not be called, just the done() to avoid timeout.
   assert(ex instanceof Error);
   assert(ex.toString().indexOf(message) !== -1);
-  done(ex);
+  done();
 }).catch(done);

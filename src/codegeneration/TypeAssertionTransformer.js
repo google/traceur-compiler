@@ -22,15 +22,13 @@ import {
   ImportSpecifierSet,
   Module,
   ModuleSpecifier,
-  ReturnStatement,
   Script,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees';
 import {
   createArgumentList,
-  createExpressionStatement,
   createIdentifierExpression,
-  createIdentifierToken,
+  createImportedBinding,
   createStringLiteralToken
 } from './ParseTreeFactory';
 import {
@@ -38,7 +36,7 @@ import {
   parseStatement
 } from './PlaceholderParser';
 import {ParameterTransformer} from './ParameterTransformer';
-import {options} from '../options';
+import {options} from '../Options';
 
 /**
  * Inserts runtime type assertions for type annotations.
@@ -222,9 +220,10 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     if (!this.assertionAdded_ || options.typeAssertionModule === null)
       return tree;
 
+    var binding = createImportedBinding('assert');
     var importStatement = new ImportDeclaration(null,
         new ImportSpecifierSet(null,
-            [new ImportSpecifier(null, createIdentifierToken('assert'), null)]),
+            [new ImportSpecifier(null, binding, null)]),
         new ModuleSpecifier(null,
             createStringLiteralToken(options.typeAssertionModule)));
     tree = new Ctor(tree.location,

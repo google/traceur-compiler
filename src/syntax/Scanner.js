@@ -24,7 +24,7 @@ import {
 import {
   options,
   parseOptions
-} from '../options';
+} from '../Options';
 
 import {
   AMPERSAND,
@@ -32,81 +32,47 @@ import {
   AND,
   ARROW,
   AT,
-  BACK_QUOTE,
   BANG,
   BAR,
   BAR_EQUAL,
-  BREAK,
   CARET,
   CARET_EQUAL,
-  CASE,
-  CATCH,
-  CLASS,
   CLOSE_ANGLE,
   CLOSE_CURLY,
   CLOSE_PAREN,
   CLOSE_SQUARE,
   COLON,
   COMMA,
-  CONST,
-  CONTINUE,
-  DEBUGGER,
-  DEFAULT,
-  DELETE,
-  DO,
   DOT_DOT_DOT,
-  ELSE,
   END_OF_FILE,
-  ENUM,
   EQUAL,
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
   ERROR,
-  EXPORT,
-  EXTENDS,
-  FALSE,
-  FINALLY,
-  FOR,
-  FUNCTION,
   GREATER_EQUAL,
-  IDENTIFIER,
-  IF,
-  IMPLEMENTS,
-  IMPORT,
-  IN,
-  INSTANCEOF,
-  INTERFACE,
   LEFT_SHIFT,
   LEFT_SHIFT_EQUAL,
   LESS_EQUAL,
-  LET,
   MINUS,
   MINUS_EQUAL,
   MINUS_MINUS,
-  NEW,
   NO_SUBSTITUTION_TEMPLATE,
   NOT_EQUAL,
   NOT_EQUAL_EQUAL,
-  NULL,
   NUMBER,
   OPEN_ANGLE,
   OPEN_CURLY,
   OPEN_PAREN,
   OPEN_SQUARE,
   OR,
-  PACKAGE,
   PERCENT,
   PERCENT_EQUAL,
   PERIOD,
   PLUS,
   PLUS_EQUAL,
   PLUS_PLUS,
-  PRIVATE,
-  PROTECTED,
-  PUBLIC,
   QUESTION,
   REGULAR_EXPRESSION,
-  RETURN,
   RIGHT_SHIFT,
   RIGHT_SHIFT_EQUAL,
   SEMI_COLON,
@@ -114,26 +80,15 @@ import {
   SLASH_EQUAL,
   STAR,
   STAR_EQUAL,
-  STATIC,
+  STAR_STAR,
+  STAR_STAR_EQUAL,
   STRING,
-  SUPER,
-  SWITCH,
   TEMPLATE_HEAD,
   TEMPLATE_MIDDLE,
   TEMPLATE_TAIL,
-  THIS,
-  THROW,
   TILDE,
-  TRUE,
-  TRY,
-  TYPEOF,
   UNSIGNED_RIGHT_SHIFT,
-  UNSIGNED_RIGHT_SHIFT_EQUAL,
-  VAR,
-  VOID,
-  WHILE,
-  WITH,
-  YIELD
+  UNSIGNED_RIGHT_SHIFT_EQUAL
 } from './TokenType';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
@@ -276,11 +231,7 @@ export class Scanner {
     lineNumberTable = file.lineNumberTable;
     input = file.contents;
     length = file.contents.length;
-    index = 0;
-    lastToken = null;
-    token = null;
-    lookaheadToken = null;
-    updateCurrentCharCode();
+    this.index = 0;
     currentParser = parser;
   }
 
@@ -325,6 +276,18 @@ export class Scanner {
   isAtEnd() {
     return isAtEnd();
   }
+
+  set index(i) {
+    index = i;
+    lastToken = null;
+    token = null;
+    lookaheadToken = null;
+    updateCurrentCharCode();
+  }
+
+  get index() {
+    return index;
+  }
 }
 
 /**
@@ -350,7 +313,9 @@ function nextRegularExpressionLiteralToken() {
   var beginIndex = index - token.toString().length;
 
   // body
-  if (!skipRegularExpressionBody()) {
+  // Also, check if we are done with the body in case we had /=/
+  if (!(token.type == SLASH_EQUAL && currentCharCode === 47) &&
+      !skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
                             getTokenRange(beginIndex));
@@ -365,7 +330,7 @@ function nextRegularExpressionLiteralToken() {
   }
   next();
 
-  // flags
+  // flags (note: this supports future regular expression flags)
   while (isIdentifierPart(currentCharCode)) {
     next();
   }
@@ -740,7 +705,7 @@ function scanToken() {
         }
         return createToken(EQUAL_EQUAL, beginIndex);
       }
-      if (currentCharCode === 62) {  // >
+      if (currentCharCode === 62 && parseOptions.arrowFunctions) {  // >
         next();
         return createToken(ARROW, beginIndex);
       }
@@ -759,6 +724,14 @@ function scanToken() {
       if (currentCharCode === 61) {  // =
         next();
         return createToken(STAR_EQUAL, beginIndex);
+      }
+      if (currentCharCode === 42 && parseOptions.exponentiation) {
+        next();
+        if (currentCharCode === 61) {  // =
+          next();
+          return createToken(STAR_STAR_EQUAL, beginIndex);
+        }
+        return createToken(STAR_STAR, beginIndex);
       }
       return createToken(STAR, beginIndex);
     case 37:  // %
@@ -1075,11 +1048,40 @@ function skipStringLiteralEscapeSequence() {
     case 120:  // x
       return skipHexDigit() && skipHexDigit();
     case 117:  // u
-      return skipHexDigit() && skipHexDigit() &&
-          skipHexDigit() && skipHexDigit();
+      return skipUnicodeEscapeSequence();
     default:
       return true;
   }
+}
+
+function skipUnicodeEscapeSequence() {
+  if (currentCharCode === 123 && parseOptions.unicodeEscapeSequences) {  // {
+    next();
+    var beginIndex = index;
+
+    if (!isHexDigit(currentCharCode)) {
+      reportError('Hex digit expected');
+      return false;
+    }
+
+    skipHexDigits();
+
+    if (currentCharCode !== 125) {  // }
+      reportError('Hex digit expected');
+      return false;
+    }
+
+    var codePoint = getTokenString(beginIndex, index);
+    if (parseInt(codePoint, 16) > 0x10FFFF) { // 11.8.4.1
+      reportError('The code point in a Unicode escape sequence cannot exceed 10FFFF');
+      return false;
+    }
+
+    next();
+    return true;
+  }
+  return skipHexDigit() && skipHexDigit() &&
+      skipHexDigit() && skipHexDigit();
 }
 
 function skipHexDigit() {

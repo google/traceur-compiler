@@ -1,6 +1,4 @@
-// Should not compile.
-// Error: initializer is not allowed in for-of loop with pattern
-// Error: for-of statement may not have initializer
+// Error: :3:19: Unexpected token of
 
 for (var {k} = {} of []) {
 }

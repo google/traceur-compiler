@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isObject} from './utils'
+import {
+  isObject,
+  maybeAddIterator,
+  registerPolyfill
+} from './utils'
 
 var getOwnHashObject = $traceurRuntime.getOwnHashObject;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -22,7 +26,7 @@ function lookupIndex(map, key) {
   if (isObject(key)) {
     var hashObject = getOwnHashObject(key);
     return hashObject && map.objectIndex_[hashObject.hash];
-  } 
+  }
   if (typeof key === 'string')
     return map.stringIndex_[key];
   return map.primitiveIndex_[key];
@@ -39,48 +43,45 @@ function initMap(map) {
 export class Map {
   constructor(iterable = undefined) {
     if (!isObject(this))
-      throw new TypeError("Constructor Map requires 'new'");
-    
+      throw new TypeError('Map called on incompatible type');
+
     if ($hasOwnProperty.call(this, 'entries_')) {
-      throw new TypeError("Map can not be reentrantly initialised");
+      throw new TypeError('Map can not be reentrantly initialised');
     }
-    
+
     initMap(this);
-    
+
     if (iterable !== null && iterable !== undefined) {
-      var iter = iterable[Symbol.iterator];
-      if (iter !== undefined) {
-        for (var [key, value] of iterable) {
-          this.set(key, value);
-        }
+      for (var [key, value] of iterable) {
+        this.set(key, value);
       }
     }
   }
-  
+
   get size() {
     return this.entries_.length / 2 - this.deletedCount_;
   }
 
   get(key) {
     var index = lookupIndex(this, key);
-    
-    if (index !== undefined) 
+
+    if (index !== undefined)
       return this.entries_[index + 1];
   }
 
   set(key, value) {
     var objectMode = isObject(key);
     var stringMode = typeof key === 'string';
-    
+
     var index = lookupIndex(this, key);
-    
+
     if (index !== undefined) {
       this.entries_[index + 1] = value;
     } else {
       index = this.entries_.length;
       this.entries_[index] = key;
       this.entries_[index + 1] = value;
-      
+
       if (objectMode) {
         var hashObject = getOwnHashObject(key);
         var hash = hashObject.hash;
@@ -93,18 +94,18 @@ export class Map {
     }
     return this; // 23.1.3.9.11
   }
-  
+
   has(key) {
     return lookupIndex(this, key) !== undefined;
   }
-  
+
   delete(key) {
     var objectMode = isObject(key);
     var stringMode = typeof key === 'string';
-    
+
     var index;
     var hash;
-    
+
     if (objectMode) {
       var hashObject = getOwnHashObject(key);
       if (hashObject) {
@@ -118,29 +119,93 @@ export class Map {
       index = this.primitiveIndex_[key];
       delete this.primitiveIndex_[key]
     }
-    
+
     if (index !== undefined) {
       this.entries_[index] = deletedSentinel;
       // remove possible reference to value to avoid memory leaks
       this.entries_[index + 1] = undefined;
-      
+
       this.deletedCount_++;
+
+      return true; // 23.1.3.3
     }
+
+    return false; // 23.1.3.3
   }
-  
+
   clear() {
     initMap(this);
   }
-  
+
   forEach(callbackFn, thisArg = undefined) {
-    for (var i = 0, len = this.entries_.length; i < len; i += 2) {
+    for (var i = 0; i < this.entries_.length; i += 2) {
       var key = this.entries_[i];
       var value = this.entries_[i + 1];
-      
+
       if (key === deletedSentinel)
         continue;
-      
+
       callbackFn.call(thisArg, value, key, this);
     }
   }
+
+  *entries() {
+    for (var i = 0; i < this.entries_.length; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+
+      if (key === deletedSentinel)
+        continue;
+
+      yield [key, value];
+    }
+  }
+
+  *keys() {
+    for (var i = 0; i < this.entries_.length; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+
+      if (key === deletedSentinel)
+        continue;
+
+      yield key;
+    }
+  }
+
+  *values() {
+    for (var i = 0; i < this.entries_.length; i += 2) {
+      var key = this.entries_[i];
+      var value = this.entries_[i + 1];
+
+      if (key === deletedSentinel)
+        continue;
+
+      yield value;
+    }
+  }
 }
+
+Object.defineProperty(Map.prototype, Symbol.iterator, {
+  configurable: true,
+  writable: true,
+  value: Map.prototype.entries
+});
+
+export function polyfillMap(global) {
+  var {Object, Symbol} = global;
+  if (!global.Map)
+    global.Map = Map;
+
+  var mapPrototype = global.Map.prototype;
+  if (mapPrototype.entries === undefined)
+    global.Map = Map;
+
+  if (mapPrototype.entries) {
+    maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
+    maybeAddIterator(Object.getPrototypeOf(new global.Map().entries()),
+        function() { return this; }, Symbol);
+  }
+}
+
+registerPolyfill(polyfillMap);

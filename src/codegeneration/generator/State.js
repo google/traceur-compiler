@@ -14,12 +14,9 @@
 
 import {
   createAssignStateStatement,
-  createAssignmentStatement,
   createBreakStatement,
   createCaseClause,
-  createIdentifierExpression,
-  createNumberLiteral,
-  createStatementList
+  createNumberLiteral
 } from '../ParseTreeFactory';
 import {parseStatement} from '../PlaceholderParser';
 
@@ -90,9 +87,10 @@ State.RETHROW_STATE = -3;
  * @return {Array.<ParseTree>}
  */
 State.generateJump = function(enclosingFinally, fallThroughState) {
-  return createStatementList(
-      State.generateAssignState(enclosingFinally, fallThroughState),
-      createBreakStatement());
+  return [
+    ...State.generateAssignState(enclosingFinally, fallThroughState),
+    createBreakStatement()
+  ];
 };
 
 
@@ -108,8 +106,7 @@ State.generateAssignState = function(enclosingFinally, fallThroughState) {
         enclosingFinally,
         fallThroughState);
   } else {
-    assignState = createStatementList(
-        createAssignStateStatement(fallThroughState));
+    assignState = [createAssignStateStatement(fallThroughState)];
   }
   return assignState;
 };
@@ -134,9 +131,10 @@ function generateAssignStateOutOfFinally(enclosingFinally, destination) {
   var finallyState = enclosingFinally.finallyState;
   // $ctx.state = finallyState;
   // $fallThrough = destination;
-  return createStatementList(
-      createAssignStateStatement(finallyState),
-      parseStatement `$ctx.finallyFallThrough = ${destination}`);
+  return [
+    createAssignStateStatement(finallyState),
+    parseStatement `$ctx.finallyFallThrough = ${destination}`
+  ];
 }
 
 /**

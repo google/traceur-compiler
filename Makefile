@@ -1,12 +1,24 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/spread.js \
+  src/runtime/classes.js \
+  src/runtime/generators.js \
   src/runtime/url.js \
   src/runtime/ModuleStore.js
+POLYFILL_SRC = \
+  src/runtime/polyfills/Map.js \
+  src/runtime/polyfills/Set.js \
+  src/runtime/polyfills/Promise.js \
+  src/runtime/polyfills/String.js \
+  src/runtime/polyfills/Array.js \
+  src/runtime/polyfills/Object.js \
+  src/runtime/polyfills/Number.js \
+  src/runtime/polyfills/polyfills.js
 SRC = \
-  src/runtime/polyfill-import.js \
+  $(POLYFILL_SRC) \
   src/traceur-import.js
 TPL_GENSRC = \
+  src/outputgeneration/regexpuRewritePattern.js \
   src/outputgeneration/SourceMapIntegration.js
 GENSRC = \
   $(TPL_GENSRC) \
@@ -14,7 +26,6 @@ GENSRC = \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
   src/syntax/ParseTreeVisitor.js
-TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
@@ -30,12 +41,13 @@ RUNTIME_TESTS = \
   test/unit/runtime/System.js
 
 UNIT_TESTS = \
+	test/unit/util/ \
 	test/unit/codegeneration/ \
-	test/unit/node/ \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
-	test/unit/system/ \
-	test/unit/util/
+	test/unit/ \
+	test/unit/node/ \
+	test/unit/system/
 
 TESTS = \
 	test/node-commonjs-test.js \
@@ -47,7 +59,6 @@ TESTS = \
 	$(UNIT_TESTS)
 
 COMPILE_BEFORE_TEST = \
-	test/unit/semantics/FreeVariableChecker.generated.js \
 	test/unit/codegeneration/PlaceholderParser.generated.js
 
 MOCHA_OPTIONS = \
@@ -73,10 +84,11 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
-	test/unit/runtime/traceur-runtime \
-	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-interpret-absolute test-inline-module-error \
-	test-version test/unit/tools/SourceMapMapping
+	  test/unit/runtime/traceur-runtime \
+	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
+	  test-interpret-absolute test-inline-module-error \
+	  test-version test/unit/tools/SourceMapMapping \
+	  test-compat-table test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -87,7 +99,7 @@ test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
 	rm -r -f test/unit/tools # only used for generated files currently.
 
-test/unit/%-run: test/unit/% bin/traceur.js
+test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
 
 test/commonjs: test/commonjs-compiled
@@ -108,20 +120,21 @@ test-interpret: test/unit/runtime/test_interpret.js
 	./traceur $^
 
 test-interpret-throw: test/unit/runtime/throwsError.js
-	./traceur $^ 2>&1 | wc -l | grep '11'
+	./traceur $^ 2>&1 | grep 'ModuleEvaluationError' | wc -l | grep '1'
 
 test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
 	./traceur $^
 
 test-inline-module-error:
 	./traceur --out not-written.js \
-		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d'
+		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d' > /dev/null
 
-# TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force
+	rm -f -r test.commonjs-compiled/*
 	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
 
 test/amd-compiled: force
+	rm -f -r test/amd-compiled/*
 	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
 test/unit/%.generated.js: test/unit/es6/%.js
@@ -134,11 +147,17 @@ test/unit/runtime/traceur-runtime: \
 test-version:
 	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
 
-# Skip sloppy tests because the Promise pollyfil is defined in a module
+# Skip sloppy tests because the Promise polyfill is defined in a module
 # and module context in ES6 is strict by default
 test-promise:
 	node_modules/promises-aplus-tests/lib/cli.js \
 	test/node-promise-adapter.js --grep "2.2.5" --grep "sloppy" --invert
+
+test-compat-table: node_modules/es5-compat-table/data-es6.js bin/traceur.js
+	./traceur test/verify-compat.js
+
+test-experimental: bin/traceur.js
+	./traceur --experimental -- ./test/unit/node/resources/let-x.js
 
 boot: clean build
 
@@ -147,7 +166,7 @@ clean: wikiclean
 	@rm -f build/previous-commit-traceur.js
 	@rm -rf build/node
 	@rm -rf build/currentSemVer.mk
-	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	@rm -f $(GENSRC)
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
@@ -166,9 +185,9 @@ bin/%.min.js: bin/%.js
 
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
-bin/traceur-runtime.js: $(RUNTIME_SRC) src/runtime/polyfill-import.js
+bin/traceur-runtime.js: $(RUNTIME_SRC) $(POLYFILL_SRC)
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) src/runtime/polyfill-import.js
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(POLYFILL_SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -203,8 +222,6 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 self: build/previous-commit-traceur.js force
 	./traceur-build --debug --out bin/traceur.js $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
-$(TPL_GENSRC_DEPS): node_modules
-
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
@@ -228,9 +245,6 @@ unicode-tables: \
 %.js: %.js-template.js
 	node build/expand-js-template.js $< $@
 
-%.js-template.js.dep: %.js-template.js
-	node build/expand-js-template.js --deps $^ > $@
-
 # set NO_PREPUBLISH=1 to prevent endless loop of makes and npm installs.
 NPM_INSTALL = NO_PREPUBLISH=1 npm install --local && touch node_modules
 
@@ -244,6 +258,7 @@ bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
 updateSemver: # unless the package.json has been manually edited.
+	node build/printSemver.js > build/npm-version-number
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
 # --- Targets that push upstream.
@@ -267,8 +282,8 @@ update-version-number: npm-publish updateSemver
 	$(MAKE) test  # build version N+1
 
 git-update-version: update-version-number
-	./traceur -v | xargs -I VERSION git commit -a -m "VERSION"
-	./traceur -v | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
+	cat build/npm-version-number | xargs -I VERSION git commit -a -m "VERSION"
+	cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master
 	git push upstream upstream_master:master  # Push source for version N+1
 
@@ -276,11 +291,13 @@ git-update-version: update-version-number
 
 git-gh-rebase: git-update-version
 	-git branch -D upstream_gh_pages
-	git checkout -b upstream_gh_pages upstream/gh-pages
-	git rebase upstream_master
+	git checkout -b upstream_gh_pages upstream/master
+	cp gh-pages.gitignore .gitignore # tell git to commit built files.
 	$(MAKE) clean # trees.json may have changed.
 	$(MAKE) test # build binaries for VERSION
-	./traceur -v | xargs -I VERSION git commit -a -m "Rebase; commit binaries for VERSION"
+	git add src/
+	git add bin/
+	./traceur -v | xargs -I VERSION git commit -a -m "Commit binaries for VERSION"
 	git push -f upstream upstream_gh_pages:gh-pages
 
 git-update-publish: git-gh-rebase
@@ -305,5 +322,3 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
-
--include $(TPL_GENSRC_DEPS)

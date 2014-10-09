@@ -1,6 +1,4 @@
-// Should not compile.
-// Options: --block-binding
-// Error: inner is not defined
+// Error: :8:11: inner is not defined
 
 function testBlock() {
   {

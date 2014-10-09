@@ -25,7 +25,7 @@ suite('parser.js', function() {
 
   test('Module', function() {
     var program = 'export var x = 42;\n' +
-                  'module M from \'url\';\n' +
+                  'import * as M from \'url\';\n' +
                   'import {z} from \'x\';\n' +
                   'import {a as b, c} from \'M\';\n';
     var sourceFile = new traceur.syntax.SourceFile('Name', program);

@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Loader} from 'traceur@0.0/src/runtime/Loader';
-import {
-  InterceptOutputLoaderHooks
-} from 'traceur@0.0/src/runtime/InterceptOutputLoaderHooks';
+import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader';
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
 import {
   SourceMapGenerator,
   SourceMapConsumer
 } from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
-import {options as traceurOptions} from 'traceur@0.0/src/options';
+import {options as traceurOptions} from 'traceur@0.0/src/Options';
+import {webLoader} from 'traceur@0.0/src/runtime/webLoader';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {
@@ -32,23 +30,20 @@ class BatchErrorReporter extends ErrorReporter {
   }
 }
 
-export function transcode(contents, onSuccess, onFailure, onTranscoded) {
-  var options;
-  if (traceurOptions.sourceMaps) {
-    var config = {file: 'traceured.js'};
-    var sourceMapGenerator = new SourceMapGenerator(config);
-    options = {sourceMapGenerator: sourceMapGenerator};
-  }
-  var reporter = new BatchErrorReporter();
+export function transcode(contents, onSuccess, onFailure) {
   var url = location.href;
-  var loaderHooks = new InterceptOutputLoaderHooks(reporter, url, options);
-  loaderHooks.onTranscoded = onTranscoded;
+  var loadOptions = {
+    address: 'traceured.js',
+    metadata: {
+      traceurOptions: traceurOptions
+    }
+  };
 
-  function reportErrors() {
-    onFailure(reporter.errors);
-  }
-  var loader = new Loader(loaderHooks);
-  loader.module(contents, {}).then(onSuccess, reportErrors);
+  var loader = new TraceurLoader(webLoader, url);
+  var load = traceurOptions.script ? loader.script : loader.module;
+  load.call(loader, contents, loadOptions).
+      then(() => onSuccess(loadOptions.metadata),
+          (error) => onFailure(error, loadOptions.metadata));
 }
 
 export function renderSourceMap(source, sourceMap) {

@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :8:17: Unexpected token ;
+// Error: :7:17: Unexpected token ;
 
 class A {}
 

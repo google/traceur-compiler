@@ -14,29 +14,20 @@
 
 import {CPSTransformer} from './CPSTransformer';
 import {
-  BINARY_OPERATOR,
-  STATE_MACHINE,
+  BINARY_EXPRESSION,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
 import {
-  BinaryOperator,
+  BinaryExpression,
   ExpressionStatement
 } from '../../syntax/trees/ParseTrees'
-import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
-import {FallThroughState} from './FallThroughState';
 import {FindInFunctionScope} from '../FindInFunctionScope'
 import {ReturnState} from './ReturnState';
-import {State} from './State';
-import {StateMachine} from '../../syntax/trees/StateMachine';
 import {YieldState} from './YieldState';
 import {
-  createAssignStateStatement,
-  createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
-  createStatementList,
   createUndefinedExpression,
-  createYieldStatement
 } from '../ParseTreeFactory';
 import {
   parseExpression,
@@ -49,7 +40,7 @@ import {
  * @return {boolean}
  */
 function isYieldAssign(tree) {
-  return tree.type === BINARY_OPERATOR &&
+  return tree.type === BINARY_EXPRESSION &&
       tree.operator.isAssignmentOperator() &&
       tree.right.type === YIELD_EXPRESSION &&
       tree.left.isLeftHandSideExpression();
@@ -113,10 +104,7 @@ export class GeneratorTransformer extends CPSTransformer {
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
     var yieldMachine = this.stateToStateMachine_(
-        new YieldState(
-            startState,
-            fallThroughState,
-            this.transformAny(expression)),
+        new YieldState(startState, fallThroughState, expression),
         fallThroughState);
 
     if (machine)
@@ -175,7 +163,7 @@ export class GeneratorTransformer extends CPSTransformer {
             $ctx.sent = ${next}.value;
             break;
           }
-          ${createYieldStatement(createMemberExpression(next, 'value'))};
+          yield ${next}.value;
         }`;
 
     // The yield above should not be treated the same way as a normal yield.
@@ -207,7 +195,7 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {BinaryOperator} tree
+   * @param {BinaryExpression} tree
    */
   transformYieldAssign_(tree) {
     var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
@@ -219,7 +207,7 @@ export class GeneratorTransformer extends CPSTransformer {
         parseExpression `$ctx.sent`;
     var statement = new ExpressionStatement(
         tree.location,
-        new BinaryOperator(
+        new BinaryExpression(
             tree.location,
             left,
             tree.operator,

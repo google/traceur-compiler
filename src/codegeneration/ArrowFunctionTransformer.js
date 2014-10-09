@@ -12,23 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  FormalParameterList
-} from '../syntax/trees/ParseTrees';
+import {FunctionExpression} from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
-
-import {
-  FUNCTION_BODY,
-  FUNCTION_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
+import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType';
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {
   createFunctionBody,
-  createFunctionExpression,
   createParenExpression,
   createReturnStatement
 } from './ParseTreeFactory';
 
+/**
+ * Converts a concise body to a function body.
+ * @param {ParseTree} tree
+ * @return {FunctionBody}
+ */
+function convertConciseBody(tree) {
+  if (tree.type !== FUNCTION_BODY)
+    return createFunctionBody([createReturnStatement(tree)]);
+  return tree;
+}
 
 /**
  * Desugars arrow function expressions
@@ -43,24 +46,28 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
    * function body and return statement if needed.
    */
   transformArrowFunctionExpression(tree) {
-    var parameters;
-    if (tree.parameterList) {
-      parameters = this.transformAny(tree.parameterList).parameters;
-    } else {
-      parameters = [];
-    }
-
     var alphaRenamed = alphaRenameThisAndArguments(this, tree);
+    var parameterList = this.transformAny(alphaRenamed.parameterList);
 
-    var functionBody = this.transformAny(alphaRenamed.functionBody);
-    if (functionBody.type != FUNCTION_BODY) {
-      // { return expr; }
-      functionBody = createFunctionBody([createReturnStatement(functionBody)]);
-    }
+    var body = this.transformAny(alphaRenamed.body);
+    body = convertConciseBody(body);
+    var functionExpression = new FunctionExpression(tree.location, null,
+        tree.functionKind, parameterList, null, [], body);
 
-    // function(params) { ... }
-    return createParenExpression(
-        createFunctionExpression(
-            new FormalParameterList(null, parameters), functionBody));
+    return createParenExpression(functionExpression);
+  }
+
+  /**
+   * Shallowly transforms |tree| into a FunctionExpression and adds the needed
+   * temp variables to the |tempVarTransformer|.
+   * @param {TempVarTransformer} tempVarTransformer
+   * @param {ArrowFunctionExpression} tree
+   * @return {FunctionExpression}
+   */
+  static transform(tempVarTransformer, tree) {
+    tree = alphaRenameThisAndArguments(tempVarTransformer, tree);
+    var body = convertConciseBody(tree.body);
+    return new FunctionExpression(tree.location, null, tree.functionKind,
+        tree.parameterList, null, [], body);
   }
 }

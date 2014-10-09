@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: innerX is not defined
+// Error: :9:1: innerX is not defined
 
 try {
   throw [0];

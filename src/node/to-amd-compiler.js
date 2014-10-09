@@ -14,9 +14,7 @@
 
 'use strict';
 
-var traceur = require('./traceur.js');
-var compileAllJsFilesInDir =
-    require('./compile-single-file.js').compileAllJsFilesInDir;
+var traceurAPI = require('./api.js');
 
 if (process.argv.length < 4) {
   console.log('Not enough arguments!\n' +
@@ -24,10 +22,7 @@ if (process.argv.length < 4) {
   process.exit(1);
 }
 
-// Nasty, we should rather pass the options to FromOptionsTransformer
-traceur.options.modules = 'amd';
-
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
 
-compileAllJsFilesInDir(inputDir, outputDir, true);
+traceurAPI.compileAllJsFilesInDir(inputDir, outputDir, traceurAPI.amdOptions());

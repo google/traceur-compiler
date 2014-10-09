@@ -1,5 +1,4 @@
-// Should not compile.
-// Error: :8:18: Unexpected token no substitution template
+// Error: :7:18: Unexpected token no substitution template
 
 class A {}
 

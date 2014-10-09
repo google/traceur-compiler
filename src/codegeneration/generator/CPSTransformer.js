@@ -16,10 +16,8 @@ import {AlphaRenamer} from '../AlphaRenamer';
 import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
   BLOCK,
-  BREAK_STATEMENT,
   CASE_CLAUSE,
   CONDITIONAL_EXPRESSION,
-  CONTINUE_STATEMENT,
   EXPRESSION_STATEMENT,
   PAREN_EXPRESSION,
   STATE_MACHINE
@@ -64,7 +62,6 @@ import {
   createIdentifierExpression as id,
   createMemberExpression,
   createNumberLiteral,
-  createStatementList,
   createSwitchStatement,
 } from '../ParseTreeFactory';
 import HoistVariablesTransformer from '../HoistVariablesTransformer';
@@ -98,11 +95,19 @@ function needsStateMachine(tree) {
 }
 
 class HoistVariables extends HoistVariablesTransformer {
+  constructor() {
+    super(true);  // Hoist functions.
+  }
+
   /**
    * Override to not inject the hoisted variables. We will manually inject them
    * later.
    */
   prependVariables(statements) {
+    return statements;
+  }
+
+  prependFunctions(statements) {
     return statements;
   }
 }
@@ -205,7 +210,7 @@ export class CPSTransformer extends TempVarTransformer {
   }
 
   transformFunctionBody(tree) {
-    this.pushTempVarState();
+    this.pushTempScope();
 
     // NOTE: tree may contain state machines already ...
     var oldLabels = this.clearLabels_();
@@ -215,7 +220,7 @@ export class CPSTransformer extends TempVarTransformer {
 
     this.restoreLabels_(oldLabels);
 
-    this.popTempVarState();
+    this.popTempScope();
     return machine == null ? transformedTree : machine;
   }
 
@@ -291,7 +296,7 @@ export class CPSTransformer extends TempVarTransformer {
     var machine = this.transformStatementList_(result.statements);
     return machine == null ?
         result :
-        new CaseClause(null, result.expression, createStatementList(machine));
+        new CaseClause(null, result.expression, [machine]);
   }
 
   /**
@@ -454,8 +459,7 @@ export class CPSTransformer extends TempVarTransformer {
           new FallThroughState(
               tmpId,
               initialiserFallThroughId,
-              createStatementList(
-                  createExpressionStatement(initializer))));
+              [createExpressionStatement(initializer)]));
     }
 
     if (condition) {
@@ -499,8 +503,7 @@ export class CPSTransformer extends TempVarTransformer {
           new FallThroughState(
               tmpId,
               incrementFallThroughId,
-              createStatementList(
-                  createExpressionStatement(increment))));
+              [createExpressionStatement(increment)]));
     }
 
     // loop body
@@ -1044,6 +1047,8 @@ export class CPSTransformer extends TempVarTransformer {
         replaceStartState(State.START_STATE);
 
     var statements = [];
+    if (this.hoistVariablesTransformer_.hasFunctions())
+      statements.push(...this.hoistVariablesTransformer_.getFunctions());
     if (this.hoistVariablesTransformer_.hasVariables())
       statements.push(this.hoistVariablesTransformer_.getVariableStatement());
     if (hasArguments)
@@ -1098,6 +1103,10 @@ export class CPSTransformer extends TempVarTransformer {
    */
   transformSetAccessor(tree) {
     // nested functions have already been transformed
+    return tree;
+  }
+
+  transformArrowFunctionExpression(tree) {
     return tree;
   }
 
@@ -1206,7 +1215,7 @@ export class CPSTransformer extends TempVarTransformer {
             var statements;
             // all but the last case fallthrough to the last case clause
             if (index < enclosingFinallyState.tryStates.length) {
-              statements = createStatementList();
+              statements = [];
             } else {
               statements = parseStatements `
                   $ctx.state = $ctx.finallyFallThrough;
@@ -1217,13 +1226,13 @@ export class CPSTransformer extends TempVarTransformer {
                 createCaseClause(createNumberLiteral(destination), statements));
           }
           caseClauses.push(
-              createDefaultClause(
-                  createStatementList(
-                      // $ctx.state = enclosingFinallyState.startState;
-                      createAssignStateStatement(
-                          enclosingFinallyState.finallyState),
-                      // break;
-                      createBreakStatement())));
+              createDefaultClause([
+                // $ctx.state = enclosingFinallyState.startState;
+                createAssignStateStatement(
+                    enclosingFinallyState.finallyState),
+                // break;
+                createBreakStatement()
+              ]));
 
           // case finally.fallThroughState:
           //   switch ($fallThrough) {
@@ -1240,11 +1249,12 @@ export class CPSTransformer extends TempVarTransformer {
           cases.push(
               createCaseClause(
                   createNumberLiteral(finallyState.fallThroughState),
-                  createStatementList(
-                      createSwitchStatement(
-                          createMemberExpression('$ctx', 'finallyFallThrough'),
-                          caseClauses),
-                      createBreakStatement())));
+                  [
+                    createSwitchStatement(
+                        createMemberExpression('$ctx', 'finallyFallThrough'),
+                        caseClauses),
+                    createBreakStatement()
+                  ]));
         } else {
           // case finally.fallThroughState:
           //   $ctx.state = $fallThrough;
