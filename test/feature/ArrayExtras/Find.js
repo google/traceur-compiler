@@ -85,4 +85,4 @@ assert.equal(Array.prototype.find.call(object, (v) => {
 }), 'a');
 assert.equal(lengthCalls, 1);
 assert.equal(itemCalls, 1);
-assert.equal(callbackCalls, 1);
+assert.equal(callbackCalls, 3);

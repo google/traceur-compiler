@@ -44,4 +44,4 @@ assert.equal(Array.prototype.findIndex.call(object, (v) => {
 }), 2);
 assert.equal(lengthCalls, 1);
 assert.equal(itemCalls, 1);
-assert.equal(callbackCalls, 1);
+assert.equal(callbackCalls, 3);
