@@ -16,9 +16,9 @@ class D extends null {
   }
 }
 
-assert.throw(function() {
-  new D();
-}, TypeError);
+// super() does not depend on the [HomeObject]. It just calls the [Prototype]
+// of the function.
+new D();
 
 class E extends function() { return null }() {
   constructor(...args) {
@@ -26,10 +26,9 @@ class E extends function() { return null }() {
   }
 }
 
-assert.throw(function() {
-  new E();
-}, TypeError);
-
+// super() does not depend on the [HomeObject]. It just calls the [Prototype]
+// of the function.
+new E();
 
 function f() {};
 f.prototype = null;

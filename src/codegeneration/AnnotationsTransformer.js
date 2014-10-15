@@ -86,7 +86,7 @@ class AnnotationsScope {
  *
  *    var B = function(x) {
  *      "use strict";
- *      $traceurRuntime.superCall(this, $B.prototype, "constructor", []);
+ *      $traceurRuntime.superConstructor($B).call(this);
  *    };
  *    var $B = ($traceurRuntime.createClass)(B, {method: function(x) {
  *        "use strict";
@@ -131,7 +131,7 @@ class AnnotationsScope {
 
     // we need to recurse to collect the constructor metadata before
     // we process the class metadata
-    tree = super(tree);
+    tree = super.transformClassDeclaration(tree);
     scope.metadata.unshift(...this.transformMetadata_(
         createIdentifierExpression(tree.name),
         scope.annotations,
@@ -154,7 +154,7 @@ class AnnotationsScope {
         scope.annotations,
         tree.parameterList.parameters));
 
-    tree = super(tree);
+    tree = super.transformFunctionDeclaration(tree);
     if (tree.annotations.length > 0) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.functionKind,
           tree.parameterList, tree.typeAnnotation, [], tree.body);
@@ -167,12 +167,12 @@ class AnnotationsScope {
       tree = new FormalParameter(tree.location, tree.parameter,
           tree.typeAnnotation, []);
     }
-    return super(tree);
+    return super.transformFormalParameter(tree);
   }
 
   transformGetAccessor(tree) {
     if (!this.scope.inClassScope)
-      return super(tree);
+      return super.transformGetAccessor(tree);
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'get'),
@@ -183,12 +183,12 @@ class AnnotationsScope {
       tree = new GetAccessor(tree.location, tree.isStatic, tree.name,
           tree.typeAnnotation, [], tree.body);
     }
-    return super(tree);
+    return super.transformGetAccessor(tree);
   }
 
   transformSetAccessor(tree) {
     if (!this.scope.inClassScope)
-      return super(tree);
+      return super.transformSetAccessor(tree);
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
@@ -200,12 +200,12 @@ class AnnotationsScope {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
           parameterList, [], tree.body);
     }
-    return super(tree);
+    return super.transformSetAccessor(tree);
   }
 
   transformPropertyMethodAssignment(tree) {
     if (!this.scope.inClassScope)
-      return super(tree);
+      return super.transformPropertyMethodAssignment(tree);
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
@@ -224,7 +224,7 @@ class AnnotationsScope {
           tree.functionKind, tree.name, parameterList,
           tree.typeAnnotation, [], tree.body);
     }
-    return super(tree);
+    return super.transformPropertyMethodAssignment(tree);
   }
 
   appendMetadata_(tree) {

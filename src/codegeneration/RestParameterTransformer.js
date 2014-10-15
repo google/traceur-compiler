@@ -36,7 +36,7 @@ function getRestParameterLiteralToken(parameterList) {
 export class RestParameterTransformer extends ParameterTransformer {
 
   transformFormalParameterList(tree) {
-    var transformed = super(tree);
+    var transformed = super.transformFormalParameterList(tree);
     if (hasRestParameter(transformed)) {
       var parametersWithoutRestParam = new FormalParameterList(
           transformed.location,

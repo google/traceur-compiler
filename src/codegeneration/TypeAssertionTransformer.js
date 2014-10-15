@@ -70,7 +70,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformScript(tree) {
-    return this.prependAssertionImport_(super(tree), Script);
+    return this.prependAssertionImport_(super.transformScript(tree), Script);
   }
 
   /**
@@ -78,7 +78,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformModule(tree) {
-    return this.prependAssertionImport_(super(tree), Module);
+    return this.prependAssertionImport_(super.transformModule(tree), Module);
   }
 
   /**
@@ -92,7 +92,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
 
       this.assertionAdded_ = true;
     }
-    return super(tree);
+    return super.transformVariableDeclaration(tree);
   }
 
   transformFormalParameterList(tree) {
@@ -103,7 +103,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
       arguments: []
     });
 
-    var transformed = super(tree);
+    var transformed = super.transformFormalParameterList(tree);
     var params = this.parametersStack_.pop();
 
     if (params.atLeastOneParameterTyped) {
@@ -122,7 +122,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformFormalParameter(tree) {
-    var transformed = super(tree);
+    var transformed = super.transformFormalParameter(tree);
 
     switch (transformed.parameter.type) {
       case BINDING_ELEMENT:
@@ -144,7 +144,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformGetAccessor(tree) {
     this.pushReturnType_(tree.typeAnnotation);
-    tree = super(tree);
+    tree = super.transformGetAccessor(tree);
     this.popReturnType_();
     return tree;
   }
@@ -155,7 +155,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformPropertyMethodAssignment(tree) {
     this.pushReturnType_(tree.typeAnnotation);
-    tree = super(tree);
+    tree = super.transformPropertyMethodAssignment(tree);
     this.popReturnType_();
     return tree;
   }
@@ -166,7 +166,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformFunctionDeclaration(tree) {
     this.pushReturnType_(tree.typeAnnotation);
-    tree = super(tree);
+    tree = super.transformFunctionDeclaration(tree);
     this.popReturnType_();
     return tree;
   }
@@ -177,7 +177,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformFunctionExpression(tree) {
     this.pushReturnType_(tree.typeAnnotation);
-    tree = super(tree);
+    tree = super.transformFunctionExpression(tree);
     this.popReturnType_();
     return tree;
   }
@@ -187,7 +187,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformReturnStatement(tree) {
-    tree = super(tree);
+    tree = super.transformReturnStatement(tree);
 
     if (this.returnType_ && tree.expression) {
       this.assertionAdded_ = true;

@@ -18,7 +18,6 @@ import {
   FunctionExpression
 } from '../syntax/trees/ParseTrees';
 import {
-  LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
@@ -29,9 +28,8 @@ import {
   MINUS_MINUS,
   PLUS_PLUS
 } from '../syntax/TokenType';
-import {assert} from '../util/assert';
 import {
-  createArrayLiteralExpression,
+  createArgumentList,
   createIdentifierExpression,
   createParenExpression,
   createStringLiteral,
@@ -56,7 +54,7 @@ class ExplodeSuperExpression extends ExplodeExpressionTransformer {
  *
  *   super.x  =>  superGet(this, proto, 'x')
  *   super.x = expr  =>  superSet(this, proto, 'x', expr)
- *   super.x()  =>  superCall(this, proto, 'x', args)
+ *   super.x(1, 2)  =>  superGet(this, proto, 'x').call(this, 1, 2)
  *
  * This also transforms super.x++, ++super.x and super.x += expr
  * into forms that use the runtime functions.
@@ -65,13 +63,13 @@ export class SuperTransformer extends ParseTreeTransformer {
   /**
    * @param {TempVarTransformer} tempVarTransformer
    * @param {ParseTree} protoName
-   * @param {ParseTree} methodTree
    * @param {string} thisName The name of the saved 'this' var
+   * @param {ParseTree} internalName The name of the save class binding.
    */
-  constructor(tempVarTransformer, protoName, methodTree, thisName) {
+  constructor(tempVarTransformer, protoName, thisName, internalName) {
     this.tempVarTransformer_ = tempVarTransformer;
     this.protoName_ = protoName;
-    this.method_ = methodTree;
+    this.internalName_ = internalName;
     this.superCount_ = 0;
     this.thisVar_ = createIdentifierExpression(thisName);
     this.inNestedFunc_ = 0;
@@ -121,13 +119,10 @@ export class SuperTransformer extends ParseTreeTransformer {
   transformCallExpression(tree) {
     // TODO(arv): This does not yet handle computed properties.
     // [expr]() { super(); }
-
-    if (this.method_ && tree.operand.type == SUPER_EXPRESSION) {
+    if (tree.operand.type == SUPER_EXPRESSION) {
       // We have: super(args)
       this.superCount_++;
-      assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
-      var methodName = this.method_.name.literalToken.value;
-      return this.createSuperCallExpression_(methodName, tree);
+      return this.createSuperCall_(tree);
     }
 
     if (hasSuperMemberExpression(tree.operand)) {
@@ -140,10 +135,17 @@ export class SuperTransformer extends ParseTreeTransformer {
       else
         name = tree.operand.memberExpression;
 
-      return this.createSuperCallExpression_(name, tree);
+      return this.createSuperCallMethod_(name, tree);
     }
 
     return super.transformCallExpression(tree);
+  }
+
+  createSuperCall_(tree) {
+    var thisExpr = this.inNestedFunc_ ? this.thisVar_ : createThisExpression();
+    var args = createArgumentList([thisExpr, ...tree.args.args]);
+    return parseExpression
+        `$traceurRuntime.superConstructor(${this.internalName_}).call(${args})`;
   }
 
   /**
@@ -151,27 +153,14 @@ export class SuperTransformer extends ParseTreeTransformer {
    * @param {CallExpression} tree
    * @return {CallExpression}
    */
-  createSuperCallExpression_(methodName, tree) {
+  createSuperCallMethod_(methodName, tree) {
     var thisExpr = this.inNestedFunc_ ? this.thisVar_ : createThisExpression();
-    var args = createArrayLiteralExpression(tree.args.args);
-    return this.createSuperCallExpression(thisExpr, this.protoName_,
-                                          methodName, args);
+    var operand = this.transformMemberShared_(methodName);
+    var args = createArgumentList([thisExpr, ...tree.args.args]);
+    return parseExpression `${operand}.call(${args})`;
   }
 
-  /**
-   * @param {ParseTree} thisExpr
-   * @param {ParseTree} protoName
-   * @param {string|LiteralExpression} methodName
-   * @param {ParseTree} args
-   * @return {CallExpression}
-   */
-  createSuperCallExpression(thisExpr, protoName, methodName, args) {
-    return parseExpression
-        `$traceurRuntime.superCall(${thisExpr}, ${protoName}, ${methodName},
-                                   ${args})`;
-  }
-
-  transformMemberShared_(tree, name) {
+  transformMemberShared_(name) {
     var thisExpr = this.inNestedFunc_ ? this.thisVar_ : createThisExpression();
     return parseExpression
         `$traceurRuntime.superGet(${thisExpr}, ${this.protoName_}, ${name})`;
@@ -184,15 +173,14 @@ export class SuperTransformer extends ParseTreeTransformer {
   transformMemberExpression(tree) {
     if (tree.operand.type === SUPER_EXPRESSION) {
       this.superCount_++;
-      return this.transformMemberShared_(tree,
-          createStringLiteral(tree.memberName.value));
+      return this.transformMemberShared_(tree.memberName.value);
     }
     return super.transformMemberExpression(tree);
   }
 
   transformMemberLookupExpression(tree) {
     if (tree.operand.type === SUPER_EXPRESSION)
-      return this.transformMemberShared_(tree, tree.memberExpression);
+      return this.transformMemberShared_(tree.memberExpression);
     return super.transformMemberLookupExpression(tree);
   }
 
@@ -225,14 +213,14 @@ export class SuperTransformer extends ParseTreeTransformer {
     var transformed = this.transformIncrementDecrement_(tree);
     if (transformed)
       return transformed;
-    return super(tree);
+    return super.transformUnaryExpression(tree);
   }
 
   transformPostfixExpression(tree) {
     var transformed = this.transformIncrementDecrement_(tree);
     if (transformed)
       return transformed;
-    return super(tree);
+    return super.transformPostfixExpression(tree);
   }
 
   transformIncrementDecrement_(tree) {

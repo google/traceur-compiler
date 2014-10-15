@@ -43,14 +43,14 @@ export class ConstChecker extends ScopeVisitor {
          tree.operator.type === MINUS_MINUS)) {
       this.validateMutation_(tree.operand);
     }
-    super(tree);
+    super.visitUnaryExpression(tree);
   }
 
   visitPostfixExpression(tree) {
     if (tree.operand.type === IDENTIFIER_EXPRESSION) {
       this.validateMutation_(tree.operand);
     }
-    super(tree);
+    super.visitPostfixExpression(tree);
   }
 
   visitBinaryExpression(tree) {
@@ -58,7 +58,7 @@ export class ConstChecker extends ScopeVisitor {
         tree.operator.isAssignmentOperator()) {
       this.validateMutation_(tree.left);
     }
-    super(tree);
+    super.visitBinaryExpression(tree);
   }
 
   validateMutation_(identifierExpression) {

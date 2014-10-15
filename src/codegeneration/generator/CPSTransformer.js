@@ -313,7 +313,7 @@ export class CPSTransformer extends TempVarTransformer {
           this.expressionToStateMachine(tree.condition));
       body = this.transformAny(tree.body);
     } else {
-      var result = super(tree);
+      var result = super.transformDoWhileStatement(tree);
       ({condition, body} = result);
       if (body.type != STATE_MACHINE)
         return result;
@@ -571,7 +571,7 @@ export class CPSTransformer extends TempVarTransformer {
       ifClause = this.transformAny(tree.ifClause);
       elseClause = this.transformAny(tree.elseClause);
     } else {
-      var result = super(tree);
+      var result = super.transformIfStatement(tree);
       ({condition, ifClause, elseClause} = result);
       if (ifClause.type !== STATE_MACHINE &&
           (elseClause === null || elseClause.type !== STATE_MACHINE)) {

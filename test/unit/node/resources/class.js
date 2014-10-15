@@ -9,7 +9,7 @@ class B {
 
 class C extends B {
   method() {
-    return super() + this.x;
+    return super.method() + this.x;
   }
 }
 

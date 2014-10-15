@@ -78,7 +78,7 @@ class FreeVariableChecker extends ScopeVisitor {
         scope.addVar(tree.operand, this.reporter_);
       }
     } else {
-      super(tree);
+      super.visitUnaryExpression(tree);
     }
   }
 

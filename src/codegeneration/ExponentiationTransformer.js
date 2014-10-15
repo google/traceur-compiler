@@ -34,6 +34,6 @@ export class ExponentiationTransformer extends TempVarTransformer {
         return this.transformAny(exploded);
     }
 
-    return super(tree);
+    return super.transformBinaryExpression(tree);
   }
 }

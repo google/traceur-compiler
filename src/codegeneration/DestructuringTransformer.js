@@ -176,7 +176,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (tree.operator.type == EQUAL && tree.left.isPattern()) {
       rv = this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
-      rv = super(tree);
+      rv = super.transformBinaryExpression(tree);
     }
 
     this.popTempScope();
@@ -356,7 +356,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
   transformFunctionBody(tree) {
     if (this.parameterDeclarations === null)
-      return super(tree);
+      return super.transformFunctionBody(tree);
 
     var list = createVariableDeclarationList(VAR, this.parameterDeclarations);
     var statement = createVariableStatement(list);
@@ -365,7 +365,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     this.parameterDeclarations = null;
 
-    var result = super(newBody);
+    var result = super.transformFunctionBody(newBody);
     this.popTempScope();
     return result;
   }

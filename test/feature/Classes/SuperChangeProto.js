@@ -10,9 +10,9 @@ class OtherBase {
 class Derived extends Base {
   p() {
     log += '[Derived]';
-    super();
+    super.p();
     Derived.prototype.__proto__ = OtherBase.prototype;
-    super();
+    super.p();
   }
 }
 

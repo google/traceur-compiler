@@ -57,19 +57,19 @@ export class ScopeVisitor extends ParseTreeVisitor {
 
   visitScript(tree) {
     var scope = this.pushScope(tree);
-    super(tree);
+    super.visitScript(tree);
     this.popScope(scope);
   }
 
   visitModule(tree) {
     var scope = this.pushScope(tree);
-    super(tree);
+    super.visitModule(tree);
     this.popScope(scope);
   }
 
   visitBlock(tree) {
     var scope = this.pushScope(tree);
-    super(tree);
+    super.visitBlock(tree);
     this.popScope(scope);
   }
 
@@ -158,18 +158,18 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitForInStatement(tree) {
-    this.visitLoop_(tree, () => super(tree));
+    this.visitLoop_(tree, () => super.visitForInStatement(tree));
   }
 
   visitForOfStatement(tree) {
-    this.visitLoop_(tree, () => super(tree));
+    this.visitLoop_(tree, () => super.visitForOfStatement(tree));
   }
 
   visitForStatement(tree) {
     if (!tree.initializer) {
-      super(tree);
+      super.visitForStatement(tree);
     } else {
-      this.visitLoop_(tree, () => super(tree));
+      this.visitLoop_(tree, () => super.visitForStatement(tree));
     }
   }
 

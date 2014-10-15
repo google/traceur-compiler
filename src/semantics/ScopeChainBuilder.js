@@ -43,12 +43,12 @@ export class ScopeChainBuilder extends ScopeVisitor {
 
   visitImportedBinding(tree) {
     this.declarationType_ = CONST;
-    super(tree);
+    super.visitImportedBinding(tree);
   }
 
   visitVariableDeclarationList(tree) {
     this.declarationType_ = tree.declarationType;
-    super(tree);
+    super.visitVariableDeclarationList(tree);
   }
 
   visitBindingIdentifier(tree) {
@@ -68,7 +68,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
 
   visitFormalParameter(tree) {
     this.declarationType_ = VAR;
-    super(tree);
+    super.visitFormalParameter(tree);
   }
 
   visitFunctionDeclaration(tree) {
@@ -122,7 +122,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
 
   visitComprehensionFor(tree) {
     this.declarationType_ = LET;
-    super(tree);
+    super.visitComprehensionFor(tree);
   }
 
   declareVariable(tree) {

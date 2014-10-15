@@ -66,7 +66,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    */
   transformFunctionDeclaration(tree) {
     if (!needsTransform(tree))
-      return super(tree);
+      return super.transformFunctionDeclaration(tree);
 
     if (tree.isGenerator())
       return this.transformGeneratorDeclaration_(tree);
@@ -102,7 +102,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    */
   transformFunctionExpression(tree) {
     if (!needsTransform(tree))
-      return super(tree);
+      return super.transformFunctionExpression(tree);
 
     if (tree.isGenerator())
       return this.transformGeneratorExpression_(tree);
@@ -159,7 +159,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
   transformArrowFunctionExpression(tree) {
     if (!tree.isAsyncFunction())
-      return super(tree);
+      return super.transformArrowFunctionExpression(tree);
 
     return this.transformAny(ArrowFunctionTransformer.transform(this, tree));
   }
@@ -167,7 +167,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
   transformBlock(tree) {
     var inBlock = this.inBlock_;
     this.inBlock_ = true;
-    var rv = super(tree);
+    var rv = super.transformBlock(tree);
     this.inBlock_ = inBlock;
     return rv;
   }

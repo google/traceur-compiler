@@ -53,7 +53,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     if (tree.location)
       this.enterBranch(tree.location);
 
-    super(tree);
+    super.visitAny(tree);
 
     if (tree.location)
       this.exitBranch(tree.location);

@@ -249,7 +249,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   // this is a start and end point of this transformer
   transformFunctionBody(tree) {
     if (tree === this.rootTree_ || !this.rootTree_) {
-      tree = super(tree);
+      tree = super.transformFunctionBody(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
         var statements = prependStatements(tree.statements,
             ...this.prependStatement_);
@@ -272,7 +272,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   // this is a start and end point of this transformer
   transformScript(tree) {
     if (tree === this.rootTree_ || !this.rootTree_) {
-      tree = super(tree);
+      tree = super.transformScript(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
         var scriptItemList = prependStatements(tree.scriptItemList,
             ...this.prependStatement_);
@@ -295,7 +295,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   // this is a start and end point of this transformer
   transformModule(tree) {
     if (tree === this.rootTree_ || !this.rootTree_) {
-      tree = super(tree);
+      tree = super.transformModule(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
         var scriptItemList = prependStatements(tree.scriptItemList,
             ...this.prependStatement_);
@@ -331,7 +331,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformVariableDeclarationList(tree) {
     if (tree.declarationType === VAR) {
-      return super(tree);
+      return super.transformVariableDeclarationList(tree);
     }
 
     // If we are at a var scope we do not need to rename.
@@ -366,7 +366,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                                 this.reporter_);
       return bindingIdentifier;
     }
-    return super(tree);
+    return super.transformBindingIdentifier(tree);
   }
 
   transformBindingElement(tree) {
@@ -399,7 +399,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   transformObjectPattern(tree) {
     var inObjectPattern = this.inObjectPattern_;
     this.inObjectPattern_ = true;
-    var transformed = super(tree);
+    var transformed = super.transformObjectPattern(tree);
     this.inObjectPattern_ = inObjectPattern;
     return transformed;
   }
@@ -417,7 +417,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformBlock(tree) {
     var scope = this.pushScope(tree);
-    tree = super(tree);
+    tree = super.transformBlock(tree);
     if (this.prependBlockStatement_.length) {
       tree = new Block(tree.location, prependStatements(tree.statements,
           ...this.prependBlockStatement_));
@@ -452,15 +452,18 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformGetAccessor(tree) {
-    return this.transformFunctionForScope_(() => super(tree), tree);
+    return this.transformFunctionForScope_(
+        () => super.transformGetAccessor(tree), tree);
   }
 
   transformSetAccessor(tree) {
-    return this.transformFunctionForScope_(() => super(tree), tree);
+    return this.transformFunctionForScope_(
+        () => super.transformSetAccessor(tree), tree);
   }
 
   transformFunctionExpression(tree) {
-    return this.transformFunctionForScope_(() => super(tree), tree);
+    return this.transformFunctionForScope_(
+        () => super.transformFunctionExpression(tree), tree);
   }
 
   transformFunctionDeclaration(tree) {
@@ -489,7 +492,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return new AnonBlock(null, []);
     }
 
-    return this.transformFunctionForScope_(() => super(tree), tree);
+    return this.transformFunctionForScope_(
+        () => super.transformFunctionDeclaration(tree), tree);
   }
 
   /**
@@ -600,14 +604,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformForInStatement(tree) {
-    return this.transformLoop_((t) => super(t), tree,
+    return this.transformLoop_((t) => super.transformForInStatement(t), tree,
         (initializer, renames, body) => new ForInStatement(tree.location,
             initializer, renameAll(renames, tree.collection), body)
     );
   }
 
   transformForStatement(tree) {
-    return this.transformLoop_((t) => super(t), tree,
+    return this.transformLoop_((t) => super.transformForStatement(t), tree,
         (initializer, renames, body) => new ForStatement(tree.location,
             initializer, renameAll(renames, tree.condition),
             renameAll(renames, tree.increment), body)
@@ -615,14 +619,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformWhileStatement(tree) {
-    return this.transformLoop_((t) => super(t), tree,
+    return this.transformLoop_((t) => super.transformWhileStatement(t), tree,
         (initializer, renames, body) => new WhileStatement(tree.location,
             renameAll(renames, tree.condition), body)
     );
   }
 
   transformDoWhileStatement(tree) {
-    return this.transformLoop_((t) => super(t), tree,
+    return this.transformLoop_((t) => super.transformDoWhileStatement(t), tree,
         (initializer, renames, body) => new DoWhileStatement(tree.location,
             body, renameAll(renames, tree.condition))
     );
@@ -643,7 +647,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       }
       return new LabelledStatement(tree.location, tree.name, statement);
     }
-    return super(tree);
+    return super.transformLabelledStatement(tree);
   }
 }
 
@@ -691,10 +695,18 @@ class FindBlockBindingInLoop extends FindVisitor {
     super(tree, false);
   }
 
-  visitForInStatement(tree) {this.visitLoop_(tree, () => super(tree));}
-  visitForStatement(tree) {this.visitLoop_(tree, () => super(tree));}
-  visitWhileStatement(tree) {this.visitLoop_(tree, () => super(tree));}
-  visitDoWhileStatement(tree) {this.visitLoop_(tree, () => super(tree));}
+  visitForInStatement(tree) {
+    this.visitLoop_(tree, () => super.visitForInStatement(tree));
+  }
+  visitForStatement(tree) {
+    this.visitLoop_(tree, () => super.visitForStatement(tree));
+  }
+  visitWhileStatement(tree) {
+    this.visitLoop_(tree, () => super.visitWhileStatement(tree));
+  }
+  visitDoWhileStatement(tree) {
+    this.visitLoop_(tree, () => super.visitDoWhileStatement(tree));
+  }
   visitLoop_(tree, func) {
     if (this.acceptLoop_) {
       this.acceptLoop_ = false;

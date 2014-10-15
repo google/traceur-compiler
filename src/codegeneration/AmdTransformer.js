@@ -31,7 +31,7 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   getExportProperties() {
-    var properties = super();
+    var properties = super.getExportProperties();
 
     if (this.exportVisitor_.hasExports())
       properties.push(parsePropertyDefinition `__esModule: true`);
@@ -46,7 +46,7 @@ export class AmdTransformer extends ModuleTransformer {
           `if (!${local} || !${local}.__esModule)
             ${local} = {default: ${local}}`;
     });
-    return super().concat(locals);
+    return super.moduleProlog().concat(locals);
   }
 
   wrapModule(statements) {

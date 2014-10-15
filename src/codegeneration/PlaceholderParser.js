@@ -249,7 +249,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         return transformedExpression;
       return createExpressionStatement(transformedExpression);
     }
-    return super(tree);
+    return super.transformExpressionStatement(tree);
   }
 
   transformBlock(tree) {
@@ -262,7 +262,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return transformedStatement;
     }
-    return super(tree);
+    return super.transformBlock(tree);
   }
 
   transformFunctionBody(tree) {
@@ -275,13 +275,13 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return createFunctionBody(transformedStatement.statements);
     }
-    return super(tree);
+    return super.transformFunctionBody(tree);
   }
 
   transformMemberExpression(tree) {
     var value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
-      return super(tree);
+      return super.transformMemberExpression(tree);
     var operand = this.transformAny(tree.operand);
     return createMemberExpression(operand, value);
   }
@@ -294,7 +294,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
             convertValueToIdentifierToken(value));
       }
     }
-    return super(tree);
+    return super.transformLiteralPropertyName(tree);
   }
 
   transformArgumentList(tree) {
@@ -306,6 +306,6 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (arg0.type === ARGUMENT_LIST)
         return arg0;
     }
-    return super(tree);
+    return super.transformArgumentList(tree);
   }
 }

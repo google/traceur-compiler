@@ -159,7 +159,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     if (tree) {
       if (tree.isBreakableStatement()) this.inBreakble_++;
       if (tree.isIterationStatement()) this.inLoop_++;
-      tree = super(tree);
+      tree = super.transformAny(tree);
       if (tree.isBreakableStatement()) this.inBreakble_--;
       if (tree.isIterationStatement()) this.inLoop_--;
     }
@@ -183,13 +183,13 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   transformBreakStatement(tree) {
     if (!tree.name) {
       if (this.inBreakble_) {
-        return super(tree);
+        return super.transformBreakStatement(tree);
       } else {
         tree = new BreakStatement(tree.location,
             this.requestParentLabel_());
       }
     } else if (this.labelledStatements_[tree.name]) {
-      return super(tree);
+      return super.transformBreakStatement(tree);
     }
     return this.transformAbruptCompletion_(tree);
   }
@@ -197,13 +197,13 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   transformContinueStatement(tree) {
     if (!tree.name) {
       if (this.inLoop_) {
-        return super(tree);
+        return super.transformContinueStatement(tree);
       } else {
         tree = new ContinueStatement(tree.location,
             this.requestParentLabel_());
       }
     } else if (this.labelledStatements_[tree.name]) {
-      return super(tree);
+      return super.transformContinueStatement(tree);
     }
     return this.transformAbruptCompletion_(tree);
   }
@@ -211,7 +211,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   // keep track of labels in the tree
   transformLabelledStatement(tree) {
     this.labelledStatements_[tree.name] = true;
-    return super(tree);
+    return super.transformLabelledStatement(tree);
   }
 
   transformVariableStatement(tree) {
@@ -231,7 +231,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
       return new AnonBlock(null, assignments);
     }
 
-    return super(tree);
+    return super.transformVariableStatement(tree);
   }
 
 

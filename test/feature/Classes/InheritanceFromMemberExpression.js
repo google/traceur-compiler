@@ -1,6 +1,8 @@
 var baseContainer = {
-  base: function() {}
-}
+  base: function() {
+    this.yyy = 'base constructor';
+  }
+};
 
 baseContainer.base.prototype = {
   x: 'proto x',
@@ -23,7 +25,7 @@ var a = new MemberExprBase('w value');
 var pa = Object.getPrototypeOf(a);
 var ppa = Object.getPrototypeOf(pa);
 
-assertHasOwnProperty(a, 'y', 'w', 'z');
+assertHasOwnProperty(a, 'yyy', 'w', 'z');
 assertLacksOwnProperty(a, 'x');
 assertHasOwnProperty(pa, 'constructor');
-assertHasOwnProperty(ppa, 'x', 'constructor')
+assertHasOwnProperty(ppa, 'x', 'constructor');

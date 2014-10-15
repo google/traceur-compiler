@@ -166,7 +166,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     // https://github.com/google/traceur-compiler/issues/969
     var keepBindingIdentifiers = this.keepBindingIdentifiers_;
     this.keepBindingIdentifiers_ = true;
-    var transformed = super(tree);
+    var transformed = super.transformObjectPattern(tree);
     this.keepBindingIdentifiers_ = keepBindingIdentifiers;
     return transformed;
   }
@@ -176,7 +176,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     // https://github.com/google/traceur-compiler/issues/969
     var keepBindingIdentifiers = this.keepBindingIdentifiers_;
     this.keepBindingIdentifiers_ = true;
-    var transformed = super(tree);
+    var transformed = super.transformArrayPattern(tree);
     this.keepBindingIdentifiers_ = keepBindingIdentifiers;
     return transformed;
   }
@@ -269,7 +269,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   transformBlock(tree) {
     var inBlockOrFor = this.inBlockOrFor_;
     this.inBlockOrFor_ = true;
-    tree = super(tree);
+    tree = super.transformBlock(tree);
     this.inBlockOrFor_ = inBlockOrFor;
     return tree;
   }

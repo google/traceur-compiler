@@ -49,7 +49,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   moduleProlog() {
-    var statements = super();
+    var statements = super.moduleProlog();
 
     // declare temp vars in prolog
     if (this.moduleVars_.length) {
@@ -123,14 +123,14 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
 
     // require the module, if it is not marked as an ES6 module, treat it as { default: module }
     // this allows for an unlinked CommonJS / ES6 interop
-    // note that future implementations should also check for native Module with 
+    // note that future implementations should also check for native Module with
     //   Reflect.isModule or similar
-    return parseExpression `(${tvId} = require(${moduleName}), 
+    return parseExpression `(${tvId} = require(${moduleName}),
         ${tvId} && ${tvId}.__esModule && ${tvId} || {default: ${tvId}})`;
   }
 
   getExportProperties() {
-    var properties = super();
+    var properties = super.getExportProperties();
 
     if (this.exportVisitor_.hasExports())
       properties.push(parsePropertyDefinition `__esModule: true`);
