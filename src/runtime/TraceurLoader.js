@@ -87,8 +87,8 @@ export class TraceurLoader extends Loader {
           break;
       }
       if (commonChars) {
-        var packageName = referrer.substring(0, referrer.length - commonChars);
-        var rootDirectory = baseURL.substring(0, baseURL.length - commonChars);
+        var packageName = referrer.slice(0, -commonChars);
+        var rootDirectory = baseURL.slice(0, -commonChars);
         if (asJS.indexOf(packageName) === 0) {
           asJS = asJS.replace(packageName, rootDirectory);
         }
