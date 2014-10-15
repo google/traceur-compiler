@@ -39,6 +39,7 @@ export var optionsV01 = enumerableOnlyObject({
   freeVariableChecker: false,
   generatorComprehension: false,
   generators: true,
+  memberVariables: false,
   moduleName: false,
   modules: 'register',
   numericLiterals: true,
@@ -461,6 +462,7 @@ addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
+addFeatureOption('memberVariables', EXPERIMENTAL);
 
 addBoolOption('commentCallback');
 addBoolOption('debug');

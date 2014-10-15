@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {CONSTRUCTOR} from '../syntax/PredefinedName';
+import {EQUAL} from '../syntax/TokenType';
 import {
   BINDING_ELEMENT,
-  REST_PARAMETER
+  IDENTIFIER_EXPRESSION,
+  MEMBER_EXPRESSION,
+  PROPERTY_VARIABLE_DECLARATION,
+  REST_PARAMETER,
+  THIS_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {
+  BinaryExpression,
   ImportDeclaration,
   ImportSpecifier,
   ImportSpecifierSet,
@@ -39,7 +46,9 @@ import {ParameterTransformer} from './ParameterTransformer';
 import {options} from '../Options';
 
 /**
- * Inserts runtime type assertions for type annotations.
+ * Inserts runtime type assertions
+ *
+ * * for type annotations:
  *
  *   function test(a:number):number {
  *     var b:number = 10;
@@ -53,6 +62,36 @@ import {options} from '../Options';
  *     assert.type(b, $traceurRuntime.type.number);
  *     return assert.returnType((a * 10), $traceurRuntime.type.number);
  *   }
+ *
+ * * for class properties:
+ *
+ *   class Test {
+ *     a:number;
+ *     static b:string;
+ *
+ *     test() {
+ *       this.a = 0;
+ *       Test.b = 'string';
+ *       var nested = function() {
+ *         this.a = 'unknown context';
+ *       }
+ *     }
+ *   }
+ *
+ *   =>
+ *
+ *   class Test {
+ *     a:number;
+ *     static b:string;
+ *
+ *     test() {
+ *       this.a = assert.type(0, $traceurRuntime.type.number);
+ *       Test.b = assert.type('string', $traceurRuntime.type.string);
+ *       var nested = function() {
+ *         this.a = 'unknown context';
+ *       }
+ *     }
+ *   }
  */
 export class TypeAssertionTransformer extends ParameterTransformer {
   /**
@@ -62,7 +101,59 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     super(identifierGenerator);
     this.returnTypeStack_ = [];
     this.parametersStack_ = [];
+    // Types of the member variables indexed by variable names
+    this.memberVariableTypes_ = null;
+    // Types of the static member variables indexed by variable names
+    this.staticMemberVariableTypes_ = null;
+    // null outside of class declarations
+    this.functionNestingLevel_ = null;
+    this.className_ = null;
     this.assertionAdded_ = false;
+  }
+
+  /**
+   * @param {ClassDeclaration} tree
+   * @return {ClassDeclaration}
+   */
+  transformClassDeclaration(tree) {
+    this.functionNestingLevel_ = 0;
+    this.className_ = tree.name;
+    this.memberVariableTypes_ = Object.create(null);
+    this.staticMemberVariableTypes_ = Object.create(null);
+    for (var i = 0; i < tree.elements.length; i++) {
+      var element = tree.elements[i];
+      if (element.type === PROPERTY_VARIABLE_DECLARATION &&
+          element.typeAnnotation !== null) {
+        var name = element.name.literalToken.value;
+        if (element.isStatic) {
+          this.staticMemberVariableTypes_[name] = element.typeAnnotation;
+        } else {
+          this.memberVariableTypes_[name] = element.typeAnnotation;
+        }
+      }
+    }
+    tree = super.transformClassDeclaration(tree);
+    this.functionNestingLevel_ = null;
+    this.className_ = null;
+    return tree;
+  }
+
+  transformBinaryExpression(tree) {
+    tree = super.transformBinaryExpression(tree);
+    if (this.functionNestingLevel_ !== 1 || tree.operator.type !== EQUAL) {
+      // We only want to transform assignments located in any method but
+      // not inside nested functions
+      return tree;
+    }
+
+    var type = this.getMemberExpressionType_(tree.left);
+    if (type === null) {
+      return tree;
+    }
+
+    this.assertionAdded_ = true;
+    var right = parseExpression `assert.type(${tree.right}, ${type})`;
+    return new BinaryExpression(tree.location, tree.left, tree.operator, right);
   }
 
   /**
@@ -96,7 +187,6 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   }
 
   transformFormalParameterList(tree) {
-
     // because param lists can be nested
     this.parametersStack_.push({
       atLeastOneParameterTyped: false,
@@ -159,6 +249,21 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     this.popReturnType_();
     return tree;
   }
+
+  /**
+   * @param {FunctionBody} tree
+   * @returns {FunctionBody}
+   */
+  transformFunctionBody(tree) {
+    if (this.functionNestingLevel_ !== null) {
+      this.functionNestingLevel_++;
+    }
+    tree = super.transformFunctionBody(tree);
+    if (this.functionNestingLevel_ !== null) {
+      this.functionNestingLevel_--;
+    }
+    return tree;
+  };
 
   /**
    * @param {FunctionDeclaration} tree
@@ -244,5 +349,33 @@ export class TypeAssertionTransformer extends ParameterTransformer {
 
   get paramTypes_() {
     return this.parametersStack_[this.parametersStack_.length - 1];
+  }
+
+  /**
+   * Returns the type of the expression when it is known, null otherwise.
+   *
+   * A type is returned when the expression is either of the form this.prop
+   * or ClassName.prop (static properties) and a typed variable declaration for
+   * prop exists in the current class.
+   */
+  getMemberExpressionType_(tree) {
+    if (tree.type !== MEMBER_EXPRESSION) {
+      return null;
+    }
+
+    if (tree.operand.type === THIS_EXPRESSION) {
+      var name = tree.memberName.toString();
+      var type = this.memberVariableTypes_[name];
+      return type ? type : null;
+    }
+
+    if (tree.operand.type === IDENTIFIER_EXPRESSION &&
+        tree.operand.identifierToken.value === this.className_.identifierToken.value) {
+      var name = tree.memberName.toString();
+      var type = this.staticMemberVariableTypes_[name];
+      return type ? type : null;
+    }
+
+    return null;
   }
 }

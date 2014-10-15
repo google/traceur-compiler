@@ -222,6 +222,7 @@ import {
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand,
+  PropertyVariableDeclaration,
   RestParameter,
   ReturnStatement,
   SetAccessor,
@@ -2170,6 +2171,13 @@ export class Parser {
         annotations, body);
   }
 
+  parsePropertyVariableDeclaration_(start, isStatic, name, annotations) {
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    this.eat_(SEMI_COLON);
+    return new PropertyVariableDeclaration(this.getTreeLocation_(start),
+        isStatic, name, typeAnnotation, annotations);
+  }
+
   parseGetSetOrMethod_(start, isStatic, annotations) {
     var functionKind = null;
     var name = this.parsePropertyName_();
@@ -2198,7 +2206,11 @@ export class Parser {
       return this.parseMethod_(start, isStatic, async, name, annotations);
     }
 
-    return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    if (!parseOptions.memberVariables || type === OPEN_PAREN) {
+      return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    }
+
+    return this.parsePropertyVariableDeclaration_(start, isStatic, name, annotations);
   }
 
   parseGetAccessor_(start, isStatic, annotations) {
