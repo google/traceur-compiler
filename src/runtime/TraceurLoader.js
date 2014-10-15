@@ -90,9 +90,7 @@ export class TraceurLoader extends Loader {
         var packageName = referrer.substring(0, referrer.length - commonChars);
         var rootDirectory = baseURL.substring(0, baseURL.length - commonChars);
         if (asJS.indexOf(packageName) === 0) {
-          console.log('asJS ' + asJS + ' baseURL ' + (baseURL || this.baseURL) + ' rootDirectory ' + rootDirectory)
           asJS = asJS.replace(packageName, rootDirectory);
-          console.log('asJS ' + asJS + ' after');
         }
       }
 
