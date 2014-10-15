@@ -69,20 +69,36 @@ export class TraceurLoader extends Loader {
       asJS = normalizedModuleName + '.js';
     }
 
+    var baseURL = load.metadata && load.metadata.baseURL;
+    baseURL = baseURL || this.baseURL;
+
     var referrer = options && options.referrer;
     if (referrer) {
-      if (asJS.indexOf(referrer) === 0) {
-        asJS = asJS.slice(referrer.length);
-        load.metadata.locateMap = {
-          pattern: referrer,
-          replacement: ''
-        };
+      // eg referrer = 'traceur@0.0.67/bin', baseURL = '/work/traceur/bin'
+      // We want to replace the package name part of the normalized name with
+      // the root directory from the baseURL.
+      var minChars = Math.min(referrer.length, baseURL.length);
+      var commonChars = 0;
+      for (var i = 0; i < minChars; i++) {
+        var aChar = referrer[referrer.length - 1 - i];
+        if (aChar === baseURL[baseURL.length - 1 - i])
+          commonChars++;
+        else
+          break;
       }
+      if (commonChars) {
+        var packageName = referrer.substring(0, referrer.length - commonChars);
+        var rootDirectory = baseURL.substring(0, baseURL.length - commonChars);
+        if (asJS.indexOf(packageName) === 0) {
+          console.log('asJS ' + asJS + ' baseURL ' + (baseURL || this.baseURL) + ' rootDirectory ' + rootDirectory)
+          asJS = asJS.replace(packageName, rootDirectory);
+          console.log('asJS ' + asJS + ' after');
+        }
+      }
+
     }
 
     if (!isAbsolute(asJS)) {
-      var baseURL = load.metadata && load.metadata.baseURL;
-      baseURL = baseURL || this.baseURL;
       if (baseURL) {
         load.metadata.baseURL = baseURL;
         asJS = resolveUrl(baseURL, asJS);
