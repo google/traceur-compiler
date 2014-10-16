@@ -206,7 +206,7 @@ build/compiled-by-previous-traceur.js: \
 	  build/previous-commit-traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/bin/' \
+	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/build/' \
 	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
 
 build/node/%: node_modules/traceur/src/node/%
