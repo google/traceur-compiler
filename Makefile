@@ -186,7 +186,7 @@ bin/%.min.js: bin/%.js
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
 bin/traceur-runtime.js: $(RUNTIME_SRC) $(POLYFILL_SRC)
-	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' \
+	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(POLYFILL_SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
@@ -197,7 +197,7 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/' \
+	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
@@ -206,7 +206,7 @@ build/compiled-by-previous-traceur.js: \
 	  build/previous-commit-traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/' \
+	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/bin/' \
 	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
 
 build/node/%: node_modules/traceur/src/node/%
