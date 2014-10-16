@@ -163,8 +163,6 @@ boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
-	@rm -f build/previous-commit-traceur.js
-	@rm -rf build/node
 	@rm -rf build/currentSemVer.mk
 	@rm -f $(GENSRC)
 	@rm -f $(COMPILE_BEFORE_TEST)
@@ -202,25 +200,14 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
-	  $(subst node_modules/traceur/src/node,build/node,$(PREV_NODE)) \
-	  build/previous-commit-traceur.js $(SRC_ALL) $(GENSRC) node_modules
+		$(PREV_NODE) \
+	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
-	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@  --referrer='traceur@0.0.0/build/' \
+	node_modules/traceur/traceur --out $@  --referrer='traceur@0.0.0/build/' \
 	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
-
-build/node/%: node_modules/traceur/src/node/%
-	@mkdir -p build/node
-	cp $< $@
-
-build/previous-commit-traceur.js:
-	cp node_modules/traceur/bin/traceur.js $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
-
-self: build/previous-commit-traceur.js force
-	./traceur-build --debug --out bin/traceur.js $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
