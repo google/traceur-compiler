@@ -21,7 +21,23 @@ var path = require('path');
 var nodeLoader = require('./nodeLoader.js');
 var url = (path.resolve('./') + '/').replace(/\\/g, '/');
 
-var System = new traceur.runtime.TraceurLoader(nodeLoader, url);
+
+var LoaderCompiler = traceur.runtime.LoaderCompiler;
+var NodeLoaderCompiler = function() {
+  LoaderCompiler.call(this);
+};
+
+NodeLoaderCompiler.prototype = {
+  __proto__: LoaderCompiler.prototype,
+  evaluateCodeUnit: function(codeUnit) {
+    var result = module._compile(codeUnit.metadata.transcoded, codeUnit.address);
+    codeUnit.metadata.transformedTree = null;
+    return result;
+  }
+};
+
+var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
+    new NodeLoaderCompiler());
 
 Reflect.global.System = System;
 System.map = System.semverMap(System.version);

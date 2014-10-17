@@ -21,7 +21,7 @@ var data = fs.readFileSync(filename, 'utf8');
 if (!data)
   throw new Error('Failed to import ' + filename);
 
-('global', eval)(data);
+module._compile(data, filename);
 
 // traceur is a module and thus frozen.
 module.exports = {
