@@ -802,6 +802,23 @@
       "IdentifierToken"
     ]
   },
+  "PropertyVariableDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "isStatic": [
+      "boolean"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
+    "annotations": [
+      "Array<ParseTree>"
+    ]
+  },
   "RestParameter": {
     "location": [
       "SourceRange"

@@ -27,6 +27,7 @@ import {
 import {
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
+  PROPERTY_VARIABLE_DECLARATION,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType';
 import {SuperTransformer} from './SuperTransformer';
@@ -190,6 +191,10 @@ export class ClassTransformer extends TempVarTransformer{
           } else {
             elements.push(transformed);
           }
+          break;
+
+        case PROPERTY_VARIABLE_DECLARATION:
+          // we don't want the variable declarations in the output
           break;
 
         default:
