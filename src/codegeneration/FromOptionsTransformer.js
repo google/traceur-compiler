@@ -30,6 +30,7 @@ import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {InlineModuleTransformer} from './InlineModuleTransformer';
+import {MemberVariableTransformer} from './MemberVariableTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
@@ -103,6 +104,9 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
+
+    if (options.memberVariables)
+      append(MemberVariableTransformer);
 
     if (options.typeAssertions)
       append(TypeAssertionTransformer);

@@ -218,6 +218,7 @@ import {
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand,
+  PropertyVariableDeclaration,
   RestParameter,
   ReturnStatement,
   SetAccessor,
@@ -2142,7 +2143,7 @@ export class Parser {
             if (type === STAR && this.options_.generators)
               return this.parseGeneratorMethod_(start, true, annotations);
 
-            return this.parseGetSetOrMethod_(start, isStatic, annotations);
+            return this.parseClassElement2_(start, isStatic, annotations);
         }
         break;
 
@@ -2150,7 +2151,7 @@ export class Parser {
         return this.parseGeneratorMethod_(start, isStatic, annotations);
 
       default:
-        return this.parseGetSetOrMethod_(start, isStatic, annotations);
+        return this.parseClassElement2_(start, isStatic, annotations);
     }
   }
 
@@ -2171,7 +2172,14 @@ export class Parser {
         annotations, body);
   }
 
-  parseGetSetOrMethod_(start, isStatic, annotations) {
+  parsePropertyVariableDeclaration_(start, isStatic, name, annotations) {
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    this.eat_(SEMI_COLON);
+    return new PropertyVariableDeclaration(this.getTreeLocation_(start),
+        isStatic, name, typeAnnotation, annotations);
+  }
+
+  parseClassElement2_(start, isStatic, annotations) {
     var functionKind = null;
     var name = this.parsePropertyName_();
     var type = this.peekType_();
@@ -2199,7 +2207,11 @@ export class Parser {
       return this.parseMethod_(start, isStatic, async, name, annotations);
     }
 
-    return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    if (!this.options_.memberVariables || type === OPEN_PAREN) {
+      return this.parseMethod_(start, isStatic, functionKind, name, annotations);
+    }
+
+    return this.parsePropertyVariableDeclaration_(start, isStatic, name, annotations);
   }
 
   parseGetAccessor_(start, isStatic, annotations) {

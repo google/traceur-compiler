@@ -89,6 +89,7 @@ import {
   PROPERTY_METHOD_ASSIGNMENT,
   PROPERTY_NAME_ASSIGNMENT,
   PROPERTY_NAME_SHORTHAND,
+  PROPERTY_VARIABLE_DECLARATION,
   REST_PARAMETER,
   SET_ACCESSOR,
   TEMPLATE_LITERAL_PORTION,
@@ -379,6 +380,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
         case PROPERTY_METHOD_ASSIGNMENT:
+        case PROPERTY_VARIABLE_DECLARATION:
           break;
         default:
           this.fail_(element, 'class element expected');

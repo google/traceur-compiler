@@ -15,6 +15,7 @@
 import {AnnotationsTransformer} from './AnnotationsTransformer';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker';
+import {MemberVariableTransformer} from './MemberVariableTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
@@ -49,6 +50,8 @@ export class PureES6Transformer extends MultiTransformer {
       });
     }
 
+    if (options.memberVariables)
+      append(MemberVariableTransformer);
     append(AnnotationsTransformer);
     append(TypeTransformer);
   }

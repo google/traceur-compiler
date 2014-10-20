@@ -1036,6 +1036,20 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {PropertyVariableDeclaration} tree
+   */
+  visitPropertyVariableDeclaration(tree) {
+    this.writeAnnotations_(tree.annotations);
+    if (tree.isStatic) {
+      this.write_(STATIC);
+      this.writeSpace_();
+    }
+    this.visitAny(tree.name);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.write_(SEMI_COLON);
+  }
+
+  /**
    * @param {TemplateLiteralExpression} tree
    */
   visitTemplateLiteralExpression(tree) {
