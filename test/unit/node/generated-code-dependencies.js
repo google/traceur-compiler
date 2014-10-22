@@ -292,14 +292,14 @@ suite('context test', function() {
         });
   });
 
-  test('./traceur can mix require() and import', function() {
+  test('./traceur can mix require() and import', function(done) {
     var cmd = 'cd ..;./traceur ./test/unit/node/resources/requireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
-      assert.equal('we have path and x=x\n', stdout);
+      assert.equal('we have path and x=x and aNodeExport=intoTraceur\n', stdout);
+      done();
     });
   });
-
 
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');

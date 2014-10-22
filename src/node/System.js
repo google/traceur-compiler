@@ -30,6 +30,10 @@ var NodeLoaderCompiler = function() {
 NodeLoaderCompiler.prototype = {
   __proto__: LoaderCompiler.prototype,
   evaluateCodeUnit: function(codeUnit) {
+  	// nodejs newsgroup Isaac Schlueter 	1/13/11
+		// "In the node repl, we explicitly set the module.filename to $CWD/repl
+		// so that relative requires work as expected.""
+  	module.filename = codeUnit.address;
     var result = module._compile(codeUnit.metadata.transcoded, codeUnit.address);
     codeUnit.metadata.transformedTree = null;
     return result;
