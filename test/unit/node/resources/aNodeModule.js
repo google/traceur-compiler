@@ -1,3 +1,4 @@
+var requiredDeeper = require('./aDeeperModule.js');
 module.exports = {
- aNodeExport: 'intoTraceur'
+ aNodeExport: requiredDeeper.aNodeExport
 };
