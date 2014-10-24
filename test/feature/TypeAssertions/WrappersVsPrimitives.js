@@ -1,6 +1,5 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
 
-
 var num : Number = new Number(1);
 var str : String = new String('str');
 var bool : Boolean = new Boolean(true);

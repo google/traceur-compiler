@@ -12,7 +12,8 @@ assert.type = function (actual, type) {
 
   if ($traceurRuntime.type[type.name] === type) {
     // chai.assert treats Number as number :'(
-    assert.equal(typeof actual, type.name);
+    // Use runtime to handle symbol
+    assert.equal($traceurRuntime.typeof(actual), type.name);
   } else {
     assert.instanceOf(actual, type);
   }

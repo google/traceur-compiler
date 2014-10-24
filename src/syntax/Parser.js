@@ -3696,9 +3696,10 @@ export class Parser {
       case IDENTIFIER:
         switch (this.peekToken_().value) {
           case 'any':
-          case 'number':
           case 'boolean':
+          case 'number':
           case 'string':
+          case 'symbol':
             var token = this.nextToken_();
             return new PredefinedType(this.getTreeLocation_(start), token);
         }
