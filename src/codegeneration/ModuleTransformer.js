@@ -105,8 +105,14 @@ export class ModuleTransformer extends TempVarTransformer {
 
   moduleProlog() {
     var statements = [createUseStrictDirective()];
-    if (this.moduleName)
+    if (this.moduleName) {
       statements.push(parseStatement `var __moduleName = ${this.moduleName};`);
+      // Override require() to resolve paths relative to es6 module
+      var callerPathString = this.moduleName;
+      statements.push(parseStatement `function require(path) {
+        return $traceurRuntime.require(${callerPathString}, path);
+      }`);
+    }
     return statements;
   }
 

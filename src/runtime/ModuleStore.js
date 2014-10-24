@@ -90,6 +90,9 @@
       if (this.value_)
         return this.value_;
       try {
+        if (typeof module === 'object' && 'filename' in module)
+          module.filename = this.url;
+
         return this.value_ = this.func.call(global);
       } catch(ex) {
         if (ex instanceof ModuleEvaluationError) {
