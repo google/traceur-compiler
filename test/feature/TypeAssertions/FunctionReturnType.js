@@ -1,13 +1,13 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
-function returnType():Number { return 1; }
+function returnType(): number { return 1; }
 
-function multipleReturnPaths(value):Number {
+function multipleReturnPaths(value): number {
   if (value)
     return 1;
   return 2;
 }
 
-function returnWithinForLoop(value):Boolean {
+function returnWithinForLoop(value): boolean {
   if (!value)
     return false;
 
@@ -19,7 +19,7 @@ function returnWithinForLoop(value):Boolean {
   return false;
 }
 
-function returnWithinWhileLoop(value):Boolean {
+function returnWithinWhileLoop(value): boolean {
   var i = 0;
   while(++i < 10) {
     if (i === value) {
@@ -29,7 +29,7 @@ function returnWithinWhileLoop(value):Boolean {
   return false;
 }
 
-function returnWithinDoWhileLoop(value):Boolean {
+function returnWithinDoWhileLoop(value): boolean {
   var i = 0;
   do {
     if (i === value) {
@@ -39,16 +39,16 @@ function returnWithinDoWhileLoop(value):Boolean {
   return false;
 }
 
-function returnExpression(value):Number {
+function returnExpression(value): number {
   return value === 0 ? 0 : value / 2;
 }
 
-function throwsAssertion():Boolean {
+function throwsAssertion(): boolean {
   return {test: '123'};
 }
 
-function nested(value):Boolean {
-  var square = function (value):Number {
+function nested(value): boolean {
+  var square = function (value): number {
     return value * value;
   };
 

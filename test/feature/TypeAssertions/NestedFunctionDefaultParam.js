@@ -1,7 +1,7 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
-function f(value:String, a:Function = function():Function {
+function f(value: string, a: Function = function(): Function {
   // body of default param expression
-  return function (x:String):Number {
+  return function (x: string): number {
     if (x === 'invalid')
       return x;
     return x.length;

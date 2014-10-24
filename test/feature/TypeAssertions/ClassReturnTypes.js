@@ -1,19 +1,19 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
 class Test {
-  simple():Number { return 1; }
+  simple(): number { return 1; }
 
-  throwsAssertion():Boolean {
+  throwsAssertion(): boolean {
     return {test: '123'};
   }
 
-  get getter():Number { return 1; }
+  get getter(): number { return 1; }
 
-  static staticSimple():Number { return 1; }
-  static staticThrowsAssertion():Boolean {
+  static staticSimple(): number { return 1; }
+  static staticThrowsAssertion(): boolean {
     return {test: '123'};
   }
 
-  static get staticGetter():Number { return 1; }
+  static get staticGetter(): number { return 1; }
 }
 
 var test = new Test();

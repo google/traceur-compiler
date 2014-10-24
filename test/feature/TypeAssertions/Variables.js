@@ -1,16 +1,16 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
-var globalVar:Number = 1;
-var globalUninitializedVar:Number;
+var globalVar: number = 1;
+var globalUninitializedVar: number;
 
 function variableTypes() {
-  var x:Number = 1;
-  var y:Number;
-  var a:Number, b:Number;
-  var c:Number = 1, d:Number = 2, e:String = 'test';
+  var x: number = 1;
+  var y: number;
+  var a: number, b: number;
+  var c: number = 1, d: number = 2, e: string = 'test';
 }
 
 function throwsAssertion(value) {
-  var x:Number = value;
+  var x: number = value;
 }
 
 assert.throw(() => { throwsAssertion('test'); }, chai.AssertionError);

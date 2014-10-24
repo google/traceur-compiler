@@ -1,8 +1,8 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
-function single(a:Number) {}
-function multiple(a:Number, b:Boolean) {}
+function single(a: number) {}
+function multiple(a: number, b: boolean) {}
 function untyped(a) {}
-function onlySome(a, b:Number) {}
+function onlySome(a, b: number) {}
 
 single(1);
 multiple(1, true);

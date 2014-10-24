@@ -1,11 +1,11 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert
 class Test {
-  single(a:Number) { return true; }
-  multiple(a:Number, b:Boolean) { return true; }
-  initialized(a:Number = 1) { return a; }
+  single(a: number) { return true; }
+  multiple(a: number, b: boolean) { return true; }
+  initialized(a: number = 1) { return a; }
   untyped(a) { return true; }
 
-  set name(val: String) {
+  set name(val: string) {
     this._name = val;
   }
 }

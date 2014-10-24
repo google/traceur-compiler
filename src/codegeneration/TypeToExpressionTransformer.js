@@ -14,15 +14,21 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
-  createIdentifierExpression,
+  IdentifierExpression,
+  MemberExpression
+} from '../syntax/trees/ParseTrees';
+import {
   createMemberExpression
 } from './ParseTreeFactory';
-
 
 export class TypeToExpressionTransformer extends ParseTreeTransformer {
 
   transformTypeName(tree) {
-    return createIdentifierExpression(tree.name);
+    if (tree.moduleName) {
+      var operand = this.transformAny(tree.moduleName);
+      return new MemberExpression(tree.location, operand, tree.name);
+    }
+    return new IdentifierExpression(tree.location, tree.name);
   }
 
   transformPredefinedType(tree) {

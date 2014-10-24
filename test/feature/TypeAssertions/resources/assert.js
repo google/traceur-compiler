@@ -10,8 +10,15 @@ assert.type = function (actual, type) {
     return actual;
   }
 
-  var typeName = type.name || type.toString().match(/^\s*function\s*([^\s(]+)/)[1];
-  assert.typeOf(actual, typeName);
+  if ($traceurRuntime.type[type.name] === type) {
+    // chai.assert treats Number as number :'(
+    assert.equal(typeof actual, type.name);
+  } else {
+    assert.instanceOf(actual, type);
+  }
+
+  // TODO(arv): Handle generics, structural types and more.
+
   return actual;
 };
 
