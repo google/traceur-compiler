@@ -1,4 +1,4 @@
-// Options: --types=true --annotations=true
+// Options: --types --annotations
 
 class Test {}
 

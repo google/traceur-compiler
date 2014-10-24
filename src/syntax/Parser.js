@@ -33,7 +33,6 @@ import {
   AWAIT,
   FROM,
   GET,
-  MODULE,
   OF,
   SET
 } from './PredefinedName';
@@ -236,7 +235,9 @@ import {
   ThisExpression,
   ThrowStatement,
   TryStatement,
+  TypeArguments,
   TypeName,
+  TypeReference,
   UnaryExpression,
   VariableDeclaration,
   VariableDeclarationList,
@@ -3666,7 +3667,8 @@ export class Parser {
    *
    * Type ::
    *   PredefinedType
-   *   TypeName
+   *   TypeReference
+   *   TypeQuery
    *   TypeLiteral
    *
    * @return {ParseTree}
@@ -3676,9 +3678,21 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var elementType;
     switch (this.peekType_()) {
+      case VOID:
+        var token = this.nextToken_();
+        return new PredefinedType(this.getTreeLocation_(start), token);
       case IDENTIFIER:
-        elementType = this.parseNamedOrPredefinedType_();
-        break;
+        switch (this.peekToken_().value) {
+          case 'any':
+          case 'number':
+          case 'boolean':
+          case 'string':
+            var token = this.nextToken_();
+            return new PredefinedType(this.getTreeLocation_(start), token);
+        }
+
+        return this.parseTypeReference_(start);
+
       case NEW:
         elementType = this.parseConstructorType_();
         break;
@@ -3688,18 +3702,53 @@ export class Parser {
       case OPEN_PAREN:
         elementType = this.parseFunctionType_();
         break;
-      case VOID:
-        var token = this.nextToken_();
-        return new PredefinedType(this.getTreeLocation_(start), token);
+      case TYPEOF:
+        return this.parseTypeQuery_(start);
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
     return this.parseArrayTypeSuffix_(start, elementType);
   }
 
+  peekTypeAnnotation_() {
+    switch (this.peekType_()) {
+      case IDENTIFIER:
+      case NEW:
+      case OPEN_CURLY:
+      case OPEN_PAREN:
+      case TYPEOF:
+      case VOID:
+        return true;
+    }
+    return false;
+  }
+
+  parseTypeReference_() {
+    var start = this.getTreeStartLocation_();
+    var typeName = this.parseTypeName_();
+    var args = null;
+    if (this.peek_(OPEN_ANGLE)) {
+      var args = this.parseTypeArguments_();
+      return new TypeReference(this.getTreeLocation_(start), typeName, args);
+    }
+    return typeName;
+  }
+
   parseArrayTypeSuffix_(start, elementType) {
     // NYI
     return elementType;
+  }
+
+  parseTypeArguments_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(OPEN_ANGLE);
+    var args = [this.parseType_()];
+    while (this.peek_(COMMA)) {
+      this.eat_(COMMA);
+      args.push(this.parseType_());
+    }
+    this.eat_(CLOSE_ANGLE);
+    return new TypeArguments(this.getTreeLocation_(start), args);
   }
 
   parseConstructorType_() {
@@ -3711,6 +3760,10 @@ export class Parser {
   }
 
   parseFunctionType_() {
+    throw 'NYI';
+  }
+
+  parseTypeQuery_(start) {
     throw 'NYI';
   }
 
@@ -3731,6 +3784,7 @@ export class Parser {
       case 'number':
       case 'boolean':
       case 'string':
+      // void is handled in parseTye
         var token = this.nextToken_();
         return new PredefinedType(this.getTreeLocation_(start), token);
       default:
@@ -3754,8 +3808,8 @@ export class Parser {
    */
   parseTypeName_() {
     var start = this.getTreeStartLocation_();
-    var typeName = new TypeName(this.getTreeLocation_(start), null,
-        this.eatId_());
+    var id = this.eatId_();
+    var typeName = new TypeName(this.getTreeLocation_(start), null, id);
     while (this.eatIf_(PERIOD)) {
       var memberName = this.eatIdName_();
       typeName = new TypeName(this.getTreeLocation_(start), typeName,

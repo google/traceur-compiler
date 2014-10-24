@@ -1,7 +1,7 @@
-// Options: --types=true
+// Options: --types
 
 var a : any;
-var b : bool;
+var b : boolean;
 var s : string;
 var v : void;
 var n : number;
@@ -17,3 +17,6 @@ function abc(x : Test) : Test {
 function xyz({x, y} : Test) {}
 
 var x = function (a : Test) : Test {}
+
+var arr : Array<number>;
+var map : Map<number, boolean>;

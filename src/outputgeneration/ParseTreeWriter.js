@@ -29,7 +29,6 @@ import {
   FROM,
   GET,
   OF,
-  MODULE,
   SET
 } from '../syntax/PredefinedName';
 import {
@@ -45,6 +44,7 @@ import {
   CASE,
   CATCH,
   CLASS,
+  CLOSE_ANGLE,
   CLOSE_CURLY,
   CLOSE_PAREN,
   CLOSE_SQUARE,
@@ -69,6 +69,7 @@ import {
   MINUS_MINUS,
   NEW,
   NUMBER,
+  OPEN_ANGLE,
   OPEN_CURLY,
   OPEN_PAREN,
   OPEN_SQUARE,
@@ -1183,6 +1184,21 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {TypeArguments} tree
+   */
+  visitTypeArguments(tree) {
+    this.write_(OPEN_ANGLE);
+    var {args} = tree;
+    this.visitAny(args[0]);
+    for (var i = 1; i < args.length; i++) {
+      this.write_(COMMA);
+      this.writeSpace_();
+      this.visitAny(args[i]);
+    }
+    this.write_(CLOSE_ANGLE);
+  }
+
+  /**
    * @param {TypeName} tree
    */
   visitTypeName(tree) {
@@ -1192,6 +1208,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
     this.write_(tree.name);
   }
+
+  // visitTypeReference needs no override.
 
   /**
    * @param {UnaryExpression} tree

@@ -44,17 +44,17 @@ import {
   EMPTY_STATEMENT,
   EXPORT_DECLARATION,
   EXPRESSION_STATEMENT,
+  FORMAL_PARAMETER,
   FOR_IN_STATEMENT,
   FOR_OF_STATEMENT,
   FOR_STATEMENT,
-  FORMAL_PARAMETER,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   GENERATOR_COMPREHENSION,
   IDENTIFIER_EXPRESSION,
   IF_STATEMENT,
-  IMPORT_DECLARATION,
   IMPORTED_BINDING,
+  IMPORT_DECLARATION,
   LABELLED_STATEMENT,
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
@@ -65,6 +65,7 @@ import {
   OBJECT_PATTERN,
   PAREN_EXPRESSION,
   POSTFIX_EXPRESSION,
+  PREDEFINED_TYPE,
   PROPERTY_NAME_SHORTHAND,
   REST_PARAMETER,
   RETURN_STATEMENT,
@@ -76,6 +77,7 @@ import {
   THIS_EXPRESSION,
   THROW_STATEMENT,
   TRY_STATEMENT,
+  TYPE_REFERENCE,
   UNARY_EXPRESSION,
   VARIABLE_DECLARATION,
   VARIABLE_STATEMENT,
@@ -336,6 +338,20 @@ export class ParseTree {
     return this.functionKind !== null &&
         this.functionKind.type === IDENTIFIER &&
         this.functionKind.value === ASYNC;
+  }
+
+  isType() {
+    switch (this.type) {
+      case PREDEFINED_TYPE:
+      case TYPE_REFERENCE:
+      // TODO(arv): Implement the rest.
+      // case TYPE_QUERY:
+      // case OBJECT_TYPE:
+      // case FUNCTION_TYPE:
+      // case CONSTRUCTOR_TYPE:
+        return true;
+    }
+    return false;
   }
 
   getDirectivePrologueStringToken_() {

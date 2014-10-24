@@ -935,6 +935,14 @@
       "Finally"
     ]
   },
+  "TypeArguments": {
+    "location": [
+      "SourceRange"
+    ],
+    "args": [
+      "Arrray<ParseTree>"
+    ]
+  },
   "TypeName": {
     "location": [
       "SourceRange"
@@ -944,6 +952,17 @@
     ],
     "name": [
       "IdentifierToken"
+    ]
+  },
+  "TypeReference": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeName": [
+      "TypeName"
+    ],
+    "args": [
+      "TypeArguments"
     ]
   },
   "UnaryExpression": {

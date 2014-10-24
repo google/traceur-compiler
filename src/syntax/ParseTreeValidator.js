@@ -93,6 +93,8 @@ import {
   SET_ACCESSOR,
   TEMPLATE_LITERAL_PORTION,
   TEMPLATE_SUBSTITUTION,
+  TYPE_ARGUMENTS,
+  TYPE_NAME,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
 } from './trees/ParseTreeType';
@@ -982,10 +984,34 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
+   * @param {TypeArguments} tree
+   */
+  visitTypeArguments(tree) {
+    var {args} = tree;
+    for (var i = 0; i < args.length; i++) {
+      this.checkVisit_(args[i].isType(), args[i],
+                       'Type arguments must be type expressions');
+    }
+  }
+
+  /**
    * @param {TypeName} tree
    */
   visitTypeName(tree) {
-    // TODO(peterhal): Implement.
+    this.checkVisit_(tree.moduleName === null ||
+                     tree.moduleName.type === TYPE_NAME,
+                     tree.moduleName,
+                     'moduleName must be null or a TypeName');
+    this.check_(tree.name.type === IDENTIFIER, tree,
+                'name must be an identifier');
+  }
+
+  /**
+   * @param {TypeReference} tree
+   */
+  visitTypeReference(tree) {
+    this.checkType_(TYPE_NAME, tree.typeName, 'typeName must be a TypeName');
+    this.checkType_(TYPE_ARGUMENTS, tree.args, 'args must be a TypeArguments');
   }
 
   /**
