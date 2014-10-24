@@ -14,12 +14,13 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
+  ArgumentList,
   IdentifierExpression,
   MemberExpression
 } from '../syntax/trees/ParseTrees';
 import {
-  createMemberExpression
-} from './ParseTreeFactory';
+  parseExpression
+} from './PlaceholderParser';
 
 export class TypeToExpressionTransformer extends ParseTreeTransformer {
 
@@ -32,7 +33,18 @@ export class TypeToExpressionTransformer extends ParseTreeTransformer {
   }
 
   transformPredefinedType(tree) {
-    return createMemberExpression('$traceurRuntime', 'type', tree.typeToken);
+    return parseExpression `$traceurRuntime.type.${tree.typeToken})`;
+  }
+
+  transformTypeReference(tree) {
+    var typeName = this.transformAny(tree.typeName);
+    var args = this.transformAny(tree.args);
+    var argumentList = new ArgumentList(tree.location, [typeName, ...args]);
+    return parseExpression `$traceurRuntime.genericType(${argumentList})`;
+  }
+
+  transformTypeArguments(tree) {
+    return this.transformList(tree.args);
   }
 
 }
