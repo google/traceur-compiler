@@ -324,12 +324,20 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         );
       }
 
-      // finally run export * if applying to this dependency
+      // finally run export * if applying to this dependency, for not-already exported dependencies
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
           Object.keys(m).forEach(function(p) {
-            $__export(p, m[p]);
+            if ($__exportNames.indexOf(p) == -1)
+              $__export(p, m[p]);
           });
+        `);
+        
+        var exportNames = this.localExportBindings
+            .concat(this.externalExportBindings).map((binding) => binding.exportName);
+        
+        declarationStatements.push(parseStatement `
+          var $__exportNames = ${exportNames};
         `);
       }
 
