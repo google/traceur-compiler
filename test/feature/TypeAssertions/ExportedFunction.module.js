@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions
+// Options: --types --type-assertions
 import {exportedParamAndReturn} from './resources/exported-function';
 
 assert.equal(1, exportedParamAndReturn(1));
