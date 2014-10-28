@@ -183,6 +183,17 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   }
 
   /**
+   * @param {ArrowFunctionExpression} tree
+   * @return {ArrowFunctionExpression}
+   */
+  transformArrowFunctionExpression(tree) {
+    this.pushReturnType_(null);
+    tree = super.transformArrowFunctionExpression(tree);
+    this.popReturnType_();
+    return tree;
+  }
+
+  /**
    * @param {ReturnStatement} tree
    * @return {ParseTree}
    */
