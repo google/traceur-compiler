@@ -36,9 +36,10 @@ export function is(left, right) {
 
 // Object.assign (19.1.3.1)
 export function assign(target) {
+  var {Object} = global;
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
-    var props = keys(source);
+    var props = keys(Object(source));
     var p, length = props.length;
     for (p = 0; p < length; p++) {
       var name = props[p];
