@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions --type-assertion-module=./resources/assert
+// Options: --types --type-assertions --type-assertion-module=./resources/assert
 class Test {
   single(a:Number) { return true; }
   multiple(a:Number, b:Boolean) { return true; }

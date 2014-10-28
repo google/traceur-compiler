@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions --type-assertion-module=./resources/assert
+// Options: --types --type-assertions --type-assertion-module=./resources/assert
 function f(value:String, a:Function = function():Function {
   // body of default param expression
   return function (x:String):Number {
