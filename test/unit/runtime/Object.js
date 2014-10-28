@@ -50,4 +50,18 @@ suite('Object.js', function() {
     );
   });
 
+  test('Object.assign(target, undefined)', function() {
+    var target = {};
+    var source = undefined;
+
+    assert.deepEqual(Object.assign(target, source), target);
+  });
+
+  test('Object.assign(target, null)', function() {
+    var target = {};
+    var source = null;
+
+    assert.deepEqual(Object.assign(target, source), target);
+  });
+
 });
