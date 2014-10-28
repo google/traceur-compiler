@@ -38,7 +38,7 @@ export function is(left, right) {
 export function assign(target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
-    var props = keys(source);
+    var props = source == null ? [] : keys(source);
     var p, length = props.length;
     for (p = 0; p < length; p++) {
       var name = props[p];
