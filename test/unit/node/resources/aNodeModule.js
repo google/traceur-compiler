@@ -1,4 +1,4 @@
 var requiredDeeper = require('./aDeeperModule.js');
 module.exports = {
- aNodeExport: requiredDeeper.aNodeExport
+  aNodeExport: requiredDeeper.aNodeExport
 };

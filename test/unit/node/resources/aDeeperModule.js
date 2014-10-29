@@ -1,3 +1,3 @@
 module.exports = {
- aNodeExport: 'intoTraceur'
+  aNodeExport: 'intoTraceur'
 };

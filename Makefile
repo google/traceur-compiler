@@ -1,5 +1,6 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
+  src/runtime/relativeRequire.js \
   src/runtime/spread.js \
   src/runtime/classes.js \
   src/runtime/generators.js \
