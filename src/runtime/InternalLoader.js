@@ -327,9 +327,10 @@ export class InternalLoader {
     var key = this.getKey(normalizedName, type);
     var codeUnit = this.cache.get(key);
     var metadata = codeUnit && codeUnit.metadata;
-    return {
+    if (metadata) return {
       sourceMap: metadata.sourceMap,
-      sourceName: metadata.sourceName
+      sourceName: metadata.sourceName,
+      address: codeUnit.address
     };
   }
 
