@@ -22,12 +22,14 @@ import {IdentifierToken} from '../syntax/IdentifierToken';
 import {LiteralToken} from '../syntax/LiteralToken';
 import {Map} from '../runtime/polyfills/Map';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
+import {Options} from '../Options';
 import {ParseTree} from '../syntax/trees/ParseTree';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {Parser} from '../syntax/Parser';
 import {
   LiteralExpression,
-  LiteralPropertyName
+  LiteralPropertyName,
+  TypeName
 } from '../syntax/trees/ParseTrees';
 import {SourceFile} from '../syntax/SourceFile';
 import {IDENTIFIER} from '../syntax/TokenType';
@@ -140,7 +142,10 @@ var counter = 0;
 function getParser(source, errorReporter) {
   var file = new SourceFile(
       '@traceur/generated/TemplateParser/' + counter++, source);
-  var parser = new Parser(file, errorReporter);
+  var options = new Options();
+  // Change default options to enable parsing experimental features.
+  options.types = true;
+  var parser = new Parser(file, errorReporter, options);
   parser.allowYield = true;
   parser.allowAwait = true;
   return parser;
@@ -190,6 +195,20 @@ function convertValueToIdentifierToken(value) {
     return value;
   return createIdentifierToken(value);
 }
+
+function convertValueToType(value) {
+  if (value instanceof ParseTree) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return new TypeName(null, null, convertValueToIdentifierToken(value));
+  }
+  if (value instanceof IdentifierToken) {
+    return new TypeName(null, null, value);
+  }
+  throw new Error('Not implemented');
+}
+
 
 /**
  * Transforms a ParseTree containing placeholders.
@@ -307,5 +326,18 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         return arg0;
     }
     return super.transformArgumentList(tree);
+  }
+
+  transformTypeName(tree) {
+    var value = this.getValue_(tree.name.value);
+    if (value === NOT_FOUND)
+      return super.transformTypeName(tree);
+    var moduleName = this.transformAny(tree.moduleName);
+    if (moduleName !== null) {
+      return new TypeName(null, moduleName,
+                          convertValueToIdentifierToken(value));
+    }
+
+    return convertValueToType(value);
   }
 }

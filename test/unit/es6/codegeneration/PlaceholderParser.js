@@ -166,4 +166,33 @@ suite('PlaceholderParser.traceur.js', function() {
     assert.equal('import Foo from \'name\';', write(tree));
   });
 
+  test('Type', function() {
+    var a = 'a';
+    var tree = parseStatement `var x: ${a};`;
+    assert.equal('var x: a;', write(tree));
+  });
+
+  test('TypeName', function() {
+    var b = 'b';
+    var tree = parseStatement `var x: a.${b};`;
+    assert.equal('var x: a.b;', write(tree));
+  });
+
+  test('TypeName 2', function() {
+    var a = 'a';
+    var tree = parseStatement `var x: ${a}.b;`;
+    assert.equal('var x: a.b;', write(tree));
+  });
+
+  test('TypeParams', function() {
+    var a = 'a';
+    var b = 'b';
+    var tree = parseStatement `var x: ${a}<${b}>;`;
+    assert.equal('var x: a<b>;', write(tree));
+
+    var type = tree.declarations.declarations[0].typeAnnotation;
+    tree = parseStatement `var x: ${type};`;
+    assert.equal('var x: a<b>;', write(tree));
+  });
+
 });

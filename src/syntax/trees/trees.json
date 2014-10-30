@@ -940,7 +940,7 @@
       "SourceRange"
     ],
     "args": [
-      "Arrray<ParseTree>"
+      "Array<ParseTree>"
     ]
   },
   "TypeName": {
