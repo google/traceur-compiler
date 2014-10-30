@@ -13,13 +13,14 @@
 // limitations under the License.
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
-import {validate as validateFreeVariables} from
-    '../semantics/FreeVariableChecker.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
+import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {options} from '../Options.js';
+import {validate as validateFreeVariables} from
+    '../semantics/FreeVariableChecker.js';
 
 /**
  * MultiTransformer that only transforms non ES6 features, such as:
@@ -50,8 +51,8 @@ export class PureES6Transformer extends MultiTransformer {
       });
     }
 
-    if (options.memberVariables)
-      append(MemberVariableTransformer);
+    if (options.memberVariables) append(MemberVariableTransformer);
+    if (options.typeAssertions) append(TypeAssertionTransformer);
     append(AnnotationsTransformer);
     append(TypeTransformer);
   }
