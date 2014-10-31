@@ -197,9 +197,9 @@ function convertValueToIdentifierToken(value) {
 }
 
 function convertValueToType(value) {
-  if (value instanceof ParseTree) {
-    return value;
-  }
+  // We allow null here since it is common to have `var x : ${value}`.
+  if (value === null) return null;
+  if (value instanceof ParseTree) return value;
   if (typeof value === 'string') {
     return new TypeName(null, null, convertValueToIdentifierToken(value));
   }

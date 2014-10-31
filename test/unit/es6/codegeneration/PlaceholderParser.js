@@ -178,6 +178,11 @@ suite('PlaceholderParser.traceur.js', function() {
     assert.equal('var x: a.b;', write(tree));
   });
 
+  test('Type null', function() {
+    var tree = parseStatement `var x: ${null} = 1;`;
+    assert.equal('var x = 1;', write(tree));
+  });
+
   test('TypeName 2', function() {
     var a = 'a';
     var tree = parseStatement `var x: ${a}.b;`;
