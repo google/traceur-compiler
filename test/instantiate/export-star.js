@@ -3,11 +3,13 @@
 
 System.register(["./export-reassignment"], function($__export) {
   "use strict";
-  $__exportNames = ["b"];
+  $__exportNames = {
+    "b": true
+  };
   return {
     setters: [function(m) {
       Object.keys(m).forEach(function(p) {
-        if ($__exportNames.indexOf(p) == -1)
+        if (!$__exportNames[p])
           $__export(p, m[p]);
       });
     }],

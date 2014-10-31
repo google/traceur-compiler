@@ -48,7 +48,8 @@ import HoistVariablesTransformer from './HoistVariablesTransformer.js';
 import {
   createFunctionExpression,
   createEmptyParameterList,
-  createFunctionBody
+  createFunctionBody,
+  createObjectLiteral
 } from './ParseTreeFactory.js';
 
 /**
@@ -328,16 +329,18 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
           Object.keys(m).forEach(function(p) {
-            if ($__exportNames.indexOf(p) == -1)
+            if (!$__exportNames[p])
               $__export(p, m[p]);
           });
         `);
         
-        var exportNames = this.localExportBindings
-            .concat(this.externalExportBindings).map((binding) => binding.exportName);
+        var exportNames = {};
+        this.localExportBindings.concat(this.externalExportBindings).forEach(function(binding) {
+          exportNames[binding.exportName] = true;
+        });
         
         declarationStatements.push(parseStatement `
-          var $__exportNames = ${exportNames};
+          var $__exportNames = ${createObjectLiteral(exportNames)};
         `);
       }
 
