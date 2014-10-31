@@ -16,6 +16,7 @@ import {AnnotationsTransformer} from './AnnotationsTransformer';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker';
 import {MultiTransformer} from './MultiTransformer';
+import {TypeAssertionTransformer} from './TypeAssertionTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options} from '../Options';
@@ -48,6 +49,9 @@ export class PureES6Transformer extends MultiTransformer {
         return tree;
       });
     }
+
+    if (options.typeAssertions)
+      append(TypeAssertionTransformer);
 
     append(AnnotationsTransformer);
     append(TypeTransformer);
