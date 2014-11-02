@@ -62,7 +62,10 @@ export class Compiler {
   constructor(overridingOptions = {}) {
     this.options_ = new Options(this.defaultOptions());
     this.options_.setFromObject(overridingOptions);
+    // Only used if this.options_.sourceMaps set.
     this.sourceMapGenerator_ = null;
+    // Onlu used if this.options_sourceMaps = 'memory'.
+    this.sourceMapInfo_ = null;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -210,6 +213,10 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
+  getSourceMapInfo() {
+    return this.sourceMapInfo_;
+  }
+
   /**
    * Produce output source from tree.
    * @param {ParseTree} tree
@@ -247,6 +254,11 @@ export class Compiler {
   }
 
   sourceMappingURL(filename) {
+    // The source map info for im-memory maps
+    this.sourceMapInfo_ = {
+      url: filename,
+      map: this.getSourceMap()
+    };
     // This implementation works for browsers. The NodeCompiler overrides
     // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {

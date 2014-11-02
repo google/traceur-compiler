@@ -69,8 +69,8 @@ export class LoaderCompiler {
     metadata.compiler = new Compiler(options);
 
     // The name used in sourceMaps
-    var sourceName = codeUnit.metadata.sourceName =
-        codeUnit.address || String(++anonymousSourcesSeen);
+    var sourceName = codeUnit.metadata.sourceName = codeUnit.address ||
+        codeUnit.normalizedName || String(++anonymousSourcesSeen);
     metadata.tree = metadata.compiler.parse(codeUnit.source, sourceName);
   }
 
@@ -82,12 +82,13 @@ export class LoaderCompiler {
 
   write(codeUnit) {
     var metadata = codeUnit.metadata;
-    var outputName = metadata.outputName || '<loaderOutput>';
+    var outputName = metadata.outputName || metadata.sourceName
+        || '<loaderOutput>';
     var sourceRoot = metadata.sourceRoot;
     metadata.transcoded =
         metadata.compiler.write(metadata.transformedTree, outputName);
-    metadata.sourceMap =
-        metadata.compiler.getSourceMap();
+    metadata.sourceMapInfo =
+        metadata.compiler.getSourceMapInfo();
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
   }

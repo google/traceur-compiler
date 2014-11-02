@@ -46,7 +46,6 @@ suite('api.js', function() {
     var api = require('../../../src/node/api');
     var options = {modules: 'register', experimental: true, moduleName: true};
     var result = api.compile('var a = 1;', options, 'a.js');
-    console.log('result', result)
     assert.equal(result.indexOf('System.register("a", [], function() {'), 0,
         'The module has register format and name "a"');
   });

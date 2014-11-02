@@ -188,11 +188,12 @@ function compileContents(contents) {
 
   function onTranscoded(metadata) {
     output.setValue(metadata.transcoded);
-    if (metadata.sourceMap) {
+    if (metadata.sourceMapInfo) {
+      var info = metadata.sourceMapInfo;
       compilationResults.sourceMapConsumer =
-          new SourceMapConsumer(metadata.sourceMap);
-      compilationResults.sourceMapURL = metadata.sourceName;
-      updateSourceMapVisualization(metadata.sourceName);
+          new SourceMapConsumer(info.map);
+      compilationResults.sourceMapURL = info.url;
+      updateSourceMapVisualization(info.url);
     }
   }
 

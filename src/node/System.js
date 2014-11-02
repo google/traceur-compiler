@@ -53,11 +53,9 @@ var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
 
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
-  	var map = nodeLoaderCompiler.getSourceMap(filename);
+  	var map = System.getSourceMap(filename);
   	if (map) {
-  	var info = System.sourceMapInfo(filename, 'module');
-  	console.log('found map and info is ', info);
-	  	return {
+  		return {
 	    	url: filename,
 	    	map: map
 	    };

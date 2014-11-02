@@ -267,12 +267,11 @@ export class TraceurLoader extends Loader {
   }
 
   /**
-   * @param {string} normalizedName
-   * @param {string} 'module' or 'script'
-   * @return {sourceMap, sourceName}
+   * @param {string} filename or url, the output address.
+   * @return {Sourcemap}
    */
-  sourceMapInfo(normalizedName, type) {
-    return this.internalLoader_.sourceMapInfo(normalizedName, type);
+  getSourceMap(filename) {
+    return this.internalLoader_.getSourceMap(filename);
   }
 
   /**
