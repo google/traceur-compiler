@@ -26,29 +26,35 @@ var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 var cwd = process.cwd();
 
 
+function getDefaultBasePath(){
+  var basePath = path.resolve('./') + '/';
+  return  basePath.replace(/\\/g, '/');
+}
+
+
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   return new Promise(function (resolve, reject) {
     var resolvedOutputFile = path.resolve(outputFile);
     var outputDir = path.dirname(resolvedOutputFile);
+    var basePath;
 
-    // Resolve includes before changing directory.
-    var resolvedIncludes = includes.map(function(include) {
-      include.name = path.resolve(include.name);
-      return include;
-    });
+    if (options.basePath){
+      basePath = path.resolve(options.basePath) + '/'
+    } else {
+      basePath = outputDir + '/';
+    }
+
+    var resolvedBasePath = path.resolve(basePath) + '/'
+    var relativeBasePath = path.relative(outputDir, resolvedBasePath) + '/';
+
+    options.basePath = path.join(outputDir, relativeBasePath);
 
     var compiler = new NodeCompiler(options);
 
     mkdirRecursive(outputDir);
     process.chdir(outputDir);
 
-    // Make includes relative to output dir so that sourcemap paths are correct.
-    resolvedIncludes = resolvedIncludes.map(function(include) {
-      include.name = normalizePath(path.relative(outputDir, include.name));
-      return include;
-    });
-
-    recursiveModuleCompile(resolvedIncludes, options, function(tree) {
+    recursiveModuleCompile(includes, options, function(tree) {
       compiler.writeTreeToFile(tree, resolvedOutputFile);
       process.chdir(cwd);
       resolve();
@@ -67,15 +73,15 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
       process.exit(0);
 
     recursiveModuleCompile(includes.slice(current, current + 1), options,
-        function(tree) {
-          var outputFileName = path.join(outputDir, includes[current].name);
-          compiler.writeTreeToFile(tree, outputFileName);
-          current++;
-          next();
-        },
-        function(err) {
-          process.exit(1);
-        });
+      function(tree) {
+        var outputFileName = path.join(outputDir, includes[current].name);
+        compiler.writeTreeToFile(tree, outputFileName);
+        current++;
+        next();
+      },
+      function(err) {
+        process.exit(1);
+      });
   }
 
   next();
@@ -106,8 +112,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
 
-  var basePath = path.resolve('./') + '/';
-  basePath = basePath.replace(/\\/g, '/');
+  var basePath = options.basePath || getDefaultBasePath();
 
   var loadCount = 0;
   var elements = [];
@@ -117,7 +122,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
 
   function appendEvaluateModule(name, referrerName) {
     var normalizedName =
-        traceur.ModuleStore.normalize(name, referrerName);
+      traceur.ModuleStore.normalize(name, referrerName);
     // Create tree for System.get('normalizedName');
     var moduleModule = traceur.codegeneration.module;
     var tree = moduleModule.createModuleEvaluationStatement(normalizedName);
@@ -146,24 +151,24 @@ function recursiveModuleCompile(fileNamesAndTypes, options, callback, errback) {
       metadata: {traceurOptions: optionsCopy}
     };
     var codeUnit = loadFunction.call(loader, name, loadOptions).then(
-        function() {
-          if (doEvaluateModule)
-            appendEvaluateModule(name, referrerName);
+      function() {
+        if (doEvaluateModule)
+          appendEvaluateModule(name, referrerName);
 
-          loadCount++;
-          if (loadCount < fileNamesAndTypes.length) {
-            loadNext();
-          } else if (depTarget) {
-            callback(null);
-          } else {
-            var tree = loaderCompiler.toTree(basePath, elements);
-            callback(tree);
-          }
-        }, function(err) {
-          errback(err);
-        }).catch(function(ex) {
-          console.error('Internal error ' + (ex.stack || ex));
-        });
+        loadCount++;
+        if (loadCount < fileNamesAndTypes.length) {
+          loadNext();
+        } else if (depTarget) {
+          callback(null);
+        } else {
+          var tree = loaderCompiler.toTree(basePath, elements);
+          callback(tree);
+        }
+      }, function(err) {
+        errback(err);
+      }).catch(function(ex) {
+        console.error('Internal error ' + (ex.stack || ex));
+      });
   }
 
   loadNext();
