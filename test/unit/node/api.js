@@ -42,6 +42,15 @@ suite('api.js', function() {
     assert(result.length > 0);
   });
 
+  test('api compile filename', function() {
+    var api = require('../../../src/node/api');
+    var options = {modules: 'register', experimental: true, moduleName: true};
+    var result = api.compile('var a = 1;', options, 'a.js');
+    console.log('result', result)
+    assert.equal(result.indexOf('System.register("a", [], function() {'), 0,
+        'The module has register format and name "a"');
+  });
+
   test('api compile inline', function() {
     var src = 'export function Half(n) {\n this.halfNumber = n / 2;\n};';
     var api = require('../../../src/node/api');
