@@ -64,7 +64,7 @@ export class Compiler {
     this.options_.setFromObject(overridingOptions);
     // Only used if this.options_.sourceMaps set.
     this.sourceMapGenerator_ = null;
-    // Onlu used if this.options_sourceMaps = 'memory'.
+    // Only used if this.options_sourceMaps = 'memory'.
     this.sourceMapInfo_ = null;
   }
   /**

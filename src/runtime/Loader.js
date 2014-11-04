@@ -36,9 +36,7 @@ export class Loader {
    */
   import(name, {referrerName, address, metadata} = {}) {
     return this.internalLoader_.load(name, referrerName, address, metadata).
-        then((codeUnit) => {
-          return this.get(codeUnit.normalizedName);
-        });
+        then((codeUnit) => this.get(codeUnit.normalizedName));
   }
 
   /**

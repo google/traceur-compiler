@@ -40,16 +40,11 @@ NodeLoaderCompiler.prototype = {
     }
     codeUnit.metadata.transformedTree = null;
     return result;
-  },
-  getSourceMap: function(filename) {
-  	return this._sourceMapsByFilename[filename];
   }
 };
 
-var nodeLoaderCompiler = new NodeLoaderCompiler();
-
 var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
-    nodeLoaderCompiler);
+    new NodeLoaderCompiler());
 
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
