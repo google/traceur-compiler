@@ -256,6 +256,25 @@ export class Scanner {
     return t;
   }
 
+  /**
+   * Called for the close angle for type generics. This allows type expressions
+   * like `Array<Array<number>>` to be parsed as `Array<Array<number> >`.
+   */
+  nextCloseAngle() {
+    switch (token.type) {
+      case GREATER_EQUAL:
+      case RIGHT_SHIFT:
+      case RIGHT_SHIFT_EQUAL:
+      case UNSIGNED_RIGHT_SHIFT:
+      case UNSIGNED_RIGHT_SHIFT_EQUAL:
+        this.index -= token.type.length - 1;
+        lastToken = createToken(CLOSE_ANGLE, index);
+        token = scanToken();
+        return lastToken;
+    }
+    return nextToken();
+  }
+
   /** @return {Token} */
   nextToken() {
     return nextToken();

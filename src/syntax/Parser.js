@@ -3760,7 +3760,12 @@ export class Parser {
       this.eat_(COMMA);
       args.push(this.parseType_());
     }
-    this.eat_(CLOSE_ANGLE);
+
+    var token = this.nextCloseAngle_();
+    if (token.type !== CLOSE_ANGLE) {
+      return this.parseUnexpectedToken_(token.type);
+    }
+
     return new TypeArguments(this.getTreeLocation_(start), args);
   }
 
@@ -4102,6 +4107,10 @@ export class Parser {
 
   nextTemplateLiteralToken_() {
     return this.scanner_.nextTemplateLiteralToken();
+  }
+
+  nextCloseAngle_() {
+    return this.scanner_.nextCloseAngle();
   }
 
   isAtEnd() {

@@ -9,6 +9,8 @@ assert.throw(() => {
   var a: Array<number> = ['s'];
 });
 
-// TODO(arv): Issue #1467
-// var e: Array<Array<number> > = [[]];
-// var f: Array<Array<number> > = [[3, 4], [5]];
+var e: Array<Array<number> > = [[]];
+var e: Array<Array<number>> = [[]];
+var f: Array<Array<number>>= [[3, 4], [5]];
+var g: Array<Array<Array<number>>> = [[[]]];
+var h: Array<Array<Array<number>>>= [[[]]];
