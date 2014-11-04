@@ -11,7 +11,7 @@ better code. Traceur allows you to try out new and proposed
 today, helping you say what you mean in your code while informing the standards process.
 
 JavaScript's evolution needs your input.
-[Try](https://github.com/google/traceur-compiler/wiki/GettingStarted) out the
+[Try](https://github.com/google/traceur-compiler/wiki/Getting-Started) out the
 new language features.
 [Tell us](http://groups.google.com/group/traceur-compiler-discuss)
 how they work for you and what's still causing you to use more boilerplate and
@@ -20,7 +20,7 @@ how they work for you and what's still causing you to use more boilerplate and
 ## What now? What can Traceur do for me?
 
 Read the
-[Getting Started](https://github.com/google/traceur-compiler/wiki/GettingStarted)
+[Getting Started](https://github.com/google/traceur-compiler/wiki/Getting-Started)
 page to get up and running. You can use some language features right now and
 even try it out in your browser
 [here](https://google.github.io/traceur-compiler/demo/repl.html).
