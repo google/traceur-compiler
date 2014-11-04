@@ -19,7 +19,6 @@ var path = require('path');
 var Promise = require('rsvp').Promise;
 var nodeLoader = require('./nodeLoader.js');
 var util = require('./file-util.js');
-var normalizePath = util.normalizePath;
 var mkdirRecursive = util.mkdirRecursive;
 var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 
