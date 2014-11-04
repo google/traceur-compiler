@@ -63,9 +63,10 @@ export class TraceurLoader extends Loader {
     load.metadata.traceurOptions = load.metadata.traceurOptions || {};
     var options = load.metadata.traceurOptions;
     var asJS;
-    if (options && options.script) {
+    if (/\.js$/.test(normalizedModuleName) || options && options.script) {
       asJS = normalizedModuleName;
     } else {
+      // Backwards compat.
       asJS = normalizedModuleName + '.js';
     }
 

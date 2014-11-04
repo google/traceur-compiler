@@ -65,7 +65,9 @@ suite('Loader.js', function() {
     load.normalizedName = 'abc/def';
     assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
     load.normalizedName = 'abc/def.js';
-    assert.notEqual(loader.locate(load), 'http://example.org/a/abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
+    load.normalizedName = './abc/def.js';
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
