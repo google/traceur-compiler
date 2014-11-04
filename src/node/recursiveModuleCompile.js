@@ -19,6 +19,7 @@ var path = require('path');
 var Promise = require('rsvp').Promise;
 var nodeLoader = require('./nodeLoader.js');
 var util = require('./file-util.js');
+var normalizePath = util.normalizePath;
 var mkdirRecursive = util.mkdirRecursive;
 var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 
@@ -41,6 +42,13 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
       basePath = path.resolve(options.basePath) + '/'
     } else {
       basePath = outputDir + '/';
+
+
+      // If basePath defined make includes relative to output dir so that sourcemap paths are correct.
+      includes = includes.map(function(include) {
+        include.name = normalizePath(path.relative(outputDir, include.name));
+        return include;
+      });
     }
 
     var resolvedBasePath = path.resolve(basePath) + '/'
