@@ -38,7 +38,7 @@ function printImports(trees) {
   names.forEach(function(name) {
     util.print('  %s,', name);
   });
-  util.print("} from '../syntax/trees/ParseTrees';")
+  util.print("} from '../syntax/trees/ParseTrees.js';")
 }
 
 function printHeader() {

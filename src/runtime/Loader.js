@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {InternalLoader} from './InternalLoader';
+import {InternalLoader} from './InternalLoader.js';
 
 function throwAbstractMethod() {
   throw new Error('Unimplemented Loader function, see extended class');

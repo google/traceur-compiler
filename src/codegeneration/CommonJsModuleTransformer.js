@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleTransformer} from './ModuleTransformer';
+import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   GET_ACCESSOR,
   OBJECT_LITERAL_EXPRESSION,
   PROPERTY_NAME_ASSIGNMENT,
   RETURN_STATEMENT
-} from '../syntax/trees/ParseTreeType';
-import {assert} from '../util/assert';
-import globalThis from './globalThis';
+} from '../syntax/trees/ParseTreeType.js';
+import {assert} from '../util/assert.js';
+import globalThis from './globalThis.js';
 import {
   parseExpression,
   parsePropertyDefinition,
   parseStatement,
   parseStatements
-} from './PlaceholderParser';
-import scopeContainsThis from './scopeContainsThis';
+} from './PlaceholderParser.js';
+import scopeContainsThis from './scopeContainsThis.js';
 import {
   createEmptyParameterList,
   createFunctionExpression,
@@ -37,9 +37,9 @@ import {
   createVariableStatement,
   createVariableDeclaration,
   createVariableDeclarationList
-} from './ParseTreeFactory';
-import {VAR} from '../syntax/TokenType';
-import {prependStatements} from './PrependStatements';
+} from './ParseTreeFactory.js';
+import {VAR} from '../syntax/TokenType.js';
+import {prependStatements} from './PrependStatements.js';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 

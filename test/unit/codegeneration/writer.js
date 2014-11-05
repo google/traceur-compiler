@@ -18,13 +18,13 @@ suite('writer.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
-  var LiteralToken = get('src/syntax/LiteralToken').LiteralToken;
-  var TokenType = get('src/syntax/TokenType');
-  var Token = get('src/syntax/Token').Token;
+  var IdentifierToken = get('src/syntax/IdentifierToken.js').IdentifierToken;
+  var LiteralToken = get('src/syntax/LiteralToken.js').LiteralToken;
+  var TokenType = get('src/syntax/TokenType.js');
+  var Token = get('src/syntax/Token.js').Token;
 
-  var write = get('src/outputgeneration/TreeWriter').write;
-  var trees = get('src/syntax/trees/ParseTrees');
+  var write = get('src/outputgeneration/TreeWriter.js').write;
+  var trees = get('src/syntax/trees/ParseTrees.js');
 
   test('WriteStatement', function() {
     var tree = new trees.Script(

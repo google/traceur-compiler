@@ -143,8 +143,8 @@
   var ModuleStore = {
 
     normalize(name, refererName, refererAddress) {
-      if (typeof name !== "string")
-          throw new TypeError("module name must be a string, not " + typeof name);
+      if (typeof name !== 'string')
+          throw new TypeError('module name must be a string, not ' + typeof name);
       if (isAbsolute(name))
         return canonicalizeUrl(name);
       if(/[^\.]\/\.\.\//.test(name)) {
@@ -245,9 +245,10 @@
 
   };
 
-
-  ModuleStore.set('@traceur/src/runtime/ModuleStore',
-      new Module({ModuleStore: ModuleStore}));
+  // TODO(arv): Remove the non .js version after a npm push
+  var moduleStoreModule = new Module({ModuleStore: ModuleStore});
+  ModuleStore.set('@traceur/src/runtime/ModuleStore', moduleStoreModule);
+  ModuleStore.set('@traceur/src/runtime/ModuleStore.js', moduleStoreModule);
 
   // Override setupGlobals so that System is added to future globals.
   var setupGlobals = $traceurRuntime.setupGlobals;

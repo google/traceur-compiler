@@ -20,8 +20,8 @@ suite('FreeVariableChecker.js', function() {
 
   var Parser = traceur.syntax.Parser;
   var SourceFile = traceur.syntax.SourceFile;
-  var ErrorReporter = get('src/util/CollectingErrorReporter').CollectingErrorReporter;
-  var validateFreeVars = get('src/semantics/FreeVariableChecker').validate;
+  var ErrorReporter = get('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
+  var validateFreeVars = get('src/semantics/FreeVariableChecker.js').validate;
 
   function makeTest(name, code, expectedErrors, global, mode) {
     test(name, function() {

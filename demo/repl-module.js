@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
+import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter.js';
 import {
   GeneratedSourceMapMapping,
   OriginalSourceMapMapping
-} from './SourceMapMapping';
+} from './SourceMapMapping.js';
 import {SourceMapConsumer}
-    from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
-import {transcode, renderSourceMap} from './transcode';
-import {options as traceurOptions} from 'traceur@0.0/src/Options';
-import {setOptionsFromSource} from './replOptions';
+    from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
+import {transcode, renderSourceMap} from './transcode.js';
+import {options as traceurOptions} from 'traceur@0.0/src/Options.js';
+import {setOptionsFromSource} from './replOptions.js';
 
 var hasError = false;
 var debouncedCompile = debounced(compile, 200, 2000);

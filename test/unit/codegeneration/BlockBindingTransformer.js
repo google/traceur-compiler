@@ -1,20 +1,20 @@
 suite('BlockBindingTransformer.js', function() {
   var BlockBindingTransformer = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/BlockBindingTransformer').BlockBindingTransformer;
+    getForTesting('src/codegeneration/BlockBindingTransformer.js').BlockBindingTransformer;
   var UniqueIdentifierGenerator = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/UniqueIdentifierGenerator').UniqueIdentifierGenerator;
+    getForTesting('src/codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
   var Parser = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/Parser').Parser;
+    getForTesting('src/syntax/Parser.js').Parser;
   var SourceFile = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/SourceFile').SourceFile;
+    getForTesting('src/syntax/SourceFile.js').SourceFile;
   var write = $traceurRuntime.ModuleStore.
-    getForTesting('src/outputgeneration/TreeWriter').write;
+    getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+    getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
   var options = $traceurRuntime.ModuleStore.
-    getForTesting('src/Options').options;
+    getForTesting('src/Options.js').options;
   var ErrorReporter = $traceurRuntime.ModuleStore.
-      getForTesting('src/util/CollectingErrorReporter').CollectingErrorReporter;
+      getForTesting('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
 
   var currentOption;
 

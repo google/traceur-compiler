@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IdentifierToken} from './IdentifierToken';
-import {KeywordToken} from './KeywordToken';
-import {LiteralToken} from './LiteralToken';
-import {Token} from './Token';
-import {getKeywordType} from './Keywords';
+import {IdentifierToken} from './IdentifierToken.js';
+import {KeywordToken} from './KeywordToken.js';
+import {LiteralToken} from './LiteralToken.js';
+import {Token} from './Token.js';
+import {getKeywordType} from './Keywords.js';
 import {
   idContinueTable,
   idStartTable
-} from './unicode-tables';
+} from './unicode-tables.js';
 import {
   options,
   parseOptions
-} from '../Options';
+} from '../Options.js';
 
 import {
   AMPERSAND,
@@ -89,7 +89,7 @@ import {
   TILDE,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from './TokenType';
+} from './TokenType.js';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.

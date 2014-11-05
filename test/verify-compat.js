@@ -14,9 +14,9 @@
 
 // Run's test from https://github.com/kangax/compat-table
 
-import {Compiler} from '../src/Compiler';
-import {FindVisitor} from '../src/codegeneration/FindVisitor';
-import {IDENTIFIER_EXPRESSION} from '../src/syntax/trees/ParseTreeType';
+import {Compiler} from '../src/Compiler.js';
+import {FindVisitor} from '../src/codegeneration/FindVisitor.js';
+import {IDENTIFIER_EXPRESSION} from '../src/syntax/trees/ParseTreeType.js';
 
 Reflect.global.exports = {};
 

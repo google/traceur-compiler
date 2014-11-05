@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert} from '../../../src/util/assert';
-import {resolveUrl} from '../../../src/util/url';
+import {assert} from '../../../src/util/assert.js';
+import {resolveUrl} from '../../../src/util/url.js';
 
 var testScriptName = '../../unit/runtime/test_script.js';
 System.loadAsScript(testScriptName, {referrerName: __moduleName}).then(function(result) {
@@ -24,7 +24,7 @@ System.loadAsScript(testScriptName, {referrerName: __moduleName}).then(function(
   throw new Error('test_interpret loadAsScript FAILED: ' + error);
 });
 
-var testModuleName = '../../unit/runtime/test_module';
+var testModuleName = '../../unit/runtime/test_module.js';
 System.import(testModuleName, {referrerName: __moduleName}).then(function(mod) {
   assert('test', mod.name);
   assert('A', mod.a);

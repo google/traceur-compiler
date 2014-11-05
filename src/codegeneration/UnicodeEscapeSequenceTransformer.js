@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {LiteralExpression} from '../syntax/trees/ParseTrees';
-import {STRING} from '../syntax/TokenType';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {LiteralExpression} from '../syntax/trees/ParseTrees.js';
+import {STRING} from '../syntax/TokenType.js';
 
 var re = /(\\*)\\u{([0-9a-fA-F]+)}/g;
 

@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleTransformer} from './ModuleTransformer';
-import {createIdentifierExpression} from './ParseTreeFactory';
-import globalThis from './globalThis';
+import {ModuleTransformer} from './ModuleTransformer.js';
+import {
+  createIdentifierExpression,
+  createStringLiteralToken
+} from './ParseTreeFactory.js';
+import globalThis from './globalThis.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements,
   parsePropertyDefinition
-} from './PlaceholderParser';
-import scopeContainsThis from './scopeContainsThis';
+} from './PlaceholderParser.js';
+import scopeContainsThis from './scopeContainsThis.js';
 
 export class AmdTransformer extends ModuleTransformer {
 
@@ -72,7 +75,11 @@ export class AmdTransformer extends ModuleTransformer {
 
   transformModuleSpecifier(tree) {
     var localName = this.getTempIdentifier();
-    this.dependencies.push({path: tree.token, local: localName});
+    // AMD does not allow .js
+    var value = tree.token.processedValue
+    var stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));
+
+    this.dependencies.push({path: stringLiteral, local: localName});
     return createIdentifierExpression(localName);
   }
 }

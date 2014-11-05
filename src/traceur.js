@@ -12,26 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {System} from './runtime/System';
+export {System} from './runtime/System.js';
 
 // Used by unit tests only
-import './util/MutedErrorReporter';
+import './util/MutedErrorReporter.js';
 
+// TODO(arv): Change this to .js after a npm push
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
-export {WebPageTranscoder} from './WebPageTranscoder';
-export {options} from './Options';
-import {addOptions, CommandOptions, Options} from './Options';
+export {WebPageTranscoder} from './WebPageTranscoder.js';
+export {options} from './Options.js';
+import {addOptions, CommandOptions, Options} from './Options.js';
 
+// TODO(arv): Change this to .js after a npm push
 import {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 
 export function get(name) {
   return ModuleStore.get(ModuleStore.normalize('./' + name, __moduleName));
 }
 
-export {Compiler} from './Compiler';
+export {Compiler} from './Compiler.js';
 
-import {ErrorReporter} from './util/ErrorReporter';
-import {CollectingErrorReporter} from './util/CollectingErrorReporter';
+import {ErrorReporter} from './util/ErrorReporter.js';
+import {CollectingErrorReporter} from './util/CollectingErrorReporter.js';
 
 export var util = {
   addOptions,
@@ -41,10 +43,10 @@ export var util = {
   Options
 };
 
-import {Parser} from './syntax/Parser';
-import {Scanner} from './syntax/Scanner';
-import {Script} from './syntax/trees/ParseTrees';
-import {SourceFile} from './syntax/SourceFile';
+import {Parser} from './syntax/Parser.js';
+import {Scanner} from './syntax/Scanner.js';
+import {Script} from './syntax/trees/ParseTrees.js';
+import {SourceFile} from './syntax/SourceFile.js';
 
 export var syntax = {
   Parser,
@@ -55,12 +57,12 @@ export var syntax = {
   }
 };
 
-import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
-import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
-import {regexpuRewritePattern} from './outputgeneration/regexpuRewritePattern';
-import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
-import {TreeWriter} from './outputgeneration/TreeWriter';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
+import {regexpuRewritePattern} from './outputgeneration/regexpuRewritePattern.js';
+import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
+import {TreeWriter} from './outputgeneration/TreeWriter.js';
 
 export var outputgeneration = {
   ParseTreeMapWriter,
@@ -71,12 +73,12 @@ export var outputgeneration = {
   TreeWriter
 };
 
-import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
-import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
-import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
-import {PureES6Transformer} from './codegeneration/PureES6Transformer';
-import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement';
-import {parseExpression, parseModule, parseScript, parseStatement} from './codegeneration/PlaceholderParser';
+import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer.js';
+import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer.js';
+import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer.js';
+import {PureES6Transformer} from './codegeneration/PureES6Transformer.js';
+import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement.js';
+import {parseExpression, parseModule, parseScript, parseStatement} from './codegeneration/PlaceholderParser.js';
 
 export var codegeneration = {
   CloneTreeTransformer,
@@ -92,10 +94,10 @@ export var codegeneration = {
   }
 };
 
-import {Loader} from './runtime/Loader';
-import {LoaderCompiler} from './runtime/LoaderCompiler';
-import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler';
-import {TraceurLoader} from './runtime/TraceurLoader';
+import {Loader} from './runtime/Loader.js';
+import {LoaderCompiler} from './runtime/LoaderCompiler.js';
+import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler.js';
+import {TraceurLoader} from './runtime/TraceurLoader.js';
 
 export var runtime = {
   InlineLoaderCompiler,

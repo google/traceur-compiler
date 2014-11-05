@@ -20,19 +20,19 @@ import {
   ObjectPattern,
   ObjectPatternField,
   Script
-} from '../syntax/trees/ParseTrees';
-import {DestructuringTransformer} from './DestructuringTransformer';
-import {DirectExportVisitor} from './module/DirectExportVisitor';
-import {TempVarTransformer} from './TempVarTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {DestructuringTransformer} from './DestructuringTransformer.js';
+import {DirectExportVisitor} from './module/DirectExportVisitor.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   CLASS_DECLARATION,
   EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
   FUNCTION_DECLARATION,
   IMPORT_SPECIFIER_SET
-} from '../syntax/trees/ParseTreeType';
-import {VAR} from '../syntax/TokenType';
-import {assert} from '../util/assert';
+} from '../syntax/trees/ParseTreeType.js';
+import {VAR} from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import {
   createArgumentList,
   createExpressionStatement,
@@ -42,17 +42,17 @@ import {
   createObjectLiteralExpression,
   createUseStrictDirective,
   createVariableStatement,
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 import {
   parseOptions,
   transformOptions
-} from '../Options';
+} from '../Options.js';
 import {
   parseExpression,
   parsePropertyDefinition,
   parseStatement,
   parseStatements
-} from './PlaceholderParser';
+} from './PlaceholderParser.js';
 
 class DestructImportVarStatement extends DestructuringTransformer {
   createGuardedExpression(tree) {
@@ -240,7 +240,7 @@ export class ModuleTransformer extends TempVarTransformer {
   transformModuleSpecifier(tree) {
     assert(this.moduleName);
     var name = tree.token.processedValue;
-    // import/module {x} from 'name' is relative to the current file.
+    // import/module {x} from './name.js' is relative to the current file.
     var normalizedName = System.normalize(name, this.moduleName);
     return parseExpression `System.get(${normalizedName})`;
   }

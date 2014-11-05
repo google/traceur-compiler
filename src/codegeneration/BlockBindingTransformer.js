@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AlphaRenamer} from './AlphaRenamer';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   ANON_BLOCK,
   BINDING_IDENTIFIER,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   AnonBlock,
   BindingElement,
@@ -39,19 +39,19 @@ import {
   VariableDeclarationList,
   VariableStatement,
   WhileStatement
-} from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {VAR} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createBindingIdentifier,
   createIdentifierExpression,
   createIdentifierToken
-} from './ParseTreeFactory';
-import {FindIdentifiers} from './FindIdentifiers';
-import {FindVisitor} from './FindVisitor';
-import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
-import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder';
-import {prependStatements} from './PrependStatements';
+} from './ParseTreeFactory.js';
+import {FindIdentifiers} from './FindIdentifiers.js';
+import {FindVisitor} from './FindVisitor.js';
+import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions.js';
+import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder.js';
+import {prependStatements} from './PrependStatements.js';
 
 /**
  * Transforms the block bindings from traceur to js.

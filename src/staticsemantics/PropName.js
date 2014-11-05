@@ -20,8 +20,8 @@ import {
   PROPERTY_NAME_ASSIGNMENT,
   PROPERTY_NAME_SHORTHAND,
   SET_ACCESSOR
-} from '../syntax/trees/ParseTreeType';
-import {IDENTIFIER} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTreeType.js';
+import {IDENTIFIER} from '../syntax/TokenType.js';
 
 /**
  * Matches "Static Semantics: PropName" in the spec.

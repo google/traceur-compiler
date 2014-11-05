@@ -7,7 +7,7 @@
   SystemJS map support
 
   Provides map configuration through
-    System.map['jquery'] = 'some/module/map'
+    System.map['jquery'] = 'some/module/Map.js'
 
   As well as contextual map config through
     System.map['bootstrap'] = {
@@ -18,7 +18,7 @@
 
   Note that this applies for subpaths, just like RequireJS
 
-  jquery      -> 'some/module/map'
+  jquery      -> 'some/module/Map.js'
   jquery/path -> 'some/module/map/path'
   bootstrap   -> 'bootstrap'
 

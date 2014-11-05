@@ -1,1 +1,1 @@
-import {p} from './rebinding';
+import {p} from './rebinding.js';

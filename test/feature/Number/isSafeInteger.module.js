@@ -1,4 +1,4 @@
-import {isSafeInteger} from '../../../src/runtime/polyfills/Number';
+import {isSafeInteger} from '../../../src/runtime/polyfills/Number.js';
 
 function testIsSafeInteger(isSafeInteger) {
   assert.isTrue(isSafeInteger(-0));

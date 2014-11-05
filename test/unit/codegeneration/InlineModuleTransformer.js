@@ -18,9 +18,9 @@ suite('InlineModuleTransformer.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer').InlineModuleTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory');
-  var write = get('src/outputgeneration/TreeWriter').write;
+  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer.js').InlineModuleTransformer;
+  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
+  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var transformer = null
 

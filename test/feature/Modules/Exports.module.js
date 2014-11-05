@@ -1,4 +1,4 @@
-import * as a from './resources/i';
+import * as a from './resources/i.js';
 
 (function() {
   'use strict';
@@ -13,5 +13,5 @@ import * as a from './resources/i';
 
 assert.equal(1, a.i);
 
-import * as d from './resources/d';
+import * as d from './resources/d.js';
 assert.equal('A', d.a);

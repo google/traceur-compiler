@@ -14,24 +14,23 @@
 
 import {
   AttachModuleNameTransformer
-} from '../codegeneration/module/AttachModuleNameTransformer';
-import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
-import {buildExportList} from '../codegeneration/module/ExportListBuilder';
-import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
-import {Compiler} from '../Compiler';
+} from '../codegeneration/module/AttachModuleNameTransformer.js';
+import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer.js';
+import {buildExportList} from '../codegeneration/module/ExportListBuilder.js';
+import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
+import {Compiler} from '../Compiler.js';
 import {ModuleSpecifierVisitor} from
-    '../codegeneration/module/ModuleSpecifierVisitor';
-import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
-import {Parser} from '../syntax/Parser';
-import {options as globalOptions} from '../Options';
-import {SourceFile} from '../syntax/SourceFile';
-import {systemjs} from '../runtime/system-map';
-import {toSource} from '../outputgeneration/toSource';
+    '../codegeneration/module/ModuleSpecifierVisitor.js';
+import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol.js';
+import {Parser} from '../syntax/Parser.js';
+import {options as globalOptions} from '../Options.js';
+import {SourceFile} from '../syntax/SourceFile.js';
+import {systemjs} from '../runtime/system-map.js';
+import {toSource} from '../outputgeneration/toSource.js';
 import {UniqueIdentifierGenerator} from
-    '../codegeneration/UniqueIdentifierGenerator';
-import {isAbsolute, resolveUrl} from '../util/url';
-
-import {assert} from '../util/assert';
+    '../codegeneration/UniqueIdentifierGenerator.js';
+import {isAbsolute, resolveUrl} from '../util/url.js';
+import {assert} from '../util/assert.js';
 
 // TODO These CodeUnit (aka Load) states are used by code in this file
 // that belongs in Loader.

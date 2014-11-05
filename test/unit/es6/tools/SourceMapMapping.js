@@ -14,12 +14,12 @@
 
 
 import {SourceMapConsumer}
-    from '../../../../src/outputgeneration/SourceMapIntegration';
-import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
+    from '../../../../src/outputgeneration/SourceMapIntegration.js';
+import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping.js';
 
-var path = 'test/unit/runtime/test_a';
+var path = 'test/unit/runtime/test_a.js';
 var input = './' + path;
-var output = '/work/traceur-compiler/' + path + '.js';
+var output = '/work/traceur-compiler/' + path;
 // Force sourceMaps on for test.
 var importOptions = {
   metadata: {

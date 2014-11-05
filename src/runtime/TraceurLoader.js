@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isAbsolute, resolveUrl} from '../util/url';
-import {Loader} from '../runtime/Loader';
-import {LoaderCompiler} from '../runtime/LoaderCompiler';
-import {systemjs} from '../runtime/system-map';
+import {isAbsolute, resolveUrl} from '../util/url.js';
+import {Loader} from '../runtime/Loader.js';
+import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {systemjs} from '../runtime/system-map.js';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));
 var uniqueNameCount = 0;

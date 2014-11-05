@@ -17,8 +17,8 @@ suite('options', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var Options = get('src/Options').Options;
-  var CommandOptions = get('src/Options').CommandOptions;
+  var Options = get('src/Options.js').Options;
+  var CommandOptions = get('src/Options.js').CommandOptions;
 
   test('Options instance', function() {
     var options = new Options();

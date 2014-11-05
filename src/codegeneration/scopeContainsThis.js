@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindInFunctionScope} from './FindInFunctionScope'
+import {FindInFunctionScope} from './FindInFunctionScope.js'
 
 class FindThis extends FindInFunctionScope {
   visitThisExpression(tree) {

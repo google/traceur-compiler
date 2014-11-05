@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportVisitor} from './ExportVisitor';
+import {ExportVisitor} from './ExportVisitor.js';
 
 /**
  * Visits a parse tree and adds all the exports.

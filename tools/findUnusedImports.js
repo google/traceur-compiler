@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CollectingErrorReporter} from '../src/util/CollectingErrorReporter';
-import {Compiler} from '../src/Compiler';
-import {ScopeChainBuilder} from '../src/semantics/ScopeChainBuilder';
-import {ScopeVisitor} from '../src/semantics/ScopeVisitor';
+import {CollectingErrorReporter} from '../src/util/CollectingErrorReporter.js';
+import {Compiler} from '../src/Compiler.js';
+import {ScopeChainBuilder} from '../src/semantics/ScopeChainBuilder.js';
+import {ScopeVisitor} from '../src/semantics/ScopeVisitor.js';
 
 /**
  * Overrides to also keep track of imported bindings.

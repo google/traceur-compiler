@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from '../util/ErrorReporter';
+import {ErrorReporter} from '../util/ErrorReporter.js';
 
 export class MultipleErrors extends Error {
   constructor(errors) {

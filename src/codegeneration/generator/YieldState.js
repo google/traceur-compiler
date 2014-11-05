@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {State} from './State';
-import {parseStatement} from '../PlaceholderParser';
+import {State} from './State.js';
+import {parseStatement} from '../PlaceholderParser.js';
 
 /**
  * Represents a simple yield expression that has been added to a StateMachine.

@@ -17,22 +17,22 @@ import {
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
-import {IdentifierToken} from '../syntax/IdentifierToken';
-import {LiteralToken} from '../syntax/LiteralToken';
-import {Map} from '../runtime/polyfills/Map';
-import {CollectingErrorReporter} from '../util/CollectingErrorReporter';
-import {Options} from '../Options';
-import {ParseTree} from '../syntax/trees/ParseTree';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {Parser} from '../syntax/Parser';
+} from '../syntax/trees/ParseTreeType.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
+import {Map} from '../runtime/polyfills/Map.js';
+import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
+import {Options} from '../Options.js';
+import {ParseTree} from '../syntax/trees/ParseTree.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {Parser} from '../syntax/Parser.js';
 import {
   LiteralExpression,
   LiteralPropertyName,
   TypeName
-} from '../syntax/trees/ParseTrees';
-import {SourceFile} from '../syntax/SourceFile';
-import {IDENTIFIER} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTrees.js';
+import {SourceFile} from '../syntax/SourceFile.js';
+import {IDENTIFIER} from '../syntax/TokenType.js';
 import {
   createArrayLiteralExpression,
   createBindingIdentifier,
@@ -49,7 +49,7 @@ import {
   createParenExpression,
   createStringLiteral,
   createVoid0
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 
 /**
  * @fileoverview This file provides two template string functions,

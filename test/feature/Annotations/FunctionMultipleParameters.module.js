@@ -1,5 +1,5 @@
 // Options: --annotations
-import {Anno} from './resources/setup';
+import {Anno} from './resources/setup.js';
 
 function MultipleParams(@Anno('x') x, @Anno('y') y) {}
 

@@ -1,3 +1,3 @@
-import * as m from './resources/default';
+import * as m from './resources/default.js';
 
 assert.equal(m.default, 42);
