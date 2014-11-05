@@ -374,7 +374,8 @@ export class InternalLoader {
       }
       // We copy the incoming metadata to pass values from the API and to
       // inherit value from the API call into modules imported by the root.
-      // But we don't want to inherit tree etc. TODO(jjb): a better solution.
+      // But we don't want to inherit tree etc.
+      // TODO(jjb): move this into the CodeUnit constructors.
       codeUnit.metadata = {
         traceurOptions: metadata.traceurOptions,
         outputName: metadata.outputName,
@@ -515,7 +516,7 @@ export class InternalLoader {
     this.loaderCompiler.transform(codeUnit);
     codeUnit.state = TRANSFORMED;
     this.loaderCompiler.write(codeUnit);
-    var info = codeUnit.metadata.sourceMapInfo;
+    var info = codeUnit.metadata.compiler.sourceMapInfo;
     if (info) {
       this.sourceMapsByURL_[info.url] = info.map;
     }

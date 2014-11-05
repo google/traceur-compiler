@@ -163,8 +163,7 @@ export class Options {
     }
     if (value === 'file' || value === 'inline' || value === 'memory') {
       this.sourceMaps_ = value;
-    }
-    else {
+    } else {
       throw new Error('Option sourceMaps should be ' +
           '[false|inline|file|memory], not ' + value);
     }

@@ -188,8 +188,8 @@ function compileContents(contents) {
 
   function onTranscoded(metadata) {
     output.setValue(metadata.transcoded);
-    if (metadata.sourceMapInfo) {
-      var info = metadata.sourceMapInfo;
+    if (metadata.compiler.sourceMapInfo) {
+      var info = metadata.compiler.sourceMapInfo;
       compilationResults.sourceMapConsumer =
           new SourceMapConsumer(info.map);
       compilationResults.sourceMapURL = info.url;

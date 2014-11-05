@@ -23,8 +23,8 @@ function interpret(filename, options) {
   // normalized module name.
   var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
   var metadata = {
-  	traceurOptions: options,
-  	outputName: filename
+    traceurOptions: options,
+    outputName: filename
   };
   System.import(moduleName, {metadata: metadata}).
     catch(function(err) {

@@ -62,7 +62,7 @@ export class Compiler {
   constructor(overridingOptions = {}) {
     this.options_ = new Options(this.defaultOptions());
     this.options_.setFromObject(overridingOptions);
-    // Only used if this.options_.sourceMaps set.
+    // Only used if this.options_.sourceMaps is set.
     this.sourceMapGenerator_ = null;
     // Only used if this.options_sourceMaps = 'memory'.
     this.sourceMapInfo_ = null;
@@ -213,7 +213,7 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
-  getSourceMapInfo() {
+  get sourceMapInfo() {
     return this.sourceMapInfo_;
   }
 

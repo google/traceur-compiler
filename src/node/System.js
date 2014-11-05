@@ -25,18 +25,17 @@ var url = (path.resolve('./') + '/').replace(/\\/g, '/');
 var LoaderCompiler = traceur.runtime.LoaderCompiler;
 var NodeLoaderCompiler = function() {
   LoaderCompiler.call(this);
-  this._sourceMapsByFilename = Object.create(null);
 };
 
 NodeLoaderCompiler.prototype = {
   __proto__: LoaderCompiler.prototype,
   evaluateCodeUnit: function(codeUnit) {
     var result =
-    		module._compile(codeUnit.metadata.transcoded, codeUnit.address);
+        module._compile(codeUnit.metadata.transcoded, codeUnit.address);
     // If sourceMap option is true, save the map by filename
     if (codeUnit.metadata.sourceMap) {
-    	this._sourceMapsByFilename[codeUnit.address] =
-    			codeUnit.metadata.sourceMap;
+      this._sourceMapsByFilename[codeUnit.address] =
+          codeUnit.metadata.sourceMap;
     }
     codeUnit.metadata.transformedTree = null;
     return result;
@@ -48,13 +47,13 @@ var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
 
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
-  	var map = System.getSourceMap(filename);
-  	if (map) {
-  		return {
-	    	url: filename,
-	    	map: map
-	    };
-  	}
+    var map = System.getSourceMap(filename);
+    if (map) {
+      return {
+        url: filename,
+        map: map
+      };
+    }
   }
 });
 

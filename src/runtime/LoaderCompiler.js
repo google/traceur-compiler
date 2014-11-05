@@ -82,13 +82,11 @@ export class LoaderCompiler {
 
   write(codeUnit) {
     var metadata = codeUnit.metadata;
-    var outputName = metadata.outputName || metadata.sourceName
-        || '<loaderOutput>';
+    var outputName = metadata.outputName || metadata.sourceName ||
+        '<loaderOutput>';
     var sourceRoot = metadata.sourceRoot;
     metadata.transcoded =
         metadata.compiler.write(metadata.transformedTree, outputName);
-    metadata.sourceMapInfo =
-        metadata.compiler.getSourceMapInfo();
     if (codeUnit.address && metadata.transcoded)
       metadata.transcoded += '//# sourceURL=' + codeUnit.address;
   }
