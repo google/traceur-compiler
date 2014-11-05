@@ -32,11 +32,6 @@ NodeLoaderCompiler.prototype = {
   evaluateCodeUnit: function(codeUnit) {
     var result =
         module._compile(codeUnit.metadata.transcoded, codeUnit.address);
-    // If sourceMap option is true, save the map by filename
-    if (codeUnit.metadata.sourceMap) {
-      this._sourceMapsByFilename[codeUnit.address] =
-          codeUnit.metadata.sourceMap;
-    }
     codeUnit.metadata.transformedTree = null;
     return result;
   }
