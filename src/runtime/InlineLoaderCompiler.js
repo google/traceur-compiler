@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LoaderCompiler} from './LoaderCompiler';
-import {Script} from '../syntax/trees/ParseTrees';
+import {LoaderCompiler} from './LoaderCompiler.js';
+import {Script} from '../syntax/trees/ParseTrees.js';
 
 export class InlineLoaderCompiler extends LoaderCompiler {
 

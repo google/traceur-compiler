@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeMapWriter} from './ParseTreeMapWriter';
-import {ParseTreeWriter} from './ParseTreeWriter';
-import {SourceMapGenerator} from './SourceMapIntegration';
+import {ParseTreeMapWriter} from './ParseTreeMapWriter.js';
+import {ParseTreeWriter} from './ParseTreeWriter.js';
+import {SourceMapGenerator} from './SourceMapIntegration.js';
 
 /**
  * Create a ParseTreeWriter configured with options, apply it to tree

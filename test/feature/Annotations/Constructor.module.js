@@ -1,5 +1,5 @@
 // Options: --annotations
-import {Anno2} from './resources/setup';
+import {Anno2} from './resources/setup.js';
 
 class AnnotatedCtor {
   @Anno2

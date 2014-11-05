@@ -18,11 +18,11 @@ suite('SourceMap.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var Parser = get('src/syntax/Parser').Parser;
-  var SourceFile = get('src/syntax/SourceFile').SourceFile;
-  var SourceMapConsumer = get('src/outputgeneration/SourceMapIntegration').SourceMapConsumer;
-  var SourceMapGenerator = get('src/outputgeneration/SourceMapIntegration').SourceMapGenerator;
-  var write = get('src/outputgeneration/TreeWriter').write;
+  var Parser = get('src/syntax/Parser.js').Parser;
+  var SourceFile = get('src/syntax/SourceFile.js').SourceFile;
+  var SourceMapConsumer = get('src/outputgeneration/SourceMapIntegration.js').SourceMapConsumer;
+  var SourceMapGenerator = get('src/outputgeneration/SourceMapIntegration.js').SourceMapGenerator;
+  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var errorReporter = {
     reportError: function(position, message) {
@@ -46,7 +46,7 @@ suite('SourceMap.js', function() {
 
   test('relativeToSource', function() {
     var relativeToSourceRoot =
-        get('src/outputgeneration/ParseTreeMapWriter').relativeToSourceRoot;
+        get('src/outputgeneration/ParseTreeMapWriter.js').relativeToSourceRoot;
     assert.equal(relativeToSourceRoot('@foo', '/w/t/out/'), '@foo',
         '@ names are unchanged');
 
@@ -135,7 +135,7 @@ suite('SourceMap.js', function() {
   });
 
   test('ImportSpecifierSetSourceMap', function() {
-    var src = "  import {x} from 'WrapNewObjectTransformer';";
+    var src = "  import {x} from './WrapNewObjectTransformer.js';";
 
     var filename = 'sourceMapImportSpecifierSet.js';
     var tree = parseModule(filename, src);

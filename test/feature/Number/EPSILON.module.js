@@ -1,4 +1,4 @@
-import {EPSILON} from '../../../src/runtime/polyfills/Number';
+import {EPSILON} from '../../../src/runtime/polyfills/Number.js';
 
 function testEpsilon(epsilon) {
   assert.equal(epsilon, Math.pow(2, -52));

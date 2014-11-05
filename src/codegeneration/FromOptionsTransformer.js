@@ -12,43 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AmdTransformer} from './AmdTransformer';
-import {AnnotationsTransformer} from './AnnotationsTransformer';
-import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
-import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
-import {BlockBindingTransformer} from './BlockBindingTransformer';
-import {ClassTransformer} from './ClassTransformer';
-import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
-import {ExponentiationTransformer} from './ExponentiationTransformer';
-import {validate as validateConst} from '../semantics/ConstChecker';
-import {DefaultParametersTransformer} from './DefaultParametersTransformer';
-import {DestructuringTransformer} from './DestructuringTransformer';
-import {ForOfTransformer} from './ForOfTransformer';
+import {AmdTransformer} from './AmdTransformer.js';
+import {AnnotationsTransformer} from './AnnotationsTransformer.js';
+import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer.js';
+import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
+import {BlockBindingTransformer} from './BlockBindingTransformer.js';
+import {ClassTransformer} from './ClassTransformer.js';
+import {CommonJsModuleTransformer} from './CommonJsModuleTransformer.js';
+import {ExponentiationTransformer} from './ExponentiationTransformer.js';
+import {validate as validateConst} from '../semantics/ConstChecker.js';
+import {DefaultParametersTransformer} from './DefaultParametersTransformer.js';
+import {DestructuringTransformer} from './DestructuringTransformer.js';
+import {ForOfTransformer} from './ForOfTransformer.js';
 import {validate as validateFreeVariables} from
-    '../semantics/FreeVariableChecker';
+    '../semantics/FreeVariableChecker.js';
 import {GeneratorComprehensionTransformer} from
-    './GeneratorComprehensionTransformer';
-import {GeneratorTransformPass} from './GeneratorTransformPass';
-import {InlineModuleTransformer} from './InlineModuleTransformer';
-import {MemberVariableTransformer} from './MemberVariableTransformer';
-import {ModuleTransformer} from './ModuleTransformer';
-import {MultiTransformer} from './MultiTransformer';
-import {NumericLiteralTransformer} from './NumericLiteralTransformer';
-import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
+    './GeneratorComprehensionTransformer.js';
+import {GeneratorTransformPass} from './GeneratorTransformPass.js';
+import {InlineModuleTransformer} from './InlineModuleTransformer.js';
+import {MemberVariableTransformer} from './MemberVariableTransformer.js';
+import {ModuleTransformer} from './ModuleTransformer.js';
+import {MultiTransformer} from './MultiTransformer.js';
+import {NumericLiteralTransformer} from './NumericLiteralTransformer.js';
+import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
 import {PropertyNameShorthandTransformer} from
-    './PropertyNameShorthandTransformer';
-import {InstantiateModuleTransformer} from './InstantiateModuleTransformer';
-import {RegularExpressionTransformer} from './RegularExpressionTransformer';
-import {RestParameterTransformer} from './RestParameterTransformer';
-import {SpreadTransformer} from './SpreadTransformer';
-import {SymbolTransformer} from './SymbolTransformer';
-import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
-import {TypeTransformer} from './TypeTransformer';
-import {TypeAssertionTransformer} from './TypeAssertionTransformer';
-import {TypeToExpressionTransformer} from './TypeToExpressionTransformer';
-import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer';
-import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options, transformOptions} from '../Options';
+    './PropertyNameShorthandTransformer.js';
+import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
+import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
+import {RestParameterTransformer} from './RestParameterTransformer.js';
+import {SpreadTransformer} from './SpreadTransformer.js';
+import {SymbolTransformer} from './SymbolTransformer.js';
+import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
+import {TypeTransformer} from './TypeTransformer.js';
+import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
+import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
+import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
+import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
+import {options, transformOptions} from '../Options.js';
 
 /**
  * MultiTransformer built from global options settings

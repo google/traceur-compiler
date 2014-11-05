@@ -17,21 +17,21 @@ import {
   COMMA_EXPRESSION,
   CONDITIONAL_EXPRESSION,
   TEMPLATE_LITERAL_PORTION
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   LiteralExpression,
   ParenExpression
-} from '../syntax/trees/ParseTrees';
-import {LiteralToken} from '../syntax/LiteralToken';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {TempVarTransformer} from './TempVarTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   PERCENT,
   PLUS,
   SLASH,
   STAR,
   STRING
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -40,8 +40,8 @@ import {
   createIdentifierExpression,
   createOperatorToken,
   createStringLiteral
-} from './ParseTreeFactory';
-import {parseExpression} from './PlaceholderParser';
+} from './ParseTreeFactory.js';
+import {parseExpression} from './PlaceholderParser.js';
 
 /**
  * @param {ParseTree} tree

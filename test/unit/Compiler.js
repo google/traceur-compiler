@@ -20,8 +20,8 @@ suite('Compiler', function() {
   var Compiler;
   var versionLockedOptions;
   setup(function() {
-    Compiler = get('src/Compiler').Compiler;
-    versionLockedOptions = get('src/Options').versionLockedOptions;
+    Compiler = get('src/Compiler.js').Compiler;
+    versionLockedOptions = get('src/Options.js').versionLockedOptions;
     traceur.options.reset();
   });
 
@@ -46,7 +46,7 @@ suite('Compiler', function() {
   });
 
   test('Compiler options locked', function() {
-    var Options = get('src/Options').Options;
+    var Options = get('src/Options.js').Options;
     var checkDiff =
         new Options({blockBinding: !versionLockedOptions.blockBinding});
     assert.equal(checkDiff.diff(versionLockedOptions).length, 1);

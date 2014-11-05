@@ -15,17 +15,17 @@
 suite('HoistVariablesTransformer.js', function() {
 
   var HoistVariablesTransformer = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/HoistVariablesTransformer').default;
+      getForTesting('src/codegeneration/HoistVariablesTransformer.js').default;
   var Parser = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/Parser').Parser;
+      getForTesting('src/syntax/Parser.js').Parser;
   var SourceFile = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/SourceFile').SourceFile;
+      getForTesting('src/syntax/SourceFile.js').SourceFile;
   var write = $traceurRuntime.ModuleStore.
-      getForTesting('src/outputgeneration/TreeWriter').write;
+      getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+      getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
   var options = $traceurRuntime.ModuleStore.
-      getForTesting('src/Options').options;
+      getForTesting('src/Options.js').options;
 
   setup(function() {
     options.arrayComprehension = true;

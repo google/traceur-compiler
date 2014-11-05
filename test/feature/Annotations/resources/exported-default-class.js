@@ -1,4 +1,4 @@
-import {Anno} from './setup';
+import {Anno} from './setup.js';
 
 @Anno
 export default class {

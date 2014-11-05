@@ -32,7 +32,7 @@ mocha.setup({ui: 'tdd'});
 (function() {
   'use strict';
 
-  System.import('../src/runtime/webLoader', {}).then(function(module) {
+  System.import('../src/runtime/webLoader.js', {}).then(function(module) {
 	  featureSuite(testList, module.webLoader);
 	  new traceur.WebPageTranscoder(document.location.href).run(function() {
 	    mocha.run();

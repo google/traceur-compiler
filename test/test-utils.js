@@ -121,7 +121,7 @@
     });
   }
 
-  var Options = traceur.get('./Options').Options;
+  var Options = traceur.get('./Options.js').Options;
 
   function setOptions(load, options) {
     var traceurOptions = new Options(options.traceurOptions);
@@ -208,7 +208,7 @@
       }
 
       if (/\.module\.js$/.test(url)) {
-        moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
+        moduleLoader.import(url, {}).then(handleSuccess,
             handleFailure).catch(done);
       } else {
         moduleLoader.loadAsScript(url, {}).then(handleSuccess,

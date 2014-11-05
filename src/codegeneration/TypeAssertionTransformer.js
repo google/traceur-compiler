@@ -15,7 +15,7 @@
 import {
   BINDING_ELEMENT,
   REST_PARAMETER
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   ImportDeclaration,
   ImportSpecifier,
@@ -24,19 +24,19 @@ import {
   ModuleSpecifier,
   Script,
   VariableDeclaration
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   createArgumentList,
   createIdentifierExpression,
   createImportedBinding,
   createStringLiteralToken
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 import {
   parseExpression,
   parseStatement
-} from './PlaceholderParser';
-import {ParameterTransformer} from './ParameterTransformer';
-import {options} from '../Options';
+} from './PlaceholderParser.js';
+import {ParameterTransformer} from './ParameterTransformer.js';
+import {options} from '../Options.js';
 
 /**
  * Inserts runtime type assertions for type annotations.

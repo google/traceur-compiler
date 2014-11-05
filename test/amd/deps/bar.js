@@ -1,4 +1,4 @@
-import {Foo} from './foo';
+import {Foo} from './foo.js';
 
 export var Bar = 'Bar from bar.js';
 

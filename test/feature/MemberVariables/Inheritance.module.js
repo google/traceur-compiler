@@ -1,6 +1,6 @@
-// Options: --member-variables --types --type-assertions --type-assertion-module=../TypeAssertions/resources/assert
+// Options: --member-variables --types --type-assertions --type-assertion-module=../TypeAssertions/resources/assert.js
 
-import '../TypeAssertions/resources/assert';
+import '../TypeAssertions/resources/assert.js';
 
 class Parent {
   a:string;

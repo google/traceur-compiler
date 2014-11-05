@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {createStringIterator} from './StringIterator';
+import {createStringIterator} from './StringIterator.js';
 import {
   maybeAddFunctions,
   maybeAddIterator,
   registerPolyfill
-} from './utils';
+} from './utils.js';
 
 var $toString = Object.prototype.toString;
 var $indexOf = String.prototype.indexOf;

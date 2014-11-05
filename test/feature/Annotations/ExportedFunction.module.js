@@ -1,11 +1,11 @@
 // Options: --annotations
-import {Anno} from './resources/setup';
-import defaultExportedFunction from './resources/exported-default-function';
+import {Anno} from './resources/setup.js';
+import defaultExportedFunction from './resources/exported-default-function.js';
 
 import {
   exportedAnnotated,
   exportedUnannotated
-} from './resources/exported-functions';
+} from './resources/exported-functions.js';
 
 assertArrayEquals([new Anno], exportedAnnotated.annotations);
 assertArrayEquals([[new Anno]], exportedAnnotated.parameters);

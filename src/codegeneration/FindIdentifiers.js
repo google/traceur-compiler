@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ScopeVisitor} from '../semantics/ScopeVisitor';
+import {ScopeVisitor} from '../semantics/ScopeVisitor.js';
 
 /**
  * FindIdentifiers class traverses a tree searching for identifier

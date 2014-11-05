@@ -1,4 +1,4 @@
-import {isFinite} from '../../../src/runtime/polyfills/Number';
+import {isFinite} from '../../../src/runtime/polyfills/Number.js';
 
 function testIsFinite(isFinite) {
   assert.isTrue(isFinite(-0));

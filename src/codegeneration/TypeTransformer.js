@@ -19,8 +19,8 @@ import {
   GetAccessor,
   PropertyMethodAssignment,
   VariableDeclaration
-} from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 /**
  * Desugars type annotations.

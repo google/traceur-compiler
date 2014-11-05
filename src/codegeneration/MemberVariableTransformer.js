@@ -16,10 +16,10 @@ import {
   AnonBlock,
   ClassDeclaration,
   ClassExpression
-} from '../syntax/trees/ParseTrees';
-import {PROPERTY_VARIABLE_DECLARATION} from '../syntax/trees/ParseTreeType';
-import {parsePropertyDefinition} from './PlaceholderParser';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {PROPERTY_VARIABLE_DECLARATION} from '../syntax/trees/ParseTreeType.js';
+import {parsePropertyDefinition} from './PlaceholderParser.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 /**
  * Transform member variable declarations from:

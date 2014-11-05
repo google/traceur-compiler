@@ -2,9 +2,9 @@
 // Error: feature/Modules/Error_DuplicateImport.module.js:9:8: 'd' was previously imported at feature/Modules/Error_DuplicateImport.module.js:8:8
 // Error: feature/Modules/Error_DuplicateImport.module.js:10:9: 'd' was previously imported at feature/Modules/Error_DuplicateImport.module.js:8:8
 
-import {a} from './resources/a';
-import {c as a} from './resources/c';
+import {a} from './resources/a.js';
+import {c as a} from './resources/c.js';
 
-import d from './resources/default-class';
-import d from './resources/default-name';
-import {a as d} from './resources/a2';
+import d from './resources/default-class.js';
+import d from './resources/default-name.js';
+import {a as d} from './resources/a2.js';

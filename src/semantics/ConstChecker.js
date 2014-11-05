@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType';
+import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
 import {
   CONST,
   MINUS_MINUS,
   PLUS_PLUS
-} from '../syntax/TokenType';
-import {ScopeVisitor} from './ScopeVisitor';
-import {ScopeChainBuilder} from './ScopeChainBuilder';
+} from '../syntax/TokenType.js';
+import {ScopeVisitor} from './ScopeVisitor.js';
+import {ScopeChainBuilder} from './ScopeChainBuilder.js';
 
 export class ConstChecker extends ScopeVisitor {
   /**

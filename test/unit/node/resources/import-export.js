@@ -1,4 +1,2 @@
-import Q from './export-default-class';
+import Q from './export-default-class.js';
 export {Q};
-
-

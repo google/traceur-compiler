@@ -15,10 +15,10 @@
 import {
   isUndefined,
   isVoidExpression,
-} from '../../semantics/util';
-import {YieldState} from './YieldState';
-import {State} from './State';
-import {parseStatement} from '../PlaceholderParser';
+} from '../../semantics/util.js';
+import {YieldState} from './YieldState.js';
+import {State} from './State.js';
+import {parseStatement} from '../PlaceholderParser.js';
 
 /**
  * Represents a return statement that has been added to a StateMachine.

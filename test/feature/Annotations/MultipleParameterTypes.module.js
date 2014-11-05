@@ -2,7 +2,7 @@
 import {
   Anno,
   X
-} from './resources/setup';
+} from './resources/setup.js';
 
 function MultiParamWithAnnotation(@Anno x:X, y) {}
 function MultiTypedParamsNoAnnotations(x:X, y:X) {}

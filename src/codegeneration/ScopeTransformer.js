@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ARGUMENTS,
   THIS
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   variablesInBlock,
   variablesInFunction
-} from '../semantics/VariableBinder';
+} from '../semantics/VariableBinder.js';
 
 /**
  * A BaseClass for creating scope visitor-based operations

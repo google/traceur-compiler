@@ -18,7 +18,7 @@ import {
   maybeAddFunctions,
   registerPolyfill,
   toInteger
-} from './utils';
+} from './utils.js';
 
 var $abs = Math.abs;
 var $isFinite = isFinite;

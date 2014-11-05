@@ -1,4 +1,4 @@
-import * as o from './resources/o';
+import * as o from './resources/o.js';
 
 assert.equal(1, o.a);
 assert.equal(2, o.b);

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {parseStatement} from '../PlaceholderParser';
+import {parseStatement} from '../PlaceholderParser.js';
 
 export function createModuleEvaluationStatement(normalizedName) {
   return parseStatement `System.get(${normalizedName} +'')`;

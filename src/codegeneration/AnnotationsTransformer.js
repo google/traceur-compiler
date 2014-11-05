@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   CONSTRUCTOR
-} from '../syntax/PredefinedName';
-import {STRING} from '../syntax/TokenType';
+} from '../syntax/PredefinedName.js';
+import {STRING} from '../syntax/TokenType.js';
 import {
   AnonBlock,
   ClassDeclaration,
@@ -27,8 +27,8 @@ import {
   LiteralExpression,
   PropertyMethodAssignment,
   SetAccessor
-} from '../syntax/trees/ParseTrees';
-import {propName} from '../staticsemantics/PropName';
+} from '../syntax/trees/ParseTrees.js';
+import {propName} from '../staticsemantics/PropName.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -37,8 +37,8 @@ import {
   createMemberExpression,
   createNewExpression,
   createStringLiteralToken
-} from './ParseTreeFactory';
-import {parseExpression, parseStatement} from './PlaceholderParser';
+} from './ParseTreeFactory.js';
+import {parseExpression, parseStatement} from './PlaceholderParser.js';
 
 class AnnotationsScope {
   constructor() {

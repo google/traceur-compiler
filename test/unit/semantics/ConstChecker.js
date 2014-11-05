@@ -24,8 +24,8 @@ suite('ConstChecker.js', function() {
 
   var Parser = traceur.syntax.Parser;
   var SourceFile = traceur.syntax.SourceFile;
-  var ErrorReporter = get('src/util/CollectingErrorReporter').CollectingErrorReporter;
-  var validateConst = get('src/semantics/ConstChecker').validate;
+  var ErrorReporter = get('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
+  var validateConst = get('src/semantics/ConstChecker.js').validate;
 
   function makeTest(name, code, expectedErrors, mode) {
     test(name, function() {

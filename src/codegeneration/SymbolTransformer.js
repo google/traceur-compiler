@@ -17,15 +17,15 @@ import {
   MemberLookupExpression,
   ForInStatement,
   UnaryExpression
-} from '../syntax/trees/ParseTrees';
-import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
 import {
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
   UNARY_EXPRESSION,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
-import {TempVarTransformer} from './TempVarTransformer';
+} from '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
@@ -34,11 +34,11 @@ import {
   NOT_EQUAL_EQUAL,
   STRING,
   TYPEOF
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   parseExpression,
   parseStatement
-} from './PlaceholderParser';
+} from './PlaceholderParser.js';
 
 
 class ExplodeSymbolExpression extends ExplodeExpressionTransformer {

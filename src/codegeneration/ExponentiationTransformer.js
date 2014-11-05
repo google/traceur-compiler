@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer';
-import {TempVarTransformer} from './TempVarTransformer';
+import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   STAR_STAR,
   STAR_STAR_EQUAL
-} from '../syntax/TokenType';
-import {parseExpression} from './PlaceholderParser';
+} from '../syntax/TokenType.js';
+import {parseExpression} from './PlaceholderParser.js';
 
 export class ExponentiationTransformer extends TempVarTransformer {
   transformBinaryExpression(tree) {

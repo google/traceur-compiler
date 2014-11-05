@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   createAssignmentExpression,
   createCommaExpression,
@@ -21,7 +21,7 @@ import {
   createNumberLiteral,
   createOperatorToken,
   createParenExpression
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 import {
   AND,
   EQUAL,
@@ -32,7 +32,7 @@ import {
   PLUS,
   PLUS_EQUAL,
   PLUS_PLUS
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   COMMA_EXPRESSION,
   IDENTIFIER_EXPRESSION,
@@ -41,7 +41,7 @@ import {
   PROPERTY_NAME_ASSIGNMENT,
   SPREAD_EXPRESSION,
   TEMPLATE_LITERAL_PORTION
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   ArgumentList,
   ArrayLiteralExpression,
@@ -59,10 +59,10 @@ import {
   TemplateSubstitution,
   UnaryExpression,
   YieldExpression
-} from '../syntax/trees/ParseTrees';
-import {assert} from '../util/assert';
+} from '../syntax/trees/ParseTrees.js';
+import {assert} from '../util/assert.js';
 import assignmentOperatorToBinaryOperator from
-    './assignmentOperatorToBinaryOperator';
+    './assignmentOperatorToBinaryOperator.js';
 
 /**
  * @fileoverview This transforms expression into a normalized comma expression.

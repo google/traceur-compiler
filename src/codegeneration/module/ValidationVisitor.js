@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleVisitor} from './ModuleVisitor';
+import {ModuleVisitor} from './ModuleVisitor.js';
 
 /**
  * Validates that symbols are exported when we extract them.

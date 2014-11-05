@@ -1,5 +1,5 @@
 // Options: --types --type-assertions
-import {exportedParamAndReturn} from './resources/exported-function';
+import {exportedParamAndReturn} from './resources/exported-function.js';
 
 assert.equal(1, exportedParamAndReturn(1));
 

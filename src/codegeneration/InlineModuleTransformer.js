@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {VAR} from '../syntax/TokenType';
-import {ModuleTransformer} from './ModuleTransformer';
+import {VAR} from '../syntax/TokenType.js';
+import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   createBindingIdentifier,
   createEmptyStatement,
@@ -21,9 +21,9 @@ import {
   createImmediatelyInvokedFunctionExpression,
   createScopedExpression,
   createVariableStatement
-} from './ParseTreeFactory';
-import globalThis from './globalThis';
-import scopeContainsThis from './scopeContainsThis';
+} from './ParseTreeFactory.js';
+import globalThis from './globalThis.js';
+import scopeContainsThis from './scopeContainsThis.js';
 
 var anonInlineModules = 0;
 

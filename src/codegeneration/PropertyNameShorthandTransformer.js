@@ -16,8 +16,8 @@ import {
   IdentifierExpression,
   LiteralPropertyName,
   PropertyNameAssignment
-} from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 /**
  * Desugars property name shorthands.

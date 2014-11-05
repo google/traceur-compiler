@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnnotationsTransformer} from './AnnotationsTransformer';
+import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {validate as validateFreeVariables} from
-    '../semantics/FreeVariableChecker';
-import {MemberVariableTransformer} from './MemberVariableTransformer';
-import {MultiTransformer} from './MultiTransformer';
-import {TypeTransformer} from './TypeTransformer';
-import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
-import {options} from '../Options';
+    '../semantics/FreeVariableChecker.js';
+import {MemberVariableTransformer} from './MemberVariableTransformer.js';
+import {MultiTransformer} from './MultiTransformer.js';
+import {TypeTransformer} from './TypeTransformer.js';
+import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
+import {options} from '../Options.js';
 
 /**
  * MultiTransformer that only transforms non ES6 features, such as:

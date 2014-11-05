@@ -37,7 +37,7 @@ import {
   STAR_STAR_EQUAL,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 
 /**
  * Returns the binary operator that the assignment operator should use. For

@@ -15,7 +15,7 @@
 import {
   maybeAddFunctions,
   registerPolyfill
-} from './utils';
+} from './utils.js';
 
 var {
   defineProperty,

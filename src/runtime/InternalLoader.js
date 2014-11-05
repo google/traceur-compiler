@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert} from '../util/assert';
-import {LoaderCompiler} from '../runtime/LoaderCompiler';
-import {ExportsList} from '../codegeneration/module/ModuleSymbol';
-import {Map} from './polyfills/Map';
-import {isAbsolute, resolveUrl} from '../util/url';
-import {Options} from '../Options';
+import {assert} from '../util/assert.js';
+import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {ExportsList} from '../codegeneration/module/ModuleSymbol.js';
+import {Map} from './polyfills/Map.js';
+import {isAbsolute, resolveUrl} from '../util/url.js';
+import {Options} from '../Options.js';
 
 
 var NOT_STARTED = 0;

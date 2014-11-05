@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AwaitState} from './AwaitState';
+import {AwaitState} from './AwaitState.js';
 import {
   BinaryExpression,
   ExpressionStatement
-} from '../../syntax/trees/ParseTrees';
-import {CPSTransformer} from './CPSTransformer';
-import {EndState} from './EndState';
-import {FallThroughState} from './FallThroughState';
+} from '../../syntax/trees/ParseTrees.js';
+import {CPSTransformer} from './CPSTransformer.js';
+import {EndState} from './EndState.js';
+import {FallThroughState} from './FallThroughState.js';
 import {
   AWAIT_EXPRESSION,
   BINARY_EXPRESSION,
   STATE_MACHINE
-} from '../../syntax/trees/ParseTreeType';
+} from '../../syntax/trees/ParseTreeType.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements
-} from '../PlaceholderParser';
-import {StateMachine} from '../../syntax/trees/StateMachine';
-import {FindInFunctionScope} from '../FindInFunctionScope'
-import {createUndefinedExpression} from '../ParseTreeFactory';
+} from '../PlaceholderParser.js';
+import {StateMachine} from '../../syntax/trees/StateMachine.js';
+import {FindInFunctionScope} from '../FindInFunctionScope.js'
+import {createUndefinedExpression} from '../ParseTreeFactory.js';
 
 /**
  * @param {ParseTree} tree Expression tree

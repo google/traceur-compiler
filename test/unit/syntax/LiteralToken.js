@@ -15,10 +15,10 @@
 suite('LiteralToken.js', function() {
 
   var LiteralToken =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/LiteralToken').LiteralToken;
+      $traceurRuntime.ModuleStore.getForTesting('src/syntax/LiteralToken.js').LiteralToken;
 
   var TokenType = 
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/TokenType');
+      $traceurRuntime.ModuleStore.getForTesting('src/syntax/TokenType.js');
 
   test('Decode newline', function() {
     var token = new LiteralToken(TokenType.STRING, '"hello\nworld"');

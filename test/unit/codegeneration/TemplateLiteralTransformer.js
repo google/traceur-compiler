@@ -17,7 +17,7 @@ suite('TemplateLiteralTransformer', function() {
   function get(name) {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
-  var Compiler = get('src/Compiler').Compiler;
+  var Compiler = get('src/Compiler.js').Compiler;
 
   function testResult(name, content, expectedResult) {
     test(name, function() {

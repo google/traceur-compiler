@@ -1,5 +1,5 @@
 // Options: --annotations --types
-import {BarAnnotation} from './circular_annotation1';
+import {BarAnnotation} from './circular_annotation1.js';
 
 @BarAnnotation
 export class FooAnnotation {

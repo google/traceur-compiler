@@ -14,21 +14,21 @@
 
 import {
   AttachModuleNameTransformer
-} from './codegeneration/module/AttachModuleNameTransformer';
-import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
-import {Parser} from './syntax/Parser';
-import {PureES6Transformer} from './codegeneration/PureES6Transformer';
-import {SourceFile} from './syntax/SourceFile';
-import {CollectingErrorReporter} from './util/CollectingErrorReporter';
+} from './codegeneration/module/AttachModuleNameTransformer.js';
+import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer.js';
+import {Parser} from './syntax/Parser.js';
+import {PureES6Transformer} from './codegeneration/PureES6Transformer.js';
+import {SourceFile} from './syntax/SourceFile.js';
+import {CollectingErrorReporter} from './util/CollectingErrorReporter.js';
 import {
   Options,
   options as traceurOptions,
   versionLockedOptions
-} from './Options';
+} from './Options.js';
 
-import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
-import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
 
 function merge(...srcs) {
   var dest = Object.create(null);
@@ -139,7 +139,7 @@ export class Compiler {
     var moduleName = this.options_.moduleName;
     if (moduleName) {  // true or non-empty string.
       if (typeof moduleName !== 'string')  // true means resolve filename
-        moduleName = sourceName.replace(/\.js$/, '');
+        moduleName = sourceName;
     }
     tree = this.transform(tree, moduleName);
     return this.write(tree, outputName, sourceRoot);
