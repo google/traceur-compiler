@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindVisitor} from '../codegeneration/FindVisitor';
-import {IdentifierToken} from './IdentifierToken';
+import {FindVisitor} from '../codegeneration/FindVisitor.js';
+import {IdentifierToken} from './IdentifierToken.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINDING_IDENTIFIER,
@@ -26,7 +26,7 @@ import {
   OBJECT_LITERAL_EXPRESSION,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
-} from './trees/ParseTreeType';
+} from './trees/ParseTreeType.js';
 import {
   AS,
   ASYNC,
@@ -35,17 +35,17 @@ import {
   GET,
   OF,
   SET
-} from './PredefinedName';
-import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter';
-import {Scanner} from './Scanner';
-import {SourceRange} from '../util/SourceRange';
-import {StrictParams} from '../staticsemantics/StrictParams';
+} from './PredefinedName.js';
+import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
+import {Scanner} from './Scanner.js';
+import {SourceRange} from '../util/SourceRange.js';
+import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
   Token,
   isAssignmentOperator
-} from './Token';
-import {getKeywordType} from './Keywords';
-import {options as traceurOptions} from '../Options';
+} from './Token.js';
+import {getKeywordType} from './Keywords.js';
+import {options as traceurOptions} from '../Options.js';
 
 import {
   AMPERSAND,
@@ -142,7 +142,7 @@ import {
   WHILE,
   WITH,
   YIELD
-} from './TokenType';
+} from './TokenType.js';
 
 import {
   ArgumentList,
@@ -243,7 +243,7 @@ import {
   WhileStatement,
   WithStatement,
   YieldExpression
-}  from './trees/ParseTrees';
+}  from './trees/ParseTrees.js';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'

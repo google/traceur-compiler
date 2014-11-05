@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {LiteralExpression} from '../syntax/trees/ParseTrees';
-import {LiteralToken} from '../syntax/LiteralToken';
-import {REGULAR_EXPRESSION} from '../syntax/TokenType';
-import {regexpuRewritePattern} from '../outputgeneration/regexpuRewritePattern';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {LiteralExpression} from '../syntax/trees/ParseTrees.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
+import {REGULAR_EXPRESSION} from '../syntax/TokenType.js';
+import {regexpuRewritePattern} from '../outputgeneration/regexpuRewritePattern.js';
 
 export class RegularExpressionTransformer extends ParseTreeTransformer {
   transformLiteralExpression(tree) {

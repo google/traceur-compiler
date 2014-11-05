@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {polyfillAll} from './utils'
+import {polyfillAll} from './utils.js'
 
 // The Makefile lists the polyfills to include.
 polyfillAll(this);

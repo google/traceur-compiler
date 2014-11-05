@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTree} from './ParseTree';
-import {STATE_MACHINE} from './ParseTreeType';
-import {State} from '../../codegeneration/generator/State';
-import {TryState} from '../../codegeneration/generator/TryState';
+import {ParseTree} from './ParseTree.js';
+import {STATE_MACHINE} from './ParseTreeType.js';
+import {State} from '../../codegeneration/generator/State.js';
+import {TryState} from '../../codegeneration/generator/TryState.js';
 
 /**
  * @param {TryState.Kind} kind

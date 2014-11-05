@@ -15,9 +15,9 @@
 import {
   ARGUMENTS,
   THIS
-} from '../syntax/PredefinedName';
-import {AlphaRenamer} from './AlphaRenamer';
-import {FindInFunctionScope} from './FindInFunctionScope';
+} from '../syntax/PredefinedName.js';
+import {AlphaRenamer} from './AlphaRenamer.js';
+import {FindInFunctionScope} from './FindInFunctionScope.js';
 
 /**
  * This is used to find whether a function contains a reference to 'this' or

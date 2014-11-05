@@ -15,7 +15,7 @@
 import {
   ErrorReporter,
   format
-} from './ErrorReporter';
+} from './ErrorReporter.js';
 
 /**
  * An implementation of the ErrorReporter that throws a SyntaxError on the

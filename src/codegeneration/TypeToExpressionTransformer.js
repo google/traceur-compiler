@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ArgumentList,
   IdentifierExpression,
   MemberExpression
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   parseExpression
-} from './PlaceholderParser';
+} from './PlaceholderParser.js';
 
 export class TypeToExpressionTransformer extends ParseTreeTransformer {
 

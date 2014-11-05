@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportsList} from './ModuleSymbol';
-import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
+import {ExportsList} from './ModuleSymbol.js';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {
   MODULE_DECLARATION,
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
-} from '../../syntax/trees/ParseTreeType';
+} from '../../syntax/trees/ParseTreeType.js';
 
 /**
  * A specialized parse tree visitor for use with modules.

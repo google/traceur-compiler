@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ScopeTransformer } from './ScopeTransformer';
+import { ScopeTransformer } from './ScopeTransformer.js';
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   THIS
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   createIdentifierExpression
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 
 /**
  * Replaces one identifier with another identifier (alpha

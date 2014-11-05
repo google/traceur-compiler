@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ScopeChainBuilder} from './ScopeChainBuilder';
+import {ScopeChainBuilder} from './ScopeChainBuilder.js';
 
 // TODO: Add more entry points:
 //    for..in statment

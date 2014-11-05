@@ -16,7 +16,7 @@ import {
   entries,
   keys,
   values
-} from './ArrayIterator';
+} from './ArrayIterator.js';
 import {
   checkIterable,
   isCallable,
@@ -27,7 +27,7 @@ import {
   toInteger,
   toLength,
   toObject
-} from './utils';
+} from './utils.js';
 
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.1
 export function from(arrLike, mapFn = undefined, thisArg = undefined) {

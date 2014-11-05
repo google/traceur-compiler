@@ -316,7 +316,7 @@
     else {
       System.baseURL = './';
     }
-    System.paths = { '*': '*.js' };
+    System.paths = { '*': '*' };
 
     // <script type="module"> support
     // allow a data-init function callback once loaded

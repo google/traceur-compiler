@@ -16,19 +16,19 @@ import {
   BLOCK,
   VARIABLE_DECLARATION_LIST,
   IDENTIFIER_EXPRESSION
-} from '../../syntax/trees/ParseTreeType';
+} from '../../syntax/trees/ParseTreeType.js';
 import {
   LENGTH,
   PUSH
-} from '../../syntax/PredefinedName';
-import {TempVarTransformer} from '../TempVarTransformer';
+} from '../../syntax/PredefinedName.js';
+import {TempVarTransformer} from '../TempVarTransformer.js';
 import {
   BANG,
   IN,
   OPEN_ANGLE,
   PLUS_PLUS,
   VAR
-} from '../../syntax/TokenType';
+} from '../../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentStatement,
@@ -50,7 +50,7 @@ import {
   createUnaryExpression,
   createVariableDeclarationList,
   createVariableStatement
-} from '../ParseTreeFactory';
+} from '../ParseTreeFactory.js';
 
 /**
  * Desugars for-in loops to be compatible with generators.

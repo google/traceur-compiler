@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Token} from './Token';
-import {IDENTIFIER} from './TokenType';
+import {Token} from './Token.js';
+import {IDENTIFIER} from './TokenType.js';
 
 /**
  * A token representing an identifier.

@@ -20,10 +20,10 @@ import {
   MODULE,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
-} from '../syntax/trees/ParseTreeType';
-import {TYPEOF} from '../syntax/TokenType';
-import {ScopeVisitor} from './ScopeVisitor';
-import {ScopeChainBuilder} from './ScopeChainBuilder';
+} from '../syntax/trees/ParseTreeType.js';
+import {TYPEOF} from '../syntax/TokenType.js';
+import {ScopeVisitor} from './ScopeVisitor.js';
+import {ScopeChainBuilder} from './ScopeChainBuilder.js';
 
 function hasArgumentsInScope(scope) {
   for (; scope; scope = scope.parent) {

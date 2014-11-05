@@ -15,10 +15,10 @@
 import {
   FunctionBody,
   Script
-} from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {createUseStrictDirective} from './ParseTreeFactory';
-import {hasUseStrict} from '../semantics/util';
+} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {createUseStrictDirective} from './ParseTreeFactory.js';
+import {hasUseStrict} from '../semantics/util.js';
 
 function prepend(statements) {
   return [

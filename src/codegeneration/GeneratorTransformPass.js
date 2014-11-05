@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
-import {AsyncTransformer} from './generator/AsyncTransformer';
-import {ForInTransformPass} from './generator/ForInTransformPass';
-import {GeneratorTransformer} from './generator/GeneratorTransformer';
+import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
+import {AsyncTransformer} from './generator/AsyncTransformer.js';
+import {ForInTransformPass} from './generator/ForInTransformPass.js';
+import {GeneratorTransformer} from './generator/GeneratorTransformer.js';
 import {
   parseExpression,
   parseStatement
-} from './PlaceholderParser';
-import {TempVarTransformer} from './TempVarTransformer';
-import {FindInFunctionScope} from './FindInFunctionScope';
+} from './PlaceholderParser.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {FindInFunctionScope} from './FindInFunctionScope.js';
 import {
   AnonBlock,
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   createBindingIdentifier,
   createIdentifierExpression as id,
   createIdentifierToken
-} from './ParseTreeFactory';
-import {transformOptions} from '../Options';
+} from './ParseTreeFactory.js';
+import {transformOptions} from '../Options.js';
 
 class ForInFinder extends FindInFunctionScope {
   visitForInStatement(tree) {

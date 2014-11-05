@@ -18,10 +18,10 @@ suite('ErrorReporter.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var MutedErrorReporter = get('src/util/MutedErrorReporter').MutedErrorReporter;
-  var SyntaxErrorReporter = get('src/util/SyntaxErrorReporter').SyntaxErrorReporter;
-  var SourcePosition = get('src/util/SourcePosition').SourcePosition;
-  var MultipleErrors = get('src/util/CollectingErrorReporter').MultipleErrors;
+  var MutedErrorReporter = get('src/util/MutedErrorReporter.js').MutedErrorReporter;
+  var SyntaxErrorReporter = get('src/util/SyntaxErrorReporter.js').SyntaxErrorReporter;
+  var SourcePosition = get('src/util/SourcePosition.js').SourcePosition;
+  var MultipleErrors = get('src/util/CollectingErrorReporter.js').MultipleErrors;
 
   var originalConsoleError = console.error;
   var args;

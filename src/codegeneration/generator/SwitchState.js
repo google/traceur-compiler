@@ -16,11 +16,11 @@ import {
   CaseClause,
   DefaultClause,
   SwitchStatement
-} from '../../syntax/trees/ParseTrees';
-import {State} from './State';
+} from '../../syntax/trees/ParseTrees.js';
+import {State} from './State.js';
 import {
   createBreakStatement
-} from '../ParseTreeFactory';
+} from '../ParseTreeFactory.js';
 
 /**
  * Represents a pair of ParseTree and integer.

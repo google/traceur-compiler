@@ -22,13 +22,13 @@ import {
   ForStatement,
   VariableDeclarationList,
   VariableStatement
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   OBJECT_PATTERN,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {VAR} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTreeType.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
   createCommaExpression,
@@ -36,8 +36,8 @@ import {
   createIdentifierExpression as id,
   createParenExpression,
   createVariableDeclaration
-} from './ParseTreeFactory';
-import {prependStatements} from './PrependStatements';
+} from './ParseTreeFactory.js';
+import {prependStatements} from './PrependStatements.js';
 
 /**
  * Hoists variables to the top of the function body. This only transforms the

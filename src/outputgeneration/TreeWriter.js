@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {toSource} from './toSource';
+import {toSource} from './toSource.js';
 
 /**
  * Create a ParseTreeWriter configured with options, apply it to tree

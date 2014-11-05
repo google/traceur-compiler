@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
+import {ParseTreeValidator} from '../syntax/ParseTreeValidator.js';
 
 /**
  * Applies an ordered series of transforms

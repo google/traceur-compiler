@@ -13,4 +13,4 @@ System.register(["./export-reassignment"], function($__export) {
   };
 });
 */
-export * from './export-reassignment';
+export * from './export-reassignment.js';

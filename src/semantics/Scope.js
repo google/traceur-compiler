@@ -15,9 +15,9 @@
 import {
   BLOCK,
   CATCH
-} from '../syntax/trees/ParseTreeType';
-import {VAR} from '../syntax/TokenType';
-import {isTreeStrict} from './isTreeStrict';
+} from '../syntax/trees/ParseTreeType.js';
+import {VAR} from '../syntax/TokenType.js';
+import {isTreeStrict} from './isTreeStrict.js';
 
 function reportDuplicateVar(reporter, tree, name) {
   reporter.reportError(tree.location && tree.location.start,

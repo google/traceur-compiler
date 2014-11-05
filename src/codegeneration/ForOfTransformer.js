@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType';
-import {TempVarTransformer} from './TempVarTransformer';
+import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   createIdentifierExpression as id,
   createMemberExpression,
   createVariableStatement
-} from './ParseTreeFactory';
-import {parseStatement} from './PlaceholderParser';
+} from './ParseTreeFactory.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 /**
  * Desugars for-of statement.

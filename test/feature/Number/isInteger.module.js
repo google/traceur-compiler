@@ -1,4 +1,4 @@
-import {isInteger} from '../../../src/runtime/polyfills/Number';
+import {isInteger} from '../../../src/runtime/polyfills/Number.js';
 
 function testIsInteger(isInteger) {
   assert.isTrue(isInteger(-0));

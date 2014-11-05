@@ -16,8 +16,8 @@ import {
   CONST,
   LET,
   VAR
-} from '../syntax/TokenType';
-import {ScopeVisitor} from './ScopeVisitor';
+} from '../syntax/TokenType.js';
+import {ScopeVisitor} from './ScopeVisitor.js';
 
 /**
  * This adds the bindings to the scopes.

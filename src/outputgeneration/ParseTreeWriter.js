@@ -20,8 +20,8 @@ import {
   LITERAL_EXPRESSION,
   POSTFIX_EXPRESSION,
   UNARY_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+} from '../syntax/trees/ParseTreeType.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {
   AS,
   ASYNC,
@@ -30,11 +30,11 @@ import {
   GET,
   OF,
   SET
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   isIdentifierPart,
   isWhitespace
-} from '../syntax/Scanner';
+} from '../syntax/Scanner.js';
 
 import {
   ARROW,
@@ -89,7 +89,7 @@ import {
   WHILE,
   WITH,
   YIELD
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 
 var NEW_LINE = '\n';
 var LINE_LENGTH = 80;

@@ -4,9 +4,9 @@ suite('AmdTransformer.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var AmdTransformer = get('src/codegeneration/AmdTransformer').AmdTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory');
-  var write = get('src/outputgeneration/TreeWriter').write;
+  var AmdTransformer = get('src/codegeneration/AmdTransformer.js').AmdTransformer;
+  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
+  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var transformer = null
 

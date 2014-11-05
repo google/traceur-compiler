@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Map} from '../runtime/polyfills/Map';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
-import {VAR} from '../syntax/TokenType';
-import {Scope} from './Scope';
+import {Map} from '../runtime/polyfills/Map.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
+import {VAR} from '../syntax/TokenType.js';
+import {Scope} from './Scope.js';
 import {
   COMPREHENSION_FOR,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 
 /**
  * Base class for building up the scope chains for a tree.

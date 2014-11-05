@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FunctionExpression} from '../syntax/trees/ParseTrees';
-import {TempVarTransformer} from './TempVarTransformer';
-import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType';
-import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
+import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType.js';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
 import {
   createFunctionBody,
   createParenExpression,
   createReturnStatement
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 
 /**
  * Converts a concise body to a function body.

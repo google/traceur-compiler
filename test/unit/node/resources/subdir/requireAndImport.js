@@ -1,4 +1,4 @@
-import {x} from '../reexport-x';
+import {x} from '../reexport-x.js';
 var path = require('path');
 var aNodeModule = require('../aNodeModule.js');
 export var testForRequireAndImport =

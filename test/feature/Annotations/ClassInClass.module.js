@@ -3,7 +3,7 @@ import {
   Anno,
   Anno2,
   X
-} from './resources/setup';
+} from './resources/setup.js';
 
 @Anno('outer')
 class Outer {

@@ -1,2 +1,2 @@
-import {testForRequireAndImport} from './subdir/requireAndImport';
+import {testForRequireAndImport} from './subdir/requireAndImport.js';
 console.log(testForRequireAndImport);

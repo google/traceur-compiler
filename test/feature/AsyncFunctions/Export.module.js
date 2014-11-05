@@ -1,8 +1,8 @@
 // Options: --async-functions
 // Async.
 
-import {asyncFunction} from './resources/async-function';
-import asyncFunctionDefault from './resources/async-function';
+import {asyncFunction} from './resources/async-function.js';
+import asyncFunctionDefault from './resources/async-function.js';
 
 assert.instanceOf(asyncFunction(), Promise);
 assert.instanceOf(asyncFunctionDefault(), Promise);

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from '../util/ErrorReporter';
-import {TraceurLoader} from '../runtime/TraceurLoader';
-import {LoaderCompiler} from './LoaderCompiler';
-import {webLoader} from './webLoader';
+import {ErrorReporter} from '../util/ErrorReporter.js';
+import {TraceurLoader} from '../runtime/TraceurLoader.js';
+import {LoaderCompiler} from './LoaderCompiler.js';
+import {webLoader} from './webLoader.js';
 
 var url;
 var fileLoader;
