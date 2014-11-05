@@ -161,12 +161,11 @@ export class Options {
       this.sourceMaps_ = value ? 'file' : false;
       return;
     }
-    if (value === 'file' || value === 'inline') {
+    if (value === 'file' || value === 'inline' || value === 'memory') {
       this.sourceMaps_ = value;
-    }
-    else {
+    } else {
       throw new Error('Option sourceMaps should be ' +
-          '[false|inline|file], not ' + value);
+          '[false|inline|file|memory], not ' + value);
     }
   }
   /**
@@ -342,7 +341,7 @@ export function addOptions(flags, commandOptions) {
       else
         throw new Error('outputLanguage must be one of es5, es6');
   });
-  flags.option('--source-maps [file|inline]',
+  flags.option('--source-maps [file|inline|memory]',
     'sourceMaps generated to file or inline with data: URL',
     (to) => { return commandOptions.sourceMaps = to; }
   );

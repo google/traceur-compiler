@@ -30,7 +30,13 @@ var NodeLoaderCompiler = function() {
 NodeLoaderCompiler.prototype = {
   __proto__: LoaderCompiler.prototype,
   evaluateCodeUnit: function(codeUnit) {
-    var result = module._compile(codeUnit.metadata.transcoded, codeUnit.address);
+    var result =
+        module._compile(codeUnit.metadata.transcoded, codeUnit.address);
+    // If sourceMap option is true, save the map by filename
+    if (codeUnit.metadata.sourceMap) {
+      this._sourceMapsByFilename[codeUnit.address] =
+          codeUnit.metadata.sourceMap;
+    }
     codeUnit.metadata.transformedTree = null;
     return result;
   }
@@ -38,6 +44,18 @@ NodeLoaderCompiler.prototype = {
 
 var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
     new NodeLoaderCompiler());
+
+require('source-map-support').install({
+  retrieveSourceMap: function(filename) {
+    var map = System.getSourceMap(filename);
+    if (map) {
+      return {
+        url: filename,
+        map: map
+      };
+    }
+  }
+});
 
 Reflect.global.System = System;
 System.map = System.semverMap(System.version);

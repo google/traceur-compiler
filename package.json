@@ -43,7 +43,8 @@
     "glob": "4.x",
     "regexpu": "0.3.0",
     "rsvp": "^3.0.13",
-    "semver": "2.x"
+    "semver": "2.x",
+    "source-map-support": "~0.2.8"
   },
   "devDependencies": {
     "source-map": "0.1.34",

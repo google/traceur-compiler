@@ -81,5 +81,7 @@ suite('options', function() {
         'inline');
     assert.equal(CommandOptions.fromString(' --source-maps  --blockBinding').sourceMaps,
         'file');
+    assert.equal(CommandOptions.fromString('--source-maps=memory').sourceMaps,
+        'memory');
   });
 });

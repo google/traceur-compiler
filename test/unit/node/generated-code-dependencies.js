@@ -301,6 +301,17 @@ suite('context test', function() {
     });
   });
 
+  test('./traceur --source-maps can report errors on the correct lines', function(done) {
+    var cmd = 'cd ..;./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
+    exec(cmd, function(error, stdout, stderr) {
+      var m = /Test error on line ([0-9]*)/.exec(error);
+      assert(m && m[1], 'The evaluation should fail with the thrown error');
+      assert.notEqual(error.toString().indexOf(':' + m[1] + ':'), -1,
+        'The corrent line number should be in the error message');
+      done();
+    });
+  });
+
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './unit/node/resources/compile-dir';

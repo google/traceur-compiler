@@ -223,6 +223,7 @@ export class InternalLoader {
     this.cache = new Map();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
+    this.sourceMapsByURL_ = Object.create(null);
   }
 
   defaultMetadata_(metadata = {}) {
@@ -234,6 +235,10 @@ export class InternalLoader {
     var metadata = this.defaultMetadata_(metadata);
     metadata.traceurOptions.script = false;
     return metadata;
+  }
+
+  getSourceMap(url) {
+    return this.sourceMapsByURL_[url];
   }
 
   load(name, referrerName = this.loader_.baseURL,
@@ -323,16 +328,6 @@ export class InternalLoader {
     return codeUnit.promise;
   }
 
-  sourceMapInfo(normalizedName, type) {
-    var key = this.getKey(normalizedName, type);
-    var codeUnit = this.cache.get(key);
-    var metadata = codeUnit && codeUnit.metadata;
-    return {
-      sourceMap: metadata.sourceMap,
-      sourceName: metadata.sourceName
-    };
-  }
-
   getKey(url, type) {
     var combined = type + ':' + url;
     if (combined in this.urlToKey) {
@@ -377,8 +372,14 @@ export class InternalLoader {
           codeUnit.type = type;
         }
       }
-      // TODO(jjb): move into CodeUnit constructor
-      codeUnit.metadata = {traceurOptions: metadata.traceurOptions};
+      // We copy the incoming metadata to pass values from the API and to
+      // inherit value from the API call into modules imported by the root.
+      // But we don't want to inherit tree etc.
+      // TODO(jjb): move this into the CodeUnit constructors.
+      codeUnit.metadata = {
+        traceurOptions: metadata.traceurOptions,
+        outputName: metadata.outputName,
+      };
       this.cache.set(key, codeUnit);
     }
     return codeUnit;
@@ -515,6 +516,10 @@ export class InternalLoader {
     this.loaderCompiler.transform(codeUnit);
     codeUnit.state = TRANSFORMED;
     this.loaderCompiler.write(codeUnit);
+    var info = codeUnit.metadata.compiler.sourceMapInfo;
+    if (info) {
+      this.sourceMapsByURL_[info.url] = info.map;
+    }
     this.loader_.instantiate(codeUnit);
   }
 

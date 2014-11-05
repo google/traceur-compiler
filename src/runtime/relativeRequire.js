@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 /**
  * Nodejs require() adapter for es6 loader
  */
-(function(global) {
+(function() {
   'use strict';
 
   var path = typeof require !== 'undefined' && require('path');
@@ -42,6 +42,6 @@
         require(requiredPath);
   }
 
-  global.$traceurRuntime.require = relativeRequire;
+  $traceurRuntime.require = relativeRequire;
 
-})(typeof global !== 'undefined' ? global : this);
+})();
