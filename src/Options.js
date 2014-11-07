@@ -138,6 +138,16 @@ export class Options {
     return value;
   }
 
+  get atscript() {
+    return this.types && this.annotations && this.memberVariables;
+  }
+
+  set atscript(value) {
+    this.types = value;
+    this.annotations = value;
+    this.memberVariables = value;
+  }
+
   get modules() {
     return this.modules_;
   }
@@ -348,6 +358,11 @@ export function addOptions(flags, commandOptions) {
   flags.option('--experimental',
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
+  );
+
+  flags.option('--atscript',
+    'Turns on all AtScript features',
+    () => { commandOptions.atscript = true; }
   );
 
   Object.keys(commandOptions).forEach(function(name) {
