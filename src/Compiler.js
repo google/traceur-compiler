@@ -66,6 +66,8 @@ export class Compiler {
     this.sourceMapGenerator_ = null;
     // Only used if this.options_sourceMaps = 'memory'.
     this.sourceMapInfo_ = null;
+
+    this.inputFileExtension_ = this.options_.atscript ? /\.ats$/ : /\.js$/;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -139,7 +141,7 @@ export class Compiler {
     var moduleName = this.options_.moduleName;
     if (moduleName) {  // true or non-empty string.
       if (typeof moduleName !== 'string')  // true means resolve filename
-        moduleName = sourceName.replace(/\.js$/, '');
+        moduleName = sourceName.replace(this.inputFileExtension_, '');
     }
     tree = this.transform(tree, moduleName);
     return this.write(tree, outputName, sourceRoot);
@@ -267,7 +269,7 @@ export class Compiler {
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
-    return filename.split('/').pop().replace(/\.js$/, '.map');
+    return filename.split('/').pop().replace(this.inputFileExtension_, '.map');
   }
 
   sourceNameFromTree(tree) {
