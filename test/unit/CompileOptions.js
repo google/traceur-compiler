@@ -84,4 +84,29 @@ suite('options', function() {
     assert.equal(CommandOptions.fromString('--source-maps=memory').sourceMaps,
         'memory');
   });
+
+  test('atscript setter', function() {
+    var options = new Options();
+
+    options.atscript = true;
+
+    assert.equal(options.types, true);
+    assert.equal(options.annotations, true);
+    assert.equal(options.memberVariables, true);
+  });
+
+  test('atscript getter', function() {
+    var options = new Options();
+
+    assert.equal(options.atscript, false);
+
+    options.types = true;
+    assert.equal(options.atscript, false);
+
+    options.annotations = true;
+    assert.equal(options.atscript, false);
+
+    options.memberVariables = true;
+    assert.equal(options.atscript, true);
+  });
 });
