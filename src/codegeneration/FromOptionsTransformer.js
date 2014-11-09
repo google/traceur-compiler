@@ -96,7 +96,7 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (options.types)
+    if (transformOptions.types)
       append(TypeToExpressionTransformer);
 
     if (transformOptions.unicodeEscapeSequences)

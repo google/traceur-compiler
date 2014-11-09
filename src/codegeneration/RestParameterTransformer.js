@@ -64,4 +64,12 @@ export class RestParameterTransformer extends ParameterTransformer {
 
     return transformed;
   }
+
+  transformConstructorType(tree) {
+    return tree;
+  }
+
+  transformFunctionType(tree) {
+    return tree;
+  }
 }

@@ -216,6 +216,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {ArrayType} tree
+   */
+  visitArrayType(tree) {
+    this.visitAny(tree.elementType);
+    this.write_(OPEN_SQUARE);
+    this.write_(CLOSE_SQUARE);
+  }
+
+  /**
    * @param {ArrowFunctionExpression} tree
    */
   visitArrowFunctionExpression(tree) {
@@ -333,6 +342,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {CallSignature} tree
+   */
+  visitCallSignature(tree) {
+    if (tree.typeParameters) {
+      this.visitAny(tree.typeParameters);
+    }
+    this.write_(OPEN_PAREN);
+    this.visitAny(tree.parameterList);
+    this.write_(CLOSE_PAREN);
+    this.writeTypeAnnotation_(tree.returnType);
+  }
+
+  /**
    * @param {CaseClause} tree
    */
   visitCaseClause(tree) {
@@ -422,6 +444,24 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_SQUARE);
     this.visitAny(tree.expression);
     this.write_(CLOSE_SQUARE);
+  }
+
+  /**
+   * @param {ConstructSignature} tree
+   */
+  visitConstructSignature(tree) {
+    this.write_(NEW);
+    this.writeSpace_();
+    this.visitCallSignature(tree);
+  }
+
+  /**
+   * @param {ConstructorType} tree
+   */
+  visitConstructorType(tree) {
+    this.write_(NEW);
+    this.writeSpace_();
+    this.visitFunctionType(tree);
   }
 
   /**
@@ -707,6 +747,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.body);
   }
 
+  visitFunctionType(tree) {
+    if (tree.typeParameters !== null) {
+      this.visitAny(tree.typeParameters);
+    }
+    this.write_(OPEN_PAREN);
+    this.visitAny(tree.parameterList);
+    this.write_(CLOSE_PAREN);
+    this.writeSpace_();
+    this.write_(ARROW);
+    this.writeSpace_();
+    this.visitAny(tree.returnType);
+  }
+
   visitGeneratorComprehension(tree) {
     this.write_(OPEN_PAREN);
     this.visitList(tree.comprehensionList);
@@ -761,6 +814,20 @@ export class ParseTreeWriter extends ParseTreeVisitor {
         this.visitAnyBlockOrIndent_(tree.elseClause);
       }
     }
+  }
+
+  /**
+   * @param {IndexSignature} tree
+   */
+  visitIndexSignature(tree) {
+    this.write_(OPEN_SQUARE);
+    this.write_(tree.name);
+    this.write_(COLON);
+    this.writeSpace_();
+    this.visitAny(tree.indexType);
+    this.write_(CLOSE_SQUARE);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.write_(SEMI_COLON);
   }
 
   /**
@@ -877,6 +944,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {MethodSignature} tree
+   */
+  visitMethodSignature(tree) {
+    this.visitAny(tree.name);
+    if (tree.optional) {
+      this.write_(QUESTION);
+    }
+    this.visitAny(tree.callSignature);
+    this.write_(SEMI_COLON);
+  }
+
+  /**
    * @param {SyntaxErrorTree} tree
    */
   visitSyntaxErrorTree(tree) {
@@ -955,6 +1034,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeSpace_();
       this.visitAny(tree.element);
     }
+  }
+
+  /**
+   * @param {ObjectType} tree
+   */
+  visitObjectType(tree) {
+    this.write_(OPEN_CURLY);
+    this.writelnList_(tree.typeMembers);
+    this.write_(CLOSE_CURLY);
   }
 
   /**
@@ -1050,6 +1138,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {PropertySignature} tree
+   */
+  visitPropertySignature(tree) {
+    this.visitAny(tree.name);
+    if (tree.optional) {
+      this.write_(QUESTION);
+    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.write_(SEMI_COLON);
+  }
+
+  /**
    * @param {TemplateLiteralExpression} tree
    */
   visitTemplateLiteralExpression(tree) {
@@ -1096,7 +1196,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitRestParameter(tree) {
     this.write_(DOT_DOT_DOT);
     this.write_(tree.identifier.identifierToken);
-    this.writeTypeAnnotation_(this.currentParameterTypeAnnotation_);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
   }
 
   /**
@@ -1224,6 +1324,28 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   // visitTypeReference needs no override.
+
+  /**
+   * @param {TypeParameter} tree
+   */
+  visitTypeParameter(tree) {
+    this.write_(tree.identifierToken);
+    if (tree.extendsType) {
+      this.writeSpace_();
+      this.write_(EXTENDS);
+      this.writeSpace_();
+      this.visitAny(tree.extendsType);
+    }
+  }
+
+  /**
+   * @param {TypeParameters} tree
+   */
+  visitTypeParameters(tree) {
+    this.write_(OPEN_ANGLE);
+    this.writeList_(tree.parameters, COMMA, false);
+    this.write_(CLOSE_ANGLE);
+  }
 
   /**
    * @param {UnaryExpression} tree

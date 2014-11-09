@@ -680,7 +680,7 @@ function createLiteralPropertyName(name) {
  * @return {RestParameter}
  */
 function createRestParameter(identifier) {
-  return new RestParameter(null, createBindingIdentifier(identifier));
+  return new RestParameter(null, createBindingIdentifier(identifier), null);
 }
 
 /**

@@ -200,4 +200,9 @@ export class ScopeVisitor extends ParseTreeVisitor {
   visitGeneratorComprehension(tree) {
     this.visitComprehension_(tree);
   }
+
+  // Do not recurse into type annotations
+  visitPredefinedType(tree) {}
+  visitTypeArguments(tree) {}
+  visitFunctionType(tree) {}
 }

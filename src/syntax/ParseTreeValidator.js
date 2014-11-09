@@ -96,6 +96,7 @@ import {
   TEMPLATE_SUBSTITUTION,
   TYPE_ARGUMENTS,
   TYPE_NAME,
+  TYPE_PARAMETER,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
 } from './trees/ParseTreeType.js';
@@ -1014,6 +1015,29 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitTypeReference(tree) {
     this.checkType_(TYPE_NAME, tree.typeName, 'typeName must be a TypeName');
     this.checkType_(TYPE_ARGUMENTS, tree.args, 'args must be a TypeArguments');
+  }
+
+  /**
+   * @param {TypeParameters} tree
+   */
+  visitTypeParameters(tree) {
+    var {parameters} = tree;
+    for (var i = 0; i < parameters.length; i++) {
+      this.checkType_(TYPE_PARAMETER, parameters[i],
+                      'Type parameters must all be type parameters');
+    }
+  }
+
+  /**
+   * @param {TypeParameter} tree
+   */
+  visitTypeParameter(tree) {
+    this.check_(tree.identifierToken.type === IDENTIFIER, tree,
+                'Type parameter must be an identifier token');
+    if (tree.extendsType) {
+      this.checkVisit_(tree.extendsType.isType(), tree.extendsType,
+                       'extends type must be a type expression');
+    }
   }
 
   /**

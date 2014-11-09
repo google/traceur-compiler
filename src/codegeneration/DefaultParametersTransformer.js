@@ -100,4 +100,13 @@ export class DefaultParametersTransformer extends ParameterTransformer {
 
     return new FormalParameterList(tree.location, parameters);
   }
+
+  transformConstructorType(tree) {
+    return tree;
+  }
+
+  transformFunctionType(tree) {
+    return tree;
+  }
+
 }
