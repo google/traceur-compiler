@@ -293,7 +293,7 @@ suite('context test', function() {
   });
 
   test('./traceur can mix require() and import', function(done) {
-    var cmd = 'cd ..;./traceur ./test/unit/node/resources/testForRequireAndImport.js';
+    var cmd = 'cd ..;./traceur --require=true -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       assert.equal('we have path and x=x and aNodeExport=intoTraceur\n', stdout);

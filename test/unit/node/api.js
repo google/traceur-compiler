@@ -44,10 +44,23 @@ suite('api.js', function() {
 
   test('api compile filename', function() {
     var api = require('../../../src/node/api');
-    var options = {modules: 'register', experimental: true, moduleName: true};
+    var options = {modules: 'register', moduleName: true};
     var result = api.compile('var a = 1;', options, 'a.js');
-    assert.equal(result.indexOf('System.registerModule("a.js", [], function() {'), 0,
-        'The module has register format and name "a"');
+    assert.equal(
+        result.indexOf('System.registerModule("a.js", [], function() {'),
+        0,
+        'The module has register format and name "a.js"');
+  });
+
+  test('api compile require', function() {
+    var api = require('../../../src/node/api');
+    var options = {modules: 'register', experimental: true,
+        moduleName: true, require: true};
+    var result = api.compile('var a = 1;', options, 'a.js');
+    assert.equal(
+        result.indexOf('System.registerModule("a.js", [], function(require) {'),
+        0,
+        'The module factory passes require');
   });
 
   test('api compile inline', function() {

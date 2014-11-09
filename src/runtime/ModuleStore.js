@@ -90,7 +90,11 @@
       if (this.value_)
         return this.value_;
       try {
-        return this.value_ = this.func.call(global);
+        var relativeRequire;
+        if (typeof $traceurRuntime !== undefined) {
+          relativeRequire = $traceurRuntime.require.bind(null, this.url);
+        }
+        return this.value_ = this.func.call(global, relativeRequire);
       } catch(ex) {
         if (ex instanceof ModuleEvaluationError) {
           ex.loadedBy(this.url);

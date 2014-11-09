@@ -47,7 +47,7 @@ export var optionsV01 = enumerableOnlyObject({
   propertyMethods: true,
   propertyNameShorthand: true,
   referrer: '',
-  unicodeExpressions: true,
+  require: false,
   restParameters: true,
   script: false,
   sourceMaps: false,
@@ -58,6 +58,7 @@ export var optionsV01 = enumerableOnlyObject({
   typeAssertions: false,
   types: false,
   unicodeEscapeSequences: true,
+  unicodeExpressions: true,
   validate: false,
 });
 
@@ -252,6 +253,7 @@ export var options = new Options();
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
   experimental: 'Turns on all experimental features',
+  require: 'Generate modules with require function argument',
   sourceMaps: 'Generate source map and (\'file\') write to .map' +
       ' or (\'inline\') append data URL',
 };
@@ -474,6 +476,7 @@ addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
+addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
