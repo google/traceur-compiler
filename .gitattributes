@@ -1,1 +1,6 @@
 * eol=lf
+* text=auto
+logo/tc.ai -text
+logo/tc.eps -text
+logo/tc.png -text
+third_party/CodeMirror-4.0.3/doc/logo.png -text
