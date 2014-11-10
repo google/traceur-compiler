@@ -215,6 +215,9 @@ export class Options {
         typeof object.sourceMaps === 'string') {
       this.sourceMaps = object.sourceMaps;
     }
+    if (object.experimental === true) {
+      this.experimental = true;
+    }
     return this;
   }
 
