@@ -19,7 +19,7 @@ import {FindVisitor} from '../src/codegeneration/FindVisitor';
 import {IDENTIFIER_EXPRESSION} from '../src/syntax/trees/ParseTreeType';
 
 Reflect.global.exports = {};
-
+console.log('failures ', failures)
 var failures = 0;
 
 function checkTest(test, traceurResult) {
@@ -35,7 +35,12 @@ var traceurResult;
 
 System.fetch({address: './node_modules/es5-compat-table/data-es6.js'}).then((tests) => {
   var unknown = [];
-  tests = eval(tests);
+  try {
+    tests = eval(tests);
+  } catch(ex) {
+    console.error('eval on tests failed ', ex.stack || ex);
+    return;
+  }
   tests.forEach((test)  => {
     if (typeof test.exec !== 'function') {
       unknown.push(test.name);
