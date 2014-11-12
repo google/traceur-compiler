@@ -276,12 +276,25 @@ export class TraceurLoader extends Loader {
   }
 
   /**
+   * Used for 'instantiate' module format.
    * @param {string} normalized name of module
    * @param {Array<string>} unnormalized dependency names.
    * @param {Function<Array<string>>} factory takes array of normalized names.
    */
   register(normalizedName, deps, factoryFunction) {
-    $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+    $traceurRuntime.ModuleStore.register(normalizedName, deps,
+      factoryFunction);
+  }
+
+  /**
+   * Used for 'regsiter' module format.
+   * @param {string} normalized name of module
+   * @param {Array<string>} unnormalized dependency names.
+   * @param {Function<Array<string>>} factory takes array of normalized names.
+   */
+  registerModule(normalizedName, deps, factoryFunction) {
+    $traceurRuntime.ModuleStore.registerModule(normalizedName, deps,
+      factoryFunction);
   }
 
 }
