@@ -56,10 +56,7 @@
     "requirejs": "2.x",
     "semver": "2.x",
     "traceur": "0.0.74",
-    "promises-aplus-tests": "2.x",
-    "compat-table": "git+https://github.com/kangax/compat-table.git#gh-pages",
-    "colors": "~0.6.0-1",
-    "cheerio": "~0.10.1"
+    "promises-aplus-tests": "2.x"
   },
   "subdomain": "traceur"
 }
