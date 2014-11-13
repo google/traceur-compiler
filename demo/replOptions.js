@@ -89,6 +89,9 @@ function createOptionRow(traceurOptions, name) {
                               label.firstChild);
   cb.type = 'checkbox';
   var checked = traceurOptions[name];
+  if (name === 'experimental')
+    checked = traceurOptions.anyExperimental();
+
   cb.checked = checked;
   cb.indeterminate = checked === null;
   cb.onclick = () => {

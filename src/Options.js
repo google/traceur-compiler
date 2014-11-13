@@ -110,8 +110,6 @@ export class Options {
 
   /**
    * Meta option. Sets all options that are of Kind.experimental
-   * When getting this will return null if not all options of this kind
-   * have the same value.
    * @type {boolean|string|null}
    */
   set experimental(v) {
@@ -121,21 +119,10 @@ export class Options {
     });
   }
 
-  get experimental() {
-    var value;
-    Object.keys(experimentalOptions).every((name) => {
-      var currentValue = this[name];
-      if (value === undefined) {
-        value = currentValue;
-        return true;
-      }
-      if (currentValue !== value) {
-        value = null;
-        return false;
-      }
-      return true;
+  anyExperimental() {
+    return Object.keys(experimentalOptions).some((name) => {
+      return this[name];
     });
-    return value;
   }
 
   get atscript() {
