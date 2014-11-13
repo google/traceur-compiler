@@ -184,7 +184,7 @@
 
     // -- Non standard extensions to ModuleStore.
 
-    registerModule(name, func) {
+    registerModule(name, deps, func) {
       var normalizedName = ModuleStore.normalize(name);
       if (moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
@@ -197,7 +197,7 @@
     register(name, deps, func) {
       if (!deps || !deps.length && !func.length) {
         // Traceur System.register
-        this.registerModule(name, func);
+        this.registerModule(name, deps, func);
       } else {
         // System.register instantiate form
         this.bundleStore[name] = {
@@ -259,6 +259,7 @@
 
   global.System = {
     register: ModuleStore.register.bind(ModuleStore),
+    registerModule: ModuleStore.registerModule.bind(ModuleStore),
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,

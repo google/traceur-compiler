@@ -127,7 +127,7 @@ export class ModuleTransformer extends TempVarTransformer {
               ${functionExpression});`;
     }
     return parseStatements
-        `System.register(${this.moduleName}, [], ${functionExpression});`;
+        `System.registerModule(${this.moduleName}, [], ${functionExpression});`;
   }
 
   /**
