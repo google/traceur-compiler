@@ -301,6 +301,21 @@ suite('context test', function() {
     });
   });
 
+  test('./traceur warns if the runtime is missing', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var cmd = 'cd ..;./traceur --modules=commonjs --out ' + tempFileName +
+        ' ./src/runtime/generators.js';
+    exec(cmd, function(error, stdout, stderr) {
+      assert.isNull(error);
+      cmd = 'node ' + tempFileName;
+      exec(cmd, function(error, stdout, stderr) {
+        assert.notEqual(error.toString().indexOf('traceur runtime not found'),
+            -1, 'The runtime error message should be found');
+        done();
+      });
+    });
+  });
+
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
     var cmd = 'cd ..;./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
     exec(cmd, function(error, stdout, stderr) {
