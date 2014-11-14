@@ -355,7 +355,7 @@ export class Parser {
   constructor(file, errorReporter = new SyntaxErrorReporter(),
               options = traceurOptions) {
     this.errorReporter_ = errorReporter;
-    this.scanner_ = new Scanner(errorReporter, file, this);
+    this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;
 
     // yield is only allowed inside a generator and await is only allowed

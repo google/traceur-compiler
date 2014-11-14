@@ -200,4 +200,9 @@ suite('PlaceholderParser.traceur.js', function() {
     assert.equal('var x: a<b>;', write(tree));
   });
 
+  test('Exponentiation', function() {
+    var tree = parseExpression `x ** ${42}`;
+    assert.equal('x ** 42', write(tree));
+  });
+
 });

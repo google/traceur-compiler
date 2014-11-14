@@ -143,8 +143,8 @@ function getParser(source, errorReporter) {
   var file = new SourceFile(
       '@traceur/generated/TemplateParser/' + counter++, source);
   var options = new Options();
-  // Change default options to enable parsing experimental features.
-  options.types = true;
+  // Enable internal code to always use all experimental features.
+  options.experimental = true;
   var parser = new Parser(file, errorReporter, options);
   parser.allowYield = true;
   parser.allowAwait = true;

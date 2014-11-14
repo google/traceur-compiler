@@ -21,10 +21,6 @@ import {
   idContinueTable,
   idStartTable
 } from './unicode-tables.js';
-import {
-  options,
-  parseOptions
-} from '../Options.js';
 
 import {
   AMPERSAND,
@@ -208,7 +204,7 @@ function isRegularExpressionFirstChar(code) {
 }
 
 var index, input, length, token, lastToken, lookaheadToken, currentCharCode,
-    lineNumberTable, errorReporter, currentParser;
+    lineNumberTable, errorReporter, currentParser, options;
 
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
@@ -223,8 +219,10 @@ export class Scanner {
   /**
    * @param {ErrorReport} reporter
    * @param {SourceFile} file
+   * @param {Parser} parser
+   * @param {Options} traceurOptions
    */
-  constructor(reporter, file, parser) {
+  constructor(reporter, file, parser, traceurOptions) {
     // These are not instance fields and this class should probably be refactor
     // to not give a false impression that multiple instances can be created.
     errorReporter = reporter;
@@ -233,6 +231,7 @@ export class Scanner {
     length = file.contents.length;
     this.index = 0;
     currentParser = parser;
+    options = traceurOptions;
   }
 
   get lastToken() {
@@ -724,7 +723,7 @@ function scanToken() {
         }
         return createToken(EQUAL_EQUAL, beginIndex);
       }
-      if (currentCharCode === 62 && parseOptions.arrowFunctions) {  // >
+      if (currentCharCode === 62 && options.arrowFunctions) {  // >
         next();
         return createToken(ARROW, beginIndex);
       }
@@ -744,7 +743,7 @@ function scanToken() {
         next();
         return createToken(STAR_EQUAL, beginIndex);
       }
-      if (currentCharCode === 42 && parseOptions.exponentiation) {
+      if (currentCharCode === 42 && options.exponentiation) {
         next();
         if (currentCharCode === 61) {  // =
           next();
@@ -880,7 +879,7 @@ function scanPostZero(beginIndex) {
 
     case 66:  // B
     case 98:  // b
-      if (!parseOptions.numericLiterals)
+      if (!options.numericLiterals)
         break;
 
       next();
@@ -894,7 +893,7 @@ function scanPostZero(beginIndex) {
 
     case 79:  // O
     case 111:  // o
-      if (!parseOptions.numericLiterals)
+      if (!options.numericLiterals)
         break;
 
       next();
@@ -1074,7 +1073,7 @@ function skipStringLiteralEscapeSequence() {
 }
 
 function skipUnicodeEscapeSequence() {
-  if (currentCharCode === 123 && parseOptions.unicodeEscapeSequences) {  // {
+  if (currentCharCode === 123 && options.unicodeEscapeSequences) {  // {
     next();
     var beginIndex = index;
 
