@@ -253,7 +253,7 @@ export var options = new Options();
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
   experimental: 'Turns on all experimental features',
-  require: 'Generate modules with require function argument',
+  require: 'Generate require function argument for node when modules=register',
   sourceMaps: 'Generate source map and (\'file\') write to .map' +
       ' or (\'inline\') append data URL',
 };
