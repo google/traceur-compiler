@@ -65,6 +65,7 @@ import {
   IF,
   IMPORT,
   IN,
+  INTERFACE,
   MINUS,
   MINUS_MINUS,
   NEW,
@@ -828,6 +829,26 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_SQUARE);
     this.writeTypeAnnotation_(tree.typeAnnotation);
     this.write_(SEMI_COLON);
+  }
+
+  /**
+   * @param {InterfaceDeclaration} tree
+   */
+  visitInterfaceDeclaration(tree) {
+    this.write_(INTERFACE);
+    this.writeSpace_();
+    this.write_(tree.name);
+    if (tree.typeParameters) {
+      this.visitAny(tree.typeParameters);
+    }
+    if (tree.extendsClause) {
+      this.writeSpace_();
+      this.write_(EXTENDS);
+      this.writeSpace_();
+      this.writeList_(tree.extendsClause, COMMA, false);
+    }
+    this.writeSpace_();
+    this.visitAny(tree.objectType);
   }
 
   /**

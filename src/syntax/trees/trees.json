@@ -669,6 +669,23 @@
       "ParseTree"
     ]
   },
+  "InterfaceDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "extendsClause": [
+      "Array.<ParseTree>"
+    ],
+    "objectType": [
+      "ObjectType"
+    ]
+  },
   "LabelledStatement": {
     "location": [
       "SourceRange"
