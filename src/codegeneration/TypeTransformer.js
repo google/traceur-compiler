@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {
+  AnonBlock,
   FormalParameter,
   FunctionDeclaration,
   FunctionExpression,
@@ -100,5 +101,9 @@ export class TypeTransformer extends ParseTreeTransformer {
     }
 
     return super.transformGetAccessor(tree);
+  }
+
+  transformInterfaceDeclaration(tree) {
+    return new AnonBlock(null, []);
   }
 }

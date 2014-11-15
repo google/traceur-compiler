@@ -32,6 +32,7 @@ var o2 : {x; y?; z: number; w?: string};
 var o3 : {x(); y?(); z(): number; w?(): string; m<T>(x: T): T};
 var o4 : {new ();};
 var o5 : {new <T>(x: T) : T;};
+var o6 : {arr: T[]};
 
 var i1 : {[x: number] : T; y};
 var i2 : {[x: string] : V; y()};

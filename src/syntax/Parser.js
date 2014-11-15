@@ -204,6 +204,7 @@ import {
   ImportSpecifierSet,
   ImportedBinding,
   IndexSignature,
+  InterfaceDeclaration,
   LabelledStatement,
   LiteralExpression,
   LiteralPropertyName,
@@ -919,6 +920,11 @@ export class Parser {
         return this.parseTryStatement_();
       case WITH:
         return this.parseWithStatement_();
+      case INTERFACE:
+        // TODO(arv): This should only be allowed at the top level.
+        if (this.options_.types) {
+          return this.parseInterfaceDeclaration_();
+        }
     }
     return this.parseFallThroughStatement_();
   }
@@ -3719,7 +3725,7 @@ export class Parser {
                 new PredefinedType(this.getTreeLocation_(start), token);
             break;
           default:
-            return this.parseTypeReference_(start);
+            elementType = this.parseTypeReference_(start);
         }
         break;
 
@@ -4025,6 +4031,42 @@ export class Parser {
       memberName);
     }
     return typeName;
+  }
+
+  /**
+   * interface Identifier TypeParameters_opt InterfaceExtendsClause_opt
+   *     ObjectType
+   *
+   * InterfaceExtendsClause:
+   *   extends ClassOrInterfaceTypeList
+   *
+   * ClassOrInterfaceTypeList:
+   *   ClassOrInterfaceType
+   *   ClassOrInterfaceTypeList , ClassOrInterfaceType
+   *
+   * ClassOrInterfaceType:
+   *   TypeReference
+   */
+  parseInterfaceDeclaration_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(INTERFACE);
+    var name = this.eatId_();
+    var typeParameters = this.parseTypeParametersOpt_()
+    var extendsClause = null;
+    if (this.eatIf_(EXTENDS)) {
+      extendsClause = this.parseInterfaceExtendsClause_();
+    }
+    var objectType = this.parseObjectType_();
+    return new InterfaceDeclaration(this.getTreeLocation_(start),
+        name, typeParameters, extendsClause, objectType);
+  }
+
+  parseInterfaceExtendsClause_() {
+    var result = [this.parseTypeReference_()];
+    while (this.eatIf_(COMMA)) {
+      result.push(this.parseTypeReference_());
+    }
+     return result;
   }
 
   /**
