@@ -35,8 +35,12 @@ suite('context test', function() {
     traceur.options.reset();
   });
 
+  function forwardSlash(s) {
+    return s.replace(/\\/g, '/');
+  }
+
   function resolve(name) {
-    return path.resolve(__dirname, '../../../' + name).replace(/\\/g, '/');
+    return forwardSlash(path.resolve(__dirname, '../../../' + name));
   }
 
   function executeFileWithRuntime(fileName, options, debug) {
@@ -154,7 +158,8 @@ suite('context test', function() {
       assert.equal(actualSourceRoot, resolve('./out') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName === path.resolve(actualSourceRoot, name);
+        return inputFileName ===
+            forwardSlash(path.resolve(actualSourceRoot, name));
       });
       assert(foundInput,
           'the inputFileName is one of the sourcemap sources');
@@ -182,7 +187,8 @@ suite('context test', function() {
       assert.equal(actualSourceRoot, resolve('./') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName === path.resolve(actualSourceRoot, name);
+        return inputFileName ===
+            forwardSlash(path.resolve(actualSourceRoot, name));
       });
       assert(foundInput,
           'the inputFileName is one of the sourcemap sources');
