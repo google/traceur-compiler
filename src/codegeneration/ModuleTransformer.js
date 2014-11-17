@@ -107,19 +107,21 @@ export class ModuleTransformer extends TempVarTransformer {
     var statements = [createUseStrictDirective()];
     if (this.moduleName) {
       statements.push(parseStatement `var __moduleName = ${this.moduleName};`);
-      // Override require() to resolve paths relative to es6 module
-      var callerPathString = this.moduleName;
-      statements.push(parseStatement `function require(path) {
-        return $traceurRuntime.require(${callerPathString}, path);
-      }`);
     }
     return statements;
   }
 
   wrapModule(statements) {
-    var functionExpression = parseExpression `function() {
-      ${statements}
-    }`;
+    var functionExpression;
+    if (transformOptions.require) {
+      functionExpression = parseExpression `function(require) {
+        ${statements}
+      }`;
+    } else {
+      functionExpression = parseExpression `function() {
+        ${statements}
+      }`;
+    }
 
     if (this.moduleName === null) {
       return parseStatements
