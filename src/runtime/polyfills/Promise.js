@@ -150,18 +150,22 @@ export class Promise {
     var deferred = getDeferred(this);
     var resolutions = [];
     try {
-      var count = values.length;
-      if (count === 0) {
-        deferred.resolve(resolutions);
-      } else {
-        for (var i = 0; i < values.length; i++) {
-          this.resolve(values[i]).then(
-              function(i, x) {
-                resolutions[i] = x;
-                if (--count === 0)
-                  deferred.resolve(resolutions);
-              }.bind(undefined, i),
-              (r) => { deferred.reject(r); });
+      var count = 0;
+      var i = 0;
+      for (var value of values) {
+        const countdownFunction = makeCountdownFunction(i);
+        this.resolve(value).then(
+            countdownFunction,
+            (r) => { deferred.reject(r); });
+        ++i
+        ++count;
+      }
+
+      function makeCountdownFunction(i) {
+        return x => {
+          resolutions[i] = x;
+          if (--count === 0)
+            deferred.resolve(resolutions);
         }
       }
     } catch (e) {
