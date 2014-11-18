@@ -22,15 +22,13 @@ import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
  */
 export class FindVisitor extends ParseTreeVisitor {
   /**
-   * @param {ParseTree} tree
    * @param {boolean=} keepOnGoing Whether to stop searching after the first
    *     found condition.
    */
-  constructor(tree, keepOnGoing = undefined) {
+  constructor(keepOnGoing = undefined) {
     this.found_ = false;
     this.shouldContinue_ = true;
     this.keepOnGoing_ = keepOnGoing;
-    this.visitAny(tree);
   }
 
   /**

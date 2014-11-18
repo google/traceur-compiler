@@ -52,7 +52,9 @@ class AwaitFinder extends FindInFunctionScope {
 }
 
 function scopeContainsAwait(tree) {
-  return new AwaitFinder(tree).found;
+  var visitor = new AwaitFinder();
+  visitor.visitAny(tree);
+  return visitor.found;
 }
 
 /**

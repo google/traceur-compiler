@@ -518,6 +518,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // We only create an "iife" if the loop has block bindings and functions
     // that use those block binded variables
     var finder = new FindBlockBindingInLoop(tree, this.scopeBuilder_);
+    finder.visitAny(tree);
     if (!finder.found) {
       // just switch it to var
       if (initializerIsBlockBinding) {
@@ -682,6 +683,7 @@ function renameAll(renames, tree) {
 class FindBlockBindingInLoop extends FindVisitor {
 
   constructor(tree, scopeBuilder) {
+    super();
     this.scopeBuilder_ = scopeBuilder;
     // Not all Loop Statements have a scope, but all their block bodies should.
     // Example: a For Loop with no initializer, or one that uses 'var' doesn't
@@ -692,7 +694,6 @@ class FindBlockBindingInLoop extends FindVisitor {
         scopeBuilder.getScopeForTree(tree.body);
     this.outOfScope_ = null;
     this.acceptLoop_ = tree.isIterationStatement();
-    super(tree, false);
   }
 
   visitForInStatement(tree) {

@@ -45,12 +45,9 @@ import {transformOptions} from '../Options.js';
  * computed property name, an at name or a __proto__ property.
  */
 class FindAdvancedProperty extends FindVisitor {
-  /**
-   * @param {ObjectLiteralTree} tree
-   */
-  constructor(tree) {
+  constructor() {
+    super(true);
     this.protoExpression = null;
-    super(tree, true);
   }
 
   visitPropertyNameAssignment(tree) {
@@ -185,7 +182,8 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new FindAdvancedProperty(tree);
+      var finder = new FindAdvancedProperty();
+      finder.visitAny(tree);
       if (!finder.found) {
         this.needsAdvancedTransform = false;
         return super.transformObjectLiteralExpression(tree);

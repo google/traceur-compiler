@@ -53,7 +53,9 @@ class YieldFinder extends FindInFunctionScope {
 }
 
 function scopeContainsYield(tree) {
-  return new YieldFinder(tree).found;
+  var finder = new YieldFinder();
+  finder.visitAny(tree);
+  return finder.found;
 }
 
 /**

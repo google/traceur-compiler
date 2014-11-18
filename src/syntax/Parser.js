@@ -290,9 +290,9 @@ var Initializer = {
  * the tree is not going to be used as a pattern.
  */
 class ValidateObjectLiteral extends FindVisitor {
-  constructor(tree) {
+  constructor() {
+    super();
     this.errorToken = null;
-    super(tree);
   }
 
   visitCoverInitializedName(tree) {
@@ -3180,7 +3180,8 @@ export class Parser {
     if (coverInitializedNameCount === this.coverInitializedNameCount_)
       return;
 
-    var finder = new ValidateObjectLiteral(tree);
+    var finder = new ValidateObjectLiteral();
+    finder.visitAny(tree);
     if (finder.found) {
       var token = finder.errorToken;
       this.reportError_(token.location, `Unexpected token ${token}`);

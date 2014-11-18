@@ -24,10 +24,10 @@ import {FindInFunctionScope} from './FindInFunctionScope.js';
  * 'arguments'.
  */
 class FindThisOrArguments extends FindInFunctionScope {
-  constructor(tree) {
+  constructor() {
+    super();
     this.foundThis = false;
     this.foundArguments = false;
-    super(tree);
   }
   visitThisExpression(tree) {
     this.foundThis = true;
@@ -42,7 +42,8 @@ class FindThisOrArguments extends FindInFunctionScope {
 }
 
 export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
-  var finder = new FindThisOrArguments(tree);
+  var finder = new FindThisOrArguments();
+  finder.visitAny(tree);
   if (finder.foundArguments) {
     var argumentsTempName = tempVarTransformer.addTempVarForArguments();
     tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);

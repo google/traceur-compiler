@@ -90,7 +90,8 @@ class NeedsStateMachine extends FindInFunctionScope {
 }
 
 function needsStateMachine(tree) {
-  var visitor = new NeedsStateMachine(tree);
+  var visitor = new NeedsStateMachine();
+  visitor.visitAny(tree);
   return visitor.found;
 }
 

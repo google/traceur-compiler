@@ -134,7 +134,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
-    var finder = new ForInFinder(body);
+    var finder = new ForInFinder();
+    finder.visitAny(body);
     if (finder.found) {
       body = new ForInTransformPass(this.identifierGenerator).
           transformAny(body);
