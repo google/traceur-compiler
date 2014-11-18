@@ -295,6 +295,7 @@ export class CommandOptions extends Options {
   }
 
   setOptionCoerced(name, value) {
+    // commander.js give value = null if no argument follows --option-name
     if (typeof value !== 'undefined' && value !== null)
       value = coerceOptionValue(value);
     else
