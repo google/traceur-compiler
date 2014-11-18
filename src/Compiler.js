@@ -242,7 +242,7 @@ export class Compiler {
 
     writer.visitAny(tree);
 
-    var compiledCode = writer.toString(tree);
+    var compiledCode = writer.toString();
 
     if (this.sourceMapGenerator_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);

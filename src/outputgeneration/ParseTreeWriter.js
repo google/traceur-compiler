@@ -40,6 +40,7 @@ import {
   ARROW,
   AT,
   BACK_QUOTE,
+  BAR,
   BREAK,
   CASE,
   CATCH,
@@ -841,7 +842,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (tree.typeParameters) {
       this.visitAny(tree.typeParameters);
     }
-    if (tree.extendsClause) {
+    if (tree.extendsClause.length > 0) {
       this.writeSpace_();
       this.write_(EXTENDS);
       this.writeSpace_();
@@ -1380,6 +1381,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeRequiredSpace_();
     }
     this.visitAny(operand);
+  }
+
+  /**
+   * @param {UnionType} tree
+   */
+  visitUnionType(tree) {
+    this.visitAny(tree.types[0]);
+    for (var i = 1; i < tree.types.length; i++) {
+      this.writeSpace_();
+      this.write_(BAR);
+      this.writeSpace_();
+      this.visitAny(tree.types[i]);
+    }
   }
 
   /**

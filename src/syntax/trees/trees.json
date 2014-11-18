@@ -1146,6 +1146,14 @@
       "ParseTree"
     ]
   },
+  "UnionType": {
+    "location": [
+      "SourceRange"
+    ],
+    "types": [
+      "Array<ParseTree>"
+    ]
+  },
   "VariableDeclaration": {
     "location": [
       "SourceRange"

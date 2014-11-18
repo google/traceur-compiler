@@ -36,3 +36,7 @@ var o6 : {arr: T[]};
 
 var i1 : {[x: number] : T; y};
 var i2 : {[x: string] : V; y()};
+
+var u1 : number | string;
+var u2 : number | string | boolean;
+var u3 : number | {x: string | boolen};

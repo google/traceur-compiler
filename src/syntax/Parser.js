@@ -249,6 +249,7 @@ import {
   TypeParameters,
   TypeReference,
   UnaryExpression,
+  UnionType,
   VariableDeclaration,
   VariableDeclarationList,
   VariableStatement,
@@ -3696,16 +3697,46 @@ export class Parser {
   /**
    * Types
    *
-   * Type ::
-   *   PredefinedType
-   *   TypeReference
-   *   TypeQuery
-   *   TypeLiteral
+   * Type:
+   *   PrimaryOrUnionType
+   *   FunctionType
+   *   ConstructorType
+   *
+   * PrimaryOrUnionType:
+   *   PrimaryType
+   *   UnionType
+   *
+   * PrimaryType:
+   *   ParenthesizedType
+   *   PredefinedType
+   *   TypeReference
+   *   ObjectType
+   *   ArrayType
+   *   TupleType
+   *   TypeQuery
+   *
+   * ParenthesizedType:
+   *   ( Type )
    *
    * @return {ParseTree}
    * @private
    */
   parseType_() {
+    switch (this.peekType_()) {
+      case NEW:
+        return this.parseConstructorType_();
+
+      case OPEN_PAREN:
+      case OPEN_ANGLE:
+        return this.parseFunctionType_();
+    }
+
+    var start = this.getTreeStartLocation_();
+    var elementType = this.parsePrimaryType_();
+    return this.parseUnionTypeSuffix_(start, elementType);
+  }
+
+  parsePrimaryType_() {
     var start = this.getTreeStartLocation_();
     var elementType;
     switch (this.peekType_()) {
@@ -3738,12 +3769,9 @@ export class Parser {
         elementType = this.parseObjectType_();
         break;
 
-      case NEW:
-        return this.parseConstructorType_();
-
-      case OPEN_PAREN:
-      case OPEN_ANGLE:
-        return this.parseFunctionType_();
+      // TODO(arv): ParenthesizedType
+      // case OPEN_PAREN:
+        
 
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
@@ -3761,6 +3789,21 @@ export class Parser {
       return new TypeReference(this.getTreeLocation_(start), typeName, args);
     }
     return typeName;
+  }
+
+  parseUnionTypeSuffix_(start, elementType) {
+    if (this.peek_(BAR)) {
+      var types = [elementType];
+      this.eat_(BAR);
+      while (true) {
+        types.push(this.parsePrimaryType_());
+        if (!this.eatIf_(BAR)) {
+          break;
+        }
+      }
+      return new UnionType(this.getTreeLocation_(start), types);
+    }
+    return elementType;
   }
 
   parseArrayTypeSuffix_(start, elementType) {
@@ -4053,9 +4096,11 @@ export class Parser {
     this.eat_(INTERFACE);
     var name = this.eatId_();
     var typeParameters = this.parseTypeParametersOpt_()
-    var extendsClause = null;
+    var extendsClause;
     if (this.eatIf_(EXTENDS)) {
       extendsClause = this.parseInterfaceExtendsClause_();
+    } else {
+      extendsClause = [];
     }
     var objectType = this.parseObjectType_();
     return new InterfaceDeclaration(this.getTreeLocation_(start),
