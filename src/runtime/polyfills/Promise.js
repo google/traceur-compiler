@@ -160,6 +160,11 @@ export class Promise {
         ++i
         ++count;
       }
+      // iterable must be empty as otherwise the count wouldn't be decreased
+      // until next tick at least
+      if (count === 0) {
+        deferred.resolve(resolutions);
+      }
 
       function makeCountdownFunction(i) {
         return x => {
