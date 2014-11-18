@@ -147,12 +147,12 @@ export class Promise {
   // Combinators.
 
   static all(values) {
-    var deferred = getDeferred(this);
-    var resolutions = [];
+    const deferred = getDeferred(this);
+    const resolutions = [];
     try {
-      var count = 0;
-      var i = 0;
-      for (var value of values) {
+      let count = 0;
+      let i = 0;
+      for (let value of values) {
         const countdownFunction = makeCountdownFunction(i);
         this.resolve(value).then(
             countdownFunction,
