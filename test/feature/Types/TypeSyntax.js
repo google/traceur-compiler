@@ -39,4 +39,4 @@ var i2 : {[x: string] : V; y()};
 
 var u1 : number | string;
 var u2 : number | string | boolean;
-var u3 : number | {x: string | boolen};
+var u3 : number | {x: string | boolean};
