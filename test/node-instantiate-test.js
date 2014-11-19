@@ -125,8 +125,10 @@ suite('instantiate', function() {
     System.import('./export-reassignment.js').then(function(ma) {
       return System.import('./export-star.js').then(function(mb) {
         assert.equal(mb.a, -6);
+        assert.equal(mb.b, 'localvalue');
         ma.reassign(); // updates the a export variable to 10, which should push the change out
         assert.equal(mb.a, 10);
+        assert.equal(mb.b, 'localvalue');
         done();
       });
     }).catch(done);
