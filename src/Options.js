@@ -289,12 +289,19 @@ export class CommandOptions extends Options {
   parseCommand(s) {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
-    if (m) {
-      var value = true;
-      if (typeof m[2] !== 'undefined')
-        value = coerceOptionValue(m[2]);
-      this.setOption(m[1],  value);
-    }
+
+    if (m)
+      this.setOptionCoerced(m[1], m[2]);
+  }
+
+  setOptionCoerced(name, value) {
+    // commander.js give value = null if no argument follows --option-name
+    if (typeof value !== 'undefined' && value !== null)
+      value = coerceOptionValue(value);
+    else
+      value = true;
+
+    this.setOption(name,  value);
   }
 
 }
@@ -374,7 +381,8 @@ export function addOptions(flags, commandOptions) {
     } else if ((name in parseOptions) && (name in transformOptions)) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
-      flags.on(dashedName, (value) => commandOptions.setOption(dashedName, value));
+      flags.on(dashedName, (value) =>
+        commandOptions.setOptionCoerced(dashedName, value));
     } else if (commandOptions[name] !== null) {
       flags.option('--' + dashedName, descriptions[name]);
       flags.on(dashedName, () => commandOptions.setOption(dashedName, true));
