@@ -754,11 +754,15 @@ export class Parser {
     this.strictMode_ = true;
     this.eat_(CLASS);
     var name = null;
+    var typeParameters = null;
     var annotations = [];
     // Name is optional for ClassExpression
     if (constr == ClassDeclaration ||
         !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
       name = this.parseBindingIdentifier_();
+      if (this.options_.types) {
+        typeParameters = this.parseTypeParametersOpt_();
+      }
       annotations = this.popAnnotations_();
     }
     var superClass = null;
@@ -770,7 +774,7 @@ export class Parser {
     this.eat_(CLOSE_CURLY);
     this.strictMode_ = strictMode;
     return new constr(this.getTreeLocation_(start), name, superClass,
-                      elements, annotations);
+                      elements, annotations, typeParameters);
   }
 
   /**
@@ -4095,7 +4099,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(INTERFACE);
     var name = this.eatId_();
-    var typeParameters = this.parseTypeParametersOpt_()
+    var typeParameters = this.parseTypeParametersOpt_();
     var extendsClause;
     if (this.eatIf_(EXTENDS)) {
       extendsClause = this.parseInterfaceExtendsClause_();

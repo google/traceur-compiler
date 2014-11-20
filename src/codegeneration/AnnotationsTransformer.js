@@ -139,7 +139,7 @@ class AnnotationsScope {
 
     if (tree.annotations.length > 0) {
       tree = new ClassDeclaration(tree.location, tree.name,
-          tree.superClass, tree.elements, []);
+          tree.superClass, tree.elements, [], null);
     }
     return this.appendMetadata_(tree);
   }

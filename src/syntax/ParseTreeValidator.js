@@ -97,6 +97,7 @@ import {
   TYPE_ARGUMENTS,
   TYPE_NAME,
   TYPE_PARAMETER,
+  TYPE_PARAMETERS,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
 } from './trees/ParseTreeType.js';
@@ -375,6 +376,23 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ClassDeclaration} tree
    */
   visitClassDeclaration(tree) {
+    this.visitClassShared_(tree);
+  }
+
+  /**
+   * @param {ClassExpression} tree
+   */
+  visitClassExpression(tree) {
+    this.visitClassShared_(tree);
+  }
+
+  visitClassShared_(tree) {
+    if (tree.typeParameters) {
+      this.checkVisit_(
+          tree.typeParameters.type == TYPE_PARAMETERS,
+          tree.typeParameters,
+          'type parameters expected');
+    }
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       switch (element.type) {
@@ -389,6 +407,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       this.visitAny(element);
     }
   }
+
 
   /**
    * @param {CommaExpression} tree

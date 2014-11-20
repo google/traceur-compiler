@@ -207,6 +207,9 @@
     ],
     "annotations": [
       "Array<ParseTree>"
+    ],
+    "typeParameters": [
+      "TypeParameters"
     ]
   },
   "ClassExpression": {
@@ -224,6 +227,9 @@
     ],
     "annotations": [
       "Array<ParseTree>"
+    ],
+    "typeParameters": [
+      "TypeParameters"
     ]
   },
   "CommaExpression": {

@@ -1,6 +1,6 @@
 // Options: --types
 
-class Typed {
+class Typed<T> {
   constructor(x : number) {
     this.x_ = x;
   }
@@ -18,6 +18,9 @@ class Typed {
     this.x_ = x;
   }
 }
+
+// Generics, ClassExpression
+var C = class ClassExpression<T> {};
 
 assert.equal(1, new Typed(1).x);
 assert.equal(2, new Typed(1).addTo(1));

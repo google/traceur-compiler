@@ -387,6 +387,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLASS);
     this.writeSpace_();
     this.visitAny(tree.name);
+    if (tree.typeParameters !== null) {
+      this.visitAny(tree.typeParameters);
+    }
     if (tree.superClass !== null) {
       this.writeSpace_();
       this.write_(EXTENDS);

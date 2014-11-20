@@ -74,7 +74,8 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
     this.addVariable(tree.name.identifierToken.value);
 
     // Convert a class declaration into a class expression.
-    tree = new ClassExpression(tree.location, tree.name, tree.superClass, tree.elements, tree.annotations);
+    tree = new ClassExpression(tree.location, tree.name, tree.superClass,
+        tree.elements, tree.annotations, tree.typeParameters);
 
     return parseStatement `${tree.name.identifierToken} = ${tree}`;
   }
@@ -333,12 +334,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
               $__export(p, m[p]);
           });
         `);
-        
+
         var exportNames = {};
         this.localExportBindings.concat(this.externalExportBindings).forEach(function(binding) {
           exportNames[binding.exportName] = true;
         });
-        
+
         declarationStatements.push(parseStatement `
           var $__exportNames = ${createObjectLiteral(exportNames)};
         `);
@@ -484,10 +485,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     var superClass = this.transformAny(tree.superClass);
     var elements = this.transformList(tree.elements);
     var annotations = this.transformList(tree.annotations);
+    var typeParameters = this.transformAny(tree.typeParameters);
 
     var varName = name.identifierToken.value;
     // convert into class expression
-    var classExpression = new ClassExpression(tree.location, name, superClass, elements, annotations);
+    var classExpression = new ClassExpression(tree.location, name, superClass,
+        elements, annotations, typeParameters);
     this.addLocalExportBinding(varName);
     return parseStatement `var ${varName} = $__export(${varName}, ${classExpression});`;
   }
@@ -588,8 +591,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     // convert class into a class expression
     if (expression.type === CLASS_DECLARATION) {
-      expression = new ClassExpression(expression.location, expression.name, 
-          expression.superClass, expression.elements, expression.annotations);
+      expression = new ClassExpression(expression.location, expression.name,
+          expression.superClass, expression.elements, expression.annotations,
+          expression.typeParameters);
     }
 
     if (expression.type === FUNCTION_DECLARATION) {
