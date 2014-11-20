@@ -40,7 +40,8 @@ TFLAGS = --
 RUNTIME_TESTS = \
   test/unit/runtime/Loader.js \
   test/unit/runtime/Object.js \
-  test/unit/runtime/System.js
+  test/unit/runtime/System.js \
+  test/unit/runtime/type-assertions.js
 
 UNIT_TESTS = \
 	test/unit/util/ \

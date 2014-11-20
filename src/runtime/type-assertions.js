@@ -32,8 +32,42 @@
     }
   }
 
+  var typeRegister = Object.create(null);
+
+  /**
+   * Returns an instance of {@code GenericType}.
+   *
+   * A same instance is returned across calls given the same
+   * {@code type} and {@code argumentTypes}.
+   *
+   * @param type
+   * @param argumentTypes
+   * @returns {GenericType}
+   */
   function genericType(type, ...argumentTypes) {
-    return new GenericType(type, argumentTypes);
+    var typeMap = typeRegister;
+
+    var key = $traceurRuntime.getOwnHashObject(type).hash;
+    if (!typeMap[key]) {
+      typeMap[key] = Object.create(null);
+    }
+    typeMap = typeMap[key];
+
+    for (var i = 0; i < argumentTypes.length - 1; i++) {
+      key = $traceurRuntime.getOwnHashObject(argumentTypes[i]).hash;
+      if (!typeMap[key]) {
+        typeMap[key] = Object.create(null);
+      }
+      typeMap = typeMap[key];
+    }
+
+    var tail = argumentTypes[argumentTypes.length - 1];
+    key = $traceurRuntime.getOwnHashObject(tail).hash;
+    if (!typeMap[key]) {
+      typeMap[key] = new GenericType(type, argumentTypes);
+    }
+
+    return typeMap[key];
   }
 
   $traceurRuntime.GenericType = GenericType;
