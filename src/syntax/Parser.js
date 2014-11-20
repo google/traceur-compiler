@@ -3757,7 +3757,7 @@ export class Parser {
                 new PredefinedType(this.getTreeLocation_(start), token);
             break;
           default:
-            elementType = this.parseTypeReference_(start);
+            elementType = this.parseTypeReference_();
         }
         break;
 
@@ -3771,7 +3771,7 @@ export class Parser {
 
       // TODO(arv): ParenthesizedType
       // case OPEN_PAREN:
-        
+
 
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
