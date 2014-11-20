@@ -22,7 +22,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 /**
  * Desugars property name shorthands.
  *
- * @see http://people.mozilla.org/~jorendorff/es6-draft.html#sec-11.1.5
+ * @see https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object-initializer
  */
 export class PropertyNameShorthandTransformer extends ParseTreeTransformer {
   transformPropertyNameShorthand(tree) {

@@ -1,4 +1,4 @@
-// Tests taken from http://mths.be/repeat
+// Tests taken from https://mths.be/repeat
 
 assert.equal(String.prototype.repeat.length, 1);
 

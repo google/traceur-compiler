@@ -29,7 +29,7 @@ export function isObject(x) {
   return x && (typeof x === 'object' || typeof x === 'function');
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
 export function isCallable(x) {
   return typeof x === 'function';
 }
@@ -38,7 +38,7 @@ export function isNumber(x) {
   return typeof x === 'number';
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
 export function toInteger(x) {
   x = +x;
   if ($isNaN(x)) return 0;
@@ -46,7 +46,7 @@ export function toInteger(x) {
   return x > 0 ? $floor(x) : $ceil(x);
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
 var MAX_SAFE_LENGTH = $pow(2, 53) - 1;
 
 export function toLength(x) {
@@ -54,12 +54,12 @@ export function toLength(x) {
   return len < 0 ? 0 : $min(len, MAX_SAFE_LENGTH);
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkiterable
 export function checkIterable(x) {
   return !isObject(x) ? undefined : x[Symbol.iterator];
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
 export function isConstructor(x) {
   return isCallable(x);
 }

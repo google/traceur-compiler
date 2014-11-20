@@ -29,7 +29,7 @@ import {
   toObject
 } from './utils.js';
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.1
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.from
 export function from(arrLike, mapFn = undefined, thisArg = undefined) {
   var C = this;
   var items = toObject(arrLike);
@@ -76,7 +76,7 @@ export function from(arrLike, mapFn = undefined, thisArg = undefined) {
   return arr;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.2.3
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.of
 export function of(...items) {
   var C = this;
   var len = items.length;
@@ -91,7 +91,7 @@ export function of(...items) {
   return arr;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.6
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.prototype.fill
 export function fill(value, start = 0, end = undefined) {
   var object = toObject(this);
   var len = toLength(object.length);
@@ -112,12 +112,12 @@ export function fill(value, start = 0, end = undefined) {
   return object;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.8
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.prototype.find
 export function find(predicate, thisArg = undefined) {
   return findHelper(this, predicate, thisArg);
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-22.1.3.9
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.prototype.findindex
 export function findIndex(predicate, thisArg = undefined) {
   return findHelper(this, predicate, thisArg, true);
 }

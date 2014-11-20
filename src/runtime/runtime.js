@@ -329,7 +329,7 @@
     return $Object(x);
   }
 
-  // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
+  // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
   function checkObjectCoercible(argument) {
     if (argument == null) {
       throw new TypeError('Value cannot be converted to an Object');
