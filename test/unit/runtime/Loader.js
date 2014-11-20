@@ -269,13 +269,21 @@ suite('Loader.js', function() {
 
   test('LoaderImport.Fail.deperror', function(done) {
     var reporter = new MutedErrorReporter();
-    getLoader(reporter).import('loads/main', {}).then(function(mod) {
-      fail('should not have succeeded')
-      done();
-    }, function(error) {
-      assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
-      done();
-    }).catch(done);
+    var metadata = {traceurOptions: {sourceMaps: 'memory'}};
+    getLoader(reporter).import('loads/main', {metadata:metadata}).then(
+      function(mod) {
+        fail('should not have succeeded')
+        done();
+      }, function(error) {
+        assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
+        var fs = require('fs');
+        var path = require('path');
+        var filename = path.resolve(__dirname,
+          'ModuleEvaluationErrorStack.txt');
+        var data = fs.readFileSync(filename, 'utf-8');
+        assert.equal(data, error.stack);
+        done();
+      }).catch(done);
   });
 
   test('LoaderImportWithReferrer', function(done) {

@@ -80,6 +80,36 @@
 
   }
 
+  function beforeLines(lines, number) {
+    var result = [];
+    var first = number - 3;
+    if (first < 0)
+      first = 0;
+    for(var i = first; i < number; i++) {
+      result.push(lines[i]);
+    }
+    return result;
+  }
+
+  function afterLines(lines, number) {
+    var last = number + 1;
+    if (last > lines.length - 1)
+      last = lines.length - 1;
+    var result = [];
+    for(var i = number; i <= last; i++) {
+      result.push(lines[i]);
+    }
+    return result;
+  }
+
+  function columnSpacing(columns) {
+    var result = '';
+    for(var i = 0; i < columns - 1; i++) {
+      result += '-';
+    }
+    return result;
+  }
+
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
     constructor(url, func) {
       super(url, null);
@@ -100,6 +130,29 @@
           ex.loadedBy(this.url);
           throw ex;
         }
+        if (ex.stack) {
+          // Assume V8 stack format
+          var lined = this.func.toString().split('\n')
+
+          var evaled = [];
+          ex.stack.split('\n').some(function(frame) {
+            // End when we find ourselves on the stack.
+            if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
+              return true;
+            var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
+            if (m) {
+              var line = parseInt(m[2], 10);
+              evaled = evaled.concat(beforeLines(lined, line));
+              evaled.push(columnSpacing(m[3]) + '^');
+              evaled = evaled.concat(afterLines(lined, line));
+              evaled.push('= = = = = = = = =');
+            } else {
+              evaled.push(frame);
+            }
+          });
+          ex.stack = evaled.join('\n');
+        }
+
         throw new ModuleEvaluationError(this.url, ex);
       }
     }
