@@ -2197,9 +2197,10 @@ export class Parser {
 
   parsePropertyVariableDeclaration_(start, isStatic, name, annotations) {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
+    var initializer = this.parseInitializerOpt_(Expression.NORMAL);
     this.eat_(SEMI_COLON);
     return new PropertyVariableDeclaration(this.getTreeLocation_(start),
-        isStatic, name, typeAnnotation, annotations);
+        isStatic, name, typeAnnotation, annotations, initializer);
   }
 
   parseClassElement2_(start, isStatic, annotations) {
@@ -3843,7 +3844,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(NEW);
     var typeParameters = this.parseTypeParametersOpt_();
-    this.eat_(OPEN_PAREN)
+    this.eat_(OPEN_PAREN);
     var parameterList = this.parseFormalParameters_();
     this.eat_(CLOSE_PAREN);
     this.eat_(ARROW);
