@@ -1121,6 +1121,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
     this.visitAny(tree.name);
     this.writeTypeAnnotation_(tree.typeAnnotation);
+    if (tree.initalizer) {
+      this.writeSpace_();
+      this.write_(EQUAL);
+      this.writeSpace_();
+      this.visitAny(tree.initializer);
+    }
     this.write_(SEMI_COLON);
   }
 

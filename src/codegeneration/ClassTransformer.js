@@ -25,10 +25,13 @@ import {
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {
+  CALL_EXPRESSION,
+  EXPRESSION_STATEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   PROPERTY_VARIABLE_DECLARATION,
-  SET_ACCESSOR
+  SET_ACCESSOR,
+  SUPER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {SuperTransformer} from './SuperTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
@@ -42,6 +45,7 @@ import {
   createMemberExpression,
   createObjectLiteralExpression,
   createParenExpression,
+  createPropertyNameAssignment,
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -52,6 +56,8 @@ import {
   parseStatements
 } from './PlaceholderParser.js';
 import {propName} from '../staticsemantics/PropName.js';
+import {options} from '../Options.js';
+import {prependStatements} from './PrependStatements.js';
 
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on
@@ -105,10 +111,11 @@ export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
     this.strictCount_ = 0;
     this.state_ = null;
+    this.reporter_ = reporter;
   }
 
   // Override to handle AnonBlock
@@ -160,16 +167,19 @@ export class ClassTransformer extends TempVarTransformer{
 
     var hasConstructor = false;
     var protoElements = [], staticElements = [];
-    var constructorBody, constructorParams;
+    var initInstanceVars = [], initStaticVars = [];
+    var constructor;
 
     tree.elements.forEach((tree) => {
-      var elements, homeObject;
+      var elements, homeObject, initVars;
       if (tree.isStatic) {
         elements = staticElements;
         homeObject = internalName;
+        initVars = initStaticVars;
       } else {
         elements = protoElements;
         homeObject = createMemberExpression(internalName, 'prototype');
+        initVars = initInstanceVars;
       }
 
       switch (tree.type) {
@@ -182,19 +192,21 @@ export class ClassTransformer extends TempVarTransformer{
           break;
 
         case PROPERTY_METHOD_ASSIGNMENT:
-          var transformed = this.transformPropertyMethodAssignment_(
-              tree, homeObject, internalName);
           if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             hasConstructor = true;
-            constructorParams = transformed.parameterList;
-            constructorBody = transformed.body;
+            constructor = tree;
           } else {
+            var transformed = this.transformPropertyMethodAssignment_(
+                tree, homeObject, internalName);
             elements.push(transformed);
           }
           break;
 
         case PROPERTY_VARIABLE_DECLARATION:
-          // we don't want the variable declarations in the output
+          this.transformAny(tree);
+          if (tree.initializer !== null) {
+            initVars.push(tree);
+          }
           break;
 
         default:
@@ -204,14 +216,21 @@ export class ClassTransformer extends TempVarTransformer{
 
     var object = createObjectLiteralExpression(protoElements);
     var staticObject = createObjectLiteralExpression(staticElements);
-
+    var initStatements = getInstanceInitStatements(initInstanceVars);
     var func;
+
     if (!hasConstructor) {
-      func = this.getDefaultConstructor_(tree, internalName);
+      func = this.getDefaultConstructor_(tree, internalName, initStatements);
     } else {
+      if (options.memberVariables) {
+        constructor = this.appendInstanceInitializers_(constructor,
+            initStatements, tree.superClass);
+      }
+      var homeObject = createMemberExpression(internalName, 'prototype');
+      var transformedCtor = this.transformPropertyMethodAssignment_(
+          constructor, homeObject, internalName);
       func = new FunctionExpression(tree.location, tree.name, false,
-                                    constructorParams, null, [],
-                                    constructorBody);
+          transformedCtor.parameterList, null, [], transformedCtor.body);
     }
 
     var state = this.state_;
@@ -223,6 +242,7 @@ export class ClassTransformer extends TempVarTransformer{
       object,
       staticObject,
       hasSuper: state.hasSuper,
+      initStaticVars,
     };
   }
 
@@ -245,11 +265,15 @@ export class ClassTransformer extends TempVarTransformer{
       hasSuper,
       object,
       staticObject,
-      superClass
+      superClass,
+      initStaticVars,
     } = this.transformClassElements_(tree, internalName);
 
     // TODO(arv): Use let.
     var statements = parseStatements `var ${name} = ${func}`;
+
+    staticObject = appendStaticInitializers(staticObject, initStaticVars);
+
     var expr = classCall(name, object, staticObject, superClass);
 
     if (hasSuper || referencesClassName) {
@@ -279,10 +303,13 @@ export class ClassTransformer extends TempVarTransformer{
       hasSuper,
       object,
       staticObject,
-      superClass
+      superClass,
+      initStaticVars,
     } = this.transformClassElements_(tree, name);
 
     var expression;
+
+    staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
     if (hasSuper || tree.name) {
       // We need a binding name that can be referenced in the super calls and
@@ -365,19 +392,93 @@ export class ClassTransformer extends TempVarTransformer{
     return transformedTree;
   }
 
-  getDefaultConstructor_(tree, internalName) {
+  getDefaultConstructor_(tree, internalName, initStatements) {
     var constructorParams = createEmptyParameterList();
     var constructorBody;
     if (tree.superClass) {
       var statement = parseStatement `$traceurRuntime.superConstructor(
           ${internalName}).apply(this, arguments)`;
-      constructorBody = createFunctionBody([statement]);
+      constructorBody = createFunctionBody([statement, ...initStatements]);
       this.state_.hasSuper = true;
     } else {
-      constructorBody = createFunctionBody([]);
+      constructorBody = createFunctionBody(initStatements);
     }
 
     return new FunctionExpression(tree.location, tree.name, false,
                                   constructorParams, null, [], constructorBody);
   }
+
+  appendInstanceInitializers_(constructor, initStatements, superClass) {
+    var statements = constructor.body.statements;
+
+    if (superClass) {
+      var superExpressionIndex = -1;
+
+      for (var index = 0; index < statements.length; index++) {
+        var statement = statements[index];
+        if (statement.isDirectivePrologue()) {
+          continue;
+        }
+        if (isSuper(statement)) {
+          superExpressionIndex = index;
+          break;
+        }
+        if (initStatements.length > 0) {
+          this.reporter_.reportError(statement.location.start,
+              'The first statement of the constructor must be a super ' +
+              'call when the memberVariables option is enabled and the ' +
+              'class contains initialized instance variables');
+        }
+      }
+
+      if (superExpressionIndex == -1) {
+        this.reporter_.reportError(constructor.location.start,
+            'Constructors of derived class must contain a super call ' +
+            'when the memberVariables option is enabled');
+      }
+      if (initStatements.length == 0) return constructor;
+      statements = statements.slice();
+      statements.splice(superExpressionIndex + 1, 0, ...initStatements);
+    } else {
+      if (initStatements.length == 0) return constructor;
+      statements = prependStatements(statements, ...initStatements);
+    }
+
+    return new PropertyMethodAssignment(constructor.location, false,
+        constructor.functionKind, constructor.name, constructor.parameterList,
+        constructor.typeAnnotation, constructor.annotations,
+        createFunctionBody(statements));
+  }
+}
+
+// TODO(vicb): Does not handle computed properties
+function appendStaticInitializers(staticObject, initStaticMemberVars) {
+  // Initializes static member variables
+  if (initStaticMemberVars.length == 0) return staticObject;
+
+  var properties =[];
+  for (var i = 0; i < initStaticMemberVars.length; i++) {
+    var mv = initStaticMemberVars[i];
+    properties.push(createPropertyNameAssignment(mv.name, mv.initializer));
+  }
+  return createObjectLiteralExpression(
+      staticObject.propertyNameAndValues.concat(properties));
+}
+
+// TODO(vicb): Does not handle computed properties
+function getInstanceInitStatements(initInstanceVars) {
+    // Compute instance member variable initialization statements
+    var initStatements = [];
+    for (var i = 0; i < initInstanceVars.length; i++) {
+      var mv = initInstanceVars[i];
+      var name = mv.name.literalToken;
+      initStatements.push(parseStatement `this.${name} = ${mv.initializer};`);
+    }
+  return initStatements;
+}
+
+function isSuper(statement) {
+  return statement.type === EXPRESSION_STATEMENT &&
+         statement.expression.type === CALL_EXPRESSION &&
+         statement.expression.operand.type === SUPER_EXPRESSION;
 }

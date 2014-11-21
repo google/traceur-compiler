@@ -940,6 +940,9 @@
     ],
     "annotations": [
       "Array<ParseTree>"
+    ],
+    "initializer": [
+      "ParseTree"
     ]
   },
   "PropertySignature": {

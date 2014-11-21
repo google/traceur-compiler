@@ -71,7 +71,7 @@ export class MemberVariableTransformer extends ParseTreeTransformer{
     var identifier = this.identifierGenerator_.generateUniqueIdentifier();
     var getter = this.createGetAccessor_(identifier, tree);
     var setter = this.createSetAccessor_(identifier, tree);
-    return new AnonBlock(tree.location, [getter, setter]);
+    return new AnonBlock(tree.location, [getter, setter, tree]);
   }
 
   createGetAccessor_(identifier, tree) {
