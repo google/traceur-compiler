@@ -297,4 +297,47 @@ suite('BlockBindingTransformer.js', function() {
       'let x = 1; { let y = class x {}; }',
       'var x = 1; { var y = class x {}; }');
 
+  makeTest('Siblings',
+      '{ let x = 1; }' +
+      '{ let x = 2; }' +
+      'x;',
+      // ======
+      '{ var x$__0 = 1; }' +
+      '{ var x$__1 = 2; }' +
+      'x;');
+
+  makeTest('Siblings 2',
+      '{ let x = 1; x; }' +
+      '{ let x = 2; x; }' +
+      'x;',
+      // ======
+      '{ var x$__0 = 1; x$__0; }' +
+      '{ var x$__1 = 2; x$__1; }' +
+      'x;');
+
+  makeTest('Siblings 3',
+      'function g() {' +
+      '  var zzz = 1;' +
+      '  function f() {' +
+      '    zzz;' +
+      '    {' +
+      '      let zzz = 2;' +
+      '      zzz;' +
+      '    }' +
+      '    zzz;' +
+      '  }' +
+      '}',
+      // ======
+      'function g() {' +
+      '  var zzz = 1;' +
+      '  function f() {' +
+      '    zzz;' +
+      '    {' +
+      '      var zzz$__0 = 2;' +
+      '      zzz$__0;' +
+      '    }' +
+      '    zzz;' +
+      '  }' +
+      '}');
+
 });

@@ -1,7 +1,8 @@
-// Error: :5:12: notNamedField is not defined
-
-var object = {
-  "notNamedField"() {
-    return notNamedField;
-  }
-};
+assert.throws(() => {
+  var object = {
+    "notNamedField"() {
+      return notNamedField;
+    }
+  };
+  object.notNamedField();
+}, ReferenceError);

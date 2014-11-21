@@ -28,7 +28,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
    */
   constructor(reporter) {
     super();
-    this.reporter_ = reporter;
+    this.reporter = reporter;
     this.declarationType_ = null;
   }
 
@@ -81,7 +81,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
         if (!this.scope.strictMode) {
           var varScope = this.scope.getVarScope();
           if (varScope) {
-            varScope.addVar(tree.name, this.reporter_);
+            varScope.addVar(tree.name, this.reporter);
           }
         }
         this.declarationType_ = LET;
@@ -126,6 +126,6 @@ export class ScopeChainBuilder extends ScopeVisitor {
   }
 
   declareVariable(tree) {
-    this.scope.addBinding(tree, this.declarationType_, this.reporter_);
+    this.scope.addBinding(tree, this.declarationType_, this.reporter);
   }
 }

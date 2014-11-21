@@ -35,11 +35,15 @@ export class ScopeVisitor extends ParseTreeVisitor {
     return this.map_.get(tree);
   }
 
+  createScope(tree) {
+    return new Scope(this.scope, tree);
+  }
+
   /**
    * @return {Scope}
    */
   pushScope(tree) {
-    var scope = new Scope(this.scope, tree);
+    var scope = this.createScope(tree);
     this.map_.set(tree, scope);
     return this.scope = scope;
   }

@@ -1,7 +1,3 @@
-// Options: --block-binding
-// Block binding is needed to get the right scoping semantics inside the catch
-// block.
-
 var head = 'head';
 var tail = 'tail';
 var name = 'name';
@@ -22,3 +18,13 @@ try {
 assert.equal('head', head);
 assert.equal('tail', tail);
 assert.equal('name', name);
+
+assert.throws(() => {
+  try {
+    throw [0];
+  } catch ([innerX]) {
+
+  }
+
+  innerX;
+}, ReferenceError);
