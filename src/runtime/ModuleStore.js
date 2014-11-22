@@ -85,7 +85,7 @@
     var first = number - 3;
     if (first < 0)
       first = 0;
-    for(var i = first; i < number; i++) {
+    for (var i = first; i < number; i++) {
       result.push(lines[i]);
     }
     return result;
@@ -96,7 +96,7 @@
     if (last > lines.length - 1)
       last = lines.length - 1;
     var result = [];
-    for(var i = number; i <= last; i++) {
+    for (var i = number; i <= last; i++) {
       result.push(lines[i]);
     }
     return result;
@@ -104,7 +104,7 @@
 
   function columnSpacing(columns) {
     var result = '';
-    for(var i = 0; i < columns - 1; i++) {
+    for (var i = 0; i < columns - 1; i++) {
       result += '-';
     }
     return result;
@@ -132,7 +132,7 @@
         }
         if (ex.stack) {
           // Assume V8 stack format
-          var lined = this.func.toString().split('\n')
+          var lines = this.func.toString().split('\n')
 
           var evaled = [];
           ex.stack.split('\n').some(function(frame) {
@@ -142,9 +142,9 @@
             var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
             if (m) {
               var line = parseInt(m[2], 10);
-              evaled = evaled.concat(beforeLines(lined, line));
+              evaled = evaled.concat(beforeLines(lines, line));
               evaled.push(columnSpacing(m[3]) + '^');
-              evaled = evaled.concat(afterLines(lined, line));
+              evaled = evaled.concat(afterLines(lines, line));
               evaled.push('= = = = = = = = =');
             } else {
               evaled.push(frame);

@@ -270,7 +270,7 @@ suite('Loader.js', function() {
   test('LoaderImport.Fail.deperror', function(done) {
     var reporter = new MutedErrorReporter();
     var metadata = {traceurOptions: {sourceMaps: 'memory'}};
-    getLoader(reporter).import('loads/main', {metadata:metadata}).then(
+    getLoader(reporter).import('loads/main', {metadata: metadata}).then(
       function(mod) {
         fail('should not have succeeded')
         done();
