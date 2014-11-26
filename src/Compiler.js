@@ -224,9 +224,11 @@ export class Compiler {
    * @param {ParseTree} tree
    * @param {string} outputName used for sourceMap URL and default sourceRoot.
    * @param {string} sourceRoot base for sourceMap sources
+   * @param {string} sourceURL value for sourceURL
    * @return {string}
    */
-  write(tree, outputName = undefined, sourceRoot = undefined) {
+  write(tree, outputName = undefined, sourceRoot = undefined,
+      sourceURL = undefined) {
     outputName = this.normalize(outputName);
     sourceRoot = this.normalize(sourceRoot);
 
@@ -244,10 +246,22 @@ export class Compiler {
 
     var compiledCode = writer.toString();
 
+    if (!compiledCode)
+      return;
+
     if (this.sourceMapGenerator_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
+      // The source map info for im-memory maps
+      this.sourceMapInfo_ = {
+        url: sourceURL || outputName,
+        map: this.getSourceMap()
+      };
     }
+
+    if (sourceURL)
+      compiledCode += '//# sourceURL=' + sourceURL;
+
     return compiledCode;
   }
 
@@ -256,11 +270,6 @@ export class Compiler {
   }
 
   sourceMappingURL(filename) {
-    // The source map info for im-memory maps
-    this.sourceMapInfo_ = {
-      url: filename,
-      map: this.getSourceMap()
-    };
     // This implementation works for browsers. The NodeCompiler overrides
     // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {

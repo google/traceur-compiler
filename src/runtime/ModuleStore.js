@@ -139,6 +139,8 @@
             // End when we find ourselves on the stack.
             if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
               return true;
+            // The angle bracket in the regexp will hit on evaled frames
+            // and miss on eg node compiled frames.
             var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
             if (m) {
               var line = parseInt(m[2], 10);
