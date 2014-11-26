@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.75",
+  "version": "0.0.79",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -23,9 +23,9 @@
     "traceur": "./traceur"
   },
   "files": [
-    "src/node/*.js",
     "bin/traceur.js",
     "bin/traceur-runtime.js",
+    "src/node/*.js",
     "traceur"
   ],
   "scripts": {
@@ -55,7 +55,7 @@
     "node-uuid": "1.x",
     "requirejs": "2.x",
     "semver": "2.x",
-    "traceur": "0.0.74",
+    "traceur": "0.0.78",
     "promises-aplus-tests": "2.x"
   },
   "subdomain": "traceur"
