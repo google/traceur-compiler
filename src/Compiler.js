@@ -144,7 +144,9 @@ export class Compiler {
         moduleName = sourceName;
     }
     tree = this.transform(tree, moduleName);
-    return this.write(tree, outputName, sourceRoot);
+    // Attach the sourceURL only if the input and output names differ.
+    var sourceURL = sourceName !== outputName ? sourceName : undefined;
+    return this.write(tree, outputName, sourceRoot, sourceName);
   }
 
   throwIfErrors(errorReporter) {
