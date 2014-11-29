@@ -83,11 +83,11 @@ class CodeUnit {
     return this.state_;
   }
 
-  set state(state) {
-    if (state < this.state_) {
+  set state(value) {
+    if (value < this.state_) {
       throw new Error('Invalid state change');
     }
-    this.state_ = state;
+    this.state_ = value;
   }
 
   /**
