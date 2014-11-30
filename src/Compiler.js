@@ -249,7 +249,8 @@ export class Compiler {
     var compiledCode = writer.toString();
 
     if (this.sourceMapConfiguration_) {
-      var sourceMappingURL = this.sourceMappingURL(outputName);
+      var sourceMappingURL =
+          this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
       this.sourceMapInfo_ = {
@@ -279,7 +280,7 @@ export class Compiler {
       }
     }
     filename = filename || 'unamed.js';
-    return filename.split('/').pop().replace(/\.[^.]+$/, '.map');
+    return filename.replace(/\.[^.]+$/, '.map');
   }
 
   sourceNameFromTree(tree) {
