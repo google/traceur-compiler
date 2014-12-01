@@ -15,6 +15,7 @@
 'use strict';
 
 var path = require('path');
+var glob = require('glob');
 var commandLine;
 var cmdName = path.basename(process.argv[1]);
 try {
@@ -128,23 +129,55 @@ if (!shouldExit && !rootSources.length) {
 
 var out = commandLine.out;
 var dir = commandLine.dir;
+
+function compileOut (out, sources, options) {
+  var isSingleFileCompile = /\.js$/.test(out);
+  if (!isSingleFileCompile) {
+    traceurAPI.forEachRecursiveModuleCompile(out, sources,
+      options);
+  } else {
+    traceurAPI.recursiveModuleCompileToSingleFile(out, sources,
+      options).then(function () {
+        process.exit(0);
+      }).catch(function (err) {
+        var errors = err.errors || [err];
+        errors.forEach(function (err) {
+          console.error(err.stack || err);
+        });
+        process.exit(1);
+      });
+  }
+}
+
+
 if (!shouldExit) {
   if (out) {
-    var isSingleFileCompile = /\.js$/.test(out);
-    if (isSingleFileCompile) {
-      traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
-        commandOptions).then(function() {
-          process.exit(0);
-        }).catch(function(err) {
-          var errors = err.errors || [err];
-          errors.forEach(function(err) {
-            console.error(err.stack || err);
-          });
-          process.exit(1);
-        });
+    var magicSources = [];
+    var processedSources = 0;
+    for (var i = 0, l = rootSources.length; i < l; i++){
+      if (glob.hasMagic(rootSources[i].name)){
+        magicSources.push(rootSources[i]);
+        rootSources.splice(i, 1);
+      }
+    }
+    if (!magicSources.length) {
+      compileOut(out, rootSources, commandOptions);
     } else {
-      traceurAPI.forEachRecursiveModuleCompile(out, rootSources,
-          commandOptions);
+      magicSources.forEach(function(item){
+        glob(item.name, {}, function(err, matches){
+          if (err) throw new Error('While scanning ' + item.name + ': ' + err);
+          for (var i = 0, l = matches.length; i<l; i++){
+            var magicSource = {name: matches[i]};
+            if (item.type) magicSource.type = item.type;
+            if (item.format) magicSource.format = item.format;
+            rootSources.push(magicSource);
+          }
+          processedSources += 1;
+          if (processedSources == magicSources.length) {
+            compileOut(out, rootSources, commandOptions);
+          }
+        });
+      });
     }
   } else if (dir) {
     if (rootSources.length !== 1)
