@@ -85,7 +85,7 @@ export var transformOptions = Object.create(null);
 
 var defaultValues = Object.create(null);
 var experimentalOptions = Object.create(null);
-var moduleOptions = ['amd', 'commonjs', 'instantiate', 'inline', 'register'];
+var moduleOptions = ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
 
 export class Options {
 

@@ -106,6 +106,20 @@ export class Compiler {
     return merge(amdOptions, options);
   }
   /**
+   * Options to create 'goog'/Closure module format.
+   *
+   * @param  {Object=} options Traceur options to override defaults.
+   * @return {Object}
+   */
+  static closureOptions(options = {}) {
+    var closureOptions = {
+      modules: 'closure',
+      sourceMaps: false,
+      moduleName: true
+    };
+    return merge(closureOptions, options);
+  }
+  /**
    * Options to create 'commonjs' module format.
    *
    * @param  {Object=} options Traceur options to override defaults.
@@ -175,12 +189,23 @@ export class Compiler {
   /**
    * Apply transformations selected by options to tree.
    * @param {ParseTree} tree
-   * @param {string} moduleName Value for __moduleName or true
-   *     to use input filename.
+   * @param {string} moduleName value for __moduleName if any
+   * @param {string} sourceName used as the moduleName if defined and requested
+   *     by the module system configuration.
    * @return {ParseTree}
    */
-  transform(tree, moduleName = undefined) {
+  transform(tree, moduleName = undefined, sourceName = undefined) {
     var transformer;
+
+    if (!moduleName && this.options_.moduleName) {
+      // this.options_.moduleName is true or non-empty string.
+      if (typeof this.options_.moduleName === 'string') {
+        moduleName = this.options_.moduleName;
+      } else {
+        // use filename as moduleName
+        moduleName = sourceName;
+      }
+    }
 
     if (moduleName) {
       var transformer = new AttachModuleNameTransformer(moduleName);

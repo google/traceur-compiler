@@ -1,0 +1,4 @@
+goog.module("test/closure/deps/export-named.js");
+var $__test_47_closure_47_deps_47_foo_46_js__ = goog.require("./foo.js");
+exports = {Foo: $__test_47_closure_47_deps_47_foo_46_js__.Foo};
+//# sourceURL=test/closure/deps/export-named.js

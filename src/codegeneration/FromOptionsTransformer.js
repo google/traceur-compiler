@@ -19,6 +19,7 @@ import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
 import {BlockBindingTransformer} from './BlockBindingTransformer.js';
 import {ClassTransformer} from './ClassTransformer.js';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer.js';
+import {ClosureModuleTransformer} from './ClosureModuleTransformer.js';
 import {ExponentiationTransformer} from './ExponentiationTransformer.js';
 import {validate as validateConst} from '../semantics/ConstChecker.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer.js';
@@ -126,6 +127,9 @@ export class FromOptionsTransformer extends MultiTransformer {
           break;
         case 'amd':
           append(AmdTransformer);
+          break;
+        case 'closure':
+          append(ClosureModuleTransformer);
           break;
         case 'inline':
           append(InlineModuleTransformer);

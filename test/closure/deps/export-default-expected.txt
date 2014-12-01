@@ -1,0 +1,4 @@
+goog.module("test/closure/deps/export-default.js");
+var $__default = 'default from foo.js';
+exports = {default: $__default};
+//# sourceURL=test/closure/deps/export-default.js
