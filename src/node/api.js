@@ -54,5 +54,6 @@ module.exports = {
   compile: compile,
   commonJSOptions: Compiler.commonJSOptions,
   amdOptions: Compiler.amdOptions,
+  closureOptions: Compiler.closureOptions,
   RUNTIME_PATH: RUNTIME_PATH
 };

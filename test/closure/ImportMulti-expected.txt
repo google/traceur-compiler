@@ -1,0 +1,6 @@
+goog.module("test/closure/ImportMulti.js");
+var $__0 = goog.require("./deps/foo"),
+    Foo = $__0.Foo,
+    Bar = $__0.Bar;
+console.log(Foo);
+//# sourceURL=test/closure/ImportMulti.js

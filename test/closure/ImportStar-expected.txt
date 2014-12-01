@@ -1,0 +1,4 @@
+goog.module("test/closure/ImportStar.js");
+var foo = goog.require("./deps/foo.js");
+console.log(foo.Foo);
+//# sourceURL=test/closure/ImportStar.js

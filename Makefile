@@ -57,6 +57,7 @@ UNIT_TESTS = \
 TESTS = \
 	test/node-commonjs-test.js \
 	test/node-amd-test.js \
+	test/node-closure-test.js \
 	test/node-instantiate-test.js \
 	test/node-feature-test.js \
 	test/node-api-test.js \
@@ -112,6 +113,9 @@ test/commonjs: test/commonjs-compiled
 
 test/amd: test/amd-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-amd-test.js
+
+test/closure:
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-closure-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(MOCHAX) test/node-feature-test.js
