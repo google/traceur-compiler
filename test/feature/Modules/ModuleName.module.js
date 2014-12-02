@@ -1,1 +1,1 @@
-assert.equal(__moduleName, 'feature/Modules/ModuleName.module.js');
+assert.equal(__moduleName, 'test/feature/Modules/ModuleName.module.js');

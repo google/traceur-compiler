@@ -276,13 +276,15 @@ suite('Loader.js', function() {
         done();
       }, function(error) {
         assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
-        var fs = require('fs');
-        var path = require('path');
-        var filename = path.resolve(__dirname,
-          'ModuleEvaluationErrorStack.txt');
-        var data = fs.readFileSync(filename, 'utf-8');
-        assert.equal(data, error.stack);
-        done();
+        fileLoader.load('test/unit/runtime/ModuleEvaluationErrorStack.txt',
+          function(data) {
+            assert.equal(data, error.stack);
+            done();
+          }, function(ex) {
+            console.error('LoaderImport.Fail.deperror fails', ex.stack ||ex);
+            done();
+          });
+
       }).catch(done);
   });
 
