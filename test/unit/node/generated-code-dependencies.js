@@ -232,7 +232,7 @@ suite('context test', function() {
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/iAmScript.js';
+    var inputFileName = './test/unit/node/resources/iAmScript.js';
     exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
@@ -246,8 +246,8 @@ suite('context test', function() {
   test('script depends on module global', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/scriptUsesModuleGlobal.js';
-    var inputModuleName = './unit/node/resources/moduleSetsGlobal.js';
+    var inputFileName = './test/unit/node/resources/scriptUsesModuleGlobal.js';
+    var inputModuleName = './test/unit/node/resources/moduleSetsGlobal.js';
     exec(executable + ' --out ' + tempFileName + ' --module ' + inputModuleName +
         ' --script ' + inputFileName,
         function(error, stdout, stderr) {
@@ -266,8 +266,8 @@ suite('context test', function() {
   test('compiled modules mix inline & script', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var scriptFileName = './unit/node/resources/scriptUsesModuleGlobal.js';
-    var inlineFileName = './unit/node/resources/moduleSetsGlobal.js';
+    var scriptFileName = './test/unit/node/resources/scriptUsesModuleGlobal.js';
+    var inlineFileName = './test/unit/node/resources/moduleSetsGlobal.js';
     var command = executable + ' --out ' + tempFileName +
       ' --modules=inline ' + inlineFileName + ' --script ' + scriptFileName;
     exec(command,
@@ -287,7 +287,7 @@ suite('context test', function() {
   test('script option loads .es file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/iAmScriptAlso.es';
+    var inputFileName = './test/unit/node/resources/iAmScriptAlso.es';
     exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
         function(error, stdout, stderr) {
           assert.isNull(error);
@@ -299,7 +299,7 @@ suite('context test', function() {
   });
 
   test('./traceur can mix require() and import', function(done) {
-    var cmd = 'cd ..;./traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
+    var cmd = './traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       assert.equal('we have path and x=x and aNodeExport=intoTraceur\n', stdout);
@@ -309,7 +309,7 @@ suite('context test', function() {
 
   test('./traceur warns if the runtime is missing', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
-    var cmd = 'cd ..;./traceur --modules=commonjs --out ' + tempFileName +
+    var cmd = './traceur --modules=commonjs --out ' + tempFileName +
         ' ./src/runtime/generators.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -323,7 +323,7 @@ suite('context test', function() {
   });
 
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
-    var cmd = 'cd ..;./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
+    var cmd = './traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
     exec(cmd, function(error, stdout, stderr) {
       var m = /Test error on line ([0-9]*)/.exec(error);
       assert(m && m[1], 'The evaluation should fail with the thrown error');
@@ -335,8 +335,8 @@ suite('context test', function() {
 
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputDir = './unit/node/resources/compile-dir';
-    var outDir = './unit/node/resources/compile-amd';
+    var inputDir = './test/unit/node/resources/compile-dir';
+    var outDir = './test/unit/node/resources/compile-amd';
     var cmd = executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -350,8 +350,8 @@ suite('context test', function() {
 
   test('compile module dir option CommonJS', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputDir = './unit/node/resources/compile-dir';
-    var outDir = './unit/node/resources/compile-cjs';
+    var inputDir = './test/unit/node/resources/compile-dir';
+    var outDir = './test/unit/node/resources/compile-cjs';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
@@ -365,7 +365,7 @@ suite('context test', function() {
   test('use a pattern that does not match any source', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/*someNonExistentPattern';
+    var inputFileName = './test/unit/node/resources/*someNonExistentPattern';
 
     exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
       function(error, stdout, stderr) {
@@ -377,7 +377,7 @@ suite('context test', function() {
   test('use a pattern to match sources for compilation', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/glob-pattern-?.js';
+    var inputFileName = './test/unit/node/resources/glob-pattern-?.js';
 
     exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
       function(error, stdout, stderr) {
@@ -393,8 +393,8 @@ suite('context test', function() {
   test('use a pattern and a normal file name to match sources', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './unit/node/resources/glob-pattern-?.js';
-    var inputAnotherFile = './unit/node/resources/glob-normal.js';
+    var inputFileName = './test/unit/node/resources/glob-pattern-?.js';
+    var inputAnotherFile = './test/unit/node/resources/glob-normal.js';
 
     exec(executable + ' --out ' + tempFileName + ' --modules=inline ' + inputFileName + ' --script ' + inputAnotherFile,
       function(error, stdout, stderr) {

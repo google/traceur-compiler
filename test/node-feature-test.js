@@ -25,6 +25,4 @@ var testList = require('./test-list.js').testList;
 var nodeLoader = require('../src/node/nodeLoader.js');
 var System = require('../src/node/System.js');
 
-process.chdir('test');
-
 featureSuite(testList, nodeLoader);
