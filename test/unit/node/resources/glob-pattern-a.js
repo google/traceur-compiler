@@ -1,0 +1,1 @@
+this.anotherResult = 17;

@@ -360,5 +360,52 @@ suite('context test', function() {
       assert.equal(depContents + '', "\"use strict\";\nObject.defineProperties(exports, {\n  q: {get: function() {\n      return q;\n    }},\n  __esModule: {value: true}\n});\nvar q = 'q';\n");
       done();
     });
-  })
+  });
+
+  test('use a pattern that does not match any source', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/*someNonExistentPattern';
+
+    exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
+      function(error, stdout, stderr) {
+        assert.isNull(error);
+        done();
+      });
+  });
+
+  test('use a pattern to match sources for compilation', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/glob-pattern-?.js';
+
+    exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
+      function(error, stdout, stderr) {
+        assert.isNull(error);
+        executeFileWithRuntime(tempFileName).then(function() {
+          assert.equal(global.someResult, 42);
+          assert.equal(global.anotherResult, 17);
+          done();
+        }).catch(done);
+      });
+  });
+
+  test('use a pattern and a normal file name to match sources', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = './unit/node/resources/glob-pattern-?.js';
+    var inputAnotherFile = './unit/node/resources/glob-normal.js';
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=inline ' + inputFileName + ' --script ' + inputAnotherFile,
+      function(error, stdout, stderr) {
+        assert.isNull(error);
+        executeFileWithRuntime(tempFileName).then(function() {
+          assert.equal(global.someResult, 42);
+          assert.equal(global.anotherResult, 17);
+          assert.equal(global.normalResult, true);
+          done();
+        }).catch(done);
+      });
+  });
+
 });
