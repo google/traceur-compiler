@@ -25,6 +25,10 @@ var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 
 var cwd = process.cwd();
 
+function revertCwd(){
+  process.chdir(cwd);
+}
+
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   return new Promise(function (resolve, reject) {
@@ -52,7 +56,10 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
       compiler.writeTreeToFile(tree, resolvedOutputFile);
       process.chdir(cwd);
       resolve();
-    }, reject);
+    }, function(){
+      revertCwd();
+      reject.apply(null, arguments);
+    });
   });
 }
 
