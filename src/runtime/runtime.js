@@ -337,30 +337,6 @@
     return argument;
   }
 
-  var path = typeof require !== 'undefined' && require('path');
-
-  function relativeRequire(callerPath, requiredPath) {
-    // nodejs wants require(path) to load files relative to the directory
-    // containing the source of the caller.  If source of the caller is an ES6
-    // module, the node parent module path will not be correct. Let's fix that.
-    function isDirectory(path) {
-      return (path.slice(-1) === '/');
-    }
-    function isAbsolute(path) {
-      return (path.charAt(0) === '/')
-    }
-    function isRelative(path) {
-      return (path.charAt(0) === '.');
-    }
-    // These guards mimic nodejs Module._findPath
-    if (isDirectory(requiredPath) || isAbsolute(requiredPath))
-      return;
-
-    return isRelative(requiredPath) ?
-        require(path.resolve(path.dirname(callerPath), requiredPath)) :
-        require(requiredPath);
-  }
-
   function polyfillSymbol(global, Symbol) {
     if (!global.Symbol) {
       global.Symbol = Symbol;
@@ -395,7 +371,6 @@
     isSymbolString: isSymbolString,
     keys: $keys,
     setupGlobals: setupGlobals,
-    require: relativeRequire,
     toObject: toObject,
     toProperty: toProperty,
     typeof: typeOf,

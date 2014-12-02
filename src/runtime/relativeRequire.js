@@ -18,20 +18,23 @@
 (function() {
   'use strict';
 
-  var path = typeof require !== 'undefined' && require('path');
+  var path;
 
   function relativeRequire(callerPath, requiredPath) {
     // nodejs wants require(path) to load files relative to the directory
     // containing the source of the caller.  If source of the caller is an ES6
     // module, the node parent module path will not be correct. Let's fix that.
+
+    path = path || typeof require !== 'undefined' && require('path');
+
     function isDirectory(path) {
-      return path.slice(-1) === '/';
+      return (path.slice(-1) === '/');
     }
     function isAbsolute(path) {
-      return path[0] === '/';
+      return (path.charAt(0) === '/')
     }
     function isRelative(path) {
-      return path[0] === '.';
+      return (path.charAt(0) === '.');
     }
     // These guards mimic nodejs Module._findPath
     if (isDirectory(requiredPath) || isAbsolute(requiredPath))
