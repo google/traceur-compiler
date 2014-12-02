@@ -28,13 +28,13 @@
     path = path || typeof require !== 'undefined' && require('path');
 
     function isDirectory(path) {
-      return (path.slice(-1) === '/');
+      return path.slice(-1) === '/';
     }
     function isAbsolute(path) {
-      return (path.charAt(0) === '/')
+      return path[0] === '/';
     }
     function isRelative(path) {
-      return (path.charAt(0) === '.');
+      return path[0] === '.';
     }
     // These guards mimic nodejs Module._findPath
     if (isDirectory(requiredPath) || isAbsolute(requiredPath))
