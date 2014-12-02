@@ -248,9 +248,6 @@ export class Compiler {
 
     var compiledCode = writer.toString();
 
-    if (!compiledCode)
-      return;
-
     if (this.sourceMapGenerator_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';

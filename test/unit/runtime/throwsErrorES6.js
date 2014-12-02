@@ -1,6 +1,6 @@
 export class A {
-	foo() {
-		throw new Error('test-intepreter');
-	}
+  foo() {
+    throw new Error('test-intepreter');
+  }
 }
 
