@@ -25,9 +25,13 @@ var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 
 var cwd = process.cwd();
 
+function revertCwd() {
+  process.chdir(cwd);
+}
+
 
 function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var resolvedOutputFile = path.resolve(outputFile);
     var outputDir = path.dirname(resolvedOutputFile);
 
@@ -50,9 +54,12 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
 
     recursiveModuleCompile(resolvedIncludes, options, function(tree) {
       compiler.writeTreeToFile(tree, resolvedOutputFile);
-      process.chdir(cwd);
+      revertCwd();
       resolve();
-    }, reject);
+    }, function() {
+      revertCwd();
+      reject.apply(null, arguments);
+    });
   });
 }
 
