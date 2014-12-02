@@ -15,19 +15,19 @@
 import {
   ARGUMENTS,
   THIS
-} from '../syntax/PredefinedName';
-import {AlphaRenamer} from './AlphaRenamer';
-import {FindInFunctionScope} from './FindInFunctionScope';
+} from '../syntax/PredefinedName.js';
+import {AlphaRenamer} from './AlphaRenamer.js';
+import {FindInFunctionScope} from './FindInFunctionScope.js';
 
 /**
  * This is used to find whether a function contains a reference to 'this' or
  * 'arguments'.
  */
 class FindThisOrArguments extends FindInFunctionScope {
-  constructor(tree) {
+  constructor() {
+    super();
     this.foundThis = false;
     this.foundArguments = false;
-    super(tree);
   }
   visitThisExpression(tree) {
     this.foundThis = true;
@@ -42,7 +42,8 @@ class FindThisOrArguments extends FindInFunctionScope {
 }
 
 export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
-  var finder = new FindThisOrArguments(tree);
+  var finder = new FindThisOrArguments();
+  finder.visitAny(tree);
   if (finder.foundArguments) {
     var argumentsTempName = tempVarTransformer.addTempVarForArguments();
     tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);

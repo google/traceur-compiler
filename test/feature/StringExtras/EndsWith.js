@@ -1,4 +1,4 @@
-// Tests taken from http://mths.be/endswith
+// Tests taken from https://mths.be/endswith
 
 assert.equal(String.prototype.endsWith.length, 1);
 
@@ -170,7 +170,7 @@ assert.equal('[a-z]+(bar)?'.endsWith('[a-z]+', 6), true);
 assert.throw(function() { '[a-z]+(bar)?'.endsWith(/(bar)?/); }, TypeError);
 assert.throw(function() { '[a-z]+/(bar)?/'.endsWith(/(bar)?/); }, TypeError);
 
-// http://mathiasbynens.be/notes/javascript-unicode#poo-test
+// https://mathiasbynens.be/notes/javascript-unicode#poo-test
 var string = 'I\xF1t\xEBrn\xE2ti\xF4n\xE0liz\xE6ti\xF8n\u2603\uD83D\uDCA9';
 assert.equal(string.endsWith(''), true);
 assert.equal(string.endsWith('\xF1t\xEBr'), false);

@@ -17,8 +17,8 @@
 //   https://github.com/slightlyoff/Promises/blob/master/src/Promise.js
 //   https://github.com/domenic/promises-unwrapping/blob/master/testable-implementation.js
 
-import async from '../../../node_modules/rsvp/lib/rsvp/asap';
-import {registerPolyfill} from './utils';
+import async from '../../../node_modules/rsvp/lib/rsvp/asap.js';
+import {registerPolyfill} from './utils.js';
 
 // Status values: 0 = pending, +1 = resolved, -1 = rejected
 

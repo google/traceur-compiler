@@ -17,8 +17,8 @@ import {
   createBreakStatement,
   createCaseClause,
   createNumberLiteral
-} from '../ParseTreeFactory';
-import {parseStatement} from '../PlaceholderParser';
+} from '../ParseTreeFactory.js';
+import {parseStatement} from '../PlaceholderParser.js';
 
 /**
  * A State in the generator state machine.

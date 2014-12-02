@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as ParseTreeType from './ParseTreeType';
+import * as ParseTreeType from './ParseTreeType.js';
 import {
   IDENTIFIER,
   STAR,
   STRING,
   VAR,
-} from '../TokenType';
-import {Token} from '../Token';
-import * as utilJSON from '../../util/JSON';
-import {ASYNC} from '../PredefinedName';
+} from '../TokenType.js';
+import {Token} from '../Token.js';
+import * as utilJSON from '../../util/JSON.js';
+import {ASYNC} from '../PredefinedName.js';
 
 import {
   ARRAY_COMPREHENSION,
@@ -55,6 +55,7 @@ import {
   IF_STATEMENT,
   IMPORTED_BINDING,
   IMPORT_DECLARATION,
+  INTERFACE_DECLARATION,
   LABELLED_STATEMENT,
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
@@ -84,7 +85,7 @@ import {
   WHILE_STATEMENT,
   WITH_STATEMENT,
   YIELD_EXPRESSION
-} from './ParseTreeType';
+} from './ParseTreeType.js';
 
 export {ParseTreeType};
 
@@ -323,6 +324,7 @@ export class ParseTree {
       case EXPORT_DECLARATION:
       case FUNCTION_DECLARATION:
       case IMPORT_DECLARATION:
+      case INTERFACE_DECLARATION:
       case MODULE_DECLARATION:
       case VARIABLE_DECLARATION:
         return true;

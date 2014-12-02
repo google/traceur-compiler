@@ -1,8 +1,8 @@
 var fs = require('fs');
-var System = require('../src/node/System');
+var System = require('../src/node/System.js');
 
 System.baseURL = __filename;
-System.import('./findUnusedImports').then(function(m) {
+System.import('./findUnusedImports.js').then(function(m) {
   var code = m.main(fs);
   process.exit(code);
 }).catch(function(err) {

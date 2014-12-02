@@ -17,13 +17,13 @@ import {
   LITERAL_EXPRESSION,
   PAREN_EXPRESSION,
   UNARY_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   UNDEFINED
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   VOID
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 
 /**
  * @param {Array.<ParseTree>} list

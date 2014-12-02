@@ -1,5 +1,5 @@
 // Options: --annotations
-import {Anno} from './resources/setup';
+import {Anno} from './resources/setup.js';
 
 @Anno('Test')
 class Test {

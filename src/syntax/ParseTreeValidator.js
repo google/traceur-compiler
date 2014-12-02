@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {NewExpression} from '../syntax/trees/ParseTrees';
-import {ParseTreeVisitor} from './ParseTreeVisitor';
-import {TreeWriter} from '../outputgeneration/TreeWriter';
+import {NewExpression} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeVisitor} from './ParseTreeVisitor.js';
+import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {
   AMPERSAND,
   AMPERSAND_EQUAL,
@@ -56,7 +56,7 @@ import {
   STRING,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from './TokenType';
+} from './TokenType.js';
 import {
   ARRAY_PATTERN,
   ASSIGNMENT_ELEMENT,
@@ -96,10 +96,11 @@ import {
   TEMPLATE_SUBSTITUTION,
   TYPE_ARGUMENTS,
   TYPE_NAME,
+  TYPE_PARAMETER,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
-} from './trees/ParseTreeType';
-import {assert} from '../util/assert';
+} from './trees/ParseTreeType.js';
+import {assert} from '../util/assert.js';
 
 /*
 TODO: add contextual information to the validator so we can check
@@ -1014,6 +1015,29 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitTypeReference(tree) {
     this.checkType_(TYPE_NAME, tree.typeName, 'typeName must be a TypeName');
     this.checkType_(TYPE_ARGUMENTS, tree.args, 'args must be a TypeArguments');
+  }
+
+  /**
+   * @param {TypeParameters} tree
+   */
+  visitTypeParameters(tree) {
+    var {parameters} = tree;
+    for (var i = 0; i < parameters.length; i++) {
+      this.checkType_(TYPE_PARAMETER, parameters[i],
+                      'Type parameters must all be type parameters');
+    }
+  }
+
+  /**
+   * @param {TypeParameter} tree
+   */
+  visitTypeParameter(tree) {
+    this.check_(tree.identifierToken.type === IDENTIFIER, tree,
+                'Type parameter must be an identifier token');
+    if (tree.extendsType) {
+      this.checkVisit_(tree.extendsType.isType(), tree.extendsType,
+                       'extends type must be a type expression');
+    }
   }
 
   /**

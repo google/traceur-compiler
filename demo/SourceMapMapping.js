@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {SourceMapConsumer, join}
-    from '../src/outputgeneration/SourceMapIntegration';
+    from '../src/outputgeneration/SourceMapIntegration.js';
 
 
 export class SourceMapMapping {

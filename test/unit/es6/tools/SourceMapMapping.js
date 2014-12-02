@@ -14,20 +14,27 @@
 
 
 import {SourceMapConsumer}
-    from '../../../../src/outputgeneration/SourceMapIntegration';
-import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping';
+    from '../../../../src/outputgeneration/SourceMapIntegration.js';
+import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping.js';
 
+var path = 'test/unit/runtime/test_a.js';
+var input = './' + path;
+var output = '/work/traceur-compiler/' + path;
 // Force sourceMaps on for test.
-var metadata = {traceurOptions: {sourceMaps: true}};
+var importOptions = {
+  metadata: {
+    traceurOptions: {sourceMaps: true},
+    outputName: output
+  }
+};
 
-var testModuleName = System.normalize('./test/unit/runtime/test_a');
 var whenSourceMapMapping =
-    System.import(testModuleName, {metadata: metadata}).then(() => {
-  var sourceMapInfo = System.sourceMapInfo(testModuleName, 'module');
-  if (!sourceMapInfo || !sourceMapInfo.sourceMap)
-    throw new Error('No source map for ' + testModuleName);
-  var consumer = new SourceMapConsumer(sourceMapInfo.sourceMap);
-  var sourceMapMapping = new OriginalSourceMapMapping(consumer);
+    System.import(input, importOptions).then((imported) => {
+  var map = System.getSourceMap(output);
+  if (!map)
+    throw new Error('No source map for ' + output);
+  var consumer = new SourceMapConsumer(map);
+  var sourceMapMapping = new OriginalSourceMapMapping(consumer, output);
   return sourceMapMapping;
 }).catch(function(ex) {
   console.error(ex.stack || ex);

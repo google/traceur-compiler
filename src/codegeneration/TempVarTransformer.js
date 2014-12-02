@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   Module,
   Script
-} from '../syntax/trees/ParseTrees';
-import {ARGUMENTS} from '../syntax/PredefinedName';
-import {VAR} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTrees.js';
+import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createFunctionBody,
   createThisExpression,
@@ -26,8 +26,8 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory';
-import {prependStatements} from './PrependStatements';
+} from './ParseTreeFactory.js';
+import {prependStatements} from './PrependStatements.js';
 
 class TempVarStatement {
   constructor(name, initializer) {

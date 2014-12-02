@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from '../ParseTreeTransformer';
+import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
 import {
   Module,
   Script
-} from '../../syntax/trees/ParseTrees';
+} from '../../syntax/trees/ParseTrees.js';
 
 
 /**

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FormalParameterList} from '../syntax/trees/ParseTrees';
-import {ParameterTransformer} from './ParameterTransformer';
-import {createIdentifierToken} from './ParseTreeFactory';
-import {parseStatement} from './PlaceholderParser';
+import {FormalParameterList} from '../syntax/trees/ParseTrees.js';
+import {ParameterTransformer} from './ParameterTransformer.js';
+import {createIdentifierToken} from './ParseTreeFactory.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 function hasRestParameter(parameterList) {
   var parameters = parameterList.parameters;
@@ -63,5 +63,13 @@ export class RestParameterTransformer extends ParameterTransformer {
     }
 
     return transformed;
+  }
+
+  transformConstructorType(tree) {
+    return tree;
+  }
+
+  transformFunctionType(tree) {
+    return tree;
   }
 }

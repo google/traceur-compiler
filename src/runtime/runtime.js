@@ -47,15 +47,6 @@
     };
   }
 
-  // ### Primitive value types
-  var types = {
-    void: function voidType() {},
-    any: function any() {},
-    string: function string() {},
-    number: function number() {},
-    boolean: function boolean() {}
-  };
-
   var method = nonEnum;
 
   // ### Symbols
@@ -338,36 +329,12 @@
     return $Object(x);
   }
 
-  // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
+  // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
   function checkObjectCoercible(argument) {
     if (argument == null) {
       throw new TypeError('Value cannot be converted to an Object');
     }
     return argument;
-  }
-
-  var path = typeof require !== 'undefined' && require('path');
-
-  function relativeRequire(callerPath, requiredPath) {
-    // nodejs wants require(path) to load files relative to the directory
-    // containing the source of the caller.  If source of the caller is an ES6
-    // module, the node parent module path will not be correct. Let's fix that.
-    function isDirectory(path) {
-      return (path.slice(-1) === '/');
-    }
-    function isAbsolute(path) {
-      return (path.charAt(0) === '/')
-    }
-    function isRelative(path) {
-      return (path.charAt(0) === '.');
-    }
-    // These guards mimic nodejs Module._findPath
-    if (isDirectory(requiredPath) || isAbsolute(requiredPath))
-      return;
-
-    return isRelative(requiredPath) ?
-        require(path.resolve(path.dirname(callerPath), requiredPath)) :
-        require(requiredPath);
   }
 
   function polyfillSymbol(global, Symbol) {
@@ -404,11 +371,9 @@
     isSymbolString: isSymbolString,
     keys: $keys,
     setupGlobals: setupGlobals,
-    require: relativeRequire,
     toObject: toObject,
     toProperty: toProperty,
-    type: types,
     typeof: typeOf,
   };
 
-})(typeof global !== 'undefined' ? global : this);
+})(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);

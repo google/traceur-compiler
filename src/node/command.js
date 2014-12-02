@@ -15,6 +15,7 @@
 'use strict';
 
 var path = require('path');
+var glob = require('glob');
 var commandLine;
 var cmdName = path.basename(process.argv[1]);
 try {
@@ -128,23 +129,70 @@ if (!shouldExit && !rootSources.length) {
 
 var out = commandLine.out;
 var dir = commandLine.dir;
+
+function compileAll(out, sources, options) {
+  var isSingleFileCompile = /\.js$/.test(out);
+  if (!isSingleFileCompile) {
+    traceurAPI.forEachRecursiveModuleCompile(out, sources, options);
+  } else {
+    traceurAPI.recursiveModuleCompileToSingleFile(out, sources, options).then(function() {
+      process.exit(0);
+    }).catch(function(err) {
+      var errors = err.errors || [err];
+      errors.forEach(function(err) {
+        console.error(err.stack || err);
+      });
+      process.exit(1);
+    });
+  }
+}
+
+function globSources(sourcesToGlob, cb) {
+  var processedCount = 0;
+  var globbedSources = [];
+  sourcesToGlob.forEach(function(item) {
+    glob(item.name, {}, function(err, matches) {
+      if (err)
+        throw new Error('While scanning ' + item.name + ': ' + err);
+      for (var i = matches.length - 1; i >= 0; i--) {
+        var globbedSource = {
+          name: matches[i],
+          type: item.type,
+          format: item.format
+        };
+        globbedSources.push(globbedSource);
+      }
+      processedCount++;
+      if (processedCount === sourcesToGlob.length) {
+        cb(null, globbedSources);
+      }
+    });
+  });
+}
+
 if (!shouldExit) {
   if (out) {
-    var isSingleFileCompile = /\.js$/.test(out);
-    if (isSingleFileCompile) {
-      traceurAPI.recursiveModuleCompileToSingleFile(out, rootSources,
-        commandOptions).then(function() {
-          process.exit(0);
-        }).catch(function(err) {
-          var errors = err.errors || [err];
-          errors.forEach(function(err) {
-            console.error(err.stack || err);
-          });
-          process.exit(1);
-        });
+    var sourcesToGlob = [];
+    var processedSources = [];
+
+    for (var i = 0; i < rootSources.length; i++) {
+      if (glob.hasMagic(rootSources[i].name)) {
+        sourcesToGlob.push(rootSources[i]);
+      } else {
+        processedSources.push(rootSources[i]);
+      }
+    }
+    if (!sourcesToGlob.length) {
+      compileAll(out, processedSources, commandOptions);
     } else {
-      traceurAPI.forEachRecursiveModuleCompile(out, rootSources,
-          commandOptions);
+      globSources(sourcesToGlob, function(err, globbedSources) {
+        processedSources.push.apply(processedSources, globbedSources);
+        if (processedSources.length) {
+          compileAll(out, processedSources, commandOptions);
+        } else {
+          process.exit(0);
+        }
+      });
     }
   } else if (dir) {
     if (rootSources.length !== 1)

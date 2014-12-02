@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AlphaRenamer} from './AlphaRenamer';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   CONSTRUCTOR
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   AnonBlock,
   ExportDeclaration,
@@ -23,17 +23,17 @@ import {
   GetAccessor,
   PropertyMethodAssignment,
   SetAccessor
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   PROPERTY_VARIABLE_DECLARATION,
   SET_ACCESSOR
-} from '../syntax/trees/ParseTreeType';
-import {SuperTransformer} from './SuperTransformer';
-import {TempVarTransformer} from './TempVarTransformer';
-import {VAR} from '../syntax/TokenType';
-import {MakeStrictTransformer} from './MakeStrictTransformer';
+} from '../syntax/trees/ParseTreeType.js';
+import {SuperTransformer} from './SuperTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {VAR} from '../syntax/TokenType.js';
+import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {
   createEmptyParameterList,
   createExpressionStatement,
@@ -44,14 +44,14 @@ import {
   createParenExpression,
   createThisExpression,
   createVariableStatement
-} from './ParseTreeFactory';
-import {hasUseStrict} from '../semantics/util';
+} from './ParseTreeFactory.js';
+import {hasUseStrict} from '../semantics/util.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements
-} from './PlaceholderParser';
-import {propName} from '../staticsemantics/PropName';
+} from './PlaceholderParser.js';
+import {propName} from '../staticsemantics/PropName.js';
 
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on

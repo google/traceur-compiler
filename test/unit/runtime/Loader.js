@@ -18,8 +18,8 @@ suite('Loader.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var MutedErrorReporter = get('src/util/MutedErrorReporter').MutedErrorReporter;
-  var resolveUrl = get('src/util/url').resolveUrl;
+  var MutedErrorReporter = get('src/util/MutedErrorReporter.js').MutedErrorReporter;
+  var resolveUrl = get('src/util/url.js').resolveUrl;
 
   var reporter, baseURL;
 
@@ -44,11 +44,11 @@ suite('Loader.js', function() {
     System = require('../../../src/node/System.js');
   } else {
     url = resolveUrl(window.location.href, 'unit/runtime/modules.js');
-    fileLoader = get('src/runtime/webLoader').webLoader;
+    fileLoader = get('src/runtime/webLoader.js').webLoader;
   }
 
   function getLoader() {
-    var TraceurLoader = get('src/runtime/TraceurLoader').TraceurLoader;
+    var TraceurLoader = get('src/runtime/TraceurLoader.js').TraceurLoader;
     return new TraceurLoader(fileLoader, url);
   }
 
@@ -65,12 +65,14 @@ suite('Loader.js', function() {
     load.normalizedName = 'abc/def';
     assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
     load.normalizedName = 'abc/def.js';
-    assert.notEqual(loader.locate(load), 'http://example.org/a/abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
+    load.normalizedName = './abc/def.js';
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
     var traceur = System.get('traceur@');
-    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/Options');
+    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/Options.js');
     assert.equal(traceur.options, optionsModule.options);
   });
 
@@ -99,8 +101,8 @@ suite('Loader.js', function() {
       function(result) {
         traceur.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
-        var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'script');
-        assert(sourceMapInfo, 'the sourceMap is defined');
+        var sourceMap = loader.getSourceMap(normalizedName);
+        assert(sourceMap, 'the sourceMap is defined');
         assert.equal(43, result);
         done();
       }).catch(done);
@@ -120,9 +122,9 @@ suite('Loader.js', function() {
 
   test('LoaderModule', function(done) {
     var code =
-        'import * as a from "./test_a";\n' +
-        'import * as b from "./test_b";\n' +
-        'import * as c from "./test_c";\n' +
+        'import * as a from "./test_a.js";\n' +
+        'import * as b from "./test_b.js";\n' +
+        'import * as c from "./test_c.js";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
@@ -139,7 +141,7 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'import * as d from "./subdir/test_d";\n' +
+        'import * as d from "./subdir/test_d.js";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
@@ -153,9 +155,9 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'import * as a from "./test_a";\n' +
-        'import * as b from "./test_b";\n' +
-        'import * as c from "./test_c";\n' +
+        'import * as a from "./test_a.js";\n' +
+        'import * as b from "./test_b.js";\n' +
+        'import * as c from "./test_c.js";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
@@ -218,7 +220,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module', {}).then(function(mod) {
+    getLoader().import('./test_module.js', {}).then(function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -228,7 +230,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImportAll', function(done) {
-    var names = ['./test_module'];
+    var names = ['./test_module.js'];
     getLoader().importAll(names, {}).then(function(mods) {
       var mod = mods[0];
       assert.equal('test', mod.name);
@@ -243,8 +245,8 @@ suite('Loader.js', function() {
   /* test('LoaderDefine.Instantiate', function(done) {
     var loader = getLoader();
     traceur.options.modules = 'instantiate';
-    var name = './test_instantiate';
-    var src = 'export {name as a} from \'./test_a\';\n' +
+    var name = './test_instantiate.js';
+    var src = 'export {name as a} from \'./test_a.js\';\n' +
     'export var dd = 8;\n';
     loader.define(name, src).then(function() {
       return loader.import(name);
@@ -256,7 +258,7 @@ suite('Loader.js', function() {
 
   test('LoaderImport.Fail', function(done) {
     var reporter = new MutedErrorReporter();
-    getLoader(reporter).import('./non_existing', {}).then(function(mod) {
+    getLoader(reporter).import('./non_existing.js', {}).then(function(mod) {
       fail('should not have succeeded')
       done();
     }, function(error) {
@@ -267,17 +269,27 @@ suite('Loader.js', function() {
 
   test('LoaderImport.Fail.deperror', function(done) {
     var reporter = new MutedErrorReporter();
-    getLoader(reporter).import('loads/main', {}).then(function(mod) {
-      fail('should not have succeeded')
-      done();
-    }, function(error) {
-      assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
-      done();
-    }).catch(done);
+    var metadata = {traceurOptions: {sourceMaps: 'memory'}};
+    getLoader(reporter).import('loads/main', {metadata: metadata}).then(
+      function(mod) {
+        fail('should not have succeeded')
+        done();
+      }, function(error) {
+        assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
+        fileLoader.load('test/unit/runtime/ModuleEvaluationErrorStack.txt',
+          function(data) {
+            assert.equal(data, error.stack);
+            done();
+          }, function(ex) {
+            console.error('LoaderImport.Fail.deperror fails', ex.stack ||ex);
+            done();
+          });
+
+      }).catch(done);
   });
 
   test('LoaderImportWithReferrer', function(done) {
-    getLoader().import('../test_module',
+    getLoader().import('../test_module.js',
       {referrerName: 'traceur@0.0.1/bin'}).then(function(mod) {
         assert.equal('test', mod.name);
         assert.equal('A', mod.a);
@@ -288,10 +300,10 @@ suite('Loader.js', function() {
   });
 
   test('Loader.define', function(done) {
-    var name = System.normalize('./test_define');
-    getLoader().import('./side-effect', {}).then(function(mod) {
+    var name = System.normalize('./test_define.js');
+    getLoader().import('./side-effect.js', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
-      var src = 'export {name as a} from \'./test_a\';\n' +
+      var src = 'export {name as a} from \'./test_a.js\';\n' +
         'export var d = 4;\n' + 'this.sideEffect++;';
       return getLoader().define(name, src, {}).then(function() {
         return mod;
@@ -307,8 +319,8 @@ suite('Loader.js', function() {
   });
 
   test('Loader.define.Fail', function(done) {
-    var name = System.normalize('./test_define');
-    getLoader().import('./side-effect', {}).then(function(mod) {
+    var name = System.normalize('./test_define.js');
+    getLoader().import('./side-effect.js', {}).then(function(mod) {
       var src = 'syntax error';
       getLoader().define(name, src, {}).then(function() {
           fail('should not have succeeded');
@@ -321,16 +333,16 @@ suite('Loader.js', function() {
   });
 
   test('Loader.defineWithSourceMap', function(done) {
-    var normalizedName = System.normalize('./test_define_with_source_map');
+    var normalizedName = System.normalize('./test_define_with_source_map.js');
     var loader = getLoader();
     var metadata = {traceurOptions: {sourceMaps: true}};
-    var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
+    var src = 'export {name as a} from \'./test_a.js\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {metadata: metadata}).then(function() {
-      var sourceMapInfo = loader.sourceMapInfo(normalizedName, 'module');
-      assert(sourceMapInfo.sourceMap, normalizedName + ' has a sourceMap');
+      var sourceMap = loader.getSourceMap(normalizedName);
+      assert(sourceMap, normalizedName + ' has a sourceMap');
       var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-      var consumer = new SourceMapConsumer(sourceMapInfo.sourceMap);
-      var sourceContent = consumer.sourceContentFor(sourceMapInfo.sourceName);
+      var consumer = new SourceMapConsumer(sourceMap);
+      var sourceContent = consumer.sourceContentFor(normalizedName);
       assert.equal(sourceContent, src, 'the sourceContent is correct');
       done();
     }).catch(done);
@@ -355,9 +367,9 @@ suite('Loader.js', function() {
   });
 
   test('System.map', function() {
-    System.map = System.semverMap('traceur@0.0.13/src/runtime/System');
+    System.map = System.semverMap('traceur@0.0.13/src/runtime/System.js');
     var version = System.map['traceur'];
-    var remapped = System.normalize('traceur@0.0/src/runtime/System');
+    var remapped = System.normalize('traceur@0.0/src/runtime/System.js');
     var versionSegment = remapped.split('/')[0];
     assert.equal(version, versionSegment);
   });
@@ -379,7 +391,7 @@ suite('Loader.js', function() {
   });
 
   test('AnonModuleSourceMap', function(done) {
-    var src = "  import {name} from './test_a';";
+    var src = "  import {name} from './test_a.js';";
 
     var loader = getLoader();
     traceur.options.sourceMaps = true;
@@ -398,7 +410,7 @@ suite('Loader.js', function() {
     // API testing only, function testing in Loader tests.
     var load = {
       metadata: {},
-      normalizedName: System.normalize('./test_module')
+      normalizedName: System.normalize('./test_module.js')
     };
 
     var url = load.address = System.locate(load);

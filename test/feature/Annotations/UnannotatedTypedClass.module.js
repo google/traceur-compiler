@@ -2,7 +2,7 @@
 import {
   Anno,
   X
-} from './resources/setup';
+} from './resources/setup.js';
 
 class UnannotatedClass {
   constructor(a:X, b) {

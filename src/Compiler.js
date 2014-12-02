@@ -14,21 +14,21 @@
 
 import {
   AttachModuleNameTransformer
-} from './codegeneration/module/AttachModuleNameTransformer';
-import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
-import {Parser} from './syntax/Parser';
-import {PureES6Transformer} from './codegeneration/PureES6Transformer';
-import {SourceFile} from './syntax/SourceFile';
-import {CollectingErrorReporter} from './util/CollectingErrorReporter';
+} from './codegeneration/module/AttachModuleNameTransformer.js';
+import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer.js';
+import {Parser} from './syntax/Parser.js';
+import {PureES6Transformer} from './codegeneration/PureES6Transformer.js';
+import {SourceFile} from './syntax/SourceFile.js';
+import {CollectingErrorReporter} from './util/CollectingErrorReporter.js';
 import {
   Options,
   options as traceurOptions,
   versionLockedOptions
-} from './Options';
+} from './Options.js';
 
-import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
-import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
 
 function merge(...srcs) {
   var dest = Object.create(null);
@@ -62,7 +62,12 @@ export class Compiler {
   constructor(overridingOptions = {}) {
     this.options_ = new Options(this.defaultOptions());
     this.options_.setFromObject(overridingOptions);
+    // Only used if this.options_.sourceMaps is set.
     this.sourceMapGenerator_ = null;
+    // Only used if this.options_sourceMaps = 'memory'.
+    this.sourceMapInfo_ = null;
+
+    this.inputFileExtension_ = this.options_.atscript ? /\.ats$/ : /\.js$/;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -136,7 +141,7 @@ export class Compiler {
     var moduleName = this.options_.moduleName;
     if (moduleName) {  // true or non-empty string.
       if (typeof moduleName !== 'string')  // true means resolve filename
-        moduleName = sourceName.replace(/\.js$/, '');
+        moduleName = sourceName;
     }
     tree = this.transform(tree, moduleName);
     return this.write(tree, outputName, sourceRoot);
@@ -210,6 +215,10 @@ export class Compiler {
       return this.sourceMapGenerator_.toString();
   }
 
+  get sourceMapInfo() {
+    return this.sourceMapInfo_;
+  }
+
   /**
    * Produce output source from tree.
    * @param {ParseTree} tree
@@ -233,7 +242,7 @@ export class Compiler {
 
     writer.visitAny(tree);
 
-    var compiledCode = writer.toString(tree);
+    var compiledCode = writer.toString();
 
     if (this.sourceMapGenerator_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);
@@ -247,6 +256,11 @@ export class Compiler {
   }
 
   sourceMappingURL(filename) {
+    // The source map info for im-memory maps
+    this.sourceMapInfo_ = {
+      url: filename,
+      map: this.getSourceMap()
+    };
     // This implementation works for browsers. The NodeCompiler overrides
     // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {
@@ -255,7 +269,7 @@ export class Compiler {
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
-    return filename.split('/').pop().replace(/\.js$/, '.map');
+    return filename.split('/').pop().replace(this.inputFileExtension_, '.map');
   }
 
   sourceNameFromTree(tree) {

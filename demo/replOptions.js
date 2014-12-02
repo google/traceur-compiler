@@ -17,7 +17,7 @@ import {
   CommandOptions,
   versionLockedOptions,
   toDashCase
-} from 'traceur@0.0/src/Options';
+} from 'traceur@0.0/src/Options.js';
 
 
 var optionChangeHandler;

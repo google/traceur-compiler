@@ -2,7 +2,7 @@
 import {
   Anno,
   Anno2
-} from './resources/setup';
+} from './resources/setup.js';
 
 @Anno
 class AnnotatedClassCtor {

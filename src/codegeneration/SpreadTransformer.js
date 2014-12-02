@@ -17,13 +17,13 @@ import {
   BIND,
   FUNCTION,
   PROTOTYPE
-} from '../syntax/PredefinedName';
+} from '../syntax/PredefinedName.js';
 import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SPREAD_EXPRESSION
-} from  '../syntax/trees/ParseTreeType';
-import {TempVarTransformer} from './TempVarTransformer';
+} from  '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -36,10 +36,10 @@ import {
   createNewExpression,
   createNullLiteral,
   createParenExpression
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 import {
   parseExpression
-} from './PlaceholderParser';
+} from './PlaceholderParser.js';
 
 function hasSpreadMember(trees) {
   return trees.some((tree) => tree && tree.type == SPREAD_EXPRESSION);

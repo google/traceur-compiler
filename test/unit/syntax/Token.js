@@ -18,10 +18,10 @@ suite('Token.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var IdentifierToken = get('src/syntax/IdentifierToken').IdentifierToken;
-  var LiteralToken = get('src/syntax/LiteralToken').LiteralToken;
-  var Token = get('src/syntax/Token').Token;
-  var TokenType = get('src/syntax/TokenType');
+  var IdentifierToken = get('src/syntax/IdentifierToken.js').IdentifierToken;
+  var LiteralToken = get('src/syntax/LiteralToken.js').LiteralToken;
+  var Token = get('src/syntax/Token.js').Token;
+  var TokenType = get('src/syntax/TokenType.js');
 
   test('Token', function() {
     var token = new Token('type', 'location');

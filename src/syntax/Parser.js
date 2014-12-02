@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindVisitor} from '../codegeneration/FindVisitor';
-import {IdentifierToken} from './IdentifierToken';
+import {FindVisitor} from '../codegeneration/FindVisitor.js';
+import {IdentifierToken} from './IdentifierToken.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINDING_IDENTIFIER,
@@ -26,7 +26,7 @@ import {
   OBJECT_LITERAL_EXPRESSION,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
-} from './trees/ParseTreeType';
+} from './trees/ParseTreeType.js';
 import {
   AS,
   ASYNC,
@@ -35,17 +35,17 @@ import {
   GET,
   OF,
   SET
-} from './PredefinedName';
-import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter';
-import {Scanner} from './Scanner';
-import {SourceRange} from '../util/SourceRange';
-import {StrictParams} from '../staticsemantics/StrictParams';
+} from './PredefinedName.js';
+import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
+import {Scanner} from './Scanner.js';
+import {SourceRange} from '../util/SourceRange.js';
+import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
   Token,
   isAssignmentOperator
-} from './Token';
-import {getKeywordType} from './Keywords';
-import {options as traceurOptions} from '../Options';
+} from './Token.js';
+import {getKeywordType} from './Keywords.js';
+import {options as traceurOptions} from '../Options.js';
 
 import {
   AMPERSAND,
@@ -142,13 +142,14 @@ import {
   WHILE,
   WITH,
   YIELD
-} from './TokenType';
+} from './TokenType.js';
 
 import {
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
   ArrayPattern,
+  ArrayType,
   ArrowFunctionExpression,
   AssignmentElement,
   AwaitExpression,
@@ -158,6 +159,7 @@ import {
   Block,
   BreakStatement,
   CallExpression,
+  CallSignature,
   CaseClause,
   Catch,
   ClassDeclaration,
@@ -167,6 +169,8 @@ import {
   ComprehensionIf,
   ComputedPropertyName,
   ConditionalExpression,
+  ConstructSignature,
+  ConstructorType,
   ContinueStatement,
   CoverFormals,
   CoverInitializedName,
@@ -190,6 +194,7 @@ import {
   FunctionBody,
   FunctionDeclaration,
   FunctionExpression,
+  FunctionType,
   GeneratorComprehension,
   GetAccessor,
   IdentifierExpression,
@@ -198,11 +203,14 @@ import {
   ImportSpecifier,
   ImportSpecifierSet,
   ImportedBinding,
+  IndexSignature,
+  InterfaceDeclaration,
   LabelledStatement,
   LiteralExpression,
   LiteralPropertyName,
   MemberExpression,
   MemberLookupExpression,
+  MethodSignature,
   Module,
   ModuleDeclaration,
   ModuleSpecifier,
@@ -211,16 +219,18 @@ import {
   ObjectLiteralExpression,
   ObjectPattern,
   ObjectPatternField,
+  ObjectType,
   ParenExpression,
   PostfixExpression,
   PredefinedType,
-  Script,
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand,
+  PropertySignature,
   PropertyVariableDeclaration,
   RestParameter,
   ReturnStatement,
+  Script,
   SetAccessor,
   SpreadExpression,
   SpreadPatternElement,
@@ -235,15 +245,18 @@ import {
   TryStatement,
   TypeArguments,
   TypeName,
+  TypeParameter,
+  TypeParameters,
   TypeReference,
   UnaryExpression,
+  UnionType,
   VariableDeclaration,
   VariableDeclarationList,
   VariableStatement,
   WhileStatement,
   WithStatement,
   YieldExpression
-}  from './trees/ParseTrees';
+}  from './trees/ParseTrees.js';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'
@@ -278,9 +291,9 @@ var Initializer = {
  * the tree is not going to be used as a pattern.
  */
 class ValidateObjectLiteral extends FindVisitor {
-  constructor(tree) {
+  constructor() {
+    super();
     this.errorToken = null;
-    super(tree);
   }
 
   visitCoverInitializedName(tree) {
@@ -344,7 +357,7 @@ export class Parser {
   constructor(file, errorReporter = new SyntaxErrorReporter(),
               options = traceurOptions) {
     this.errorReporter_ = errorReporter;
-    this.scanner_ = new Scanner(errorReporter, file, this);
+    this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;
 
     // yield is only allowed inside a generator and await is only allowed
@@ -908,6 +921,11 @@ export class Parser {
         return this.parseTryStatement_();
       case WITH:
         return this.parseWithStatement_();
+      case INTERFACE:
+        // TODO(arv): This should only be allowed at the top level.
+        if (this.options_.types) {
+          return this.parseInterfaceDeclaration_();
+        }
     }
     return this.parseFallThroughStatement_();
   }
@@ -1049,7 +1067,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
-    return new RestParameter(this.getTreeLocation_(start), id);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new RestParameter(this.getTreeLocation_(start), id, typeAnnotation);
   }
 
   /**
@@ -3162,7 +3181,8 @@ export class Parser {
     if (coverInitializedNameCount === this.coverInitializedNameCount_)
       return;
 
-    var finder = new ValidateObjectLiteral(tree);
+    var finder = new ValidateObjectLiteral();
+    finder.visitAny(tree);
     if (finder.found) {
       var token = finder.errorToken;
       this.reportError_(token.location, `Unexpected token ${token}`);
@@ -3677,62 +3697,87 @@ export class Parser {
   /**
    * Types
    *
-   * Type ::
-   *   PredefinedType
-   *   TypeReference
-   *   TypeQuery
-   *   TypeLiteral
+   * Type:
+   *   PrimaryOrUnionType
+   *   FunctionType
+   *   ConstructorType
+   *
+   * PrimaryOrUnionType:
+   *   PrimaryType
+   *   UnionType
+   *
+   * PrimaryType:
+   *   ParenthesizedType
+   *   PredefinedType
+   *   TypeReference
+   *   ObjectType
+   *   ArrayType
+   *   TupleType
+   *   TypeQuery
+   *
+   * ParenthesizedType:
+   *   ( Type )
    *
    * @return {ParseTree}
    * @private
    */
   parseType_() {
+    switch (this.peekType_()) {
+      case NEW:
+        return this.parseConstructorType_();
+
+      case OPEN_PAREN:
+      case OPEN_ANGLE:
+        return this.parseFunctionType_();
+    }
+
+    var start = this.getTreeStartLocation_();
+    var elementType = this.parsePrimaryType_();
+    return this.parseUnionTypeSuffix_(start, elementType);
+  }
+
+  parsePrimaryType_() {
     var start = this.getTreeStartLocation_();
     var elementType;
     switch (this.peekType_()) {
       case VOID:
         var token = this.nextToken_();
-        return new PredefinedType(this.getTreeLocation_(start), token);
+        elementType = new PredefinedType(this.getTreeLocation_(start), token);
+        break;
+
       case IDENTIFIER:
         switch (this.peekToken_().value) {
           case 'any':
-          case 'number':
           case 'boolean':
+          case 'number':
           case 'string':
+          case 'symbol':
             var token = this.nextToken_();
-            return new PredefinedType(this.getTreeLocation_(start), token);
+            elementType =
+                new PredefinedType(this.getTreeLocation_(start), token);
+            break;
+          default:
+            elementType = this.parseTypeReference_();
         }
-
-        return this.parseTypeReference_(start);
-
-      case NEW:
-        elementType = this.parseConstructorType_();
         break;
+
+      case TYPEOF:
+        elementType = this.parseTypeQuery_(start);
+        break;
+
       case OPEN_CURLY:
         elementType = this.parseObjectType_();
         break;
-      case OPEN_PAREN:
-        elementType = this.parseFunctionType_();
-        break;
-      case TYPEOF:
-        return this.parseTypeQuery_(start);
+
+      // TODO(arv): ParenthesizedType
+      // case OPEN_PAREN:
+
+
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
-    return this.parseArrayTypeSuffix_(start, elementType);
-  }
 
-  peekTypeAnnotation_() {
-    switch (this.peekType_()) {
-      case IDENTIFIER:
-      case NEW:
-      case OPEN_CURLY:
-      case OPEN_PAREN:
-      case TYPEOF:
-      case VOID:
-        return true;
-    }
-    return false;
+    return this.parseArrayTypeSuffix_(start, elementType);
   }
 
   parseTypeReference_() {
@@ -3746,8 +3791,30 @@ export class Parser {
     return typeName;
   }
 
+  parseUnionTypeSuffix_(start, elementType) {
+    if (this.peek_(BAR)) {
+      var types = [elementType];
+      this.eat_(BAR);
+      while (true) {
+        types.push(this.parsePrimaryType_());
+        if (!this.eatIf_(BAR)) {
+          break;
+        }
+      }
+      return new UnionType(this.getTreeLocation_(start), types);
+    }
+    return elementType;
+  }
+
   parseArrayTypeSuffix_(start, elementType) {
-    // NYI
+    var token = this.peekTokenNoLineTerminator_();
+    if (token && token.type === OPEN_SQUARE) {
+      this.eat_(OPEN_SQUARE);
+      this.eat_(CLOSE_SQUARE);
+      elementType = new ArrayType(this.getTreeLocation_(start), elementType);
+      return this.parseArrayTypeSuffix_(start, elementType);
+    }
+
     return elementType;
   }
 
@@ -3759,24 +3826,204 @@ export class Parser {
       this.eat_(COMMA);
       args.push(this.parseType_());
     }
-    this.eat_(CLOSE_ANGLE);
+
+    var token = this.nextCloseAngle_();
+    if (token.type !== CLOSE_ANGLE) {
+      return this.parseUnexpectedToken_(token.type);
+    }
+
     return new TypeArguments(this.getTreeLocation_(start), args);
   }
 
   parseConstructorType_() {
-    throw 'NYI';
+    var start = this.getTreeStartLocation_();
+    this.eat_(NEW);
+    var typeParameters = this.parseTypeParametersOpt_();
+    this.eat_(OPEN_PAREN)
+    var parameterList = this.parseFormalParameters_();
+    this.eat_(CLOSE_PAREN);
+    this.eat_(ARROW);
+    var returnType = this.parseType_();
+    return new ConstructorType(this.getTreeLocation_(start), typeParameters,
+                               parameterList, returnType);
   }
 
+  // ObjectType:
+  //   { TypeBodyopt }
+  //
+  // TypeBody:
+  //   TypeMemberList ;opt
+  //
+  // TypeMemberList:
+  //   TypeMember
+  //   TypeMemberList ; TypeMember
   parseObjectType_() {
-    throw 'NYI';
+    var start = this.getTreeStartLocation_();
+    var typeMembers = [];
+    this.eat_(OPEN_CURLY);
+    var type;
+    while (this.peekTypeMember_(type = this.peekType_())) {
+      typeMembers.push(this.parseTypeMember_(type));
+      if (!this.eatIf_(SEMI_COLON)) {
+        break;
+      }
+    }
+    this.eat_(CLOSE_CURLY);
+
+    return new ObjectType(this.getTreeLocation_(start), typeMembers);
+  }
+
+  peekTypeMember_(type) {
+    switch (type) {
+      case NEW:
+      case OPEN_PAREN:
+      case OPEN_ANGLE:
+      case OPEN_SQUARE:
+      case IDENTIFIER:
+      case STRING:
+      case NUMBER:
+        return true;
+      default:
+        return this.peekToken_().isKeyword();
+    }
+  }
+
+  // TypeMember:
+  //   PropertySignature
+  //   CallSignature
+  //   ConstructSignature
+  //   IndexSignature
+  //   MethodSignature
+  parseTypeMember_(type) {
+    switch (type) {
+      case NEW:
+        return this.parseConstructSignature_();
+      case OPEN_PAREN:
+      case OPEN_ANGLE:
+        return this.parseCallSignature_();
+      case OPEN_SQUARE:
+        return this.parseIndexSignature_();
+    }
+
+    var start = this.getTreeStartLocation_();
+    var propertyName = this.parseLiteralPropertyName_();
+    var isOpt = this.eatIf_(QUESTION);
+    type = this.peekType_();
+    if (type === OPEN_ANGLE || type === OPEN_PAREN) {
+      var callSignature = this.parseCallSignature_();
+      return new MethodSignature(this.getTreeLocation_(start), propertyName,
+                                 isOpt, callSignature);
+    }
+
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new PropertySignature(this.getTreeLocation_(start), propertyName,
+                                 isOpt, typeAnnotation);
+  }
+
+  parseCallSignature_() {
+    var start = this.getTreeStartLocation_();
+    var typeParameters = this.parseTypeParametersOpt_();
+    this.eat_(OPEN_PAREN)
+    var parameterList = this.parseFormalParameters_();
+    this.eat_(CLOSE_PAREN);
+    var returnType = this.parseTypeAnnotationOpt_();
+    return new CallSignature(this.getTreeLocation_(start), typeParameters,
+                             parameterList, returnType);
+  }
+
+  parseConstructSignature_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(NEW);
+    var typeParameters = this.parseTypeParametersOpt_();
+    this.eat_(OPEN_PAREN)
+    var parameterList = this.parseFormalParameters_();
+    this.eat_(CLOSE_PAREN);
+    var returnType = this.parseTypeAnnotationOpt_();
+    return new ConstructSignature(this.getTreeLocation_(start), typeParameters,
+                                  parameterList, returnType);
+  }
+
+  parseIndexSignature_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(OPEN_SQUARE);
+    var id = this.eatId_();
+    this.eat_(COLON);
+    var typeName;
+    var typeStart = this.getTreeStartLocation_();
+    if (this.peekPredefinedString_('string')) {
+      typeName = this.eatId_('string');
+    } else {
+      typeName = this.eatId_('number');
+    }
+    var indexType =
+        new PredefinedType(this.getTreeLocation_(typeStart), typeName);
+    this.eat_(CLOSE_SQUARE);
+    this.eat_(COLON);
+    var typeAnnotation = this.parseType_();
+    return new IndexSignature(this.getTreeLocation_(start), id, indexType,
+                              typeAnnotation);
   }
 
   parseFunctionType_() {
-    throw 'NYI';
+    var start = this.getTreeStartLocation_();
+    var typeParameters = this.parseTypeParametersOpt_();
+    this.eat_(OPEN_PAREN)
+    var parameterList = this.parseFormalParameters_();
+    this.eat_(CLOSE_PAREN);
+    this.eat_(ARROW);
+    var returnType = this.parseType_();
+    return new FunctionType(this.getTreeLocation_(start), typeParameters,
+                            parameterList, returnType);
   }
 
   parseTypeQuery_(start) {
     throw 'NYI';
+  }
+
+  // TypeParameters:
+  //   < TypeParameterList >
+  //
+  // TypeParameterList:
+  //   TypeParameter
+  //   TypeParameterList , TypeParameter
+  //
+  // TypeParameter:
+  //   Identifier Constraintopt
+  //
+  // Constraint:
+  //   extends Type
+
+  peekTypeParameters_() {
+    return this.peek_(OPEN_ANGLE);
+  }
+
+  parseTypeParametersOpt_() {
+    if (this.peek_(OPEN_ANGLE)) {
+      return this.parseTypeParameters_();
+    }
+    return null;
+  }
+
+  parseTypeParameters_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(OPEN_ANGLE);
+    var parameters = [this.parseTypeParameter_()];
+    while (this.peek_(COMMA)) {
+      this.eat_(COMMA);
+      parameters.push(this.parseTypeParameter_());
+    }
+    this.eat_(CLOSE_ANGLE);
+    return new TypeParameters(this.getTreeLocation_(start), parameters);
+  }
+
+  parseTypeParameter_() {
+    var start = this.getTreeStartLocation_();
+    var id = this.eatId_();
+    var extendsType = null;
+    if (this.eatIf_(EXTENDS) ) {
+      extendsType = this.parseType_();
+    }
+    return new TypeParameter(this.getTreeLocation_(start), id, extendsType);
   }
 
   /**
@@ -3828,6 +4075,44 @@ export class Parser {
       memberName);
     }
     return typeName;
+  }
+
+  /**
+   * interface Identifier TypeParameters_opt InterfaceExtendsClause_opt
+   *     ObjectType
+   *
+   * InterfaceExtendsClause:
+   *   extends ClassOrInterfaceTypeList
+   *
+   * ClassOrInterfaceTypeList:
+   *   ClassOrInterfaceType
+   *   ClassOrInterfaceTypeList , ClassOrInterfaceType
+   *
+   * ClassOrInterfaceType:
+   *   TypeReference
+   */
+  parseInterfaceDeclaration_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(INTERFACE);
+    var name = this.eatId_();
+    var typeParameters = this.parseTypeParametersOpt_()
+    var extendsClause;
+    if (this.eatIf_(EXTENDS)) {
+      extendsClause = this.parseInterfaceExtendsClause_();
+    } else {
+      extendsClause = [];
+    }
+    var objectType = this.parseObjectType_();
+    return new InterfaceDeclaration(this.getTreeLocation_(start),
+        name, typeParameters, extendsClause, objectType);
+  }
+
+  parseInterfaceExtendsClause_() {
+    var result = [this.parseTypeReference_()];
+    while (this.eatIf_(COMMA)) {
+      result.push(this.parseTypeReference_());
+    }
+     return result;
   }
 
   /**
@@ -4101,6 +4386,10 @@ export class Parser {
 
   nextTemplateLiteralToken_() {
     return this.scanner_.nextTemplateLiteralToken();
+  }
+
+  nextCloseAngle_() {
+    return this.scanner_.nextCloseAngle();
   }
 
   isAtEnd() {

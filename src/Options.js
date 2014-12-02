@@ -47,7 +47,7 @@ export var optionsV01 = enumerableOnlyObject({
   propertyMethods: true,
   propertyNameShorthand: true,
   referrer: '',
-  unicodeExpressions: true,
+  require: false,
   restParameters: true,
   script: false,
   sourceMaps: false,
@@ -58,6 +58,7 @@ export var optionsV01 = enumerableOnlyObject({
   typeAssertions: false,
   types: false,
   unicodeEscapeSequences: true,
+  unicodeExpressions: true,
   validate: false,
 });
 
@@ -138,6 +139,16 @@ export class Options {
     return value;
   }
 
+  get atscript() {
+    return this.types && this.annotations && this.memberVariables;
+  }
+
+  set atscript(value) {
+    this.types = value;
+    this.annotations = value;
+    this.memberVariables = value;
+  }
+
   get modules() {
     return this.modules_;
   }
@@ -161,12 +172,11 @@ export class Options {
       this.sourceMaps_ = value ? 'file' : false;
       return;
     }
-    if (value === 'file' || value === 'inline') {
+    if (value === 'file' || value === 'inline' || value === 'memory') {
       this.sourceMaps_ = value;
-    }
-    else {
+    } else {
       throw new Error('Option sourceMaps should be ' +
-          '[false|inline|file], not ' + value);
+          '[false|inline|file|memory], not ' + value);
     }
   }
   /**
@@ -243,6 +253,7 @@ export var options = new Options();
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
   experimental: 'Turns on all experimental features',
+  require: 'Generate require function argument for node when modules=register',
   sourceMaps: 'Generate source map and (\'file\') write to .map' +
       ' or (\'inline\') append data URL',
 };
@@ -278,12 +289,19 @@ export class CommandOptions extends Options {
   parseCommand(s) {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
-    if (m) {
-      var value = true;
-      if (typeof m[2] !== 'undefined')
-        value = coerceOptionValue(m[2]);
-      this.setOption(m[1],  value);
-    }
+
+    if (m)
+      this.setOptionCoerced(m[1], m[2]);
+  }
+
+  setOptionCoerced(name, value) {
+    // commander.js give value = null if no argument follows --option-name
+    if (typeof value !== 'undefined' && value !== null)
+      value = coerceOptionValue(value);
+    else
+      value = true;
+
+    this.setOption(name,  value);
   }
 
 }
@@ -342,13 +360,18 @@ export function addOptions(flags, commandOptions) {
       else
         throw new Error('outputLanguage must be one of es5, es6');
   });
-  flags.option('--source-maps [file|inline]',
+  flags.option('--source-maps [file|inline|memory]',
     'sourceMaps generated to file or inline with data: URL',
     (to) => { return commandOptions.sourceMaps = to; }
   );
   flags.option('--experimental',
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
+  );
+
+  flags.option('--atscript',
+    'Turns on all AtScript features',
+    () => { commandOptions.atscript = true; }
   );
 
   Object.keys(commandOptions).forEach(function(name) {
@@ -358,7 +381,8 @@ export function addOptions(flags, commandOptions) {
     } else if ((name in parseOptions) && (name in transformOptions)) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
-      flags.on(dashedName, (value) => commandOptions.setOption(dashedName, value));
+      flags.on(dashedName, (value) =>
+        commandOptions.setOptionCoerced(dashedName, value));
     } else if (commandOptions[name] !== null) {
       flags.option('--' + dashedName, descriptions[name]);
       flags.on(dashedName, () => commandOptions.setOption(dashedName, true));
@@ -460,6 +484,7 @@ addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
+addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);

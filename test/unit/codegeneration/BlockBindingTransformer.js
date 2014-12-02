@@ -1,20 +1,20 @@
 suite('BlockBindingTransformer.js', function() {
   var BlockBindingTransformer = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/BlockBindingTransformer').BlockBindingTransformer;
+    getForTesting('src/codegeneration/BlockBindingTransformer.js').BlockBindingTransformer;
   var UniqueIdentifierGenerator = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/UniqueIdentifierGenerator').UniqueIdentifierGenerator;
+    getForTesting('src/codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
   var Parser = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/Parser').Parser;
+    getForTesting('src/syntax/Parser.js').Parser;
   var SourceFile = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/SourceFile').SourceFile;
+    getForTesting('src/syntax/SourceFile.js').SourceFile;
   var write = $traceurRuntime.ModuleStore.
-    getForTesting('src/outputgeneration/TreeWriter').write;
+    getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+    getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
   var options = $traceurRuntime.ModuleStore.
-    getForTesting('src/Options').options;
+    getForTesting('src/Options.js').options;
   var ErrorReporter = $traceurRuntime.ModuleStore.
-      getForTesting('src/util/CollectingErrorReporter').CollectingErrorReporter;
+      getForTesting('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
 
   var currentOption;
 
@@ -296,5 +296,48 @@ suite('BlockBindingTransformer.js', function() {
   makeTest('Rename, make sure function name in initializer is not renamed 2',
       'let x = 1; { let y = class x {}; }',
       'var x = 1; { var y = class x {}; }');
+
+  makeTest('Siblings',
+      '{ let x = 1; }' +
+      '{ let x = 2; }' +
+      'x;',
+      // ======
+      '{ var x$__0 = 1; }' +
+      '{ var x$__1 = 2; }' +
+      'x;');
+
+  makeTest('Siblings 2',
+      '{ let x = 1; x; }' +
+      '{ let x = 2; x; }' +
+      'x;',
+      // ======
+      '{ var x$__0 = 1; x$__0; }' +
+      '{ var x$__1 = 2; x$__1; }' +
+      'x;');
+
+  makeTest('Siblings 3',
+      'function g() {' +
+      '  var zzz = 1;' +
+      '  function f() {' +
+      '    zzz;' +
+      '    {' +
+      '      let zzz = 2;' +
+      '      zzz;' +
+      '    }' +
+      '    zzz;' +
+      '  }' +
+      '}',
+      // ======
+      'function g() {' +
+      '  var zzz = 1;' +
+      '  function f() {' +
+      '    zzz;' +
+      '    {' +
+      '      var zzz$__0 = 2;' +
+      '      zzz$__0;' +
+      '    }' +
+      '    zzz;' +
+      '  }' +
+      '}');
 
 });

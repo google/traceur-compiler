@@ -1,0 +1,23 @@
+ModuleEvaluationError: dep error
+  var __moduleName = "loads/deperror";
+  function causeAnError() {
+    throw new Error('dep error');
+----------^
+  }
+  function seeAStack() {
+= = = = = = = = =
+  }
+  function seeAStack() {
+    causeAnError();
+----^
+  }
+  seeAStack();
+= = = = = = = = =
+    causeAnError();
+  }
+  seeAStack();
+--^
+  return {};
+}
+= = = = = = = = =
+ loaded by loads/main

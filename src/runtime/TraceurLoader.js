@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isAbsolute, resolveUrl} from '../util/url';
-import {Loader} from '../runtime/Loader';
-import {LoaderCompiler} from '../runtime/LoaderCompiler';
-import {systemjs} from '../runtime/system-map';
+import {isAbsolute, resolveUrl} from '../util/url.js';
+import {Loader} from '../runtime/Loader.js';
+import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {systemjs} from '../runtime/system-map.js';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));
 var uniqueNameCount = 0;
@@ -63,9 +63,10 @@ export class TraceurLoader extends Loader {
     load.metadata.traceurOptions = load.metadata.traceurOptions || {};
     var options = load.metadata.traceurOptions;
     var asJS;
-    if (options && options.script) {
+    if (/\.js$/.test(normalizedModuleName) || options && options.script) {
       asJS = normalizedModuleName;
     } else {
+      // Backwards compat.
       asJS = normalizedModuleName + '.js';
     }
 
@@ -267,21 +268,33 @@ export class TraceurLoader extends Loader {
   }
 
   /**
-   * @param {string} normalizedName
-   * @param {string} 'module' or 'script'
-   * @return {sourceMap, sourceName}
+   * @param {string} filename or url, the output address.
+   * @return {Sourcemap}
    */
-  sourceMapInfo(normalizedName, type) {
-    return this.internalLoader_.sourceMapInfo(normalizedName, type);
+  getSourceMap(filename) {
+    return this.internalLoader_.getSourceMap(filename);
   }
 
   /**
+   * Used for 'instantiate' module format.
    * @param {string} normalized name of module
    * @param {Array<string>} unnormalized dependency names.
    * @param {Function<Array<string>>} factory takes array of normalized names.
    */
   register(normalizedName, deps, factoryFunction) {
-    $traceurRuntime.ModuleStore.register(normalizedName, deps, factoryFunction);
+    $traceurRuntime.ModuleStore.register(normalizedName, deps,
+      factoryFunction);
+  }
+
+  /**
+   * Used for 'regsiter' module format.
+   * @param {string} normalized name of module
+   * @param {Array<string>} unnormalized dependency names.
+   * @param {Function<Array<string>>} factory takes array of normalized names.
+   */
+  registerModule(normalizedName, deps, factoryFunction) {
+    $traceurRuntime.ModuleStore.registerModule(normalizedName, deps,
+      factoryFunction);
   }
 
 }

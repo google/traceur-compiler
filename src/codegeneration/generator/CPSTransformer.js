@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AlphaRenamer} from '../AlphaRenamer';
-import {BreakContinueTransformer} from './BreakContinueTransformer';
+import {AlphaRenamer} from '../AlphaRenamer.js';
+import {BreakContinueTransformer} from './BreakContinueTransformer.js';
 import {
   BLOCK,
   CASE_CLAUSE,
@@ -21,37 +21,37 @@ import {
   EXPRESSION_STATEMENT,
   PAREN_EXPRESSION,
   STATE_MACHINE
-} from '../../syntax/trees/ParseTreeType';
+} from '../../syntax/trees/ParseTreeType.js';
 import {
   AnonBlock,
   Block,
   CaseClause,
   IfStatement,
   SwitchStatement
-} from '../../syntax/trees/ParseTrees';
-import {CatchState} from './CatchState';
-import {ConditionalState} from './ConditionalState';
-import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer';
-import {FallThroughState} from './FallThroughState';
-import {FinallyFallThroughState} from './FinallyFallThroughState';
-import {FinallyState} from './FinallyState';
-import {FindInFunctionScope} from '../FindInFunctionScope';
-import {ParseTreeTransformer} from '../ParseTreeTransformer';
-import {TempVarTransformer} from '../TempVarTransformer';
-import {assert} from '../../util/assert';
+} from '../../syntax/trees/ParseTrees.js';
+import {CatchState} from './CatchState.js';
+import {ConditionalState} from './ConditionalState.js';
+import {ExplodeExpressionTransformer} from '../ExplodeExpressionTransformer.js';
+import {FallThroughState} from './FallThroughState.js';
+import {FinallyFallThroughState} from './FinallyFallThroughState.js';
+import {FinallyState} from './FinallyState.js';
+import {FindInFunctionScope} from '../FindInFunctionScope.js';
+import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
+import {TempVarTransformer} from '../TempVarTransformer.js';
+import {assert} from '../../util/assert.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements
-} from '../PlaceholderParser';
-import {State} from './State';
-import {StateAllocator} from './StateAllocator';
-import {StateMachine} from '../../syntax/trees/StateMachine';
+} from '../PlaceholderParser.js';
+import {State} from './State.js';
+import {StateAllocator} from './StateAllocator.js';
+import {StateMachine} from '../../syntax/trees/StateMachine.js';
 import {
   SwitchClause,
   SwitchState
-} from './SwitchState';
-import {TryState} from './TryState';
+} from './SwitchState.js';
+import {TryState} from './TryState.js';
 import {
   createAssignStateStatement,
   createBreakStatement,
@@ -63,8 +63,8 @@ import {
   createMemberExpression,
   createNumberLiteral,
   createSwitchStatement,
-} from '../ParseTreeFactory';
-import HoistVariablesTransformer from '../HoistVariablesTransformer';
+} from '../ParseTreeFactory.js';
+import HoistVariablesTransformer from '../HoistVariablesTransformer.js';
 
 class LabelState {
   constructor(name, continueState, fallThroughState) {
@@ -90,7 +90,8 @@ class NeedsStateMachine extends FindInFunctionScope {
 }
 
 function needsStateMachine(tree) {
-  var visitor = new NeedsStateMachine(tree);
+  var visitor = new NeedsStateMachine();
+  visitor.visitAny(tree);
   return visitor.found;
 }
 

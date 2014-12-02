@@ -81,7 +81,7 @@ suite('System.js', function() {
 
   test('System.set', function() {
     var store = $traceurRuntime.ModuleStore;
-    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
+    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills.js');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });

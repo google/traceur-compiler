@@ -17,6 +17,8 @@ mocha.setup({ui: 'tdd'});
 <script src="unit/codegeneration/low_level_tests.js"></script>
 <script src="unit/codegeneration/writer.js"></script>
 <script src="unit/runtime/Loader.js"></script>
+<script src="unit/runtime/type-assertions.js"></script>
+<script src="unit/semantics/FreeVariableChecker.js"></script>
 <script src="unit/semantics/VariableBinder.js"></script>
 <script src="unit/syntax/LineNumbers.js"></script>
 <script src="unit/syntax/ParseTreeValidator.js"></script>
@@ -32,7 +34,7 @@ mocha.setup({ui: 'tdd'});
 (function() {
   'use strict';
 
-  System.import('../src/runtime/webLoader', {}).then(function(module) {
+  System.import('../src/runtime/webLoader.js', {}).then(function(module) {
 	  featureSuite(testList, module.webLoader);
 	  new traceur.WebPageTranscoder(document.location.href).run(function() {
 	    mocha.run();

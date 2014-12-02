@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {State} from './State';
+import {State} from './State.js';
 
 /**
  * These are a placeholder for the fallthrough off the end of a finally block.

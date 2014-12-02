@@ -18,12 +18,12 @@ suite('ModuleTransformer', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var ModuleTransformer = get('src/codegeneration/ModuleTransformer').ModuleTransformer;
-  var options = get('src/Options').options;
-  var parseOptions = get('src/Options').parseOptions;
-  var transformOptions = get('src/Options').transformOptions;
-  var Compiler = get('src/Compiler').Compiler;
-  var write = get('src/outputgeneration/TreeWriter').write;
+  var ModuleTransformer = get('src/codegeneration/ModuleTransformer.js').ModuleTransformer;
+  var options = get('src/Options.js').options;
+  var parseOptions = get('src/Options.js').parseOptions;
+  var transformOptions = get('src/Options.js').transformOptions;
+  var Compiler = get('src/Compiler.js').Compiler;
+  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   teardown(function() {
     options.reset();

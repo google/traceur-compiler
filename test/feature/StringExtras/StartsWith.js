@@ -1,4 +1,4 @@
-// Tests taken from http://mths.be/startswith
+// Tests taken from https://mths.be/startswith
 
 Object.prototype[1] = 2; // try to break `arguments[1]`
 
@@ -161,7 +161,7 @@ assert.equal('[a-z]+(bar)?'.startsWith('(bar)?', 6), true);
 assert.throw(function() { '[a-z]+(bar)?'.startsWith(/(bar)?/); }, TypeError);
 assert.throw(function() { '[a-z]+/(bar)?/'.startsWith(/(bar)?/); }, TypeError);
 
-// http://mathiasbynens.be/notes/javascript-unicode#poo-test
+// https://mathiasbynens.be/notes/javascript-unicode#poo-test
 var string = 'I\xF1t\xEBrn\xE2ti\xF4n\xE0liz\xE6ti\xF8n\u2603\uD83D\uDCA9';
 assert.equal(string.startsWith(''), true);
 assert.equal(string.startsWith('\xF1t\xEBr'), false);

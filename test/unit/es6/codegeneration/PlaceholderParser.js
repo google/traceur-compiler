@@ -18,16 +18,16 @@ suite('PlaceholderParser.traceur.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var ParseTreeType = get('src/syntax/trees/ParseTreeType');
+  var ParseTreeType = get('src/syntax/trees/ParseTreeType.js');
   var {
     parseExpression,
     parseModule,
     parseScript,
     parseStatement,
     parseStatements
-  } = get('src/codegeneration/PlaceholderParser');
-  var {write} = get('src/outputgeneration/TreeWriter');
-  var {IdentifierToken} = get('src/syntax/IdentifierToken');
+  } = get('src/codegeneration/PlaceholderParser.js');
+  var {write} = get('src/outputgeneration/TreeWriter.js');
+  var {IdentifierToken} = get('src/syntax/IdentifierToken.js');
 
   test('ParseExpressionIdentifierExpression', function() {
     var id = new IdentifierToken(null, 'x');
@@ -198,6 +198,11 @@ suite('PlaceholderParser.traceur.js', function() {
     var type = tree.declarations.declarations[0].typeAnnotation;
     tree = parseStatement `var x: ${type};`;
     assert.equal('var x: a<b>;', write(tree));
+  });
+
+  test('Exponentiation', function() {
+    var tree = parseExpression `x ** ${42}`;
+    assert.equal('x ** 42', write(tree));
   });
 
 });

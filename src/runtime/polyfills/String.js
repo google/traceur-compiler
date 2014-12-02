@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {createStringIterator} from './StringIterator';
+import {createStringIterator} from './StringIterator.js';
 import {
   maybeAddFunctions,
   maybeAddIterator,
   registerPolyfill
-} from './utils';
+} from './utils.js';
 
 var $toString = Object.prototype.toString;
 var $indexOf = String.prototype.indexOf;
 var $lastIndexOf = String.prototype.lastIndexOf;
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.startswith
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.startswith
 export function startsWith(search) {
-  /*! http://mths.be/startswith v0.1.0 by @mathias */
+  /*! https://mths.be/startswith v0.1.0 by @mathias */
   var string = String(this);
   if (this == null || $toString.call(search) == '[object RegExp]') {
     throw TypeError();
@@ -43,9 +43,9 @@ export function startsWith(search) {
   return $indexOf.call(string, searchString, pos) == start;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.endswith
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.endswith
 export function endsWith(search) {
-  /*! http://mths.be/endswith v0.1.0 by @mathias */
+  /*! https://mths.be/endswith v0.1.0 by @mathias */
   var string = String(this);
   if (this == null || $toString.call(search) == '[object RegExp]') {
     throw TypeError();
@@ -72,29 +72,34 @@ export function endsWith(search) {
   return $lastIndexOf.call(string, searchString, start) == start;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.contains
-export function contains(search) {
-  /*! http://mths.be/contains v0.1.0 by @mathias */
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.includes
+export function includes(search) {
+  /*! https://mths.be/includes v1.0.0 by @mathias */
   if (this == null) {
     throw TypeError();
   }
   var string = String(this);
+  if (search && $toString.call(search) == '[object RegExp]') {
+    throw TypeError();
+  }
   var stringLength = string.length;
   var searchString = String(search);
   var searchLength = searchString.length;
   var position = arguments.length > 1 ? arguments[1] : undefined;
-  // `ToInteger`
   var pos = position ? Number(position) : 0;
-  if (isNaN(pos)) {
+  if (pos != pos) { // better `isNaN`
     pos = 0;
   }
   var start = Math.min(Math.max(pos, 0), stringLength);
+  if (searchLength + start > stringLength) {
+    return false;
+  }
   return $indexOf.call(string, searchString, pos) != -1;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.repeat
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.repeat
 export function repeat(count) {
-  /*! http://mths.be/repeat v0.1.0 by @mathias */
+  /*! https://mths.be/repeat v0.1.0 by @mathias */
   if (this == null) {
     throw TypeError();
   }
@@ -118,9 +123,9 @@ export function repeat(count) {
   return result;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.codepointat
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.codepointat
 export function codePointAt(position) {
-  /*! http://mths.be/codepointat v0.1.0 by @mathias */
+  /*! https://mths.be/codepointat v0.1.0 by @mathias */
   if (this == null) {
     throw TypeError();
   }
@@ -144,14 +149,14 @@ export function codePointAt(position) {
   ) {
     second = string.charCodeAt(index + 1);
     if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
-      // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+      // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
       return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
     }
   }
   return first;
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.raw
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.raw
 export function raw(callsite) {
   var raw = callsite.raw;
   var len = raw.length >>> 0;  // ToUint
@@ -167,9 +172,9 @@ export function raw(callsite) {
   }
 }
 
-// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.fromcodepoint
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.fromcodepoint
 export function fromCodePoint() {
-  // http://mths.be/fromcodepoint v0.1.0 by @mathias
+  // https://mths.be/fromcodepoint v0.1.0 by @mathias
   var codeUnits = [];
   var floor = Math.floor;
   var highSurrogate;
@@ -192,7 +197,7 @@ export function fromCodePoint() {
     if (codePoint <= 0xFFFF) {  // BMP code point
       codeUnits.push(codePoint);
     } else {  // Astral code point; split in surrogate halves
-      // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+      // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
       codePoint -= 0x10000;
       highSurrogate = (codePoint >> 10) + 0xD800;
       lowSurrogate = (codePoint % 0x400) + 0xDC00;
@@ -202,7 +207,7 @@ export function fromCodePoint() {
   return String.fromCharCode.apply(null, codeUnits);
 }
 
-// 21.1.3.27 String.prototype[@@iterator]( )
+// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype-@@iterator
 export function stringPrototypeIterator() {
   var o = $traceurRuntime.checkObjectCoercible(this);
   var s = String(o);
@@ -213,10 +218,10 @@ export function polyfillString(global) {
   var {String} = global;
   maybeAddFunctions(String.prototype, [
     'codePointAt', codePointAt,
-    'contains', contains,
     'endsWith', endsWith,
-    'startsWith', startsWith,
+    'includes', includes,
     'repeat', repeat,
+    'startsWith', startsWith,
   ]);
 
   maybeAddFunctions(String, [

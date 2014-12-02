@@ -2,7 +2,7 @@
 import {
   Anno,
   X
-} from './resources/setup';
+} from './resources/setup.js';
 
 function f(a = function() {
   // body of default param expression

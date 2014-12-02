@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IdentifierToken} from '../syntax/IdentifierToken';
-import {LiteralToken} from '../syntax/LiteralToken';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
 import {
   ParseTree,
   ParseTreeType
-} from '../syntax/trees/ParseTree';
+} from '../syntax/trees/ParseTree.js';
 import {
   CALL,
   CREATE,
@@ -25,8 +25,8 @@ import {
   FREEZE,
   OBJECT,
   UNDEFINED
-} from '../syntax/PredefinedName';
-import {Token} from '../syntax/Token';
+} from '../syntax/PredefinedName.js';
+import {Token} from '../syntax/Token.js';
 import {
   EQUAL,
   FALSE,
@@ -35,8 +35,8 @@ import {
   STRING,
   TRUE,
   VOID
-} from '../syntax/TokenType';
-import {assert} from '../util/assert';
+} from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 
 import {
   ArgumentList,
@@ -89,7 +89,7 @@ import {
   VariableStatement,
   WhileStatement,
   WithStatement
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 
 // Helpers so we can use these on Arguments objects.
 var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
@@ -680,7 +680,7 @@ function createLiteralPropertyName(name) {
  * @return {RestParameter}
  */
 function createRestParameter(identifier) {
-  return new RestParameter(null, createBindingIdentifier(identifier));
+  return new RestParameter(null, createBindingIdentifier(identifier), null);
 }
 
 /**

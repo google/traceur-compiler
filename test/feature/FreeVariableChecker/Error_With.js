@@ -1,4 +1,6 @@
-// Error: missingVarWith is not defined
+// Options: --free-variable-checker
+// Error: :8:9: missingVarWith is not defined
+
 var o = {};
 with (o) {
   missingVarWith = 42;

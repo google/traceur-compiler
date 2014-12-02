@@ -111,7 +111,7 @@
     //
     // We therefore replace strings matching '<Windows Path>' with a relative
     // UNIX path instead.
-    var pathRe = /'[^']*(?:\\|\/)?(feature(?:\\|\/)[^']*)'/g;
+    var pathRe = /'[^']*(?:\\|\/)?(test(?:\\|\/)feature(?:\\|\/)[^']*)'/g;
     return actualErrors.some(function(error) {
       var adjustedError = error.replace(pathRe, function(_, p2) {
         return "'" + p2.replace(/\\/g, '/') + "'";
@@ -121,12 +121,11 @@
     });
   }
 
-  var Options = traceur.get('./Options').Options;
+  var Options = traceur.get('./Options.js').Options;
 
   function setOptions(load, options) {
     var traceurOptions = new Options(options.traceurOptions);
     traceurOptions.debug = true;
-    traceurOptions.freeVariableChecker = true;
     traceurOptions.validate = true;
     load.metadata.traceurOptions = traceurOptions;
   }
@@ -208,7 +207,7 @@
       }
 
       if (/\.module\.js$/.test(url)) {
-        moduleLoader.import(url.replace(/\.js$/,''), {}).then(handleSuccess,
+        moduleLoader.import(url, {}).then(handleSuccess,
             handleFailure).catch(done);
       } else {
         moduleLoader.loadAsScript(url, {}).then(handleSuccess,
@@ -274,8 +273,8 @@
       loader.load(url, function(data) {
         doTest(data);
         done();
-      }, function() {
-        fail('Load error');
+      }, function(ex) {
+        fail('Load error for ' + url, ex.stack || ex);
         done();
       });
     });
@@ -297,7 +296,7 @@
       for (var suiteName in tree) {
         suite(suiteName, function() {
           tree[suiteName].forEach(function(tuple) {
-            featureTest(tuple.name, 'feature/' + tuple.path, loader);
+            featureTest(tuple.name, 'test/feature/' + tuple.path, loader);
           });
         });
       }
@@ -307,7 +306,7 @@
       for (var suiteName in tree) {
         suite(suiteName, function() {
           tree[suiteName].forEach(function(tuple) {
-            cloneTest(tuple.name, 'feature/' + tuple.path, loader);
+            cloneTest(tuple.name, 'test/feature/' + tuple.path, loader);
           });
         });
       }
@@ -325,4 +324,4 @@
   exports.featureSuite = featureSuite;
 
 })(typeof exports !== 'undefined' ? exports : this,
-   typeof global !== 'undefined' ? global : this);
+   typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);

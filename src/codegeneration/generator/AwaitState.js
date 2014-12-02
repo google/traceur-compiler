@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {State} from './State';
-import {parseStatements} from '../PlaceholderParser';
+import {State} from './State.js';
+import {parseStatements} from '../PlaceholderParser.js';
 
 export class AwaitState extends State {
   /**

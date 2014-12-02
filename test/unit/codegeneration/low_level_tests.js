@@ -18,13 +18,13 @@ suite('low_level_tests.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer').InlineModuleTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory');
-  var ParseTreeTransformer = get('src/codegeneration/ParseTreeTransformer').ParseTreeTransformer;
-  var ParseTreeValidator = get('src/syntax/ParseTreeValidator').ParseTreeValidator;
-  var Parser = get('src/syntax/Parser').Parser;
-  var SourceFile = get('src/syntax/SourceFile').SourceFile;
-  var write = get('src/outputgeneration/TreeWriter').write;
+  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer.js').InlineModuleTransformer;
+  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
+  var ParseTreeTransformer = get('src/codegeneration/ParseTreeTransformer.js').ParseTreeTransformer;
+  var ParseTreeValidator = get('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
+  var Parser = get('src/syntax/Parser.js').Parser;
+  var SourceFile = get('src/syntax/SourceFile.js').SourceFile;
+  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var createBreakStatement = ParseTreeFactory.createBreakStatement;
   var createContinueStatement = ParseTreeFactory.createContinueStatement;

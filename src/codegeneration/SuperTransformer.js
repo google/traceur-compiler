@@ -12,30 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer';
+import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
-} from '../syntax/trees/ParseTreeType';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
+} from '../syntax/trees/ParseTreeType.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   EQUAL,
   MINUS_MINUS,
   PLUS_PLUS
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createIdentifierExpression,
   createParenExpression,
   createStringLiteral,
   createThisExpression
-} from './ParseTreeFactory';
-import {parseExpression} from './PlaceholderParser';
+} from './ParseTreeFactory.js';
+import {parseExpression} from './PlaceholderParser.js';
 
 class ExplodeSuperExpression extends ExplodeExpressionTransformer {
   transformArrowFunctionExpression(tree) {

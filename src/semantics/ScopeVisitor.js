@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Map} from '../runtime/polyfills/Map';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
-import {VAR} from '../syntax/TokenType';
-import {Scope} from './Scope';
+import {Map} from '../runtime/polyfills/Map.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
+import {VAR} from '../syntax/TokenType.js';
+import {Scope} from './Scope.js';
 import {
   COMPREHENSION_FOR,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 
 /**
  * Base class for building up the scope chains for a tree.
@@ -35,11 +35,15 @@ export class ScopeVisitor extends ParseTreeVisitor {
     return this.map_.get(tree);
   }
 
+  createScope(tree) {
+    return new Scope(this.scope, tree);
+  }
+
   /**
    * @return {Scope}
    */
   pushScope(tree) {
-    var scope = new Scope(this.scope, tree);
+    var scope = this.createScope(tree);
     this.map_.set(tree, scope);
     return this.scope = scope;
   }
@@ -200,4 +204,9 @@ export class ScopeVisitor extends ParseTreeVisitor {
   visitGeneratorComprehension(tree) {
     this.visitComprehension_(tree);
   }
+
+  // Do not recurse into type annotations
+  visitPredefinedType(tree) {}
+  visitTypeArguments(tree) {}
+  visitFunctionType(tree) {}
 }

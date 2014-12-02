@@ -15,10 +15,10 @@
 
 // Applies Traceur to all scripts in a Web page.
 
-import {Loader} from './runtime/Loader';
-import {TraceurLoader} from './runtime/TraceurLoader';
-import {ErrorReporter} from './util/ErrorReporter';
-import {webLoader} from './runtime/webLoader';
+import {Loader} from './runtime/Loader.js';
+import {TraceurLoader} from './runtime/TraceurLoader.js';
+import {ErrorReporter} from './util/ErrorReporter.js';
+import {webLoader} from './runtime/webLoader.js';
 
 export class WebPageTranscoder {
   constructor(url) {

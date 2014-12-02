@@ -16,7 +16,7 @@ import {
   isObject,
   maybeAddIterator,
   registerPolyfill
-} from './utils'
+} from './utils.js'
 
 var getOwnHashObject = $traceurRuntime.getOwnHashObject;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;

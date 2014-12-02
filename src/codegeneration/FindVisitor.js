@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 
 /**
  * This is used to find something in a tree. Extend this class and override
@@ -22,15 +22,13 @@ import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
  */
 export class FindVisitor extends ParseTreeVisitor {
   /**
-   * @param {ParseTree} tree
    * @param {boolean=} keepOnGoing Whether to stop searching after the first
    *     found condition.
    */
-  constructor(tree, keepOnGoing = undefined) {
+  constructor(keepOnGoing = undefined) {
     this.found_ = false;
     this.shouldContinue_ = true;
     this.keepOnGoing_ = keepOnGoing;
-    this.visitAny(tree);
   }
 
   /**

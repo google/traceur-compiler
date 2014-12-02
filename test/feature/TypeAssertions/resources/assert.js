@@ -12,16 +12,25 @@ assert.type = function (actual, type) {
 
   if ($traceurRuntime.type[type.name] === type) {
     // chai.assert treats Number as number :'(
-    assert.equal(typeof actual, type.name);
+    // Use runtime to handle symbol
+    assert.equal($traceurRuntime.typeof(actual), type.name);
+  } else if (type instanceof $traceurRuntime.GenericType) {
+    assert.type(actual, type.type);
+    if (type.type === Array) {
+      for (var i = 0; i < actual.length; i++) {
+        assert.type(actual[i], type.argumentTypes[0]);
+      }
+    } else {
+      throw new Error(`Unsupported generic type${type}`);
+    }
   } else {
     assert.instanceOf(actual, type);
   }
 
-  // TODO(arv): Handle generics, structural types and more.
+  // TODO(arv): Handle more generics, structural types and more.
 
   return actual;
 };
-
 
 assert.argumentTypes = function(...params) {
   for (var i = 0; i < params.length; i += 2) {

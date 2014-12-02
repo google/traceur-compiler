@@ -1,3 +1,3 @@
-// Error: Intentional error 'feature/foo/bar' more.
+// Error: Intentional error 'test/feature/foo/bar' more.
 
-throw new Error('Intentional error \'feature\\foo\\bar\' more.');
+throw new Error('Intentional error \'test\\feature\\foo\\bar\' more.');

@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
-import {FunctionExpression} from '../syntax/trees/ParseTrees';
-import {TempVarTransformer} from './TempVarTransformer';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
+import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   LET,
   STAR,
   VAR
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   COMPREHENSION_FOR,
   COMPREHENSION_IF
-} from '../syntax/trees/ParseTreeType';
-import {Token} from '../syntax/Token';
+} from '../syntax/trees/ParseTreeType.js';
+import {Token} from '../syntax/Token.js';
 import {
   createCallExpression,
   createEmptyParameterList,
@@ -33,8 +33,8 @@ import {
   createIfStatement,
   createParenExpression,
   createVariableDeclarationList
-} from './ParseTreeFactory';
-import {options} from '../Options';
+} from './ParseTreeFactory.js';
+import {options} from '../Options.js';
 
 /**
  * Base class for GeneratorComprehensionTransformer and

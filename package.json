@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.73",
+  "version": "0.0.79",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -23,9 +23,9 @@
     "traceur": "./traceur"
   },
   "files": [
-    "src/node/*.js",
     "bin/traceur.js",
     "bin/traceur-runtime.js",
+    "src/node/*.js",
     "traceur"
   ],
   "scripts": {
@@ -40,10 +40,10 @@
   },
   "dependencies": {
     "commander": "2.x",
-    "glob": "4.x",
-    "regexpu": "0.3.0",
+    "glob": "4.3",
     "rsvp": "^3.0.13",
-    "semver": "2.x"
+    "semver": "2.x",
+    "source-map-support": "~0.2.8"
   },
   "devDependencies": {
     "source-map": "0.1.34",
@@ -52,13 +52,11 @@
     "mocha": "1.20.x",
     "chai": "1.x",
     "node-uuid": "1.x",
+    "regexpu": "0.3.0",
     "requirejs": "2.x",
     "semver": "2.x",
-    "traceur": "0.0.72",
-    "promises-aplus-tests": "2.x",
-    "compat-table": "git+https://github.com/kangax/compat-table.git#gh-pages",
-    "colors": "~0.6.0-1",
-    "cheerio": "~0.10.1"
+    "traceur": "0.0.78",
+    "promises-aplus-tests": "2.x"
   },
   "subdomain": "traceur"
 }

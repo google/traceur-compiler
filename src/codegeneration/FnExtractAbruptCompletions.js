@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
-import {parseStatement} from './PlaceholderParser';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
+import {parseStatement} from './PlaceholderParser.js';
 import {
   AnonBlock,
   BreakStatement,
   ContinueStatement,
   FormalParameterList,
   ReturnStatement
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   createArgumentList,
   createAssignmentStatement,
@@ -42,9 +42,9 @@ import {
   createVariableDeclarationList,
   createVariableStatement,
   createVoid0
-} from './ParseTreeFactory';
-import {ARGUMENTS} from '../syntax/PredefinedName';
-import {VAR} from '../syntax/TokenType';
+} from './ParseTreeFactory.js';
+import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {VAR} from '../syntax/TokenType.js';
 
 
 /**

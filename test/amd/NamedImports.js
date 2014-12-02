@@ -1,4 +1,4 @@
-import {Foo as f, Bar as b, Baz} from './deps/foo';
+import {Foo as f, Bar as b, Baz} from './deps/foo.js';
 
 assert.equal('Foo from foo.js', f);
 assert.equal('Bar from foo.js', b);

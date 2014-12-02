@@ -1,4 +1,4 @@
-import {isNaN} from '../../../src/runtime/polyfills/Number';
+import {isNaN} from '../../../src/runtime/polyfills/Number.js';
 
 function testIsNaN(isNaN) {
   assert.isTrue(isNaN(NaN));

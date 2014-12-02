@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IdentifierToken} from './IdentifierToken';
-import {KeywordToken} from './KeywordToken';
-import {LiteralToken} from './LiteralToken';
-import {Token} from './Token';
-import {getKeywordType} from './Keywords';
+import {IdentifierToken} from './IdentifierToken.js';
+import {KeywordToken} from './KeywordToken.js';
+import {LiteralToken} from './LiteralToken.js';
+import {Token} from './Token.js';
+import {getKeywordType} from './Keywords.js';
 import {
   idContinueTable,
   idStartTable
-} from './unicode-tables';
-import {
-  options,
-  parseOptions
-} from '../Options';
+} from './unicode-tables.js';
 
 import {
   AMPERSAND,
@@ -89,7 +85,7 @@ import {
   TILDE,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from './TokenType';
+} from './TokenType.js';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.
@@ -208,7 +204,7 @@ function isRegularExpressionFirstChar(code) {
 }
 
 var index, input, length, token, lastToken, lookaheadToken, currentCharCode,
-    lineNumberTable, errorReporter, currentParser;
+    lineNumberTable, errorReporter, currentParser, options;
 
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
@@ -223,8 +219,10 @@ export class Scanner {
   /**
    * @param {ErrorReport} reporter
    * @param {SourceFile} file
+   * @param {Parser} parser
+   * @param {Options} traceurOptions
    */
-  constructor(reporter, file, parser) {
+  constructor(reporter, file, parser, traceurOptions) {
     // These are not instance fields and this class should probably be refactor
     // to not give a false impression that multiple instances can be created.
     errorReporter = reporter;
@@ -233,6 +231,7 @@ export class Scanner {
     length = file.contents.length;
     this.index = 0;
     currentParser = parser;
+    options = traceurOptions;
   }
 
   get lastToken() {
@@ -254,6 +253,25 @@ export class Scanner {
     var t = nextTemplateLiteralToken();
     token = scanToken();
     return t;
+  }
+
+  /**
+   * Called for the close angle for type generics. This allows type expressions
+   * like `Array<Array<number>>` to be parsed as `Array<Array<number> >`.
+   */
+  nextCloseAngle() {
+    switch (token.type) {
+      case GREATER_EQUAL:
+      case RIGHT_SHIFT:
+      case RIGHT_SHIFT_EQUAL:
+      case UNSIGNED_RIGHT_SHIFT:
+      case UNSIGNED_RIGHT_SHIFT_EQUAL:
+        this.index -= token.type.length - 1;
+        lastToken = createToken(CLOSE_ANGLE, index);
+        token = scanToken();
+        return lastToken;
+    }
+    return nextToken();
   }
 
   /** @return {Token} */
@@ -705,7 +723,7 @@ function scanToken() {
         }
         return createToken(EQUAL_EQUAL, beginIndex);
       }
-      if (currentCharCode === 62 && parseOptions.arrowFunctions) {  // >
+      if (currentCharCode === 62 && options.arrowFunctions) {  // >
         next();
         return createToken(ARROW, beginIndex);
       }
@@ -725,7 +743,7 @@ function scanToken() {
         next();
         return createToken(STAR_EQUAL, beginIndex);
       }
-      if (currentCharCode === 42 && parseOptions.exponentiation) {
+      if (currentCharCode === 42 && options.exponentiation) {
         next();
         if (currentCharCode === 61) {  // =
           next();
@@ -861,7 +879,7 @@ function scanPostZero(beginIndex) {
 
     case 66:  // B
     case 98:  // b
-      if (!parseOptions.numericLiterals)
+      if (!options.numericLiterals)
         break;
 
       next();
@@ -875,7 +893,7 @@ function scanPostZero(beginIndex) {
 
     case 79:  // O
     case 111:  // o
-      if (!parseOptions.numericLiterals)
+      if (!options.numericLiterals)
         break;
 
       next();
@@ -1055,7 +1073,7 @@ function skipStringLiteralEscapeSequence() {
 }
 
 function skipUnicodeEscapeSequence() {
-  if (currentCharCode === 123 && parseOptions.unicodeEscapeSequences) {  // {
+  if (currentCharCode === 123 && options.unicodeEscapeSequences) {  // {
     next();
     var beginIndex = index;
 

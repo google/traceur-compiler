@@ -30,20 +30,20 @@ import {
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   AssignmentElement,
   BindingElement,
   Catch,
   ForInStatement,
   ForOfStatement
-} from '../syntax/trees/ParseTrees';
-import {TempVarTransformer} from './TempVarTransformer';
+} from '../syntax/trees/ParseTrees.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   EQUAL,
   LET,
   VAR
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
   createBindingIdentifier,
@@ -59,10 +59,10 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory';
-import {options} from '../Options';
-import {parseExpression} from './PlaceholderParser';
-import {prependStatements} from './PrependStatements'
+} from './ParseTreeFactory.js';
+import {options} from '../Options.js';
+import {parseExpression} from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js'
 
 /**
  * Collects assignments in the desugaring of a pattern.

@@ -15,17 +15,17 @@
 suite('TypeAssertionTransformer.js', function() {
 
   var TypeAssertionTransformer = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/TypeAssertionTransformer').TypeAssertionTransformer;
+      getForTesting('src/codegeneration/TypeAssertionTransformer.js').TypeAssertionTransformer;
   var Parser = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/Parser').Parser;
+      getForTesting('src/syntax/Parser.js').Parser;
   var SourceFile = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/SourceFile').SourceFile;
+      getForTesting('src/syntax/SourceFile.js').SourceFile;
   var write = $traceurRuntime.ModuleStore.
-      getForTesting('src/outputgeneration/TreeWriter').write;
+      getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+      getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
   var options = $traceurRuntime.ModuleStore.
-      getForTesting('src/Options').options;
+      getForTesting('src/Options.js').options;
 
   setup(function() {
     options.types = true;

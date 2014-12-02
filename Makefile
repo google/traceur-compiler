@@ -5,6 +5,7 @@ RUNTIME_SRC = \
   src/runtime/classes.js \
   src/runtime/generators.js \
   src/runtime/url.js \
+  src/runtime/type-assertions.js \
   src/runtime/ModuleStore.js
 POLYFILL_SRC = \
   src/runtime/polyfills/Map.js \
@@ -39,7 +40,8 @@ TFLAGS = --
 RUNTIME_TESTS = \
   test/unit/runtime/Loader.js \
   test/unit/runtime/Object.js \
-  test/unit/runtime/System.js
+  test/unit/runtime/System.js \
+  test/unit/runtime/type-assertions.js
 
 UNIT_TESTS = \
 	test/unit/util/ \
@@ -89,7 +91,7 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version test/unit/tools/SourceMapMapping \
-	  test-compat-table test-experimental
+	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -155,7 +157,8 @@ test-promise:
 	test/node-promise-adapter.js --grep "2.2.5" --grep "sloppy" --invert
 
 test-compat-table: node_modules/es5-compat-table/data-es6.js bin/traceur.js
-	./traceur test/verify-compat.js
+	npm install git+https://github.com/kangax/compat-table.git#gh-pages
+	./traceur --source-maps='memory' test/verify-compat.js
 
 test-experimental: bin/traceur.js
 	./traceur --experimental -- ./test/unit/node/resources/let-x.js

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleVisitor} from './ModuleVisitor';
-import {assert} from '../../util/assert';
+import {ModuleVisitor} from './ModuleVisitor.js';
+import {assert} from '../../util/assert.js';
 
 /**
  * Visits a parse tree and adds all the export definitions, including export *.

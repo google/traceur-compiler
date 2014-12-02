@@ -21,8 +21,11 @@ var nodeLoader = require('./nodeLoader.js');
 function interpret(filename, options) {
   // Interpret the filename argument as a platform-independent,
   // normalized module name.
-  var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
-  var metadata = {traceurOptions: options};
+  var moduleName = filename.replace(/\\/g, '/');
+  var metadata = {
+    traceurOptions: options,
+    outputName: filename
+  };
   System.import(moduleName, {metadata: metadata}).
     catch(function(err) {
       console.error(err.stack || err + '');

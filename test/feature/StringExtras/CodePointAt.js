@@ -1,4 +1,4 @@
-// Tests taken from http://mths.be/codepointat
+// Tests taken from https://mths.be/codepointat
 
 assert.equal(String.prototype.codePointAt.length, 1);
 

@@ -15,14 +15,14 @@
 import {
   isUndefined,
   isVoidExpression
-} from '../semantics/util';
-import {FormalParameterList} from '../syntax/trees/ParseTrees';
-import {ParameterTransformer} from './ParameterTransformer';
-import {ARGUMENTS} from '../syntax/PredefinedName';
+} from '../semantics/util.js';
+import {FormalParameterList} from '../syntax/trees/ParseTrees.js';
+import {ParameterTransformer} from './ParameterTransformer.js';
+import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {
   NOT_EQUAL_EQUAL,
   VAR
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   createBinaryExpression,
   createConditionalExpression,
@@ -32,7 +32,7 @@ import {
   createOperatorToken,
   createVariableStatement,
   createVoid0
-} from './ParseTreeFactory';
+} from './ParseTreeFactory.js';
 
 function createDefaultAssignment(index, binding, initializer) {
   var argumentsExpression =
@@ -100,4 +100,13 @@ export class DefaultParametersTransformer extends ParameterTransformer {
 
     return new FormalParameterList(tree.location, parameters);
   }
+
+  transformConstructorType(tree) {
+    return tree;
+  }
+
+  transformFunctionType(tree) {
+    return tree;
+  }
+
 }

@@ -18,7 +18,7 @@ import {
   toObject,
   toUint32,
   createIteratorResultObject
-} from './utils';
+} from './utils.js';
 
 var ARRAY_ITERATOR_KIND_KEYS = 1;
 var ARRAY_ITERATOR_KIND_VALUES = 2;

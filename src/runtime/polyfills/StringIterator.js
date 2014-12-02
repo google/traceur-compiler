@@ -1,7 +1,7 @@
 import {
   createIteratorResultObject,
   isObject
-} from './utils';
+} from './utils.js';
 
 var {toProperty} = $traceurRuntime;
 var {hasOwnProperty} = Object.prototype;

@@ -18,38 +18,39 @@ import {
   ClassExpression,
   CommaExpression,
   ExpressionStatement
-} from '../syntax/trees/ParseTrees';
+} from '../syntax/trees/ParseTrees.js';
 import {
   CLASS_DECLARATION,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
   IMPORT_SPECIFIER_SET
-} from '../syntax/trees/ParseTreeType';
-import {ScopeTransformer} from './ScopeTransformer';
+} from '../syntax/trees/ParseTreeType.js';
+import {ScopeTransformer} from './ScopeTransformer.js';
 import {
   createIdentifierExpression as id,
   createIdentifierToken,
   createVariableStatement,
   createVariableDeclaration,
   createVariableDeclarationList
-} from './ParseTreeFactory';
-import {ModuleTransformer} from './ModuleTransformer';
+} from './ParseTreeFactory.js';
+import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   MINUS_MINUS,
   PLUS_PLUS,
   VAR
-} from '../syntax/TokenType';
+} from '../syntax/TokenType.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements
-} from './PlaceholderParser';
-import HoistVariablesTransformer from './HoistVariablesTransformer';
+} from './PlaceholderParser.js';
+import HoistVariablesTransformer from './HoistVariablesTransformer.js';
 import {
   createFunctionExpression,
   createEmptyParameterList,
-  createFunctionBody
-} from './ParseTreeFactory';
+  createFunctionBody,
+  createObjectLiteral
+} from './ParseTreeFactory.js';
 
 /**
  * Extracts variable and function declarations from the module scope.
@@ -324,12 +325,22 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         );
       }
 
-      // finally run export * if applying to this dependency
+      // finally run export * if applying to this dependency, for not-already exported dependencies
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
           Object.keys(m).forEach(function(p) {
-            $__export(p, m[p]);
+            if (!$__exportNames[p])
+              $__export(p, m[p]);
           });
+        `);
+        
+        var exportNames = {};
+        this.localExportBindings.concat(this.externalExportBindings).forEach(function(binding) {
+          exportNames[binding.exportName] = true;
+        });
+        
+        declarationStatements.push(parseStatement `
+          var $__exportNames = ${createObjectLiteral(exportNames)};
         `);
       }
 

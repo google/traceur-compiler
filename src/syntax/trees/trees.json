@@ -53,6 +53,14 @@
       "Array<ParseTree>"
     ]
   },
+  "ArrayType": {
+    "location": [
+      "SourceRange"
+    ],
+    "elementType": [
+      "ParseTree"
+    ]
+  },
   "ArrowFunctionExpression": {
     "location": [
       "SourceRange"
@@ -146,6 +154,20 @@
     ],
     "args": [
       "ArgumentList"
+    ]
+  },
+  "CallSignature": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "returnType": [
+      "ParseTree"
     ]
   },
   "CaseClause": {
@@ -250,6 +272,34 @@
       "ParseTree"
     ],
     "right": [
+      "ParseTree"
+    ]
+  },
+  "ConstructSignature": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "returnType": [
+      "ParseTree"
+    ]
+  },
+  "ConstructorType": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "returnType": [
       "ParseTree"
     ]
   },
@@ -498,6 +548,20 @@
       "FunctionBody"
     ]
   },
+  "FunctionType": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "returnType": [
+      "ParseTree"
+    ]
+  },
   "GeneratorComprehension": {
     "location": [
       "SourceRange"
@@ -591,6 +655,37 @@
       "Array<ImportSpecifier>"
     ]
   },
+  "IndexSignature": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "indexType": [
+      "ParseTree"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ]
+  },
+  "InterfaceDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "typeParameters": [
+      "TypeParameters"
+    ],
+    "extendsClause": [
+      "Array.<ParseTree>"
+    ],
+    "objectType": [
+      "ObjectType"
+    ]
+  },
   "LabelledStatement": {
     "location": [
       "SourceRange"
@@ -638,6 +733,20 @@
     ],
     "memberExpression": [
       "ParseTree"
+    ]
+  },
+  "MethodSignature": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "optional": [
+      "boolean"
+    ],
+    "callSignature": [
+      "CallSignature"
     ]
   },
   "Module": {
@@ -717,6 +826,14 @@
     ],
     "element": [
       "ParseTree"
+    ]
+  },
+  "ObjectType": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeMembers": [
+      "Array<ParseTree>"
     ]
   },
   "ParenExpression": {
@@ -819,12 +936,29 @@
       "Array<ParseTree>"
     ]
   },
+  "PropertySignature": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "optional": [
+      "boolean"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ]
+  },
   "RestParameter": {
     "location": [
       "SourceRange"
     ],
     "identifier": [
       "BindingIdentifier"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ]
   },
   "ReturnStatement": {
@@ -971,6 +1105,25 @@
       "IdentifierToken"
     ]
   },
+  "TypeParameter": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifierToken": [
+      "IdentifierToken"
+    ],
+    "extendsType": [
+      "ParseTree"
+    ]
+  },
+  "TypeParameters": {
+    "location": [
+      "SourceRange"
+    ],
+    "parameters": [
+      "Array<TypeParameter>"
+    ]
+  },
   "TypeReference": {
     "location": [
       "SourceRange"
@@ -991,6 +1144,14 @@
     ],
     "operand": [
       "ParseTree"
+    ]
+  },
+  "UnionType": {
+    "location": [
+      "SourceRange"
+    ],
+    "types": [
+      "Array<ParseTree>"
     ]
   },
   "VariableDeclaration": {

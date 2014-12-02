@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,15 +15,18 @@
 /**
  * Nodejs require() adapter for es6 loader
  */
-(function(global) {
+(function() {
   'use strict';
 
-  var path = typeof require !== 'undefined' && require('path');
+  var path;
 
   function relativeRequire(callerPath, requiredPath) {
     // nodejs wants require(path) to load files relative to the directory
     // containing the source of the caller.  If source of the caller is an ES6
     // module, the node parent module path will not be correct. Let's fix that.
+
+    path = path || typeof require !== 'undefined' && require('path');
+
     function isDirectory(path) {
       return path.slice(-1) === '/';
     }
@@ -42,6 +45,6 @@
         require(requiredPath);
   }
 
-  global.$traceurRuntime.require = relativeRequire;
+  $traceurRuntime.require = relativeRequire;
 
-})(typeof global !== 'undefined' ? global : this);
+})();

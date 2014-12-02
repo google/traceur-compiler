@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader';
-import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
+import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader.js';
+import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter.js';
 import {
   SourceMapGenerator,
   SourceMapConsumer
-} from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
-import {options as traceurOptions} from 'traceur@0.0/src/Options';
-import {webLoader} from 'traceur@0.0/src/runtime/webLoader';
+} from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
+import {options as traceurOptions} from 'traceur@0.0/src/Options.js';
+import {webLoader} from 'traceur@0.0/src/runtime/webLoader.js';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {

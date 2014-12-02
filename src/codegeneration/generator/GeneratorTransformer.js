@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CPSTransformer} from './CPSTransformer';
+import {CPSTransformer} from './CPSTransformer.js';
 import {
   BINARY_EXPRESSION,
   YIELD_EXPRESSION
-} from '../../syntax/trees/ParseTreeType';
+} from '../../syntax/trees/ParseTreeType.js';
 import {
   BinaryExpression,
   ExpressionStatement
-} from '../../syntax/trees/ParseTrees'
-import {FindInFunctionScope} from '../FindInFunctionScope'
-import {ReturnState} from './ReturnState';
-import {YieldState} from './YieldState';
+} from '../../syntax/trees/ParseTrees.js'
+import {FindInFunctionScope} from '../FindInFunctionScope.js'
+import {ReturnState} from './ReturnState.js';
+import {YieldState} from './YieldState.js';
 import {
   createIdentifierExpression as id,
   createMemberExpression,
   createUndefinedExpression,
-} from '../ParseTreeFactory';
+} from '../ParseTreeFactory.js';
 import {
   parseExpression,
   parseStatement,
   parseStatements
-} from '../PlaceholderParser';
+} from '../PlaceholderParser.js';
 
 /**
  * @param {ParseTree} tree Expression tree
@@ -53,7 +53,9 @@ class YieldFinder extends FindInFunctionScope {
 }
 
 function scopeContainsYield(tree) {
-  return new YieldFinder(tree).found;
+  var finder = new YieldFinder();
+  finder.visitAny(tree);
+  return finder.found;
 }
 
 /**

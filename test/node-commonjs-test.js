@@ -11,7 +11,7 @@ var testFiles = fs.readdirSync(COMPILED_DIR).filter(onlyJsFiles);
 suite('commonjs', function() {
   testFiles.forEach(function(testFile) {
     test(testFile, function() {
-      require('./commonjs-compiled/' + testFile.replace(/\.js$/, ''));
+      require('./commonjs-compiled/' + testFile);
     });
   });
 });

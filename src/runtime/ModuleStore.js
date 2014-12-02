@@ -80,6 +80,36 @@
 
   }
 
+  function beforeLines(lines, number) {
+    var result = [];
+    var first = number - 3;
+    if (first < 0)
+      first = 0;
+    for (var i = first; i < number; i++) {
+      result.push(lines[i]);
+    }
+    return result;
+  }
+
+  function afterLines(lines, number) {
+    var last = number + 1;
+    if (last > lines.length - 1)
+      last = lines.length - 1;
+    var result = [];
+    for (var i = number; i <= last; i++) {
+      result.push(lines[i]);
+    }
+    return result;
+  }
+
+  function columnSpacing(columns) {
+    var result = '';
+    for (var i = 0; i < columns - 1; i++) {
+      result += '-';
+    }
+    return result;
+  }
+
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
     constructor(url, func) {
       super(url, null);
@@ -90,12 +120,39 @@
       if (this.value_)
         return this.value_;
       try {
-        return this.value_ = this.func.call(global);
+        var relativeRequire;
+        if (typeof $traceurRuntime !== undefined) {
+          relativeRequire = $traceurRuntime.require.bind(null, this.url);
+        }
+        return this.value_ = this.func.call(global, relativeRequire);
       } catch(ex) {
         if (ex instanceof ModuleEvaluationError) {
           ex.loadedBy(this.url);
           throw ex;
         }
+        if (ex.stack) {
+          // Assume V8 stack format
+          var lines = this.func.toString().split('\n')
+
+          var evaled = [];
+          ex.stack.split('\n').some(function(frame) {
+            // End when we find ourselves on the stack.
+            if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
+              return true;
+            var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
+            if (m) {
+              var line = parseInt(m[2], 10);
+              evaled = evaled.concat(beforeLines(lines, line));
+              evaled.push(columnSpacing(m[3]) + '^');
+              evaled = evaled.concat(afterLines(lines, line));
+              evaled.push('= = = = = = = = =');
+            } else {
+              evaled.push(frame);
+            }
+          });
+          ex.stack = evaled.join('\n');
+        }
+
         throw new ModuleEvaluationError(this.url, ex);
       }
     }
@@ -143,8 +200,8 @@
   var ModuleStore = {
 
     normalize(name, refererName, refererAddress) {
-      if (typeof name !== "string")
-          throw new TypeError("module name must be a string, not " + typeof name);
+      if (typeof name !== 'string')
+          throw new TypeError('module name must be a string, not ' + typeof name);
       if (isAbsolute(name))
         return canonicalizeUrl(name);
       if(/[^\.]\/\.\.\//.test(name)) {
@@ -184,7 +241,7 @@
 
     // -- Non standard extensions to ModuleStore.
 
-    registerModule(name, func) {
+    registerModule(name, deps, func) {
       var normalizedName = ModuleStore.normalize(name);
       if (moduleInstantiators[normalizedName])
         throw new Error('duplicate module named ' + normalizedName);
@@ -197,7 +254,7 @@
     register(name, deps, func) {
       if (!deps || !deps.length && !func.length) {
         // Traceur System.register
-        this.registerModule(name, func);
+        this.registerModule(name, deps, func);
       } else {
         // System.register instantiate form
         this.bundleStore[name] = {
@@ -245,9 +302,10 @@
 
   };
 
-
-  ModuleStore.set('@traceur/src/runtime/ModuleStore',
-      new Module({ModuleStore: ModuleStore}));
+  // TODO(arv): Remove the non .js version after a npm push
+  var moduleStoreModule = new Module({ModuleStore: ModuleStore});
+  ModuleStore.set('@traceur/src/runtime/ModuleStore', moduleStoreModule);
+  ModuleStore.set('@traceur/src/runtime/ModuleStore.js', moduleStoreModule);
 
   // Override setupGlobals so that System is added to future globals.
   var setupGlobals = $traceurRuntime.setupGlobals;
@@ -258,6 +316,7 @@
 
   global.System = {
     register: ModuleStore.register.bind(ModuleStore),
+    registerModule: ModuleStore.registerModule.bind(ModuleStore),
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
@@ -269,4 +328,4 @@
     return instantiator && instantiator.getUncoatedModule();
   };
 
-})(typeof global !== 'undefined' ? global : this);
+})(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);

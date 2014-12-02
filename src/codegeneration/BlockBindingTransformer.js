@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AlphaRenamer} from './AlphaRenamer';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   ANON_BLOCK,
   BINDING_IDENTIFIER,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType';
+} from '../syntax/trees/ParseTreeType.js';
 import {
   AnonBlock,
   BindingElement,
@@ -39,19 +39,19 @@ import {
   VariableDeclarationList,
   VariableStatement,
   WhileStatement
-} from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {VAR} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createBindingIdentifier,
   createIdentifierExpression,
   createIdentifierToken
-} from './ParseTreeFactory';
-import {FindIdentifiers} from './FindIdentifiers';
-import {FindVisitor} from './FindVisitor';
-import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions';
-import {ScopeChainBuilder} from '../semantics/ScopeChainBuilder';
-import {prependStatements} from './PrependStatements';
+} from './ParseTreeFactory.js';
+import {FindIdentifiers} from './FindIdentifiers.js';
+import {FindVisitor} from './FindVisitor.js';
+import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions.js';
+import {ScopeChainBuilderWithReferences} from '../semantics/ScopeChainBuilderWithReferences.js';
+import {prependStatements} from './PrependStatements.js';
 
 /**
  * Transforms the block bindings from traceur to js.
@@ -152,7 +152,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.idGenerator_ = idGenerator;
     this.reporter_ = reporter;
     if (!scopeBuilder) {
-      scopeBuilder = new ScopeChainBuilder(reporter);
+      scopeBuilder = new ScopeChainBuilderWithReferences(reporter);
       scopeBuilder.visitAny(tree);
     }
     this.scopeBuilder_ = scopeBuilder;
@@ -227,6 +227,13 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var scope = this.scope_;
     var parent = scope.parent;
     if (!parent || scope.isVarScope) return false;
+
+    // Look for free variables with the same name in the current var scope.
+    var varScope = scope.getVarScope();
+    if (varScope && varScope.hasFreeVariable(name)) {
+      return true;
+    }
+
     var parentBinding = parent.getBindingByName(name);
     if (!parentBinding) return false;
     var currentBinding = scope.getBindingByName(name);
@@ -518,6 +525,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // We only create an "iife" if the loop has block bindings and functions
     // that use those block binded variables
     var finder = new FindBlockBindingInLoop(tree, this.scopeBuilder_);
+    finder.visitAny(tree);
     if (!finder.found) {
       // just switch it to var
       if (initializerIsBlockBinding) {
@@ -682,6 +690,7 @@ function renameAll(renames, tree) {
 class FindBlockBindingInLoop extends FindVisitor {
 
   constructor(tree, scopeBuilder) {
+    super();
     this.scopeBuilder_ = scopeBuilder;
     // Not all Loop Statements have a scope, but all their block bodies should.
     // Example: a For Loop with no initializer, or one that uses 'var' doesn't
@@ -692,7 +701,6 @@ class FindBlockBindingInLoop extends FindVisitor {
         scopeBuilder.getScopeForTree(tree.body);
     this.outOfScope_ = null;
     this.acceptLoop_ = tree.isIterationStatement();
-    super(tree, false);
   }
 
   visitForInStatement(tree) {
