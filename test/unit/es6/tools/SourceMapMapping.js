@@ -17,9 +17,9 @@ import {SourceMapConsumer}
     from '../../../../src/outputgeneration/SourceMapIntegration.js';
 import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping.js';
 
-var path = 'test/unit/runtime/test_a.js';
-var input = './' + path;
-var output = '/work/traceur-compiler/' + path;
+var path = 'test_a.js';
+var input = './test/unit/runtime/' + path;
+var output = './out/' + path;
 // Force sourceMaps on for test.
 var importOptions = {
   metadata: {
@@ -61,6 +61,9 @@ suite('SourceMapMapping', function() {
         }
       }
       done();
+    }, function(ex) {
+      console.error('SourceMapMapping rejected ', ex.stack || ex);
+      done();
     });
   });
 
@@ -92,6 +95,9 @@ suite('SourceMapMapping', function() {
         assert(expectedPositions[index].line === actual.line);
         assert(expectedPositions[index].column === actual.column);
       });
+      done();
+    }, function(ex) {
+      console.error('SourceMapMapping rejected ', ex.stack || ex);
       done();
     });
   });

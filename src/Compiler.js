@@ -253,7 +253,8 @@ export class Compiler {
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for im-memory maps
       this.sourceMapInfo_ = {
-        url: sourceURL || outputName,
+        url: sourceURL,
+        outputName: outputName,
         map: this.getSourceMap()
       };
     }
