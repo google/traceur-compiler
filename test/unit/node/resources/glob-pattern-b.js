@@ -1,0 +1,1 @@
+this.someResult = 42;
