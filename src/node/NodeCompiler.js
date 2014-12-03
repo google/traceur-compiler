@@ -30,6 +30,7 @@ var Compiler = traceur.Compiler;
 function NodeCompiler(options, sourceRoot) {
   sourceRoot = sourceRoot || process.cwd();
   Compiler.call(this, options, sourceRoot);
+  this.moduleName = options.moduleName;
 }
 
 NodeCompiler.prototype = {
@@ -57,8 +58,14 @@ NodeCompiler.prototype = {
         return;
       }
 
-      this.writeTreeToFile(this.transform(
-          this.parse(contents.toString(), inputFilePath)), outputFilePath);
+      var moduleName = null;
+      if (typeof this.moduleName === 'string') {
+        moduleName = this.moduleName;
+      } else if (this.moduleName) {
+        moduleName = inputFilePath;
+      }
+      var parsed = this.parse(contents.toString(), inputFilePath);
+      this.writeTreeToFile(this.transform(parsed, moduleName), outputFilePath);
     }.bind(this));
   },
 
