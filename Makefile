@@ -154,7 +154,7 @@ test/unit/runtime/traceur-runtime: \
 	node $<
 
 test-version:
-	./traceur -v | grep '[0-9]*\.[0-9*\.[0-9]*'
+	./traceur -v | grep '[0-9]*\.[0-9]*\.[0-9]*'
 
 # Skip sloppy tests because the Promise polyfill is defined in a module
 # and module context in ES6 is strict by default
