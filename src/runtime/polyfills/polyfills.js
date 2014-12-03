@@ -15,7 +15,7 @@
 import {polyfillAll} from './utils.js'
 
 // The Makefile lists the polyfills to include.
-polyfillAll(this);
+polyfillAll(Reflect.global);
 
 // Override setupGlobals so that we can add our polyfills.
 var setupGlobals = $traceurRuntime.setupGlobals;
