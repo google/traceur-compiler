@@ -84,10 +84,8 @@ export class LoaderCompiler {
     var outputName = metadata.outputName || metadata.sourceName ||
         '<loaderOutput>';
     var sourceRoot = metadata.sourceRoot;
-    metadata.transcoded =
-        metadata.compiler.write(metadata.transformedTree, outputName);
-    if (codeUnit.address && metadata.transcoded)
-      metadata.transcoded += '//# sourceURL=' + codeUnit.address;
+    metadata.transcoded = metadata.compiler.write(metadata.transformedTree,
+        outputName, undefined, codeUnit.address);
   }
 
   evaluateCodeUnit(codeUnit) {

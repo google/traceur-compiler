@@ -224,6 +224,7 @@ export class InternalLoader {
     this.urlToKey = Object.create(null);
     this.sync_ = false;
     this.sourceMapsByURL_ = Object.create(null);
+    this.sourceMapsByOutputName_ = Object.create(null);
   }
 
   defaultMetadata_(metadata = {}) {
@@ -238,7 +239,8 @@ export class InternalLoader {
   }
 
   getSourceMap(url) {
-    return this.sourceMapsByURL_[url];
+    // The caller may want the sourcemap from input to output or vice versa.
+    return this.sourceMapsByURL_[url] || this.sourceMapsByOutputName_[url];
   }
 
   load(name, referrerName = this.loader_.baseURL,
@@ -519,6 +521,7 @@ export class InternalLoader {
     var info = codeUnit.metadata.compiler.sourceMapInfo;
     if (info) {
       this.sourceMapsByURL_[info.url] = info.map;
+      this.sourceMapsByOutputName_[info.outputName] = info.map;
     }
     this.loader_.instantiate(codeUnit);
   }

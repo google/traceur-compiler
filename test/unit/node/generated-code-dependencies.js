@@ -196,6 +196,18 @@ suite('context test', function() {
     });
   });
 
+  test('compiled modules sourcemaps=memory', function(done) {
+    var inputFilename = resolve('test/unit/runtime/CallsThrowsError.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var cmd = executable + ' --source-maps=memory ' + inputFilename;
+    exec(cmd, function(error, stdout, stderr) {
+      var fileLinePos = error.message.
+          indexOf('test/unit/runtime/throwsErrorES6.js:3');
+      assert.notEqual(fileLinePos, -1);
+      done();
+    });
+  });
+
   test('compiled modules inline', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
