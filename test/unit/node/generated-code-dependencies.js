@@ -149,8 +149,8 @@ suite('context test', function() {
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
-      var expected = path.resolve(path.dirname(tempFileName),
-          'sourceroot-test.map');
+      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
+          'sourceroot-test.map'));
       assert(sourceMappingURL === expected,
           'expected ' + expected + ' but got ' + sourceMappingURL);
       tempMapName = tempFileName.replace('.js','') + '.map';
@@ -425,8 +425,8 @@ suite('context test', function() {
 
   test('compile module dir option CommonJS with source-maps', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputDir = './unit/node/resources/compile-dir';
-    var outDir = './unit/node/resources/compile-cjs-maps';
+    var inputDir = './test/unit/node/resources/compile-dir';
+    var outDir = './test/unit/node/resources/compile-cjs-maps';
     var cmd = executable + ' --source-maps=file --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
