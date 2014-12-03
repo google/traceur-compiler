@@ -43,7 +43,7 @@ suite('Loader.js', function() {
     fileLoader = require('../../../src/node/nodeLoader.js');
     System = require('../../../src/node/System.js');
   } else {
-    url = resolveUrl(window.location.href, 'unit/runtime/modules.js');
+    url = resolveUrl(window.location.href, 'test/unit/runtime/modules.js');
     fileLoader = get('src/runtime/webLoader.js').webLoader;
   }
 
@@ -276,15 +276,9 @@ suite('Loader.js', function() {
         done();
       }, function(error) {
         assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
-        fileLoader.load('test/unit/runtime/ModuleEvaluationErrorStack.txt',
-          function(data) {
-            assert.equal(data, error.stack);
-            done();
-          }, function(ex) {
-            console.error('LoaderImport.Fail.deperror fails', ex.stack ||ex);
-            done();
-          });
-
+        assert((error.stack + '').indexOf('eval at <anonymous>') === -1,
+            '<eval> stacks are converted.');
+        done();
       }).catch(done);
   });
 
