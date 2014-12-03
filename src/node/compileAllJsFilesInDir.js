@@ -22,7 +22,7 @@ function compileAllJsFilesInDir(inputDir, outputDir, options) {
   inputDir = path.normalize(inputDir).replace(/\\/g, '/');
   outputDir = path.normalize(outputDir).replace(/\\/g, '/');
   return new Promise(function(resolve, reject) {
-    glob(inputDir + '/**/*.js', {}, function(er, files) {
+    glob(inputDir + '/**/*.js', {}, function(err, files) {
       if (err) {
         reject(new Error('While scanning ' + inputDir + ': ' + err));
         return;
