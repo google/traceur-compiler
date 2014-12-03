@@ -767,7 +767,7 @@ export class Parser {
     }
     var superClass = null;
     if (this.eatIf_(EXTENDS)) {
-      superClass = this.parseAssignmentExpression();
+      superClass = this.parseLeftHandSideExpression_();
     }
     this.eat_(OPEN_CURLY);
     var elements = this.parseClassElements_();
