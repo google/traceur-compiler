@@ -63,7 +63,7 @@ suite('SourceMapMapping', function() {
       done();
     }, function(ex) {
       console.error('SourceMapMapping rejected ', ex.stack || ex);
-      done();
+      done(ex);
     });
   });
 
@@ -98,7 +98,7 @@ suite('SourceMapMapping', function() {
       done();
     }, function(ex) {
       console.error('SourceMapMapping rejected ', ex.stack || ex);
-      done();
+      done(ex);
     });
   });
 });

@@ -251,7 +251,7 @@ export class Compiler {
     if (this.sourceMapGenerator_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
-      // The source map info for im-memory maps
+      // The source map info for in-memory maps
       this.sourceMapInfo_ = {
         url: sourceURL,
         outputName: outputName,
