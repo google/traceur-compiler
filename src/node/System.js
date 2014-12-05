@@ -30,8 +30,8 @@ var NodeLoaderCompiler = function() {
 NodeLoaderCompiler.prototype = {
   __proto__: LoaderCompiler.prototype,
   evaluateCodeUnit: function(codeUnit) {
-    var result =
-        module._compile(codeUnit.metadata.transcoded, codeUnit.address);
+    var result = module._compile(codeUnit.metadata.transcoded,
+        codeUnit.address || codeUnit.normalizedName);
     codeUnit.metadata.transformedTree = null;
     return result;
   }

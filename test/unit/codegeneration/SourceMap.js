@@ -22,27 +22,10 @@ suite('SourceMap.js', function() {
   var SourceFile = get('src/syntax/SourceFile.js').SourceFile;
   var SourceMapConsumer = get('src/outputgeneration/SourceMapIntegration.js').SourceMapConsumer;
   var SourceMapGenerator = get('src/outputgeneration/SourceMapIntegration.js').SourceMapGenerator;
-  var write = get('src/outputgeneration/TreeWriter.js').write;
+  var Compiler = get('src/Compiler.js').Compiler;
 
-  var errorReporter = {
-    reportError: function(position, message) {
-      console.error(message + ', ' + position);
-    }
-  };
-
-  function parse(name, source) {
-    var sourceFile = new SourceFile(name, source);
-    var parser = new Parser(sourceFile, errorReporter);
-    var tree = parser.parseScript();
-    return tree;
-  }
-
-  function parseModule(name, source) {
-    var sourceFile = new SourceFile(name, source);
-    var parser = new Parser(sourceFile, errorReporter);
-    var tree = parser.parseModule();
-    return tree;
-  }
+  var moduleCompiler = new Compiler({sourceMaps: 'file'});
+  var scriptCompiler = new Compiler({sourceMaps: 'file', script:true});
 
   test('relativeToSource', function() {
     var relativeToSourceRoot =
@@ -70,7 +53,18 @@ suite('SourceMap.js', function() {
     var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
     var srcLines = src.split('\n');
     var filename = 'sourceMapThis.js';
-    var tree = parse(filename, src);
+    var tree = scriptCompiler.parse(src, filename);
+
+    var generatedSource = scriptCompiler.write(tree, filename);
+    var generatedLines = generatedSource.split('\n');
+
+    // Check that the generated code did not change since we analyzed the map.
+    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 37, -1];
+    generatedLines.map(function(line, index) {
+      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
+    });
+
+    var consumer = new SourceMapConsumer(scriptCompiler.getSourceMap(filename));
 
     var testcases = [
       // >f<unction
@@ -83,18 +77,6 @@ suite('SourceMap.js', function() {
       {generated: {line: 5, column: 1}, original: {line: 6, column: 0}}
     ];
 
-    var generator = new SourceMapGenerator({file: filename});
-    var options = {sourceMapGenerator: generator, showLineNumbers: false};
-    var generatedSource = write(tree, options);
-    var generatedLines = generatedSource.split('\n');
-
-    // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1];
-    generatedLines.map(function(line, index) {
-      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
-    });
-
-    var consumer = new SourceMapConsumer(options.generatedSourceMap);
     testcases.forEach(function(testcase, caseNumber) {
       var actual = consumer.originalPositionFor(testcase.generated);
       var shouldBeTrue = actual.line === testcase.original.line;
@@ -110,9 +92,9 @@ suite('SourceMap.js', function() {
   });
 
   test('MultipleFiles', function() {
-    var treeA = parse('a.js', 'alert(a);');
-    var treeB = parse('b.js', 'alert(b);');
-    var treeC = parse('c.js', 'alert(c);');
+    var treeA = scriptCompiler.parse('alert(a);', 'a.js');
+    var treeB = scriptCompiler.parse('alert(b);', 'b.js');
+    var treeC = scriptCompiler.parse('alert(c);', 'c.js');
 
     // Now create a new program that contains these 3.
     var push = [].push.apply.bind([].push);
@@ -122,14 +104,13 @@ suite('SourceMap.js', function() {
     push(newProgramElements, treeC.scriptItemList);
     var tree = new traceur.syntax.trees.Script(null, newProgramElements);
 
-    var outFilename = 'out.js'
-    var generator = new SourceMapGenerator({file: outFilename});
-    var options = {sourceMapGenerator: generator};
-    var outFileContents = write(tree, options);
+    var outFilename = 'out.js';
+    var outFileContents = scriptCompiler.write(tree, outFilename);
 
-    assert.equal('alert(a);\nalert(b);\nalert(c);\n', outFileContents);
+    var expected = 'alert(a);\nalert(b);\nalert(c);\n\n//# sourceMappingURL=out.map\n';
+    assert.equal(expected, outFileContents);
 
-    var map = JSON.parse(options.generatedSourceMap);
+    var map = JSON.parse(scriptCompiler.getSourceMap(outFilename));
     assert.equal(outFilename, map.file);
     assertArrayEquals(['a.js', 'b.js', 'c.js'], map.sources);
   });
@@ -138,13 +119,10 @@ suite('SourceMap.js', function() {
     var src = "  import {x} from './WrapNewObjectTransformer.js';";
 
     var filename = 'sourceMapImportSpecifierSet.js';
-    var tree = parseModule(filename, src);
+    var tree = moduleCompiler.parse(src, filename);
+    var actual = moduleCompiler.write(tree);
 
-    var generator = new SourceMapGenerator({file: filename});
-    var options = {sourceMapGenerator: generator, showLineNumbers: false};
-    var actual = write(tree, options);
-
-    var consumer = new SourceMapConsumer(options.generatedSourceMap);
+    var consumer = new SourceMapConsumer(moduleCompiler.getSourceMap(filename));
 
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);

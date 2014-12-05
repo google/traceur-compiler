@@ -121,8 +121,6 @@ export class TraceurLoader extends Loader {
       }
 
     }
-    // TODO(jjb): temp hack until we get rid of toSource
-    load.metadata.sourceRoot = this.baseURL;
     return sourceName;
   }
 

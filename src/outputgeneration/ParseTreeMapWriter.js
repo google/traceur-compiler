@@ -19,14 +19,15 @@ import {ParseTreeWriter} from './ParseTreeWriter.js';
  */
 export class ParseTreeMapWriter extends ParseTreeWriter {
   /**
-   * @param {SourceMapGenerator} sourceMapGenerator
-   * @param {string} sourceRoot must be same on used in sourcemapGenerator
+   * @param {SourceMapGenerator} sourceMapConfiguration
    * @param {Object} options for ParseTreeWriter
    */
-  constructor(sourceMapGenerator, sourceRoot, options = undefined) {
+  constructor(sourceMapConfiguration, options = undefined) {
     super(options);
-    this.sourceMapGenerator_ = sourceMapGenerator;
-    this.sourceRoot_ = sourceRoot;
+    if (!sourceMapConfiguration.sourceMapGenerator)
+      throw Error('not here')
+    this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
+    this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
   }
