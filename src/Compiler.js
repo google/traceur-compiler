@@ -239,7 +239,7 @@ export class Compiler {
         this.createSourceMapConfiguration_(outputName, sourceRoot);
     if (this.sourceMapConfiguration_) {
       writer =
-        new ParseTreeMapWriter(this.sourceMapConfiguration_, this.options_);
+          new ParseTreeMapWriter(this.sourceMapConfiguration_, this.options_);
     } else {
       writer = new ParseTreeWriter(this.options_);
     }
