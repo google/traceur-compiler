@@ -24,8 +24,6 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
    */
   constructor(sourceMapConfiguration, options = undefined) {
     super(options);
-    if (!sourceMapConfiguration.sourceMapGenerator)
-      throw Error('not here')
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
     this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.outputLineCount_ = 1;

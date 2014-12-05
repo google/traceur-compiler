@@ -25,7 +25,7 @@ suite('SourceMap.js', function() {
   var Compiler = get('src/Compiler.js').Compiler;
 
   var moduleCompiler = new Compiler({sourceMaps: 'file'});
-  var scriptCompiler = new Compiler({sourceMaps: 'file', script:true});
+  var scriptCompiler = new Compiler({sourceMaps: 'file', script: true});
 
   test('relativeToSource', function() {
     var relativeToSourceRoot =
@@ -60,7 +60,7 @@ suite('SourceMap.js', function() {
 
     // Check that the generated code did not change since we analyzed the map.
     var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 37, -1];
-    generatedLines.map(function(line, index) {
+    generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
 
