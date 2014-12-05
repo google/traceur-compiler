@@ -26,7 +26,6 @@ import {Parser} from '../syntax/Parser.js';
 import {options as globalOptions} from '../Options.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {systemjs} from '../runtime/system-map.js';
-import {toSource} from '../outputgeneration/toSource.js';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator.js';
 import {isAbsolute, resolveUrl} from '../util/url.js';
@@ -85,7 +84,7 @@ export class LoaderCompiler {
         '<loaderOutput>';
     var sourceRoot = metadata.sourceRoot;
     metadata.transcoded = metadata.compiler.write(metadata.transformedTree,
-        outputName, undefined, codeUnit.address);
+        outputName, undefined, codeUnit.address || codeUnit.normalizedName);
   }
 
   evaluateCodeUnit(codeUnit) {

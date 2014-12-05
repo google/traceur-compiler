@@ -63,7 +63,7 @@ export class Compiler {
     this.options_ = new Options(this.defaultOptions());
     this.options_.setFromObject(overridingOptions);
     // Only used if this.options_.sourceMaps is set.
-    this.sourceMapGenerator_ = null;
+    this.sourceMapConfiguration_ = null;
     // Only used if this.options_sourceMaps = 'memory'.
     this.sourceMapInfo_ = null;
   }
@@ -158,7 +158,7 @@ export class Compiler {
    */
   parse(content, sourceName = '<compiler-parse-input>') {
     sourceName = this.normalize(sourceName);
-    this.sourceMapGenerator_ = null;
+    this.sourceMapConfiguration_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
 
@@ -200,19 +200,21 @@ export class Compiler {
     return transformedTree;
   }
 
-  createSourceMapGenerator_(outputName, sourceRoot = undefined) {
+  createSourceMapConfiguration_(outputName, sourceRoot = undefined) {
     if (this.options_.sourceMaps) {
-      var sourceRoot = sourceRoot || basePath(outputName);
-      return new SourceMapGenerator({
-        file: outputName,
+      return {
+        sourceMapGenerator: new SourceMapGenerator({
+          file: outputName,
+          sourceRoot: sourceRoot
+        }),
         sourceRoot: sourceRoot
-      });
+      };
     }
   }
 
   getSourceMap() {
-    if (this.sourceMapGenerator_)
-      return this.sourceMapGenerator_.toString();
+    if (this.sourceMapConfiguration_)
+      return this.sourceMapConfiguration_.sourceMapGenerator.toString();
   }
 
   get sourceMapInfo() {
@@ -230,14 +232,14 @@ export class Compiler {
   write(tree, outputName = undefined, sourceRoot = undefined,
       sourceURL = undefined) {
     outputName = this.normalize(outputName);
-    sourceRoot = this.normalize(sourceRoot);
+    sourceRoot = this.normalize(sourceRoot) || basePath(outputName);
 
     var writer;
-    this.sourceMapGenerator_ =
-        this.createSourceMapGenerator_(outputName, sourceRoot);
-    if (this.sourceMapGenerator_) {
-      writer = new ParseTreeMapWriter(this.sourceMapGenerator_, sourceRoot,
-          this.options_);
+    this.sourceMapConfiguration_ =
+        this.createSourceMapConfiguration_(outputName, sourceRoot);
+    if (this.sourceMapConfiguration_) {
+      writer =
+          new ParseTreeMapWriter(this.sourceMapConfiguration_, this.options_);
     } else {
       writer = new ParseTreeWriter(this.options_);
     }
@@ -246,7 +248,7 @@ export class Compiler {
 
     var compiledCode = writer.toString();
 
-    if (this.sourceMapGenerator_) {
+    if (this.sourceMapConfiguration_) {
       var sourceMappingURL = this.sourceMappingURL(outputName);
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
@@ -276,6 +278,7 @@ export class Compiler {
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
+    filename = filename || 'unamed.js';
     return filename.split('/').pop().replace(/\.[^.]+$/, '.map');
   }
 
