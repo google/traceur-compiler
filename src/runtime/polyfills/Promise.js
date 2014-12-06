@@ -147,21 +147,30 @@ export class Promise {
   // Combinators.
 
   static all(values) {
-    var deferred = getDeferred(this);
-    var resolutions = [];
+    const deferred = getDeferred(this);
+    const resolutions = [];
     try {
-      var count = values.length;
+      let count = 0;
+      let i = 0;
+      for (let value of values) {
+        const countdownFunction = makeCountdownFunction(i);
+        this.resolve(value).then(
+            countdownFunction,
+            (r) => { deferred.reject(r); });
+        ++i
+        ++count;
+      }
+      // iterable must be empty as otherwise the count wouldn't be decreased
+      // until next tick at least
       if (count === 0) {
         deferred.resolve(resolutions);
-      } else {
-        for (var i = 0; i < values.length; i++) {
-          this.resolve(values[i]).then(
-              function(i, x) {
-                resolutions[i] = x;
-                if (--count === 0)
-                  deferred.resolve(resolutions);
-              }.bind(undefined, i),
-              (r) => { deferred.reject(r); });
+      }
+
+      function makeCountdownFunction(i) {
+        return x => {
+          resolutions[i] = x;
+          if (--count === 0)
+            deferred.resolve(resolutions);
         }
       }
     } catch (e) {
