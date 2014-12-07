@@ -51,6 +51,7 @@ import {FindIdentifiers} from './FindIdentifiers.js';
 import {FindVisitor} from './FindVisitor.js';
 import {FnExtractAbruptCompletions} from './FnExtractAbruptCompletions.js';
 import {ScopeChainBuilderWithReferences} from '../semantics/ScopeChainBuilderWithReferences.js';
+import {parseExpression} from './PlaceholderParser.js';
 import {prependStatements} from './PrependStatements.js';
 
 /**
@@ -170,6 +171,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.usedVars_ = this.scope_.getAllBindingNames();
     this.maybeRename_ = false;
     this.inObjectPattern_ = false;
+    this.inLoop_ = false;
   }
 
   /**
@@ -352,7 +354,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var maybeRename = this.maybeRename_;
     var lvalue = this.transformAny(tree.lvalue);
     this.maybeRename_ = false;
-    var initializer = this.transformAny(tree.initializer);
+    var initializer = null;
+    if (tree.initializer) {
+      initializer = this.transformAny(tree.initializer);
+    } else if (this.inLoop_) {
+      // If we are in a loop we need to make sure we reinitialize the binding
+      // on every iteration.
+      initializer = parseExpression `void 0`;
+    }
     this.maybeRename_ = maybeRename;
     if (tree.lvalue === lvalue && tree.initializer === initializer) {
       return tree;
@@ -548,7 +557,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         this.revisitTreeForScopes(tree);
         tree = func(tree);
       } else {
-        return func(tree);
+        var inLoop = this.inLoop_;
+        this.inLoop_ = true
+        var rv = func(tree);
+        this.inLoop_ = inLoop;
+        return rv;
       }
     } else {
       var iifeParameterList = [];

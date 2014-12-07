@@ -167,7 +167,7 @@ suite('BlockBindingTransformer.js', function() {
         '      return 1;' +
         '      continue inner;' +
         '    }' +
-        '  }, $__1;' +
+        '  }, $__1 = void 0;' +
         '  for (var i = 0; i < 5; i++) {' +
         '    $__1 = $__0(i);' +
         '    switch ($__1) {' +
