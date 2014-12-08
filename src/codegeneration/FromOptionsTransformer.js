@@ -105,11 +105,12 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
 
-    if (options.memberVariables)
-      append(MemberVariableTransformer);
-
-    if (options.typeAssertions)
+    if (options.typeAssertions) {
+      // Transforming member variabless to getters/setters only make
+      // sense when the type assertions are enabled.
+      if (options.memberVariables) append(MemberVariableTransformer);
       append(TypeAssertionTransformer);
+    }
 
     // PropertyNameShorthandTransformer needs to come before
     // module transformers. See #1120 or
