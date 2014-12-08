@@ -270,7 +270,7 @@ export class Compiler {
     return filename;
   }
 
-  sourceMappingURL(filename) {
+  sourceMappingURL(path) {
     // This implementation works for browsers. The NodeCompiler overrides
     // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {
@@ -279,8 +279,8 @@ export class Compiler {
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
-    filename = filename || 'unamed.js';
-    return filename.replace(/\.[^.]+$/, '.map');
+    path = path || 'unamed.js';
+    return path.replace(/\.[^.]+$/, '.map');
   }
 
   sourceNameFromTree(tree) {

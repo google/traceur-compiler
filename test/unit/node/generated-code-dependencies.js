@@ -151,8 +151,7 @@ suite('context test', function() {
       var sourceMappingURL = m[1];
       var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
           'sourceroot-test.map'));
-      assert(sourceMappingURL === expected,
-          'expected ' + expected + ' but got ' + sourceMappingURL);
+      assert.equal(sourceMappingURL, expected);
       tempMapName = tempFileName.replace('.js','') + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
