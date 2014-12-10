@@ -222,7 +222,7 @@ class AnnotationsScope {
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
           tree.functionKind, tree.name, parameterList,
-          tree.typeAnnotation, [], tree.body);
+          tree.typeAnnotation, [], tree.body, tree.debugName);
     }
     return super.transformPropertyMethodAssignment(tree);
   }

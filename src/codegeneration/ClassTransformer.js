@@ -25,7 +25,12 @@ import {
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {
+  createBindingIdentifier,
+  createIdentifierToken
+} from '../codegeneration/ParseTreeFactory.js';
+import {
   CALL_EXPRESSION,
+  COMPUTED_PROPERTY_NAME,
   EXPRESSION_STATEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
@@ -35,7 +40,10 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {SuperTransformer} from './SuperTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
-import {VAR} from '../syntax/TokenType.js';
+import {
+  VAR,
+  STRING
+} from '../syntax/TokenType.js';
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {
   createEmptyParameterList,
@@ -107,6 +115,28 @@ function classCall(func, object, staticObject, superClass) {
       `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
 }
 
+function methodNameFromTree(tree) {
+  // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
+  if (tree.type === COMPUTED_PROPERTY_NAME) {
+    return '';
+  }
+
+  if (tree.literalToken && tree.literalToken.type === STRING) {
+    return tree.getStringValue().substr(1, -1);
+  }
+
+  // identifier, delete, import, catch, etc.
+  return tree.getStringValue();
+}
+
+function classMethodDebugName(className, methodName, isStatic) {
+  if (isStatic) {
+    return createBindingIdentifier('$__' + className + '_' + methodName);
+  }
+
+  return createBindingIdentifier('$__' + className + '_prototype_' + methodName);
+}
+
 export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
@@ -160,7 +190,7 @@ export class ClassTransformer extends TempVarTransformer{
     return MakeStrictTransformer.transformTree(tree);
   }
 
-  transformClassElements_(tree, internalName) {
+  transformClassElements_(tree, internalName, originalName) {
     var oldState = this.state_;
     this.state_ = {hasSuper: false};
     var superClass = this.transformAny(tree.superClass);
@@ -197,7 +227,7 @@ export class ClassTransformer extends TempVarTransformer{
             constructor = tree;
           } else {
             var transformed = this.transformPropertyMethodAssignment_(
-                tree, homeObject, internalName);
+                tree, homeObject, internalName, originalName);
             elements.push(transformed);
           }
           break;
@@ -267,7 +297,7 @@ export class ClassTransformer extends TempVarTransformer{
       staticObject,
       superClass,
       initStaticVars,
-    } = this.transformClassElements_(tree, internalName);
+    } = this.transformClassElements_(tree, internalName, name);
 
     // TODO(arv): Use let.
     var statements = parseStatements `var ${name} = ${func}`;
@@ -296,7 +326,9 @@ export class ClassTransformer extends TempVarTransformer{
     if (tree.name)
       name = tree.name.identifierToken;
     else
-      name = id(this.getTempIdentifier());
+      name = createIdentifierToken(this.getTempIdentifier());
+
+    var internalName = id(`${name}`);
 
     var {
       func,
@@ -305,7 +337,7 @@ export class ClassTransformer extends TempVarTransformer{
       staticObject,
       superClass,
       initStaticVars,
-    } = this.transformClassElements_(tree, name);
+    } = this.transformClassElements_(tree, internalName, name);
 
     var expression;
 
@@ -317,14 +349,14 @@ export class ClassTransformer extends TempVarTransformer{
       // TODO(arv): Use const.
       if (superClass) {
         expression = parseExpression `function($__super) {
-          var ${name} = ${func};
-          return ($traceurRuntime.createClass)(${name}, ${object},
+          var ${internalName} = ${func};
+          return ($traceurRuntime.createClass)(${internalName}, ${object},
                                                ${staticObject}, $__super);
         }(${superClass})`;
       } else {
         expression = parseExpression `function() {
-          var ${name} = ${func};
-          return ($traceurRuntime.createClass)(${name}, ${object},
+          var ${internalName} = ${func};
+          return ($traceurRuntime.createClass)(${internalName}, ${object},
                                                ${staticObject});
         }()`;
       }
@@ -337,10 +369,13 @@ export class ClassTransformer extends TempVarTransformer{
     return createParenExpression(this.makeStrict_(expression));
   }
 
-  transformPropertyMethodAssignment_(tree, homeObject, internalName) {
+  transformPropertyMethodAssignment_(tree, homeObject, internalName, originalName) {
     var parameterList = this.transformAny(tree.parameterList);
     var body = this.transformSuperInFunctionBody_(
         tree.body, homeObject, internalName);
+
+    tree.debugName = classMethodDebugName(originalName, methodNameFromTree(tree.name), isStatic);
+
     if (!tree.isStatic &&
         parameterList === tree.parameterList &&
         body === tree.body) {
@@ -350,7 +385,7 @@ export class ClassTransformer extends TempVarTransformer{
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
-        tree.annotations, body);
+        tree.annotations, body, tree.debugName);
   }
 
   transformGetAccessor_(tree, homeObject) {

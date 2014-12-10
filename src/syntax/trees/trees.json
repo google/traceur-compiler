@@ -904,6 +904,9 @@
     ],
     "body": [
       "FunctionBody"
+    ],
+    "debugName": [
+      "ParseTree"
     ]
   },
   "PropertyNameAssignment": {
