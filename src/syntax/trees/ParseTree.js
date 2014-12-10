@@ -58,6 +58,7 @@ import {
   INTERFACE_DECLARATION,
   LABELLED_STATEMENT,
   LITERAL_EXPRESSION,
+  LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   MODULE_DECLARATION,
@@ -404,6 +405,8 @@ export class ParseTree {
         return this.binding.getStringValue();
       case PROPERTY_NAME_SHORTHAND:
         return this.name.toString();
+      case LITERAL_PROPERTY_NAME:
+        return this.literalToken.toString();
     }
 
     throw new Error('Not yet implemented');

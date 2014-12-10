@@ -2192,7 +2192,7 @@ export class Parser {
     var body = this.parseFunctionBody_(functionKind, parameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, functionKind, name, parameterList, typeAnnotation,
-        annotations, body);
+        annotations, body, null);
   }
 
   parsePropertyVariableDeclaration_(start, isStatic, name, annotations) {
