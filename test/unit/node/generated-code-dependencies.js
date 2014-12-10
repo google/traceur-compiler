@@ -149,8 +149,9 @@ suite('context test', function() {
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
-      assert(sourceMappingURL === 'sourceroot-test.map',
-          'expected sourceroot-test.map but got ' + sourceMappingURL);
+      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
+          'sourceroot-test.map'));
+      assert.equal(sourceMappingURL, expected);
       tempMapName = tempFileName.replace('.js','') + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
@@ -421,4 +422,18 @@ suite('context test', function() {
       });
   });
 
+  test('compile module dir option CommonJS with source-maps', function(done) {
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputDir = './test/unit/node/resources/compile-dir';
+    var outDir = './test/unit/node/resources/compile-cjs-maps';
+    var cmd = executable + ' --source-maps=file --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs';
+    exec(cmd, function(error, stdout, stderr) {
+      assert.isNull(error);
+      var fileContents = fs.readFileSync(path.resolve(outDir, 'file.map'));
+      var depContents = fs.readFileSync(path.resolve(outDir, 'dep.map'));
+      assert(fileContents + '');
+      assert(depContents + '')
+      done();
+    });
+  });
 });

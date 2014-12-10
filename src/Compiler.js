@@ -249,7 +249,8 @@ export class Compiler {
     var compiledCode = writer.toString();
 
     if (this.sourceMapConfiguration_) {
-      var sourceMappingURL = this.sourceMappingURL(outputName);
+      var sourceMappingURL =
+          this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
       this.sourceMapInfo_ = {
@@ -269,7 +270,7 @@ export class Compiler {
     return filename;
   }
 
-  sourceMappingURL(filename) {
+  sourceMappingURL(path) {
     // This implementation works for browsers. The NodeCompiler overrides
     // to use nodejs functions.
     if (this.options_.sourceMaps === 'inline') {
@@ -278,8 +279,8 @@ export class Compiler {
             btoa(unescape(encodeURIComponent(this.getSourceMap())));
       }
     }
-    filename = filename || 'unamed.js';
-    return filename.split('/').pop().replace(/\.[^.]+$/, '.map');
+    path = path || 'unamed.js';
+    return path.replace(/\.[^.]+$/, '.map');
   }
 
   sourceNameFromTree(tree) {

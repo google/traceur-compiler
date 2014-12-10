@@ -174,6 +174,7 @@ clean: wikiclean
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
+	@rm -rf test/commonjs-compiled-maps/*
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
 	$(NPM_INSTALL)
