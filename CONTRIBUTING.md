@@ -17,6 +17,7 @@ agreement, either for an
 patch can be accepted.
 1. Add an entry to the `AUTHORS` file with your name and email.
 2. Please use the google javascript style, http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
+3. The file [`.editorconfig`](http://editorconfig.org) includes editor settings matching the source style.
 1. We will squash all the commits together before pushing. The pull request
 message body will be used as the commit message.
 
