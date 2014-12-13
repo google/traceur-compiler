@@ -73,4 +73,17 @@ suite('api.js', function() {
     assert(result.length > 0);
   });
 
+  test('no sourceURL unless output name differs from input name', function() {
+    var src = 'var x = 4;';
+    var api = require('../../../src/node/api');
+    var sourceName = 'source.js';
+    var outputName = 'output.js';
+
+    var result = api.compile(src, {}, sourceName, outputName);
+    assert.equal(result.indexOf('sourceURL'), 29);
+
+    result = api.compile(src, {}, sourceName, sourceName);
+    assert.equal(result.indexOf('sourceURL'), -1);
+  });
+
 });
