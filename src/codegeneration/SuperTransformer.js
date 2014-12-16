@@ -110,7 +110,7 @@ export class SuperTransformer extends ParseTreeTransformer {
   // We should never get to these if ClassTransformer is doing its job.
   transformGetAccessor(tree) { return tree; }
   transformSetAccessor(tree) { return tree; }
-  transformPropertyMethodAssignMent(tree) { return tree; }
+  transformPropertyMethodAssignment(tree) { return tree; }
 
   /**
    * @param {CallExpression} tree
