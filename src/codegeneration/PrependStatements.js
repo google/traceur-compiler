@@ -12,18 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  EXPRESSION_STATEMENT,
-  LITERAL_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {STRING} from '../syntax/TokenType.js';
-
-function isStringExpressionStatement(tree) {
-  return tree.type === EXPRESSION_STATEMENT &&
-      tree.expression.type === LITERAL_EXPRESSION &&
-      tree.expression.literalToken.type === STRING;
-}
-
 /**
  * Prepends |statements| with the |statementsToPrepend| making sure that any
  * leading directives, like 'use strict', are kept at the top of the statements.
@@ -41,7 +29,7 @@ export function prependStatements(statements, ...statementsToPrepend) {
   var transformed  = [];
   var inProlog = true;
   statements.forEach((statement) => {
-    if (inProlog && !isStringExpressionStatement(statement)) {
+    if (inProlog && !statement.isDirectivePrologue()) {
       transformed.push(...statementsToPrepend);
       inProlog = false;
     }
