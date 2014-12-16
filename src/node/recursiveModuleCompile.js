@@ -53,8 +53,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   return recursiveModuleCompile(resolvedIncludes, options)
       .then(function(tree) {
         compiler.writeTreeToFile(tree, resolvedOutputFile);
-        revertCwd();
-      }, function(err) {
+      }).then(revertCwd, function(err) {
         revertCwd();
         throw err;
       });
