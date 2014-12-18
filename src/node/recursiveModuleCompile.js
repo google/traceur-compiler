@@ -39,6 +39,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
     return include;
   });
 
+  options.bundle = includes.length > 1;
   var compiler = new NodeCompiler(options);
 
   mkdirRecursive(outputDir);

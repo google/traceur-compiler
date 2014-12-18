@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  AttachModuleNameTransformer
-} from '../codegeneration/module/AttachModuleNameTransformer.js';
-import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer.js';
 import {buildExportList} from '../codegeneration/module/ExportListBuilder.js';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
 import {Compiler} from '../Compiler.js';

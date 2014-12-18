@@ -30,7 +30,7 @@ suite('node public api', function() {
       // build ES6 style modules rather then cjs
       modules: 'register',
 
-      // node defaults to moduleName false
+      // single file compile defaults to moduleName false
       moduleName: true,
 
       // ensure the source map works
@@ -99,7 +99,7 @@ suite('node public api', function() {
       // build ES6 style modules rather then cjs
       modules: 'register',
 
-      // node defaults to moduleName false
+      // single file compile defaults to moduleName false
       moduleName: true,
 
       // ensure the source map works
@@ -120,22 +120,41 @@ suite('node public api', function() {
 
   test('named amd', function() {
     var compiled = traceurAPI.compile(contents, {
-      // build ES6 style modules rather then cjs
+      // build requirejs style modules rather then cjs
       modules: 'amd',
 
       // enforce a module name in the AMD define
-      moduleName: 'test-module'
-    }, nativeFilename);
+      moduleName: true
+    }, 'test-module');
 
     assert.ok(compiled, 'can compile');
 
     var gotName;
-    var define = function(name) {
+    function define(name) {
       gotName = name;
     }
-
+    // eval locally to capture the define() mock
     eval(compiled);
 
-    assert.ok(gotName == 'test-module', 'module defines into named AMD');
+    assert.equal(gotName, 'test-module');
+  });
+
+  test('default amd', function() {
+    var compiled = traceurAPI.compile(contents, {
+      // build requirejs style modules rather then cjs
+      modules: 'amd',
+      moduleName: true
+    }, 'test-module');
+
+    assert.ok(compiled, 'can compile');
+
+    var gotName;
+    function define(name) {
+      gotName = name;
+    }
+    // eval locally to capture the define() mock
+    eval(compiled);
+
+    assert.equal(gotName, 'test-module');
   });
 });
