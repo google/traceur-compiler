@@ -1140,8 +1140,6 @@ ParseTreeValidator.validate = function(tree) {
         '(unknown)';
     throw new Error(
         `Parse tree validation failure '${e.message}' at ${locationString}:` +
-        '\n\n' +
-        TreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
-        '\n');
+        `\n\n${TreeWriter.write(tree)}\n`);
   }
 };

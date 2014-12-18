@@ -20,8 +20,6 @@ import {SourceMapGenerator} from './SourceMapIntegration.js';
  * Create a ParseTreeWriter configured with options, apply it to tree
  * @param {ParseTree} tree
  * @param {Object=} options:
- *     highlighted: {ParseTree} branch of tree to highlight
- *     showLineNumbers: {boolean} add comments giving input line numbers
  *     prettyPrint: {boolean}
  *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
  * @param {string} outputName the sourcemap file value.

@@ -101,25 +101,14 @@ var LINE_LENGTH = 80;
  */
 export class ParseTreeWriter extends ParseTreeVisitor {
   /**
-   * @param {ParseTree} highlighted
-   * @param {boolean} showLineNumbers
+   * @param {{prettyPrint: boolean=}} options
    */
-  constructor({
-    highlighted = false,
-    showLineNumbers = false,
-    prettyPrint = true
-  } = {}) {
+  constructor({prettyPrint = true} = {}) {
     super();
-    this.highlighted_ = highlighted;
-    this.showLineNumbers_ = showLineNumbers;
     this.prettyPrint_ = prettyPrint;
     this.result_ = '';
     this.currentLine_ = '';
-
-    /**
-     * @private {string}
-     */
-    this.currentLineComment_ = null;
+    this.lastCode_ = -1;
 
     /**
      * @private {number}
@@ -136,37 +125,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (this.currentLine_.length > 0) {
       this.result_ += this.currentLine_;
       this.currentLine_ = '';
+      this.lastCode_ = -1;
     }
 
     return this.result_;
-  }
-
-  /**
-   * @param {ParseTree} tree
-   */
-  visitAny(tree) {
-    if (!tree) {
-      return;
-    }
-
-    // set background color to red if tree is highlighted
-    if (tree === this.highlighted_) {
-      this.write_('\x1B[41m');
-    }
-
-    if (tree.location !== null &&
-        tree.location.start !== null && this.showLineNumbers_) {
-        var line = tree.location.start.line + 1;
-        var column = tree.location.start.column;
-      this.currentLineComment_ = `Line: ${line}.${column}`;
-    }
-
-    super.visitAny(tree);
-
-    // set background color to normal
-    if (tree === this.highlighted_) {
-      this.write_('\x1B[0m');
-    }
   }
 
   /**
@@ -318,9 +280,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {Block} tree
    */
   visitBlock(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.statements);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -397,9 +359,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.visitAny(tree.superClass);
     }
     this.writeSpace_();
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.elements);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -599,9 +561,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ExportSpecifierSet} tree
    */
   visitExportSpecifierSet(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writeList_(tree.specifiers, COMMA, false);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -712,9 +674,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FunctionBody} tree
    */
   visitFunctionBody(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.statements);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -912,9 +874,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (tree.specifiers.type == STAR) {
       this.write_(STAR);
     } else {
-      this.write_(OPEN_CURLY);
+      this.writeOpenCurly_();
       this.writelnList_(tree.specifiers, COMMA);
-      this.write_(CLOSE_CURLY);
+      this.writeCloseCurly_();
     }
   }
 
@@ -1031,22 +993,22 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ObjectLiteralExpression} tree
    */
   visitObjectLiteralExpression(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     if (tree.propertyNameAndValues.length > 1)
       this.writeln_();
     this.writelnList_(tree.propertyNameAndValues, COMMA);
     if (tree.propertyNameAndValues.length > 1)
       this.writeln_();
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
    * @param {ObjectPattern} tree
    */
   visitObjectPattern(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.fields, COMMA);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -1065,9 +1027,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ObjectType} tree
    */
   visitObjectType(tree) {
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.typeMembers);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -1192,7 +1154,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {TemplateLiteralPortion} tree
    */
   visitTemplateLiteralPortion(tree) {
-    this.writeRaw_(tree.value);
+    this.writeRaw_('' + tree.value);
   }
 
   /**
@@ -1283,9 +1245,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.expression);
     this.write_(CLOSE_PAREN);
     this.writeSpace_();
-    this.write_(OPEN_CURLY);
+    this.writeOpenCurly_();
     this.writelnList_(tree.caseClauses);
-    this.write_(CLOSE_CURLY);
+    this.writeCloseCurly_();
   }
 
   /**
@@ -1474,16 +1436,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   writeln_() {
-    if (this.currentLineComment_) {
-      while (this.currentLine_.length < LINE_LENGTH) {
-        this.currentLine_ += ' ';
-      }
-      this.currentLine_ += ' // ' + this.currentLineComment_;
-      this.currentLineComment_ = null;
-    }
     if (this.currentLine_)
       this.writeCurrentln_();
     this.currentLine_ = '';
+    this.lastCode_ = -1;
   }
 
   /**
@@ -1512,7 +1468,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   writeList_(list, delimiter, writeNewLine, indent = 0) {
     var first = true;
     for (var i = 0; i < list.length; i++) {
-      var element = list[i];
       if (first) {
         first = false;
       } else {
@@ -1527,18 +1482,23 @@ export class ParseTreeWriter extends ParseTreeVisitor {
           this.writeln_();
         }
       }
-      this.visitAny(element);
+      this.visitAny(list[i]);
     }
     if (writeNewLine && list.length > 1)
-        this.indentDepth_ -= indent;
+      this.indentDepth_ -= indent;
   }
 
   /**
-   * @param {string|Token|TokenType} value
+   * @param {string} value
    * @private
    */
   writeRaw_(value) {
     this.currentLine_ += value;
+    // We keep track of the last char code since we need it in needsSpace_ and
+    // extracting it here instead of getting it out of the currentLine_ is
+    // orders of magnitudes faster because currentLine_ ends up being a string
+    // rope.
+    this.lastCode_ = value.charCodeAt(value.length - 1);
   }
 
   /**
@@ -1546,33 +1506,39 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   write_(value) {
-    if (value === CLOSE_CURLY)
-      this.indentDepth_--;
+    if (value === null) return;
 
-    if (value !== null) {
-      if (this.prettyPrint_) {
-        if (!this.currentLine_) {
-          for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
-            this.currentLine_ += '  ';
-          }
-        }
+    if (this.prettyPrint_ && this.currentLine_.length === 0) {
+      for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
+        this.writeRaw_('  ');
       }
-      if (this.needsSpace_(value))
-        this.currentLine_ += ' ';
-      this.currentLine_ += value;
     }
-
-    if (value === OPEN_CURLY)
-      this.indentDepth_++;
+    if (this.needsSpace_(value)) {
+      this.writeRaw_(' ');
+    }
+    this.writeRaw_('' + value);
   }
 
-  writeSpace_(useSpace = this.prettyPrint_) {
-    if (useSpace && !endsWithSpace(this.currentLine_))
-      this.currentLine_ += ' ';
+  writeCloseCurly_() {
+    this.indentDepth_--;
+    this.write_(CLOSE_CURLY);
+  }
+
+  writeOpenCurly_() {
+    this.write_(OPEN_CURLY);
+    this.indentDepth_++;
+  }
+
+  writeSpace_() {
+    if (this.prettyPrint_ && !isWhitespace(this.lastCode_)) {
+      this.writeRaw_(' ');
+    }
   }
 
   writeRequiredSpace_() {
-    this.writeSpace_(true);
+    if (!isWhitespace(this.lastCode_)) {
+      this.writeRaw_(' ');
+    }
   }
 
   writeTypeAnnotation_(typeAnnotation) {
@@ -1600,16 +1566,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {string|Token|TokenType} value
    */
   needsSpace_(token) {
-    var line = this.currentLine_;
-    if (!line)
-      return false;
-
-    var lastCode = line.charCodeAt(line.length - 1);
-    if (isWhitespace(lastCode))
-      return false;
-
+    var lastCode = this.lastCode_;
+    if (isWhitespace(lastCode)) return false;
     var firstCode = token.toString().charCodeAt(0);
-
     return isIdentifierPart(firstCode) &&
         // /m is treated as regexp flag
         (isIdentifierPart(lastCode) || lastCode === 47);
@@ -1621,8 +1580,4 @@ function requiresSpaceBetween(first, second) {
       (second === MINUS || second === MINUS_MINUS) ||
       (first === PLUS || first === PLUS_PLUS) &&
       (second === PLUS || second === PLUS_PLUS);
-}
-
-function endsWithSpace(s) {
-  return isWhitespace(s.charCodeAt(s.length - 1));
 }
