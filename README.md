@@ -1,6 +1,6 @@
+https://github.com/contoso-c/traceur-compiler/pulls
 
-@ -153,6 +153,190 @@ today, helping you say what you mean in your code while informing the standards
- 
+ @ -153,6 +153,190 @@ today, helping you say what you mean in your code while informing the standards
  JavaScript's evolution needs your input.
  [Try](https://github.com/google/traceur-compiler/wiki/Getting-Started) out the
 +[
