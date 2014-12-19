@@ -72,15 +72,9 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   write_(value) {
-    if (this.entered_) {
-      this.generate();
-      super.write_(value);
-      this.generate();
-    } else {
-      this.generate();
-      super.write_(value);
-      this.generate();
-    }
+    this.generate();
+    super.write_(value);
+    this.generate();
   }
 
   generate() {
@@ -94,7 +88,6 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
 
   enterBranch(location) {
     this.originate(location.start);
-    this.entered_ = true;
   }
 
   exitBranch(location) {
@@ -105,7 +98,6 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       source : {name: position.source.name, contents: position.source.contents},
     }
     this.originate(endOfPreviousToken);
-    this.entered_ = false;
   }
 
   /**
