@@ -95,7 +95,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     var endOfPreviousToken = {
       line: position.line,
       column: position.column ? position.column - 1 : 0,
-      source : {name: position.source.name, contents: position.source.contents},
+      source : position.source,
     }
     this.originate(endOfPreviousToken);
   }
