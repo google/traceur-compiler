@@ -40,6 +40,7 @@ export var optionsV01 = enumerableOnlyObject({
   generatorComprehension: false,
   generators: true,
   lowResolutionSourceMap: false,
+  inputSourceMap: false,
   memberVariables: false,
   moduleName: false,
   modules: 'register',
@@ -203,6 +204,7 @@ export class Options {
     this.referrer = '';
     this.sourceMaps = false;
     this.lowResolutionSourceMap = false;
+    this.inputSourceMap = false;
     this.typeAssertionModule = null;
   }
   /**

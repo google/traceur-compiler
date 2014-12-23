@@ -28,6 +28,7 @@ import {
 
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
+import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
 
 function merge(...srcs) {
@@ -233,7 +234,8 @@ export class Compiler {
           sourceRoot: sourceRoot,
           skipValidation: true
         }),
-        sourceRoot: sourceRoot
+        sourceRoot: sourceRoot,
+        inputSourceMap: this.options_.inputSourceMap
       };
     }
   }
@@ -279,12 +281,19 @@ export class Compiler {
     if (this.sourceMapConfiguration_) {
       var sourceMappingURL =
           this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
+      var sourceMap = this.getSourceMap();
+      var inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
+      if (inputSourceMap) {
+        var generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
+        generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
+        sourceMap = generator.toJSON();
+      }
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
       this.sourceMapInfo_ = {
         url: sourceURL,
         outputName: outputName,
-        map: this.getSourceMap()
+        map: sourceMap
       };
     }
 
