@@ -152,9 +152,12 @@
               evaled.push(frame);
             }
           });
-          ex.stack = evaled.join('\n');
+          // Allocate new object, some platforms make ex.stack read-only.
+          ex = {
+            stack: evaled.join('\n'),
+            message: ex.message
+          };
         }
-
         throw new ModuleEvaluationError(this.url, ex);
       }
     }
