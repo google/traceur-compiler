@@ -19,18 +19,13 @@ suite('ModuleTransformer', function() {
   }
 
   var ModuleTransformer = get('src/codegeneration/ModuleTransformer.js').ModuleTransformer;
-  var options = get('src/Options.js').options;
-  var parseOptions = get('src/Options.js').parseOptions;
-  var transformOptions = get('src/Options.js').transformOptions;
+  var Options = get('src/Options.js').Options;
   var Compiler = get('src/Compiler.js').Compiler;
   var write = get('src/outputgeneration/TreeWriter.js').write;
 
-  teardown(function() {
-    options.reset();
-  });
-
-  function makeTest(name, content, included, options) {
+  function makeTest(name, content, included, testOptions) {
     test(name, function() {
+      var options = new Options(testOptions);
       var compiler = new Compiler(options || {});
       var tree = compiler.parse(content, 'ModuleTransformerTest.js');
       var id = 0;
@@ -38,7 +33,7 @@ suite('ModuleTransformer', function() {
         generateUniqueIdentifier: function() {
           return '$' + id++;
         }
-      });
+      }, undefined, options);
       var transformed = transformer.transformAny(tree);
       var output = write(transformed);
 

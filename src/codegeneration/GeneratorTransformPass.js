@@ -32,7 +32,6 @@ import {
   createIdentifierExpression as id,
   createIdentifierToken
 } from './ParseTreeFactory.js';
-import {transformOptions} from '../Options.js';
 
 class ForInFinder extends FindInFunctionScope {
   visitForInStatement(tree) {
@@ -40,7 +39,7 @@ class ForInFinder extends FindInFunctionScope {
   }
 }
 
-function needsTransform(tree) {
+function needsTransform(tree, transformOptions) {
   return transformOptions.generators && tree.isGenerator() ||
       transformOptions.asyncFunctions && tree.isAsyncFunction();
 }
@@ -54,9 +53,13 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter) {
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
     this.reporter_ = reporter;
+    this.tranformOptions_ = {
+      generators: options.transformView('generators'),
+      asyncFunctions: options.transformView('asyncFunctions')
+    };
     this.inBlock_ = false;
   }
 
@@ -65,7 +68,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    if (!needsTransform(tree))
+    if (!needsTransform(tree, this.tranformOptions_))
       return super.transformFunctionDeclaration(tree);
 
     if (tree.isGenerator())
@@ -101,7 +104,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
-    if (!needsTransform(tree))
+    if (!needsTransform(tree, this.tranformOptions_))
       return super.transformFunctionExpression(tree);
 
     if (tree.isGenerator())
@@ -141,11 +144,11 @@ export class GeneratorTransformPass extends TempVarTransformer {
           transformAny(body);
     }
 
-    if (transformOptions.generators && tree.isGenerator()) {
+    if (this.tranformOptions_.generators && tree.isGenerator()) {
       body = GeneratorTransformer.transformGeneratorBody(
           this.identifierGenerator, this.reporter_, body, nameExpression);
 
-    } else if (transformOptions.asyncFunctions && tree.isAsyncFunction()) {
+    } else if (this.tranformOptions_.asyncFunctions && tree.isAsyncFunction()) {
       body = AsyncTransformer.transformAsyncBody(
           this.identifierGenerator, this.reporter_, body);
     }

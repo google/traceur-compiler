@@ -23,7 +23,6 @@ import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor.js';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol.js';
 import {Parser} from '../syntax/Parser.js';
-import {options as globalOptions} from '../Options.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {systemjs} from '../runtime/system-map.js';
 import {UniqueIdentifierGenerator} from

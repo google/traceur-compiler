@@ -223,7 +223,8 @@ export class Compiler {
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
-      transformer = new FromOptionsTransformer(errorReporter);
+      transformer = new FromOptionsTransformer(errorReporter,
+          this.options_);
     }
 
     var transformedTree = transformer.transform(tree);

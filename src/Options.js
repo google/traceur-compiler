@@ -68,27 +68,26 @@ export var optionsV01 = enumerableOnlyObject({
 export var versionLockedOptions = optionsV01;
 
 // Options are just a plain old object. There are two read only views on this
-// object, parseOptions and transformOptions.
+// object, parseView() and transformView().
 //
 // To set an option you do `options.classes = true`.
 //
 // An option value is either true, false or a string. If the value is set to
-// the string "parse" then the transformOption for that option will return
-// false. For example:
+// the string "parse" then the transformView(optionName) for that option
+// will return false. For example:
 //
 //   options.destructuring = 'parse';
-//   parseOptions.destructuring === true;
-//   transformOptions.destructuring === false;
+//   parseView('destructuring') === true;
+//   transformView('destructuring') === false;
 //
 // This allows you to parse certain features without transforming them, leaving
-// the syntax intact in the outputted code.
-
-export var parseOptions = Object.create(null);
-export var transformOptions = Object.create(null);
+// the syntax intact in the output.
 
 var defaultValues = Object.create(null);
+var featureOptions = Object.create(null);
 var experimentalOptions = Object.create(null);
-var moduleOptions = ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
+var moduleOptions =
+    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
 
 export class Options {
 
@@ -247,6 +246,23 @@ export class Options {
     return mismatches;
   }
 
+  transformView(name) {
+    if (!featureOptions[name])
+      throw new Error(name + ' not a feature option, invalid to transformView');
+
+    var v = this[name];
+    if (v === 'parse')
+      return false;
+    return v;
+  }
+
+  parseView(name) {
+    if (!featureOptions[name])
+      throw new Error(name + ' not a feature option, invalid to parseView');
+
+    return !!this[name];
+  }
+
 };
 
 
@@ -387,7 +403,7 @@ export function addOptions(flags, commandOptions) {
     var dashedName = toDashCase(name);
     if (flags.optionFor('--' + name) || flags.optionFor('--' + dashedName)) {
       return;   // non-boolean already in flags.
-    } else if ((name in parseOptions) && (name in transformOptions)) {
+    } else if (name in featureOptions) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
       flags.on(dashedName, (value) =>
@@ -427,32 +443,14 @@ var EXPERIMENTAL = 0;
 var ON_BY_DEFAULT = 1;
 
 /**
- * Adds a feature option.
- * This also adds a view from the parseOption and the transformOption to the
- * underlying value.
+ * Adds a feature option.  Feature options can be tested with parseView()
+ * and transformView().
  */
 function addFeatureOption(name, kind) {
+  featureOptions[name] = true;
+
   if (kind === EXPERIMENTAL)
     experimentalOptions[name] = true;
-
-  Object.defineProperty(parseOptions, name, {
-    get: function() {
-      return !!options[name];
-    },
-    enumerable: true,
-    configurable: true
-  });
-
-  Object.defineProperty(transformOptions, name, {
-    get: function() {
-      var v = options[name];
-      if (v === 'parse')
-        return false;
-      return v;
-    },
-    enumerable: true,
-    configurable: true
-  });
 
   var defaultValue = options[name] || kind === ON_BY_DEFAULT;
   options[name] = defaultValue;

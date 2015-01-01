@@ -57,9 +57,9 @@ import {options, transformOptions} from '../Options.js';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdentifierGenerator=} idGenerator
+   * @param {Options} options
    */
-  constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
+  constructor(reporter, options) {
     super(reporter, options.validate);
 
     var append = (transformer) => {
@@ -68,7 +68,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       });
     };
 
-    if (transformOptions.blockBinding) {
+    if (options.transformView('blockBinding')) {
       this.append((tree) => {
         validateConst(tree, reporter);
         return tree;
@@ -85,25 +85,25 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
-    if (transformOptions.exponentiation)
+    if (options.transformView('exponentiation'))
       append(ExponentiationTransformer);
 
-    if (transformOptions.numericLiterals)
+    if (options.transformView('numericLiterals'))
       append(NumericLiteralTransformer);
 
-    if (transformOptions.unicodeExpressions)
+    if (options.transformView('unicodeExpressions'))
       append(RegularExpressionTransformer);
 
-    if (transformOptions.templateLiterals)
+    if (options.transformView('templateLiterals'))
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.types)
+    if (options.transformView('types'))
       append(TypeToExpressionTransformer);
 
-    if (transformOptions.unicodeEscapeSequences)
+    if (options.transformView('unicodeEscapeSequences'))
       append(UnicodeEscapeSequenceTransformer);
 
-    if (transformOptions.annotations)
+    if (options.transformView('annotations'))
       append(AnnotationsTransformer);
 
     if (options.typeAssertions) {
@@ -117,11 +117,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     // module transformers. See #1120 or
     // test/node-instantiate-test.js test "Shorthand syntax with import"
     // for detailed info.
-    if (transformOptions.propertyNameShorthand)
+    if (options.transformView('propertyNameShorthand'))
       append(PropertyNameShorthandTransformer);
 
-    if (transformOptions.modules) {
-      switch (transformOptions.modules) {
+    if (options.transformView('modules')) {
+      switch (options.transformView('modules')) {
         case 'commonjs':
           append(CommonJsModuleTransformer);
           break;
@@ -146,51 +146,51 @@ export class FromOptionsTransformer extends MultiTransformer {
       }
     }
 
-    if (transformOptions.arrowFunctions)
+    if (options.transformView('arrowFunctions'))
       append(ArrowFunctionTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    if (transformOptions.classes)
+    if (options.transformView('classes'))
       append(ClassTransformer);
 
-    if (transformOptions.propertyMethods ||
-              transformOptions.computedPropertyNames) {
+    if (options.transformView('propertyMethods') ||
+              options.transformView('computedPropertyNames')) {
       append(ObjectLiteralTransformer);
     }
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.
-    if (transformOptions.generatorComprehension)
+    if (options.transformView('generatorComprehension'))
       append(GeneratorComprehensionTransformer);
-    if (transformOptions.arrayComprehension)
+    if (options.transformView('arrayComprehension'))
       append(ArrayComprehensionTransformer);
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
-    if (transformOptions.forOf)
+    if (options.transformView('forOf'))
       append(ForOfTransformer);
 
     // rest parameters must come before generator
-    if (transformOptions.restParameters)
+    if (options.transformView('restParameters'))
       append(RestParameterTransformer);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
-    if (transformOptions.defaultParameters)
+    if (options.transformView('defaultParameters'))
       append(DefaultParametersTransformer);
 
     // destructuring must come after for of and before block binding and
     // generator
-    if (transformOptions.destructuring)
+    if (options.transformView('destructuring'))
       append(DestructuringTransformer);
 
-    if (transformOptions.types)
+    if (options.transformView('types'))
       append(TypeTransformer);
 
-    if (transformOptions.spread)
+    if (options.transformView('spread'))
       append(SpreadTransformer);
 
-    if (transformOptions.blockBinding) {
+    if (options.transformView('blockBinding')) {
       this.append((tree) => {
         // this transformer need to be aware of the tree it will be working on
         var transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
@@ -199,10 +199,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     }
 
     // generator must come after for of and rest parameters
-    if (transformOptions.generators || transformOptions.asyncFunctions)
+    if (options.transformView('generators') ||
+        options.transformView('asyncFunctions'))
       append(GeneratorTransformPass);
 
-    if (transformOptions.symbols)
+    if (options.transformView('symbols'))
       append(SymbolTransformer);
   }
 }
