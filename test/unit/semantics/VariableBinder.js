@@ -14,9 +14,12 @@
 
 suite('VariableBinder.js', function() {
 
-  teardown(function() {
-    $traceurRuntime.options.experimental = false;
+  var options;
+
+  setup(function(){
+    options =  = new traceur.util.Options();
   });
+
 
   var ErrorReporter = traceur.util.ErrorReporter;
   var Parser = traceur.syntax.Parser;
@@ -27,7 +30,8 @@ suite('VariableBinder.js', function() {
 
   function parse(code) {
     var errors = new ErrorReporter();
-    var tree = new Parser(new SourceFile('inline', code), errors).parseScript();
+    var tree = new Parser(new SourceFile('inline', code), errors, options).
+        parseScript();
     assert.isFalse(errors.hadError());
     assert.equal(1, tree.scriptItemList.length);
     return tree.scriptItemList[0];
@@ -38,7 +42,7 @@ suite('VariableBinder.js', function() {
   }
 
   test('BoundIdentifiersInBlock', function() {
-    $traceurRuntime.options.blockBinding = true;
+    options.blockBinding = true;
     assert.equal('f', idsToString(variablesInBlock(parse(
         '{ function f(x) { var y; }; }'), false)));
     assert.equal('', idsToString(variablesInBlock(parse(

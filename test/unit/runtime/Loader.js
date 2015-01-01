@@ -79,7 +79,7 @@ suite('Loader.js', function() {
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
     System.import('traceur@', {}).then(function(module) {
-      assert.equal(traceur.util.options, module.util.options);
+      assert.equal(traceur.util.Options, module.util.Options);
       done();
     }).catch(done);
   });

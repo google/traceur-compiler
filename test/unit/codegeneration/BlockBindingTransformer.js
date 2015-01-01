@@ -11,11 +11,12 @@ suite('BlockBindingTransformer.js', function() {
     getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
     getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var options = $traceurRuntime.ModuleStore.
-    getForTesting('src/Options.js').options;
+  var Options = $traceurRuntime.ModuleStore.
+    getForTesting('src/Options.js').Options;
   var ErrorReporter = $traceurRuntime.ModuleStore.
       getForTesting('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
 
+  var options = new Options();
   var currentOption;
 
   setup(function() {
@@ -29,7 +30,7 @@ suite('BlockBindingTransformer.js', function() {
 
   function parseExpression(content) {
     var file = new SourceFile('test', content);
-    var parser = new Parser(file);
+    var parser = new Parser(file, undefined, options);
     return parser.parseExpression();
   }
 

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
-import {options} from '../../Options.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -25,8 +24,9 @@ import {options} from '../../Options.js';
  */
 export class ModuleSpecifierVisitor extends ParseTreeVisitor {
 
-  constructor() {
+  constructor(options) {
     super();
+    this.options_ = options;
     this.moduleSpecifiers_ = Object.create(null);
   }
 
@@ -69,7 +69,7 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
   }
 
   addTypeAssertionDependency_(typeAnnotation) {
-    if (typeAnnotation !== null && options.typeAssertionModule !== null)
-      this.moduleSpecifiers_[options.typeAssertionModule] = true;
+    if (typeAnnotation !== null && this.options_.typeAssertionModule !== null)
+      this.moduleSpecifiers_[this.options_.typeAssertionModule] = true;
   }
 }

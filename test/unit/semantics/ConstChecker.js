@@ -24,11 +24,9 @@ suite('ConstChecker.js', function() {
   var validateConst = get('src/semantics/ConstChecker.js').validate;
   var Options = get('src/Options.js').Options;
 
-  var options;
-
   function makeTest(name, code, expectedErrors, mode) {
     test(name, function() {
-      options = new Options();
+      var options = new Options();
       options.arrayComprehension = true;
       options.blockBinding = true;
       options.generatorComprehension = true;

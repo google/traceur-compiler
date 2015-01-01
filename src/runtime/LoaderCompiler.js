@@ -51,7 +51,8 @@ export class LoaderCompiler {
     codeUnit.state = PARSED;
 
     // Analyze to find dependencies
-    var moduleSpecifierVisitor = new ModuleSpecifierVisitor();
+    var moduleSpecifierVisitor =
+        new ModuleSpecifierVisitor(codeUnit.metadata.traceurOptions);
     moduleSpecifierVisitor.visit(codeUnit.metadata.tree);
     return moduleSpecifierVisitor.moduleSpecifiers;
   }

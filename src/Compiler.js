@@ -20,12 +20,7 @@ import {Parser} from './syntax/Parser.js';
 import {PureES6Transformer} from './codegeneration/PureES6Transformer.js';
 import {SourceFile} from './syntax/SourceFile.js';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter.js';
-import {
-  Options,
-  options as traceurOptions,
-  versionLockedOptions
-} from './Options.js';
-
+import {Options, versionLockedOptions} from './Options.js';
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
 import {
@@ -179,12 +174,10 @@ export class Compiler {
     sourceName = this.normalize(sourceName);
     this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ = null;
-    // Here we mutate the global/module options object to be used in parsing.
-    traceurOptions.setFromObject(this.options_);
 
     var errorReporter = new CollectingErrorReporter();
     var sourceFile = new SourceFile(sourceName, content);
-    var parser = new Parser(sourceFile, errorReporter);
+    var parser = new Parser(sourceFile, errorReporter, this.options_);
     var tree =
         this.options_.script ? parser.parseScript() : parser.parseModule();
     this.throwIfErrors(errorReporter);

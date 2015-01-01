@@ -133,10 +133,6 @@
 
   function featureTest(name, url, fileLoader) {
 
-    teardown(function() {
-      $traceurRuntime.options.reset();
-    });
-
     test(name, function(done) {
       var baseURL = './';
       var options = null;
@@ -218,9 +214,6 @@
   }
 
   function cloneTest(name, url, loader) {
-    teardown(function() {
-      $traceurRuntime.options.reset();
-    });
 
     function doTest(source) {
       var prologOptions = parseProlog(source);
@@ -229,12 +222,12 @@
       }
 
       var options = new Options(prologOptions.traceurOptions);
+
       var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
-        var parser =
-            new traceur.syntax.Parser(file, reporter, options);
+        var parser = new traceur.syntax.Parser(file, reporter, options);
         var isModule = /\.module\.js$/.test(url);
         if (isModule)
           return parser.parseModule();

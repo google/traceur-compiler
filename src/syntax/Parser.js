@@ -27,6 +27,7 @@ import {
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
 } from './trees/ParseTreeType.js';
+import {Options} from '../Options.js';
 import {
   AS,
   ASYNC,
@@ -45,7 +46,6 @@ import {
   isAssignmentOperator
 } from './Token.js';
 import {getKeywordType} from './Keywords.js';
-import {options as traceurOptions} from '../Options.js';
 
 import {
   AMPERSAND,
@@ -355,7 +355,9 @@ export class Parser {
    * @param {Options} options
    */
   constructor(file, errorReporter = new SyntaxErrorReporter(),
-              options = traceurOptions) {
+      options = new Options()) {
+    if (!options)
+      throw new Error('Parse must have options')
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;
@@ -460,6 +462,7 @@ export class Parser {
       case EXPORT:
         return this.parseExportDeclaration_();
       case AT:
+      if (!this.options_.annotations) console.trace(type, this.options_.annotations)
         if (this.options_.annotations)
           return this.parseAnnotatedDeclarations_(true);
         break;
