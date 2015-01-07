@@ -18,7 +18,11 @@ import {testRunner} from './testRunner.js';
 
 var metadata = {traceurOptions: {sourceMaps: 'memory'}};
 
-System.import('./test/modular/tests.js', {metadata: metadata}).then(function() {
+var importThese = [
+  './test/unit/util/url.js'
+];
+
+System.importAll(importThese, {metadata: metadata}).then(function() {
   testRunner.run();
 }).catch(function(ex) {
   console.error(ex.stack || ex);
