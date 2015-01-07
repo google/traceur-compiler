@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {testRunner, suite, test, assert} from '../../modular/testRunner.js';
+
 suite('url.js', function() {
   test('removeDotSegments', function() {
 
