@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import {testRunner} from './testRunner.js';
 var metadata = {traceurOptions: {sourceMaps: 'memory'}};
 
 System.import('./test/modular/tests.js', {metadata: metadata}).then(function() {
-	testRunner.run();
+  testRunner.run();
 }).catch(function(ex) {
-	console.error(ex.stack || ex);
+  console.error(ex.stack || ex);
 });

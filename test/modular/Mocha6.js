@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,66 +21,20 @@ var reporters = require('mocha/lib/reporters');
 
 export class Mocha6 extends Mocha {
 
-	constructor(options) {
-		super(options);
-		this._vinylFiles = Object.create(null);
-	}
+  constructor(options) {
+    super(options);
+    this._vinylFiles = Object.create(null);
+  }
 
-	/**
-	 * Replace Mocha.loadFiles with promise-returning version that does not
-	 * rely solely on `require()`
-	 */
-	promiseLoadFiles(fn) {
-		console.log('promiseLoadFiles', this.files);
-		return Promise.all(this.files.map((file) => {
-			this.suite.emit('pre-require', global, file, this);
-			return this.promiseModuleEvaluated(file).then((module) => {
-				this.suite.emit('require', module, file, this);
-    		this.suite.emit('post-require', global, file, this);
-			});
-		})).then(fn);
-	}
+  /**
+   * Setup the underlying mocha to accept files for testing.
+   * @return {Object} A mocha thing with suite() and test() properties.
+   */
+  getContext() {
+    var context = this.suite.ctx;
+    var file = '';
+    this.suite.emit('pre-require', context, file, this);
+    return context;
+  }
 
-	promiseModuleEvaluated(file) {
-		console.log('promiseModuleEvaluated ' + file, this._vinylFiles[file])
-		if (this._vinylFiles[file]) {
-			var normalizedName = System.normalize(file);
-			var source = this._vinylFiles[file].contents.toString();
-			var metadata = {
-				traceurOptions: {
-					sourceMaps: 'memory'
-				}
-			};
-			return System.define(normalizedName, source, {metadata: metadata}).
-				 then(() => {
-				 	return System.get(normalizedName);
-				 });
-		}
-		return System.import(file);
-	}
-
-	addVinylFile(file) {
-	  this._vinylFiles[file.path] = file;
-	  this.addFile(file.path);
-	  return this;
-	};
-
-	promiseRun(fn) {
-	  return this.promiseLoadFiles().then(() => {
-	  	console.log('promiseRun then')
-		  var suite = this.suite;
-		  var options = this.options;
-		  options.files = this.files;
-		  var runner = new Runner(suite);
-		  var reporter = new this._reporter(runner, options);
-		  runner.ignoreLeaks = false !== options.ignoreLeaks;
-		  runner.asyncOnly = options.asyncOnly;
-		  if (options.grep) runner.grep(options.grep, options.invert);
-		  if (options.globals) runner.globals(options.globals);
-		  if (options.growl) this._growl(runner, reporter);
-		  reporters.Base.useColors = options.useColors;
-		  reporters.Base.inlineDiffs = options.useInlineDiffs;
-		  return runner.run(fn);
-	  });
-	}
 }

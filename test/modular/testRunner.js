@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,11 @@
 import {Mocha6} from './Mocha6.js';
 
 export var testRunner = new Mocha6({
-	ui: 'tdd',
-	ignoreLeaks: true
+  ui: 'tdd',
+  ignoreLeaks: true
 });
 
-var context = testRunner.suite.ctx;
-var file = '';
-testRunner.suite.emit('pre-require', context, file, testRunner);
+var context = testRunner.getContext();
 
 export var suite = context.suite;
 export var test = context.test;
