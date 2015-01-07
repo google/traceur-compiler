@@ -32,6 +32,7 @@ export var optionsV01 = enumerableOnlyObject({
   commentCallback: false,
   computedPropertyNames: true,
   debug: false,
+  debugNames: false,
   defaultParameters: true,
   destructuring: true,
   exponentiation: false,
@@ -499,6 +500,7 @@ addFeatureOption('memberVariables', EXPERIMENTAL);
 
 addBoolOption('commentCallback');
 addBoolOption('debug');
+addBoolOption('debugNames');
 addBoolOption('freeVariableChecker');
 addBoolOption('script');
 addBoolOption('typeAssertions');
