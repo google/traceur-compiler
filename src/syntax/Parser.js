@@ -2482,16 +2482,13 @@ export class Parser {
       }
     }
 
-    if (type === ARROW) {
+    if (type === ARROW && this.peekTokenNoLineTerminator_() !== null) {
       if (left.type === COVER_FORMALS || left.type === IDENTIFIER_EXPRESSION)
         return this.parseArrowFunction_(start, left, null);
 
       if (validAsyncParen && left.type === CALL_EXPRESSION) {
-        var arrowToken = this.peekTokenNoLineTerminator_();
-        if (arrowToken !== null) {
-          var asyncToken = left.operand.identifierToken;
-          return this.parseArrowFunction_(start, left.args, asyncToken);
-        }
+        var asyncToken = left.operand.identifierToken;
+        return this.parseArrowFunction_(start, left.args, asyncToken);
       }
     }
 
@@ -3115,8 +3112,8 @@ export class Parser {
    * CoverParenthesizedExpressionAndArrowParameterList :
    *   ( Expression )
    *   ( )
-   *   ( ... Identifier )
-   *   ( Expression , ... Identifier )
+   *   ( ... BindingIdentifier )
+   *   ( Expression , ... BindingIdentifier )
    *
    * ConciseBody :
    *   [lookahead not {] AssignmentExpression
