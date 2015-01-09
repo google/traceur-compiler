@@ -39,6 +39,7 @@ export var optionsV01 = enumerableOnlyObject({
   freeVariableChecker: false,
   generatorComprehension: false,
   generators: true,
+  lowResolutionSourceMap: false,
   memberVariables: false,
   moduleName: false,
   modules: 'register',
@@ -201,6 +202,7 @@ export class Options {
     this.outputLanguage = 'es5';
     this.referrer = '';
     this.sourceMaps = false;
+    this.lowResolutionSourceMap = false;
     this.typeAssertionModule = null;
   }
   /**

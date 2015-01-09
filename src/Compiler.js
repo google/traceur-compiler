@@ -264,6 +264,8 @@ export class Compiler {
     this.sourceMapConfiguration_ =
         this.createSourceMapConfiguration_(outputName, sourceRoot);
     if (this.sourceMapConfiguration_) {
+      this.sourceMapConfiguration_.lowResolution =
+          this.options_.lowResolutionSourceMap;
       writer =
           new ParseTreeMapWriter(this.sourceMapConfiguration_, this.options_);
     } else {

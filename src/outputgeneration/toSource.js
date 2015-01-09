@@ -40,7 +40,8 @@ export function toSource(tree, options = undefined,
 
   var sourceMapConfiguration = {
     sourceMapGenerator: sourceMapGenerator,
-    sourceRoot: sourceRoot
+    sourceRoot: sourceRoot,
+    lowResolution: options && options.lowResolutionSourceMap
   };
 
   var writer;
