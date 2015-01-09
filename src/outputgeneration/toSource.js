@@ -37,9 +37,14 @@ export function toSource(tree, options = undefined,
     });
   }
 
+  var sourceMapConfiguration = {
+    sourceMapGenerator: sourceMapGenerator,
+    sourceRoot: sourceRoot
+  };
+
   var writer;
   if (sourceMapGenerator)
-    writer = new ParseTreeMapWriter(sourceMapGenerator, sourceRoot, options);
+    writer = new ParseTreeMapWriter(sourceMapConfiguration, options);
   else
     writer = new ParseTreeWriter(options);
 
