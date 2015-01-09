@@ -26,6 +26,8 @@ suite('SourceMap.js', function() {
 
   var moduleCompiler = new Compiler({sourceMaps: 'file'});
   var scriptCompiler = new Compiler({sourceMaps: 'file', script: true});
+  var scriptCompilerLowRes = new Compiler({sourceMaps: 'file', script: true,
+                                           lowResolutionSourceMap: true});
 
   test('relativeToSource', function() {
     var relativeToSourceRoot =
@@ -50,7 +52,7 @@ suite('SourceMap.js', function() {
   });
 
   test('SourceMap', function() {
-    var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
+    var src = 'function foo(a) { return 5; }\nvar \nf\n=\n5\n;\n';
     var srcLines = src.split('\n');
     var filename = 'sourceMapThis.js';
     var tree = scriptCompiler.parse(src, filename);
@@ -59,7 +61,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 37, -1];
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 37, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -69,11 +71,57 @@ suite('SourceMap.js', function() {
     var testcases = [
       // >f<unction
       {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
-      // function foo() { >r<eturn 5; }
-      {generated: {line: 2, column: 0}, original: {line: 1, column: 17}},
-      // function foo() { return 5; >}<
-      {generated: {line: 3, column: 0}, original: {line: 1, column: 27}},
+      // function foo(>a<)
+      {generated: {line: 1, column: 13}, original: {line: 1, column: 13}},
+      // function foo(a) { >r<eturn 5; }
+      {generated: {line: 2, column: 0}, original: {line: 1, column: 18}},
+      // function foo(a) { return 5; >}<
+      {generated: {line: 3, column: 0}, original: {line: 1, column: 28}},
       {generated: {line: 4, column: 0}, original: {line: 3, column: 0}},
+      {generated: {line: 5, column: 1}, original: {line: 6, column: 0}}
+    ];
+
+    testcases.forEach(function(testcase, caseNumber) {
+      var actual = consumer.originalPositionFor(testcase.generated);
+      var shouldBeTrue = actual.line === testcase.original.line;
+      assert.isTrue(shouldBeTrue, caseNumber + ' Line mismatch ' + actual.line);
+      var expected = testcase.original.column;
+      shouldBeTrue = actual.column === expected;
+      assert.isTrue(shouldBeTrue,
+          caseNumber + ' Column mismatch ' + actual.column + ' vs ' + expected);
+    });
+
+    var sourceContent = consumer.sourceContentFor(filename);
+    assert.equal(sourceContent, src);
+  });
+
+  test('SourceMap with low resolution option', function() {
+    var src = 'function foo(a) { return 5; }\nvar \nf\n=\n5\n;\n';
+    var srcLines = src.split('\n');
+    var filename = 'sourceMapThis.js';
+    var tree = scriptCompilerLowRes.parse(src, filename);
+
+    var generatedSource = scriptCompilerLowRes.write(tree, filename);
+    var generatedLines = generatedSource.split('\n');
+
+    // Check that the generated code did not change since we analyzed the map.
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 37, -1];
+    generatedLines.forEach(function(line, index) {
+      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
+    });
+
+    var consumer = new SourceMapConsumer(scriptCompilerLowRes.getSourceMap(filename));
+
+    var testcases = [
+      // >f<unction
+      {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
+      // function foo(>a<)
+      {generated: {line: 1, column: 13}, original: {line: 1, column: 0}},
+      // function foo(a) { >r<eturn 5; }
+      {generated: {line: 2, column: 0}, original: {line: 1, column: 18}},
+      // function foo(a) { return 5; >}<
+      {generated: {line: 3, column: 0}, original: {line: 1, column: 28}},
+      {generated: {line: 4, column: 0}, original: {line: 1, column: 28}},
       {generated: {line: 5, column: 1}, original: {line: 6, column: 0}}
     ];
 
