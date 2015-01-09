@@ -54,7 +54,6 @@
     "node-uuid": "1.x",
     "regexpu": "0.3.0",
     "requirejs": "2.x",
-    "semver": "2.x",
     "traceur": "0.0.79",
     "promises-aplus-tests": "2.x"
   },
