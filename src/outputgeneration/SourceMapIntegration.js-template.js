@@ -43,6 +43,8 @@ define = makeDefine(m, './base64-vlq');
 // #include ../../node_modules/source-map/lib/source-map/base64-vlq.js
 define = makeDefine(m, './binary-search');
 // #include ../../node_modules/source-map/lib/source-map/binary-search.js
+define = makeDefine(m, './mapping-list');
+// #include ../../node_modules/source-map/lib/source-map/mapping-list.js
 define = makeDefine(m, './source-map-generator');
 // #include ../../node_modules/source-map/lib/source-map/source-map-generator.js
 define = makeDefine(m, './source-map-consumer');
