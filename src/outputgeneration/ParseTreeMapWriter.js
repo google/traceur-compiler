@@ -114,7 +114,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       line: line,
       column: position.column || 0  // source map uses zero based columns
     };
-    if (position.source.name !== this.sourceName_) {
+    if (position.source.name !== this.rawSourceName_) {
+      this.rawSourceName_ = position.source.name;
       this.sourceName_ = relativeToSourceRoot(position.source.name,
               this.sourceRoot_);
       this.sourceMapGenerator_.setSourceContent(position.source.name,
