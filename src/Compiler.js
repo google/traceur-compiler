@@ -230,7 +230,8 @@ export class Compiler {
       return {
         sourceMapGenerator: new SourceMapGenerator({
           file: outputName,
-          sourceRoot: sourceRoot
+          sourceRoot: sourceRoot,
+          skipValidation: true
         }),
         sourceRoot: sourceRoot
       };

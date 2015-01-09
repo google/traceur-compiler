@@ -33,7 +33,8 @@ export function toSource(tree, options = undefined,
   if (!sourceMapGenerator && sourcemaps)  {
     sourceMapGenerator = new SourceMapGenerator({
       file: outputName,
-      sourceRoot: sourceRoot
+      sourceRoot: sourceRoot,
+      skipValidation: true
     });
   }
 
