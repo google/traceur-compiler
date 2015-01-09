@@ -26,6 +26,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     super(options);
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
     this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
+    this.lowResolution_ = sourceMapConfiguration.lowResolution;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
   }
@@ -135,16 +136,19 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     return lhs.line === rhs.line && lhs.column === rhs.column;
   }
 
-  isSameMapping() {
+  skipMapping() {
     if (!this.previousMapping_)
       return false;
+    if (this.lowResolution_ &&
+        this.previousMapping_.generated.line == this.generated_.line)
+      return true;
     if (this.isSame(this.previousMapping_.generated, this.generated_) &&
         this.isSame(this.previousMapping_.original, this.original_))
-      return true;;
+      return true;
   }
 
   addMapping() {
-    if (this.isSameMapping())
+    if (this.skipMapping())
       return;
 
     var mapping = {
