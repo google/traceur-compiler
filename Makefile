@@ -54,8 +54,11 @@ RUNTIME_TESTS = \
   test/unit/runtime/System.js \
   test/unit/runtime/type-assertions.js
 
-UNIT_TESTS = \
+UNIT_6_TESTS = \
 	test/unit/util/ \
+	#END UNIT_6_TESTS
+
+UNIT_TESTS = \
 	test/unit/codegeneration/ \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
@@ -99,6 +102,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
+		$(UNIT_6_TESTS) \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
@@ -109,6 +113,9 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
 
 test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
+
+test/unit/util/: bin/traceur.js
+	./traceur test/modular/tests.js
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)

@@ -25,6 +25,8 @@ var context = testRunner.getContext();
 
 export var suite = context.suite;
 export var test = context.test;
+export var setup = context.setup;
+export var teardown = context.teardown;
 
 var chai = require('chai');
 export var assert = chai.assert;

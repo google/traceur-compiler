@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-suite('getopt', function() {
-  var Getopt;
+import {suite, test, assert} from '../../modular/testRunner.js';
 
-  setup(function() {
-    Getopt = Getopt || require('../../../src/node/getopt.js').Getopt;
-  });
+suite('getopt', function() {
+  var Getopt = require('../../src/node/getopt.js').Getopt;
 
   test('invalid long options', function() {
     var g = new Getopt(['0', '1:', '2::', '0test', '1test:', '2test::']);

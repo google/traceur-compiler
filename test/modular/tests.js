@@ -15,15 +15,25 @@
 /* @fileoverview Configure mocha and run the test list */
 
 import {testRunner} from './testRunner.js';
+var glob = require("glob");
 
-var metadata = {traceurOptions: {sourceMaps: 'memory'}};
+var pattern = "test/unit/util/*.js";
 
-var importThese = [
-  './test/unit/util/url.js'
-];
+glob(pattern, {}, function (er, files) {
+  if (er) {
+    return;
+  }
 
-System.importAll(importThese, {metadata: metadata}).then(function() {
-  testRunner.run();
-}).catch(function(ex) {
-  console.error(ex.stack || ex);
+  files.forEach((file) => {
+    testRunner.addFile(file);
+  });
+
+  testRunner.run().then(() => {
+    console.log('tests complete');
+  }, (ex) => {
+    console.error(ex.stack || ex);
+  });
+
 });
+
+

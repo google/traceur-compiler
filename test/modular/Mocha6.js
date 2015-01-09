@@ -37,4 +37,34 @@ export class Mocha6 extends Mocha {
     return context;
   }
 
+  loadFiles() {
+    // no-op, we don't use require() in Mocha6.
+  }
+
+  importFiles() {
+    var promiseImports = this.files.map((file) => {
+      file = path.resolve(file);
+      this.suite.emit('pre-require', global, file, this);
+      return System.import(file, this.options.importOptions).
+          then(() => {
+            this.suite.emit('require', global, file, this);
+            this.suite.emit('post-require', global, file, this);
+          });
+    });
+    return Promise.all(promiseImports);
+  }
+
+  /**
+   * Run tests and invoke `fn()` when complete.
+   *
+   * @return {Runner}
+   * @api public
+   */
+
+  run(fn) {
+    return this.importFiles().then(() => {
+      // The base mocha.run will not load files, see loadFiles() override.
+      super.run(fn);
+    });
+  }
 }
