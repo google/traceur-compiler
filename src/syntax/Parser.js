@@ -462,7 +462,6 @@ export class Parser {
       case EXPORT:
         return this.parseExportDeclaration_();
       case AT:
-      if (!this.options_.annotations) console.trace(type, this.options_.annotations)
         if (this.options_.annotations)
           return this.parseAnnotatedDeclarations_(true);
         break;

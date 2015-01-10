@@ -154,7 +154,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(ClassTransformer);
 
     if (options.transformView('propertyMethods') ||
-              options.transformView('computedPropertyNames')) {
+        options.transformView('computedPropertyNames')) {
       append(ObjectLiteralTransformer);
     }
 
