@@ -366,6 +366,10 @@ export function addOptions(flags, commandOptions) {
     'sourceMaps generated to file or inline with data: URL',
     (to) => { return commandOptions.sourceMaps = to; }
   );
+  flags.option('--low-resolution-source-maps',
+    'Lower sourceMaps granularity to one mapping per output line',
+    () => { return commandOptions.lowResolutionSourceMap = true; }
+  );
   flags.option('--experimental',
     'Turns on all experimental features',
     () => { commandOptions.experimental = true; }
