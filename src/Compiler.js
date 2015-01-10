@@ -67,6 +67,8 @@ export class Compiler {
     this.sourceMapConfiguration_ = null;
     // Only used if this.options_sourceMaps = 'memory'.
     this.sourceMapInfo_ = null;
+    // Used to cache source map calculation
+    this.sourceMapCache_ = null;
   }
   /**
    * Use Traceur to compile ES6 type=script source code to ES5 script.
@@ -173,6 +175,7 @@ export class Compiler {
    */
   parse(content, sourceName = '<compiler-parse-input>') {
     sourceName = this.normalize(sourceName);
+    this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ = null;
     // Here we mutate the global/module options object to be used in parsing.
     traceurOptions.setFromObject(this.options_);
@@ -241,6 +244,10 @@ export class Compiler {
   }
 
   getSourceMap() {
+    if (this.sourceMapCache_) {
+      return this.sourceMapCache_;
+    }
+
     if (this.sourceMapConfiguration_) {
       var sourceMap = this.sourceMapConfiguration_.sourceMapGenerator.toString();
       var inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
@@ -249,6 +256,7 @@ export class Compiler {
         generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
         sourceMap = generator.toJSON();
       }
+      this.sourceMapCache_ = sourceMap;
       return sourceMap;
     }
   }
@@ -271,6 +279,7 @@ export class Compiler {
     sourceRoot = this.normalize(sourceRoot) || basePath(outputName);
 
     var writer;
+    this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ =
         this.createSourceMapConfiguration_(outputName, sourceRoot);
     if (this.sourceMapConfiguration_) {
