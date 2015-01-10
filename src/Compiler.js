@@ -28,8 +28,10 @@ import {
 
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
-import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
+import {
+  SourceMapConsumer,
+  SourceMapGenerator
+} from './outputgeneration/SourceMapIntegration.js';
 
 function merge(...srcs) {
   var dest = Object.create(null);
