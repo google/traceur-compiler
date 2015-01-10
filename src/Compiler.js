@@ -241,8 +241,16 @@ export class Compiler {
   }
 
   getSourceMap() {
-    if (this.sourceMapConfiguration_)
-      return this.sourceMapConfiguration_.sourceMapGenerator.toString();
+    if (this.sourceMapConfiguration_) {
+      var sourceMap = this.sourceMapConfiguration_.sourceMapGenerator.toString();
+      var inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
+      if (inputSourceMap) {
+        var generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
+        generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
+        sourceMap = generator.toJSON();
+      }
+      return sourceMap;
+    }
   }
 
   get sourceMapInfo() {
@@ -282,12 +290,6 @@ export class Compiler {
       var sourceMappingURL =
           this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
       var sourceMap = this.getSourceMap();
-      var inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
-      if (inputSourceMap) {
-        var generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
-        generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
-        sourceMap = generator.toJSON();
-      }
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
       this.sourceMapInfo_ = {
