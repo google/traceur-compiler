@@ -68,7 +68,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       });
     };
 
-    if (options.transformView('blockBinding')) {
+    if (transformOptions.blockBinding) {
       this.append((tree) => {
         validateConst(tree, reporter);
         return tree;
@@ -85,25 +85,25 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
-    if (options.transformView('exponentiation'))
+    if (transformOptions.exponentiation)
       append(ExponentiationTransformer);
 
-    if (options.transformView('numericLiterals'))
+    if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
 
-    if (options.transformView('unicodeExpressions'))
+    if (transformOptions.unicodeExpressions)
       append(RegularExpressionTransformer);
 
-    if (options.transformView('templateLiterals'))
+    if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (options.transformView('types'))
+    if (transformOptions.types)
       append(TypeToExpressionTransformer);
 
-    if (options.transformView('unicodeEscapeSequences'))
+    if (transformOptions.unicodeEscapeSequences)
       append(UnicodeEscapeSequenceTransformer);
 
-    if (options.transformView('annotations'))
+    if (transformOptions.annotations)
       append(AnnotationsTransformer);
 
     if (options.typeAssertions) {
@@ -117,11 +117,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     // module transformers. See #1120 or
     // test/node-instantiate-test.js test "Shorthand syntax with import"
     // for detailed info.
-    if (options.transformView('propertyNameShorthand'))
+    if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
 
-    if (options.transformView('modules')) {
-      switch (options.transformView('modules')) {
+    if (transformOptions.modules) {
+      switch (transformOptions.modules) {
         case 'commonjs':
           append(CommonJsModuleTransformer);
           break;
@@ -146,51 +146,51 @@ export class FromOptionsTransformer extends MultiTransformer {
       }
     }
 
-    if (options.transformView('arrowFunctions'))
+    if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    if (options.transformView('classes'))
+    if (transformOptions.classes)
       append(ClassTransformer);
 
-    if (options.transformView('propertyMethods') ||
-        options.transformView('computedPropertyNames')) {
+    if (transformOptions.propertyMethods ||
+              transformOptions.computedPropertyNames) {
       append(ObjectLiteralTransformer);
     }
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.
-    if (options.transformView('generatorComprehension'))
+    if (transformOptions.generatorComprehension)
       append(GeneratorComprehensionTransformer);
-    if (options.transformView('arrayComprehension'))
+    if (transformOptions.arrayComprehension)
       append(ArrayComprehensionTransformer);
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
-    if (options.transformView('forOf'))
+    if (transformOptions.forOf)
       append(ForOfTransformer);
 
     // rest parameters must come before generator
-    if (options.transformView('restParameters'))
+    if (transformOptions.restParameters)
       append(RestParameterTransformer);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
-    if (options.transformView('defaultParameters'))
+    if (transformOptions.defaultParameters)
       append(DefaultParametersTransformer);
 
     // destructuring must come after for of and before block binding and
     // generator
-    if (options.transformView('destructuring'))
+    if (transformOptions.destructuring)
       append(DestructuringTransformer);
 
-    if (options.transformView('types'))
+    if (transformOptions.types)
       append(TypeTransformer);
 
-    if (options.transformView('spread'))
+    if (transformOptions.spread)
       append(SpreadTransformer);
 
-    if (options.transformView('blockBinding')) {
+    if (transformOptions.blockBinding) {
       this.append((tree) => {
         // this transformer need to be aware of the tree it will be working on
         var transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
@@ -199,11 +199,10 @@ export class FromOptionsTransformer extends MultiTransformer {
     }
 
     // generator must come after for of and rest parameters
-    if (options.transformView('generators') ||
-        options.transformView('asyncFunctions'))
+    if (transformOptions.generators || transformOptions.asyncFunctions)
       append(GeneratorTransformPass);
 
-    if (options.transformView('symbols'))
+    if (transformOptions.symbols)
       append(SymbolTransformer);
   }
 }

@@ -246,24 +246,51 @@ export class Options {
     return mismatches;
   }
 
-  transformView(name) {
-    if (!featureOptions[name])
-      throw new Error(name + ' not a feature option, invalid to transformView');
-
-    var v = this[name];
-    if (v === 'parse')
-      return false;
-    return v;
+  transformView() {
+    return new TransformOptions(this);
   }
 
-  parseView(name) {
-    if (!featureOptions[name])
-      throw new Error(name + ' not a feature option, invalid to parseView');
-
-    return !!this[name];
+  parseView() {
+    retuirn new ParseOptions(this);
   }
 
 };
+
+
+class ParseOptions {
+  constructor(options) {
+    this.proxiedOptions_ = options;
+
+    featureOptions.forEach((name) => {
+      Object.defineProperty(this, name, {
+        get: function() {
+          return !!this.proxiedOptions_[name];
+        },
+        enumerable: true,
+        configurable: true
+      });
+    });
+  }
+}
+
+class TransformOptions {
+  constructor(options) {
+    this.proxiedOptions_ = options;
+
+    featureOptions.forEach((name) => {
+      Object.defineProperty(this, name, {
+        get: function() {
+          var v = this.proxiedOptions_[name];
+          if (v === 'parse')
+            return false;
+          return v;
+        },
+        enumerable: true,
+        configurable: true
+      });
+    });
+  }
+}
 
 
 // A distinguish instance shared internally via module
