@@ -83,7 +83,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
       var descriptors = this.transformObjectLiteralToDescriptors(exportObject);
-      var exportStatement = parseStatement `Object.defineProperties(exports, ${descriptors});`;
+      var exportStatement = parseStatement `Object.defineProperties(module.exports, ${descriptors});`;
       statements = prependStatements(statements, exportStatement);
     }
     return statements;
