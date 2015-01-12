@@ -35,7 +35,8 @@ import {
   createMemberLookupExpression,
   createNewExpression,
   createNullLiteral,
-  createParenExpression
+  createParenExpression,
+  createVoid0
 } from './ParseTreeFactory.js';
 import {
   parseExpression
@@ -131,9 +132,8 @@ export class SpreadTransformer extends TempVarTransformer {
 
       // f(a, ...b, c)
       //
-      // f.apply(null, expandedArgs)
-      // TODO(arv): Should this be apply([[Global]], ...) instead?
-      contextObject = createNullLiteral();
+      // f.apply(undefined, expandedArgs)
+      contextObject = createVoid0();
       functionObject = operand;
     }
 
