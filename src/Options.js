@@ -77,8 +77,8 @@ export var versionLockedOptions = optionsV01;
 // will return false. For example:
 //
 //   options.destructuring = 'parse';
-//   parseView('destructuring') === true;
-//   transformView('destructuring') === false;
+//   options.parseView().destructuring === true;
+//   options.transformView().destructuring === false;
 //
 // This allows you to parse certain features without transforming them, leaving
 // the syntax intact in the output.
@@ -251,7 +251,7 @@ export class Options {
   }
 
   parseView() {
-    retuirn new ParseOptions(this);
+    return new ParseOptions(this);
   }
 
 };
@@ -261,7 +261,7 @@ class ParseOptions {
   constructor(options) {
     this.proxiedOptions_ = options;
 
-    featureOptions.forEach((name) => {
+    Object.keys(featureOptions).forEach((name) => {
       Object.defineProperty(this, name, {
         get: function() {
           return !!this.proxiedOptions_[name];
@@ -277,14 +277,14 @@ class TransformOptions {
   constructor(options) {
     this.proxiedOptions_ = options;
 
-    featureOptions.forEach((name) => {
+    Object.keys(featureOptions).forEach((name) => {
       Object.defineProperty(this, name, {
         get: function() {
           var v = this.proxiedOptions_[name];
           if (v === 'parse')
             return false;
           return v;
-        },
+        }.bind(this),
         enumerable: true,
         configurable: true
       });
@@ -338,6 +338,8 @@ export class CommandOptions extends Options {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
 
+    console.log('parseCommand ', s)
+
     if (m)
       this.setOptionCoerced(m[1], m[2]);
   }
@@ -348,7 +350,7 @@ export class CommandOptions extends Options {
       value = coerceOptionValue(value);
     else
       value = true;
-
+if (name === 'typeAssertionModule') console.log('setOptionCoerced ' + name, value)
     this.setOption(name,  value);
   }
 

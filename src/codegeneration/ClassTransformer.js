@@ -64,7 +64,6 @@ import {
   parseStatements
 } from './PlaceholderParser.js';
 import {propName} from '../staticsemantics/PropName.js';
-import {options} from '../Options.js';
 import {prependStatements} from './PrependStatements.js';
 
 // Interaction between ClassTransformer and SuperTransformer:
@@ -115,6 +114,7 @@ function classCall(func, object, staticObject, superClass) {
       `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
 }
 
+<<<<<<< HEAD
 function methodNameFromTree(tree) {
   // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
   if (tree.type === COMPUTED_PROPERTY_NAME) {
@@ -141,14 +141,14 @@ export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
-   * @param {boolean} showDebugNames options.debugNames
+   * @param {Options} options
    */
-  constructor(identifierGenerator, reporter, debugNames) {
     super(identifierGenerator);
+    this.options_ = options;
     this.strictCount_ = 0;
     this.state_ = null;
     this.reporter_ = reporter;
-    this.showDebugNames_ = debugNames;
+    this.showDebugNames_ = options.debugNames;
   }
 
   // Override to handle AnonBlock
@@ -255,7 +255,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!hasConstructor) {
       func = this.getDefaultConstructor_(tree, internalName, initStatements);
     } else {
-      if (options.memberVariables) {
+      if (this.options_.memberVariables) {
         constructor = this.appendInstanceInitializers_(constructor,
             initStatements, tree.superClass);
       }

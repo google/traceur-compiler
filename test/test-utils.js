@@ -13,6 +13,9 @@
 // limitations under the License.
 
 (function(exports, global) {
+
+  var chai = require('chai/chai.js');
+
   'use strict';
 
   function forEachPrologLine(s, f) {
@@ -50,6 +53,7 @@
       } else if (line.indexOf('// Async.') === 0) {
         returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
+        console.log('testutils ' + line)
         returnValue.traceurOptions = traceur.util.CommandOptions.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
         returnValue.expectedErrors.push(m[1]);
@@ -124,8 +128,8 @@
   var Options = traceur.get('./Options.js').Options;
   $traceurRuntime.options = new Options();
 
-  function setOptions(load, options) {
-    var traceurOptions = new Options(options.traceurOptions);
+  function setOptions(load, prologOptions) {
+    var traceurOptions = new Options(prologOptions.traceurOptions);
     traceurOptions.debug = true;
     traceurOptions.validate = true;
     load.metadata.traceurOptions = traceurOptions;
@@ -135,24 +139,24 @@
 
     test(name, function(done) {
       var baseURL = './';
-      var options = null;
+
+      var prologOptions;
       function translateSynchronous(load) {
         var source = load.source;
-        // Only top level file can set options.
-        if (!options)
-          options = parseProlog(source);
+        // Only top level file can set prologOptions.
+        if (!prologOptions)
+          prologOptions = parseProlog(source);
 
-        if (options.skip)
+        if (prologOptions.skip)
           return '';
 
-        if (options.async) {
+        if (prologOptions.async) {
           global.done = function(ex) {
             handleExpectedErrors(ex);
             done(ex);
           };
         }
-
-        setOptions(load, options);
+        setOptions(load, prologOptions);
         return source;
       }
 
@@ -165,14 +169,14 @@
       }
 
       function handleExpectedErrors(error) {
-        if (options.shouldHaveErrors) {
+        if (prologOptions.shouldHaveErrors) {
           assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
           var actualErrors = error.errors || [error];
           actualErrors = actualErrors.map(function(error) {
             return error + '';
           });
-          options.expectedErrors.forEach(function(expected, index) {
+          prologOptions.expectedErrors.forEach(function(expected, index) {
             assert.isTrue(
                 hasMatchingError(expected, actualErrors),
                 'Missing expected error: ' + expected +
@@ -182,12 +186,12 @@
       }
 
       function handleSuccess(result) {
-        if (options.skip) {
+        if (prologOptions.skip) {
           done();
           return;
         }
 
-        if (options.async)
+        if (prologOptions.async)
           return;
 
         handleExpectedErrors();
@@ -196,7 +200,7 @@
 
       function handleFailure(error) {
         handleExpectedErrors(error);
-        if (!options.shouldHaveErrors) {
+        if (!prologOptions.shouldHaveErrors) {
           done(error)
         } else {
           done();

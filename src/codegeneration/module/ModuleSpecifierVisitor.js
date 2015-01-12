@@ -69,6 +69,7 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
   }
 
   addTypeAssertionDependency_(typeAnnotation) {
+    console.log('++++++++++++++this.options_.typeAssertionModule ' + this.options_.typeAssertionModule);
     if (typeAnnotation !== null && this.options_.typeAssertionModule !== null)
       this.moduleSpecifiers_[this.options_.typeAssertionModule] = true;
   }

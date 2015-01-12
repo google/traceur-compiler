@@ -58,7 +58,7 @@ class FindAdvancedProperty extends FindVisitor {
   }
 
   visitComputedPropertyName(tree) {
-    if (this.options_.transformView('computedPropertyNames'))
+    if (this.options_.transformView().computedPropertyNames)
       this.found = true;
   }
 }
