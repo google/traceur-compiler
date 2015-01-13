@@ -86,4 +86,9 @@ suite('api.js', function() {
     assert.equal(result.indexOf('sourceURL'), -1);
   });
 
+  test('api compile script export star', function() {
+    var api = require('../../../src/node/api');
+    api.compile('export * from "foo";', {});
+  });
+
 });
