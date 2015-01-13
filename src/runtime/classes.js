@@ -46,12 +46,6 @@
     return ctor.__proto__;
   }
 
-  // TODO(arv): Remove once we have pushed new version to npm.
-  // https://github.com/google/traceur-compiler/issues/1425
-  function superCall(self, homeObject, name, args) {
-    return superGet(self, homeObject, name).apply(self, args);
-  }
-
   function superGet(self, homeObject, name) {
     var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
@@ -124,16 +118,7 @@
             typeof superClass}.`);
   }
 
-  // TODO(arv): Remove once we have pushed new version to npm.
-  // https://github.com/google/traceur-compiler/issues/1425
-  function defaultSuperCall(self, homeObject, args) {
-    if ($getPrototypeOf(homeObject) !== null)
-      superCall(self, homeObject, 'constructor', args);
-  }
-
   $traceurRuntime.createClass = createClass;
-  $traceurRuntime.defaultSuperCall = defaultSuperCall;
-  $traceurRuntime.superCall = superCall;
   $traceurRuntime.superConstructor = superConstructor;
   $traceurRuntime.superGet = superGet;
   $traceurRuntime.superSet = superSet;
