@@ -29,7 +29,8 @@ import {
   EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
   FUNCTION_DECLARATION,
-  IMPORT_SPECIFIER_SET
+  IMPORT_SPECIFIER_SET,
+  RETURN_STATEMENT,
 } from '../syntax/trees/ParseTreeType.js';
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
@@ -64,8 +65,9 @@ export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
+    this.reporter_ = reporter;
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.moduleName = null;
@@ -87,8 +89,19 @@ export class ModuleTransformer extends TempVarTransformer {
     return super.transformScript(tree);
   }
 
+  checkIllegalReturn(statements) {
+    statements.forEach((tree) => {
+      if (tree.type === RETURN_STATEMENT) {
+        this.reporter_.reportError(tree.location.start,
+            '\'return\' not legal in module');
+      }
+    });
+  }
+
   transformModule(tree) {
     this.moduleName = tree.moduleName;
+
+    this.checkIllegalReturn(tree.scriptItemList);
 
     this.pushTempScope();
 
