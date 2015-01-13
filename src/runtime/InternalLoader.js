@@ -156,7 +156,7 @@ class BundledCodeUnit extends CodeUnit {
   }
   evaluate() {
     var normalizedNames =
-        this.deps.map((name) => this.loader_.normalize(name));
+        this.deps.map((name) => System.normalize(name));
     var module = this.execute.apply(Reflect.global, normalizedNames);
     System.set(this.normalizedName, module);
     return module;
@@ -392,7 +392,7 @@ export class InternalLoader {
   }
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
-    var normalizedName = this.loader_.normalize(name, referrerName);
+    var normalizedName = System.normalize(name, referrerName);
     return this.getCodeUnit_(normalizedName, 'module').codeUnit;
   }
 
