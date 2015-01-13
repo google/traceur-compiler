@@ -23,9 +23,9 @@ suite('options', function() {
   test('Options instance', function() {
     var options = new Options();
     // default is false
-    assert.isFalse(options.experimental);
+    assert.isFalse(options.anyExperimental());
     options.experimental = true;
-    assert.isTrue(options.experimental);
+    assert.isTrue(options.anyExperimental());
 
     options.modules = false;
     assert.equal(options.modules, 'register');
@@ -41,7 +41,7 @@ suite('options', function() {
     var options = new Options();
     options.experimental = true;
     options.reset();
-    assert.isFalse(options.experimental);
+    assert.isFalse(options.anyExperimental());
     assert.isTrue(options.classes);
     assert.isFalse(options.sourceMaps);
     options.reset(true);

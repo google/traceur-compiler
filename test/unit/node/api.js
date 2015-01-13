@@ -37,9 +37,13 @@ suite('api.js', function() {
   });
 
   test('api compile experimental', function() {
-    var api = require('../../../src/node/api');
-    var result = api.compile('let a = 1;', {blockBinding: true});
-    assert(result.length > 0);
+    try {
+      var api = require('../../../src/node/api');
+      var result = api.compile('[for (x of [1,2,3]) x]', { experimental: true });
+      assert(result.length > 0, ' The result should be a non-empty string');
+    } catch(ex) {
+      console.error(ex.stack || ex);
+    }
   });
 
   test('api compile filename', function() {
