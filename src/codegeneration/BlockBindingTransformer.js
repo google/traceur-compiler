@@ -433,12 +433,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformBlock(tree) {
     var scope = this.pushScope(tree);
+    var outerPrepends = this.prependBlockStatement_;
+    this.prependBlockStatement_ = [];
     tree = super.transformBlock(tree);
     if (this.prependBlockStatement_.length) {
       tree = new Block(tree.location, prependStatements(tree.statements,
           ...this.prependBlockStatement_));
-      this.prependBlockStatement_ = [];
     }
+    this.prependBlockStatement_ = outerPrepends;
     tree = this.flushRenames(tree);
     this.popScope(scope);
     return tree;
