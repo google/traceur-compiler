@@ -15,6 +15,8 @@
 (function(exports, global) {
   'use strict';
 
+  var fs = require('fs');
+
   function forEachPrologLine(s, f) {
     var inProlog = true;
     for (var i = 0; inProlog && i < s.length; ) {
@@ -157,7 +159,20 @@
 
         setOptions(load, options);
         return source;
-      }
+      };
+
+
+      loaderHooks.evaluateCodeUnit = function(codeUnit) {
+        if (process.env.OUTPUT === 'console') {
+          console.log(codeUnit.url);
+          console.log('================================================');
+          console.log(codeUnit.metadata.transcoded);
+        } else if (process.env.OUTPUT === 'file') {
+          fs.writeFile(__dirname + '/' + codeUnit.url.replace(/\.js$/, '.es5.js'), codeUnit.metadata.transcoded);
+        }
+
+        return LoaderHooks.prototype.evaluateCodeUnit.call(this, codeUnit);
+      };
 
       var moduleLoader = new traceur.runtime.TraceurLoader(fileLoader, baseURL);
 
