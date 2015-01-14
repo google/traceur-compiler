@@ -77,6 +77,16 @@ export class ScopeTransformer extends ParseTreeTransformer {
     return super.transformFunctionExpression(tree);
   }
 
+  /**
+   * @param {PropertyMethodAssignment} tree
+   * @return {ParseTree}
+   */
+  transformPropertyMethodAssignment(tree) {
+    if (this.getDoNotRecurse(tree))
+      return tree;
+    return super.transformPropertyMethodAssignment(tree);
+  }
+
   // Do not recurse into functions if:
   //  - 'arguments' is implicitly bound in function bodies
   //  - 'this' is implicitly bound in function bodies
