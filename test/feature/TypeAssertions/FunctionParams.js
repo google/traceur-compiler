@@ -1,4 +1,4 @@
-// Options: --types --type-assertions --type-assertion-module=./resources/assert
+// Options: --types --type-assertions --type-assertion-module=./resources/assert.js
 function single(a: number) {}
 function multiple(a: number, b: boolean) {}
 function untyped(a) {}

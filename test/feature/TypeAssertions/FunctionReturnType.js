@@ -1,4 +1,4 @@
-// Options: --types --type-assertions --type-assertion-module=./resources/assert
+// Options: --types --type-assertions --type-assertion-module=./resources/assert.js
 function returnType(): number { return 1; }
 
 function multipleReturnPaths(value): number {

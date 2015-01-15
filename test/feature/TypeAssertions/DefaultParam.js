@@ -1,4 +1,4 @@
-// Options: --types --type-assertions --type-assertion-module=./resources/assert
+// Options: --types --type-assertions --type-assertion-module=./resources/assert.js
 function initialized(a: number = 1) { return a; }
 
 assert.equal(1, initialized());
