@@ -12,15 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ARGUMENTS,
   THIS
 } from '../syntax/PredefinedName.js';
+import {FindInFunctionScope} from './FindInFunctionScope.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js'
+import {VAR} from '../syntax/TokenType.js'
 import {
   variablesInBlock,
   variablesInFunction
 } from '../semantics/VariableBinder.js';
+
+class FindNames extends FindInFunctionScope {
+  constructor(names) {
+    super();
+    this.names = names;
+  }
+  visitBindingIdentifier(tree) {
+    this.names[tree.getStringValue()] = true;
+  }
+}
+
+/**
+ * Gets the variable names in a declaration list. This is used to get the names
+ * from for loops (for, for-in and for-of)
+ * @param {VariableDeclarationList} tree
+ * @return {Object} An object as a map where the keys are the variable names.
+ */
+function getLexicalBindingNames(tree) {
+  var names = Object.create(null);
+  if (tree !== null && tree.type === VARIABLE_DECLARATION_LIST &&
+      tree.declarationType !== VAR) {
+    var visitor = new FindNames(names);
+    for (var i = 0; i < tree.declarations.length; i++) {
+      visitor.visitAny(tree.declarations[i].lvalue);
+    }
+  }
+  return names;
+}
 
 /**
  * A BaseClass for creating scope visitor-based operations
@@ -46,9 +77,42 @@ export class ScopeTransformer extends ParseTreeTransformer {
     if (this.varName_ in variablesInBlock(tree)) {
       // the var name is bound in the block, skip rename
       return tree;
-    } else {
-      return super.transformBlock(tree);
     }
+    return super.transformBlock(tree);
+  }
+
+  sameTreeIfNameInLoopInitializer_(tree) {
+    if (this.varName_ in getLexicalBindingNames(tree.initializer)) {
+      return tree;
+    }
+    return null;
+  }
+
+  /**
+   * @param {ForStatement} tree
+   * @return {ParseTree}
+   */
+  transformForStatement(tree) {
+    return this.sameTreeIfNameInLoopInitializer_(tree) ||
+        super.transformForStatement(tree);
+  }
+
+  /**
+   * @param {ForInStatement} tree
+   * @return {ParseTree}
+   */
+  transformForInStatement(tree) {
+    return this.sameTreeIfNameInLoopInitializer_(tree) ||
+        super.transformForInStatement(tree);
+  }
+
+  /**
+   * @param {ForInStatement} tree
+   * @return {ParseTree}
+   */
+  transformForOfStatement(tree) {
+    return this.sameTreeIfNameInLoopInitializer_(tree) ||
+        super.transformForOfStatement(tree);
   }
 
   transformThisExpression(tree) {
@@ -112,4 +176,3 @@ export class ScopeTransformer extends ParseTreeTransformer {
     return super.transformCatch(tree);
   }
 }
-
