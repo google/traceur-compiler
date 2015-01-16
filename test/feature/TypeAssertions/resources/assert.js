@@ -1,4 +1,4 @@
-export var assert = this.assert;
+export var assert = chai.assert;
 
 assert.type = function (actual, type) {
   if (type === $traceurRuntime.type.any) {
