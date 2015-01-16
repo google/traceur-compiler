@@ -338,8 +338,6 @@ export class CommandOptions extends Options {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
 
-    console.log('parseCommand ', s)
-
     if (m)
       this.setOptionCoerced(m[1], m[2]);
   }
@@ -350,7 +348,7 @@ export class CommandOptions extends Options {
       value = coerceOptionValue(value);
     else
       value = true;
-if (name === 'typeAssertionModule') console.log('setOptionCoerced ' + name, value)
+
     this.setOption(name,  value);
   }
 

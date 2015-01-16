@@ -114,7 +114,6 @@ function classCall(func, object, staticObject, superClass) {
       `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
 }
 
-<<<<<<< HEAD
 function methodNameFromTree(tree) {
   // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
   if (tree.type === COMPUTED_PROPERTY_NAME) {
@@ -137,12 +136,13 @@ function classMethodDebugName(className, methodName, isStatic) {
   return createBindingIdentifier('$__' + className + '_prototype_' + methodName);
 }
 
-export class ClassTransformer extends TempVarTransformer{
+export class ClassTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
-   * @param {Options} options
+   * @param {boolean} showDebugNames options.debugNames
    */
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
     this.options_ = options;
     this.strictCount_ = 0;

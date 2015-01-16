@@ -53,7 +53,6 @@
       } else if (line.indexOf('// Async.') === 0) {
         returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
-        console.log('testutils ' + line)
         returnValue.traceurOptions = traceur.util.CommandOptions.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
         returnValue.expectedErrors.push(m[1]);

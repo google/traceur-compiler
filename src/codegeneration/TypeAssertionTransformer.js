@@ -232,7 +232,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   prependAssertionImport_(tree, Ctor) {
     if (!this.assertionAdded_ || this.options_.typeAssertionModule === null)
       return tree;
-console.log('prependAssertionImport_')
+
     var binding = createImportedBinding('assert');
     var importStatement = new ImportDeclaration(null,
         new ImportSpecifierSet(null,
