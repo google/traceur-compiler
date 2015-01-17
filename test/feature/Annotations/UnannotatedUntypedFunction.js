@@ -1,4 +1,4 @@
 function UnannotatedUntypedParams(x, y) {}
 
-assert(!UnannotatedUntypedParams.annotations);
+assert(!UnannotatedUntypedParams.annotate);
 assert(!UnannotatedUntypedParams.parameters);

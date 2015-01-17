@@ -7,9 +7,9 @@ import {
 } from './resources/exported-classes.js';
 
 
-assertArrayEquals([new Anno], ExportedAnnotatedClass.annotations);
+assertArrayEquals([new Anno], ExportedAnnotatedClass.annotate);
 assertArrayEquals([new Anno],
-    ExportedAnnotatedClass.prototype.annotatedMethod.annotations);
+    ExportedAnnotatedClass.prototype.annotatedMethod.annotate);
 
 assertArrayEquals([new Anno],
-    ExportedUnannotatedClass.prototype.annotatedMethod.annotations);
+    ExportedUnannotatedClass.prototype.annotatedMethod.annotate);

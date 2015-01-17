@@ -15,6 +15,6 @@ class AnnotatedTypedClass {
   bar(a:X) {}
 }
 
-assertArrayEquals([new Anno('class'), new Anno2('ctor')], AnnotatedTypedClass.annotations);
+assertArrayEquals([new Anno('class'), new Anno2('ctor')], AnnotatedTypedClass.annotate);
 assertArrayEquals([[X, new Anno], [new Anno('b')]], AnnotatedTypedClass.parameters);
 assertArrayEquals([[X]], AnnotatedTypedClass.prototype.bar.parameters);

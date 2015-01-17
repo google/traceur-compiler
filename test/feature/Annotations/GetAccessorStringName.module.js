@@ -9,6 +9,6 @@ class C {
 }
 
 assertArrayEquals([new Anno('x y z')],
-    Object.getOwnPropertyDescriptor(C.prototype, 'x y z').get.annotations);
+    Object.getOwnPropertyDescriptor(C.prototype, 'x y z').get.annotate);
 assertArrayEquals([new Anno('xyz')],
-    Object.getOwnPropertyDescriptor(C.prototype, 'xyz').get.annotations);
+    Object.getOwnPropertyDescriptor(C.prototype, 'xyz').get.annotate);

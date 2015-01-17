@@ -23,8 +23,8 @@ class Outer {
 }
 
 var Inner = Outer.nested;
-assertArrayEquals([new Anno('outer'), new Anno2('outerCtor')], Outer.annotations);
-assertArrayEquals([new Anno('inner'), new Anno2('innerCtor')], Inner.annotations);
-assertArrayEquals([new Anno('innerMethod')], Inner.prototype.method.annotations);
+assertArrayEquals([new Anno('outer'), new Anno2('outerCtor')], Outer.annotate);
+assertArrayEquals([new Anno('inner'), new Anno2('innerCtor')], Inner.annotate);
+assertArrayEquals([new Anno('innerMethod')], Inner.prototype.method.annotate);
 assertArrayEquals([[X, new Anno('innerMethodParam')]],
     Inner.prototype.method.parameters);

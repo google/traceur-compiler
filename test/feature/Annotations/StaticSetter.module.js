@@ -7,6 +7,6 @@ class StaticSetter {
 }
 
 assertArrayEquals([new Anno],
-    Object.getOwnPropertyDescriptor(StaticSetter, 'prop').set.annotations);
+    Object.getOwnPropertyDescriptor(StaticSetter, 'prop').set.annotate);
 assertArrayEquals([[new Anno]],
     Object.getOwnPropertyDescriptor(StaticSetter, 'prop').set.parameters);

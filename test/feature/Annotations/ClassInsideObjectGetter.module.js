@@ -12,5 +12,4 @@ var object = {
 };
 
 assertArrayEquals([new Anno],
-    Object.getOwnPropertyDescriptor(object.foo.prototype, 'b').get.annotations);
-
+    Object.getOwnPropertyDescriptor(object.foo.prototype, 'b').get.annotate);
