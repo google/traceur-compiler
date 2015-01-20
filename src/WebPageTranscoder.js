@@ -44,7 +44,7 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var options = traceur.options;
+    var options = $traceurRuntime.options;
     var nameInfo = {
       address: name,
       referrerName: window.location.href,

@@ -276,7 +276,8 @@
   }
 
   function getOption(name) {
-    return global.traceur && global.traceur.options[name];
+    //console.log('getOption ' + name, global.$traceurRuntime.options[name]);
+    return global.$traceurRuntime.options[name];
   }
 
   function defineProperty(object, name, descriptor) {
@@ -370,6 +371,7 @@
     isPrivateName: isPrivateName,
     isSymbolString: isSymbolString,
     keys: $keys,
+    options: {},
     setupGlobals: setupGlobals,
     toObject: toObject,
     toProperty: toProperty,

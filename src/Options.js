@@ -239,7 +239,7 @@ export class Options {
       if (this[key] !== ref[key]) {
         mismatches.push({
           key: key,
-          now: traceur.options[key],
+          now: $traceurRuntime.options[key],
           v01: ref[key]
         });
       }

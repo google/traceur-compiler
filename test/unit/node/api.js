@@ -15,11 +15,11 @@
 suite('api.js', function() {
 
   setup(function() {
-    traceur.options.reset();
+    $traceurRuntime.options.reset();
   });
 
   teardown(function() {
-    traceur.options.reset();
+    $traceurRuntime.options.reset();
   });
 
   test('api compile script function declaration', function() {

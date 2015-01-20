@@ -32,7 +32,7 @@ suite('context test', function() {
     if (tempMapName && fs.existsSync(tempMapName))
       fs.unlinkSync(tempMapName);
     tempMapName = null;
-    traceur.options.reset();
+    $traceurRuntime.options.reset();
   });
 
   function forwardSlash(s) {
@@ -236,7 +236,7 @@ suite('context test', function() {
     }];
     var cwd = process.cwd();
     traceur.System.baseURL = cwd;
-    recursiveCompile(tempFileName, rootSources, traceur.options)
+    recursiveCompile(tempFileName, rootSources, $traceurRuntime.options)
       .then(function () {
         assert.equal(process.cwd(), cwd);
         done();
