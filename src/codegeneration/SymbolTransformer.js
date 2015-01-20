@@ -41,6 +41,7 @@ import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js';
 
 
 class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
@@ -101,10 +102,7 @@ var runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
 export class SymbolTransformer extends TempVarTransformer {
 
   prependRuntimeOption_(scriptItemList) {
-    return [
-      runtimeOption,
-      ...scriptItemList
-    ];
+    return prependStatements(scriptItemList, runtimeOption);
   }
 
   transformModule(tree) {
