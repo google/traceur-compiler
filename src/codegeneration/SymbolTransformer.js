@@ -101,19 +101,17 @@ var runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
  */
 export class SymbolTransformer extends TempVarTransformer {
 
-  prependRuntimeOption_(scriptItemList) {
-    return prependStatements(scriptItemList, runtimeOption);
-  }
-
   transformModule(tree) {
     return new Module(tree.location,
-        this.prependRuntimeOption_(this.transformList(tree.scriptItemList)),
+        prependStatements(this.transformList(tree.scriptItemList),
+            runtimeOption),
         this.moduleName_);
   }
 
   transformScript(tree) {
     return new Script(tree.location,
-        this.prependRuntimeOption_(this.transformList(tree.scriptItemList)),
+        prependStatements(this.transformList(tree.scriptItemList),
+            runtimeOption),
         this.moduleName_);
   }
 
