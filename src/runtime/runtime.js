@@ -276,7 +276,6 @@
   }
 
   function getOption(name) {
-    //console.log('getOption ' + name, global.$traceurRuntime.options[name]);
     return global.$traceurRuntime.options[name];
   }
 

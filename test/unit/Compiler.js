@@ -22,7 +22,6 @@ suite('Compiler', function() {
   setup(function() {
     Compiler = get('src/Compiler.js').Compiler;
     versionLockedOptions = get('src/Options.js').versionLockedOptions;
-    $traceurRuntime.options.reset();
   });
 
   test('Compiler synchronous', function() {
@@ -51,7 +50,8 @@ suite('Compiler', function() {
         new Options({blockBinding: !versionLockedOptions.blockBinding});
     assert.equal(checkDiff.diff(versionLockedOptions).length, 1);
 
-    var mismatches = $traceurRuntime.options.diff(versionLockedOptions);
+    var options = new Options();
+    var mismatches = options.diff(versionLockedOptions);
     if (mismatches.length)
       console.error('Options changed ', mismatches);
     assert.equal(mismatches.length, 0);
