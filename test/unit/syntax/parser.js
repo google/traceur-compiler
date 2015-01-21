@@ -20,7 +20,7 @@ suite('parser.js', function() {
   };
 
   teardown(function() {
-    traceur.options.reset();
+    $traceurRuntime.options.reset();
   });
 
   test('Module', function() {
@@ -35,13 +35,14 @@ suite('parser.js', function() {
   });
 
   test('handleComment', function() {
-    traceur.options.commentCallback = true;
+    var options = new traceur.util.Options();
+    options.commentCallback = true;
 
     var program = '// AAA\n' +
                   'var b = \'c\';\n' +
                   '/* DDD */ function e() {}\n';
     var sourceFile = new traceur.syntax.SourceFile('Name', program);
-    var parser = new traceur.syntax.Parser(sourceFile, errorReporter);
+    var parser = new traceur.syntax.Parser(sourceFile, errorReporter, options);
     var comments = [];
     parser.handleComment = function(sourceRange) {
       comments.push(sourceRange);

@@ -1,6 +1,8 @@
 // Options: --symbols
 'use strict';
 
+assert.equal($traceurRuntime.options.symbols, true);
+
 var s = Symbol();
 var p = {};
 Object.defineProperty(p, s, {

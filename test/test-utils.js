@@ -122,6 +122,7 @@
   }
 
   var Options = traceur.get('./Options.js').Options;
+  $traceurRuntime.options = new Options();
 
   function setOptions(load, options) {
     var traceurOptions = new Options(options.traceurOptions);
@@ -133,12 +134,12 @@
   function featureTest(name, url, fileLoader) {
 
     teardown(function() {
-      traceur.options.reset();
+      $traceurRuntime.options.reset();
     });
 
     test(name, function(done) {
       var baseURL = './';
-      var options;
+      var options = null;
       function translateSynchronous(load) {
         var source = load.source;
         // Only top level file can set options.
@@ -218,24 +219,22 @@
 
   function cloneTest(name, url, loader) {
     teardown(function() {
-      traceur.options.reset();
+      $traceurRuntime.options.reset();
     });
 
     function doTest(source) {
-      var options = parseProlog(source);
-      if (options.skip || options.shouldHaveErrors) {
+      var prologOptions = parseProlog(source);
+      if (prologOptions.skip || prologOptions.shouldHaveErrors) {
         return;
       }
 
-      traceur.options.reset();
-      if (options.traceurOptions)
-        traceur.options.setFromObject(options.traceurOptions);
-
+      var options = new Options(prologOptions.traceurOptions);
       var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
-        var parser = new traceur.syntax.Parser(file, reporter);
+        var parser =
+            new traceur.syntax.Parser(file, reporter, options);
         var isModule = /\.module\.js$/.test(url);
         if (isModule)
           return parser.parseModule();
@@ -246,7 +245,7 @@
       var tree = parse(source);
 
       if (reporter.hadError()) {
-        fail('Error compiling ' + name + '.\n' +
+        fail('cloneTest Error compiling ' + name + '.\n' +
              reporter.errorsAsString());
         return;
       }

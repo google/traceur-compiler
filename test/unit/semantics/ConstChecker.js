@@ -18,22 +18,23 @@ suite('ConstChecker.js', function() {
     return $traceurRuntime.ModuleStore.getForTesting(name);
   }
 
-  teardown(function() {
-    traceur.options.reset();
-  });
-
   var Parser = traceur.syntax.Parser;
   var SourceFile = traceur.syntax.SourceFile;
   var ErrorReporter = get('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
   var validateConst = get('src/semantics/ConstChecker.js').validate;
+  var Options = get('src/Options.js').Options;
+
+  var options;
 
   function makeTest(name, code, expectedErrors, mode) {
     test(name, function() {
-      traceur.options.arrayComprehension = true;
-      traceur.options.blockBinding = true;
-      traceur.options.generatorComprehension = true;
+      options = new Options();
+      options.arrayComprehension = true;
+      options.blockBinding = true;
+      options.generatorComprehension = true;
       var reporter = new ErrorReporter();
-      var parser = new Parser(new SourceFile('SOURCE', code), reporter);
+      var parser =
+          new Parser(new SourceFile('SOURCE', code), reporter, options);
       var tree = mode === 'script' ?
           parser.parseScript() : parser.parseModule();
       assert.deepEqual(reporter.errors, []);

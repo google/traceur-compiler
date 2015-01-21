@@ -17,7 +17,7 @@ var vm = require('vm');
 var util = require('util');
 
 var traceur = require('../src/node/traceur.js');
-traceur.options.freeVariableChecker = false;
+$traceurRuntime.options.freeVariableChecker = false;
 
 // Debug functions.
 

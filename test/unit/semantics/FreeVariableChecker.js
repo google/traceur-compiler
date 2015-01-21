@@ -22,11 +22,14 @@ suite('FreeVariableChecker.js', function() {
   var SourceFile = traceur.syntax.SourceFile;
   var ErrorReporter = get('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
   var validateFreeVars = get('src/semantics/FreeVariableChecker.js').validate;
+  var Options = get('src/Options.js').Options;
+
+  var options;
 
   function makeTest(name, code, expectedErrors, global, mode) {
     test(name, function() {
       var reporter = new ErrorReporter();
-      var parser = new Parser(new SourceFile('CODE', code), reporter);
+      var parser = new Parser(new SourceFile('CODE', code), reporter, options);
       var tree = mode === 'module' ?
           parser.parseModule() : parser.parseScript();
       assert.deepEqual(reporter.errors, []);
@@ -37,14 +40,10 @@ suite('FreeVariableChecker.js', function() {
   }
 
   setup(function() {
-    traceur.options.reset();
-    traceur.options.arrayComprehension = true;
-    traceur.options.blockBinding = true;
-    traceur.options.generatorComprehension = true;
-  });
-
-  teardown(function() {
-    traceur.options.reset();
+    options = new Options();
+    options.arrayComprehension = true;
+    options.blockBinding = true;
+    options.generatorComprehension = true;
   });
 
   makeTest('basic', 'x', ['CODE:1:1: x is not defined']);

@@ -30,7 +30,7 @@ suite('Loader.js', function() {
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
-    traceur.options.reset();
+    $traceurRuntime.options.reset();
     System.baseURL = baseURL;
   });
 
@@ -73,13 +73,13 @@ suite('Loader.js', function() {
   test('traceur@', function() {
     var traceur = System.get('traceur@');
     var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/Options.js');
-    assert.equal(traceur.options, optionsModule.options);
+    assert.equal(traceur.util.Options, optionsModule.Options);
   });
 
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
     System.import('traceur@', {}).then(function(module) {
-      assert.equal(traceur.options, module.options);
+      assert.equal(traceur.util.options, module.util.options);
       done();
     }).catch(done);
   });
@@ -99,7 +99,7 @@ suite('Loader.js', function() {
     var metadata = {traceurOptions: {sourceMaps: true}};
     loader.script(src, {name: name, metadata: metadata}).then(
       function(result) {
-        traceur.options.sourceMaps = false;
+        $traceurRuntime.options.sourceMaps = false;
         var normalizedName = System.normalize(name);
         var sourceMap = loader.getSourceMap(normalizedName);
         assert(sourceMap, 'the sourceMap is defined');
@@ -244,7 +244,7 @@ suite('Loader.js', function() {
   // TODO: Update Traceur loader implementation to support new instantiate output
   /* test('LoaderDefine.Instantiate', function(done) {
     var loader = getLoader();
-    traceur.options.modules = 'instantiate';
+    $traceurRuntime.options.modules = 'instantiate';
     var name = './test_instantiate.js';
     var src = 'export {name as a} from \'./test_a.js\';\n' +
     'export var dd = 8;\n';
@@ -388,7 +388,7 @@ suite('Loader.js', function() {
     var src = "  import {name} from './test_a.js';";
 
     var loader = getLoader();
-    traceur.options.sourceMaps = true;
+    $traceurRuntime.options.sourceMaps = true;
 
     loader.module(src, {}).then(function (mod) {
       // TODO(jjb): where is the test that the source map exists?

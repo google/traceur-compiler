@@ -15,7 +15,9 @@
 import {
   BinaryExpression,
   MemberLookupExpression,
+  Module,
   ForInStatement,
+  Script,
   UnaryExpression
 } from '../syntax/trees/ParseTrees.js';
 import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
@@ -39,6 +41,7 @@ import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js';
 
 
 class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
@@ -80,6 +83,8 @@ function isSafeTypeofString(tree) {
   return true;
 }
 
+var runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
+
 /**
  * This transformer is used with symbol values to ensure that symbols can be
  * used as member expressions.
@@ -95,6 +100,20 @@ function isSafeTypeofString(tree) {
  *   operand[$traceurRuntime.toProperty(memberExpression)] = value
  */
 export class SymbolTransformer extends TempVarTransformer {
+
+  transformModule(tree) {
+    return new Module(tree.location,
+        prependStatements(this.transformList(tree.scriptItemList),
+            runtimeOption),
+        this.moduleName_);
+  }
+
+  transformScript(tree) {
+    return new Script(tree.location,
+        prependStatements(this.transformList(tree.scriptItemList),
+            runtimeOption),
+        this.moduleName_);
+  }
 
   /**
    * Helper for the case where we only want to transform the operand of
