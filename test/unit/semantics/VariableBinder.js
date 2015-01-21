@@ -17,7 +17,7 @@ suite('VariableBinder.js', function() {
   var options;
 
   setup(function(){
-    options =  = new traceur.util.Options();
+    options = new traceur.util.Options();
   });
 
 
