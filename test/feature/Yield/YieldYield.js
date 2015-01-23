@@ -1,3 +1,4 @@
+// Options: --symbols
 function* f(x) {
   yield (yield x);
 }

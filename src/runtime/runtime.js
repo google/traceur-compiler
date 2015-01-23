@@ -131,8 +131,10 @@
   $defineProperty(Symbol.prototype, 'constructor', nonEnum(Symbol));
   $defineProperty(Symbol.prototype, 'toString', method(function() {
     var symbolValue = this[symbolDataProperty];
-    if (!getOption('symbols'))
-      return symbolValue[symbolInternalProperty];
+    return symbolValue[symbolInternalProperty];
+    /* The implementation of toString below matches the spec, but prevents
+    use of Symbols in eg generators unless --symbol is set. To simplify our
+    code we deliberately go against the spec here. */
     if (!symbolValue)
       throw TypeError('Conversion from symbol to string');
     var desc = symbolValue[symbolDescriptionProperty];
