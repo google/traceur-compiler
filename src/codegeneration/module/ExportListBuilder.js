@@ -22,9 +22,10 @@ import {ValidationVisitor} from './ValidationVisitor.js';
  * Builds up all module symbols and validates them.
  * @param {Array.<ModuleSymbole>} deps
  * @param {Loader} loader
+ * @param {ErrorReporter} reporter
  * @return {void}
  */
-export function buildExportList(deps, loader, reporter, options) {
+export function buildExportList(deps, loader, reporter) {
 
   function doVisit(ctor) {
     for (var i = 0; i < deps.length; i++) {
