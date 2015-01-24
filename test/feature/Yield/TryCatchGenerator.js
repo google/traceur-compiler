@@ -1,4 +1,3 @@
-// Options: --symbols
 function* tryCatchGenerator() {
   var x;
   try {

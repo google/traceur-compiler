@@ -68,7 +68,7 @@ export var optionsV01 = enumerableOnlyObject({
 export var versionLockedOptions = optionsV01;
 
 // Options are just a plain old object. There are two read only views on this
-// object, parseView() and transformView().
+// object, parseOptions and transformOptions.
 //
 // To set an option you do `options.classes = true`.
 //
@@ -77,8 +77,8 @@ export var versionLockedOptions = optionsV01;
 // will return false. For example:
 //
 //   options.destructuring = 'parse';
-//   options.parseView().destructuring === true;
-//   options.transformView().destructuring === false;
+//   options.parseOptions.destructuring === true;
+//   options.transformOptions.destructuring === false;
 //
 // This allows you to parse certain features without transforming them, leaving
 // the syntax intact in the output.
@@ -104,6 +104,14 @@ export class Options {
       sourceMaps_: {
         value: versionLockedOptions.sourceMaps,
         writable: true,
+        enumerable: false
+      },
+      transformOptions: {
+        value: new TransformOptions(this),
+        enumerable: false
+      },
+      parseOptions: {
+        value: new ParseOptions(this),
         enumerable: false
       }
     });
@@ -246,14 +254,6 @@ export class Options {
     return mismatches;
   }
 
-  transformView() {
-    return new TransformOptions(this);
-  }
-
-  parseView() {
-    return new ParseOptions(this);
-  }
-
 };
 
 
@@ -266,8 +266,7 @@ class ParseOptions {
         get: function() {
           return !!this.proxiedOptions_[name];
         },
-        enumerable: true,
-        configurable: true
+        enumerable: true
       });
     });
   }
@@ -285,8 +284,7 @@ class TransformOptions {
             return false;
           return v;
         }.bind(this),
-        enumerable: true,
-        configurable: true
+        enumerable: true
       });
     });
   }
@@ -464,8 +462,8 @@ var EXPERIMENTAL = 0;
 var ON_BY_DEFAULT = 1;
 
 /**
- * Adds a feature option.  Feature options can be tested with parseView()
- * and transformView().
+ * Adds a feature option.  Feature options can be tested with parseOptions
+ * and transformOptions.
  */
 function addFeatureOption(name, kind) {
   featureOptions[name] = true;

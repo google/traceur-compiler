@@ -432,14 +432,15 @@ export class InternalLoader {
       this.rejectOneAndAll(codeUnit, error);
       return;
     }
-
     codeUnit.dependencies.forEach((dependency) => {
       this.load_(dependency);
     });
 
     if (this.areAll(PARSED)) {
       try {
-        this.analyze();
+        // Currently analyze is only needed for module dependencies.
+        if (codeUnit.type === 'module')
+          this.analyze();
         this.transform();
         this.evaluate();
       } catch (error) {

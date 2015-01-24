@@ -56,10 +56,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
     this.reporter_ = reporter;
-    this.tranformOptions_ = {
-      generators: options.transformView('generators'),
-      asyncFunctions: options.transformView('asyncFunctions')
-    };
+    this.tranformOptions_ = options.transformOptions;
     this.inBlock_ = false;
   }
 

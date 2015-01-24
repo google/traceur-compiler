@@ -134,13 +134,14 @@
     return symbolValue[symbolInternalProperty];
     /* The implementation of toString below matches the spec, but prevents
     use of Symbols in eg generators unless --symbol is set. To simplify our
-    code we deliberately go against the spec here. */
+    code we deliberately go against the spec here.
     if (!symbolValue)
       throw TypeError('Conversion from symbol to string');
     var desc = symbolValue[symbolDescriptionProperty];
     if (desc === undefined)
       desc = '';
     return 'Symbol(' + desc + ')';
+    */
   }));
   $defineProperty(Symbol.prototype, 'valueOf', method(function() {
     var symbolValue = this[symbolDataProperty];

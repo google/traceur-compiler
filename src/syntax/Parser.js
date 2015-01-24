@@ -356,8 +356,6 @@ export class Parser {
    */
   constructor(file, errorReporter = new SyntaxErrorReporter(),
       options = new Options()) {
-    if (!options)
-      throw new Error('Parse must have options')
     this.errorReporter_ = errorReporter;
     this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;

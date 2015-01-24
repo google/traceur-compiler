@@ -60,7 +60,7 @@ export class FromOptionsTransformer extends MultiTransformer {
    */
   constructor(reporter, options) {
     super(reporter, options.validate);
-    var transformOptions = options.transformView();
+    var transformOptions = options.transformOptions;
     var idGenerator = new UniqueIdentifierGenerator();
 
     var append = (transformer) => {
@@ -112,10 +112,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       // Transforming member variabless to getters/setters only make
       // sense when the type assertions are enabled.
       if (transformOptions.memberVariables) append(MemberVariableTransformer);
-      this.append((tree) => {
-        return new TypeAssertionTransformer(idGenerator, reporter, options).
-            transformAny(tree);
-      });
+      append(TypeAssertionTransformer);
     }
 
     // PropertyNameShorthandTransformer needs to come before

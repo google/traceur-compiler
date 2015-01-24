@@ -110,7 +110,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     var functionExpression;
-    if (this.options_.transformView().require) {
+    if (this.options_.transformOptions.require) {
       functionExpression = parseExpression `function(require) {
         ${statements}
       }`;
@@ -297,8 +297,8 @@ export class ModuleTransformer extends TempVarTransformer {
 
     // If destructuring patterns are kept in the output code, keep this as is,
     // otherwise transform it here.
-    if (this.options_.transformView().destructuring ||
-        !this.options_.parseView().destructuring) {
+    if (this.options_.transformOptions.destructuring ||
+        !this.options_.parseOptions.destructuring) {
       var destructuringTransformer =
           new DestructImportVarStatement(this.identifierGenerator);
       varStatement = varStatement.transform(destructuringTransformer);

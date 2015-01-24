@@ -140,7 +140,7 @@ export class ClassTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
-   * @param {boolean} showDebugNames options.debugNames
+   * @param {Options} options
    */
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
