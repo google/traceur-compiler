@@ -234,7 +234,7 @@ export class Options {
 
   diff(ref) {
     var mismatches = [];
-    Object.keys(options).forEach((key) => {
+    Object.keys(this).forEach((key) => {
       if (this[key] !== ref[key]) {
         mismatches.push({
           key: key,
@@ -291,12 +291,6 @@ class TransformOptions {
     });
   }
 }
-
-
-// A distinguish instance shared internally via module
-//
-export var options = new Options();
-
 
 // TODO: Refactor this so that we can keep all of these in one place.
 var descriptions = {
@@ -479,8 +473,7 @@ function addFeatureOption(name, kind) {
   if (kind === EXPERIMENTAL)
     experimentalOptions[name] = true;
 
-  var defaultValue = options[name] || kind === ON_BY_DEFAULT;
-  options[name] = defaultValue;
+  var defaultValue = kind === ON_BY_DEFAULT;
   defaultValues[name] = defaultValue;
 }
 
@@ -489,7 +482,6 @@ function addFeatureOption(name, kind) {
  */
 function addBoolOption(name) {
   defaultValues[name] = false;
-  options[name] = false;
 }
 
 // ON_BY_DEFAULT

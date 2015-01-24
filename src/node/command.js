@@ -117,9 +117,6 @@ commandLine.parse(process.argv);
 // the self value here.
 commandOptions.sourceMaps = commandLine.sourceMaps;
 
-// Set the global options for back compat, but try to use options by argument.
-traceurAPI.options.setFromObject(commandOptions);
-
 if (!shouldExit && !rootSources.length) {
   // TODO: Start trepl
   console.error('\n  Error: At least one input file is needed');

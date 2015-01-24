@@ -49,7 +49,6 @@ import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
-import {options, transformOptions} from '../Options.js';
 
 /**
  * MultiTransformer built from global options settings
@@ -66,7 +65,8 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     var append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter).transformAny(tree);
+        return new transformer(idGenerator, reporter, options).
+            transformAny(tree);
       });
     };
 
