@@ -18,7 +18,6 @@ import {
   SourceMapGenerator,
   SourceMapConsumer
 } from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
-import {options as traceurOptions} from 'traceur@0.0/src/Options.js';
 import {webLoader} from 'traceur@0.0/src/runtime/webLoader.js';
 
 class BatchErrorReporter extends ErrorReporter {
@@ -30,17 +29,17 @@ class BatchErrorReporter extends ErrorReporter {
   }
 }
 
-export function transcode(contents, onSuccess, onFailure) {
+export function transcode(contents, options, onSuccess, onFailure) {
   var url = location.href;
   var loadOptions = {
     address: 'traceured.js',
     metadata: {
-      traceurOptions: traceurOptions
+      traceurOptions: options
     }
   };
 
   var loader = new TraceurLoader(webLoader, url);
-  var load = traceurOptions.script ? loader.script : loader.module;
+  var load = options.script ? loader.script : loader.module;
   load.call(loader, contents, loadOptions).
       then(() => onSuccess(loadOptions.metadata),
           (error) => onFailure(error, loadOptions.metadata));

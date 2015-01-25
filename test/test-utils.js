@@ -14,8 +14,6 @@
 
 (function(exports, global) {
 
-  var chai = require('chai/chai.js');
-
   'use strict';
 
   function forEachPrologLine(s, f) {
