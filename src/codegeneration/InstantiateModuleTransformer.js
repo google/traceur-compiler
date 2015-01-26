@@ -305,7 +305,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       if (importBindings) {
         importBindings.forEach((binding) => {
           setterStatements.push(
-            parseStatement `${createIdentifierToken(binding.variableName)} = m.${binding.exportName};`
+            parseStatement `${createIdentifierToken(binding.variableName)} = $__m.${binding.exportName};`
           );
         });
       }
@@ -314,7 +314,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       if (externalExportBindings) {
         externalExportBindings.forEach((binding) => {
           setterStatements.push(
-            parseStatement `$__export(${binding.exportName}, m.${binding.importName});`
+            parseStatement `$__export(${binding.exportName}, $__m.${binding.importName});`
           );
         });
       }
@@ -322,16 +322,16 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       // create local module bindings
       if (moduleBinding) {
         setterStatements.push(
-          parseStatement `${id(moduleBinding)} = m;`
+          parseStatement `${id(moduleBinding)} = $__m;`
         );
       }
 
       // finally run export * if applying to this dependency, for not-already exported dependencies
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
-          Object.keys(m).forEach(function(p) {
+          Object.keys($__m).forEach(function(p) {
             if (!$__exportNames[p])
-              $__export(p, m[p]);
+              $__export(p, $__m[p]);
           });
         `);
 
@@ -346,12 +346,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       }
 
       if (setterStatements.length) {
-        return parseExpression `function(m) {
+        return parseExpression `function($__m) {
           ${setterStatements}
         }`;
       }
       else {
-        return parseExpression `function(m) {}`;
+        return parseExpression `function($__m) {}`;
       }
     });
 
