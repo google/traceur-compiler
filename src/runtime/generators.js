@@ -52,6 +52,30 @@
                       state);
   }
 
+  function StopIteration() {
+  }
+
+  function GeneratorWrapper(iterator) {
+    this.iterator = iterator;
+  }
+  GeneratorWrapper.prototype = {
+    next: function (v) {
+      return this.iterator.next(v);
+    },
+    throw: function (e) {
+      if (e instanceof StopIteration) {
+        if (this.iterator.return) {
+          this.iterator.return(e.value);
+        }
+        throw e;
+      }
+      if (this.iterator.throw) {
+        return this.iterator.throw(e);
+      }
+      throw e;
+    }
+  };
+
   function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
@@ -132,11 +156,20 @@
             done: true
           };
         }
+        if (x instanceof StopIteration) {
+          return {
+            value: ctx.returnValue,
+            done: true
+          }
+        }
         throw x;
 
       case ST_NEWBORN:
         if (action === 'throw') {
           ctx.GState = ST_CLOSED;
+          if (x instanceof StopIteration) {
+            return {value: ctx.returnValue, done: true};
+          }
           throw x;
         }
         if (x !== undefined)
@@ -147,7 +180,15 @@
         ctx.GState = ST_EXECUTING;
         ctx.action = action;
         ctx.sent = x;
-        var value = moveNext(ctx);
+        try {
+          var value = moveNext(ctx);
+        } catch (ex) {
+          if (ex instanceof StopIteration) {
+            value = ctx;
+          } else {
+            throw ex;
+          }
+        }
         var done = value === ctx;
         if (done)
           value = ctx.returnValue;
@@ -175,6 +216,11 @@
     },
     throw: function(v) {
       return nextOrThrow(this[ctxName], this[moveNextName], 'throw', v);
+    },
+    return: function (v) {
+      this[ctxName].returnValue = v;
+      return nextOrThrow(this[ctxName], this[moveNextName], 'throw',
+        new StopIteration());
     }
   };
 
@@ -182,6 +228,7 @@
     constructor: {enumerable: false},
     next: {enumerable: false},
     throw: {enumerable: false},
+    return: {enumerable: false}
   });
 
   Object.defineProperty(GeneratorFunctionPrototype.prototype, Symbol.iterator,
@@ -272,7 +319,8 @@
       return;
     }
 
-    ctx.state = last.catch !== undefined ? last.catch : last.finally;
+    ctx.state = (!(ex instanceof StopIteration) && last.catch !== undefined) ? 
+      last.catch : last.finally;
 
     if (last.finallyFallThrough !== undefined)
       ctx.finallyFallThrough = last.finallyFallThrough;
@@ -281,4 +329,5 @@
   $traceurRuntime.asyncWrap = asyncWrap;
   $traceurRuntime.initGeneratorFunction = initGeneratorFunction;
   $traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+  $traceurRuntime.GeneratorWrapper = GeneratorWrapper;
 })();
