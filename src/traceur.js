@@ -20,7 +20,6 @@ import './util/MutedErrorReporter.js';
 // TODO(arv): Change this to .js after a npm push
 export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
 export {WebPageTranscoder} from './WebPageTranscoder.js';
-export {options} from './Options.js';
 import {addOptions, CommandOptions, Options} from './Options.js';
 
 // TODO(arv): Change this to .js after a npm push

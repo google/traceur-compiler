@@ -20,7 +20,7 @@ import {
 import {SourceMapConsumer}
     from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
 import {transcode, renderSourceMap} from './transcode.js';
-import {options as traceurOptions} from 'traceur@0.0/src/Options.js';
+import {Options} from 'traceur@0.0/src/Options.js';
 import {setOptionsFromSource} from './replOptions.js';
 
 var hasError = false;
@@ -90,11 +90,12 @@ var markingOptions = {
 };
 
 var currentSource;
+var options = new Options();
 var generatedMarker;
 var sourceMapOutput = document.querySelector('.source-map');
 
 function updateSourceMapVisualization(url) {
-  if (!traceurOptions.sourceMaps)
+  if (!options.sourceMaps)
     return;
   if (url)
     currentSource = url;
@@ -158,7 +159,7 @@ function compile() {
   var contents = input.getValue();
   updateLocation(contents);
   try {
-    traceurOptions.setFromObject(
+    options.setFromObject(
         setOptionsFromSource(contents, resetAndCompileContents));
     compileContents(contents);
   } catch (ex) {
@@ -171,7 +172,7 @@ function compile() {
 function resetAndCompileContents(contents, newOptions) {
   input.setValue(contents);
   updateLocation(contents);
-  traceurOptions.setFromObject(newOptions);
+  options.setFromObject(newOptions);
   compileContents(contents);
 }
 
@@ -198,7 +199,7 @@ function compileContents(contents) {
   }
 
   if (transcode)
-    transcode(contents, onTranscoded, onFailure);
+    transcode(contents, options, onTranscoded, onFailure);
 }
 
 if (location.hash) {

@@ -14,14 +14,6 @@
 
 suite('api.js', function() {
 
-  setup(function() {
-    $traceurRuntime.options.reset();
-  });
-
-  teardown(function() {
-    $traceurRuntime.options.reset();
-  });
-
   test('api compile script function declaration', function() {
     var api = require('../../../src/node/api');
     var result = api.compile('function foo() {};',

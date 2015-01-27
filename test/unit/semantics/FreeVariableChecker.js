@@ -24,10 +24,12 @@ suite('FreeVariableChecker.js', function() {
   var validateFreeVars = get('src/semantics/FreeVariableChecker.js').validate;
   var Options = get('src/Options.js').Options;
 
-  var options;
-
   function makeTest(name, code, expectedErrors, global, mode) {
     test(name, function() {
+      var options = new Options();
+      options.arrayComprehension = true;
+      options.blockBinding = true;
+      options.generatorComprehension = true;
       var reporter = new ErrorReporter();
       var parser = new Parser(new SourceFile('CODE', code), reporter, options);
       var tree = mode === 'module' ?
@@ -38,13 +40,6 @@ suite('FreeVariableChecker.js', function() {
       assert.deepEqual(reporter.errors, expectedErrors);
     });
   }
-
-  setup(function() {
-    options = new Options();
-    options.arrayComprehension = true;
-    options.blockBinding = true;
-    options.generatorComprehension = true;
-  });
 
   makeTest('basic', 'x', ['CODE:1:1: x is not defined']);
   makeTest('basic binop', 'x + 1', ['CODE:1:1: x is not defined']);

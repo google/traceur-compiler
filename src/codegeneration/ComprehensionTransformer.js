@@ -34,7 +34,6 @@ import {
   createParenExpression,
   createVariableDeclarationList
 } from './ParseTreeFactory.js';
-import {options} from '../Options.js';
 
 /**
  * Base class for GeneratorComprehensionTransformer and
@@ -43,6 +42,10 @@ import {options} from '../Options.js';
  * See subclasses for details on desugaring.
  */
 export class ComprehensionTransformer extends TempVarTransformer {
+  constructor(idGenerator, reporter, options) {
+    super(idGenerator);
+    this.options_ = options;
+  }
   /**
    * transformArrayComprehension and transformGeneratorComprehension calls
    * this
@@ -59,7 +62,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-    var bindingKind = isGenerator || !options.blockBinding ? VAR : LET;
+    var bindingKind = isGenerator || !this.options_.blockBinding ? VAR : LET;
 
     var statements = prefix ? [prefix] : [];
 

@@ -38,15 +38,15 @@ import {
   createStringLiteral
 } from './ParseTreeFactory.js';
 import {propName} from '../staticsemantics/PropName.js';
-import {transformOptions} from '../Options.js';
 
 /**
  * FindAdvancedProperty class that finds if an object literal contains a
  * computed property name, an at name or a __proto__ property.
  */
 class FindAdvancedProperty extends FindVisitor {
-  constructor() {
+  constructor(options) {
     super(true);
+    this.options_ = options;
     this.protoExpression = null;
   }
 
@@ -58,7 +58,7 @@ class FindAdvancedProperty extends FindVisitor {
   }
 
   visitComputedPropertyName(tree) {
-    if (transformOptions.computedPropertyNames)
+    if (this.options_.transformOptions.computedPropertyNames)
       this.found = true;
   }
 }
@@ -79,8 +79,9 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
+    this.options_ = options;
     this.protoExpression = null;
     this.needsAdvancedTransform = false;
     this.seenAccessors = null;
@@ -182,7 +183,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new FindAdvancedProperty();
+      var finder = new FindAdvancedProperty(this.options_);
       finder.visitAny(tree);
       if (!finder.found) {
         this.needsAdvancedTransform = false;

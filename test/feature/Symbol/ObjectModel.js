@@ -9,5 +9,7 @@ assert.throws(() => {
 	new Symbol;
 });
 
-assert.equal(s.toString(), 'Symbol(s)');
+// TODO(jjb): Our impl not to spec so generators can use Symbols without
+// requiring transcoding to use --symbols
+// assert.equal(s.toString(), 'Symbol(s)');
 assert.equal(s.valueOf(), s);

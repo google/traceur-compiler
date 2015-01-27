@@ -59,7 +59,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import {options} from '../Options.js';
 import {parseExpression} from './PlaceholderParser.js';
 import {prependStatements} from './PrependStatements.js'
 
@@ -163,8 +162,9 @@ export class DestructuringTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
+    this.options_ = options;
     this.parameterDeclarations = null;
   }
 
@@ -410,7 +410,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.catchBody);
     var statements = [];
-    var kind = options.blockBinding ? LET : VAR;
+    var kind = this.options_.blockBinding ? LET : VAR;
     var binding = this.desugarBinding_(tree.binding, statements, kind);
     statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 (function(exports, global) {
+
   'use strict';
 
   function forEachPrologLine(s, f) {
@@ -124,8 +125,8 @@
   var Options = traceur.get('./Options.js').Options;
   $traceurRuntime.options = new Options();
 
-  function setOptions(load, options) {
-    var traceurOptions = new Options(options.traceurOptions);
+  function setOptions(load, prologOptions) {
+    var traceurOptions = new Options(prologOptions.traceurOptions);
     traceurOptions.debug = true;
     traceurOptions.validate = true;
     load.metadata.traceurOptions = traceurOptions;
@@ -133,30 +134,26 @@
 
   function featureTest(name, url, fileLoader) {
 
-    teardown(function() {
-      $traceurRuntime.options.reset();
-    });
-
     test(name, function(done) {
       var baseURL = './';
-      var options = null;
+
+      var prologOptions;
       function translateSynchronous(load) {
         var source = load.source;
-        // Only top level file can set options.
-        if (!options)
-          options = parseProlog(source);
+        // Only top level file can set prologOptions.
+        if (!prologOptions)
+          prologOptions = parseProlog(source);
 
-        if (options.skip)
+        if (prologOptions.skip)
           return '';
 
-        if (options.async) {
+        if (prologOptions.async) {
           global.done = function(ex) {
             handleExpectedErrors(ex);
             done(ex);
           };
         }
-
-        setOptions(load, options);
+        setOptions(load, prologOptions);
         return source;
       }
 
@@ -169,14 +166,14 @@
       }
 
       function handleExpectedErrors(error) {
-        if (options.shouldHaveErrors) {
+        if (prologOptions.shouldHaveErrors) {
           assert.isTrue(error !== undefined,
               'Expected error compiling ' + name + ', but got none.');
           var actualErrors = error.errors || [error];
           actualErrors = actualErrors.map(function(error) {
             return error + '';
           });
-          options.expectedErrors.forEach(function(expected, index) {
+          prologOptions.expectedErrors.forEach(function(expected, index) {
             assert.isTrue(
                 hasMatchingError(expected, actualErrors),
                 'Missing expected error: ' + expected +
@@ -186,12 +183,12 @@
       }
 
       function handleSuccess(result) {
-        if (options.skip) {
+        if (prologOptions.skip) {
           done();
           return;
         }
 
-        if (options.async)
+        if (prologOptions.async)
           return;
 
         handleExpectedErrors();
@@ -200,7 +197,7 @@
 
       function handleFailure(error) {
         handleExpectedErrors(error);
-        if (!options.shouldHaveErrors) {
+        if (!prologOptions.shouldHaveErrors) {
           done(error)
         } else {
           done();
@@ -218,9 +215,6 @@
   }
 
   function cloneTest(name, url, loader) {
-    teardown(function() {
-      $traceurRuntime.options.reset();
-    });
 
     function doTest(source) {
       var prologOptions = parseProlog(source);
@@ -229,12 +223,12 @@
       }
 
       var options = new Options(prologOptions.traceurOptions);
+
       var reporter = new traceur.util.CollectingErrorReporter();
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
-        var parser =
-            new traceur.syntax.Parser(file, reporter, options);
+        var parser = new traceur.syntax.Parser(file, reporter, options);
         var isModule = /\.module\.js$/.test(url);
         if (isModule)
           return parser.parseModule();

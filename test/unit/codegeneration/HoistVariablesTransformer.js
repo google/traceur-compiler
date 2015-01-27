@@ -24,9 +24,10 @@ suite('HoistVariablesTransformer.js', function() {
       getForTesting('src/outputgeneration/TreeWriter.js').write;
   var ParseTreeValidator = $traceurRuntime.ModuleStore.
       getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var options = $traceurRuntime.ModuleStore.
-      getForTesting('src/Options.js').options;
+  var Options = $traceurRuntime.ModuleStore.
+      getForTesting('src/Options.js').Options;
 
+  var options = new Options();
   setup(function() {
     options.arrayComprehension = true;
     options.blockBinding = true;
@@ -39,7 +40,7 @@ suite('HoistVariablesTransformer.js', function() {
 
   function parseExpression(content) {
     var file = new SourceFile('test', content);
-    var parser = new Parser(file);
+    var parser = new Parser(file, undefined, options);
     return parser.parseExpression();
   }
 

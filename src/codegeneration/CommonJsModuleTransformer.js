@@ -43,8 +43,8 @@ import {prependStatements} from './PrependStatements.js';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
     this.moduleVars_ = [];
   }
 

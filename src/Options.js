@@ -73,22 +73,111 @@ export var versionLockedOptions = optionsV01;
 // To set an option you do `options.classes = true`.
 //
 // An option value is either true, false or a string. If the value is set to
-// the string "parse" then the transformOption for that option will return
-// false. For example:
+// the string "parse" then the transformOption for that option
+// will return false. For example:
 //
 //   options.destructuring = 'parse';
-//   parseOptions.destructuring === true;
-//   transformOptions.destructuring === false;
+//   options.parseOptions.destructuring === true;
+//   options.transformOptions.destructuring === false;
 //
 // This allows you to parse certain features without transforming them, leaving
-// the syntax intact in the outputted code.
-
-export var parseOptions = Object.create(null);
-export var transformOptions = Object.create(null);
+// the syntax intact in the output.
 
 var defaultValues = Object.create(null);
+var featureOptions = Object.create(null);
 var experimentalOptions = Object.create(null);
-var moduleOptions = ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
+var moduleOptions =
+    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
+
+var EXPERIMENTAL = 0;
+var ON_BY_DEFAULT = 1;
+
+/**
+ * Adds a feature option.  Feature options can be tested with parseOptions
+ * and transformOptions.
+ */
+function addFeatureOption(name, kind) {
+  featureOptions[name] = true;
+
+  if (kind === EXPERIMENTAL)
+    experimentalOptions[name] = true;
+
+  var defaultValue = kind === ON_BY_DEFAULT;
+  defaultValues[name] = defaultValue;
+}
+
+/**
+ * Adds a simple boolean option.
+ */
+function addBoolOption(name) {
+  defaultValues[name] = false;
+}
+
+// ON_BY_DEFAULT
+addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
+addFeatureOption('blockBinding', ON_BY_DEFAULT);       // 12.1
+addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
+addFeatureOption('computedPropertyNames', ON_BY_DEFAULT);  // 11.1.5
+addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
+addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
+addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
+addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
+addFeatureOption('modules', 'SPECIAL');    // 14
+addFeatureOption('numericLiterals', ON_BY_DEFAULT);
+addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
+addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
+addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
+addFeatureOption('sourceMaps', 'SPECIAL');
+addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
+addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
+addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
+addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
+
+// EXPERIMENTAL
+addFeatureOption('annotations', EXPERIMENTAL);
+addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
+addFeatureOption('asyncFunctions', EXPERIMENTAL);
+addFeatureOption('exponentiation', EXPERIMENTAL);
+addFeatureOption('generatorComprehension', EXPERIMENTAL);
+addFeatureOption('require', EXPERIMENTAL);
+addFeatureOption('symbols', EXPERIMENTAL);
+addFeatureOption('types', EXPERIMENTAL);
+addFeatureOption('memberVariables', EXPERIMENTAL);
+
+
+var transformOptionsPrototype = {};
+
+Object.keys(featureOptions).forEach((name) => {
+  Object.defineProperty(transformOptionsPrototype, name, {
+    get: function() {
+      var v = this.proxiedOptions_[name];
+      if (v === 'parse')
+        return false;
+      return v;
+    },
+    enumerable: true
+  });
+});
+
+var parseOptionsPrototype = {};
+
+Object.keys(featureOptions).forEach((name) => {
+  Object.defineProperty(parseOptionsPrototype, name, {
+    get: function() {
+      return !!this.proxiedOptions_[name];
+    },
+    enumerable: true
+  });
+});
+
+
+addBoolOption('commentCallback');
+addBoolOption('debug');
+addBoolOption('debugNames');
+addBoolOption('freeVariableChecker');
+addBoolOption('script');
+addBoolOption('typeAssertions');
+addBoolOption('validate');
 
 export class Options {
 
@@ -105,6 +194,22 @@ export class Options {
       sourceMaps_: {
         value: versionLockedOptions.sourceMaps,
         writable: true,
+        enumerable: false
+      },
+      transformOptions: {
+        value: Object.create(transformOptionsPrototype, {
+          proxiedOptions_: {
+            value: this,
+            enumerable: false
+          }}),
+        enumerable: false
+      },
+      parseOptions: {
+        value: Object.create(parseOptionsPrototype, {
+          proxiedOptions_: {
+            value: this,
+            enumerable: false
+          }}),
         enumerable: false
       }
     });
@@ -235,7 +340,7 @@ export class Options {
 
   diff(ref) {
     var mismatches = [];
-    Object.keys(options).forEach((key) => {
+    Object.keys(this).forEach((key) => {
       if (this[key] !== ref[key]) {
         mismatches.push({
           key: key,
@@ -248,11 +353,6 @@ export class Options {
   }
 
 };
-
-
-// A distinguish instance shared internally via module
-//
-export var options = new Options();
 
 
 // TODO: Refactor this so that we can keep all of these in one place.
@@ -325,6 +425,24 @@ function coerceOptionValue(v) {
 }
 
 /**
+ * Converts a string from aaa-bbb-ccc to aaaBbbCcc.
+ */
+function toCamelCase(s) {
+  return s.replace(/-\w/g, function(ch) {
+    return ch[1].toUpperCase();
+  });
+}
+
+/**
+ * Converts a string from aaaBbbCcc to aaa-bbb-ccc.
+ */
+export function toDashCase(s) {
+  return s.replace(/[A-Z]/g, function(ch) {
+    return '-' + ch.toLowerCase();
+  });
+}
+
+/**
  * TODO(jjb): move to src/node
  * This is called by build.js to add options to the commander command line
  * library.
@@ -387,7 +505,7 @@ export function addOptions(flags, commandOptions) {
     var dashedName = toDashCase(name);
     if (flags.optionFor('--' + name) || flags.optionFor('--' + dashedName)) {
       return;   // non-boolean already in flags.
-    } else if ((name in parseOptions) && (name in transformOptions)) {
+    } else if (name in featureOptions) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
       flags.on(dashedName, (value) =>
@@ -403,105 +521,3 @@ export function addOptions(flags, commandOptions) {
   commandOptions.setDefaults();
 }
 
-
-
-/**
- * Converts a string from aaa-bbb-ccc to aaaBbbCcc.
- */
-function toCamelCase(s) {
-  return s.replace(/-\w/g, function(ch) {
-    return ch[1].toUpperCase();
-  });
-}
-
-/**
- * Converts a string from aaaBbbCcc to aaa-bbb-ccc.
- */
-export function toDashCase(s) {
-  return s.replace(/[A-Z]/g, function(ch) {
-    return '-' + ch.toLowerCase();
-  });
-}
-
-var EXPERIMENTAL = 0;
-var ON_BY_DEFAULT = 1;
-
-/**
- * Adds a feature option.
- * This also adds a view from the parseOption and the transformOption to the
- * underlying value.
- */
-function addFeatureOption(name, kind) {
-  if (kind === EXPERIMENTAL)
-    experimentalOptions[name] = true;
-
-  Object.defineProperty(parseOptions, name, {
-    get: function() {
-      return !!options[name];
-    },
-    enumerable: true,
-    configurable: true
-  });
-
-  Object.defineProperty(transformOptions, name, {
-    get: function() {
-      var v = options[name];
-      if (v === 'parse')
-        return false;
-      return v;
-    },
-    enumerable: true,
-    configurable: true
-  });
-
-  var defaultValue = options[name] || kind === ON_BY_DEFAULT;
-  options[name] = defaultValue;
-  defaultValues[name] = defaultValue;
-}
-
-/**
- * Adds a simple boolean option.
- */
-function addBoolOption(name) {
-  defaultValues[name] = false;
-  options[name] = false;
-}
-
-// ON_BY_DEFAULT
-addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
-addFeatureOption('blockBinding', ON_BY_DEFAULT);       // 12.1
-addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
-addFeatureOption('computedPropertyNames', ON_BY_DEFAULT);  // 11.1.5
-addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
-addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
-addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
-addFeatureOption('generators', ON_BY_DEFAULT); // 13.4
-addFeatureOption('modules', 'SPECIAL');    // 14
-addFeatureOption('numericLiterals', ON_BY_DEFAULT);
-addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
-addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
-addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
-addFeatureOption('sourceMaps', 'SPECIAL');
-addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
-addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
-addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
-addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
-
-// EXPERIMENTAL
-addFeatureOption('annotations', EXPERIMENTAL);
-addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
-addFeatureOption('asyncFunctions', EXPERIMENTAL);
-addFeatureOption('exponentiation', EXPERIMENTAL);
-addFeatureOption('generatorComprehension', EXPERIMENTAL);
-addFeatureOption('require', EXPERIMENTAL);
-addFeatureOption('symbols', EXPERIMENTAL);
-addFeatureOption('types', EXPERIMENTAL);
-addFeatureOption('memberVariables', EXPERIMENTAL);
-
-addBoolOption('commentCallback');
-addBoolOption('debug');
-addBoolOption('debugNames');
-addBoolOption('freeVariableChecker');
-addBoolOption('script');
-addBoolOption('typeAssertions');
-addBoolOption('validate');

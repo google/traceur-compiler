@@ -18,7 +18,6 @@ import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
-import {options} from '../Options.js';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker.js';
 
@@ -32,10 +31,11 @@ import {validate as validateFreeVariables} from
 export class PureES6Transformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdentifierGenerator=} idGenerator
+   * @param {Options} options
    */
-  constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
+  constructor(reporter, options) {
     super(reporter, options.validate);
+    var idGenerator = new UniqueIdentifierGenerator();
 
     var append = (transformer) => {
       this.append((tree) => {

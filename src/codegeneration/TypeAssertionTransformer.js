@@ -36,7 +36,6 @@ import {
   parseStatement
 } from './PlaceholderParser.js';
 import {ParameterTransformer} from './ParameterTransformer.js';
-import {options} from '../Options.js';
 
 /**
  * Inserts runtime type assertions for type annotations.
@@ -58,8 +57,9 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
+    this.options_ = options;
     this.returnTypeStack_ = [];
     this.parametersStack_ = [];
     this.assertionAdded_ = false;
@@ -216,7 +216,9 @@ export class TypeAssertionTransformer extends ParameterTransformer {
         typeAnnotation = parseExpression `$traceurRuntime.type.any`;
       }
 
-      this.paramTypes_.arguments.push(createIdentifierExpression(element.binding.identifierToken), typeAnnotation);
+      this.paramTypes_.arguments.push(
+        createIdentifierExpression(element.binding.identifierToken),
+        typeAnnotation);
       return;
     }
 
@@ -228,7 +230,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   }
 
   prependAssertionImport_(tree, Ctor) {
-    if (!this.assertionAdded_ || options.typeAssertionModule === null)
+    if (!this.assertionAdded_ || this.options_.typeAssertionModule === null)
       return tree;
 
     var binding = createImportedBinding('assert');
@@ -236,7 +238,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
         new ImportSpecifierSet(null,
             [new ImportSpecifier(null, binding, null)]),
         new ModuleSpecifier(null,
-            createStringLiteralToken(options.typeAssertionModule)));
+            createStringLiteralToken(this.options_.typeAssertionModule)));
     tree = new Ctor(tree.location,
                     [importStatement, ...tree.scriptItemList],
                     tree.moduleName);

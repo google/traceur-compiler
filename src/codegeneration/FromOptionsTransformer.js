@@ -49,7 +49,6 @@ import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
-import {options, transformOptions} from '../Options.js';
 
 /**
  * MultiTransformer built from global options settings
@@ -57,14 +56,17 @@ import {options, transformOptions} from '../Options.js';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdentifierGenerator=} idGenerator
+   * @param {Options} options
    */
-  constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
+  constructor(reporter, options) {
     super(reporter, options.validate);
+    var transformOptions = options.transformOptions;
+    var idGenerator = new UniqueIdentifierGenerator();
 
     var append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter).transformAny(tree);
+        return new transformer(idGenerator, reporter, options).
+            transformAny(tree);
       });
     };
 
@@ -109,7 +111,7 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (options.typeAssertions) {
       // Transforming member variabless to getters/setters only make
       // sense when the type assertions are enabled.
-      if (options.memberVariables) append(MemberVariableTransformer);
+      if (transformOptions.memberVariables) append(MemberVariableTransformer);
       append(TypeAssertionTransformer);
     }
 

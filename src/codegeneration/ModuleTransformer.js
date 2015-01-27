@@ -44,10 +44,6 @@ import {
   createVariableStatement,
 } from './ParseTreeFactory.js';
 import {
-  parseOptions,
-  transformOptions
-} from '../Options.js';
-import {
   parseExpression,
   parsePropertyDefinition,
   parseStatement,
@@ -64,8 +60,9 @@ export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
+    this.options_ = options;
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.moduleName = null;
@@ -113,7 +110,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     var functionExpression;
-    if (transformOptions.require) {
+    if (this.options_.transformOptions.require) {
       functionExpression = parseExpression `function(require) {
         ${statements}
       }`;
@@ -300,7 +297,8 @@ export class ModuleTransformer extends TempVarTransformer {
 
     // If destructuring patterns are kept in the output code, keep this as is,
     // otherwise transform it here.
-    if (transformOptions.destructuring || !parseOptions.destructuring) {
+    if (this.options_.transformOptions.destructuring ||
+        !this.options_.parseOptions.destructuring) {
       var destructuringTransformer =
           new DestructImportVarStatement(this.identifierGenerator);
       varStatement = varStatement.transform(destructuringTransformer);

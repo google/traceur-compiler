@@ -14,7 +14,6 @@
 
 import {ExportVisitor} from './ExportVisitor.js';
 import {ValidationVisitor} from './ValidationVisitor.js';
-import {transformOptions} from '../../Options.js';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists
@@ -23,11 +22,10 @@ import {transformOptions} from '../../Options.js';
  * Builds up all module symbols and validates them.
  * @param {Array.<ModuleSymbole>} deps
  * @param {Loader} loader
+ * @param {ErrorReporter} reporter
  * @return {void}
  */
 export function buildExportList(deps, loader, reporter) {
-  if (!transformOptions.modules)
-    return;
 
   function doVisit(ctor) {
     for (var i = 0; i < deps.length; i++) {

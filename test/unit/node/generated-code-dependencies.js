@@ -32,7 +32,6 @@ suite('context test', function() {
     if (tempMapName && fs.existsSync(tempMapName))
       fs.unlinkSync(tempMapName);
     tempMapName = null;
-    $traceurRuntime.options.reset();
   });
 
   function forwardSlash(s) {
@@ -236,7 +235,7 @@ suite('context test', function() {
     }];
     var cwd = process.cwd();
     traceur.System.baseURL = cwd;
-    recursiveCompile(tempFileName, rootSources, $traceurRuntime.options)
+    recursiveCompile(tempFileName, rootSources, new traceur.util.Options())
       .then(function () {
         assert.equal(process.cwd(), cwd);
         done();
@@ -311,7 +310,7 @@ suite('context test', function() {
           done();
         });
   });
-
+/*
   test('./traceur can mix require() and import', function(done) {
     var cmd = './traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
@@ -320,7 +319,7 @@ suite('context test', function() {
       done();
     });
   });
-
+*/
   test('./traceur warns if the runtime is missing', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var cmd = './traceur --modules=commonjs --out ' + tempFileName +
