@@ -11,9 +11,9 @@ assert.deepEqual(g1.next(), {value: undefined, done: true});
 function* f2() {
   yield 1;
   try {
-    yield 1;
+    yield 2;
   } catch (e) {
-    return 2;
+    return 3;
   }
 }
 
@@ -37,7 +37,7 @@ assert.deepEqual(g3.next(), {value: 42, done: true});
 assert.deepEqual(g3.next(), {value: undefined, done: true});
 
 function* f4() {
-  var x = 1;
+  var x = 9;
   function *g() {
     try {
       yield 1;
