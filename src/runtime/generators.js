@@ -55,28 +55,27 @@
   // The following unique object serves as a non-catchable exception raised by
   // the implementation of Generator.prototype.return
   var RETURN_SENTINEL = {};
-  
-  function GeneratorWrapper(iterator) {
-    this.iterator = iterator;
-  }
-  GeneratorWrapper.prototype = {
-    next: function (v) {
-      return this.iterator.next(v);
-    },
-    throw: function (e) {
-      if (e === RETURN_SENTINEL) {
-        if (this.iterator.return) {
-          this.iterator.return(e.value);
+
+  function wrapYieldStar(iterator) {
+    return {
+      next: function (v) {
+        return iterator.next(v);
+      },
+      throw: function (e) {
+        if (e === RETURN_SENTINEL) {
+          if (iterator.return) {
+            iterator.return(e.value);
+          }
+          throw e;
+        }
+        if (iterator.throw) {
+          return iterator.throw(e);
         }
         throw e;
       }
-      if (this.iterator.throw) {
-        return this.iterator.throw(e);
-      }
-      throw e;
-    }
-  };
-
+    };
+  }
+  
   function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
@@ -330,5 +329,5 @@
   $traceurRuntime.asyncWrap = asyncWrap;
   $traceurRuntime.initGeneratorFunction = initGeneratorFunction;
   $traceurRuntime.createGeneratorInstance = createGeneratorInstance;
-  $traceurRuntime.GeneratorWrapper = GeneratorWrapper;
+  $traceurRuntime.wrapYieldStar = wrapYieldStar;
 })();
