@@ -54,7 +54,7 @@
 
   // The following unique object serves as a non-catchable exception raised by
   // the implementation of Generator.prototype.return
-  var SENTINEL = new Object();
+  var RETURN_SENTINEL = {};
   
   function GeneratorWrapper(iterator) {
     this.iterator = iterator;
@@ -64,7 +64,7 @@
       return this.iterator.next(v);
     },
     throw: function (e) {
-      if (e === SENTINEL) {
+      if (e === RETURN_SENTINEL) {
         if (this.iterator.return) {
           this.iterator.return(e.value);
         }
@@ -157,7 +157,7 @@
             done: true
           };
         }
-        if (x === SENTINEL) {
+        if (x === RETURN_SENTINEL) {
           return {
             value: ctx.returnValue,
             done: true
@@ -168,7 +168,7 @@
       case ST_NEWBORN:
         if (action === 'throw') {
           ctx.GState = ST_CLOSED;
-          if (x === SENTINEL) {
+          if (x === RETURN_SENTINEL) {
             return {value: ctx.returnValue, done: true};
           }
           throw x;
@@ -185,7 +185,7 @@
         try {
           value = moveNext(ctx);
         } catch (ex) {
-          if (ex === SENTINEL) {
+          if (ex === RETURN_SENTINEL) {
             value = ctx;
           } else {
             throw ex;
@@ -221,7 +221,7 @@
     },
     return: function (v) {
       this[ctxName].returnValue = v;
-      return nextOrThrow(this[ctxName], this[moveNextName], 'throw', SENTINEL);
+      return nextOrThrow(this[ctxName], this[moveNextName], 'throw', RETURN_SENTINEL);
     }
   };
 
@@ -320,7 +320,7 @@
       return;
     }
 
-    ctx.state = (ex !== SENTINEL && last.catch !== undefined) ? 
+    ctx.state = (ex !== RETURN_SENTINEL && last.catch !== undefined) ? 
       last.catch : last.finally;
 
     if (last.finallyFallThrough !== undefined)
