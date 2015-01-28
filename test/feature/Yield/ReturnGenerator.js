@@ -1,4 +1,4 @@
-function *f1() {
+function* f1() {
   yield 1;
   yield 2;
 }
@@ -8,7 +8,7 @@ assert.deepEqual(g1.next(), {value: 1, done: false});
 assert.deepEqual(g1.return(42), {value: 42, done: true});
 assert.deepEqual(g1.next(), {value: undefined, done: true});
 
-function *f2() {
+function* f2() {
   yield 1;
   try {
     yield 1;
@@ -22,7 +22,7 @@ assert.deepEqual(g2.next(), {value: 1, done: false});
 assert.deepEqual(g2.return(42), {value: 42, done: true})
 assert.deepEqual(g2.next(), {value: undefined, done: true});
 
-function *f3() {
+function* f3() {
   try {
     yield 1;
   } finally {
@@ -36,7 +36,7 @@ assert.deepEqual(g3.return(42), {value: 2, done: false});
 assert.deepEqual(g3.next(), {value: 42, done: true});
 assert.deepEqual(g3.next(), {value: undefined, done: true});
 
-function *f4() {
+function* f4() {
   var x = 1;
   function *g() {
     try {
@@ -47,7 +47,7 @@ function *f4() {
     }
   }
   try {
-    yield *g();
+    yield* g();
   } finally {
     yield x;
   }
@@ -59,7 +59,7 @@ assert.deepEqual(g4.return(42), {value: 10, done: false});
 assert.deepEqual(g4.next(), {value: 42, done: true});
 assert.deepEqual(g4.next(), {value: undefined, done: true});
 
-function *f5() {
+function* f5() {
   try {
     yield 1;
   } finally {
@@ -72,7 +72,7 @@ assert.deepEqual(g5.next(), {value: 1, done: false});
 assert.deepEqual(g5.return(42), {value: 2, done: true});
 assert.deepEqual(g5.next(), {value: undefined, done: true});
 
-function *f6() {
+function* f6() {
   yield 1;
 }
 
@@ -80,7 +80,7 @@ var g6 = f6();
 assert.deepEqual(g6.return(42), {value: 42, done: true});
 assert.deepEqual(g6.next(), {value: undefined, done: true});
 
-function *f7() {
+function* f7() {
   return 1;
 }
 

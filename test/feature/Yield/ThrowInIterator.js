@@ -1,8 +1,7 @@
-function *f() {
+function* f() {
   try {
-    yield *[1, 2, 3];
-  }
-  catch (ex) {
+    yield* [1, 2, 3];
+  } catch (ex) {
     yield ex;
   }
 }

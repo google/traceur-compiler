@@ -161,7 +161,7 @@
           return {
             value: ctx.returnValue,
             done: true
-          }
+          };
         }
         throw x;
 
@@ -181,8 +181,9 @@
         ctx.GState = ST_EXECUTING;
         ctx.action = action;
         ctx.sent = x;
+        var value;
         try {
-          var value = moveNext(ctx);
+          value = moveNext(ctx);
         } catch (ex) {
           if (ex === SENTINEL) {
             value = ctx;
