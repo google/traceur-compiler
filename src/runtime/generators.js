@@ -56,34 +56,6 @@
   // the implementation of Generator.prototype.return
   var RETURN_SENTINEL = {};
 
-  function wrapYieldStar(ctx, iterator) {
-    return {
-      next: function (v) {
-        return iterator.next(v);
-      },
-      throw: function (e) {
-        var result;
-        if (e === RETURN_SENTINEL) {
-          if (iterator.return) {
-            var result = iterator.return(ctx.returnValue);
-            if (result.done) {
-              ctx.returnValue = result.value;
-              throw e;
-            } else {
-              return result;
-            }
-          } else {
-            throw e;
-          }
-        }
-        if (iterator.throw) {
-          return iterator.throw(e);
-        }
-        throw e;
-      }
-    };
-  }
-  
   function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
@@ -149,6 +121,34 @@
       this.GState = ST_CLOSED;
       this.state = END_STATE;
       throw ex;
+    },
+    wrapYieldStar: function(iterator) {
+      var ctx = this;
+      return {
+        next: function (v) {
+          return iterator.next(v);
+        },
+        throw: function (e) {
+          var result;
+          if (e === RETURN_SENTINEL) {
+            if (iterator.return) {
+              var result = iterator.return(ctx.returnValue);
+              if (result.done) {
+                ctx.returnValue = result.value;
+                throw e;
+              } else {
+                return result;
+              }
+            } else {
+              throw e;
+            }
+          }
+          if (iterator.throw) {
+            return iterator.throw(e);
+          }
+          throw e;
+        }
+      };
     }
   };
 
@@ -337,5 +337,4 @@
   $traceurRuntime.asyncWrap = asyncWrap;
   $traceurRuntime.initGeneratorFunction = initGeneratorFunction;
   $traceurRuntime.createGeneratorInstance = createGeneratorInstance;
-  $traceurRuntime.wrapYieldStar = wrapYieldStar;
 })();

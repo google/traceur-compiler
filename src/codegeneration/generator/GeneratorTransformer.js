@@ -153,7 +153,7 @@ export class GeneratorTransformer extends CPSTransformer {
     // }
 
     var statements = parseStatements `
-        ${g} = new $traceurRuntime.wrapYieldStar($ctx, ${expression}[Symbol.iterator]());
+        ${g} = $ctx.wrapYieldStar(${expression}[Symbol.iterator]());
         // received = void 0;
         $ctx.sent = void 0;
         // send = true; // roughly equivalent
