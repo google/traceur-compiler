@@ -310,7 +310,7 @@ suite('context test', function() {
           done();
         });
   });
-/*
+
   test('./traceur can mix require() and import', function(done) {
     var cmd = './traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
@@ -319,7 +319,7 @@ suite('context test', function() {
       done();
     });
   });
-*/
+
   test('./traceur warns if the runtime is missing', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var cmd = './traceur --modules=commonjs --out ' + tempFileName +
