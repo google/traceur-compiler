@@ -56,17 +56,25 @@
   // the implementation of Generator.prototype.return
   var RETURN_SENTINEL = {};
 
-  function wrapYieldStar(iterator) {
+  function wrapYieldStar(ctx, iterator) {
     return {
       next: function (v) {
         return iterator.next(v);
       },
       throw: function (e) {
+        var result;
         if (e === RETURN_SENTINEL) {
           if (iterator.return) {
-            iterator.return(e.value);
+            var result = iterator.return(ctx.returnValue);
+            if (result.done) {
+              ctx.returnValue = result.value;
+              throw e;
+            } else {
+              return result;
+            }
+          } else {
+            throw e;
           }
-          throw e;
         }
         if (iterator.throw) {
           return iterator.throw(e);

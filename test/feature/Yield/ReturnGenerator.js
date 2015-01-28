@@ -90,3 +90,38 @@ assert.deepEqual(g7.next(), {value: undefined, done: true})
 assert.deepEqual(g7.return(42), {value: 42, done: true});
 assert.deepEqual(g7.next(), {value: undefined, done: true});
 
+function* f8() {
+  function* g() {
+    try {
+      yield 1;
+      yield 2;
+    } finally {
+      return 10;
+    }
+  }
+  yield* g();
+}
+
+var g8 = f8();
+assert.deepEqual(g8.next(), {value: 1, done: false});
+assert.deepEqual(g8.return(42), {value: 10, done: true});
+assert.deepEqual(g8.next(), {value: undefined, done: true});
+
+function* f9() {
+  function* g() {
+    try {
+      yield 1;
+      yield 2;
+    } finally {
+      yield 3;
+    }
+  }
+  yield* g();
+}
+
+var g9 = f9();
+assert.deepEqual(g9.next(), {value: 1, done: false});
+assert.deepEqual(g9.return(42), {value: 3, done: false});
+assert.deepEqual(g9.next(), {value: 42, done: true});
+assert.deepEqual(g9.next(), {value: undefined, done: true});
+
