@@ -132,16 +132,10 @@
           var result;
           if (e === RETURN_SENTINEL) {
             if (iterator.return) {
-              var result = iterator.return(ctx.returnValue);
-              if (result.done) {
-                ctx.returnValue = result.value;
-                throw e;
-              } else {
-                return result;
-              }
-            } else {
-              throw e;
+              result = iterator.return(ctx.returnValue);
+              ctx.returnValue = result.value;
             }
+            throw e;
           }
           if (iterator.throw) {
             return iterator.throw(e);
