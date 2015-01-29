@@ -125,3 +125,25 @@ assert.deepEqual(g9.return(42), {value: 3, done: false});
 assert.deepEqual(g9.next(), {value: 42, done: true});
 assert.deepEqual(g9.next(), {value: undefined, done: true});
 
+function* f10() {
+  try {
+    try {
+      yield 1;
+    }
+    finally {
+      try {
+        throw 2;
+      } catch (e) {
+      }
+    }
+    return 3;
+  } finally {
+    return 4;  
+  }
+}
+
+var g10 = f10();
+assert.deepEqual(g10.next(), {value: 1, done: false});
+assert.deepEqual(g10.return(42), {value: 4, done: true});
+assert.deepEqual(g10.next(), {value: undefined, done: true});
+
