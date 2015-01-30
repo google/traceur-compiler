@@ -48,37 +48,35 @@
       this.stack = '';
   }
 
-  ModuleEvaluationError.prototype = {
-    __proto__: Error.prototype,
+  ModuleEvaluationError.prototype = Object.create(Error.prototype);
 
-    constructor: ModuleEvaluationError,
+  ModuleEvaluationError.prototype.constructor = ModuleEvaluationError;
 
-    stripError: function(message) {
-      return message.replace(/.*Error:/, this.constructor.name + ':');
-    },
+  ModuleEvaluationError.prototype.stripError = function(message) {
+    return message.replace(/.*Error:/, this.constructor.name + ':');
+  };
 
-    stripCause: function(cause) {
-      if (!cause)
-        return '';
-      if (!cause.message)
-        return cause + '';
-      return this.stripError(cause.message);
-    },
+  ModuleEvaluationError.prototype.stripCause = function(cause) {
+    if (!cause)
+      return '';
+    if (!cause.message)
+      return cause + '';
+    return this.stripError(cause.message);
+  };
 
-    loadedBy: function(moduleName) {
-      this.stack += '\n loaded by ' + moduleName;
-    },
+  ModuleEvaluationError.prototype.loadedBy = function(moduleName) {
+    this.stack += '\n loaded by ' + moduleName;
+  };
 
-    stripStack: function(causeStack) {
-      var stack = [];
-      causeStack.split('\n').some((frame) => {
-        if (/UncoatedModuleInstantiator/.test(frame))
-          return true;
-        stack.push(frame);
-      });
-      stack[0] = this.stripError(stack[0]);
-      return stack.join('\n');
-    }
+  ModuleEvaluationError.prototype.stripStack = function(causeStack) {
+    var stack = [];
+    causeStack.split('\n').some((frame) => {
+      if (/UncoatedModuleInstantiator/.test(frame))
+        return true;
+      stack.push(frame);
+    });
+    stack[0] = this.stripError(stack[0]);
+    return stack.join('\n');
   };
 
   function beforeLines(lines, number) {
@@ -111,56 +109,55 @@
     return result;
   }
 
-    function UncoatedModuleInstantiator(url, func) {
-      UncoatedModuleEntry.call(this, url, null);
-      this.func = func;
-    }
+  function UncoatedModuleInstantiator(url, func) {
+    UncoatedModuleEntry.call(this, url, null);
+    this.func = func;
+  }
 
-    UncoatedModuleInstantiator.prototype = {
-      __proto__: UncoatedModuleEntry.prototype,
+  UncoatedModuleInstantiator.prototype =
+      Object.create(UncoatedModuleEntry.prototype);
 
-      getUncoatedModule: function() {
-        if (this.value_)
-          return this.value_;
-        try {
-          var relativeRequire;
-          if (typeof $traceurRuntime !== undefined && $traceurRuntime.require) {
-            relativeRequire = $traceurRuntime.require.bind(null, this.url);
-          }
-          return this.value_ = this.func.call(global, relativeRequire);
-        } catch(ex) {
-          if (ex instanceof ModuleEvaluationError) {
-            ex.loadedBy(this.url);
-            throw ex;
-          }
-          if (ex.stack) {
-            // Assume V8 stack format
-            var lines = this.func.toString().split('\n')
-
-            var evaled = [];
-            ex.stack.split('\n').some(function(frame) {
-              // End when we find ourselves on the stack.
-              if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
-                return true;
-              // The angle bracket in the regexp will hit on evaled frames
-              // and miss on eg node compiled frames.
-              var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
-              if (m) {
-                var line = parseInt(m[2], 10);
-                evaled = evaled.concat(beforeLines(lines, line));
-                evaled.push(columnSpacing(m[3]) + '^');
-                evaled = evaled.concat(afterLines(lines, line));
-                evaled.push('= = = = = = = = =');
-              } else {
-                evaled.push(frame);
-              }
-            });
-            ex.stack = evaled.join('\n');
-          }
-
-          throw new ModuleEvaluationError(this.url, ex);
-        }
+  UncoatedModuleInstantiator.prototype.getUncoatedModule = function() {
+    if (this.value_)
+      return this.value_;
+    try {
+      var relativeRequire;
+      if (typeof $traceurRuntime !== undefined && $traceurRuntime.require) {
+        relativeRequire = $traceurRuntime.require.bind(null, this.url);
       }
+      return this.value_ = this.func.call(global, relativeRequire);
+    } catch(ex) {
+      if (ex instanceof ModuleEvaluationError) {
+        ex.loadedBy(this.url);
+        throw ex;
+      }
+      if (ex.stack) {
+        // Assume V8 stack format
+        var lines = this.func.toString().split('\n')
+
+        var evaled = [];
+        ex.stack.split('\n').some(function(frame) {
+          // End when we find ourselves on the stack.
+          if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
+            return true;
+          // The angle bracket in the regexp will hit on evaled frames
+          // and miss on eg node compiled frames.
+          var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
+          if (m) {
+            var line = parseInt(m[2], 10);
+            evaled = evaled.concat(beforeLines(lines, line));
+            evaled.push(columnSpacing(m[3]) + '^');
+            evaled = evaled.concat(afterLines(lines, line));
+            evaled.push('= = = = = = = = =');
+          } else {
+            evaled.push(frame);
+          }
+        });
+        ex.stack = evaled.join('\n');
+      }
+
+      throw new ModuleEvaluationError(this.url, ex);
+    }
   };
 
   function getUncoatedModuleInstantiator(name) {
