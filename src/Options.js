@@ -322,6 +322,13 @@ export class Options {
         this.setOption(name, object[name]);
     });
     this.modules = object.modules || this.modules;
+    if (!!object.atscript) {
+      this.atscript = !!object.atscript;      
+    }
+    if (!!object.experimental) {
+      this.experimental = !!object.experimental;
+    }
+    this.atscript = object.atscript || this.atscript;
     if (typeof object.sourceMaps === 'boolean' ||
         typeof object.sourceMaps === 'string') {
       this.sourceMaps = object.sourceMaps;
