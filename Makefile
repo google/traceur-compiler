@@ -15,7 +15,9 @@ POLYFILL_SRC = \
   src/runtime/polyfills/Math.js \
   src/runtime/polyfills/polyfills.js
 
-RUNTIME_MODULES = \
+RUNTIME_MODULES = src/runtime/runtime-modules.js
+
+INDIVIDUAL_RUNTIME_MODULES = \
   src/runtime/relativeRequire.js \
   src/runtime/spread.js \
   src/runtime/destructuring.js \
