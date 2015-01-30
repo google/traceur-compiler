@@ -1,13 +1,13 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
+  src/runtime/url.js \
+  src/runtime/ModuleStore.js \
   src/runtime/relativeRequire.js \
   src/runtime/spread.js \
   src/runtime/destructuring.js \
   src/runtime/classes.js \
   src/runtime/generators.js \
-  src/runtime/url.js \
-  src/runtime/type-assertions.js \
-  src/runtime/ModuleStore.js
+  src/runtime/type-assertions.js
 POLYFILL_SRC = \
   src/runtime/polyfills/Map.js \
   src/runtime/polyfills/Set.js \
