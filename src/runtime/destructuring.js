@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function() {
-  'use strict';
-
-  function iteratorToArray(iter) {
-    var rv = [];
-    var i = 0;
-    var tmp;
-    while (!(tmp = iter.next()).done) {
-      rv[i++] = tmp.value;
-    }
-    return rv;
+function iteratorToArray(iter) {
+  var rv = [];
+  var i = 0;
+  var tmp;
+  while (!(tmp = iter.next()).done) {
+    rv[i++] = tmp.value;
   }
+  return rv;
+}
 
-  $traceurRuntime.iteratorToArray = iteratorToArray;
-})();
+$traceurRuntime.iteratorToArray = iteratorToArray;

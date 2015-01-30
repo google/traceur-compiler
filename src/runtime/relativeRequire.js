@@ -13,38 +13,34 @@
 // limitations under the License.
 
 /**
- * Nodejs require() adapter for es6 loader
- */
-(function() {
-  'use strict';
+* Nodejs require() adapter for es6 loader
+*/
 
-  var path;
+var path;
 
-  function relativeRequire(callerPath, requiredPath) {
-    // nodejs wants require(path) to load files relative to the directory
-    // containing the source of the caller.  If source of the caller is an ES6
-    // module, the node parent module path will not be correct. Let's fix that.
+function relativeRequire(callerPath, requiredPath) {
+  // nodejs wants require(path) to load files relative to the directory
+  // containing the source of the caller.  If source of the caller is an ES6
+  // module, the node parent module path will not be correct. Let's fix that.
 
-    path = path || typeof require !== 'undefined' && require('path');
+  path = path || typeof require !== 'undefined' && require('path');
 
-    function isDirectory(path) {
-      return path.slice(-1) === '/';
-    }
-    function isAbsolute(path) {
-      return path[0] === '/';
-    }
-    function isRelative(path) {
-      return path[0] === '.';
-    }
-    // These guards mimic nodejs Module._findPath
-    if (isDirectory(requiredPath) || isAbsolute(requiredPath))
-      return;
-
-    return isRelative(requiredPath) ?
-        require(path.resolve(path.dirname(callerPath), requiredPath)) :
-        require(requiredPath);
+  function isDirectory(path) {
+    return path.slice(-1) === '/';
   }
+  function isAbsolute(path) {
+    return path[0] === '/';
+  }
+  function isRelative(path) {
+    return path[0] === '.';
+  }
+  // These guards mimic nodejs Module._findPath
+  if (isDirectory(requiredPath) || isAbsolute(requiredPath))
+    return;
 
-  $traceurRuntime.require = relativeRequire;
+  return isRelative(requiredPath) ?
+      require(path.resolve(path.dirname(callerPath), requiredPath)) :
+      require(requiredPath);
+}
 
-})();
+$traceurRuntime.require = relativeRequire;
