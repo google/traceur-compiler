@@ -766,6 +766,9 @@ class FindBlockBindingInLoop extends FindVisitor {
             if (fnScope.hasLexicalBindingName(identifierToken)) {
               return true;
             }
+            if (fnScope.hasVariableBindingName(identifierToken)) {
+              return false;
+            }
             if (fnScope === this.topScope_) break;
           }
           return false;
