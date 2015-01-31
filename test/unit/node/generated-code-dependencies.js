@@ -168,6 +168,68 @@ suite('context test', function() {
     });
   });
 
+  test('compiled modules with --source-maps and sourceroot=/tmp', function(done) {
+    tempFileName = resolve('./out/sourceroot-test.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var commandLine = executable + ' --source-maps --source-root=\"/tmp\"' +
+     ' --out ' + tempFileName + ' -- ' + inputFileName;
+    exec(commandLine, function(error, stdout, stderr) {
+      assert.isNull(error);
+      var transcoded = fs.readFileSync(tempFileName, 'utf-8');
+      var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+      assert(m, 'sourceMappingURL appears in the output');
+      var sourceMappingURL = m[1];
+      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
+          'sourceroot-test.map'));
+      assert.equal(sourceMappingURL, expected);
+      tempMapName = tempFileName.replace('.js','') + '.map';
+      var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
+      var actualSourceRoot = map.sourceRoot;
+      // Trailing slash as in the example,
+      // https://github.com/mozilla/source-map
+      assert.equal(actualSourceRoot, '/tmp',
+          'has the correct sourceroot');
+      var foundInput = map.sources.some(function(name) {
+        return inputFileName ===
+            forwardSlash(path.resolve(actualSourceRoot, name));
+      });
+      assert(foundInput,
+          'the inputFileName is one of the sourcemap sources');
+      done();
+    });
+  });
+
+  test('compiled modules with --source-maps and --source-root false', function(done) {
+    tempFileName = resolve('./out/sourceroot-test.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var commandLine = executable + ' --source-maps --source-root=false' +
+     ' --out ' + tempFileName + ' -- ' + inputFileName;
+    exec(commandLine, function(error, stdout, stderr) {
+      assert.isNull(error);
+      var transcoded = fs.readFileSync(tempFileName, 'utf-8');
+      var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+      assert(m, 'sourceMappingURL appears in the output');
+      var sourceMappingURL = m[1];
+      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
+          'sourceroot-test.map'));
+      assert.equal(sourceMappingURL, expected);
+      tempMapName = tempFileName.replace('.js','') + '.map';
+      var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
+      var actualSourceRoot = map.sourceRoot;
+      // Trailing slash as in the example,
+      // https://github.com/mozilla/source-map
+      assert.equal(undefined, actualSourceRoot, 'has undefined sourceroot');
+      var foundInput = map.sources.some(function(name) {
+        return inputFileName === name;
+      });
+      assert(foundInput,
+          'the inputFileName is one of the sourcemap sources');
+      done();
+    });
+  });
+
   test('compiled modules with --source-maps=inline and sourceroot', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');

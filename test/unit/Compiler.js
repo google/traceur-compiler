@@ -46,15 +46,16 @@ suite('Compiler', function() {
 
   test('Compiler options locked', function() {
     var Options = get('src/Options.js').Options;
-    var checkDiff =
-        new Options({blockBinding: !versionLockedOptions.blockBinding});
-    assert.equal(checkDiff.diff(versionLockedOptions).length, 1);
 
     var options = new Options();
     var mismatches = options.diff(versionLockedOptions);
     if (mismatches.length)
       console.error('Options changed ', mismatches);
     assert.equal(mismatches.length, 0);
+
+    var checkDiff =
+        new Options({blockBinding: !versionLockedOptions.blockBinding});
+    assert.equal(checkDiff.diff(versionLockedOptions).length, 1);
   });
 
 });

@@ -152,6 +152,10 @@ export class Compiler {
     tree = this.transform(tree, sourceName);
     // Attach the sourceURL only if the input and output names differ.
     var sourceURL = sourceName !== outputName ? sourceName : undefined;
+    // The sourceRoot argument takes precidence over the option.
+    if (typeof sourceRoot === 'undefined')
+      sourceRoot = this.options_.sourceRoot;
+
     return this.write(tree, outputName, sourceRoot, sourceURL);
   }
 
@@ -254,7 +258,16 @@ export class Compiler {
   write(tree, outputName = undefined, sourceRoot = undefined,
       sourceURL = undefined) {
     outputName = this.normalize(outputName);
-    sourceRoot = this.normalize(sourceRoot) || basePath(outputName);
+
+    if (typeof sourceRoot === 'undefined')
+      sourceRoot = this.options_.sourceRoot;
+
+    if (sourceRoot === 'default')
+      sourceRoot = basePath(outputName);
+    else if (!sourceRoot) // false or ''
+      sourceRoot = undefined;
+    else
+      sourceRoot = this.normalize(sourceRoot);
 
     var writer;
     this.sourceMapCache_ = null;

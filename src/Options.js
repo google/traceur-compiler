@@ -54,6 +54,7 @@ export var optionsV01 = enumerableOnlyObject({
   restParameters: true,
   script: false,
   sourceMaps: false,
+  sourceRoot: 'default',
   spread: true,
   symbols: false,
   templateLiterals: true,
@@ -196,6 +197,11 @@ export class Options {
         writable: true,
         enumerable: false
       },
+      sourceRoot_: {
+        value: versionLockedOptions.sourceRoot,
+        writable: true,
+        enumerable: false
+      },
       transformOptions: {
         value: Object.create(transformOptionsPrototype, {
           proxiedOptions_: {
@@ -301,6 +307,15 @@ export class Options {
           '[false|inline|file|memory], not ' + value);
     }
   }
+
+  get sourceRoot() {
+    return this.sourceRoot_;
+  }
+
+  set sourceRoot(value) {
+    this.sourceRoot_ = value ? String(value) : '';
+  }
+
   /**
    * Resets all options to the default value or to false if |allOff| is
    * true.
@@ -323,6 +338,7 @@ export class Options {
     this.outputLanguage = 'es5';
     this.referrer = '';
     this.sourceMaps = false;
+    this.sourceRoot = 'default';
     this.lowResolutionSourceMap = false;
     this.inputSourceMap = false;
     this.typeAssertionModule = null;
@@ -340,6 +356,8 @@ export class Options {
         typeof object.sourceMaps === 'string') {
       this.sourceMaps = object.sourceMaps;
     }
+    if (typeof object.sourceRoot !== 'undefined')
+      this.sourceRoot = object.sourceRoot;
     return this;
   }
 
@@ -504,6 +522,14 @@ export function addOptions(flags, commandOptions) {
   flags.option('--source-maps [file|inline|memory]',
     'sourceMaps generated to file or inline with data: URL',
     (to) => { return commandOptions.sourceMaps = to; }
+  );
+  flags.option('--source-root <false|string|default>',
+    'absolute path to source at execution time',
+    (to) => {
+      if (to==='false')
+        to = false;
+      return commandOptions.sourceRoot = to;
+    }
   );
   flags.option('--low-resolution-source-maps',
     'Lower sourceMaps granularity to one mapping per output line',
