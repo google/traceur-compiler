@@ -2,17 +2,24 @@
 //
 //   traceur --experimental async-read-file.js file-to-read
 
-function lineCount(file) {
-  var data;
+function asyncReadFile(file) {
+  return new Promise((resolve, reject) => {
+    require('fs').readFile(file, 'utf8', (err, data) => {
+      if (err)
+        reject(err);
+      else
+        resolve(data);
+    });
+  });
+}
+
+(async function() {
+  var filename = process.argv[4];
+  console.log(`Loading ${filename}...`);
   try {
-    // TODO: make await an expression.
-    await data = require('fs').readFile(file, 'utf8');
-    console.log(`${file} has ${data.split('\n').length} lines`);
+    var data = await asyncReadFile(filename);
+    console.log(`${filename} has ${data.split('\n').length} lines`);
   } catch (ex) {
     console.error(ex);
   }
-}
-
-var fileName = process.argv[2];
-lineCount(fileName);
-console.log(`Loading ${fileName}...`);
+})();
