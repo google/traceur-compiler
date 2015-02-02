@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function iteratorToArray(iter) {
-  var rv = [];
-  var i = 0;
-  var tmp;
-  while (!(tmp = iter.next()).done) {
-    rv[i++] = tmp.value;
-  }
-  return rv;
-}
+/** @fileoverview import all runtime modules, eg for Traceur self-build. */
 
-$traceurRuntime.iteratorToArray = iteratorToArray;
+import './relativeRequire.js';
+import './spread.js';
+import './destructuring.js';
+import './classes.js';
+import './generators.js';
+import './type-assertions.js';
