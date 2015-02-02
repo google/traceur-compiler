@@ -31,54 +31,53 @@
   else
     baseURL = '';
 
-  class UncoatedModuleEntry {
-    constructor(url, uncoatedModule) {
-      this.url = url;
-      this.value_ = uncoatedModule;
-    }
+  function UncoatedModuleEntry(url, uncoatedModule) {
+    this.url = url;
+    this.value_ = uncoatedModule;
   }
 
-  class ModuleEvaluationError extends Error {
 
-    constructor(erroneousModuleName, cause) {
-      this.message =
-          this.constructor.name + ': ' + this.stripCause(cause) +
-          ' in ' + erroneousModuleName;
+  function ModuleEvaluationError(erroneousModuleName, cause) {
+    this.message =
+        this.constructor.name + ': ' + this.stripCause(cause) +
+        ' in ' + erroneousModuleName;
 
-      if (!(cause instanceof ModuleEvaluationError) && cause.stack)
-        this.stack = this.stripStack(cause.stack);
-      else
-        this.stack = '';
-    }
-
-    stripError(message) {
-      return message.replace(/.*Error:/, this.constructor.name + ':');
-    }
-
-    stripCause(cause) {
-      if (!cause)
-        return '';
-      if (!cause.message)
-        return cause + '';
-      return this.stripError(cause.message);
-    }
-
-    loadedBy(moduleName) {
-      this.stack += '\n loaded by ' + moduleName;
-    }
-
-    stripStack(causeStack) {
-      var stack = [];
-      causeStack.split('\n').some((frame) => {
-        if (/UncoatedModuleInstantiator/.test(frame))
-          return true;
-        stack.push(frame);
-      });
-      stack[0] = this.stripError(stack[0]);
-      return stack.join('\n');
-    }
-
+    if (!(cause instanceof ModuleEvaluationError) && cause.stack)
+      this.stack = this.stripStack(cause.stack);
+    else
+      this.stack = '';
   }
+
+  ModuleEvaluationError.prototype = Object.create(Error.prototype);
+
+  ModuleEvaluationError.prototype.constructor = ModuleEvaluationError;
+
+  ModuleEvaluationError.prototype.stripError = function(message) {
+    return message.replace(/.*Error:/, this.constructor.name + ':');
+  };
+
+  ModuleEvaluationError.prototype.stripCause = function(cause) {
+    if (!cause)
+      return '';
+    if (!cause.message)
+      return cause + '';
+    return this.stripError(cause.message);
+  };
+
+  ModuleEvaluationError.prototype.loadedBy = function(moduleName) {
+    this.stack += '\n loaded by ' + moduleName;
+  };
+
+  ModuleEvaluationError.prototype.stripStack = function(causeStack) {
+    var stack = [];
+    causeStack.split('\n').some((frame) => {
+      if (/UncoatedModuleInstantiator/.test(frame))
+        return true;
+      stack.push(frame);
+    });
+    stack[0] = this.stripError(stack[0]);
+    return stack.join('\n');
+  };
 
   function beforeLines(lines, number) {
     var result = [];
@@ -110,55 +109,56 @@
     return result;
   }
 
-  class UncoatedModuleInstantiator extends UncoatedModuleEntry {
-    constructor(url, func) {
-      super(url, null);
-      this.func = func;
-    }
-
-    getUncoatedModule() {
-      if (this.value_)
-        return this.value_;
-      try {
-        var relativeRequire;
-        if (typeof $traceurRuntime !== undefined) {
-          relativeRequire = $traceurRuntime.require.bind(null, this.url);
-        }
-        return this.value_ = this.func.call(global, relativeRequire);
-      } catch(ex) {
-        if (ex instanceof ModuleEvaluationError) {
-          ex.loadedBy(this.url);
-          throw ex;
-        }
-        if (ex.stack) {
-          // Assume V8 stack format
-          var lines = this.func.toString().split('\n')
-
-          var evaled = [];
-          ex.stack.split('\n').some(function(frame) {
-            // End when we find ourselves on the stack.
-            if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
-              return true;
-            // The angle bracket in the regexp will hit on evaled frames
-            // and miss on eg node compiled frames.
-            var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
-            if (m) {
-              var line = parseInt(m[2], 10);
-              evaled = evaled.concat(beforeLines(lines, line));
-              evaled.push(columnSpacing(m[3]) + '^');
-              evaled = evaled.concat(afterLines(lines, line));
-              evaled.push('= = = = = = = = =');
-            } else {
-              evaled.push(frame);
-            }
-          });
-          ex.stack = evaled.join('\n');
-        }
-
-        throw new ModuleEvaluationError(this.url, ex);
-      }
-    }
+  function UncoatedModuleInstantiator(url, func) {
+    UncoatedModuleEntry.call(this, url, null);
+    this.func = func;
   }
+
+  UncoatedModuleInstantiator.prototype =
+      Object.create(UncoatedModuleEntry.prototype);
+
+  UncoatedModuleInstantiator.prototype.getUncoatedModule = function() {
+    if (this.value_)
+      return this.value_;
+    try {
+      var relativeRequire;
+      if (typeof $traceurRuntime !== undefined && $traceurRuntime.require) {
+        relativeRequire = $traceurRuntime.require.bind(null, this.url);
+      }
+      return this.value_ = this.func.call(global, relativeRequire);
+    } catch(ex) {
+      if (ex instanceof ModuleEvaluationError) {
+        ex.loadedBy(this.url);
+        throw ex;
+      }
+      if (ex.stack) {
+        // Assume V8 stack format
+        var lines = this.func.toString().split('\n')
+
+        var evaled = [];
+        ex.stack.split('\n').some(function(frame) {
+          // End when we find ourselves on the stack.
+          if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
+            return true;
+          // The angle bracket in the regexp will hit on evaled frames
+          // and miss on eg node compiled frames.
+          var m = /(at\s[^\s]*\s).*>:(\d*):(\d*)\)/.exec(frame);
+          if (m) {
+            var line = parseInt(m[2], 10);
+            evaled = evaled.concat(beforeLines(lines, line));
+            evaled.push(columnSpacing(m[3]) + '^');
+            evaled = evaled.concat(afterLines(lines, line));
+            evaled.push('= = = = = = = = =');
+          } else {
+            evaled.push(frame);
+          }
+        });
+        ex.stack = evaled.join('\n');
+      }
+
+      throw new ModuleEvaluationError(this.url, ex);
+    }
+  };
 
   function getUncoatedModuleInstantiator(name) {
     if (!name)

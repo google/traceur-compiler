@@ -1,13 +1,9 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
-  src/runtime/relativeRequire.js \
-  src/runtime/spread.js \
-  src/runtime/destructuring.js \
-  src/runtime/classes.js \
-  src/runtime/generators.js \
   src/runtime/url.js \
-  src/runtime/type-assertions.js \
-  src/runtime/ModuleStore.js
+  src/runtime/ModuleStore.js \
+  # end files that must be script.
+
 POLYFILL_SRC = \
   src/runtime/polyfills/Map.js \
   src/runtime/polyfills/Set.js \
@@ -18,7 +14,19 @@ POLYFILL_SRC = \
   src/runtime/polyfills/Number.js \
   src/runtime/polyfills/Math.js \
   src/runtime/polyfills/polyfills.js
+
+RUNTIME_MODULES = src/runtime/runtime-modules.js
+
+INDIVIDUAL_RUNTIME_MODULES = \
+  src/runtime/relativeRequire.js \
+  src/runtime/spread.js \
+  src/runtime/destructuring.js \
+  src/runtime/classes.js \
+  src/runtime/generators.js \
+  src/runtime/type-assertions.js \
+  #end runtime modules
 SRC = \
+  $(RUNTIME_MODULES) \
   $(POLYFILL_SRC) \
   src/traceur-import.js
 TPL_GENSRC = \
@@ -194,9 +202,9 @@ bin/%.min.js: bin/%.js
 
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
-bin/traceur-runtime.js: $(RUNTIME_SRC) $(POLYFILL_SRC)
+bin/traceur-runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC)
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/bin/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(POLYFILL_SRC)
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(RUNTIME_MODULES) $(POLYFILL_SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -212,10 +220,11 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
 		$(PREV_NODE) \
+		$(SRC) \
 	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
 	node_modules/traceur/traceur --out $@  --referrer='traceur@0.0.0/build/' \
-	  $(RUNTIME_SCRIPTS) src/traceur-import $(TFLAGS)  $(SRC)
+	  $(RUNTIME_SCRIPTS) $(TFLAGS)  $(SRC)
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
