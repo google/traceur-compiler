@@ -16,6 +16,8 @@ import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   ANON_BLOCK,
   BINDING_IDENTIFIER,
+  FOR_IN_STATEMENT,
+  FOR_OF_STATEMENT,
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType.js';
 import {
@@ -141,6 +143,15 @@ import {prependStatements} from './PrependStatements.js';
  * and variable declarations have already been desugared. See getVariableName_.
  */
 
+function varNeedsInitializer(tree, loopTree) {
+  if (loopTree === null) return false;
+
+  // Loop initializers for for-in/for-of must not have an initializer RHS.
+  var type = loopTree.type;
+  if (type !== FOR_IN_STATEMENT && type !== FOR_OF_STATEMENT) return true;
+  return loopTree.initializer.declarations[0] !== tree;
+}
+
 /**
  * BlockBindingTransformer class takes care of transforming the block bindings
  * of a function Scope to ES5. It creates a new instance of itself for every
@@ -171,7 +182,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     this.usedVars_ = this.scope_.getAllBindingNames();
     this.maybeRename_ = false;
     this.inObjectPattern_ = false;
-    this.inLoop_ = false;
+    this.currentLoopTree_ = null;
   }
 
   /**
@@ -357,7 +368,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var initializer = null;
     if (tree.initializer) {
       initializer = this.transformAny(tree.initializer);
-    } else if (this.inLoop_) {
+    } else if (varNeedsInitializer(tree, this.currentLoopTree_)) {
       // If we are in a loop we need to make sure we reinitialize the binding
       // on every iteration.
       initializer = parseExpression `void 0`;
@@ -559,10 +570,10 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         this.revisitTreeForScopes(tree);
         tree = func(tree);
       } else {
-        var inLoop = this.inLoop_;
-        this.inLoop_ = true
+        var currentLoopTree = this.currentLoopTree_;
+        this.currentLoopTree_ = tree
         var rv = func(tree);
-        this.inLoop_ = inLoop;
+        this.currentLoopTree_ = currentLoopTree;
         return rv;
       }
     } else {

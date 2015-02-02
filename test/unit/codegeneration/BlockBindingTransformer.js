@@ -341,4 +341,22 @@ suite('BlockBindingTransformer.js', function() {
       '  }' +
       '}');
 
+  makeTest('for in',
+      'function g() {' +
+      '  for (var x in {}) {}' +
+      '}',
+      // ======
+      'function g() {' +
+      '  for (var x in {}) {}' +
+      '}');
+
+  makeTest('for of',
+      'function g() {' +
+      '  for (var x of []) {}' +
+      '}',
+      // ======
+      'function g() {' +
+      '  for (var x of []) {}' +
+      '}');
+
 });
