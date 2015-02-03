@@ -247,6 +247,13 @@ export class Options {
     return value;
   }
 
+  /**
+   * @return {Options} with every experimental option set true.
+   */
+  static experimental() {
+    return new Options(experimentalOptions);
+  }
+
   get atscript() {
     return this.types && this.annotations && this.memberVariables;
   }
@@ -255,6 +262,13 @@ export class Options {
     this.types = value;
     this.annotations = value;
     this.memberVariables = value;
+  }
+
+  /**
+   * @return {Options} with every atScript option set true.
+   */
+  static atscript() {
+    return new Options({types: true, annotations: true, memberVariables: true});
   }
 
   get modules() {

@@ -85,6 +85,32 @@ suite('options', function() {
         'memory');
   });
 
+  test('experimental static', function(){
+    var experimental = Options.experimental();
+
+    assert.equal(experimental.annotations, true);
+    assert.equal(experimental.arrayComprehension, true);
+    assert.equal(experimental.asyncFunctions, true);
+    assert.equal(experimental.exponentiation, true);
+    assert.equal(experimental.generatorComprehension, true);
+    assert.equal(experimental.require, true);
+    assert.equal(experimental.symbols, true);
+    assert.equal(experimental.types, true);
+    assert.equal(experimental.memberVariables, true);
+
+    var butNotTypes = Options.experimental().setFromObject({types: false});
+    assert.equal(butNotTypes.types, false);
+    assert.equal(butNotTypes.diff(experimental).length, 1);
+  });
+
+  test('atscript static', function() {
+    var options = Options.atscript();
+
+    assert.equal(options.types, true);
+    assert.equal(options.annotations, true);
+    assert.equal(options.memberVariables, true);
+  });
+
   test('atscript setter', function() {
     var options = new Options();
 
