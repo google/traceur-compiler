@@ -17,13 +17,11 @@ export {System} from './runtime/System.js';
 // Used by unit tests only
 import './util/MutedErrorReporter.js';
 
-// TODO(arv): Change this to .js after a npm push
-export {ModuleStore} from '@traceur/src/runtime/ModuleStore';
+export {ModuleStore} from '@traceur/src/runtime/ModuleStore.js';
 export {WebPageTranscoder} from './WebPageTranscoder.js';
 import {addOptions, CommandOptions, Options} from './Options.js';
 
-// TODO(arv): Change this to .js after a npm push
-import {ModuleStore} from '@traceur/src/runtime/ModuleStore';
+import {ModuleStore} from '@traceur/src/runtime/ModuleStore.js';
 
 export function get(name) {
   return ModuleStore.get(ModuleStore.normalize('./' + name, __moduleName));

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Scope} from './Scope';
+import {Scope} from './Scope.js';
 
 export class ScopeReferences extends Scope {
   /**

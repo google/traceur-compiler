@@ -61,9 +61,9 @@ suite('Loader.js', function() {
       data: {}
     }
     load.normalizedName = '@abc/def';
-    assert.equal(loader.locate(load), 'http://example.org/a/@abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/@abc/def');
     load.normalizedName = 'abc/def';
-    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
+    assert.equal(loader.locate(load), 'http://example.org/a/abc/def');
     load.normalizedName = 'abc/def.js';
     assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
     load.normalizedName = './abc/def.js';
@@ -270,7 +270,7 @@ suite('Loader.js', function() {
   test('LoaderImport.Fail.deperror', function(done) {
     var reporter = new MutedErrorReporter();
     var metadata = {traceurOptions: {sourceMaps: 'memory'}};
-    getLoader(reporter).import('loads/main', {metadata: metadata}).then(
+    getLoader(reporter).import('loads/main.js', {metadata: metadata}).then(
       function(mod) {
         fail('should not have succeeded')
         done();

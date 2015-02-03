@@ -22,8 +22,8 @@ import {
   MODULE,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
-} from '../syntax/trees/ParseTreeType';
-import {TYPEOF} from '../syntax/TokenType';
+} from '../syntax/trees/ParseTreeType.js';
+import {TYPEOF} from '../syntax/TokenType.js';
 
 function hasArgumentsInScope(scope) {
   for (; scope; scope = scope.parent) {
