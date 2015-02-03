@@ -59,17 +59,9 @@ export class TraceurLoader extends Loader {
   }
 
   locate(load) {
-    var normalizedModuleName = load.normalizedName;
     load.metadata.traceurOptions = load.metadata.traceurOptions || {};
+    var url = load.normalizedName;
     var options = load.metadata.traceurOptions;
-    var asJS;
-    if (/\.js$/.test(normalizedModuleName) || options && options.script) {
-      asJS = normalizedModuleName;
-    } else {
-      // Backwards compat.
-      asJS = normalizedModuleName + '.js';
-    }
-
     var baseURL = load.metadata && load.metadata.baseURL;
     baseURL = baseURL || this.baseURL;
 
@@ -90,20 +82,20 @@ export class TraceurLoader extends Loader {
       if (commonChars) {
         var packageName = referrer.slice(0, -commonChars);
         var rootDirectory = baseURL.slice(0, -commonChars);
-        if (asJS.indexOf(packageName) === 0) {
-          asJS = asJS.replace(packageName, rootDirectory);
+        if (url.indexOf(packageName) === 0) {
+          url = url.replace(packageName, rootDirectory);
         }
       }
 
     }
 
-    if (!isAbsolute(asJS)) {
+    if (!isAbsolute(url)) {
       if (baseURL) {
         load.metadata.baseURL = baseURL;
-        asJS = resolveUrl(baseURL, asJS);
+        url = resolveUrl(baseURL, url);
       }
     }
-    return asJS;
+    return url;
   }
 
   // The name set into the tree, and used for sourcemaps

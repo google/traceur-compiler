@@ -1,1 +1,1 @@
-import "./deperror";
+import "./deperror.js";
