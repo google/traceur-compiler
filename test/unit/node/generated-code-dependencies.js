@@ -172,7 +172,7 @@ suite('context test', function() {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFileName = resolve('test/unit/node/resources/import-x.js');
-    var commandLine = executable + ' --source-maps --source-root=\"/tmp\"' +
+    var commandLine = executable + ' --source-maps --source-root="/tmp"' +
      ' --out ' + tempFileName + ' -- ' + inputFileName;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);

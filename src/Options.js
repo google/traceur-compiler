@@ -54,7 +54,7 @@ export var optionsV01 = enumerableOnlyObject({
   restParameters: true,
   script: false,
   sourceMaps: false,
-  sourceRoot: 'default',
+  sourceRoot: true,
   spread: true,
   symbols: false,
   templateLiterals: true,
@@ -308,14 +308,6 @@ export class Options {
     }
   }
 
-  get sourceRoot() {
-    return this.sourceRoot_;
-  }
-
-  set sourceRoot(value) {
-    this.sourceRoot_ = value ? String(value) : '';
-  }
-
   /**
    * Resets all options to the default value or to false if |allOff| is
    * true.
@@ -338,7 +330,7 @@ export class Options {
     this.outputLanguage = 'es5';
     this.referrer = '';
     this.sourceMaps = false;
-    this.sourceRoot = 'default';
+    this.sourceRoot = true;
     this.lowResolutionSourceMap = false;
     this.inputSourceMap = false;
     this.typeAssertionModule = null;
@@ -356,7 +348,7 @@ export class Options {
         typeof object.sourceMaps === 'string') {
       this.sourceMaps = object.sourceMaps;
     }
-    if (typeof object.sourceRoot !== 'undefined')
+    if (object.sourceRoot !== undefined)
       this.sourceRoot = object.sourceRoot;
     return this;
   }
@@ -523,11 +515,14 @@ export function addOptions(flags, commandOptions) {
     'sourceMaps generated to file or inline with data: URL',
     (to) => { return commandOptions.sourceMaps = to; }
   );
-  flags.option('--source-root <false|string|default>',
-    'absolute path to source at execution time',
+  flags.option('--source-root <true|false|string>',
+    'absolute path to source at execution time. false to omit, ' +
+        'true for directory of output file.',
     (to) => {
-      if (to==='false')
+      if (to === 'false')
         to = false;
+      if (to === 'true')
+        to = true;
       return commandOptions.sourceRoot = to;
     }
   );

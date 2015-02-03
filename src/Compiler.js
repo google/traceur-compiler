@@ -259,12 +259,12 @@ export class Compiler {
       sourceURL = undefined) {
     outputName = this.normalize(outputName);
 
-    if (typeof sourceRoot === 'undefined')
+    if (sourceRoot === undefined)
       sourceRoot = this.options_.sourceRoot;
 
-    if (sourceRoot === 'default')
+    if (sourceRoot === true)
       sourceRoot = basePath(outputName);
-    else if (!sourceRoot) // false or ''
+    else if (!sourceRoot) // false or '' or undefined
       sourceRoot = undefined;
     else
       sourceRoot = this.normalize(sourceRoot);

@@ -138,7 +138,7 @@ suite('options', function() {
 
   test('sourceRoot', function() {
     var options = new Options();
-    assert.equal(options.sourceRoot, 'default');
+    assert.equal(options.sourceRoot, true);
 
     options.sourceRoot = false;
     assert.equal(options.sourceRoot, '');
@@ -152,8 +152,8 @@ suite('options', function() {
     from = new Options(options);
     assert.equal(from.sourceRoot, '/tmp');
 
-    options.sourceRoot = 'default';
-    assert.equal(options.sourceRoot, 'default');
+    options.sourceRoot = true;
+    assert.equal(options.sourceRoot, true);
 
   });
 });
