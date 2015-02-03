@@ -60,6 +60,7 @@ function GeneratorContext() {
   this.finallyFallThrough = undefined;
   this.sent_ = undefined;
   this.returnValue = undefined;
+  this.oldReturnValue = undefined;
   this.tryStack_ = [];
 }
 GeneratorContext.prototype = {
@@ -130,6 +131,10 @@ GeneratorContext.prototype = {
         if (e === RETURN_SENTINEL) {
           if (iterator.return) {
             result = iterator.return(ctx.returnValue);
+            if (!result.done) {
+              ctx.returnValue = ctx.oldReturnValue;
+              return result;
+            }
             ctx.returnValue = result.value;
           }
           throw e;
@@ -137,7 +142,9 @@ GeneratorContext.prototype = {
         if (iterator.throw) {
           return iterator.throw(e);
         }
-        throw e;
+        // 14.4 "YieldExpression: yield * AssignmentExpression" 1.6.b.iv
+        iterator.return && iterator.return();
+        throw $TypeError('Inner iterator does not have a throw method');
       }
     };
   }
@@ -218,6 +225,7 @@ GeneratorFunctionPrototype.prototype = {
     return nextOrThrow(this[ctxName], this[moveNextName], 'throw', v);
   },
   return: function (v) {
+    this[ctxName].oldReturnValue = this[ctxName].returnValue;
     this[ctxName].returnValue = v;
     return nextOrThrow(this[ctxName], this[moveNextName], 'throw', RETURN_SENTINEL);
   }

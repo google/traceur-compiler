@@ -19,7 +19,7 @@ function* f2() {
 
 var g2 = f2();
 assert.deepEqual(g2.next(), {value: 1, done: false});
-assert.deepEqual(g2.return(42), {value: 42, done: true})
+assert.deepEqual(g2.return(42), {value: 42, done: true});
 assert.deepEqual(g2.next(), {value: undefined, done: true});
 
 function* f3() {
@@ -86,7 +86,7 @@ function* f7() {
 
 var g7 = f7();
 assert.deepEqual(g7.next(), {value: 1, done: true});
-assert.deepEqual(g7.next(), {value: undefined, done: true})
+assert.deepEqual(g7.next(), {value: undefined, done: true});
 assert.deepEqual(g7.return(42), {value: 42, done: true});
 assert.deepEqual(g7.next(), {value: undefined, done: true});
 
@@ -121,7 +121,7 @@ function* f9() {
 
 var g9 = f9();
 assert.deepEqual(g9.next(), {value: 1, done: false});
-assert.deepEqual(g9.return(42), {value: 3, done: true});
+assert.deepEqual(g9.return(142), {value: 3, done: false});
 assert.deepEqual(g9.next(), {value: undefined, done: true});
 
 function* f10() {
@@ -152,7 +152,7 @@ function* f11() {
       yield 1;
       yield 2;
     } finally {
-      yield 3;
+      yield 3333;
       f11.x = 10;
       yield 4;
     }
@@ -163,7 +163,65 @@ function* f11() {
 
 var g11 = f11();
 assert.deepEqual(g11.next(), {value: 1, done: false});
-assert.deepEqual(g11.return(42), {value: 3, done: true});
+assert.deepEqual(g11.return(42), {value: 3333, done: false});
+assert.deepEqual(g11.next(), {value: 4, done: false});
+assert.deepEqual(g11.next(), {value: 5, done: false});
 assert.deepEqual(g11.next(), {value: undefined, done: true});
-assert.equal(f11.x, undefined);
+assert.equal(f11.x, 10);
+
+
+function* f12() {
+  try {
+    return 'apple';
+  } finally {
+    yield 'orange';
+  }
+}
+var g12 = f12();
+assert.deepEqual(g12.next(), {value: 'orange', done: false});
+assert.deepEqual(g12.next(), {value: 'apple', done: true});
+
+function* f13() {
+  function* f() {
+    try {
+      yield 'pear';
+    } finally {
+      yield 'strawberry';
+    }
+  }
+  try {
+    return 'cherry';
+  } finally {
+    f13.x = yield* f();
+    yield 'banana';
+  }
+}
+var g13 = f13();
+assert.deepEqual(g13.next(), {value: 'pear', done: false});
+assert.deepEqual(g13.return('peach'), {value: 'strawberry', done: false});
+assert.deepEqual(g13.next(), {value: 'banana', done: false});
+assert.deepEqual(g13.next(), {value: 'cherry', done: true});
+assert.equal(f13.x, 'peach');
+
+function* f14() {
+  function* g() {
+    try {
+      yield 11;
+      yield 22;
+    } finally {
+      yield 33;
+      f14.x = 44;
+      yield 55;
+    }
+  }
+  return yield* g();
+}
+
+var g14 = f14();
+assert.deepEqual(g14.next(), {value: 11, done: false});
+assert.deepEqual(g14.return(43), {value: 33, done: false});
+assert.deepEqual(g14.next(), {value: 55, done: false});
+assert.equal(f14.x, 44);
+assert.deepEqual(g14.next(), {value: 43, done: true});
+assert.deepEqual(g14.next(), {value: undefined, done: true});
 
