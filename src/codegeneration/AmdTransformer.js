@@ -31,6 +31,14 @@ export class AmdTransformer extends ModuleTransformer {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.dependencies = [];
+    this.anonymousModule =
+        options && !options.bundle && options.moduleName !== true;
+  }
+
+  getModuleName(tree) {
+    if (this.anonymousModule)
+      return null;
+    return tree.moduleName;
   }
 
   getExportProperties() {
@@ -78,7 +86,6 @@ export class AmdTransformer extends ModuleTransformer {
     // AMD does not allow .js
     var value = tree.token.processedValue
     var stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));
-
     this.dependencies.push({path: stringLiteral, local: localName});
     return createIdentifierExpression(localName);
   }

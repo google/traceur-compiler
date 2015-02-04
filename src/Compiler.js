@@ -149,13 +149,7 @@ export class Compiler {
     sourceName = this.normalize(sourceName);
     outputName = this.normalize(outputName);
     var tree = this.parse(content, sourceName);
-
-    var moduleName = this.options_.moduleName;
-    if (moduleName) {  // true or non-empty string.
-      if (typeof moduleName !== 'string')  // true means resolve filename
-        moduleName = sourceName;
-    }
-    tree = this.transform(tree, moduleName);
+    tree = this.transform(tree, sourceName);
     // Attach the sourceURL only if the input and output names differ.
     var sourceURL = sourceName !== outputName ? sourceName : undefined;
     return this.write(tree, outputName, sourceRoot, sourceURL);
@@ -188,26 +182,15 @@ export class Compiler {
   /**
    * Apply transformations selected by options to tree.
    * @param {ParseTree} tree
-   * @param {string} moduleName value for __moduleName if any
-   * @param {string} sourceName used as the moduleName if defined and requested
-   *     by the module system configuration.
+   * @param {string} candidateModuleName used as the moduleName iff the
+   *    moduleName option is set true
    * @return {ParseTree}
    */
-  transform(tree, moduleName = undefined, sourceName = undefined) {
+  transform(tree, candidateModuleName = undefined) {
+
     var transformer;
-
-    if (!moduleName && this.options_.moduleName) {
-      // this.options_.moduleName is true or non-empty string.
-      if (typeof this.options_.moduleName === 'string') {
-        moduleName = this.options_.moduleName;
-      } else {
-        // use filename as moduleName
-        moduleName = sourceName;
-      }
-    }
-
-    if (moduleName) {
-      var transformer = new AttachModuleNameTransformer(moduleName);
+    if (candidateModuleName) {
+      var transformer = new AttachModuleNameTransformer(candidateModuleName);
       tree = transformer.transformAny(tree);
     }
 
@@ -216,8 +199,7 @@ export class Compiler {
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter);
     } else {
-      transformer = new FromOptionsTransformer(errorReporter,
-          this.options_);
+      transformer = new FromOptionsTransformer(errorReporter, this.options_);
     }
 
     var transformedTree = transformer.transform(tree);

@@ -43,7 +43,7 @@ export var optionsV01 = enumerableOnlyObject({
   lowResolutionSourceMap: false,
   inputSourceMap: false,
   memberVariables: false,
-  moduleName: false,
+  moduleName: 'default',
   modules: 'register',
   numericLiterals: true,
   outputLanguage: 'es5',
@@ -319,7 +319,7 @@ export class Options {
    */
   setDefaults() {
     this.modules = 'register';
-    this.moduleName = false;
+    this.moduleName = 'default';
     this.outputLanguage = 'es5';
     this.referrer = '';
     this.sourceMaps = false;
@@ -482,11 +482,15 @@ export function addOptions(flags, commandOptions) {
       (moduleFormat) => {
         commandOptions.modules = moduleFormat;
       });
-  flags.option('--moduleName <string>',
-    '__moduleName value, + sign to use source name, or empty to omit',
+  flags.option('--moduleName [true|false|default]',
+    'true for named, false for anonymous modules; default depends on --modules',
     (moduleName) => {
-      if (moduleName === '+')
+      if (moduleName === 'true')
         moduleName = true;
+      else if (moduleName === 'false')
+        moduleName = false;
+      else
+        moduleName = 'default';
       commandOptions.moduleName = moduleName;
     });
   flags.option('--outputLanguage <es6|es5>',

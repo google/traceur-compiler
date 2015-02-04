@@ -74,6 +74,10 @@ export class ModuleTransformer extends TempVarTransformer {
     }) + '__';
   }
 
+  getModuleName(tree) {
+    return tree.moduleName;
+  }
+
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
     var normalizedName = System.normalize(moduleSpecifier.token.processedValue, this.moduleName);
     return this.getTempVarNameForModuleName(normalizedName);
@@ -85,7 +89,7 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformModule(tree) {
-    this.moduleName = tree.moduleName;
+    this.moduleName = this.getModuleName(tree);
 
     this.pushTempScope();
 
