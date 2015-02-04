@@ -153,7 +153,7 @@ export class Compiler {
     // Attach the sourceURL only if the input and output names differ.
     var sourceURL = sourceName !== outputName ? sourceName : undefined;
     // The sourceRoot argument takes precidence over the option.
-    if (typeof sourceRoot === 'undefined')
+    if (sourceRoot === undefined)
       sourceRoot = this.options_.sourceRoot;
 
     return this.write(tree, outputName, sourceRoot, sourceURL);
