@@ -58,7 +58,7 @@ NodeCompiler.prototype = {
       }
 
       var parsed = this.parse(contents.toString(), inputFilePath);
-      this.writeTreeToFile(this.transform(parsed, undefined, inputFilePath),
+      this.writeTreeToFile(this.transform(parsed, inputFilePath),
                            outputFilePath);
     }.bind(this));
   },

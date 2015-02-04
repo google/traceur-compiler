@@ -46,6 +46,14 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.moduleVars_ = [];
+    this.anonymousModule =
+        options && !options.bundle && options.moduleName !== true;
+  }
+
+  getModuleName(tree) {
+    if (this.anonymousModule)
+      return null;
+    return tree.moduleName;
   }
 
   moduleProlog() {
