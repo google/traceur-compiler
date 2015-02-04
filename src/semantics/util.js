@@ -26,15 +26,17 @@ import {
 } from '../syntax/TokenType.js';
 
 /**
- * @param {Array.<ParseTree>} list
+ * @param {Array<ParseTree>} list
  * @return {boolean}
  */
 export function hasUseStrict(list) {
   for (var i = 0; i < list.length; i++) {
-    if (!list[i].isDirectivePrologue())
+    if (!list[i].isDirectivePrologue()) {
       return false;
-    if (list[i].isUseStrictDirective())
+    }
+    if (list[i].isUseStrongDirective() || list[i].isUseStrictDirective()) {
       return true;
+    }
   }
   return false;
 }
