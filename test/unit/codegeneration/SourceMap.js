@@ -30,24 +30,24 @@ suite('SourceMap.js', function() {
                                            lowResolutionSourceMap: true});
 
   test('relativeToSource', function() {
-    var relativeToSourceRoot =
-        get('src/outputgeneration/ParseTreeMapWriter.js').relativeToSourceRoot;
-    assert.equal(relativeToSourceRoot('@foo', '/w/t/out/'), '@foo',
+    var relativePath =
+        get('src/outputgeneration/ParseTreeMapWriter.js').relativePath;
+    assert.equal(relativePath('@foo', '/w/t/out/'), '@foo',
         '@ names are unchanged');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out/'), '../src/foo.js',
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/out/'), '../src/foo.js',
         'relative to sourceRoot in /out');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/'),
+    assert.equal(relativePath('/w/t/src/bar/foo.js', '/w/t/out/'),
         '../src/bar/foo.js', 'deeper left side');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
+    assert.equal(relativePath('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
         '../../src/bar/foo.js', 'deeper both side');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/src/'),
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/src/'),
         'foo.js', 'same directory  ');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out'),
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/out'),
         '../src/foo.js', 'missing trailing slash');
   });
 
@@ -216,8 +216,12 @@ suite('SourceMap.js', function() {
     var filename = 'sourceMapImportSpecifierSet.js';
     var tree = moduleCompiler.parse(src, filename);
     var actual = moduleCompiler.write(tree);
+    // The sourceMappingURL should be relativel
+    assert.notEqual(actual.indexOf('//# sourceMappingURL=unnamed.map'), -1);
 
-    var consumer = new SourceMapConsumer(moduleCompiler.getSourceMap(filename));
+    var sourceMap = moduleCompiler.getSourceMap(filename);
+    assert.equal(JSON.parse(sourceMap).sources[0], filename);
+    var consumer = new SourceMapConsumer(sourceMap);
 
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);

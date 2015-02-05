@@ -4,7 +4,8 @@ suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
   var sourceMapUtil = require('source-map/lib/source-map/util.js');
 
-  var nativeFilename = path.join(__dirname + '/commonjs/BasicImport.js');
+  var relativeFilename = '/commonjs/BasicImport.js';
+  var nativeFilename = path.join(__dirname + relativeFilename);
   var nativeDirname = __dirname;
   assert(nativeDirname[nativeDirname.length - 1] !== path.sep,
       'expect no trailing slash');
@@ -66,8 +67,12 @@ suite('node public api', function() {
     var sourceMap = JSON.parse(compiler.getSourceMap());
     assert.equal(traceurDirname, sourceMap.sourceRoot,
         'has correct sourceRoot');
+    // The sourceRoot given here, when combined with the 'sources'
+    // entry is not a filename.
+    var notAFileName = traceurDirname  + '/BasicImport.js';
     assert(sourceMap.sources.some(function(name) {
-      return sourceMapUtil.join(sourceMap.sourceRoot, name) === traceurFilename;
+      var fromSourceRoot = sourceMapUtil.join(sourceMap.sourceRoot, name);
+      return fromSourceRoot === notAFileName;
     }), 'One of the sources is the source');
   });
 
@@ -88,8 +93,11 @@ suite('node public api', function() {
     var sourceMap = JSON.parse(compiler.getSourceMap());
     assert.equal(traceurDirname, sourceMap.sourceRoot,
         'has correct sourceRoot');
+    // The sourceRoot given here, when combined with the 'sources'
+    // entry is not a filename.
+    var notAFileName = traceurDirname  + '/BasicImport.js';
     assert(sourceMap.sources.some(function(name) {
-      return (sourceMap.sourceRoot + '/' + name) === traceurFilename;
+      return (sourceMap.sourceRoot + '/' + name) === notAFileName;
     }), 'One of the sources is the source');
   });
 

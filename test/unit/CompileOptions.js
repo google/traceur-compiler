@@ -135,4 +135,25 @@ suite('options', function() {
     options.memberVariables = true;
     assert.equal(options.atscript, true);
   });
+
+  test('sourceRoot', function() {
+    var options = new Options();
+    assert.equal(options.sourceRoot, true);
+
+    options.sourceRoot = false;
+    assert.equal(options.sourceRoot, '');
+
+    var from = new Options(options);
+    assert.equal(from.sourceRoot, '');
+
+    options.sourceRoot = '/tmp';
+    assert.equal(options.sourceRoot, '/tmp');
+
+    from = new Options(options);
+    assert.equal(from.sourceRoot, '/tmp');
+
+    options.sourceRoot = true;
+    assert.equal(options.sourceRoot, true);
+
+  });
 });

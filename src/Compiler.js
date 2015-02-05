@@ -152,6 +152,10 @@ export class Compiler {
     tree = this.transform(tree, sourceName);
     // Attach the sourceURL only if the input and output names differ.
     var sourceURL = sourceName !== outputName ? sourceName : undefined;
+    // The sourceRoot argument takes precidence over the option.
+    if (sourceRoot === undefined)
+      sourceRoot = this.options_.sourceRoot;
+
     return this.write(tree, outputName, sourceRoot, sourceURL);
   }
 
@@ -215,6 +219,7 @@ export class Compiler {
           sourceRoot: sourceRoot,
           skipValidation: true
         }),
+        basepath: basePath(outputName),
         sourceRoot: sourceRoot,
         inputSourceMap: this.options_.inputSourceMap
       };
@@ -254,7 +259,16 @@ export class Compiler {
   write(tree, outputName = undefined, sourceRoot = undefined,
       sourceURL = undefined) {
     outputName = this.normalize(outputName);
-    sourceRoot = this.normalize(sourceRoot) || basePath(outputName);
+
+    if (sourceRoot === undefined)
+      sourceRoot = this.options_.sourceRoot;
+
+    if (sourceRoot === true)
+      sourceRoot = basePath(outputName);
+    else if (!sourceRoot) // false or '' or undefined
+      sourceRoot = undefined;
+    else
+      sourceRoot = this.normalize(sourceRoot);
 
     var writer;
     this.sourceMapCache_ = null;
@@ -275,7 +289,7 @@ export class Compiler {
 
     if (this.sourceMapConfiguration_) {
       var sourceMappingURL =
-          this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
+          this.sourceMappingURL(sourceURL || outputName || 'unnamed.js');
       var sourceMap = this.getSourceMap();
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
