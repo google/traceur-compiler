@@ -140,7 +140,7 @@ suite('context test', function() {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFilename = resolve('test/unit/node/resources/import-x.js');
-    var commandLine = executable + ' --source-maps --out ' +
+    var commandLine = executable + ' --source-maps --source-root=true --out ' +
         tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -250,7 +250,7 @@ suite('context test', function() {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFilename = resolve('test/unit/node/resources/import-x.js');
-    var commandLine = executable + ' --source-maps=inline --out ' +
+    var commandLine = executable + ' --source-maps=inline --source-root=true --out ' +
         tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
