@@ -521,7 +521,7 @@ export function addOptions(flags, commandOptions) {
     (to) => {
       if (to === 'false')
         to = false;
-      if (to === 'true')
+      else if (to === 'true')
         to = true;
       return commandOptions.sourceRoot = to;
     }
