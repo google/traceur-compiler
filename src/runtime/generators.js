@@ -89,6 +89,11 @@ GeneratorContext.prototype = {
   popTry: function() {
     this.tryStack_.pop();
   },
+  maybeUncatchable: function () {
+    if (this.storedException === RETURN_SENTINEL) {
+      throw RETURN_SENTINEL;
+    }
+  },
   get sent() {
     this.maybeThrow();
     return this.sent_;
@@ -326,8 +331,7 @@ function handleCatch(ctx, ex) {
     return;
   }
 
-  ctx.state = (ex !== RETURN_SENTINEL && last.catch !== undefined) ?
-      last.catch : last.finally;
+  ctx.state = last.catch !== undefined ? last.catch : last.finally;
 
   if (last.finallyFallThrough !== undefined)
     ctx.finallyFallThrough = last.finallyFallThrough;
