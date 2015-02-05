@@ -288,7 +288,7 @@ export class Compiler {
 
     if (this.sourceMapConfiguration_) {
       var sourceMappingURL =
-          this.sourceMappingURL(outputName || sourceURL || 'unnamed.js');
+          this.sourceMappingURL(sourceURL || outputName || 'unnamed.js');
       var sourceMap = this.getSourceMap();
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps

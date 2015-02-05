@@ -159,8 +159,12 @@ suite('context test', function() {
       assert.equal(actualSourceRoot, resolve('./out') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName ===
-            forwardSlash(path.resolve(actualSourceRoot, name));
+        var resolved = forwardSlash(path.resolve(actualSourceRoot, name));
+        if (inputFileName === resolved) {
+          // The 'sources' entry is relative
+          assert.equal(name.indexOf('.'), 0);
+          return true;
+        }
       });
       assert(foundInput,
           'the inputFileName is one of the sourcemap sources');

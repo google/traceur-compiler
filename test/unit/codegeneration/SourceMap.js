@@ -216,8 +216,12 @@ suite('SourceMap.js', function() {
     var filename = 'sourceMapImportSpecifierSet.js';
     var tree = moduleCompiler.parse(src, filename);
     var actual = moduleCompiler.write(tree);
+    // The sourceMappingURL should be relativel
+    assert.notEqual(actual.indexOf('//# sourceMappingURL=unnamed.map'), -1);
 
-    var consumer = new SourceMapConsumer(moduleCompiler.getSourceMap(filename));
+    var sourceMap = moduleCompiler.getSourceMap(filename);
+    assert.equal(JSON.parse(sourceMap).sources[0], filename);
+    var consumer = new SourceMapConsumer(sourceMap);
 
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);
