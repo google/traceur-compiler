@@ -54,7 +54,7 @@ export var optionsV01 = enumerableOnlyObject({
   restParameters: true,
   script: false,
   sourceMaps: false,
-  sourceRoot: true,
+  sourceRoot: false,
   spread: true,
   symbols: false,
   templateLiterals: true,
@@ -330,7 +330,7 @@ export class Options {
     this.outputLanguage = 'es5';
     this.referrer = '';
     this.sourceMaps = false;
-    this.sourceRoot = true;
+    this.sourceRoot = false;
     this.lowResolutionSourceMap = false;
     this.inputSourceMap = false;
     this.typeAssertionModule = null;
