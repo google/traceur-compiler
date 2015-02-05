@@ -56,6 +56,7 @@ RUNTIME_TESTS = \
 
 UNIT_6_TESTS = \
 	test/unit/util/ \
+	test/unit/node/ \
 	#END UNIT_6_TESTS
 
 UNIT_TESTS = \
@@ -63,8 +64,7 @@ UNIT_TESTS = \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
 	test/unit/ \
-	test/unit/node/ \
-	test/unit/system/
+	#old unit tests
 
 TESTS = \
 	test/node-commonjs-test.js \

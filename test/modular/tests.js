@@ -15,25 +15,24 @@
 /* @fileoverview Configure mocha and run the test list */
 
 import {testRunner} from './testRunner.js';
-var glob = require("glob");
+var glob = require('glob');
 
-var pattern = "test/unit/util/*.js";
+var patterns = [
+  'test/unit/util/*.js',
+  'test/unit/system/*.js',
+  'test/unit/node/*.js'
+  ];
 
-glob(pattern, {}, function (er, files) {
-  if (er) {
-    return;
-  }
+patterns.forEach((pattern) => {
+  var files = glob.sync(pattern, {});
+  console.log(pattern + ' -> ' + files.length)
+  files.forEach((file) => testRunner.addFile(file));
+});
 
-  files.forEach((file) => {
-    testRunner.addFile(file);
-  });
-
-  testRunner.run().then(() => {
-    console.log('tests complete');
-  }, (ex) => {
-    console.error(ex.stack || ex);
-  });
-
+testRunner.run().then(() => {
+  console.log('tests complete');
+}, (ex) => {
+  console.error(ex.stack || ex);
 });
 
 

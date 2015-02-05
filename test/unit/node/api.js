@@ -12,30 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 suite('api.js', function() {
 
+  var api = require('../../src/node/api');
+
   test('api compile script function declaration', function() {
-    var api = require('../../../src/node/api');
     var result = api.compile('function foo() {};',
         {modules: false});
     assert(result.length > 0);
   });
 
   test('api compile script function expression', function() {
-    var api = require('../../../src/node/api');
     var result = api.compile('var foo = function() {};',
         {modules: false});
     assert(result.length > 0);
   });
 
   test('api compile experimental', function() {
-    var api = require('../../../src/node/api');
     var result = api.compile('let a = 1;', {blockBinding: true});
     assert(result.length > 0);
   });
 
   test('api compile filename', function() {
-    var api = require('../../../src/node/api');
     var options = {modules: 'register', moduleName: true};
     var result = api.compile('var a = 1;', options, 'a.js');
     assert.equal(
@@ -45,7 +45,6 @@ suite('api.js', function() {
   });
 
   test('api compile require', function() {
-    var api = require('../../../src/node/api');
     var options = {
       modules: 'register',
       moduleName: true,
@@ -60,14 +59,12 @@ suite('api.js', function() {
 
   test('api compile inline', function() {
     var src = 'export function Half(n) {\n this.halfNumber = n / 2;\n};';
-    var api = require('../../../src/node/api');
     var result = api.compile(src, {modules: 'inline'});
     assert(result.length > 0);
   });
 
   test('no sourceURL unless output name differs from input name', function() {
     var src = 'var x = 4;';
-    var api = require('../../../src/node/api');
     var sourceName = 'source.js';
     var outputName = 'output.js';
 

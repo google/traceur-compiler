@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+import {suite, test, assert} from '../../modular/testRunner.js';
 
 suite('context test', function() {
 
@@ -21,7 +21,8 @@ suite('context test', function() {
   var path = require('path');
   var uuid = require('node-uuid');
   var exec = require('child_process').exec;
-  var nodeLoader = require('../../../src/node/nodeLoader.js');
+  console.log('cwd ' + process.cwd())
+  var nodeLoader = require('../../src/node/nodeLoader.js');
 
   var tempFileName;
   var tempMapName;
@@ -303,7 +304,7 @@ suite('context test', function() {
   });
 
   test('working dir doesn\'t change when recursive compiling', function (done) {
-    var recursiveCompile = require('../../../src/node/recursiveModuleCompile')
+    var recursiveCompile = require('../../src/node/recursiveModuleCompile')
       .recursiveModuleCompileToSingleFile;
     tempFileName = resolve(uuid.v4() + '.js');
     var inputFilename = resolve('test/unit/node/resources/import-x.js');
