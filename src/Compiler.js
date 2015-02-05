@@ -219,6 +219,7 @@ export class Compiler {
           sourceRoot: sourceRoot,
           skipValidation: true
         }),
+        basepath: basePath(outputName),
         sourceRoot: sourceRoot,
         inputSourceMap: this.options_.inputSourceMap
       };

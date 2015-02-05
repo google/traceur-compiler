@@ -30,24 +30,24 @@ suite('SourceMap.js', function() {
                                            lowResolutionSourceMap: true});
 
   test('relativeToSource', function() {
-    var relativeToSourceRoot =
-        get('src/outputgeneration/ParseTreeMapWriter.js').relativeToSourceRoot;
-    assert.equal(relativeToSourceRoot('@foo', '/w/t/out/'), '@foo',
+    var relativePath =
+        get('src/outputgeneration/ParseTreeMapWriter.js').relativePath;
+    assert.equal(relativePath('@foo', '/w/t/out/'), '@foo',
         '@ names are unchanged');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out/'), '../src/foo.js',
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/out/'), '../src/foo.js',
         'relative to sourceRoot in /out');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/'),
+    assert.equal(relativePath('/w/t/src/bar/foo.js', '/w/t/out/'),
         '../src/bar/foo.js', 'deeper left side');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
+    assert.equal(relativePath('/w/t/src/bar/foo.js', '/w/t/out/baz/'),
         '../../src/bar/foo.js', 'deeper both side');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/src/'),
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/src/'),
         'foo.js', 'same directory  ');
 
-    assert.equal(relativeToSourceRoot('/w/t/src/foo.js', '/w/t/out'),
+    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/out'),
         '../src/foo.js', 'missing trailing slash');
   });
 

@@ -27,6 +27,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
     this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.lowResolution_ = sourceMapConfiguration.lowResolution;
+    this.basepath_ = sourceMapConfiguration.basepath;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
   }
@@ -117,8 +118,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     };
     if (position.source.name !== this.sourceName_) {
       this.sourceName_ = position.source.name;
-      this.relativeSourceName_ = relativeToSourceRoot(position.source.name,
-              this.sourceRoot_);
+      this.relativeSourceName_ = relativePath(position.source.name,
+              this.basepath_);
       this.sourceMapGenerator_.setSourceContent(position.source.name,
           position.source.contents);
     }
@@ -162,7 +163,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 }
 
-export function relativeToSourceRoot(name, sourceRoot) {
+export function relativePath(name, sourceRoot) {
   if (!name || name[0] === '@')  // @ means internal name
     return name;
   if (!sourceRoot)

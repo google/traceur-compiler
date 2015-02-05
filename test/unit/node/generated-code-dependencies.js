@@ -109,9 +109,9 @@ suite('context test', function() {
   test('compiled modules', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
 
-    exec(executable + ' --out ' + tempFileName + ' -- ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' -- ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName).then(function() {
@@ -124,9 +124,9 @@ suite('context test', function() {
   test('compiled modules with --source-maps', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
 
-    exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFileName,
+    exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           tempMapName = tempFileName.replace('.js','') + '.map';
@@ -139,9 +139,9 @@ suite('context test', function() {
   test('compiled modules with --source-maps and sourceroot', function(done) {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
     var commandLine = executable + ' --source-maps --out ' +
-        tempFileName + ' -- ' + inputFileName;
+        tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
@@ -160,46 +160,52 @@ suite('context test', function() {
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
         var resolved = forwardSlash(path.resolve(actualSourceRoot, name));
-        if (inputFileName === resolved) {
+        if (inputFilename === resolved) {
           // The 'sources' entry is relative
           assert.equal(name.indexOf('.'), 0);
           return true;
         }
       });
       assert(foundInput,
-          'the inputFileName is one of the sourcemap sources');
+          'the inputFilename is one of the sourcemap sources');
       done();
     });
   });
 
-  test('compiled modules with --source-maps and sourceroot=/tmp', function(done) {
+  test('compiled modules with --source-maps and sourceroot=http://example.com', function(done) {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
-    var commandLine = executable + ' --source-maps --source-root="/tmp"' +
-     ' --out ' + tempFileName + ' -- ' + inputFileName;
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
+    var commandLine = executable +
+        ' --source-maps --source-root="http://example.com"' +
+        ' --out ' + tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
-      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
-          'sourceroot-test.map'));
+      var basepath = path.dirname(tempFileName);
+      var expected = forwardSlash(
+          path.resolve(basepath, 'sourceroot-test.map'));
       assert.equal(sourceMappingURL, expected);
       tempMapName = tempFileName.replace('.js','') + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
       // https://github.com/mozilla/source-map
-      assert.equal(actualSourceRoot, '/tmp',
+      assert.equal(actualSourceRoot, 'http://example.com',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName ===
-            forwardSlash(path.resolve(actualSourceRoot, name));
+        var resolved = forwardSlash(path.resolve(basepath, name));
+        if (inputFilename === resolved) {
+          // The 'sources' entry is relative
+          assert.equal(name.indexOf('.'), 0);
+          return true;
+        }
       });
       assert(foundInput,
-          'the inputFileName is one of the sourcemap sources');
+          'the inputFilename is one of the sourcemap sources');
       done();
     });
   });
@@ -207,17 +213,18 @@ suite('context test', function() {
   test('compiled modules with --source-maps and --source-root false', function(done) {
     tempFileName = resolve('./out/sourceroot-test.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
     var commandLine = executable + ' --source-maps --source-root=false' +
-     ' --out ' + tempFileName + ' -- ' + inputFileName;
+     ' --out ' + tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
-      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
-          'sourceroot-test.map'));
+      var basepath = path.dirname(tempFileName);
+      var expected = forwardSlash(
+          path.resolve(basepath, 'sourceroot-test.map'));
       assert.equal(sourceMappingURL, expected);
       tempMapName = tempFileName.replace('.js','') + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
@@ -226,10 +233,15 @@ suite('context test', function() {
       // https://github.com/mozilla/source-map
       assert.equal(undefined, actualSourceRoot, 'has undefined sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName === name;
+        var resolved = forwardSlash(path.resolve(basepath, name));
+        if (inputFilename === resolved) {
+          // The 'sources' entry is relative
+          assert.equal(name.indexOf('.'), 0);
+          return true;
+        }
       });
       assert(foundInput,
-          'the inputFileName is one of the sourcemap sources');
+          'the inputFilename is one of the sourcemap sources');
       done();
     });
   });
@@ -237,9 +249,9 @@ suite('context test', function() {
   test('compiled modules with --source-maps=inline and sourceroot', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
     var commandLine = executable + ' --source-maps=inline --out ' +
-        tempFileName + ' -- ' + inputFileName;
+        tempFileName + ' -- ' + inputFilename;
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
@@ -254,11 +266,11 @@ suite('context test', function() {
       assert.equal(actualSourceRoot, resolve('./') + '/',
           'has the correct sourceroot');
       var foundInput = map.sources.some(function(name) {
-        return inputFileName ===
+        return inputFilename ===
             forwardSlash(path.resolve(actualSourceRoot, name));
       });
       assert(foundInput,
-          'the inputFileName is one of the sourcemap sources');
+          'the inputFilename is one of the sourcemap sources');
       done();
     });
   });
@@ -278,9 +290,9 @@ suite('context test', function() {
   test('compiled modules inline', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
 
-    exec(executable + ' --out ' + tempFileName + ' --modules=inline -- ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' --modules=inline -- ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           executeFileWithRuntime(tempFileName).then(function() {
@@ -294,10 +306,10 @@ suite('context test', function() {
     var recursiveCompile = require('../../../src/node/recursiveModuleCompile')
       .recursiveModuleCompileToSingleFile;
     tempFileName = resolve(uuid.v4() + '.js');
-    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
     var rootSources = [{
       type: 'module',
-      name: inputFileName
+      name: inputFilename
     }];
     var cwd = process.cwd();
     traceur.System.baseURL = cwd;
@@ -311,8 +323,8 @@ suite('context test', function() {
   test('script option per file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/iAmScript.js';
-    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
+    var inputFilename = './test/unit/node/resources/iAmScript.js';
+    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
@@ -325,10 +337,10 @@ suite('context test', function() {
   test('script depends on module global', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/scriptUsesModuleGlobal.js';
+    var inputFilename = './test/unit/node/resources/scriptUsesModuleGlobal.js';
     var inputModuleName = './test/unit/node/resources/moduleSetsGlobal.js';
     exec(executable + ' --out ' + tempFileName + ' --module ' + inputModuleName +
-        ' --script ' + inputFileName,
+        ' --script ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
@@ -366,8 +378,8 @@ suite('context test', function() {
   test('script option loads .es file', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/iAmScriptAlso.es';
-    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFileName,
+    var inputFilename = './test/unit/node/resources/iAmScriptAlso.es';
+    exec(executable + ' --out ' + tempFileName + ' --script ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
@@ -452,9 +464,9 @@ suite('context test', function() {
   test('use a pattern that does not match any source', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/*someNonExistentPattern';
+    var inputFilename = './test/unit/node/resources/*someNonExistentPattern';
 
-    exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' ' + inputFilename,
       function(error, stdout, stderr) {
         assert.isNull(error);
         done();
@@ -464,9 +476,9 @@ suite('context test', function() {
   test('use a pattern to match sources for compilation', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/glob-pattern-?.js';
+    var inputFilename = './test/unit/node/resources/glob-pattern-?.js';
 
-    exec(executable + ' --out ' + tempFileName + ' ' + inputFileName,
+    exec(executable + ' --out ' + tempFileName + ' ' + inputFilename,
       function(error, stdout, stderr) {
         assert.isNull(error);
         executeFileWithRuntime(tempFileName).then(function() {
@@ -480,10 +492,10 @@ suite('context test', function() {
   test('use a pattern and a normal file name to match sources', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
-    var inputFileName = './test/unit/node/resources/glob-pattern-?.js';
+    var inputFilename = './test/unit/node/resources/glob-pattern-?.js';
     var inputAnotherFile = './test/unit/node/resources/glob-normal.js';
 
-    exec(executable + ' --out ' + tempFileName + ' --modules=inline ' + inputFileName + ' --script ' + inputAnotherFile,
+    exec(executable + ' --out ' + tempFileName + ' --modules=inline ' + inputFilename + ' --script ' + inputAnotherFile,
       function(error, stdout, stderr) {
         assert.isNull(error);
         executeFileWithRuntime(tempFileName).then(function() {
