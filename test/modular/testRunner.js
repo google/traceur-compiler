@@ -18,7 +18,12 @@ import {Mocha6} from './Mocha6.js';
 
 export var testRunner = new Mocha6({
   ui: 'tdd',
-  ignoreLeaks: true
+  ignoreLeaks: true,
+  importMetadata: {
+  	traceurOptions: {
+  		sourceMaps: 'memory'
+  	}
+  }
 });
 
 var context = testRunner.getContext();
@@ -30,3 +35,10 @@ export var teardown = context.teardown;
 
 var chai = require('chai');
 export var assert = chai.assert;
+
+// Replace the Closure-provided array comparer with our own that doesn't barf
+// because Array.prototype has a __iterator__ method.
+export function assertArrayEquals(expected, actual) {
+  assert.equal(JSON.stringify(actual, null, 2),
+               JSON.stringify(expected, null, 2));
+}

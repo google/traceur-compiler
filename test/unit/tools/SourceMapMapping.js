@@ -13,9 +13,11 @@
 // limitations under the License.
 
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 import {SourceMapConsumer}
-    from '../../../../src/outputgeneration/SourceMapIntegration.js';
-import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping.js';
+    from '../../../src/outputgeneration/SourceMapIntegration.js';
+import {OriginalSourceMapMapping} from '../../../demo/SourceMapMapping.js';
 
 var path = 'test_a.js';
 var input = './test/unit/runtime/' + path;

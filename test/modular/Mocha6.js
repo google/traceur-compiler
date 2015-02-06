@@ -45,7 +45,7 @@ export class Mocha6 extends Mocha {
     var promiseImports = this.files.map((file) => {
       file = path.resolve(file);
       this.suite.emit('pre-require', global, file, this);
-      return System.import(file, this.options.importOptions).
+      return System.import(file, {metadata: this.options.importMetadata}).
           then(() => {
             this.suite.emit('require', global, file, this);
             this.suite.emit('post-require', global, file, this);

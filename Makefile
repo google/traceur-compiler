@@ -57,12 +57,12 @@ RUNTIME_TESTS = \
 UNIT_6_TESTS = \
 	test/unit/util/ \
 	test/unit/node/ \
+	test/unit/syntax/ \
+	test/unit/codegeneration/ \
 	#END UNIT_6_TESTS
 
 UNIT_TESTS = \
-	test/unit/codegeneration/ \
 	test/unit/semantics/ \
-	test/unit/syntax/ \
 	test/unit/ \
 	#old unit tests
 
@@ -75,9 +75,6 @@ TESTS = \
 	test/node-api-test.js \
 	$(RUNTIME_TESTS) \
 	$(UNIT_TESTS)
-
-COMPILE_BEFORE_TEST = \
-	test/unit/codegeneration/PlaceholderParser.generated.js
 
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
@@ -101,18 +98,15 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
+test: test/test-list.js bin/traceur.js \
 		$(UNIT_6_TESTS) \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
-	  test-version test/unit/tools/SourceMapMapping \
+	  test-version \
 	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
-
-test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
 
 test/unit/util/: bin/traceur.js
 	./traceur test/modular/tests.js

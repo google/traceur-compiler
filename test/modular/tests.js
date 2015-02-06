@@ -20,7 +20,10 @@ var glob = require('glob');
 var patterns = [
   'test/unit/util/*.js',
   'test/unit/system/*.js',
-  'test/unit/node/*.js'
+  'test/unit/node/*.js',
+  'test/unit/syntax/*.js',
+  'test/unit/codegeneration/*.js',
+  'test/unit/tools/*.js'
   ];
 
 patterns.forEach((pattern) => {
@@ -30,7 +33,7 @@ patterns.forEach((pattern) => {
 });
 
 testRunner.run().then(() => {
-  console.log('tests complete');
+  console.log('tests launched');
 }, (ex) => {
   console.error(ex.stack || ex);
 });

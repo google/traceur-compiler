@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 suite('LiteralToken.js', function() {
 
   var LiteralToken =
       $traceurRuntime.ModuleStore.getForTesting('src/syntax/LiteralToken.js').LiteralToken;
 
-  var TokenType = 
+  var TokenType =
       $traceurRuntime.ModuleStore.getForTesting('src/syntax/TokenType.js');
 
   test('Decode newline', function() {
@@ -28,12 +30,12 @@ suite('LiteralToken.js', function() {
 
   test('Decode hex escape', function() {
     var token = new LiteralToken(TokenType.STRING, '"\x21\"');
-    assert.equal(token.processedValue, "!");    
+    assert.equal(token.processedValue, "!");
   });
 
   test('Decode unicode escape', function() {
     var token = new LiteralToken(TokenType.STRING, '"\u2713"');
-    assert.equal(token.processedValue, "✓");    
+    assert.equal(token.processedValue, "✓");
   });
 
 });
