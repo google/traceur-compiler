@@ -88,6 +88,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
   visitFunctionBodyForScope(tree, parameterList = tree.parameterList) {
     var scope = this.pushScope(tree);
     this.visitAny(parameterList);
+    scope.inGenerator = tree.functionKind && tree.isGenerator();
     this.visitAny(tree.body);
     this.popScope(scope);
   }

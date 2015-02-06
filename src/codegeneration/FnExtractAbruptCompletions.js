@@ -20,7 +20,9 @@ import {
   BreakStatement,
   ContinueStatement,
   FormalParameterList,
-  ReturnStatement
+  FunctionExpression,
+  ReturnStatement,
+  YieldExpression
 } from '../syntax/trees/ParseTrees.js';
 import {
   createArgumentList,
@@ -44,7 +46,11 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
-import {VAR} from '../syntax/TokenType.js';
+import {Token} from '../syntax/Token.js';
+import {
+  STAR,
+  VAR
+} from '../syntax/TokenType.js';
 
 
 /**
@@ -68,14 +74,15 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     this.labelledStatements_ = Object.create(null);
   }
 
-  createIIFE(body, paramList, argsList) {
+  createIIFE(body, paramList, argsList, inGenerator) {
     body = this.transformAny(body);
 
     body = alphaRenameThisAndArguments(this, body);
     var tmpFnName = this.idGenerator_.generateUniqueIdentifier();
-    // function (...) { ... }
-    var functionExpression = createFunctionExpression(
-        new FormalParameterList(null, paramList),
+    var functionKind = inGenerator ? new Token(STAR, null) : null;
+    // function ( * )opt (...) { ... }
+    var functionExpression = new FunctionExpression(null, null, functionKind,
+        new FormalParameterList(null, paramList), null, [],
         createFunctionBody(body.statements || [body]));
     // var $tmpFn = ${functionExpression}
     this.variableDeclarations_.push(
@@ -84,6 +91,10 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     var functionCall = createCallExpression(
         createIdentifierExpression(tmpFnName),
         createArgumentList(argsList));
+    // yield* $tmpFn(...)
+    if (inGenerator) {
+      functionCall = new YieldExpression(null, functionCall, true);
+    }
 
     var loopBody = null;
     if (this.extractedStatements_.length || this.hasReturns) {
@@ -120,7 +131,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
           createSwitchStatement(tmpVarName, caseClauses)
         ]);
       } else {
-        // $tmpVar = $tmpFn(...); ${maybeReturn}
+        // $tmpVar = ( yield* )opt $tmpFn(...); ${maybeReturn}
         loopBody = createBlock( [
           createExpressionStatement(
               createAssignmentExpression(tmpVarName, functionCall)),
@@ -128,7 +139,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
         ]);
       }
     } else {
-      // $tmpFn(...)
+      // ( yield* )opt $tmpFn(...)
       loopBody = createBlock([createExpressionStatement(functionCall)]);
     }
 
@@ -244,8 +255,9 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   transformArrowFunctionExpression(tree) {return tree;}
 
 
-  static createIIFE(idGenerator, body, paramList, argsList, requestParentLabel) {
+  static createIIFE(idGenerator, body, paramList, argsList, requestParentLabel,
+      inGenerator) {
     return new FnExtractAbruptCompletions(idGenerator, requestParentLabel)
-        .createIIFE(body, paramList, argsList);
+        .createIIFE(body, paramList, argsList, inGenerator);
   }
 }

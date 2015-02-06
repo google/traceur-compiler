@@ -141,6 +141,11 @@ import {prependStatements} from './PrependStatements.js';
  *
  * The block binding rewrite pass assumes that deconstructing assignments
  * and variable declarations have already been desugared. See getVariableName_.
+ *
+ * Note:
+ *
+ * If the transformation happens inside a generator, the inner function
+ * becomes an inner generator.
  */
 
 function varNeedsInitializer(tree, loopTree) {
@@ -613,9 +618,10 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
       var iifeInfo = FnExtractAbruptCompletions.createIIFE(
           this.idGenerator_, tree.body, iifeParameterList, iifeArgumentList,
-          () => loopLabel = loopLabel ||
-              this.idGenerator_.generateUniqueIdentifier()
-      );
+          () => {
+            return loopLabel = loopLabel ||
+                this.idGenerator_.generateUniqueIdentifier()
+          }, this.scope_.inGenerator);
 
       tree = loopFactory(initializer, renames, iifeInfo.loopBody);
 

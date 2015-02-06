@@ -62,6 +62,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
       this.visitAny(tree.name);
     }
     this.visitAny(tree.parameterList);
+    scope.inGenerator = tree.isGenerator();
     this.visitAny(tree.body);
     this.popScope(scope);
   }

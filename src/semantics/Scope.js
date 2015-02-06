@@ -42,6 +42,7 @@ export class Scope {
     // Let and const as well as block scoped functions.
     this.lexicalDeclarations = Object.create(null);
     this.strictMode = parent && parent.strictMode || isTreeStrict(tree);
+    this.inGenerator = parent ? parent.inGenerator || false : false;
   }
 
   addBinding(tree, type, reporter) {
