@@ -866,6 +866,7 @@ export class CPSTransformer extends TempVarTransformer {
             catchMachine.startState,
             parseStatements `
               $ctx.popTry();
+              $ctx.maybeUncatchable(); // see RETURN_SENTINEL in runtime
               ${id(exceptionName)} = $ctx.storedException;`)
       ];
       this.replaceAndAddStates_(
