@@ -348,6 +348,9 @@
     if (!global.Symbol.iterator) {
       global.Symbol.iterator = Symbol('Symbol.iterator');
     }
+    if (!global.Symbol.observer) {
+      global.Symbol.observer = Symbol('Symbol.observer');
+    }
   }
 
   function setupGlobals(global) {

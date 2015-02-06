@@ -229,6 +229,10 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return this.transformLoop_(tree, ForOfStatement);
   }
 
+  transformForOnStatement(tree) {
+    return this.transformLoop_(tree, ForOfStatement);
+  }
+
   transformLoop_(tree, ctor) {
     var initializer = this.transformLoopIninitaliser_(tree.initializer);
     var collection = this.transformAny(tree.collection);

@@ -37,6 +37,7 @@ export var optionsV01 = enumerableOnlyObject({
   destructuring: true,
   exponentiation: false,
   forOf: true,
+  forOn: false,
   freeVariableChecker: false,
   generatorComprehension: false,
   generators: true,
@@ -139,12 +140,12 @@ addFeatureOption('annotations', EXPERIMENTAL);
 addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('exponentiation', EXPERIMENTAL);
+addFeatureOption('forOn', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
+addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
-addFeatureOption('memberVariables', EXPERIMENTAL);
-
 
 var transformOptionsPrototype = {};
 

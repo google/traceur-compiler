@@ -23,6 +23,7 @@ INDIVIDUAL_RUNTIME_MODULES = \
   src/runtime/destructuring.js \
   src/runtime/classes.js \
   src/runtime/generators.js \
+  src/runtime/async.js \
   src/runtime/type-assertions.js \
   #end runtime modules
 SRC = \

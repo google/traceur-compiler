@@ -29,6 +29,7 @@ import {
   FROM,
   GET,
   OF,
+  ON,
   SET
 } from '../syntax/PredefinedName.js';
 import {
@@ -602,6 +603,22 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OF);
     this.writeSpace_();
     this.visitAny(tree.collection);
+    this.write_(CLOSE_PAREN);
+    this.visitAnyBlockOrIndent_(tree.body);
+  }
+
+  /**
+   * @param {ForOnStatement} tree
+   */
+  visitForOnStatement(tree) {
+    this.write_(FOR);
+    this.writeSpace_();
+    this.write_(OPEN_PAREN);
+    this.visitAny(tree.initializer);
+    this.writeSpace_();
+    this.write_(ON);
+    this.writeSpace_();
+    this.visitAny(tree.observable);
     this.write_(CLOSE_PAREN);
     this.visitAnyBlockOrIndent_(tree.body);
   }

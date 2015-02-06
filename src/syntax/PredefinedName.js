@@ -39,6 +39,7 @@ export var NEW = 'new';
 export var OBJECT = 'Object';
 export var OBJECT_NAME = 'Object';
 export var OF = 'of';
+export var ON = 'on';
 export var PREVENT_EXTENSIONS = 'preventExtensions';
 export var PROTOTYPE = 'prototype';
 export var PUSH = 'push';

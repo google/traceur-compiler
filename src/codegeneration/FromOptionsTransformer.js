@@ -25,6 +25,7 @@ import {validate as validateConst} from '../semantics/ConstChecker.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer.js';
 import {DestructuringTransformer} from './DestructuringTransformer.js';
 import {ForOfTransformer} from './ForOfTransformer.js';
+import {ForOnTransformer} from './ForOnTransformer.js';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker.js';
 import {GeneratorComprehensionTransformer} from
@@ -172,6 +173,10 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.forOf)
       append(ForOfTransformer);
 
+    // for on must come before async functions
+    if (transformOptions.forOn)
+      append(ForOnTransformer);
+
     // rest parameters must come before generator
     if (transformOptions.restParameters)
       append(RestParameterTransformer);
@@ -200,7 +205,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       });
     }
 
-    // generator must come after for of and rest parameters
+    // generator must come after for of, for on and rest parameters
     if (transformOptions.generators || transformOptions.asyncFunctions)
       append(GeneratorTransformPass);
 

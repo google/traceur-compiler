@@ -99,6 +99,14 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
   }
 
   /**
+   * @param {ForOnStatement} tree
+   * @return {ParseTree}
+   */
+  transformForOnStatement(tree) {
+    return tree;
+  }
+
+  /**
    * @param {ForStatement} tree
    * @return {ParseTree}
    */

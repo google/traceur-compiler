@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @fileoverview import all runtime modules, eg for Traceur self-build. */
+function observeForEach(observe, next) {
+  return new Promise((resolve, reject) => {
+    var generator = observe({
+      next(value) {
+        return next.call(generator, value);
+      },
+      throw(error) {
+        reject(error);
+      },
+      return(value) {
+        resolve();
+      }
+    });
+  });
+}
 
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './classes.js';
-import './async.js';
-import './generators.js';
-import './type-assertions.js';
+$traceurRuntime.observeForEach = observeForEach;
+

@@ -65,7 +65,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     this.variableDeclarations_ = [];
     this.extractedStatements_ = [];
     this.requestParentLabel_ = requestParentLabel;
-    this.labelledStatements_ = {};
+    this.labelledStatements_ = Object.create(null);
   }
 
   createIIFE(body, paramList, argsList) {

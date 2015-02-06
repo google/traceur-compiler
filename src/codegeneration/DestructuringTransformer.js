@@ -36,7 +36,8 @@ import {
   BindingElement,
   Catch,
   ForInStatement,
-  ForOfStatement
+  ForOfStatement,
+  ForOnStatement
 } from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
@@ -270,15 +271,21 @@ export class DestructuringTransformer extends TempVarTransformer {
   }
 
   transformForInStatement(tree) {
-    return this.transformForInOrOf_(tree,
-                                    super.transformForInStatement,
-                                    ForInStatement);
+    return this.transformForInOrOfOrOn_(tree,
+                                        super.transformForInStatement,
+                                        ForInStatement);
   }
 
   transformForOfStatement(tree) {
-    return this.transformForInOrOf_(tree,
-                                    super.transformForOfStatement,
-                                    ForOfStatement);
+    return this.transformForInOrOfOrOn_(tree,
+                                        super.transformForOfStatement,
+                                        ForOfStatement);
+  }
+
+  transformForOnStatement(tree) {
+    return this.transformForInOrOfOrOn_(tree,
+                                        super.transformForOnStatement,
+                                        ForOnStatement);
   }
 
   /**
@@ -291,7 +298,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ForInStatement|ForOfStatement} The transformed tree.
    * @private
    */
-  transformForInOrOf_(tree, superMethod, constr) {
+  transformForInOrOfOrOn_(tree, superMethod, constr) {
     if (!tree.initializer.isPattern() &&
         (tree.initializer.type !== VARIABLE_DECLARATION_LIST ||
          !this.destructuringInDeclaration_(tree.initializer))) {

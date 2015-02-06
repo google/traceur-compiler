@@ -107,12 +107,21 @@ export class ScopeTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {ForInStatement} tree
+   * @param {ForOfStatement} tree
    * @return {ParseTree}
    */
   transformForOfStatement(tree) {
     return this.sameTreeIfNameInLoopInitializer_(tree) ||
         super.transformForOfStatement(tree);
+  }
+
+  /**
+   * @param {ForOnStatement} tree
+   * @return {ParseTree}
+   */
+  transformForOnStatement(tree) {
+    return this.sameTreeIfNameInLoopInitializer_(tree) ||
+        super.transformForOnStatement(tree);
   }
 
   transformThisExpression(tree) {

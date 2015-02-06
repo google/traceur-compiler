@@ -35,6 +35,7 @@ import {
   FROM,
   GET,
   OF,
+  ON,
   SET
 } from './PredefinedName.js';
 import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
@@ -188,6 +189,7 @@ import {
   Finally,
   ForInStatement,
   ForOfStatement,
+  ForOnStatement,
   ForStatement,
   FormalParameter,
   FormalParameterList,
@@ -360,10 +362,11 @@ export class Parser {
     this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;
 
-    // yield is only allowed inside a generator and await is only allowed
-    // inside an async function.
+    // yield is only allowed inside a generator and await and for-on are only
+    // allowed inside an async function.
     this.allowYield = false;
     this.allowAwait = false;
+    this.allowForOn = false;
 
     // This is used in conjunction with ensureNoCoverInitializedNames_ to
     // determine  if there has been any added CoverInitializedName since last
@@ -1085,10 +1088,11 @@ export class Parser {
 
     var allowYield = this.allowYield;
     var allowAwait = this.allowAwait;
+    var allowForOn = this.allowForOn;
     var strictMode = this.strictMode_;
 
     this.allowYield = functionKind && functionKind.type === STAR;
-    this.allowAwait = functionKind &&
+    this.allowAwait = this.allowForOn = functionKind &&
         functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
 
     var result = this.parseStatementList_(!strictMode);
@@ -1099,6 +1103,7 @@ export class Parser {
     this.strictMode_ = strictMode;
     this.allowYield = allowYield;
     this.allowAwait = allowAwait;
+    this.allowForOn = allowForOn;
 
     this.eat_(CLOSE_CURLY);
     return new FunctionBody(this.getTreeLocation_(start), result);
@@ -1339,6 +1344,7 @@ export class Parser {
 
   // 12.6.3 The for Statement
   // 12.6.4 The for-in Statement
+  // https://github.com/jhusain/asyncgenerator
   /**
    * @return {ParseTree}
    * @private
@@ -1361,8 +1367,10 @@ export class Parser {
       type = this.peekType_();
       if (type === IN) {
         return this.parseForInStatement_(start, variables);
-      } else if (this.peekOf_(type)) {
+      } else if (this.peekOf_()) {
         return this.parseForOfStatement_(start, variables);
+      } else if (this.allowForOn && this.peekOn_()) {
+        return this.parseForOnStatement_(start, variables);
       } else {
         // for statement: const must have initializers
         this.checkInitializers_(variables);
@@ -1378,10 +1386,14 @@ export class Parser {
     var initializer = this.parseExpressionAllowPattern_(Expression.NO_IN);
     type = this.peekType_();
     if (initializer.isLeftHandSideExpression() &&
-        (type === IN || this.peekOf_(type))) {
+        (type === IN || this.peekOf_() ||
+         this.allowForOn && this.peekOn_())) {
       initializer = this.transformLeftHandSideExpression_(initializer);
-      if (this.peekOf_(type))
+      if (this.peekOf_()) {
         return this.parseForOfStatement_(start, initializer);
+      } else if (this.allowForOn && this.peekOn_()) {
+        return this.parseForOnStatement_(start, initializer);
+      }
       return this.parseForInStatement_(start, initializer);
     }
 
@@ -1390,13 +1402,16 @@ export class Parser {
     return this.parseForStatement2_(start, initializer);
   }
 
-  peekOf_(type) {
-    return type === IDENTIFIER && this.options_.forOf &&
-        this.peekToken_().value === OF;
+  peekOf_() {
+    return this.options_.forOf && this.peekPredefinedString_(OF);
+  }
+
+  peekOn_() {
+    return this.options_.forOn && this.peekPredefinedString_(ON);
   }
 
   // The for-each Statement
-  // for  (  { let | var }  identifier  of  expression  )  statement
+  // for  (  { let | var | const }  identifier  of  expression  )  statement
   /**
    * @param {SourcePosition} start
    * @param {ParseTree} initializer
@@ -1410,6 +1425,23 @@ export class Parser {
     var body = this.parseStatement_();
     return new ForOfStatement(this.getTreeLocation_(start), initializer,
                               collection, body);
+  }
+
+  // The for-on Statement
+  // for  (  { let | var | const }  identifier  on  expression  )  statement
+  /**
+   * @param {SourcePosition} start
+   * @param {ParseTree} initializer
+   * @return {ParseTree}
+   * @private
+   */
+  parseForOnStatement_(start, initializer) {
+    this.eatId_(); // on
+    var observable = this.parseExpression();
+    this.eat_(CLOSE_PAREN);
+    var body = this.parseStatement_();
+    return new ForOnStatement(this.getTreeLocation_(start), initializer,
+                              observable, body);
   }
 
   /**

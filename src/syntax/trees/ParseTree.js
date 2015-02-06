@@ -47,6 +47,7 @@ import {
   FORMAL_PARAMETER,
   FOR_IN_STATEMENT,
   FOR_OF_STATEMENT,
+  FOR_ON_STATEMENT,
   FOR_STATEMENT,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
@@ -311,6 +312,7 @@ export class ParseTree {
       case DO_WHILE_STATEMENT:
       case FOR_IN_STATEMENT:
       case FOR_OF_STATEMENT:
+      case FOR_ON_STATEMENT:
       case FOR_STATEMENT:
       case WHILE_STATEMENT:
         return true;
