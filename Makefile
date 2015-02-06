@@ -59,12 +59,9 @@ UNIT_6_TESTS = \
 	test/unit/node/ \
 	test/unit/syntax/ \
 	test/unit/codegeneration/ \
-	#END UNIT_6_TESTS
-
-UNIT_TESTS = \
 	test/unit/semantics/ \
 	test/unit/ \
-	#old unit tests
+	#END UNIT_6_TESTS
 
 TESTS = \
 	test/node-commonjs-test.js \
@@ -73,8 +70,7 @@ TESTS = \
 	test/node-instantiate-test.js \
 	test/node-feature-test.js \
 	test/node-api-test.js \
-	$(RUNTIME_TESTS) \
-	$(UNIT_TESTS)
+	$(RUNTIME_TESTS)
 
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
