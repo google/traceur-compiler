@@ -49,7 +49,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
   // TODO: This class has considerable overlap with
   // FnExtractAbruptCompletions. The common code should really be refactored
   // into an abstract base class.
-  
+
   constructor(tempIdGenerator, labelSet) {
     this.idGenerator_ = tempIdGenerator;
     this.inLoop_ = 0;
@@ -57,7 +57,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
     this.variableDeclarations_ = [];
     this.extractedStatements_ = [];
     this.labelSet_ = labelSet;
-    this.labelledStatements_ = {};
+    this.labelledStatements_ = Object.create(null);
     this.observer_ = id(this.idGenerator_.getTempIdentifier());
     this.result_ = id(this.idGenerator_.getTempIdentifier());
     this.parentLabels_ = Object.create(null);
