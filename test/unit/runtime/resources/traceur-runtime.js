@@ -15,7 +15,7 @@
 var fs = require('fs');
 var path = require('path');
 
-var filename = '../../../bin/traceur-runtime.js';
+var filename = '../../bin/traceur-runtime.js';
 filename = path.join(path.dirname(module.filename), filename);
 var data = fs.readFileSync(filename, 'utf8');
 if (!data)

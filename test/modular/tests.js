@@ -25,19 +25,19 @@ var patterns = [
   'test/unit/codegeneration/*.js',
   'test/unit/tools/*.js',
   'test/unit/semantics/*.js',
-  'test/unit/*.js'
+  'test/unit/runtime/*.js',
+//  'test/unit/*.js'
   ];
 
 patterns.forEach((pattern) => {
   var files = glob.sync(pattern, {});
-  console.log(pattern + ' -> ' + files.length)
   files.forEach((file) => testRunner.addFile(file));
 });
 
 testRunner.run().then(() => {
   console.log('tests launched');
 }, (ex) => {
-  console.error(ex.stack || ex);
+  console.error('testRunner run FAILED', ex.stack || ex);
 });
 
 

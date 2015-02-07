@@ -49,6 +49,10 @@ export class Mocha6 extends Mocha {
           then(() => {
             this.suite.emit('require', global, file, this);
             this.suite.emit('post-require', global, file, this);
+          },(ex) => {
+            console.error('Mocha6.importFiles FAILED for ' + file);
+            console.error(ex.stack || ex);
+            return ex;
           });
     });
     return Promise.all(promiseImports);

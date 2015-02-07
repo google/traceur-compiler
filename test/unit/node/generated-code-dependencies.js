@@ -21,7 +21,6 @@ suite('context test', function() {
   var path = require('path');
   var uuid = require('node-uuid');
   var exec = require('child_process').exec;
-  console.log('cwd ' + process.cwd())
   var nodeLoader = require('../../src/node/nodeLoader.js');
 
   var tempFileName;
@@ -277,12 +276,12 @@ suite('context test', function() {
   });
 
   test('compiled modules sourcemaps=memory', function(done) {
-    var inputFilename = resolve('test/unit/runtime/CallsThrowsError.js');
+    var inputFilename = resolve('test/unit/runtime/resources/CallsThrowsError.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var cmd = executable + ' --source-maps=memory ' + inputFilename;
     exec(cmd, function(error, stdout, stderr) {
       var fileLinePos = error.message.
-          indexOf('test/unit/runtime/throwsErrorES6.js:3');
+          indexOf('test/unit/runtime/resources/throwsErrorES6.js:3');
       assert.notEqual(fileLinePos, -1);
       done();
     });

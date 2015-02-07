@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
 
 import {suite, test, assert} from '../../modular/testRunner.js';
 
-suite('type-assertions.js', function() {
-  function Foo() {};
-  function Bar() {};
-  function Baz() {};
+suite('interpreter', function(){
 
-  test('genericType returns unique instances if types match', function() {
-    assert.strictEqual($traceurRuntime.genericType(Foo, Bar, Baz),
-                       $traceurRuntime.genericType(Foo, Bar, Baz));
-  });
+  var exec = require('child_process').exec;
 
-  test('genericType returns different instances if types don\'t match', function() {
-    assert.notStrictEqual($traceurRuntime.genericType(Foo, Bar, Baz),
-                          $traceurRuntime.genericType(Foo, Baz, Bar));
-  });
+	function log(stdout, stderr) {
+		console.log('stdout:\n', stdout, '\n---');
+		if (stderr)
+			console.log('stderr:\n', stderr, '\n---');
+	}
+
+	test('calls System', function() {
+		var cmd = './traceur ./test/unit/runtime/resources/call_loader.js';
+		exec(cmd, function(error, stdout, stderr) {
+			log(stdout, stderr);
+		});
+	});
+
 });
