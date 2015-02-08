@@ -201,7 +201,7 @@ export class Compiler {
     var errorReporter = new CollectingErrorReporter();
 
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
-      transformer = new PureES6Transformer(errorReporter);
+      transformer = new PureES6Transformer(errorReporter, this.options_);
     } else {
       transformer = new FromOptionsTransformer(errorReporter, this.options_);
     }
