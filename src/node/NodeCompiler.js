@@ -41,7 +41,10 @@ NodeCompiler.prototype = {
     if (this.options_.sourceMaps === 'file') {
       var sourcemap = this.getSourceMap();
       if (sourcemap) {
-        writeFile(this.sourceMappingURL(filename), sourcemap);
+        var mapName = this.sourceMappingURL(filename);
+        // Write the map file next to the output file.
+        mapName = path.resolve(path.dirname(filename), mapName);
+        writeFile(mapName, sourcemap);
       }
     }
 

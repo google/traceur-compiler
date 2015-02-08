@@ -320,7 +320,8 @@ export class Compiler {
       }
     }
     path = path || 'unamed.js';
-    return path.replace(/\.[^.]+$/, '.map');
+    path = path.split('/').pop();
+    return path + '.map';
   }
 
   sourceNameFromTree(tree) {

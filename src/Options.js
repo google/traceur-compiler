@@ -523,7 +523,7 @@ export function addOptions(flags, commandOptions) {
     (to) => { return commandOptions.sourceMaps = to; }
   );
   flags.option('--source-root <true|false|string>',
-    'absolute path to source at execution time. false to omit, ' +
+    'sourcemap sourceRoot value. false to omit, ' +
         'true for directory of output file.',
     (to) => {
       if (to === 'false')
