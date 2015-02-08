@@ -48,12 +48,6 @@ RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 
 TFLAGS = --
 
-RUNTIME_TESTS = \
-  test/unit/runtime/Loader.js \
-  test/unit/runtime/Object.js \
-  test/unit/runtime/System.js \
-  test/unit/runtime/type-assertions.js
-
 UNIT_6_TESTS = \
 	test/unit/util/ \
 	test/unit/node/ \
@@ -61,6 +55,7 @@ UNIT_6_TESTS = \
 	test/unit/codegeneration/ \
 	test/unit/semantics/ \
 	test/unit/ \
+	test/unit/runtime \
 	#END UNIT_6_TESTS
 
 TESTS = \
@@ -70,7 +65,7 @@ TESTS = \
 	test/node-instantiate-test.js \
 	test/node-feature-test.js \
 	test/node-api-test.js \
-	$(RUNTIME_TESTS)
+	# End Node tests.
 
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
@@ -109,7 +104,6 @@ test/unit/util/: bin/traceur.js
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
-	rm -r -f test/unit/tools # only used for generated files currently.
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
@@ -131,13 +125,13 @@ test-list: test/test-list.js
 test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
-test-interpret: test/unit/runtime/test_interpret.js
+test-interpret: test/unit/runtime/traceur-interpreter.js
 	./traceur $^
 
-test-interpret-throw: test/unit/runtime/throwsError.js
+test-interpret-throw: test/unit/runtime/resources/throwsError.js
 	./traceur $^ 2>&1 | grep 'ModuleEvaluationError' | wc -l | grep '1'
 
-test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
+test-interpret-absolute: $(CURDIR)/test/unit/runtime/traceur-interpreter.js
 	./traceur $^
 
 test-inline-module-error:
@@ -152,11 +146,8 @@ test/amd-compiled: force
 	rm -f -r test/amd-compiled/*
 	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
-test/unit/%.generated.js: test/unit/es6/%.js
-	./traceur --out $@ $(TFLAGS) $<
-
 test/unit/runtime/traceur-runtime: \
-	test/unit/runtime/traceur-runtime.js bin/traceur-runtime.js
+	test/unit/runtime/resources/traceur-runtime.js bin/traceur-runtime.js
 	node $<
 
 test-version:

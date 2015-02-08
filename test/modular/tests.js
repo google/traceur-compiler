@@ -34,9 +34,7 @@ patterns.forEach((pattern) => {
   files.forEach((file) => testRunner.addFile(file));
 });
 
-testRunner.run().then(() => {
-  console.log('tests launched');
-}, (ex) => {
+testRunner.run().catch((ex) => {
   console.error('testRunner run FAILED', ex.stack || ex);
 });
 
