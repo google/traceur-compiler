@@ -31,6 +31,7 @@ import {Options} from '../Options.js';
 import {
   AS,
   ASYNC,
+  ASYNC_STAR,
   AWAIT,
   FROM,
   GET,
@@ -965,6 +966,10 @@ export class Parser {
   parseAsyncFunction_(asyncToken, ctor) {
     var start = asyncToken.location.start;
     this.eat_(FUNCTION);
+    if (this.options_.asyncGenerators && this.peek_(STAR)) {
+      this.eat_(STAR);
+      asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
+    }
     return this.parseFunction2_(start, asyncToken, ctor);
   }
 
@@ -1091,9 +1096,11 @@ export class Parser {
     var allowForOn = this.allowForOn;
     var strictMode = this.strictMode_;
 
-    this.allowYield = functionKind && functionKind.type === STAR;
-    this.allowAwait = this.allowForOn = functionKind &&
-        functionKind.type === IDENTIFIER && functionKind.value === ASYNC;
+    this.allowYield = functionKind && (functionKind.type === STAR ||
+        functionKind.type === IDENTIFIER && functionKind.value === ASYNC_STAR);
+    this.allowAwait = this.allowForOn = functionKind && (
+        functionKind.type === IDENTIFIER && (
+            functionKind.value === ASYNC || functionKind.value === ASYNC_STAR));
 
     var result = this.parseStatementList_(!strictMode);
 
@@ -2869,8 +2876,14 @@ export class Parser {
     if (this.allowAwait && this.peekPredefinedString_(AWAIT)) {
       this.eatId_();
       // no newline?
-      var operand = this.parseUnaryExpression_();
-      operand = this.toPrimaryExpression_(operand);
+
+      var operand;
+      if (this.allowYield && this.peek_(YIELD)) {
+        operand = this.parseYieldExpression_();
+      } else {
+        operand = this.parseUnaryExpression_();
+        operand = this.toPrimaryExpression_(operand);
+      }
       return new AwaitExpression(this.getTreeLocation_(start), operand);
     }
 

@@ -712,9 +712,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitFunction_(tree) {
     this.writeAnnotations_(tree.annotations);
+    if (tree.isAsyncGenerator()) {
+      this.write_(ASYNC);
+    }
     if (tree.isAsyncFunction())
       this.write_(tree.functionKind);
     this.write_(FUNCTION);
+    if (tree.isAsyncGenerator()) {
+      this.write_(STAR);
+    }
     if (tree.isGenerator())
       this.write_(tree.functionKind);
 

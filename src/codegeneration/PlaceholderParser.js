@@ -148,6 +148,7 @@ function getParser(source, errorReporter) {
   var parser = new Parser(file, errorReporter, options);
   parser.allowYield = true;
   parser.allowAwait = true;
+  parser.allowForOn = true;
   return parser;
 }
 

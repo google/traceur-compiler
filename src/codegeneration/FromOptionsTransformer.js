@@ -16,6 +16,7 @@ import {AmdTransformer} from './AmdTransformer.js';
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer.js';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
+import {AsyncGeneratorTransformPass} from './AsyncGeneratorTransformPass.js';
 import {BlockBindingTransformer} from './BlockBindingTransformer.js';
 import {ClassTransformer} from './ClassTransformer.js';
 import {CommonJsModuleTransformer} from './CommonJsModuleTransformer.js';
@@ -172,6 +173,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     // that wants to use VariableBinder
     if (transformOptions.forOf)
       append(ForOfTransformer);
+
+    // async generators must come before async functions
+    if (transformOptions.asyncGenerators) {
+      append(AsyncGeneratorTransformPass);
+    }
 
     // for on must come before async functions
     if (transformOptions.forOn)

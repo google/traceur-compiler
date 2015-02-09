@@ -18,10 +18,6 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {InnerForOnTransformer} from './InnerForOnTransformer.js';
-import {
-  createIdentifierExpression as id,
-  createVariableStatement
-} from './ParseTreeFactory.js';
 
 /**
  * Transforms for-on loops into calls to async functions
@@ -40,11 +36,15 @@ import {
  *   var $result = undefined;
  *   let i;
  *   await $traceurRuntime.observableForEach(o, async function ($value) {
- *     $observer = this;
- *     i = $value;
- *     if (continue) return;
- *     if (break) { $result = 0; $observer.return(); return; }
- *     if (return) { $result = {v: undefined}; $observer.return(); return; }
+.*     try {
+ *       $observer = this;
+ *       i = $value;
+ *       if (continue) return;
+ *       if (break) { $result = 0; $observer.return(); return; }
+ *       if (return) { $result = {v: undefined}; $observer.return(); return; }
+ *     } catch (e) {
+.*       $observer.throw(e);
+ *     }
  *   });
  *   switch ($result) {
  *   case 0:

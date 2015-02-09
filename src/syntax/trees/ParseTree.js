@@ -21,7 +21,9 @@ import {
 } from '../TokenType.js';
 import {Token} from '../Token.js';
 import * as utilJSON from '../../util/JSON.js';
-import {ASYNC} from '../PredefinedName.js';
+import {
+  ASYNC, ASYNC_STAR
+} from '../PredefinedName.js';
 
 import {
   ARRAY_COMPREHENSION,
@@ -343,6 +345,12 @@ export class ParseTree {
     return this.functionKind !== null &&
         this.functionKind.type === IDENTIFIER &&
         this.functionKind.value === ASYNC;
+  }
+
+  isAsyncGenerator() {
+    return this.functionKind !== null &&
+        this.functionKind.type === IDENTIFIER &&
+        this.functionKind.value === ASYNC_STAR;
   }
 
   isType() {

@@ -19,6 +19,7 @@ export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
 export var AS = 'as';
 export var ASYNC = 'async';
+export var ASYNC_STAR = 'async star'; // internal kind for async generators
 export var AWAIT = 'await';
 export var BIND = 'bind';
 export var CALL = 'call';

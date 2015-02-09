@@ -21,24 +21,21 @@ import {
 import {
   AnonBlock,
   Block,
-  BreakStatement,
   ContinueStatement,
   LabelledStatement,
   ReturnStatement
 } from '../syntax/trees/ParseTrees.js';
 import {
-  createArgumentList,
   createAssignmentStatement,
-  createAssignmentExpression,
   createCaseClause,
   createDefaultClause,
   createIdentifierExpression as id,
   createNumberLiteral,
   createSwitchStatement,
   createThisExpression,
+  createVariableStatement,
   createVariableDeclaration,
   createVariableDeclarationList,
-  createVariableStatement,
   createVoid0
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
@@ -107,7 +104,11 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
                   bind(${tree.observable}),
               async function (${value}) {
                 var ${this.observer_} = this;
-                ${body}
+                try {
+                  ${body}
+                } catch (e) {
+                  ${this.observer_}.throw(e);
+                }
               });
           ${switchStatement}
         } while (false);`;

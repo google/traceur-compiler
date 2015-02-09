@@ -12,6 +12,127 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+if (typeof $traceurRuntime !== 'object') {
+  throw new Error('traceur runtime not found.');
+}
+
+var $createPrivateName = $traceurRuntime.createPrivateName;
+var $defineProperty = $traceurRuntime.defineProperty;
+var $defineProperties = $traceurRuntime.defineProperties;
+var $create = Object.create;
+
+var thisName = $createPrivateName();
+var argsName = $createPrivateName();
+var observeName = $createPrivateName();
+
+function AsyncGeneratorFunction() {}
+
+function AsyncGeneratorFunctionPrototype() {}
+
+AsyncGeneratorFunction.prototype = AsyncGeneratorFunctionPrototype;
+
+AsyncGeneratorFunctionPrototype.constructor = AsyncGeneratorFunction;
+
+$defineProperty(AsyncGeneratorFunctionPrototype, 'constructor',
+    {enumerable: false});
+
+class AsyncGeneratorContext {
+  constructor(observer) {
+    this.decoratedObserver =
+        $traceurRuntime.createDecoratedGenerator(observer, () => {
+          this.done = true;
+        });
+    this.done = false;
+    this.inReturn = false;
+  }
+  throw(error) {
+    if (!this.inReturn) {
+      throw error;
+    }
+  }
+  yield(value) {
+    if (this.done) {
+      this.inReturn = true;
+      throw undefined;
+    }
+    var result;
+    try {
+      result = this.decoratedObserver.next(value);
+    } catch (e) {
+      this.done = true;
+      throw e;
+    }
+    if (result === undefined) {
+      return;
+    }
+    if (result.done) {
+      this.done = true;
+      this.inReturn = true;
+      throw undefined;
+    }
+    return result.value;
+  }
+  yieldFor(observable) {
+    var ctx = this;
+    return $traceurRuntime.observeForEach(observable[
+        $traceurRuntime.toProperty(Symbol.observer)].bind(observable),
+        function (value) {
+          if (ctx.done) {
+            this.return();
+            return;
+          }
+          var result;
+          try {
+            result = ctx.decoratedObserver.next(value);
+          } catch (e) {
+            ctx.done = true;
+            throw e;
+          }
+          if (result === undefined) {
+            return;
+          }
+          if (result.done) {
+            ctx.done = true;
+          }
+          return result;
+        });
+  }
+}
+
+AsyncGeneratorFunctionPrototype.prototype[Symbol.observer] =
+    function (observer) {
+      var observe = this[observeName];
+      var ctx = new AsyncGeneratorContext(observer);
+      $traceurRuntime.schedule(() => observe(ctx)).then(value => {
+        if (!ctx.done) {
+          ctx.decoratedObserver.return(value);
+        }
+      }).catch(error => {
+        // if ctx.inReturn is true, ctx.done is also true
+        if (!ctx.done) {
+          ctx.decoratedObserver.throw(error);
+        }
+      });
+      return ctx.decoratedObserver;
+    };
+
+$defineProperty(AsyncGeneratorFunctionPrototype.prototype, Symbol.observer,
+    {enumerable: false});
+
+function initAsyncGeneratorFunction(functionObject) {
+  functionObject.prototype = $create(AsyncGeneratorFunctionPrototype.prototype);
+  functionObject.__proto__ = AsyncGeneratorFunctionPrototype;
+  return functionObject;
+}
+
+function createAsyncGeneratorInstance(observe, functionObject, ...args) {
+  var object = $create(functionObject.prototype);
+  object[thisName] = this;
+  object[argsName] = args;
+  object[observeName] = observe;
+  return object;
+}
+
 function observeForEach(observe, next) {
   return new Promise((resolve, reject) => {
     var generator = observe({
@@ -22,11 +143,51 @@ function observeForEach(observe, next) {
         reject(error);
       },
       return(value) {
-        resolve();
+        resolve(value);
       }
     });
   });
 }
 
+function schedule(asyncF) {
+  return Promise.resolve().then(asyncF);
+}
+
+const generator = Symbol();
+const onDone = Symbol();
+
+class DecoratedGenerator {
+  constructor(_generator, _onDone) {
+    this[generator] = _generator;
+    this[onDone] = _onDone;
+  }
+
+  next(value) {
+    var result = this[generator].next(value);
+    if (result !== undefined && result.done) {
+      this[onDone].call(this);
+    }
+    return result;
+  }
+
+  throw(error) {
+    this[onDone].call(this);
+    return this[generator].throw(error);
+  }
+
+  return(value) {
+    this[onDone].call(this);
+    return this[generator].return(value);
+  }
+}
+
+function createDecoratedGenerator(generator, onDone) {
+  return new DecoratedGenerator(generator, onDone);
+}
+
+$traceurRuntime.initAsyncGeneratorFunction = initAsyncGeneratorFunction;
+$traceurRuntime.createAsyncGeneratorInstance = createAsyncGeneratorInstance;
 $traceurRuntime.observeForEach = observeForEach;
+$traceurRuntime.schedule = schedule;
+$traceurRuntime.createDecoratedGenerator = createDecoratedGenerator;
 
