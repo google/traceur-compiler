@@ -27,6 +27,7 @@ export var optionsV01 = enumerableOnlyObject({
   arrayComprehension: false,
   arrowFunctions: true,
   asyncFunctions: false,
+  asyncGenerators: false,
   blockBinding: true,
   classes: true,
   commentCallback: false,
@@ -139,6 +140,7 @@ addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 addFeatureOption('annotations', EXPERIMENTAL);
 addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
+addFeatureOption('asyncGenerators', EXPERIMENTAL);
 addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('forOn', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
