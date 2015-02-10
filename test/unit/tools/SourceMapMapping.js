@@ -13,12 +13,16 @@
 // limitations under the License.
 
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 import {SourceMapConsumer}
-    from '../../../../src/outputgeneration/SourceMapIntegration.js';
-import {OriginalSourceMapMapping} from '../../../../demo/SourceMapMapping.js';
+    from '../../../src/outputgeneration/SourceMapIntegration.js';
+import {OriginalSourceMapMapping} from '../../../demo/SourceMapMapping.js';
+
+import {getTestLoader} from '../../modular/getTestLoader.js';
 
 var path = 'test_a.js';
-var input = './test/unit/runtime/' + path;
+var input = '../runtime/resources/' + path;
 var output = './out/' + path;
 // Force sourceMaps on for test.
 var importOptions = {
@@ -28,17 +32,20 @@ var importOptions = {
   }
 };
 
-var whenSourceMapMapping =
-    System.import(input, importOptions).then((imported) => {
-  var map = System.getSourceMap(output);
-  if (!map)
-    throw new Error('No source map for ' + output);
-  var consumer = new SourceMapConsumer(map);
-  var sourceMapMapping = new OriginalSourceMapMapping(consumer, output);
-  return sourceMapMapping;
-}).catch(function(ex) {
-  console.error(ex.stack || ex);
-});
+var loader = getTestLoader();
+
+var whenSourceMapMapping = loader.import(input, importOptions).
+    then((imported) => {
+      var map = loader.getSourceMap(output);
+      if (!map)
+        throw new Error('No source map for ' + output);
+      var consumer = new SourceMapConsumer(map);
+      var sourceMapMapping = new OriginalSourceMapMapping(consumer, output);
+      return sourceMapMapping;
+    }).
+    catch((ex) => {
+      console.error('SourceMapMapping test input error', ex.stack || ex);
+    });
 
 suite('SourceMapMapping', function() {
   var columnsByLine = [
@@ -61,10 +68,7 @@ suite('SourceMapMapping', function() {
         }
       }
       done();
-    }, function(ex) {
-      console.error('SourceMapMapping rejected ', ex.stack || ex);
-      done(ex);
-    });
+    }, done);
   });
 
   test('testNextPosition', function (done) {
@@ -96,9 +100,6 @@ suite('SourceMapMapping', function() {
         assert(expectedPositions[index].column === actual.column);
       });
       done();
-    }, function(ex) {
-      console.error('SourceMapMapping rejected ', ex.stack || ex);
-      done(ex);
-    });
+    }, done);
   });
 });

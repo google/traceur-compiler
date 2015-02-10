@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-suite('PlaceholderParser.traceur.js', function() {
+import {suite, test, assert} from '../../modular/testRunner.js';
+
+suite('PlaceholderParser', function() {
 
   function get(name) {
     return $traceurRuntime.ModuleStore.getForTesting(name);

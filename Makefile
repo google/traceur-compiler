@@ -48,20 +48,15 @@ RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 
 TFLAGS = --
 
-RUNTIME_TESTS = \
-  test/unit/runtime/Loader.js \
-  test/unit/runtime/Object.js \
-  test/unit/runtime/System.js \
-  test/unit/runtime/type-assertions.js
-
 UNIT_TESTS = \
 	test/unit/util/ \
+	test/unit/node/ \
+	test/unit/syntax/ \
 	test/unit/codegeneration/ \
 	test/unit/semantics/ \
-	test/unit/syntax/ \
 	test/unit/ \
-	test/unit/node/ \
-	test/unit/system/
+	test/unit/runtime \
+	#END UNIT_TESTS
 
 TESTS = \
 	test/node-commonjs-test.js \
@@ -70,11 +65,7 @@ TESTS = \
 	test/node-instantiate-test.js \
 	test/node-feature-test.js \
 	test/node-api-test.js \
-	$(RUNTIME_TESTS) \
-	$(UNIT_TESTS)
-
-COMPILE_BEFORE_TEST = \
-	test/unit/codegeneration/PlaceholderParser.generated.js
+	# End Node tests.
 
 MOCHA_OPTIONS = \
 	--ignore-leaks --ui tdd --require test/node-env.js
@@ -98,21 +89,21 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
+test: test/test-list.js bin/traceur.js \
+		$(UNIT_TESTS) \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
-	  test-version test/unit/tools/SourceMapMapping \
+	  test-version \
 	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
-test/unit/tools/SourceMapMapping: bin/traceur-runtime.js src/node/System.js test/unit/tools/SourceMapMapping.generated.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) $^
+test/unit/util/: bin/traceur.js
+	./traceur test/modular/tests.js
 
-test/unit: bin/traceur.js bin/traceur-runtime.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
-	rm -r -f test/unit/tools # only used for generated files currently.
+test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
+	./traceur test/modular/tests.js
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
@@ -134,13 +125,13 @@ test-list: test/test-list.js
 test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
-test-interpret: test/unit/runtime/test_interpret.js
+test-interpret: test/unit/runtime/traceur-interpreter.js
 	./traceur $^
 
-test-interpret-throw: test/unit/runtime/throwsError.js
+test-interpret-throw: test/unit/runtime/resources/throwsError.js
 	./traceur $^ 2>&1 | grep 'ModuleEvaluationError' | wc -l | grep '1'
 
-test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
+test-interpret-absolute: $(CURDIR)/test/unit/runtime/traceur-interpreter.js
 	./traceur $^
 
 test-inline-module-error:
@@ -155,11 +146,8 @@ test/amd-compiled: force
 	rm -f -r test/amd-compiled/*
 	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
-test/unit/%.generated.js: test/unit/es6/%.js
-	./traceur --out $@ $(TFLAGS) $<
-
 test/unit/runtime/traceur-runtime: \
-	test/unit/runtime/traceur-runtime.js bin/traceur-runtime.js
+	test/unit/runtime/resources/traceur-runtime.js bin/traceur-runtime.js
 	node $<
 
 test-version:

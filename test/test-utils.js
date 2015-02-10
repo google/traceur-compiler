@@ -95,6 +95,7 @@
 
   // Replace the Closure-provided array comparer with our own that doesn't barf
   // because Array.prototype has a __iterator__ method.
+  // TODO(jjb): get this from import on testRunner
   function assertArrayEquals(expected, actual) {
     assert.equal(JSON.stringify(actual, null, 2),
                  JSON.stringify(expected, null, 2));

@@ -12,19 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 suite('require.js', function() {
 
   var path = require('path');
+  var traceurRequire = require('../../src/node/require');
 
   test('traceurRequire', function() {
-    var traceurRequire = require('../../../src/node/require');
     // TODO(arv): The path below is sucky...
     var x = traceurRequire(path.join(__dirname, './resources/x.js')).x;
     assert.equal(x, 'x');
   });
 
   test('traceurRequire errors', function() {
-    var traceurRequire = require('../../../src/node/require');
     try {
       var filename = 'resources/syntax-error.js';
       traceurRequire(path.join(__dirname, './' + filename));
@@ -37,7 +38,6 @@ suite('require.js', function() {
   });
 
   test('traceurRequire.makeDefault options', function() {
-    var traceurRequire = require('../../../src/node/require');
     // TODO(arv): The path below is sucky...
     var fixturePath = path.join(__dirname, './resources/async-function.js');
     var experimentalOption = {asyncFunctions: true};
@@ -64,7 +64,7 @@ suite('require.js', function() {
   });
 
   test('traceurRequire.makeDefault with nested dependencies', function() {
-    require('../../../src/node/require').makeDefault(function(filename) {
+    traceurRequire.makeDefault(function(filename) {
       return /\/test\/unit\/node\/resources\//.test(
           filename.replace(/\\/g, '/'));
     });

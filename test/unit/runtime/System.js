@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 suite('System.js', function() {
 
   var saveBaseURL;
@@ -107,6 +109,72 @@ suite('System.js', function() {
 
   test('System.version', function() {
     assert(System.version);
-  })
+  });
+
+  test('System.semverMap', function() {
+    var semVerRegExp = System.semVerRegExp_();
+    var m = semVerRegExp.exec('1.2.3-a.b.c.5.d.100');
+    assert.equal(1, m[1]);
+    assert.equal(2, m[2]);
+    m = semVerRegExp.exec('1.2.X');
+    assert(!m);
+    m = semVerRegExp.exec('Any');
+    assert(!m);
+
+    var version = System.map['traceur'];
+    assert(version);
+    // This test must be updated if the major or minor version number changes.
+    // If the change is intended, this is a reminder to update the documentation.
+    assert.equal(version, System.map['traceur@0']);
+    assert.equal(version, System.map['traceur@0.0']);
+  });
+
+  test('System.map', function() {
+    System.map = System.semverMap('traceur@0.0.13/src/runtime/System.js');
+    var version = System.map['traceur'];
+    var remapped = System.normalize('traceur@0.0/src/runtime/System.js');
+    var versionSegment = remapped.split('/')[0];
+    assert.equal(version, versionSegment);
+  });
+
+  test('System.applyMap', function() {
+    var originalMap = System.map;
+    System.map['tests/contextual'] = {
+      maptest: 'tests/contextual-map-dep'
+    };
+    var contexualRemap = System.normalize('maptest', 'tests/contextual');
+    assert.equal('tests/contextual-map-dep', contexualRemap);
+    // prefix must match up to segment delimiter '/'
+    System.map = {
+      jquery: 'jquery@2.0.0'
+    };
+    var remap = System.normalize('jquery-ui');
+    assert.equal('jquery-ui', remap);
+    System.map = originalMap;
+  });
+
+  test('System.hookAPI', function(done) {
+    // API testing only, function testing in Loader tests.
+    var load = {
+      metadata: {},
+      normalizedName:
+          System.normalize('./test/unit/runtime/resources/test_module.js')
+    };
+
+    var url = load.address = System.locate(load);
+    assert(/test\/unit\/runtime\/resources\/test_module.js$/.test(url),
+      'the locate result (' + url + ') contains the correct path');
+    System.fetch(load).then(function(text) {
+      assert.typeOf(text, 'string');
+      load.source = text;
+      return load;
+    }).then(System.translate.bind(System)).then(function(source) {
+      assert.equal(source, load.source);
+      return load;
+    }).then(System.instantiate.bind(System)).then(function(nada) {
+      assert.typeOf(nada, 'undefined');
+      done();
+    }).catch(done);
+  });
 
 });

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {suite, test, assert} from '../../modular/testRunner.js';
+
 suite('VariableBinder.js', function() {
 
   var ErrorReporter = traceur.util.ErrorReporter;

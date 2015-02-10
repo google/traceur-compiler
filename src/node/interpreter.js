@@ -26,6 +26,7 @@ function interpret(filename, options) {
     traceurOptions: options,
     outputName: filename
   };
+
   System.import(moduleName, {metadata: metadata}).
     catch(function(err) {
       console.error(err.stack || err + '');

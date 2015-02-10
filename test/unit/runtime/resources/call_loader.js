@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert} from '../../../src/util/assert.js';
-import {resolveUrl} from '../../../src/util/url.js';
+import {resolveUrl} from '../../../../src/util/url.js';
+import {suite, test, assert} from '../../../modular/testRunner.js';
+
 
 var testScriptName = '../../unit/runtime/test_script.js';
 System.loadAsScript(testScriptName, {referrerName: __moduleName}).then(function(result) {

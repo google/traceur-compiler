@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * Load, eval, and check the traceur-runtime contents.
+ * Note this cannot be run with the rest of our Mocha tests
+ * because our mocha test load the traceur-runtime as part of traceur.
+ */
+
 var fs = require('fs');
 var path = require('path');
 
-var filename = '../../../bin/traceur-runtime.js';
+var filename = '../../../../bin/traceur-runtime.js';
 filename = path.join(path.dirname(module.filename), filename);
 var data = fs.readFileSync(filename, 'utf8');
 if (!data)
