@@ -68,7 +68,7 @@ export class Mocha6 extends Mocha {
   run(fn) {
     return this.importFiles().then(() => {
       // The base mocha.run will not load files, see loadFiles() override.
-      super.run(fn);
+      return super.run(fn);
     });
   }
 }
