@@ -52,8 +52,8 @@ import {
 } from './ParseTreeFactory.js';
 
 /**
- * @fileoverview This file provides two template string functions,
- * |parseExpression| and |parseStatement|, which parses a string with
+ * @fileoverview This file provides a few template string functions,
+ * |parseExpression|, |parseStatement|, etc, which parse a string with
  * placeholders. The values in the placeholders can be JS values, ParseTrees or
  * IdentifierTokens.
  *
@@ -61,7 +61,7 @@ import {
  *
  *   parseExpression`function() { return ${myTree}; }`
  *
- * returns a FunctionDeclaration tree that returns |myTree|.
+ * returns a FunctionExpression tree that returns |myTree|.
  *
  * At the moment placeholders are allowed where a BindingIdentifier and
  * IdentifierExpression are allowed.
