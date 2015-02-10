@@ -48,7 +48,7 @@ RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 
 TFLAGS = --
 
-UNIT__TESTS = \
+UNIT_TESTS = \
 	test/unit/util/ \
 	test/unit/node/ \
 	test/unit/syntax/ \
@@ -56,7 +56,7 @@ UNIT__TESTS = \
 	test/unit/semantics/ \
 	test/unit/ \
 	test/unit/runtime \
-	#END UNIT__TESTS
+	#END UNIT_TESTS
 
 TESTS = \
 	test/node-commonjs-test.js \
@@ -90,7 +90,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js \
-		$(UNIT__TESTS) \
+		$(UNIT_TESTS) \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
@@ -102,7 +102,7 @@ test: test/test-list.js bin/traceur.js \
 test/unit/util/: bin/traceur.js
 	./traceur test/modular/tests.js
 
-test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT__TESTS)
+test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
 	./traceur test/modular/tests.js
 
 test/%-run: test/% bin/traceur.js
