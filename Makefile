@@ -99,7 +99,7 @@ test: test/test-list.js bin/traceur.js \
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
-test/unit/util/: bin/traceur.js
+test/unit/util/: bin/traceur.js bin/traceur-runtime.js
 	./traceur test/modular/tests.js
 
 test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
