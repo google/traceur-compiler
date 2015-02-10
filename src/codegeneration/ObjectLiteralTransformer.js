@@ -45,9 +45,9 @@ import {propName} from '../staticsemantics/PropName.js';
  * computed property name, an at name or a __proto__ property.
  */
 class FindAdvancedProperty extends FindVisitor {
-  constructor(options) {
+  constructor(transformOptions) {
     super(true);
-    this.options_ = options;
+    this.transformOptions_ = transformOptions;
     this.protoExpression = null;
   }
 
@@ -65,17 +65,29 @@ class FindAdvancedProperty extends FindVisitor {
   }
 
   visitGetAccessor(tree) {
-    this.visitAny(tree.name);
-    // We do not want to visit object literals in the accessor's body.
+    if (this.transformOptions_.properTailCalls) {
+      // TODO(mnieper): This could first check whether there are any calls in
+      // tail position in the method's body.
+      this.found = true;
+    } else {
+      this.visitAny(tree.name);
+      // We do not want to visit object literals in the accessor's body.
+    }
   }
 
   visitSetAccessor(tree) {
-     this.visitAny(tree.name);
-    // We do not want to visit object literals in the accessor's body.
+    if (this.transformOptions_.properTailCalls) {
+      // TODO(mnieper): This could first check whether there are any calls in
+      // tail position in the method's body.
+      this.found = true;
+    } else {
+      this.visitAny(tree.name);
+      // We do not want to visit object literals in the accessor's body.
+    }
   }
 
   visitComputedPropertyName(tree) {
-    if (this.options_.transformOptions.computedPropertyNames)
+    if (this.transformOptions_.computedPropertyNames)
       this.found = true;
   }
 }
@@ -98,7 +110,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    */
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator);
-    this.options_ = options;
+    this.transformOptions_ = options.transformOptions;
     this.protoExpression = null;
     this.needsAdvancedTransform = false;
     this.seenAccessors = null;
@@ -200,7 +212,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new FindAdvancedProperty(this.options_);
+      var finder = new FindAdvancedProperty(this.transformOptions_);
       finder.visitAny(tree);
       if (!finder.found) {
         this.needsAdvancedTransform = false;

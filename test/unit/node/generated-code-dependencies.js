@@ -406,6 +406,9 @@ suite('context test', function() {
       assert.isNull(error);
       cmd = 'node ' + tempFileName;
       exec(cmd, function(error, stdout, stderr) {
+        // FIXME: This test fails if traceur is compiled with proper tail calls
+        // as the code that shall display this message depends on the proper
+        // tail calls part of the runtime.
         assert.notEqual(error.toString().indexOf('traceur runtime not found'),
             -1, 'The runtime error message should be found');
         done();
