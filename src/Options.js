@@ -49,6 +49,7 @@ export var optionsV01 = enumerableOnlyObject({
   modules: 'register',
   numericLiterals: true,
   outputLanguage: 'es5',
+  properTailCalls: false,
   propertyMethods: true,
   propertyNameShorthand: true,
   referrer: '',
@@ -136,6 +137,10 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
 addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 
+// EXPERIMENTAL due to performance impact although properly part of ES6
+addFeatureOption('properTailCalls', EXPERIMENTAL);
+addFeatureOption('symbols', EXPERIMENTAL);
+
 // EXPERIMENTAL
 addFeatureOption('annotations', EXPERIMENTAL);
 addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
@@ -146,7 +151,6 @@ addFeatureOption('forOn', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
-addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 var transformOptionsPrototype = {};

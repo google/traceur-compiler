@@ -41,6 +41,7 @@ import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer.js';
 import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
+import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
@@ -158,7 +159,8 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(ClassTransformer);
 
     if (transformOptions.propertyMethods ||
-              transformOptions.computedPropertyNames) {
+        transformOptions.computedPropertyNames ||
+        transformOptions.properTailCalls) {
       append(ObjectLiteralTransformer);
     }
 
@@ -217,5 +219,9 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.symbols)
       append(SymbolTransformer);
+
+    if (transformOptions.properTailCalls) {
+      append(ProperTailCallTransformer);
+    }
   }
 }
