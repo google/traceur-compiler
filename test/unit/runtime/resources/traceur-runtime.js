@@ -13,9 +13,9 @@
 // limitations under the License.
 
 /**
-  Load, eval, and check the traceur-runtime contents.
-	Note this cannot be run with the rest of our Mocha tests
-	because our mocha test load the traceur-runtime as part of traceur.
+ * Load, eval, and check the traceur-runtime contents.
+ * Note this cannot be run with the rest of our Mocha tests
+ * because our mocha test load the traceur-runtime as part of traceur.
  */
 
 var fs = require('fs');

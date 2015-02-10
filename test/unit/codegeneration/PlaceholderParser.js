@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../modular/testRunner.js';
 
-suite('PlaceholderParser.traceur.js', function() {
+suite('PlaceholderParser', function() {
 
   function get(name) {
     return $traceurRuntime.ModuleStore.getForTesting(name);

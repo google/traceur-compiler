@@ -18,15 +18,15 @@ import {testRunner} from './testRunner.js';
 var glob = require('glob');
 
 var patterns = [
-  'test/unit/util/*.js',
-  'test/unit/system/*.js',
-  'test/unit/node/*.js',
-  'test/unit/syntax/*.js',
-  'test/unit/codegeneration/*.js',
-  'test/unit/tools/*.js',
-  'test/unit/semantics/*.js',
-  'test/unit/runtime/*.js',
-//  'test/unit/*.js'
+    'test/unit/util/*.js',
+    'test/unit/system/*.js',
+    'test/unit/node/*.js',
+    'test/unit/syntax/*.js',
+    'test/unit/codegeneration/*.js',
+    'test/unit/tools/*.js',
+    'test/unit/semantics/*.js',
+    'test/unit/runtime/*.js',
+    'test/unit/*.js'
   ];
 
 patterns.forEach((pattern) => {
@@ -37,5 +37,3 @@ patterns.forEach((pattern) => {
 testRunner.run().catch((ex) => {
   console.error('testRunner run FAILED', ex.stack || ex);
 });
-
-

@@ -68,9 +68,7 @@ suite('SourceMapMapping', function() {
         }
       }
       done();
-    }, function(ex) {
-      done(ex);
-    });
+    }, done);
   });
 
   test('testNextPosition', function (done) {
@@ -102,8 +100,6 @@ suite('SourceMapMapping', function() {
         assert(expectedPositions[index].column === actual.column);
       });
       done();
-    }, function(ex) {
-      done(ex);
-    });
+    }, done);
   });
 });

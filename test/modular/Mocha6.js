@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* @fileoverview Wrap Mocha in es6 layer, extend to accept VinylFiles */
+/** @fileoverview Wrap Mocha in es6 layer */
 
 var Mocha = require('mocha');
 var path = require('path');
@@ -49,7 +49,7 @@ export class Mocha6 extends Mocha {
           then(() => {
             this.suite.emit('require', global, file, this);
             this.suite.emit('post-require', global, file, this);
-          },(ex) => {
+          }, (ex) => {
             console.error('Mocha6.importFiles FAILED for ' + file);
             console.error(ex.stack || ex);
             return ex;
