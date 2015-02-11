@@ -22,6 +22,11 @@ export class InlineLoaderCompiler extends LoaderCompiler {
     this.elements = elements;
   }
 
+  write() {
+    // no-op. The tree will be concatentated by evaluate and
+    // written by the caller of toTree();
+  }
+
   evaluateCodeUnit(codeUnit) {
     // Don't eval. Instead append the trees to the output.
     var tree = codeUnit.metadata.transformedTree;
