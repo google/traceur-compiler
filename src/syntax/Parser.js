@@ -2516,7 +2516,7 @@ export class Parser {
         left.identifierToken.value === ASYNC && type === IDENTIFIER) {
       if (this.peekTokenNoLineTerminator_() !== null) {
         var bindingIdentifier = this.parseBindingIdentifier_();
-        var asyncToken = left.IdentifierToken;
+        var asyncToken = left.identifierToken;
         return this.parseArrowFunction_(start, bindingIdentifier,
             asyncToken);
       }
