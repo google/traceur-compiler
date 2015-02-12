@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTree} from './ParseTree.js';
 import {STATE_MACHINE} from './ParseTreeType.js';
 import {State} from '../../codegeneration/generator/State.js';
@@ -25,7 +27,7 @@ import {TryState} from '../../codegeneration/generator/TryState.js';
 function addCatchOrFinallyStates(kind, enclosingMap, tryStates) {
   for (var i = 0; i < tryStates.length; i++) {
     var tryState = tryStates[i];
-    if (tryState.kind == kind) {
+    if (tryState.kind === kind) {
       for (var j = 0; j < tryState.tryStates.length; j++) {
         var id = tryState.tryStates[j];
         enclosingMap[id] = tryState;
@@ -42,7 +44,7 @@ function addCatchOrFinallyStates(kind, enclosingMap, tryStates) {
 function addAllCatchStates(tryStates, catches) {
   for (var i = 0; i < tryStates.length; i++) {
     var tryState = tryStates[i];
-    if (tryState.kind == TryState.Kind.CATCH) {
+    if (tryState.kind === TryState.Kind.CATCH) {
       catches.push(tryState);
     }
     addAllCatchStates(tryState.nestedTrys, catches);

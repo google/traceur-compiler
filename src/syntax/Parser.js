@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {FindVisitor} from '../codegeneration/FindVisitor.js';
 import {IdentifierToken} from './IdentifierToken.js';
 import {
@@ -397,7 +399,7 @@ export class Parser {
   }
 
   isStrongMode_() {
-    return this.options_.strongMode && this.languageMode_ == STRONG_MODE;
+    return this.options_.strongMode && this.languageMode_ === STRONG_MODE;
   }
 
   // 14 Script
@@ -792,7 +794,7 @@ export class Parser {
     var typeParameters = null;
     var annotations = [];
     // Name is optional for ClassExpression
-    if (constr == ClassDeclaration ||
+    if (constr === ClassDeclaration ||
         !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
       name = this.parseBindingIdentifier_();
       if (this.options_.types) {
@@ -1491,7 +1493,7 @@ export class Parser {
    */
   checkInitializers_(variables) {
     if (this.options_.blockBinding &&
-        variables.declarationType == CONST) {
+        variables.declarationType === CONST) {
       var type = variables.declarationType;
       for (var i = 0; i < variables.declarations.length; i++) {
         if (!this.checkInitializer_(type, variables.declarations[i])) {
@@ -1510,8 +1512,8 @@ export class Parser {
    * @private
    */
   checkInitializer_(type, declaration) {
-    if (this.options_.blockBinding && type == CONST &&
-        declaration.initializer == null) {
+    if (this.options_.blockBinding && type === CONST &&
+        declaration.initializer === null) {
       this.reportError_('const variables must have an initializer');
       return false;
     }
@@ -1765,7 +1767,7 @@ export class Parser {
     if (this.peek_(FINALLY)) {
       finallyBlock = this.parseFinallyBlock_();
     }
-    if (catchBlock == null && finallyBlock == null) {
+    if (catchBlock === null && finallyBlock === null) {
       this.reportError_("'catch' or 'finally' expected.");
     }
     return new TryStatement(this.getTreeLocation_(start), body, catchBlock, finallyBlock);
@@ -2336,7 +2338,7 @@ export class Parser {
    */
   peekPropertyDefinition_(type) {
     return this.peekPropertyName_(type) ||
-        type == STAR && this.options_.propertyMethods && this.options_.generators;
+        type === STAR && this.options_.propertyMethods && this.options_.generators;
   }
 
   /**
@@ -2789,7 +2791,7 @@ export class Parser {
       case INSTANCEOF:
         return true;
       case IN:
-        return expressionIn == Expression.NORMAL;
+        return expressionIn === Expression.NORMAL;
       default:
         return false;
     }
@@ -3001,7 +3003,7 @@ export class Parser {
     var operand = this.parseNewExpression_();
 
     // this test is equivalent to is member expression
-    if (!(operand instanceof NewExpression) || operand.args != null) {
+    if (!(operand instanceof NewExpression) || operand.args !== null) {
 
       // The Call expression productions
       loop: while (true) {
@@ -4359,7 +4361,7 @@ export class Parser {
    */
   eatIdName_() {
     var t = this.nextToken_();
-    if (t.type != IDENTIFIER) {
+    if (t.type !== IDENTIFIER) {
       if (!t.isKeyword()) {
         this.reportExpectedError_(t, 'identifier');
         return null;
@@ -4380,7 +4382,7 @@ export class Parser {
    */
   eat_(expectedTokenType) {
     var token = this.nextToken_();
-    if (token.type != expectedTokenType) {
+    if (token.type !== expectedTokenType) {
       this.reportExpectedError_(token, expectedTokenType);
       return null;
     }
@@ -4536,7 +4538,7 @@ export class Parser {
    * @private
    */
   reportError_(...args) {
-    if (args.length == 1) {
+    if (args.length === 1) {
       this.errorReporter_.reportError(this.scanner_.getPosition(), args[0]);
     } else {
       var location = args[0];

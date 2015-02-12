@@ -29,6 +29,11 @@ function isBlockOrStatementType(types, trees) {
 module.exports = {
   print: print,
 
+  printUseStrong: function() {
+    print('\'use strong\';');
+    print();
+  },
+
   printLicense: function() {
     // This reads the license header from the current file.
     var data = fs.readFileSync(__filename, 'utf-8');

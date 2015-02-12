@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {NewExpression} from '../syntax/trees/ParseTrees.js';
 import {ParseTreeVisitor} from './ParseTreeVisitor.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
@@ -202,7 +204,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       var element = tree.elements[i];
       this.checkVisit_(element === null ||
           element.type === BINDING_ELEMENT ||
-          element.type == ASSIGNMENT_ELEMENT ||
+          element.type === ASSIGNMENT_ELEMENT ||
           element.isLeftHandSideExpression() ||
           element.isPattern() ||
           element.isSpreadPatternElement(),
@@ -300,9 +302,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitBindingElement(tree) {
     var binding = tree.binding;
     this.checkVisit_(
-        binding.type == BINDING_IDENTIFIER ||
-        binding.type == OBJECT_PATTERN ||
-        binding.type == ARRAY_PATTERN,
+        binding.type === BINDING_IDENTIFIER ||
+        binding.type === OBJECT_PATTERN ||
+        binding.type === ARRAY_PATTERN,
         binding,
         'expected valid binding element');
     this.visitAny(tree.initializer);
@@ -314,8 +316,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitAssignmentElement(tree) {
     var assignment = tree.assignment;
     this.checkVisit_(
-        assignment.type == OBJECT_PATTERN ||
-        assignment.type == ARRAY_PATTERN ||
+        assignment.type === OBJECT_PATTERN ||
+        assignment.type === ARRAY_PATTERN ||
         assignment.isLeftHandSideExpression(),
         assignment,
         'expected valid assignment element');
@@ -366,7 +368,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitCatch(tree) {
     this.checkVisit_(tree.binding.isPattern() ||
-        tree.binding.type == BINDING_IDENTIFIER,
+        tree.binding.type === BINDING_IDENTIFIER,
         tree.binding, 'binding identifier expected');
     this.checkVisit_(tree.catchBody.type === BLOCK,
         tree.catchBody, 'block expected');
@@ -389,7 +391,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitClassShared_(tree) {
     if (tree.typeParameters) {
       this.checkVisit_(
-          tree.typeParameters.type == TYPE_PARAMETERS,
+          tree.typeParameters.type === TYPE_PARAMETERS,
           tree.typeParameters,
           'type parameters expected');
     }
@@ -467,12 +469,12 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitExportDeclaration(tree) {
     var declType = tree.declaration.type;
     this.checkVisit_(
-        declType == VARIABLE_STATEMENT ||
-        declType == FUNCTION_DECLARATION ||
-        declType == MODULE_DECLARATION ||
-        declType == CLASS_DECLARATION ||
-        declType == NAMED_EXPORT ||
-        declType == EXPORT_DEFAULT,
+        declType === VARIABLE_STATEMENT ||
+        declType === FUNCTION_DECLARATION ||
+        declType === MODULE_DECLARATION ||
+        declType === CLASS_DECLARATION ||
+        declType === NAMED_EXPORT ||
+        declType === EXPORT_DEFAULT,
         tree.declaration,
         'expected valid export tree');
   }
@@ -483,14 +485,14 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitNamedExport(tree) {
     if (tree.moduleSpecifier) {
       this.checkVisit_(
-          tree.moduleSpecifier.type == MODULE_SPECIFIER,
+          tree.moduleSpecifier.type === MODULE_SPECIFIER,
           tree.moduleSpecifier,
           'module expression expected');
     }
 
     var specifierType = tree.specifierSet.type;
-    this.checkVisit_(specifierType == EXPORT_SPECIFIER_SET ||
-                     specifierType == EXPORT_STAR,
+    this.checkVisit_(specifierType === EXPORT_SPECIFIER_SET ||
+                     specifierType === EXPORT_STAR,
                      tree.specifierSet,
                      'specifier set or identifier expected');
   }
@@ -504,8 +506,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     for (var i = 0; i < tree.specifiers.length; i++) {
       var specifier = tree.specifiers[i];
       this.checkVisit_(
-          specifier.type == EXPORT_SPECIFIER ||
-          specifier.type == IDENTIFIER_EXPRESSION,
+          specifier.type === EXPORT_SPECIFIER ||
+          specifier.type === IDENTIFIER_EXPRESSION,
           specifier,
           'expected valid export specifier');
     }
@@ -741,7 +743,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ModuleSpecifier} tree
    */
   visitModuleSpecifier(tree) {
-    this.check_(tree.token.type == STRING ||
+    this.check_(tree.token.type === STRING ||
                 tree.moduleName,
                 'string or identifier expected');
   }
@@ -1072,7 +1074,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitVariableDeclaration(tree) {
     this.checkVisit_(tree.lvalue.isPattern() ||
-                     tree.lvalue.type == BINDING_IDENTIFIER,
+                     tree.lvalue.type === BINDING_IDENTIFIER,
                      tree.lvalue,
                      'binding identifier expected, found: ' + tree.lvalue.type);
     if (tree.initializer !== null) {

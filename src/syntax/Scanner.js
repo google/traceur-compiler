@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {IdentifierToken} from './IdentifierToken.js';
 import {KeywordToken} from './KeywordToken.js';
 import {LiteralToken} from './LiteralToken.js';
@@ -332,7 +334,7 @@ function nextRegularExpressionLiteralToken() {
 
   // body
   // Also, check if we are done with the body in case we had /=/
-  if (!(token.type == SLASH_EQUAL && currentCharCode === 47) &&
+  if (!(token.type === SLASH_EQUAL && currentCharCode === 47) &&
       !skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),

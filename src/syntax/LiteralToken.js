@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
 
 /**
  * A token representing a javascript literal. Includes string, regexp, and
