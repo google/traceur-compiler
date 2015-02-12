@@ -54,7 +54,23 @@ class FindAdvancedProperty extends FindVisitor {
     if (isProtoName(tree.name))
       this.protoExpression = tree.value;
     else
-      super.visitPropertyNameAssignment(tree);
+      this.visitAny(tree.name);
+      // We do not want to visit object literals in the property's value.
+  }
+
+  visitPropertyMethodAssignment(tree) {
+    this.visitAny(tree.name);
+    // We do not want to visit object literals in the method's body.
+  }
+
+  visitGetAccessor(tree) {
+    this.visitAny(tree.name);
+    // We do not want to visit object literals in the accessor's body.
+  }
+
+  visitSetAccessor(tree) {
+     this.visitAny(tree.name);
+    // We do not want to visit object literals in the accessor's body.
   }
 
   visitComputedPropertyName(tree) {
