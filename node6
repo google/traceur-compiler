@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+// Copyright 2016 Traceur Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+'use strict';
+
+// The System object require()s traceur. The module sets global.System
+// as a side-effect.
+require('./src/node/System.js');
+var path = require('path');
+
+// The first argument is 'node6'; the second one is our 'program' name.
+var filename = process.argv[2];
+
+var moduleName = path.resolve(filename.replace(/\\/g, '/'));
+
+// Simuulate a future where it looks like node is executing our program
+//process.argv = ['node'].concat(process.argv.slice(2));
+
+// The module will evaluate and have process.argv ['node', filename, ...]
+System.import(moduleName).catch(function(err) {
+  console.error(err.stack || err + '');
+  process.exit(1);
+});
