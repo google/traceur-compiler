@@ -430,21 +430,25 @@ export class Parser {
     while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
       var statement = this.parseStatementListItem_(type);
       if (checkDirective) {
-        if (!statement.isDirectivePrologue()) {
-          checkDirective = false;
-        } else if (statement.isUseStrictDirective()) {
-          this.restrictLanguageMode_(STRICT_MODE);
-          checkDirective = false;
-        } else if (this.options_.strongMode &&
-                   statement.isUseStrongDirective()) {
-          this.restrictLanguageMode_(STRONG_MODE);
-          checkDirective = false;
-        }
+        checkDirective = this.checkDirective_(statement);
       }
-
       result.push(statement);
     }
     return result;
+  }
+
+  checkDirective_(statement) {
+    if (!statement.isDirectivePrologue()) {
+      return false;
+    } else if (statement.isUseStrictDirective()) {
+      this.restrictLanguageMode_(STRICT_MODE);
+      return false;
+    } else if (this.options_.strongMode &&
+               statement.isUseStrongDirective()) {
+      this.restrictLanguageMode_(STRONG_MODE);
+      return false;
+    }
+    return true;
   }
 
   // ScriptItem :
@@ -472,9 +476,13 @@ export class Parser {
     this.languageMode_ = STRICT_MODE;
     var result = [];
     var type;
+    var checkDirective = true;
 
     while ((type = this.peekType_()) !== END_OF_FILE) {
       var statement = this.parseModuleItem_(type);
+      if (checkDirective) {
+        checkDirective = this.checkDirective_(statement);
+      }
       result.push(statement);
     }
     return result;
