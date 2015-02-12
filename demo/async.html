@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Async Generators Demo</title>
+<style>
+
+body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  border-radius: 5px;
+  text-shadow: 0 0 5px yellow;
+  font: 25px sans-serif;
+  text-align: center;
+  line-height: 22px;
+  letter-spacing: -2px;
+}
+
+</style>
+<script src="../bin/traceur.js"></script>
+<script src="../src/bootstrap.js"></script>
+</head>
+<body>
+
+<div id="box">Traceur<br>Rocks!</div>
+
+<script>
+$traceurRuntime.options.asyncFunctions = true;
+$traceurRuntime.options.asyncGenerators = true;
+$traceurRuntime.options.forOn = true;
+</script>
+<script type="module">
+
+import Observable from './resources/Observable.js';
+
+async function* coordinates() {
+  for (let event on Observable.fromEvent(window, 'mousemove')) {
+    yield {x: event.clientX, y: event.clientY};
+  }
+}
+
+async function followMouse() {
+  var box = document.getElementById('box');
+  for (let {x, y} on coordinates()) {
+    box.style.left = x + 'px';
+    box.style.top = y + 'px';
+  }
+}
+
+followMouse();
+
+</script>
+</body>
+</html>
