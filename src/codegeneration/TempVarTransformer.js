@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   Module,
@@ -148,7 +150,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   transformScript(tree) {
     var scriptItemList = this.transformStatements_(tree.scriptItemList);
-    if (scriptItemList == tree.scriptItemList) {
+    if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
     return new Script(tree.location, scriptItemList, tree.moduleName);
@@ -156,7 +158,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   transformModule(tree) {
     var scriptItemList = this.transformStatements_(tree.scriptItemList);
-    if (scriptItemList == tree.scriptItemList) {
+    if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
     return new Module(tree.location, scriptItemList, tree.moduleName);
@@ -166,7 +168,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     this.pushTempScope();
     var statements = this.transformStatements_(tree.statements);
     this.popTempScope();
-    if (statements == tree.statements)
+    if (statements === tree.statements)
       return tree;
     return createFunctionBody(statements);
   }

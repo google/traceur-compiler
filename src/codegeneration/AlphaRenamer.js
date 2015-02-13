@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import { ScopeTransformer } from './ScopeTransformer.js';
 import {
   FunctionDeclaration,
@@ -50,7 +52,7 @@ export class AlphaRenamer extends ScopeTransformer {
    * @return {ParseTree}
    */
   transformIdentifierExpression(tree) {
-    if (this.varName_ == tree.identifierToken.value) {
+    if (this.varName_ === tree.identifierToken.value) {
       return createIdentifierExpression(this.newName_);
     } else {
       return tree;

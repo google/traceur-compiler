@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {
@@ -439,7 +441,7 @@ export function createFunctionExpression(parameterList, body) {
  * @return {IdentifierExpression}
  */
 export function createIdentifierExpression(identifier) {
-  if (typeof identifier == 'string')
+  if (typeof identifier === 'string')
     identifier = createIdentifierToken(identifier);
   else if (identifier instanceof BindingIdentifier)
     identifier = identifier.identifierToken;
@@ -518,9 +520,9 @@ export function createNumberLiteral(value) {
  * @return {MemberExpression|MemberLookupExpression}
  */
 export function createMemberExpression(operand, memberName, memberNames) {
-  if (typeof operand == 'string' || operand instanceof IdentifierToken)
+  if (typeof operand === 'string' || operand instanceof IdentifierToken)
     operand = createIdentifierExpression(operand);
-  if (typeof memberName == 'string')
+  if (typeof memberName === 'string')
     memberName = createIdentifierToken(memberName);
   if (memberName instanceof LiteralToken)
     memberName = new LiteralExpression(null, memberName);
@@ -662,7 +664,7 @@ export function createScript(scriptItemList) {
  * @return {PropertyNameAssignment}
  */
 export function createPropertyNameAssignment(identifier, value) {
-  if (typeof identifier == 'string')
+  if (typeof identifier === 'string')
     identifier = createLiteralPropertyName(identifier);
   return new PropertyNameAssignment(null, identifier, value);
 }

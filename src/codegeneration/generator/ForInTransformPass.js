@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   BLOCK,
   VARIABLE_DECLARATION_LIST,
@@ -77,7 +79,7 @@ export class ForInTransformPass extends TempVarTransformer {
     // Transform body first
     var bodyStatements = [];
     var body = this.transformAny(tree.body);
-    if (body.type == BLOCK) {
+    if (body.type === BLOCK) {
       bodyStatements.push(...body.statements);
     } else {
       bodyStatements.push(body);
@@ -116,13 +118,13 @@ export class ForInTransformPass extends TempVarTransformer {
         createIdentifierExpression(i));
 
     var originalKey, assignOriginalKey;
-    if (tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       var decList = tree.initializer;
       originalKey = createIdentifierExpression(decList.declarations[0].lvalue);
       // var key = $keys[$i];
       assignOriginalKey = createVariableStatement(decList.declarationType,
           originalKey.identifierToken, lookup);
-    } else if (tree.initializer.type == IDENTIFIER_EXPRESSION) {
+    } else if (tree.initializer.type === IDENTIFIER_EXPRESSION) {
       originalKey = tree.initializer;
       // key = $keys[$i];
       assignOriginalKey = createAssignmentStatement(tree.initializer, lookup);

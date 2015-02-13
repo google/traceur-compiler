@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   COMPUTED_PROPERTY_NAME,
   GET_ACCESSOR,

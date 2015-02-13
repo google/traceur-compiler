@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {AwaitState} from './AwaitState.js';
 import {
   BinaryExpression,
@@ -151,7 +153,7 @@ export class AsyncTransformer extends CPSTransformer {
    */
   transformFinally(tree) {
     var result = super.transformFinally(tree);
-    if (result.block.type != STATE_MACHINE) {
+    if (result.block.type !== STATE_MACHINE) {
       return result;
     }
     // TODO: is this a reasonable restriction?

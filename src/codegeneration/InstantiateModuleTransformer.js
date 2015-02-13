@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   AnonBlock,
   ArrayLiteralExpression,
@@ -108,7 +110,7 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
 
   matchesBindingName_(binding) {
     return binding.type === IDENTIFIER_EXPRESSION &&
-        binding.identifierToken.value == this.bindingName_;
+        binding.identifierToken.value === this.bindingName_;
   }
 
   // ++x
@@ -423,7 +425,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     var depIndex = this.dependencies.indexOf(name);
 
-    if (depIndex == -1) {
+    if (depIndex === -1) {
       depIndex = this.dependencies.length;
       this.dependencies.push(name);
     }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   BLOCK,
   CLASS_DECLARATION,
@@ -894,7 +896,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitImportSpecifierSet(tree) {
-    if (tree.specifiers.type == STAR) {
+    if (tree.specifiers.type === STAR) {
       this.write_(STAR);
     } else {
       this.writeOpenCurly_();

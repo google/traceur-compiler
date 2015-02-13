@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ModuleVisitor} from './ModuleVisitor.js';
 import {assert} from '../../util/assert.js';
 
@@ -31,7 +33,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   addExport_(name, tree) {
-    assert(typeof name == 'string');
+    assert(typeof name === 'string');
     if (this.inExport_)
       this.addExport(name, tree);
   }

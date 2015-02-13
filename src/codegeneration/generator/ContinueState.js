@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {FallThroughState} from './FallThroughState.js';
 import {State} from './State.js';
 
@@ -53,7 +55,7 @@ export class ContinueState extends State {
    */
   transformBreakOrContinue(labelSet, breakState = undefined,
                            continueState = undefined) {
-    if (this.label == null)
+    if (this.label === null)
       return new FallThroughState(this.id, continueState, []);
 
     if (this.label in labelSet) {

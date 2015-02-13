@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   createAssignmentExpression,
@@ -129,10 +131,10 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
   }
 
   transformUnaryExpression(tree) {
-    if (tree.operator.type == PLUS_PLUS)
+    if (tree.operator.type === PLUS_PLUS)
       return this.transformUnaryNumeric(tree, PLUS_EQUAL);
 
-    if (tree.operator.type == MINUS_MINUS)
+    if (tree.operator.type === MINUS_MINUS)
       return this.transformUnaryNumeric(tree, MINUS_EQUAL);
 
     // typeof a

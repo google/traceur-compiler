@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   ARROW_FUNCTION_EXPRESSION,
   CLASS_DECLARATION,

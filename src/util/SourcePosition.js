@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 /**
  * A position in a source string - includes offset, line and column.
  */

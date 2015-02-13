@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {BreakState} from './BreakState.js';
 import {ContinueState} from './ContinueState.js';
 import {ParseTreeTransformer} from '../ParseTreeTransformer.js';

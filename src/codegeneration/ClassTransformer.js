@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   CONSTRUCTOR
@@ -471,16 +473,16 @@ export class ClassTransformer extends TempVarTransformer {
         }
       }
 
-      if (superExpressionIndex == -1) {
+      if (superExpressionIndex === -1) {
         this.reporter_.reportError(constructor.location.start,
             'Constructors of derived class must contain a super call ' +
             'when the memberVariables option is enabled');
       }
-      if (initStatements.length == 0) return constructor;
+      if (initStatements.length === 0) return constructor;
       statements = statements.slice();
       statements.splice(superExpressionIndex + 1, 0, ...initStatements);
     } else {
-      if (initStatements.length == 0) return constructor;
+      if (initStatements.length === 0) return constructor;
       statements = prependStatements(statements, ...initStatements);
     }
 
@@ -494,7 +496,7 @@ export class ClassTransformer extends TempVarTransformer {
 // TODO(vicb): Does not handle computed properties
 function appendStaticInitializers(staticObject, initStaticMemberVars) {
   // Initializes static member variables
-  if (initStaticMemberVars.length == 0) return staticObject;
+  if (initStaticMemberVars.length === 0) return staticObject;
 
   var properties =[];
   for (var i = 0; i < initStaticMemberVars.length; i++) {

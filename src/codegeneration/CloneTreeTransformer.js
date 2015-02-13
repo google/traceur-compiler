@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 import {
@@ -110,7 +112,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
   transformList(list) {
     if (!list) {
       return null;
-    } else if (list.length == 0) {
+    } else if (list.length === 0) {
       return [];
     } else {
       return super.transformList(list);

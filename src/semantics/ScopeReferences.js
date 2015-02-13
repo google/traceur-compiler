@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {Scope} from './Scope.js';
 import {StringSet} from '../util/StringSet.js';
 

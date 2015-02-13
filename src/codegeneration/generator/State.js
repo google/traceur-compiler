@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   createAssignStateStatement,
   createBreakStatement,
@@ -117,7 +119,8 @@ State.generateAssignState = function(enclosingFinally, fallThroughState) {
  * @return {boolean}
  */
 State.isFinallyExit = function(enclosingFinally, destination) {
-  return enclosingFinally != null &&
+  // TODO(arv): Track down who calls this with undefined.
+  return !!enclosingFinally &&
       enclosingFinally.tryStates.indexOf(destination) < 0;
 };
 
@@ -158,7 +161,7 @@ State.replaceStateList = function(oldStates, oldState,  newState) {
  * @param {number} newState
  */
 State.replaceStateId = function(current, oldState, newState) {
-  return current == oldState ? newState : current;
+  return current === oldState ? newState : current;
 };
 
 /**

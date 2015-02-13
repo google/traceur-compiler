@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTreeMapWriter} from './ParseTreeMapWriter.js';
 import {ParseTreeWriter} from './ParseTreeWriter.js';
 import {SourceMapGenerator} from './SourceMapIntegration.js';

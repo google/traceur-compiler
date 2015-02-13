@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
 import {
   FunctionDeclaration,
@@ -119,7 +121,7 @@ export class SuperTransformer extends ParseTreeTransformer {
   transformCallExpression(tree) {
     // TODO(arv): This does not yet handle computed properties.
     // [expr]() { super(); }
-    if (tree.operand.type == SUPER_EXPRESSION) {
+    if (tree.operand.type === SUPER_EXPRESSION) {
       // We have: super(args)
       this.superCount_++;
       return this.createSuperCall_(tree);
@@ -130,7 +132,7 @@ export class SuperTransformer extends ParseTreeTransformer {
       this.superCount_++;
 
       var name;
-      if (tree.operand.type == MEMBER_EXPRESSION)
+      if (tree.operand.type === MEMBER_EXPRESSION)
         name = tree.operand.memberName.value;
       else
         name = tree.operand.memberExpression;

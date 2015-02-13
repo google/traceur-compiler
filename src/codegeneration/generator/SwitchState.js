@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   CaseClause,
   DefaultClause,
@@ -86,7 +88,7 @@ export class SwitchState extends State {
     var clauses = [];
     for (var i = 0; i < this.clauses.length; i++) {
       var clause = this.clauses[i];
-      if (clause.first == null) {
+      if (clause.first === null) {
         clauses.push(new DefaultClause(null,
             State.generateJump(enclosingFinally, clause.second)));
       } else {

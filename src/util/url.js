@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 export var canonicalizeUrl = $traceurRuntime.canonicalizeUrl;
 export var isAbsolute = $traceurRuntime.isAbsolute;
 export var removeDotSegments = $traceurRuntime.removeDotSegments;

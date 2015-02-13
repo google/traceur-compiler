@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
@@ -207,7 +209,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     this.pushTempScope();
 
     var rv;
-    if (tree.operator.type == EQUAL && tree.left.isPattern()) {
+    if (tree.operator.type === EQUAL && tree.left.isPattern()) {
       rv = this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
       rv = super.transformBinaryExpression(tree);

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ExportVisitor} from './ExportVisitor.js';
 
 /**
@@ -43,6 +45,6 @@ export class DirectExportVisitor extends ExportVisitor {
   }
 
   hasExports() {
-    return this.namedExports.length != 0 || this.starExports.length != 0;
+    return this.namedExports.length !== 0 || this.starExports.length !== 0;
   }
 }

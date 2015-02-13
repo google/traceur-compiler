@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ComprehensionTransformer} from './ComprehensionTransformer.js';
 import {createIdentifierExpression} from './ParseTreeFactory.js';
 import {parseStatement} from './PlaceholderParser.js';

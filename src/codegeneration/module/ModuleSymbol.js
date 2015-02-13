@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {StringMap} from '../../util/StringMap.js';
 import {assert} from '../../util/assert.js';
 

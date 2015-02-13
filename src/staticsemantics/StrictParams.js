@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {isStrictKeyword} from '../syntax/Keywords.js';
 

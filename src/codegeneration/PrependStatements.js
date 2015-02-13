@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 /**
  * Prepends |statements| with the |statementsToPrepend| making sure that any
  * leading directives, like 'use strict', are kept at the top of the statements.

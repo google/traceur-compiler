@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 import {AlphaRenamer} from '../AlphaRenamer.js';
 import {BreakContinueTransformer} from './BreakContinueTransformer.js';
 import {
@@ -222,7 +224,7 @@ export class CPSTransformer extends TempVarTransformer {
     this.restoreLabels_(oldLabels);
 
     this.popTempScope();
-    return machine == null ? transformedTree : machine;
+    return machine === null ? transformedTree : machine;
   }
 
   /**
@@ -295,7 +297,7 @@ export class CPSTransformer extends TempVarTransformer {
   transformCaseClause(tree) {
     var result = super.transformCaseClause(tree);
     var machine = this.transformStatementList_(result.statements);
-    return machine == null ?
+    return machine === null ?
         result :
         new CaseClause(null, result.expression, [machine]);
   }
@@ -316,7 +318,7 @@ export class CPSTransformer extends TempVarTransformer {
     } else {
       var result = super.transformDoWhileStatement(tree);
       ({condition, body} = result);
-      if (body.type != STATE_MACHINE)
+      if (body.type !== STATE_MACHINE)
         return result;
     }
 
@@ -587,7 +589,7 @@ export class CPSTransformer extends TempVarTransformer {
     var fallThroughState = ifClause.fallThroughState;
     var ifState = ifClause.startState;
     var elseState =
-        elseClause == null ?
+        elseClause === null ?
             fallThroughState :
             elseClause.startState;
 
@@ -602,7 +604,7 @@ export class CPSTransformer extends TempVarTransformer {
             condition));
     states.push(...ifClause.states);
     exceptionBlocks.push(...ifClause.exceptionBlocks);
-    if (elseClause != null) {
+    if (elseClause !== null) {
       this.replaceAndAddStates_(
           elseClause.states,
           elseClause.fallThroughState,
@@ -756,7 +758,7 @@ export class CPSTransformer extends TempVarTransformer {
 
     for (var index = caseClauses.length - 1; index >= 0; index--) {
       var clause = caseClauses[index];
-      if (clause.type == CASE_CLAUSE) {
+      if (clause.type === CASE_CLAUSE) {
         var caseClause = clause;
         nextState =
             this.addSwitchClauseStates_(nextState, fallThroughState, labels,
@@ -815,9 +817,9 @@ export class CPSTransformer extends TempVarTransformer {
   transformTryStatement(tree) {
     var result = super.transformTryStatement(tree);
     var {body, catchBlock, finallyBlock} = result;
-    if (body.type != STATE_MACHINE &&
-        (catchBlock == null || catchBlock.catchBody.type != STATE_MACHINE) &&
-        (finallyBlock == null || finallyBlock.block.type != STATE_MACHINE)) {
+    if (body.type !== STATE_MACHINE &&
+        (catchBlock === null || catchBlock.catchBody.type !== STATE_MACHINE) &&
+        (finallyBlock === null || finallyBlock.block.type !== STATE_MACHINE)) {
       return result;
     }
 
@@ -889,7 +891,7 @@ export class CPSTransformer extends TempVarTransformer {
       tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
     }
 
-    if (finallyBlock != null) {
+    if (finallyBlock !== null) {
       var finallyMachine = this.ensureTransformed_(finallyBlock.block);
 
       var popTry = this.statementToStateMachine_(
@@ -902,7 +904,7 @@ export class CPSTransformer extends TempVarTransformer {
         new FinallyFallThroughState(finallyMachine.fallThroughState)
       ];
 
-      // NOTE: finallyMachine.fallThroughState == FinallyState.fallThroughState
+      // NOTE: finallyMachine.fallThroughState === FinallyState.fallThroughState
       // is code generated in addFinallyFallThroughDispatches
       tryMachine = new StateMachine(
           tryMachine.startState,
@@ -982,7 +984,7 @@ export class CPSTransformer extends TempVarTransformer {
    */
   transformWithStatement(tree) {
     var result = super.transformWithStatement(tree);
-    if (result.body.type != STATE_MACHINE) {
+    if (result.body.type !== STATE_MACHINE) {
       return result;
     }
     throw new Error(
@@ -1181,7 +1183,7 @@ export class CPSTransformer extends TempVarTransformer {
       var stateCase = state.transformMachineState(
           enclosingFinallyState[state.id],
           machineEndState, this.reporter);
-      if (stateCase != null) {
+      if (stateCase !== null) {
         cases.push(stateCase);
       }
     }
@@ -1202,10 +1204,10 @@ export class CPSTransformer extends TempVarTransformer {
   addFinallyFallThroughDispatches(enclosingFinallyState, tryStates, cases) {
     for (var i = 0; i < tryStates.length; i++) {
       var tryState = tryStates[i];
-      if (tryState.kind == TryState.Kind.FINALLY) {
+      if (tryState.kind === TryState.Kind.FINALLY) {
         var finallyState = tryState;
 
-        if (enclosingFinallyState != null) {
+        if (enclosingFinallyState !== null) {
           var caseClauses = [];
           var index = 0;
           // CONSIDER: the actual list is much less than
@@ -1298,7 +1300,7 @@ export class CPSTransformer extends TempVarTransformer {
     var breakContinueTransformed =
         new BreakContinueTransformer(this.stateAllocator_).
             transformAny(maybeTransformedStatement);
-    if (breakContinueTransformed != maybeTransformedStatement) {
+    if (breakContinueTransformed !== maybeTransformedStatement) {
       breakContinueTransformed = this.transformAny(breakContinueTransformed);
     }
     return breakContinueTransformed;
@@ -1310,11 +1312,11 @@ export class CPSTransformer extends TempVarTransformer {
    * @return {StateMachine}
    */
   ensureTransformed_(statement) {
-    if (statement == null) {
+    if (statement === null) {
       return null;
     }
     var maybeTransformed = this.maybeTransformStatement_(statement);
-    return maybeTransformed.type == STATE_MACHINE ?
+    return maybeTransformed.type === STATE_MACHINE ?
         maybeTransformed :
         this.statementToStateMachine_(maybeTransformed);
   }
@@ -1331,7 +1333,7 @@ export class CPSTransformer extends TempVarTransformer {
       var statement = statements[i];
       var maybeTransformedStatement = this.maybeTransformStatement_(statement);
       maybeTransformedStatements.push(maybeTransformedStatement);
-      if (maybeTransformedStatement.type == STATE_MACHINE) {
+      if (maybeTransformedStatement.type === STATE_MACHINE) {
         foundMachine = true;
       }
     }

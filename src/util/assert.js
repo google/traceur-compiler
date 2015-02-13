@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 export function assert(b) {
   if (!b && $traceurRuntime.options.debug)
     throw Error('Assertion failed');
