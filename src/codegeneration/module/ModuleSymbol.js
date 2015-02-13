@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {StringMap} from '../../util/StringMap.js';
 import {assert} from '../../util/assert.js';
 
 export class ExportsList {
@@ -19,7 +20,7 @@ export class ExportsList {
    * @param {string} normalizedName
    */
   constructor(normalizedName) {
-    this.exports_ = Object.create(null);
+    this.exports_ = new StringMap();
     if (normalizedName !== null)
       this.normalizedName = normalizedName.replace(/\\/g, '/');
     else
@@ -32,8 +33,8 @@ export class ExportsList {
    */
   addExport(name, tree) {
     // Duplicate exports should have been checked already.
-    assert(!this.exports_[name]);
-    this.exports_[name] = tree;
+    assert(!this.exports_.has(name));
+    this.exports_.set(name, tree);
   }
 
   /**
@@ -41,14 +42,14 @@ export class ExportsList {
    * @return {ParseTree|true}
    */
   getExport(name) {
-    return this.exports_[name];
+    return this.exports_.get(name);
   }
 
   /**
    * @return {Array.<string>}
    */
   getExports() {
-    return Object.keys(this.exports_);
+    return this.exports_.keysAsArray();
   }
 
   addExportsFromModule(module) {
@@ -66,7 +67,7 @@ export class ModuleSymbol extends ExportsList {
   constructor(tree, normalizedName) {
     super(normalizedName);
     this.tree = tree;
-    this.imports_ = Object.create(null);
+    this.imports_ = new StringMap();
   }
 
   /**
@@ -75,8 +76,8 @@ export class ModuleSymbol extends ExportsList {
    */
   addImport(name, tree) {
     // Duplicate imports should have been checked already.
-    assert(!this.imports_[name]);
-    this.imports_[name] = tree;
+    assert(!this.imports_.has(name));
+    this.imports_.set(name, tree);
   }
 
   /**
@@ -84,6 +85,6 @@ export class ModuleSymbol extends ExportsList {
    * @return {ParseTree}
    */
   getImport(name) {
-    return this.imports_[name];
+    return this.imports_.get(name);
   }
 }

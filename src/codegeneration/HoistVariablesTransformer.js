@@ -28,6 +28,7 @@ import {
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {StringSet} from '../util/StringSet.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
@@ -67,7 +68,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   constructor(shouldHoistFunctions = false) {
     super();
     this.hoistedFunctions_ = [];
-    this.hoistedVariables_ = Object.create(null);
+    this.hoistedVariables_ = new StringSet();
     this.keepBindingIdentifiers_ = false;
     this.inBlockOrFor_ = false;
     this.shouldHoistFunctions_ = shouldHoistFunctions;
@@ -84,7 +85,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   addVariable(name) {
-    this.hoistedVariables_[name] = true;
+    this.hoistedVariables_.add(name);
   }
 
   addFunctionDeclaration(tree) {
@@ -92,10 +93,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   hasVariables() {
-    for (var key in this.hoistedVariables_) {
-      return true;
-    }
-    return false;
+    return !this.hoistedVariables_.isEmpty();
   }
 
   hasFunctions() {
@@ -103,7 +101,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   getVariableNames() {
-    return Object.keys(this.hoistedVariables_);
+    return this.hoistedVariables_.valuesAsArray();
   }
 
   getVariableStatement() {

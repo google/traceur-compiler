@@ -24,6 +24,7 @@ import {
   COMPUTED_PROPERTY_NAME,
   LITERAL_PROPERTY_NAME
 } from '../syntax/trees/ParseTreeType.js';
+import {StringMap} from '../util/StringMap.js';
 import {
   createAssignmentExpression,
   createCommaExpression,
@@ -107,21 +108,21 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return null;
     var s = propName(name);
-    return this.seenAccessors[s];
+    return this.seenAccessors.get(s);
   }
 
   removeSeenAccessor_(name) {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return;
     var s = propName(name);
-    delete this.seenAccessors[s];
+    this.seenAccessors.delete(s);
   }
 
   addSeenAccessor_(name, descr) {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return;
     var s = propName(name);
-    this.seenAccessors[s] = descr;
+    this.seenAccessors.set(s, descr);
   }
 
   /**
@@ -207,7 +208,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       }
 
       this.needsAdvancedTransform = true;
-      this.seenAccessors = Object.create(null);
+      this.seenAccessors = new StringMap();
 
       var properties = this.transformList(tree.propertyNameAndValues);
       // Filter out the __proto__ here which is represented as a null value.

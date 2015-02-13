@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Scope} from './Scope.js';
-import {StringSet} from '../util/StringSet.js';
+function assertString(value) {
+  if (typeof value !== 'string') throw new TypeError();
+}
 
-export class ScopeReferences extends Scope {
-  /**
-   * @param {Scope} parent The parent scope, or null if top level scope.
-   * @param {ParseTree} tree
-   */
-  constructor(parent, tree) {
-    super(parent, tree);
-    this.freeVars_ = new StringSet();
+export class StringMap {
+  constructor() {
+    this.storage_ = Object.create(null);
   }
-
-  addReference(name) {
-    this.freeVars_.add(name);
+  set(key, value) {
+    assertString(key);
+    this.storage_[key] = value;
   }
-
-  hasFreeVariable(name) {
-    return this.freeVars_.has(name);
+  get(key) {
+    assertString(key);
+    return this.storage_[key];
+  }
+  delete(key) {
+    assertString(key);
+    delete this.storage_[key];
+  }
+  has(key) {
+    assertString(key);
+    return this.storage_[key] !== undefined;
+  }
+  keysAsArray() {
+    return Object.keys(this.storage_);
   }
 }

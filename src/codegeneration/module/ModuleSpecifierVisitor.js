@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {StringSet} from '../../util/StringSet.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -27,15 +28,15 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
   constructor(options) {
     super();
     this.options_ = options;
-    this.moduleSpecifiers_ = Object.create(null);
+    this.moduleSpecifiers_ = new StringSet();
   }
 
   get moduleSpecifiers() {
-    return Object.keys(this.moduleSpecifiers_);
+    return this.moduleSpecifiers_.valuesAsArray();
   }
 
   visitModuleSpecifier(tree) {
-    this.moduleSpecifiers_[tree.token.processedValue] = true;
+    this.moduleSpecifiers_.add(tree.token.processedValue);
   }
 
   visitVariableDeclaration(tree) {
@@ -70,6 +71,6 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
 
   addTypeAssertionDependency_(typeAnnotation) {
     if (typeAnnotation !== null && this.options_.typeAssertionModule !== null)
-      this.moduleSpecifiers_[this.options_.typeAssertionModule] = true;
+      this.moduleSpecifiers_.add(this.options_.typeAssertionModule);
   }
 }

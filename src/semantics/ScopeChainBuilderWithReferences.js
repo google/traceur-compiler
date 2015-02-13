@@ -87,6 +87,7 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
   }
 
   referenceFound(tree, name) {
-    this.scope.addReference(name, tree);
+    // tree is used in subclass.
+    this.scope.addReference(name);
   }
 }

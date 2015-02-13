@@ -25,6 +25,7 @@ import {
   LabelledStatement,
   ReturnStatement
 } from '../syntax/trees/ParseTrees.js';
+import {StringSet} from '../util/StringSet.js';
 import {
   createAssignmentStatement,
   createCaseClause,
@@ -54,12 +55,12 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
     this.variableDeclarations_ = [];
     this.extractedStatements_ = [];
     this.labelSet_ = labelSet;
-    this.labelledStatements_ = Object.create(null);
+    this.labelledStatements_ = new StringSet();
     this.observer_ = id(this.idGenerator_.getTempIdentifier());
     this.result_ = id(this.idGenerator_.getTempIdentifier());
-    this.parentLabels_ = Object.create(null);
+    this.parentLabels_ = new StringSet();
     this.labelSet_.forEach((tree) => {
-      this.parentLabels_[tree.name.value] = true;
+      this.parentLabels_.add(tree.name.value);
     });
   }
 
@@ -173,7 +174,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
       return this.transformAbruptCompletion_(
         new ContinueStatement(tree.location, null));
     }
-    if (this.labelledStatements_[tree.name.value]) {
+    if (this.labelledStatements_.has(tree.name.value)) {
       return super.transformBreakStatement(tree);
     }
     return this.transformAbruptCompletion_(tree);
@@ -186,10 +187,10 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
       }
       return new ReturnStatement(tree.location, null);
     }
-    if (this.labelledStatements_[tree.name.value]) {
+    if (this.labelledStatements_.has(tree.name.value)) {
       return super.transformContinueStatement(tree);
     }
-    if (this.parentLabels_[tree.name.value]) {
+    if (this.parentLabels_.has(tree.name.value)) {
       return new ReturnStatement(tree.location, null);
     }
     return this.transformAbruptCompletion_(tree);
@@ -197,7 +198,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
 
   // keep track of labels in the tree
   transformLabelledStatement(tree) {
-    this.labelledStatements_[tree.name.value] = true;
+    this.labelledStatements_.add(tree.name.value);
     return super.transformLabelledStatement(tree);
   }
 

@@ -18,6 +18,7 @@ import {
 } from '../syntax/PredefinedName.js';
 import {FindInFunctionScope} from './FindInFunctionScope.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {StringSet} from '../util/StringSet.js';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js'
 import {VAR} from '../syntax/TokenType.js'
 import {
@@ -31,7 +32,7 @@ class FindNames extends FindInFunctionScope {
     this.names = names;
   }
   visitBindingIdentifier(tree) {
-    this.names[tree.getStringValue()] = true;
+    this.names.add(tree.getStringValue());
   }
 }
 
@@ -39,10 +40,10 @@ class FindNames extends FindInFunctionScope {
  * Gets the variable names in a declaration list. This is used to get the names
  * from for loops (for, for-in and for-of)
  * @param {VariableDeclarationList} tree
- * @return {Object} An object as a map where the keys are the variable names.
+ * @return {StringSet} An object as a map where the keys are the variable names.
  */
 function getLexicalBindingNames(tree) {
-  var names = Object.create(null);
+  var names = new StringSet();
   if (tree !== null && tree.type === VARIABLE_DECLARATION_LIST &&
       tree.declarationType !== VAR) {
     var visitor = new FindNames(names);
@@ -82,7 +83,8 @@ export class ScopeTransformer extends ParseTreeTransformer {
   }
 
   sameTreeIfNameInLoopInitializer_(tree) {
-    if (this.varName_ in getLexicalBindingNames(tree.initializer)) {
+    var names = getLexicalBindingNames(tree.initializer);
+    if (names.has(this.varName_)) {
       return tree;
     }
     return null;

@@ -46,6 +46,7 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {StringSet} from '../util/StringSet.js';
 import {Token} from '../syntax/Token.js';
 import {
   STAR,
@@ -71,7 +72,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     this.variableDeclarations_ = [];
     this.extractedStatements_ = [];
     this.requestParentLabel_ = requestParentLabel;
-    this.labelledStatements_ = Object.create(null);
+    this.labelledStatements_ = new StringSet();
   }
 
   createIIFE(body, paramList, argsList, inGenerator) {
@@ -199,7 +200,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
         tree = new BreakStatement(tree.location,
             this.requestParentLabel_());
       }
-    } else if (this.labelledStatements_[tree.name]) {
+    } else if (this.labelledStatements_.has(tree.name.value)) {
       return super.transformBreakStatement(tree);
     }
     return this.transformAbruptCompletion_(tree);
@@ -213,7 +214,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
         tree = new ContinueStatement(tree.location,
             this.requestParentLabel_());
       }
-    } else if (this.labelledStatements_[tree.name]) {
+    } else if (this.labelledStatements_.has(tree.name.value)) {
       return super.transformContinueStatement(tree);
     }
     return this.transformAbruptCompletion_(tree);
@@ -221,7 +222,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
   // keep track of labels in the tree
   transformLabelledStatement(tree) {
-    this.labelledStatements_[tree.name] = true;
+    this.labelledStatements_.add(tree.name.value);
     return super.transformLabelledStatement(tree);
   }
 

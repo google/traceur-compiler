@@ -18,6 +18,7 @@ import {
   Script
 } from '../syntax/trees/ParseTrees.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {StringSet} from '../util/StringSet.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
   createFunctionBody,
@@ -83,15 +84,15 @@ class VarScope {
 
   createVariableStatement() {
     var declarations = [];
-    var seenNames = Object.create(null);
+    var seenNames = new StringSet();
     for (var i = 0; i < this.tempVarStatements.length; i++) {
       var {name, initializer} = this.tempVarStatements[i];
-      if (name in seenNames) {
-        if (seenNames[name].initializer || initializer)
+      if (seenNames.has(name)) {
+        if (initializer)
           throw new Error('Invalid use of TempVarTransformer');
         continue;
       }
-      seenNames[name] = true;
+      seenNames.add(name);
       declarations.push(createVariableDeclaration(name, initializer));
     }
 
