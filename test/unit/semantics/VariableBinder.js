@@ -34,7 +34,7 @@ suite('VariableBinder.js', function() {
   }
 
   function idsToString(identifiers) {
-    return Object.keys(identifiers).sort().join(',');
+    return identifiers.valuesAsArray().sort().join(',');
   }
 
   test('BoundIdentifiersInBlock', function() {

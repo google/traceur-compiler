@@ -75,7 +75,7 @@ export class ScopeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformBlock(tree) {
-    if (this.varName_ in variablesInBlock(tree)) {
+    if (variablesInBlock(tree).has(this.varName_)) {
       // the var name is bound in the block, skip rename
       return tree;
     }
@@ -169,7 +169,7 @@ export class ScopeTransformer extends ParseTreeTransformer {
   getDoNotRecurse(tree) {
     return this.varName_ === ARGUMENTS ||
         this.varName_ === THIS ||
-        this.varName_ in variablesInFunction(tree);
+        variablesInFunction(tree).has(this.varName_);
   }
 
   /**

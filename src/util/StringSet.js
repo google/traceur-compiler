@@ -41,4 +41,9 @@ export class StringSet {
   valuesAsArray() {
     return Object.keys(this.storage_);
   }
+  forEach(func) {
+    for (var value in this.storage_) {
+      func(value);
+    }
+  }
 }

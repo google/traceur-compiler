@@ -241,7 +241,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   needsRename_(name) {
-    if (this.usedVars_[name]) return true;
+    if (this.usedVars_.has(name)) return true;
     var scope = this.scope_;
     var parent = scope.parent;
     if (!parent || scope.isVarScope) return false;
@@ -265,7 +265,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       newName = origName + this.idGenerator_.generateUniqueIdentifier();
       renames.push(new Rename(origName, newName));
     } else {
-      this.usedVars_[origName] = true;
+      this.usedVars_.add(origName);
       newName = origName;
     }
     return newName;

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {StringSet} from './StringSet.js';
+
 function assertString(value) {
   if (typeof value !== 'string') throw new TypeError();
 }
@@ -38,5 +40,15 @@ export class StringMap {
   }
   keysAsArray() {
     return Object.keys(this.storage_);
+  }
+  keysAsSet() {
+    var set = new StringSet();
+    this.forEach((key) => set.add(key));
+    return set;
+  }
+  forEach(func) {
+    for (var key in this.storage_) {
+      func(key, this.storage_[key]);
+    }
   }
 }

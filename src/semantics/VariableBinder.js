@@ -39,7 +39,7 @@ import {ScopeChainBuilder} from './ScopeChainBuilder.js';
  *
  * @param {Block} tree
  * @param {boolean=} includeFunctionScope
- * @return {Object}
+ * @return {StringSet}
  */
 export function variablesInBlock(tree, includeFunctionScope = undefined) {
   var builder = new ScopeChainBuilder(null);
@@ -51,9 +51,7 @@ export function variablesInBlock(tree, includeFunctionScope = undefined) {
   }
 
   var variableBindingNames = scope.getVariableBindingNames();
-  for (var name in variableBindingNames) {
-    names[name] = true;
-  }
+  variableBindingNames.forEach((name) => names.add(name));
   return names;
 }
 
@@ -89,7 +87,7 @@ export function variablesInBlock(tree, includeFunctionScope = undefined) {
  * invocation.
  *
  * @param {FunctionDeclaration} tree
- * @return {Object}
+ * @return {StringSet}
  */
 export function variablesInFunction(tree) {
   var builder = new ScopeChainBuilder(null);
