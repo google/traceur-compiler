@@ -25,8 +25,8 @@
 
   var $Object = Object;
   var $TypeError = TypeError;
-  var $defineProperties = $Object.defineProperties;
   var $create = $Object.create;
+  var $defineProperties = $Object.defineProperties;
   var $defineProperty = $Object.defineProperty;
   var $freeze = $Object.freeze;
   var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
