@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {fround as jsFround} from './fround.js';
 import {
   maybeAddFunctions,
   registerPolyfill,
@@ -205,13 +206,19 @@ export function trunc(x) {
   return x;
 }
 
-var f32 = new Float32Array(1);
+var fround, f32;
 
-export function fround(x) {
-  // From MDN
-  f32[0] = +x;
-  return f32[0];
+if (typeof Float32Array === 'function') {
+  f32 = new Float32Array(1);
+  fround = function(x) {
+    f32[0] = Number(x);
+    return f32[0];
+  };
+} else {
+  fround = jsFround;
 }
+
+export {fround};
 
 export function cbrt(x) {
   // From MDN
