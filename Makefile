@@ -100,10 +100,10 @@ test: test/test-list.js bin/traceur.js \
 	$(MAKE) test-interpret-throw
 
 test/unit/util/: bin/traceur.js bin/traceur-runtime.js
-	./node6 test/modular/tests.js
+	./tnode test/modular/tests.js
 
 test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
-	./node6 test/modular/tests.js
+	./tnode test/modular/tests.js
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<

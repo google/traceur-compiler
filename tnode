@@ -26,8 +26,8 @@ var filename = process.argv[2];
 
 var moduleName = path.resolve(filename.replace(/\\/g, '/'));
 
-// Simuulate a future where it looks like node is executing our program
-//process.argv = ['node'].concat(process.argv.slice(2));
+// Simulate a future where it looks like node is executing our program
+process.argv = [process.execPath].concat(process.argv.slice(2));
 
 // The module will evaluate and have process.argv ['node', filename, ...]
 System.import(moduleName).catch(function(err) {
