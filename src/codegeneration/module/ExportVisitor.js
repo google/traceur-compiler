@@ -31,7 +31,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   addExport_(name, tree) {
-    assert(typeof name == 'string');
+    assert(typeof name === 'string');
     if (this.inExport_)
       this.addExport(name, tree);
   }

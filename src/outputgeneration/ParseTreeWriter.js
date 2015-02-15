@@ -894,7 +894,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitImportSpecifierSet(tree) {
-    if (tree.specifiers.type == STAR) {
+    if (tree.specifiers.type === STAR) {
       this.write_(STAR);
     } else {
       this.writeOpenCurly_();

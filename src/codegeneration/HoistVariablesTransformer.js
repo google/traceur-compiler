@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import {
   AnonBlock,
   Catch,
@@ -134,7 +133,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
 
   transformVariableStatement(tree) {
     var declarations = this.transformAny(tree.declarations);
-    if (declarations == tree.declarations)
+    if (declarations === tree.declarations)
       return tree;
 
     if (declarations === null)
@@ -201,7 +200,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
       if (expressions.length === 0)
         return null;
 
-      if (expressions.length == 1)
+      if (expressions.length === 1)
         return expressions[0];
 
       return createCommaExpression(expressions);

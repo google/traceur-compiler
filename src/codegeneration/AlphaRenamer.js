@@ -50,7 +50,7 @@ export class AlphaRenamer extends ScopeTransformer {
    * @return {ParseTree}
    */
   transformIdentifierExpression(tree) {
-    if (this.varName_ == tree.identifierToken.value) {
+    if (this.varName_ === tree.identifierToken.value) {
       return createIdentifierExpression(this.newName_);
     } else {
       return tree;

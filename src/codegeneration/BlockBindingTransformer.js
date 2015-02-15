@@ -196,7 +196,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    */
   getVariableName_(variable) {
     var lvalue = variable.lvalue;
-    if (lvalue.type == BINDING_IDENTIFIER) {
+    if (lvalue.type === BINDING_IDENTIFIER) {
       return lvalue.getStringValue();
     }
     throw new Error('Unexpected destructuring declaration found.');
@@ -227,7 +227,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @param {Scope} scope
    */
   popScope(scope) {
-    if (this.scope_ != scope) {
+    if (this.scope_ !== scope) {
       throw new Error('BlockBindingTransformer scope mismatch');
     }
     this.scope_ = scope.parent;

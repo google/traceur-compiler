@@ -43,6 +43,6 @@ export class DirectExportVisitor extends ExportVisitor {
   }
 
   hasExports() {
-    return this.namedExports.length != 0 || this.starExports.length != 0;
+    return this.namedExports.length !== 0 || this.starExports.length !== 0;
   }
 }

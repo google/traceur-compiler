@@ -158,7 +158,7 @@ State.replaceStateList = function(oldStates, oldState,  newState) {
  * @param {number} newState
  */
 State.replaceStateId = function(current, oldState, newState) {
-  return current == oldState ? newState : current;
+  return current === oldState ? newState : current;
 };
 
 /**

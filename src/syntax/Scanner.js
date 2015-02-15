@@ -332,7 +332,7 @@ function nextRegularExpressionLiteralToken() {
 
   // body
   // Also, check if we are done with the body in case we had /=/
-  if (!(token.type == SLASH_EQUAL && currentCharCode === 47) &&
+  if (!(token.type === SLASH_EQUAL && currentCharCode === 47) &&
       !skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),

@@ -43,7 +43,7 @@ import {
 } from './PlaceholderParser.js';
 
 function hasSpreadMember(trees) {
-  return trees.some((tree) => tree && tree.type == SPREAD_EXPRESSION);
+  return trees.some((tree) => tree && tree.type === SPREAD_EXPRESSION);
 }
 
 /**
@@ -101,7 +101,7 @@ export class SpreadTransformer extends TempVarTransformer {
 
     this.pushTempScope();
 
-    if (operand.type == MEMBER_EXPRESSION) {
+    if (operand.type === MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
       //
       // ($tmp = expr).fun.apply($tmp, expandedArgs)
@@ -114,7 +114,7 @@ export class SpreadTransformer extends TempVarTransformer {
       contextObject = tempIdent;
       functionObject = createMemberExpression(parenExpression, memberName);
 
-    } else if (tree.operand.type == MEMBER_LOOKUP_EXPRESSION) {
+    } else if (tree.operand.type === MEMBER_LOOKUP_EXPRESSION) {
       // expr[fun](a, ...b, c)
       //
       // ($tmp = expr)[fun].apply($tmp, expandedArgs)
@@ -180,7 +180,7 @@ export class SpreadTransformer extends TempVarTransformer {
   }
 
   transformNewExpression(tree) {
-    if (tree.args != null && hasSpreadMember(tree.args.args)) {
+    if (tree.args !== null && hasSpreadMember(tree.args.args)) {
       return this.desugarNewSpread_(tree);
     }
     return super.transformNewExpression(tree);

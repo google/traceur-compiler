@@ -252,7 +252,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
 
     var firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;
     var binaryExpression = this.transformAny(tree.elements[0]);
-    if (length == 1)
+    if (length === 1)
       return binaryExpression;
 
     var plusToken = createOperatorToken(PLUS);

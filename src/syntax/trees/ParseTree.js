@@ -220,7 +220,7 @@ export class ParseTree {
 
       // new MemberExpression Arguments
       case NEW_EXPRESSION:
-        return this.args != null;
+        return this.args !== null;
     }
 
     return false;
@@ -229,24 +229,24 @@ export class ParseTree {
   /** @return {boolean} */
   isExpression() {
     return this.isAssignmentExpression() ||
-        this.type == COMMA_EXPRESSION;
+        this.type === COMMA_EXPRESSION;
   }
 
   /** @return {boolean} */
   isAssignmentOrSpread() {
     return this.isAssignmentExpression() ||
-        this.type == SPREAD_EXPRESSION;
+        this.type === SPREAD_EXPRESSION;
   }
 
   /** @return {boolean} */
   isRestParameter() {
-    return this.type == REST_PARAMETER ||
-        (this.type == FORMAL_PARAMETER && this.parameter.isRestParameter());
+    return this.type === REST_PARAMETER ||
+        (this.type === FORMAL_PARAMETER && this.parameter.isRestParameter());
   }
 
   /** @return {boolean} */
   isSpreadPatternElement() {
-    return this.type == SPREAD_PATTERN_ELEMENT;
+    return this.type === SPREAD_PATTERN_ELEMENT;
   }
 
   isStatementListItem() {

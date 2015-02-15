@@ -151,7 +151,7 @@ export class AsyncTransformer extends CPSTransformer {
    */
   transformFinally(tree) {
     var result = super.transformFinally(tree);
-    if (result.block.type != STATE_MACHINE) {
+    if (result.block.type !== STATE_MACHINE) {
       return result;
     }
     // TODO: is this a reasonable restriction?

@@ -148,7 +148,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   transformScript(tree) {
     var scriptItemList = this.transformStatements_(tree.scriptItemList);
-    if (scriptItemList == tree.scriptItemList) {
+    if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
     return new Script(tree.location, scriptItemList, tree.moduleName);
@@ -156,7 +156,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   transformModule(tree) {
     var scriptItemList = this.transformStatements_(tree.scriptItemList);
-    if (scriptItemList == tree.scriptItemList) {
+    if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
     return new Module(tree.location, scriptItemList, tree.moduleName);
@@ -166,7 +166,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     this.pushTempScope();
     var statements = this.transformStatements_(tree.statements);
     this.popTempScope();
-    if (statements == tree.statements)
+    if (statements === tree.statements)
       return tree;
     return createFunctionBody(statements);
   }

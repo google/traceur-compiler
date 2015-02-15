@@ -16,7 +16,7 @@
 
 var http = require('http');
 var util = require('./util.js');
-var print = console.log.bind(console);
+var print = util.print;
 
 var url = 'http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt';
 

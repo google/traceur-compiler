@@ -207,7 +207,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     this.pushTempScope();
 
     var rv;
-    if (tree.operator.type == EQUAL && tree.left.isPattern()) {
+    if (tree.operator.type === EQUAL && tree.left.isPattern()) {
       rv = this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
       rv = super.transformBinaryExpression(tree);

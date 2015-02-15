@@ -51,7 +51,7 @@ export class BreakState extends State {
    * @return {State}
    */
   transformBreak(labelSet, breakState = undefined) {
-    if (this.label == null)
+    if (this.label === null)
       return new FallThroughState(this.id, breakState, []);
 
     if (labelSet.has(this.label)) {

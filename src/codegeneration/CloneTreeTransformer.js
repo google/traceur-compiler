@@ -110,7 +110,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
   transformList(list) {
     if (!list) {
       return null;
-    } else if (list.length == 0) {
+    } else if (list.length === 0) {
       return [];
     } else {
       return super.transformList(list);

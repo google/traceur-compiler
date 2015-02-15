@@ -142,7 +142,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     if (!this.previousMapping_)
       return false;
     if (this.lowResolution_ &&
-        this.previousMapping_.generated.line == this.generated_.line)
+        this.previousMapping_.generated.line === this.generated_.line)
       return true;
     if (this.isSame(this.previousMapping_.generated, this.generated_) &&
         this.isSame(this.previousMapping_.original, this.original_))
