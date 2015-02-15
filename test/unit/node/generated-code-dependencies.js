@@ -525,8 +525,8 @@ suite('context test', function() {
     });
   });
 
-  test('tnode uses argv', function() {
-    var cmd = './tnode test/unit/node/resources/test_tnode.js --arg1 --arg2 arg3';
+  test('tval uses argv', function() {
+    var cmd = './tval test/unit/node/resources/test_tval.js --arg1 --arg2 arg3';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       assert.equal(stdout, 'args--arg1--arg2arg3\n');
