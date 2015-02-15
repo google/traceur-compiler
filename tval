@@ -16,6 +16,11 @@
 
 'use strict';
 
+function usage() {
+	console.log(process.mainModule.filename + ' <filename> [args]');
+	console.log('Compile <filename> as an ES6 module and execute it with "args"');
+}
+
 // The System object require()s traceur. The module sets global.System
 // as a side-effect.
 require('./src/node/System.js');
@@ -24,10 +29,15 @@ var path = require('path');
 // The first argument is 'node6'; the second one is our 'program' name.
 var filename = process.argv[2];
 
+if (!filename || filename === '-?' || filename === '--help') {
+	usage();
+	process.exit(0);
+}
+
 var moduleName = path.resolve(filename.replace(/\\/g, '/'));
 
 // Simulate a future where it looks like node is executing our program
-process.argv = [process.execPath].concat(process.argv.slice(2));
+process.argv = [process.mainModule.filename].concat(process.argv.slice(2));
 
 // The module will evaluate and have process.argv ['node', filename, ...]
 System.import(moduleName).catch(function(err) {
