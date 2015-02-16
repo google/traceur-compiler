@@ -17,8 +17,8 @@
 'use strict';
 
 function usage() {
-	console.log(process.mainModule.filename + ' <filename> [args]');
-	console.log('Compile <filename> as an ES6 module and execute it with "args"');
+  console.log(process.mainModule.filename + ' <filename> [args]');
+  console.log('Compile <filename> as an ES6 module and execute it with "args"');
 }
 
 // The System object require()s traceur. The module sets global.System
@@ -26,12 +26,15 @@ function usage() {
 require('./src/node/System.js');
 var path = require('path');
 
-// The first argument is 'node6'; the second one is our 'program' name.
+var helps = ['-?', '--help', '-h'];
+
+// The first argument is node, second is this file;
+// the third one is our 'program' name.
 var filename = process.argv[2];
 
-if (!filename || filename === '-?' || filename === '--help') {
-	usage();
-	process.exit(0);
+if (!filename || helps.indexOf(filename) !== -1) {
+  usage();
+  process.exit(0);
 }
 
 var moduleName = path.resolve(filename.replace(/\\/g, '/'));
