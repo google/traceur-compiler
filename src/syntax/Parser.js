@@ -2926,8 +2926,12 @@ export class Parser {
       return new AwaitExpression(this.getTreeLocation_(start), operand);
     }
 
-    if (this.peekUnaryOperator_(this.peekType_())) {
+    var type = this.peekType_();
+    if (this.peekUnaryOperator_(type)) {
       var operator = this.nextToken_();
+      if (type === DELETE && this.isStrongMode_()) {
+        this.reportError_(operator, 'delete is not allowed in strong mode');
+      }
       var operand = this.parseUnaryExpression_();
       operand = this.toPrimaryExpression_(operand);
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
