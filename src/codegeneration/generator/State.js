@@ -52,7 +52,7 @@ export class State {
   }
 
   /**
-   * @param {Object} labelSet    set of label strings.
+   * @param {StringMap} labelSet
    * @param {number} breakState
    * @return {State}
    */
@@ -61,7 +61,7 @@ export class State {
   }
 
   /**
-   * @param {Object} labelSet    set of label strings.
+   * @param {StringMap} labelSet
    * @param {number=} breakState
    * @param {number=} continueState
    * @return {State}
