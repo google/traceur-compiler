@@ -1570,6 +1570,9 @@ export class Parser {
    * @private
    */
   parseForInStatement_(start, initializer) {
+    if (this.isStrongMode_()) {
+      this.reportError_('for in loops are not allowed in strong mode');
+    }
     this.eat_(IN);
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
