@@ -33,6 +33,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
 
+
   // Resolve includes before changing directory.
   var resolvedIncludes = includes.map(function(include) {
     include.name = path.resolve(include.name);
@@ -45,6 +46,18 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   mkdirRecursive(outputDir);
   process.chdir(outputDir);
 
+  // Build the preamble 
+  var preamble = '';
+  var rest = [];
+  resolvedIncludes.forEach(function(include) {
+    if (include.type === 'passthru') {
+      preamble += fs.readFileSync(include.name, 'utf8');
+    } else {
+      rest.push(include);
+    }
+  });
+  resolvedIncludes = rest;
+
   // Make includes relative to output dir so that sourcemap paths are correct.
   resolvedIncludes = resolvedIncludes.map(function(include) {
     include.name = normalizePath(path.relative(outputDir, include.name));
@@ -53,7 +66,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
 
   return recursiveModuleCompile(resolvedIncludes, options)
       .then(function(tree) {
-        compiler.writeTreeToFile(tree, resolvedOutputFile);
+        compiler.writeTreeToFile(tree, resolvedOutputFile, preamble);
       }).then(revertCwd, function(err) {
         revertCwd();
         throw err;

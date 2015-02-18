@@ -35,7 +35,7 @@ function NodeCompiler(options, sourceRoot) {
 NodeCompiler.prototype = {
   __proto__: Compiler.prototype,
 
-  writeTreeToFile: function(tree, filename) {
+  writeTreeToFile: function(tree, filename, preamble) {
     filename = this.normalize(filename);
     var compiledCode = this.write(tree, filename);
     if (this.options_.sourceMaps === 'file') {
@@ -44,7 +44,8 @@ NodeCompiler.prototype = {
         writeFile(this.sourceMappingURL(filename), sourcemap);
       }
     }
-
+    if (preamble)
+      compiledCode = preamble + compiledCode;
     writeFile(filename, compiledCode);
   },
 

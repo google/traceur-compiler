@@ -43,6 +43,10 @@ commandLine.option('--module <fileName>', 'Parse as Module', function(fileName) 
    rootSources.push({name: fileName, type: 'module'});
 });
 
+commandLine.option('--passthru <fileName>', 'Pass source unchanged into output', function(fileName) {
+   rootSources.push({name: fileName, type: 'passthru'});
+});
+
 commandLine.option('--inline <fileName>', 'Parse as Module, format \'inline\'',
   function(fileName) {
    rootSources.push({name: fileName, type: 'module', format: 'inline'});
