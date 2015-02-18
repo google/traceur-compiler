@@ -48,7 +48,7 @@ export class BreakState extends State {
   }
 
   /**
-   * @param {Object} labelSet
+   * @param {StringMap} labelSet
    * @param {number=} breakState
    * @return {State}
    */
@@ -56,16 +56,16 @@ export class BreakState extends State {
     if (this.label === null)
       return new FallThroughState(this.id, breakState, []);
 
-    if (this.label in labelSet) {
+    if (labelSet.has(this.label)) {
       return new FallThroughState(this.id,
-          labelSet[this.label].fallThroughState, []);
+          labelSet.get(this.label).fallThroughState, []);
     }
 
     return this;
   }
 
   /**
-   * @param {Object} labelSet
+   * @param {StringMap} labelSet
    * @param {number=} breakState
    * @param {number=} continueState
    * @return {State}

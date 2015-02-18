@@ -48,7 +48,7 @@ export class ContinueState extends State {
   }
 
   /**
-   * @param {Object} labelSet
+   * @param {StringMap} labelSet
    * @param {number=} breakState
    * @param {number=} continueState
    * @return {State}
@@ -58,8 +58,9 @@ export class ContinueState extends State {
     if (this.label === null)
       return new FallThroughState(this.id, continueState, []);
 
-    if (this.label in labelSet) {
-      return new FallThroughState(this.id, labelSet[this.label].continueState,
+    if (labelSet.has(this.label)) {
+      return new FallThroughState(this.id,
+                                  labelSet.get(this.label).continueState,
                                   []);
     }
 

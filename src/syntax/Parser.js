@@ -3121,6 +3121,7 @@ export class Parser {
         return new NewExpression(this.getTreeLocation_(start), operand, args);
 
       case SUPER:
+        var start = this.getTreeStartLocation_();
         operand = this.parseSuperExpression_();
         var type = this.peekType_();
         switch (type) {

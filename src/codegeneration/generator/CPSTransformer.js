@@ -39,6 +39,7 @@ import {FinallyFallThroughState} from './FinallyFallThroughState.js';
 import {FinallyState} from './FinallyState.js';
 import {FindInFunctionScope} from '../FindInFunctionScope.js';
 import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
+import {StringMap} from '../../util/StringMap.js';
 import {TempVarTransformer} from '../TempVarTransformer.js';
 import {assert} from '../../util/assert.js';
 import {
@@ -166,7 +167,14 @@ export class CPSTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.reporter = reporter;
     this.stateAllocator_ = new StateAllocator();
-    this.labelSet_ = Object.create(null);
+
+    // This is currently a Map<string, LabelState> where the key is the
+    // label.name. We should probably change this to Set<LabelState> but that
+    // requires us depending on a real Set which might be too slow as long as
+    // we depend on the Set polyfill. Consider refactoring this once the
+    // polyfill has been phased out.
+    this.labelSet_ = new StringMap();
+
     this.currentLabel_ = null;
     this.hoistVariablesTransformer_ = new HoistVariables();
   }
@@ -359,7 +367,7 @@ export class CPSTransformer extends TempVarTransformer {
    * @param {StateMachine} loopBodyMachine
    * @param {number} continueState
    * @param {number} breakState
-   * @param {Object} labels
+   * @param {StringMap} labels
    * @param {Array.<State>} states
    */
   addLoopBodyStates_(loopBodyMachine, continueState, breakState,
@@ -707,11 +715,9 @@ export class CPSTransformer extends TempVarTransformer {
   addLabel_(label) {
     var oldLabels = this.labelSet_;
 
-    var labelSet = Object.create(null);
-    for (var k in this.labelSet_) {
-      labelSet[k] = this.labelSet_[k];
-    }
-    labelSet[label.name] = label;
+    var labelSet = new StringMap();
+    this.labelSet_.forEach((k) => labelSet[k] = this.labelSet_[k]);
+    labelSet.set(label.name, label);
     this.labelSet_ = labelSet;
 
     return oldLabels;
@@ -719,7 +725,7 @@ export class CPSTransformer extends TempVarTransformer {
 
   clearLabels_() {
     var result = this.labelSet_;
-    this.labelSet_ = Object.create(null);
+    this.labelSet_ = new StringMap()
     return result;
   }
 
@@ -791,7 +797,7 @@ export class CPSTransformer extends TempVarTransformer {
   /**
    * @param {number} nextState
    * @param {number} fallThroughState
-   * @param {Object} labels
+   * @param {StringMap} labels
    * @param {Array.<ParseTree>} statements
    * @param {Array.<ParseTree>} states
    * @param {Array.<TryState>} tryStates

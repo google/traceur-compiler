@@ -176,8 +176,11 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
  */
 export class InstantiateModuleTransformer extends ModuleTransformer {
 
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
+  constructor(identifierGenerator, reporter, options = undefined) {
+    super(identifierGenerator, reporter, options);
+
+    this.anonymousModule =
+        options && !options.bundle && options.moduleName !== true;
 
     this.inExport_ = false;
     this.curDepIndex_ = null;
@@ -213,6 +216,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // whether this module has an export star
     // boolean array keyed by dependency index
     this.exportStarBindings = [];
+  }
+
+  getModuleName(tree) {
+    if (this.anonymousModule)
+      return null;
+    return tree.moduleName;
   }
 
   wrapModule(statements) {
