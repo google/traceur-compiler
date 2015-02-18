@@ -34,12 +34,12 @@ function defaultTestOptions() {
 }
 
 function mergeWithOptions(testOptions) {
-
   let commandLine =
       new commander.Command(process.argv[0] + ' ' + process.argv[1]);
 
-  for(let prop in testOptions)
+  Object.getOwnPropertyNames(testOptions).forEach( (prop) => {
     commandLine[prop] = testOptions[prop];
+  });
 
   commandLine.option('-?, --help', 'Show this help text', () =>{
     commandLine.help();
@@ -48,15 +48,14 @@ function mergeWithOptions(testOptions) {
   // Selected mocha options supported.
   commandLine.option('-g, --grep <pattern>', 'only run tests matching <pattern>').
       option('-i, --invert', 'inverts --grep matches').
-      option('-b, --bail', "bail after first test failure");
-  
+      option('-b, --bail', 'bail after first test failure');
+
   commandLine.command('only <file> [files...]').
       description('only test these [files] ').action(
       (file, files) => {
         commandLine.patterns = [file];
         if (files)
           commandLine.patterns = commandLine.patterns.concat(files);
-
       });
 
   commandLine.parse(process.argv);
@@ -66,13 +65,13 @@ function mergeWithOptions(testOptions) {
 
 function runTests(testOptions) {
   // Apply the mocha options
-  if (testOptions.grep) 
+  if (testOptions.grep)
     testRunner.grep(new RegExp(testOptions.grep));
   if (testOptions.invert)
     testRunner.invert();
   if (testOptions.bail)
     testRunner.bail();
-  
+
   testOptions.patterns.forEach((pattern) => {
     let files = glob.sync(pattern, {});
     files.forEach((file) => testRunner.addFile(file));
@@ -91,6 +90,4 @@ function runTests(testOptions) {
 
 runTests(
     mergeWithOptions(
-        defaultTestOptions()
-    )
-);
+        defaultTestOptions()));
