@@ -28,7 +28,7 @@ import scopeContainsThis from './scopeContainsThis.js';
 
 export class AmdTransformer extends ModuleTransformer {
 
-  constructor(identifierGenerator, reporter, options) {
+  constructor(identifierGenerator, reporter, options = undefined) {
     super(identifierGenerator, reporter, options);
     this.dependencies = [];
     this.anonymousModule =

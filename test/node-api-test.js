@@ -165,4 +165,46 @@ suite('node public api', function() {
 
     assert.equal(gotName, 'test-module');
   });
+
+  test('instantiate anonymous', function() {
+    var contents = "export var p = 5;";
+    var compiled = traceurAPI.compile(contents, {
+      module: 'instantiate',
+      moduleName: false
+    }, 'test-module');
+
+    assert.ok(compiled, 'can compile');
+
+    var gotName;
+    var System = {
+      register: function(name) {
+        gotName = typeof name === 'string' && name;
+      }
+    };
+    // eval locally to capture the define() mock
+    eval(compiled);
+
+    assert.equal(gotName, undefined);
+  });
+
+  test('instantiate named', function() {
+    var contents = "export var p = 5;";
+    var compiled = traceurAPI.compile(contents, {
+      modules: 'instantiate',
+      moduleName: true
+    }, 'test-module');
+
+    assert.ok(compiled, 'can compile');
+
+    var gotName;
+    var System = {
+      register: function(name) {
+        gotName = typeof name === 'string' && name;
+      }
+    };
+    // eval locally to capture the define() mock
+    eval(compiled);
+
+    assert.equal(gotName, 'test-module');
+  });
 });
