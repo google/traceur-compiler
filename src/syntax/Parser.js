@@ -908,6 +908,15 @@ export class Parser {
     return this.parseStatementWithType_(this.peekType_());
   }
 
+  parseSubStatement_() {
+    var type = this.peekType_();
+    if (type === SEMI_COLON && this.isStrongMode_()) {
+      this.reportError_('Empty sub statements are not allowed in strong mode.' +
+                        ' Please use {} instead.');
+    }
+    return this.parseStatementWithType_(type);
+  }
+
   /**
    * @return {ParseTree}
    * @private
@@ -1340,10 +1349,10 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var ifClause = this.parseStatement_();
+    var ifClause = this.parseSubStatement_();
     var elseClause = null;
     if (this.eatIf_(ELSE)) {
-      elseClause = this.parseStatement_();
+      elseClause = this.parseSubStatement_();
     }
     return new IfStatement(this.getTreeLocation_(start), condition, ifClause, elseClause);
   }
@@ -1358,7 +1367,7 @@ export class Parser {
   parseDoWhileStatement_() {
     var start = this.getTreeStartLocation_();
     this.eat_(DO);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     this.eat_(WHILE);
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
@@ -1378,7 +1387,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new WhileStatement(this.getTreeLocation_(start), condition, body);
   }
 
@@ -1462,7 +1471,7 @@ export class Parser {
     this.eatId_(); // of
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new ForOfStatement(this.getTreeLocation_(start), initializer,
                               collection, body);
   }
@@ -1479,7 +1488,7 @@ export class Parser {
     this.eatId_(); // on
     var observable = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new ForOnStatement(this.getTreeLocation_(start), initializer,
                               observable, body);
   }
@@ -1557,7 +1566,7 @@ export class Parser {
       increment = this.parseExpression();
     }
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new ForStatement(this.getTreeLocation_(start), initializer,
                             condition, increment, body);
   }
@@ -1576,7 +1585,7 @@ export class Parser {
     this.eat_(IN);
     var collection = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new ForInStatement(this.getTreeLocation_(start), initializer,
                               collection, body);
   }
@@ -1663,7 +1672,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var expression = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseStatement_();
+    var body = this.parseSubStatement_();
     return new WithStatement(this.getTreeLocation_(start), expression, body);
   }
 
