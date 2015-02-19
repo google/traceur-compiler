@@ -16,6 +16,8 @@
 // from http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt
 // Do not edit!
 
+'use strong';
+
 export const idStartTable = [
   170, 170,
   181, 181,

@@ -909,7 +909,7 @@ export class Parser {
   }
 
   parseSubStatement_() {
-    var type = this.peekType_();
+    let type = this.peekType_();
     if (type === SEMI_COLON && this.isStrongMode_()) {
       this.reportError_('Empty sub statements are not allowed in strong mode.' +
                         ' Please use {} instead.');
@@ -1222,6 +1222,11 @@ export class Parser {
         throw Error('unreachable');
     }
 
+    if (this.isStrongMode_() && type === VAR) {
+      this.reportError_('var is not allowed in strong mode. ' +
+                        'Please use let or const instead.');
+    }
+
     let start = this.getTreeStartLocation_();
     let declarations = [];
 
@@ -1349,7 +1354,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     let condition = this.parseExpression();
     this.eat_(CLOSE_PAREN);
-    let  ifClause = this.parseSubStatement_();
+    let ifClause = this.parseSubStatement_();
     let elseClause = null;
     if (this.eatIf_(ELSE)) {
       elseClause = this.parseSubStatement_();

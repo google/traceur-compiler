@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strong';
+
 // Applies Traceur to all scripts in a Web page.
 
 import {Loader} from './runtime/Loader.js';
