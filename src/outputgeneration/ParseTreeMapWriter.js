@@ -26,7 +26,6 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   constructor(sourceMapConfiguration, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
-    this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.lowResolution_ = sourceMapConfiguration.lowResolution;
     this.basepath_ = sourceMapConfiguration.basepath;
     this.outputLineCount_ = 1;
