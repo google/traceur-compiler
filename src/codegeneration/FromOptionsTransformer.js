@@ -63,10 +63,10 @@ export class FromOptionsTransformer extends MultiTransformer {
    */
   constructor(reporter, options) {
     super(reporter, options.validate);
-    var transformOptions = options.transformOptions;
-    var idGenerator = new UniqueIdentifierGenerator();
+    let transformOptions = options.transformOptions;
+    let idGenerator = new UniqueIdentifierGenerator();
 
-    var append = (transformer) => {
+    let append = (transformer) => {
       this.append((tree) => {
         return new transformer(idGenerator, reporter, options).
             transformAny(tree);
@@ -208,7 +208,7 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.blockBinding) {
       this.append((tree) => {
         // this transformer need to be aware of the tree it will be working on
-        var transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
+        let transformer = new BlockBindingTransformer(idGenerator, reporter, tree);
         return transformer.transformAny(tree);
       });
     }

@@ -32,7 +32,7 @@ export {Compiler} from './Compiler.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
 import {CollectingErrorReporter} from './util/CollectingErrorReporter.js';
 
-export var util = {
+export let util = {
   addOptions,
   CommandOptions,
   CollectingErrorReporter,
@@ -45,7 +45,7 @@ import {Scanner} from './syntax/Scanner.js';
 import {Script} from './syntax/trees/ParseTrees.js';
 import {SourceFile} from './syntax/SourceFile.js';
 
-export var syntax = {
+export let syntax = {
   Parser,
   Scanner,
   SourceFile,
@@ -61,7 +61,7 @@ import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
 import {TreeWriter} from './outputgeneration/TreeWriter.js';
 
-export var outputgeneration = {
+export let outputgeneration = {
   ParseTreeMapWriter,
   ParseTreeWriter,
   regexpuRewritePattern,
@@ -77,7 +77,7 @@ import {PureES6Transformer} from './codegeneration/PureES6Transformer.js';
 import {createModuleEvaluationStatement} from './codegeneration/module/createModuleEvaluationStatement.js';
 import {parseExpression, parseModule, parseScript, parseStatement} from './codegeneration/PlaceholderParser.js';
 
-export var codegeneration = {
+export let codegeneration = {
   CloneTreeTransformer,
   FromOptionsTransformer,
   PureES6Transformer,
@@ -96,7 +96,7 @@ import {LoaderCompiler} from './runtime/LoaderCompiler.js';
 import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler.js';
 import {TraceurLoader} from './runtime/TraceurLoader.js';
 
-export var runtime = {
+export let runtime = {
   InlineLoaderCompiler,
   Loader,
   LoaderCompiler,

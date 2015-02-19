@@ -65,8 +65,8 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
   }
 
   transform(tree) {
-    var value = id(this.idGenerator_.getTempIdentifier());
-    var assignment;
+    let value = id(this.idGenerator_.getTempIdentifier());
+    let assignment;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       // {var,let,const} initializer = $value;
       assignment = createVariableStatement(
@@ -77,7 +77,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
           ${tree.initializer} = ${value};`;
     }
 
-    var body = new Block(tree.body.location,
+    let body = new Block(tree.body.location,
         [assignment, ...tree.body.statements]);
     body = this.transformAny(body);
     body = alphaRenameThisAndArguments(this, body);
@@ -86,7 +86,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
     this.variableDeclarations_.push(
         createVariableDeclaration(this.result_, createVoid0()));
 
-    var caseClauses = this.extractedStatements_.map(
+    let caseClauses = this.extractedStatements_.map(
         (statement, index) => {
           return createCaseClause(createNumberLiteral(index), [statement])
         });
@@ -95,8 +95,8 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
     caseClauses.push(createDefaultClause(parseStatements `
         return ${this.result_}.v;`));
 
-    var switchStatement = createSwitchStatement(this.result_, caseClauses);
-    var statement = parseStatement `
+    let switchStatement = createSwitchStatement(this.result_, caseClauses);
+    let statement = parseStatement `
         do {
           ${createVariableStatement(
             createVariableDeclarationList(VAR, this.variableDeclarations_))}
@@ -114,7 +114,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
           ${switchStatement}
         } while (false);`;
 
-    var labelledStatement;
+    let labelledStatement;
     while (labelledStatement = this.labelSet_.pop()) {
       statement = new LabelledStatement(labelledStatement.location,
       labelledStatement.name, statement);
@@ -125,14 +125,14 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
 
   // alphaRenameThisAndArguments
   addTempVarForArguments() {
-    var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
+    let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, id(ARGUMENTS)));
     return tmpVarName;
   }
   // alphaRenameThisAndArguments
   addTempVarForThis() {
-    var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
+    let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, createThisExpression()));
     return tmpVarName;
@@ -159,7 +159,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
   transformAbruptCompletion_(tree) {
     this.extractedStatements_.push(tree);
 
-    var index = this.extractedStatements_.length - 1;
+    let index = this.extractedStatements_.length - 1;
     return new AnonBlock(null, parseStatements `
         ${this.observer_}.return();
         ${this.result_} = ${index};
@@ -204,10 +204,10 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
 
   transformVariableStatement(tree) {
     if (tree.declarations.declarationType === VAR) {
-      var assignments = [];
+      let assignments = [];
       tree.declarations.declarations.forEach((variableDeclaration) => {
-        var variableName = variableDeclaration.lvalue.getStringValue();
-        var initializer = super.transformAny(variableDeclaration.initializer);
+        let variableName = variableDeclaration.lvalue.getStringValue();
+        let initializer = super.transformAny(variableDeclaration.initializer);
 
         this.variableDeclarations_.push(
             createVariableDeclaration(variableName, null));

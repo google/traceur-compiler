@@ -61,9 +61,9 @@ class StringParser {
     if (this.value.indexOf('\\') === -1)
       return this.value.slice(1, -1);
 
-    var result = '';
+    let result = '';
 
-    for (var ch of this) {
+    for (let ch of this) {
       result += ch === '\\' ? this.parseEscapeSequence() : ch;
     }
 
@@ -71,7 +71,7 @@ class StringParser {
   }
 
   parseEscapeSequence() {
-    var ch = this.next().value;
+    let ch = this.next().value;
     switch (ch) {
       case '\n':  // <LF>
       case '\r':  // <CR>
@@ -96,18 +96,18 @@ class StringParser {
         // 2 hex digits
         return String.fromCharCode(parseInt(this.next().value + this.next().value, 16));
       case 'u':
-        var nextValue = this.next().value;
+        let nextValue = this.next().value;
         if (nextValue === '{') {
-          var hexDigits = '';
+          let hexDigits = '';
           while ((nextValue = this.next().value) !== '}') {
             hexDigits += nextValue;
           }
-          var codePoint = parseInt(hexDigits, 16);
+          let codePoint = parseInt(hexDigits, 16);
           if (codePoint <= 0xFFFF) {
             return String.fromCharCode(codePoint);
           }
-          var high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
-          var low = (codePoint - 0x10000) % 0x400 + 0xDC00;
+          let high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
+          let low = (codePoint - 0x10000) % 0x400 + 0xDC00;
           return String.fromCharCode(high, low);
         }
         // 4 hex digits
@@ -150,7 +150,7 @@ export class LiteralToken extends Token {
         return null;
 
       case NUMBER:
-        var value = this.value;
+        let value = this.value;
         if (value.charCodeAt(0) === 48) {  // 0
           switch (value.charCodeAt(1)) {
             case 66:  // B
@@ -164,7 +164,7 @@ export class LiteralToken extends Token {
         return Number(this.value);
 
       case STRING:
-        var parser = new StringParser(this.value);
+        let parser = new StringParser(this.value);
         return parser.parse();
 
       default:

@@ -37,5 +37,5 @@ names.sort();
 
 names.forEach(function(name) {
   name = util.toConstantName(name);
-  print('export var %s = \'%s\';', name, name);
+  print('export const %s = \'%s\';', name, name);
 });

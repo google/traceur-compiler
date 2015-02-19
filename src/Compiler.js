@@ -29,12 +29,12 @@ import {
 } from './outputgeneration/SourceMapIntegration.js';
 
 function merge(...srcs) {
-  var dest = Object.create(null);
+  let dest = Object.create(null);
   srcs.forEach((src) => {
     Object.keys(src).forEach((key) => {
       dest[key] = src[key];
     });
-    var srcModules = src.modules;  // modules is a getter on prototype
+    let srcModules = src.modules;  // modules is a getter on prototype
     if (typeof srcModules !== 'undefined') {
       dest.modules = srcModules;
     }
@@ -46,7 +46,7 @@ function merge(...srcs) {
 function basePath(name) {
   if (!name)
     return null;
-  var lastSlash = name.lastIndexOf('/');
+  let lastSlash = name.lastIndexOf('/');
   if (lastSlash < 0)
     return null;
   return name.substring(0, lastSlash + 1);
@@ -98,7 +98,7 @@ export class Compiler {
    * @return {Object}
    */
   static amdOptions(options = {}) {
-    var amdOptions = {
+    let amdOptions = {
       modules: 'amd',
       sourceMaps: false,
       moduleName: false
@@ -112,7 +112,7 @@ export class Compiler {
    * @return {Object}
    */
   static closureOptions(options = {}) {
-    var closureOptions = {
+    let closureOptions = {
       modules: 'closure',
       sourceMaps: false,
       moduleName: true
@@ -126,7 +126,7 @@ export class Compiler {
    * @return {Object}
    */
   static commonJSOptions(options = {}) {
-    var commonjsOptions = {
+    let commonjsOptions = {
       modules: 'commonjs',
       sourceMaps: false,
       moduleName: false
@@ -148,10 +148,10 @@ export class Compiler {
 
     sourceName = this.normalize(sourceName);
     outputName = this.normalize(outputName);
-    var tree = this.parse(content, sourceName);
+    let tree = this.parse(content, sourceName);
     tree = this.transform(tree, sourceName);
     // Attach the sourceURL only if the input and output names differ.
-    var sourceURL = sourceName !== outputName ? sourceName : undefined;
+    let sourceURL = sourceName !== outputName ? sourceName : undefined;
     // The sourceRoot argument takes precidence over the option.
     if (sourceRoot === undefined)
       sourceRoot = this.options_.sourceRoot;
@@ -173,10 +173,10 @@ export class Compiler {
     this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ = null;
 
-    var errorReporter = new CollectingErrorReporter();
-    var sourceFile = new SourceFile(sourceName, content);
-    var parser = new Parser(sourceFile, errorReporter, this.options_);
-    var tree =
+    let errorReporter = new CollectingErrorReporter();
+    let sourceFile = new SourceFile(sourceName, content);
+    let parser = new Parser(sourceFile, errorReporter, this.options_);
+    let tree =
         this.options_.script ? parser.parseScript() : parser.parseModule();
     this.throwIfErrors(errorReporter);
 
@@ -192,13 +192,13 @@ export class Compiler {
    */
   transform(tree, candidateModuleName = undefined) {
 
-    var transformer;
+    let transformer;
     if (candidateModuleName) {
-      var transformer = new AttachModuleNameTransformer(candidateModuleName);
+      let transformer = new AttachModuleNameTransformer(candidateModuleName);
       tree = transformer.transformAny(tree);
     }
 
-    var errorReporter = new CollectingErrorReporter();
+    let errorReporter = new CollectingErrorReporter();
 
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
       transformer = new PureES6Transformer(errorReporter, this.options_);
@@ -206,7 +206,7 @@ export class Compiler {
       transformer = new FromOptionsTransformer(errorReporter, this.options_);
     }
 
-    var transformedTree = transformer.transform(tree);
+    let transformedTree = transformer.transform(tree);
     this.throwIfErrors(errorReporter);
     return transformedTree;
   }
@@ -231,10 +231,10 @@ export class Compiler {
     }
 
     if (this.sourceMapConfiguration_) {
-      var sourceMap = this.sourceMapConfiguration_.sourceMapGenerator.toString();
-      var inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
+      let sourceMap = this.sourceMapConfiguration_.sourceMapGenerator.toString();
+      let inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
       if (inputSourceMap) {
-        var generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
+        let generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
         generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
         sourceMap = generator.toJSON();
       }
@@ -269,7 +269,7 @@ export class Compiler {
     else
       sourceRoot = this.normalize(sourceRoot);
 
-    var writer;
+    let writer;
     this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ =
         this.createSourceMapConfiguration_(outputName, sourceRoot);
@@ -284,12 +284,12 @@ export class Compiler {
 
     writer.visitAny(tree);
 
-    var compiledCode = writer.toString();
+    let compiledCode = writer.toString();
 
     if (this.sourceMapConfiguration_) {
-      var sourceMappingURL =
+      let sourceMappingURL =
           this.sourceMappingURL(sourceURL || outputName || 'unnamed.js');
-      var sourceMap = this.getSourceMap();
+      let sourceMap = this.getSourceMap();
       compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
       // The source map info for in-memory maps
       this.sourceMapInfo_ = {

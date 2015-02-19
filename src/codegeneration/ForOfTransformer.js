@@ -46,18 +46,18 @@ export class ForOfTransformer extends TempVarTransformer {
   }
 
   transformForOfStatement_(original, labelSet) {
-    var tree = super.transformForOfStatement(original);
-    var iter = id(this.getTempIdentifier());
-    var result = id(this.getTempIdentifier());
-    var label = id(this.getTempIdentifier());
-    var normalCompletion = id(this.getTempIdentifier());
-    var throwCompletion = id(this.getTempIdentifier());
-    var exception = id(this.getTempIdentifier());
-    var ex = id(this.getTempIdentifier());
-    var labelledStatement;
-    var innerStatement;
+    let tree = super.transformForOfStatement(original);
+    let iter = id(this.getTempIdentifier());
+    let result = id(this.getTempIdentifier());
+    let label = id(this.getTempIdentifier());
+    let normalCompletion = id(this.getTempIdentifier());
+    let throwCompletion = id(this.getTempIdentifier());
+    let exception = id(this.getTempIdentifier());
+    let ex = id(this.getTempIdentifier());
+    let labelledStatement;
+    let innerStatement;
 
-    var assignment;
+    let assignment;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       // {var,let} initializer = $result.value;
       assignment = createVariableStatement(
@@ -77,7 +77,7 @@ export class ForOfTransformer extends TempVarTransformer {
           ${assignment}
           ${tree.body}
         }`;
-  
+
     while (labelledStatement = labelSet.pop()) {
       innerStatement = new LabelledStatement(labelledStatement.location,
           labelledStatement.name, innerStatement);
@@ -106,8 +106,8 @@ export class ForOfTransformer extends TempVarTransformer {
   }
 
   transformLabelledStatement(tree) {
-    var labelSet = [tree];
-    var statement = tree.statement;
+    let labelSet = [tree];
+    let statement = tree.statement;
     while (statement.type === LABELLED_STATEMENT) {
       labelSet.push(statement);
       statement = statement.statement;

@@ -61,7 +61,7 @@ export class ErrorReporter {
  *     where the place holders have been replaced.
  */
 export function format(location, text, args = undefined) {
-  var i = 0;
+  let i = 0;
   text = text.replace(/%./g, function(s) {
     switch (s) {
       case '%s':

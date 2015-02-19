@@ -43,7 +43,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
    * @return {Scope}
    */
   pushScope(tree) {
-    var scope = this.createScope(tree);
+    let scope = this.createScope(tree);
     this.map_.set(tree, scope);
     return this.scope = scope;
   }
@@ -60,25 +60,25 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitScript(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     super.visitScript(tree);
     this.popScope(scope);
   }
 
   visitModule(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     super.visitModule(tree);
     this.popScope(scope);
   }
 
   visitBlock(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     super.visitBlock(tree);
     this.popScope(scope);
   }
 
   visitCatch(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     this.visitAny(tree.binding);
     // We already entered the block.
     this.visitList(tree.catchBody.statements);
@@ -86,7 +86,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitFunctionBodyForScope(tree, parameterList = tree.parameterList) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     this.visitAny(parameterList);
     scope.inGenerator = tree.functionKind && tree.isGenerator();
     this.visitAny(tree.body);
@@ -120,7 +120,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
 
   visitClassDeclaration(tree) {
     this.visitAny(tree.superClass);
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     this.visitAny(tree.name);
     this.visitList(tree.elements);
     this.popScope(scope);
@@ -128,7 +128,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
 
   visitClassExpression(tree) {
     this.visitAny(tree.superClass);
-    var scope;
+    let scope;
     if (tree.name) {
       scope = this.pushScope(tree);
       this.visitAny(tree.name);
@@ -157,7 +157,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
       return;
     }
 
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     func();
     this.popScope(scope);
   }
@@ -179,9 +179,9 @@ export class ScopeVisitor extends ParseTreeVisitor {
   }
 
   visitComprehension_(tree) {
-    var scopes = [];
-    for (var i = 0; i < tree.comprehensionList.length; i++) {
-      var scope = null;
+    let scopes = [];
+    for (let i = 0; i < tree.comprehensionList.length; i++) {
+      let scope = null;
       if (tree.comprehensionList[i].type === COMPREHENSION_FOR) {
         scope = this.pushScope(tree.comprehensionList[i]);
       }
@@ -191,7 +191,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
 
     this.visitAny(tree.expression);
 
-    for(var i = scopes.length - 1; i >= 0; i--) {
+    for(let i = scopes.length - 1; i >= 0; i--) {
       if (scopes[i]) {
         this.popScope(scopes[i]);
       }

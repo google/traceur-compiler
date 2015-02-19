@@ -33,7 +33,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
   }
 
   visitCatch(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     this.declarationType_ = LET;
     this.visitAny(tree.binding);
     // We already entered the block.
@@ -56,7 +56,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
   }
 
   visitFunctionExpression(tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     if (tree.name) {
       this.declarationType_ = CONST;
       this.visitAny(tree.name);
@@ -80,7 +80,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
         this.visitAny(tree.name);
       } else {
         if (!this.scope.strictMode) {
-          var varScope = this.scope.getVarScope();
+          let varScope = this.scope.getVarScope();
           if (varScope) {
             varScope.addVar(tree.name, this.reporter);
           }
@@ -97,7 +97,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
     this.visitAny(tree.superClass);
     this.declarationType_ = LET;
     this.visitAny(tree.name);
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
 
     // Again, because the name is bound in the class
     this.declarationType_ = CONST;
@@ -109,7 +109,7 @@ export class ScopeChainBuilder extends ScopeVisitor {
 
   visitClassExpression(tree) {
     this.visitAny(tree.superClass);
-    var scope;
+    let scope;
     if (tree.name) {
       scope = this.pushScope(tree);
       this.declarationType_ = CONST;

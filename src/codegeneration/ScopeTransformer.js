@@ -43,11 +43,11 @@ class FindNames extends FindInFunctionScope {
  * @return {StringSet} An object as a map where the keys are the variable names.
  */
 function getLexicalBindingNames(tree) {
-  var names = new StringSet();
+  let names = new StringSet();
   if (tree !== null && tree.type === VARIABLE_DECLARATION_LIST &&
       tree.declarationType !== VAR) {
-    var visitor = new FindNames(names);
-    for (var i = 0; i < tree.declarations.length; i++) {
+    let visitor = new FindNames(names);
+    for (let i = 0; i < tree.declarations.length; i++) {
       visitor.visitAny(tree.declarations[i].lvalue);
     }
   }
@@ -83,7 +83,7 @@ export class ScopeTransformer extends ParseTreeTransformer {
   }
 
   sameTreeIfNameInLoopInitializer_(tree) {
-    var names = getLexicalBindingNames(tree.initializer);
+    let names = getLexicalBindingNames(tree.initializer);
     if (names.has(this.varName_)) {
       return tree;
     }

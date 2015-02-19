@@ -21,7 +21,7 @@ class FindThis extends FindInFunctionScope {
 }
 
 function scopeContainsThis(tree) {
-  var visitor = new FindThis();
+  let visitor = new FindThis();
   visitor.visitAny(tree);
   return visitor.found;
 }

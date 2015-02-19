@@ -81,7 +81,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   generate() {
-    var column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
+    let column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
     this.generated_ = {
       line: this.outputLineCount_,
       column: column
@@ -94,8 +94,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   exitBranch(location) {
-    var position = location.end;
-    var endOfPreviousToken = {
+    let position = location.end;
+    let endOfPreviousToken = {
       line: position.line,
       column: position.column ? position.column - 1 : 0,
       source : position.source,
@@ -108,7 +108,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   * @param {Object} position Traceur SourcePosition, line and col zero based.
   */
   originate(position) {
-    var line = position.line + 1;  // source map lib uses one-based lines.
+    let line = position.line + 1;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
     if (this.original_ && this.original_.line !== line)
       this.flushMappings();
@@ -154,7 +154,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     if (this.skipMapping())
       return;
 
-    var mapping = {
+    let mapping = {
       generated: this.generated_,
       original: this.original_,
       source: this.relativeSourceName_
@@ -170,17 +170,17 @@ export function relativePath(name, sourceRoot) {
   if (!sourceRoot)
     return name;
 
-  var nameSegments = name.split('/');
-  var rootSegments = sourceRoot.split('/');
+  let nameSegments = name.split('/');
+  let rootSegments = sourceRoot.split('/');
 
   if (rootSegments[rootSegments.length - 1]) {
     // We can't patch this up because we can't know whether the caller sent
     // a file path or a directory w/o a slash by mistake
     throw new Error('rootPath must end in /');
   }
-  var commonSegmentsLength = 0;
-  var uniqueSegments = [];
-  var foundUnique = false;
+  let commonSegmentsLength = 0;
+  let uniqueSegments = [];
+  let foundUnique = false;
   nameSegments.forEach((segment, index)  => {
     if (!foundUnique && segment === rootSegments[index]) {
       commonSegmentsLength++;
@@ -193,8 +193,8 @@ export function relativePath(name, sourceRoot) {
   if (commonSegmentsLength < 1 || commonSegmentsLength === rootSegments.length)
     return name;
 
-  var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
-  var segments = [];
+  let dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
+  let segments = [];
   while (dotDotSegments--) {
     segments.push('..');
   }

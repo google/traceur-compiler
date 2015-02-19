@@ -56,7 +56,7 @@ export class Scope {
 
   addVar(tree, reporter) {
     // We add VAR bindings to blocks so that we can check for duplicates.
-    var name = tree.getStringValue();
+    let name = tree.getStringValue();
     if (this.lexicalDeclarations_.has(name)) {
       reportDuplicateVar(reporter, tree, name);
       return;
@@ -69,7 +69,7 @@ export class Scope {
   }
 
   addDeclaration(tree, type, reporter) {
-    var name = tree.getStringValue();
+    let name = tree.getStringValue();
     if (this.lexicalDeclarations_.has(name) ||
         this.variableDeclarations_.has(name)) {
       reportDuplicateVar(reporter, tree, name);
@@ -80,7 +80,7 @@ export class Scope {
 
   // we deduce the oldType
   renameBinding(oldName, newTree, newType, reporter) {
-    var name = newTree.getStringValue();
+    let name = newTree.getStringValue();
     if (newType === VAR) {
       if (this.lexicalDeclarations_.has(oldName)) {
         this.lexicalDeclarations_.delete(oldName);
@@ -115,12 +115,12 @@ export class Scope {
   }
 
   getBinding(tree) {
-    var name = tree.getStringValue();
+    let name = tree.getStringValue();
     return this.getBindingByName(name);
   }
 
   getBindingByName(name) {
-    var b = this.lexicalDeclarations_.get(name);
+    let b = this.lexicalDeclarations_.get(name);
     if (b) {
       return b;
     }
@@ -136,7 +136,7 @@ export class Scope {
   }
 
   getAllBindingNames() {
-    var names = this.variableDeclarations_.keysAsSet();
+    let names = this.variableDeclarations_.keysAsSet();
     this.lexicalDeclarations_.forEach((name) => names.add(name));
     return names;
   }

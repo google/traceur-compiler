@@ -23,11 +23,11 @@ import {TryState} from '../../codegeneration/generator/TryState.js';
  * @param {Array.<TryState>} tryStates
  */
 function addCatchOrFinallyStates(kind, enclosingMap, tryStates) {
-  for (var i = 0; i < tryStates.length; i++) {
-    var tryState = tryStates[i];
+  for (let i = 0; i < tryStates.length; i++) {
+    let tryState = tryStates[i];
     if (tryState.kind === kind) {
-      for (var j = 0; j < tryState.tryStates.length; j++) {
-        var id = tryState.tryStates[j];
+      for (let j = 0; j < tryState.tryStates.length; j++) {
+        let id = tryState.tryStates[j];
         enclosingMap[id] = tryState;
       }
     }
@@ -40,8 +40,8 @@ function addCatchOrFinallyStates(kind, enclosingMap, tryStates) {
  * @param {Array.<CatchState>} catches
  */
 function addAllCatchStates(tryStates, catches) {
-  for (var i = 0; i < tryStates.length; i++) {
-    var tryState = tryStates[i];
+  for (let i = 0; i < tryStates.length; i++) {
+    let tryState = tryStates[i];
     if (tryState.kind === TryState.Kind.CATCH) {
       catches.push(tryState);
     }
@@ -110,8 +110,8 @@ export class StateMachine extends ParseTree {
    * @return {Array.<number>}
    */
   getAllStateIDs() {
-    var result = [];
-    for (var i = 0; i < this.states.length; i++) {
+    let result = [];
+    for (let i = 0; i < this.states.length; i++) {
       result.push(this.states[i].id);
     }
     return result;
@@ -123,14 +123,14 @@ export class StateMachine extends ParseTree {
    * @return {Object} map of state IDs to FinallyState.
    */
   getEnclosingFinallyMap() {
-    var enclosingMap = Object.create(null);
+    let enclosingMap = Object.create(null);
     addCatchOrFinallyStates(TryState.Kind.FINALLY, enclosingMap,
                             this.exceptionBlocks);
     return enclosingMap;
   }
 
   allCatchStates() {
-    var catches = [];
+    let catches = [];
     addAllCatchStates(this.exceptionBlocks, catches);
     return catches;
   }
@@ -158,16 +158,16 @@ export class StateMachine extends ParseTree {
    * @return {StateMachine}
    */
   append(nextMachine) {
-    var states = [...this.states];
-    for (var i = 0; i < nextMachine.states.length; i++) {
-      var otherState = nextMachine.states[i];
+    let states = [...this.states];
+    for (let i = 0; i < nextMachine.states.length; i++) {
+      let otherState = nextMachine.states[i];
       states.push(
           otherState.replaceState(nextMachine.startState, this.fallThroughState));
     }
 
-    var exceptionBlocks = [...this.exceptionBlocks];
-    for (var i = 0; i < nextMachine.exceptionBlocks.length; i++) {
-      var tryState = nextMachine.exceptionBlocks[i];
+    let exceptionBlocks = [...this.exceptionBlocks];
+    for (let i = 0; i < nextMachine.exceptionBlocks.length; i++) {
+      let tryState = nextMachine.exceptionBlocks[i];
       exceptionBlocks.push(
           tryState.replaceState(nextMachine.startState, this.fallThroughState));
     }

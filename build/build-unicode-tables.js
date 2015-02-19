@@ -39,7 +39,7 @@ var unicodeIdContinue = [];
 var idStartRanges = {};
 
 function printArray(name, array) {
-  print('export var ' + name + ' = [');
+  print('export const ' + name + ' = [');
   for (var i = 0; i < array.length; i += 2) {
     print('  ' + array[i] + ', ' + array[i + 1] + ',');
   }

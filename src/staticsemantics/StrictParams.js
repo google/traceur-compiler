@@ -29,7 +29,7 @@ export class StrictParams extends ParseTreeVisitor {
   }
 
   visitBindingIdentifier(tree) {
-    var name = tree.identifierToken.toString();
+    let name = tree.identifierToken.toString();
     if (isStrictKeyword(name)) {
       this.errorReporter.reportError(tree.location.start,
                                      `${name} is a reserved identifier`);

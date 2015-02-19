@@ -119,11 +119,11 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
     if (!this.matchesBindingName_(tree.operand))
       return super.transformUnaryExpression(tree);
 
-    var operatorType = tree.operator.type;
+    let operatorType = tree.operator.type;
     if (operatorType !== PLUS_PLUS && operatorType !== MINUS_MINUS)
       return super.transformUnaryExpression(tree);
 
-    var operand = this.transformAny(tree.operand);
+    let operand = this.transformAny(tree.operand);
     if (operand !== tree.operand)
       tree = new UnaryExpression(tree.location, tree.operator, operand);
 
@@ -279,7 +279,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    */
   appendExportStatement(statements) {
 
-    var declarationExtractionTransformer = new DeclarationExtractionTransformer();
+    let declarationExtractionTransformer = new DeclarationExtractionTransformer();
 
     // replace local export assignments with binding functions
     // using InsertBindingAssignmentTransformer
@@ -289,26 +289,26 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     });
 
     // Transform statements into execution statements only, with declarations removed.
-    var executionStatements = statements.map(
+    let executionStatements = statements.map(
       (statement) => declarationExtractionTransformer.transformAny(statement)
     );
 
-    var executionFunction = createFunctionExpression(
+    let executionFunction = createFunctionExpression(
         createEmptyParameterList(),
         createFunctionBody(executionStatements)
     );
 
     // Extract the declaration statements for hoisting from the previous transform.
-    var declarationStatements = declarationExtractionTransformer.getDeclarationStatements();
+    let declarationStatements = declarationExtractionTransformer.getDeclarationStatements();
 
     // create the setter bindings
-    var setterFunctions = this.dependencies.map((dep, index) => {
-      var importBindings = this.importBindings[index];
-      var externalExportBindings = this.externalExportBindings[index];
-      var exportStarBinding = this.exportStarBindings[index];
-      var moduleBinding = this.moduleBindings[index];
+    let setterFunctions = this.dependencies.map((dep, index) => {
+      let importBindings = this.importBindings[index];
+      let externalExportBindings = this.externalExportBindings[index];
+      let exportStarBinding = this.exportStarBindings[index];
+      let moduleBinding = this.moduleBindings[index];
 
-      var setterStatements = [];
+      let setterStatements = [];
 
       // first set local import bindings for the current dependency
       if (importBindings) {
@@ -344,7 +344,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
           });
         `);
 
-        var exportNames = {};
+        let exportNames = {};
         this.localExportBindings.concat(this.externalExportBindings).forEach(function(binding) {
           exportNames[binding.exportName] = true;
         });
@@ -428,9 +428,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   }
 
   getOrCreateDependencyIndex(moduleSpecifier) {
-    var name = moduleSpecifier.token.processedValue;
+    let name = moduleSpecifier.token.processedValue;
 
-    var depIndex = this.dependencies.indexOf(name);
+    let depIndex = this.dependencies.indexOf(name);
 
     if (depIndex === -1) {
       depIndex = this.dependencies.length;
@@ -448,7 +448,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       this.curDepIndex_ = null;
     }
 
-    var transformed = this.transformAny(tree.declaration);
+    let transformed = this.transformAny(tree.declaration);
     this.inExport_ = false;
     return transformed;
   }
@@ -464,8 +464,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     return createVariableStatement(createVariableDeclarationList(VAR,
         tree.declarations.declarations.map((declaration) => {
-      var varName = declaration.lvalue.identifierToken.value;
-      var initializer;
+      let varName = declaration.lvalue.identifierToken.value;
+      let initializer;
       this.addLocalExportBinding(varName);
       if (declaration.initializer)
         initializer = parseExpression `$__export(${varName}, ${this.transformAny(declaration.initializer)})`;
@@ -490,15 +490,15 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     this.inExport_ = false;
 
-    var name = this.transformAny(tree.name);
-    var superClass = this.transformAny(tree.superClass);
-    var elements = this.transformList(tree.elements);
-    var annotations = this.transformList(tree.annotations);
-    var typeParameters = this.transformAny(tree.typeParameters);
+    let name = this.transformAny(tree.name);
+    let superClass = this.transformAny(tree.superClass);
+    let elements = this.transformList(tree.elements);
+    let annotations = this.transformList(tree.annotations);
+    let typeParameters = this.transformAny(tree.typeParameters);
 
-    var varName = name.identifierToken.value;
+    let varName = name.identifierToken.value;
     // convert into class expression
-    var classExpression = new ClassExpression(tree.location, name, superClass,
+    let classExpression = new ClassExpression(tree.location, name, superClass,
         elements, annotations, typeParameters);
     this.addLocalExportBinding(varName);
     return parseStatement `var ${varName} = $__export(${varName}, ${classExpression});`;
@@ -511,7 +511,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   transformFunctionDeclaration(tree) {
     // simply note the function declaration to do assignment in the declaration phase later
     if (this.inExport_) {
-      var name = tree.name.getStringValue();
+      let name = tree.name.getStringValue();
       this.addLocalExportBinding(name);
       this.addExportFunction(name);
       this.inExport_ = false;
@@ -523,7 +523,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // visit the module specifier, which sets the current dependency index
     this.transformAny(tree.moduleSpecifier);
 
-    var specifierSet = this.transformAny(tree.specifierSet);
+    let specifierSet = this.transformAny(tree.specifierSet);
 
     if (this.curDepIndex_ === null) {
       // if it is an export statement, it just becomes the variable declarations
@@ -552,20 +552,20 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     //
     this.curDepIndex_ = this.getOrCreateDependencyIndex(tree.moduleSpecifier);
 
-    var initializer = this.transformAny(tree.moduleSpecifier);
+    let initializer = this.transformAny(tree.moduleSpecifier);
 
     if (!tree.importClause)
       return new AnonBlock(null, []);
 
     // visit the import clause to store the bindings
-    var importClause = this.transformAny(tree.importClause);
+    let importClause = this.transformAny(tree.importClause);
 
     if (tree.importClause.type === IMPORT_SPECIFIER_SET) {
       // loop each specifier generating the variable declaration list
       return importClause;
     } else {
       // import default form
-      var bindingName = tree.importClause.binding.getStringValue();
+      let bindingName = tree.importClause.binding.getStringValue();
       this.addImportBinding(this.curDepIndex_, bindingName, 'default');
       return parseStatement `var ${bindingName};`;
     }
@@ -595,7 +595,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // $__export('default', ...)
     //
     this.inExport_ = false;
-    var expression = this.transformAny(tree.expression);
+    let expression = this.transformAny(tree.expression);
     this.addLocalExportBinding('default');
 
     // convert class into a class expression
@@ -614,8 +614,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   }
 
   transformExportSpecifier(tree) {
-    var exportName;
-    var bindingName;
+    let exportName;
+    let bindingName;
 
     if (tree.rhs) {
       exportName = tree.rhs.value;
@@ -637,15 +637,15 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   // =>
   // $__export('a', a), $__export('c', b);
   transformExportSpecifierSet(tree) {
-    var specifiers = this.transformList(tree.specifiers);
+    let specifiers = this.transformList(tree.specifiers);
     return new ExpressionStatement(tree.location,
       new CommaExpression(tree.location, specifiers.filter((specifier) => specifier)));
   }
 
   transformImportSpecifier(tree) {
-    var localBinding = tree.binding.binding;
-    var localBindingToken = localBinding.identifierToken;
-    var importName = (tree.name || localBindingToken).value;
+    let localBinding = tree.binding.binding;
+    let localBindingToken = localBinding.identifierToken;
+    let importName = (tree.name || localBindingToken).value;
     this.addImportBinding(this.curDepIndex_, localBindingToken.value, importName);
     return createVariableDeclaration(localBinding);
   }
@@ -653,8 +653,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   transformModuleDeclaration(tree) {
     // we visit the declaration only
     this.transformAny(tree.expression);
-    var bindingIdentifier = tree.binding.binding;
-    var name = bindingIdentifier.getStringValue();
+    let bindingIdentifier = tree.binding.binding;
+    let name = bindingIdentifier.getStringValue();
     this.addModuleBinding(this.curDepIndex_, name);
     return parseStatement `var ${bindingIdentifier};`;
   }

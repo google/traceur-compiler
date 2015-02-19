@@ -74,7 +74,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformFunctionBody(tree) {
-    var statements = this.transformList(tree.statements);
+    let statements = this.transformList(tree.statements);
     if (statements === tree.statements)
       return tree;
 
@@ -107,7 +107,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     if (!this.hasVariables())
       return new AnonBlock(null, []);
 
-    var declarations = this.getVariableNames().map((name) => {
+    let declarations = this.getVariableNames().map((name) => {
       return createVariableDeclaration(name, null);
     });
 
@@ -132,7 +132,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformVariableStatement(tree) {
-    var declarations = this.transformAny(tree.declarations);
+    let declarations = this.transformAny(tree.declarations);
     if (declarations === tree.declarations)
       return tree;
 
@@ -147,10 +147,10 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformVariableDeclaration(tree) {
-    var lvalue = this.transformAny(tree.lvalue);
-    var initializer = this.transformAny(tree.initializer);
+    let lvalue = this.transformAny(tree.lvalue);
+    let initializer = this.transformAny(tree.initializer);
     if (initializer) {
-      var expression = createAssignmentExpression(lvalue, initializer);
+      let expression = createAssignmentExpression(lvalue, initializer);
       if (lvalue.type === OBJECT_PATTERN)
         expression = createParenExpression(expression);
       return expression;
@@ -161,9 +161,9 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   transformObjectPattern(tree) {
     // AssignmentPatterns incorrectly uses BindingIdentifiers.
     // https://github.com/google/traceur-compiler/issues/969
-    var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+    let keepBindingIdentifiers = this.keepBindingIdentifiers_;
     this.keepBindingIdentifiers_ = true;
-    var transformed = super.transformObjectPattern(tree);
+    let transformed = super.transformObjectPattern(tree);
     this.keepBindingIdentifiers_ = keepBindingIdentifiers;
     return transformed;
   }
@@ -171,15 +171,15 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   transformArrayPattern(tree) {
     // AssignmentPatterns incorrectly uses BindingIdentifiers.
     // https://github.com/google/traceur-compiler/issues/969
-    var keepBindingIdentifiers = this.keepBindingIdentifiers_;
+    let keepBindingIdentifiers = this.keepBindingIdentifiers_;
     this.keepBindingIdentifiers_ = true;
-    var transformed = super.transformArrayPattern(tree);
+    let transformed = super.transformArrayPattern(tree);
     this.keepBindingIdentifiers_ = keepBindingIdentifiers;
     return transformed;
   }
 
   transformBindingIdentifier(tree) {
-    var idToken = tree.identifierToken;
+    let idToken = tree.identifierToken;
     this.addVariable(idToken.value);
     if (this.keepBindingIdentifiers_)
       return tree;
@@ -191,7 +191,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     // const-ness is ever enforced, note that all hoisted declarations become
     // var declarations.
     if (tree.declarationType === VAR || !this.inBlockOrFor_) {
-      var expressions = this.transformList(tree.declarations);
+      let expressions = this.transformList(tree.declarations);
 
       // Any var without an initializer becomes null in
       // transformVariableDeclaration Remove these null trees now.
@@ -212,7 +212,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
 
   transformCatch(tree) {
     // Ensure that we do not transform the catch binding.
-    var catchBody = this.transformAny(tree.catchBody);
+    let catchBody = this.transformAny(tree.catchBody);
     if (catchBody === tree.catchBody)
       return tree;
     return new Catch(tree.location, tree.binding, catchBody);
@@ -231,9 +231,9 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformLoop_(tree, ctor) {
-    var initializer = this.transformLoopIninitaliser_(tree.initializer);
-    var collection = this.transformAny(tree.collection);
-    var body = this.transformAny(tree.body);
+    let initializer = this.transformLoopIninitaliser_(tree.initializer);
+    let collection = this.transformAny(tree.collection);
+    let body = this.transformAny(tree.body);
     if (initializer === tree.initializer &&
         collection === tree.collection &&
         body === tree.body) {
@@ -250,13 +250,13 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformForStatement(tree) {
-    var inBlockOrFor = this.inBlockOrFor_;
+    let inBlockOrFor = this.inBlockOrFor_;
     this.inBlockOrFor_ = true;
-    var initializer = this.transformAny(tree.initializer);
+    let initializer = this.transformAny(tree.initializer);
     this.inBlockOrFor_ = inBlockOrFor;
-    var condition = this.transformAny(tree.condition);
-    var increment = this.transformAny(tree.increment);
-    var body = this.transformAny(tree.body);
+    let condition = this.transformAny(tree.condition);
+    let increment = this.transformAny(tree.increment);
+    let body = this.transformAny(tree.body);
     if (initializer === tree.initializer &&
         condition === tree.condition &&
         increment === tree.increment &&
@@ -268,7 +268,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
   }
 
   transformBlock(tree) {
-    var inBlockOrFor = this.inBlockOrFor_;
+    let inBlockOrFor = this.inBlockOrFor_;
     this.inBlockOrFor_ = true;
     tree = super.transformBlock(tree);
     this.inBlockOrFor_ = inBlockOrFor;

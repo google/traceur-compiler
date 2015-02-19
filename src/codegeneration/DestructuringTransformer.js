@@ -85,7 +85,7 @@ class Desugaring {
 
   createInitializer(expression) {
     if (this.pendingExpressions.length === 0) return expression;
-    var expressions = this.pendingExpressions;
+    let expressions = this.pendingExpressions;
     this.pendingExpressions = [];
     expressions.push(expression);
     return createParenExpression(createCommaExpression(expressions));
@@ -119,7 +119,7 @@ class AssignmentExpressionDesugaring extends Desugaring {
   }
 
   createAssignmentExpression(tempId, rvalue) {
-    var expressions = this.expressions;
+    let expressions = this.expressions;
     expressions.unshift(createAssignmentExpression(tempId, rvalue));
     expressions.push(...this.pendingExpressions, tempId);
     return createParenExpression(createCommaExpression(expressions));
@@ -143,7 +143,7 @@ class VariableDeclarationDesugaring extends Desugaring {
    * @param {ParseTree} rvalue
    */
   assign(lvalue, rvalue) {
-    var binding = lvalue instanceof BindingElement ?
+    let binding = lvalue instanceof BindingElement ?
         lvalue.binding : createBindingIdentifier(lvalue);
     rvalue = this.createInitializer(rvalue);
     this.expressions.push(createVariableDeclaration(binding, rvalue));
@@ -206,7 +206,7 @@ export class DestructuringTransformer extends TempVarTransformer {
   transformBinaryExpression(tree) {
     this.pushTempScope();
 
-    var rv;
+    let rv;
     if (tree.operator.type === EQUAL && tree.left.isPattern()) {
       rv = this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
@@ -223,8 +223,8 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   desugarAssignment_(lvalue, rvalue) {
-    var tempId = createIdentifierExpression(this.addTempVar());
-    var desugaring = new AssignmentExpressionDesugaring(tempId);
+    let tempId = createIdentifierExpression(this.addTempVar());
+    let desugaring = new AssignmentExpressionDesugaring(tempId);
     this.desugarPattern_(desugaring, lvalue);
     return desugaring.createAssignmentExpression(tempId, rvalue);
   }
@@ -251,7 +251,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     }
 
     // Desugar one level of patterns.
-    var desugaredDeclarations = [];
+    let desugaredDeclarations = [];
     tree.declarations.forEach((declaration) => {
       if (declaration.lvalue.isPattern()) {
         desugaredDeclarations.push(
@@ -262,7 +262,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     });
 
     // Desugar more.
-    var transformedTree = this.transformVariableDeclarationList(
+    let transformedTree = this.transformVariableDeclarationList(
         createVariableDeclarationList(
             tree.declarationType,
             desugaredDeclarations));
@@ -307,7 +307,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     this.pushTempScope();
 
-    var declarationType, lvalue;
+    let declarationType, lvalue;
     if (tree.initializer.isPattern()) {
       declarationType = null;
       lvalue = tree.initializer;
@@ -332,13 +332,13 @@ export class DestructuringTransformer extends TempVarTransformer {
     // for (var $tmp in coll) {
     //   pattern = $tmp;
 
-    var statements = [];
-    var binding = this.desugarBinding_(lvalue, statements, declarationType);
-    var initializer = createVariableDeclarationList(VAR,
+    let statements = [];
+    let binding = this.desugarBinding_(lvalue, statements, declarationType);
+    let initializer = createVariableDeclarationList(VAR,
         binding, null);
 
-    var collection = this.transformAny(tree.collection);
-    var body = this.transformAny(tree.body);
+    let collection = this.transformAny(tree.collection);
+    let body = this.transformAny(tree.body);
     if (body.type === BLOCK)
       statements.push(...body.statements);
     else
@@ -378,10 +378,10 @@ export class DestructuringTransformer extends TempVarTransformer {
       this.pushTempScope();  // Popped in the function body.
     }
 
-    var varName = this.getTempIdentifier();
-    var binding = createBindingIdentifier(varName);
-    var initializer = createIdentifierExpression(varName);
-    var decl = createVariableDeclaration(tree.binding, initializer);
+    let varName = this.getTempIdentifier();
+    let binding = createBindingIdentifier(varName);
+    let initializer = createIdentifierExpression(varName);
+    let decl = createVariableDeclaration(tree.binding, initializer);
 
     this.parameterDeclarations.push(decl);
 
@@ -392,14 +392,14 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (this.parameterDeclarations === null)
       return super.transformFunctionBody(tree);
 
-    var list = createVariableDeclarationList(VAR, this.parameterDeclarations);
-    var statement = createVariableStatement(list);
-    var statements = prependStatements(tree.statements, statement);
-    var newBody = createFunctionBody(statements);
+    let list = createVariableDeclarationList(VAR, this.parameterDeclarations);
+    let statement = createVariableStatement(list);
+    let statements = prependStatements(tree.statements, statement);
+    let newBody = createFunctionBody(statements);
 
     this.parameterDeclarations = null;
 
-    var result = super.transformFunctionBody(newBody);
+    let result = super.transformFunctionBody(newBody);
     this.popTempScope();
     return result;
   }
@@ -415,10 +415,10 @@ export class DestructuringTransformer extends TempVarTransformer {
     // catch ($tmp) {
     //   let pattern = $tmp
 
-    var body = this.transformAny(tree.catchBody);
-    var statements = [];
-    var kind = this.options_.blockBinding ? LET : VAR;
-    var binding = this.desugarBinding_(tree.binding, statements, kind);
+    let body = this.transformAny(tree.catchBody);
+    let statements = [];
+    let kind = this.options_.blockBinding ? LET : VAR;
+    let binding = this.desugarBinding_(tree.binding, statements, kind);
     statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));
   }
@@ -435,11 +435,11 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {BindingIdentifier} The binding tree.
    */
   desugarBinding_(bindingTree, statements, declarationType) {
-    var varName = this.getTempIdentifier();
-    var binding = createBindingIdentifier(varName);
-    var idExpr = createIdentifierExpression(varName);
+    let varName = this.getTempIdentifier();
+    let binding = createBindingIdentifier(varName);
+    let idExpr = createIdentifierExpression(varName);
 
-    var desugaring;
+    let desugaring;
     if (declarationType === null)
       desugaring = new AssignmentExpressionDesugaring(idExpr);
     else
@@ -477,10 +477,10 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {Array.<VariableDeclaration>}
    */
   desugarVariableDeclaration_(tree) {
-    var tempRValueName = this.getTempIdentifier();
-    var tempRValueIdent = createIdentifierExpression(tempRValueName);
-    var desugaring;
-    var initializer;
+    let tempRValueName = this.getTempIdentifier();
+    let tempRValueIdent = createIdentifierExpression(tempRValueName);
+    let desugaring;
+    let initializer;
 
     // Don't use parens for these cases:
     // - tree.initializer is assigned to a temporary.
@@ -504,7 +504,7 @@ export class DestructuringTransformer extends TempVarTransformer {
         // [1] Try first using a temporary (used later as the base rvalue).
         desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
         desugaring.assign(desugaring.rvalue, tree.initializer);
-        var initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
+        let initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
 
         // [2] Was the temporary necessary? Then return.
         if (initializerFound || desugaring.declarations.length > 2) {
@@ -529,17 +529,18 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {boolean} True if any of the patterns have an initializer.
    */
   desugarPattern_(desugaring, tree) {
-    var initializerFound = false;
+    let initializerFound = false;
+    let pattern;
     switch (tree.type) {
       case ARRAY_PATTERN:
-        var pattern = tree;
+        pattern = tree;
         this.pushTempScope();
-        var iterId = createIdentifierExpression(this.addTempVar());
-        var iterObjectId = createIdentifierExpression(this.addTempVar());
+        let iterId = createIdentifierExpression(this.addTempVar());
+        let iterObjectId = createIdentifierExpression(this.addTempVar());
         desugaring.createIterator(iterId);
 
-        for (var i = 0; i < pattern.elements.length; i++) {
-          var lvalue = pattern.elements[i];
+        for (let i = 0; i < pattern.elements.length; i++) {
+          let lvalue = pattern.elements[i];
           if (lvalue === null) {
             // A skip, for example [a,,c]
             desugaring.skipHole(iterId);
@@ -563,18 +564,18 @@ export class DestructuringTransformer extends TempVarTransformer {
         break;
 
       case OBJECT_PATTERN:
-        var pattern = tree;
+        pattern = tree;
 
-        var elementHelper = (lvalue, initializer) => {
+        let elementHelper = (lvalue, initializer) => {
           if (initializer)
             initializerFound = true;
-          var lookup = this.createConditionalMemberExpression(desugaring.rvalue,
+          let lookup = this.createConditionalMemberExpression(desugaring.rvalue,
               lvalue, initializer);
           desugaring.assign(lvalue, lookup);
         };
 
         pattern.fields.forEach((field) => {
-          var lookup;
+          let lookup;
           switch (field.type) {
             case ASSIGNMENT_ELEMENT:
               elementHelper(field.assignment, field.initializer);
@@ -587,7 +588,7 @@ export class DestructuringTransformer extends TempVarTransformer {
             case OBJECT_PATTERN_FIELD:
               if (field.element.initializer)
                 initializerFound = true;
-              var name = field.name;
+              let name = field.name;
               lookup = this.createConditionalMemberExpression(desugaring.rvalue,
                   name, field.element.initializer);
               desugaring.assign(field.element, lookup);
@@ -630,7 +631,7 @@ export class DestructuringTransformer extends TempVarTransformer {
           name.expression, initializer);
     }
 
-    var token;
+    let token;
     switch (name.type) {
       case BINDING_IDENTIFIER:
       case IDENTIFIER_EXPRESSION:
@@ -643,7 +644,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberExpression(rvalue, token);
 
-    var tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar());
 
     return parseExpression `(${tempIdent} = ${rvalue}.${token}) === void 0 ?
         ${initializer} : ${tempIdent}`;
@@ -653,19 +654,19 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (!initializer)
       return createMemberLookupExpression(rvalue, index);
 
-    var tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar());
     return parseExpression `(${tempIdent} = ${rvalue}[${index}]) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }
 
   createConditionalIterExpression(iterObjectId, iterId, initializer) {
-    var expr = parseExpression `(${iterObjectId} =
+    let expr = parseExpression `(${iterObjectId} =
         ${iterId}.next()).done ? void 0 : ${iterObjectId}.value`;
     if (!initializer) {
       return expr;
     }
     // TODO(arv): Simplify this expression?
-    var tempIdent = createIdentifierExpression(this.addTempVar());
+    let tempIdent = createIdentifierExpression(this.addTempVar());
     return parseExpression `(${tempIdent} = ${expr}) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }

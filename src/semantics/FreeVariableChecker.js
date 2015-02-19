@@ -36,6 +36,6 @@ class FreeVariableChecker extends ScopeChainBuilderWithReferences {
  * Validates that there are no free variables in a tree.
  */
 export function validate(tree, reporter, global = Reflect.global) {
-  var checker = new FreeVariableChecker(reporter, global);
+  let checker = new FreeVariableChecker(reporter, global);
   checker.visitAny(tree);
 }

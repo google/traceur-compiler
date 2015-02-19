@@ -58,9 +58,9 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
     if (this.inWithBlock) {
       return;
     }
-    var scope = this.scope;
+    let scope = this.scope;
 
-    var name = tree.getStringValue();
+    let name = tree.getStringValue();
     if (name === 'arguments' && hasArgumentsInScope(scope)) {
       return;
     }
@@ -76,8 +76,8 @@ export class ScopeChainBuilderWithReferences extends ScopeChainBuilder {
     // Allow typeof x to be a heuristic for allowing reading x later.
     if (tree.operator.type === TYPEOF &&
         tree.operand.type === IDENTIFIER_EXPRESSION) {
-      var scope = this.scope;
-      var binding = scope.getBinding(tree.operand);
+      let scope = this.scope;
+      let binding = scope.getBinding(tree.operand);
       if (!binding) {
         scope.addVar(tree.operand, this.reporter);
       }

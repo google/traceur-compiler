@@ -54,7 +54,7 @@ export class FindVisitor extends ParseTreeVisitor {
 
   visitList(list) {
     if (list) {
-      for (var i = 0; this.shouldContinue_ && i < list.length; i++) {
+      for (let i = 0; this.shouldContinue_ && i < list.length; i++) {
         this.visitAny(list[i]);
       }
     }

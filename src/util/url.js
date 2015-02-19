@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var canonicalizeUrl = $traceurRuntime.canonicalizeUrl;
-export var isAbsolute = $traceurRuntime.isAbsolute;
-export var removeDotSegments = $traceurRuntime.removeDotSegments;
-export var resolveUrl = $traceurRuntime.resolveUrl;
+export const canonicalizeUrl = $traceurRuntime.canonicalizeUrl;
+export const isAbsolute = $traceurRuntime.isAbsolute;
+export const removeDotSegments = $traceurRuntime.removeDotSegments;
+export const resolveUrl = $traceurRuntime.resolveUrl;

@@ -14,7 +14,7 @@
 
 import {parseExpression} from './PlaceholderParser.js'
 
-var expr;
+let expr;
 
 function globalThis() {
   if (!expr)

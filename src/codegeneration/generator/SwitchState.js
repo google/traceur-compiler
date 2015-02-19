@@ -66,7 +66,7 @@ export class SwitchState extends State {
    * @return {SwitchState}
    */
   replaceState(oldState, newState) {
-    var clauses = this.clauses.map((clause) => {
+    let clauses = this.clauses.map((clause) => {
       return new SwitchClause(clause.first,
           State.replaceStateId(clause.second, oldState, newState));
     });
@@ -83,9 +83,9 @@ export class SwitchState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    var clauses = [];
-    for (var i = 0; i < this.clauses.length; i++) {
-      var clause = this.clauses[i];
+    let clauses = [];
+    for (let i = 0; i < this.clauses.length; i++) {
+      let clause = this.clauses[i];
       if (clause.first === null) {
         clauses.push(new DefaultClause(null,
             State.generateJump(enclosingFinally, clause.second)));

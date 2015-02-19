@@ -62,21 +62,21 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-    var bindingKind = isGenerator || !this.options_.blockBinding ? VAR : LET;
+    let bindingKind = isGenerator || !this.options_.blockBinding ? VAR : LET;
 
-    var statements = prefix ? [prefix] : [];
+    let statements = prefix ? [prefix] : [];
 
-    for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
-      var item = tree.comprehensionList[i];
+    for (let i = tree.comprehensionList.length - 1; i >= 0; i--) {
+      let item = tree.comprehensionList[i];
       switch (item.type) {
         case COMPREHENSION_IF:
-          var expression = this.transformAny(item.expression);
+          let expression = this.transformAny(item.expression);
           statement = createIfStatement(expression, statement);
           break;
         case COMPREHENSION_FOR:
-          var left = this.transformAny(item.left);
-          var iterator = this.transformAny(item.iterator);
-          var initializer = createVariableDeclarationList(bindingKind,
+          let left = this.transformAny(item.left);
+          let iterator = this.transformAny(item.iterator);
+          let initializer = createVariableDeclarationList(bindingKind,
                                                           left, null);
           statement = createForOfStatement(initializer, iterator, statement);
           break;
@@ -91,9 +91,9 @@ export class ComprehensionTransformer extends TempVarTransformer {
     if (suffix)
       statements.push(suffix);
 
-    var functionKind = isGenerator ? new Token(STAR, null) : null;
+    let functionKind = isGenerator ? new Token(STAR, null) : null;
 
-    var func = new FunctionExpression(null, null, functionKind,
+    let func = new FunctionExpression(null, null, functionKind,
                                       createEmptyParameterList(), null, [],
                                       createFunctionBody(statements));
 

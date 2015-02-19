@@ -28,7 +28,7 @@ export class SyntaxErrorReporter extends ErrorReporter {
    * @param {string} message
    */
   reportMessageInternal(location, message) {
-    var s = format(location, message);
+    let s = format(location, message);
     throw new SyntaxError(s);
   }
 }

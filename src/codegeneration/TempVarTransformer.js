@@ -51,7 +51,7 @@ class TempScope {
   }
 
   release(obj) {
-    for (var i = this.identifiers.length - 1; i >= 0; i--) {
+    for (let i = this.identifiers.length - 1; i >= 0; i--) {
       obj.release_(this.identifiers[i]);
     }
   }
@@ -73,7 +73,7 @@ class VarScope {
   }
 
   release(obj) {
-    for (var i = this.tempVarStatements.length - 1; i >= 0; i--) {
+    for (let i = this.tempVarStatements.length - 1; i >= 0; i--) {
       obj.release_(this.tempVarStatements[i].name);
     }
   }
@@ -83,10 +83,10 @@ class VarScope {
   }
 
   createVariableStatement() {
-    var declarations = [];
-    var seenNames = new StringSet();
-    for (var i = 0; i < this.tempVarStatements.length; i++) {
-      var {name, initializer} = this.tempVarStatements[i];
+    let declarations = [];
+    let seenNames = new StringSet();
+    for (let i = 0; i < this.tempVarStatements.length; i++) {
+      let {name, initializer} = this.tempVarStatements[i];
       if (seenNames.has(name)) {
         if (initializer)
           throw new Error('Invalid use of TempVarTransformer');
@@ -134,20 +134,20 @@ export class TempVarTransformer extends ParseTreeTransformer {
   transformStatements_(statements) {
     this.tempVarStack_.push(new VarScope());
 
-    var transformedStatements = this.transformList(statements);
+    let transformedStatements = this.transformList(statements);
 
-    var vars = this.tempVarStack_.pop();
+    let vars = this.tempVarStack_.pop();
     if (vars.isEmpty())
       return transformedStatements;
 
-    var variableStatement = vars.createVariableStatement();
+    let variableStatement = vars.createVariableStatement();
     vars.release(this);
 
     return prependStatements(transformedStatements, variableStatement);
   }
 
   transformScript(tree) {
-    var scriptItemList = this.transformStatements_(tree.scriptItemList);
+    let scriptItemList = this.transformStatements_(tree.scriptItemList);
     if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
@@ -155,7 +155,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
   }
 
   transformModule(tree) {
-    var scriptItemList = this.transformStatements_(tree.scriptItemList);
+    let scriptItemList = this.transformStatements_(tree.scriptItemList);
     if (scriptItemList === tree.scriptItemList) {
       return tree;
     }
@@ -164,7 +164,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   transformFunctionBody(tree) {
     this.pushTempScope();
-    var statements = this.transformStatements_(tree.statements);
+    let statements = this.transformStatements_(tree.statements);
     this.popTempScope();
     if (statements === tree.statements)
       return tree;
@@ -176,7 +176,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
    *     current temp scope has been exited.
    */
   getTempIdentifier() {
-    var name = this.getName_();
+    let name = this.getName_();
     this.tempScopeStack_[this.tempScopeStack_.length - 1].push(name);
     return name;
   }
@@ -193,20 +193,20 @@ export class TempVarTransformer extends ParseTreeTransformer {
    * @return {string} The name of the temporary variable.
    */
   addTempVar(initializer = null) {
-    var vars = this.tempVarStack_[this.tempVarStack_.length - 1];
-    var name = this.getName_();
+    let vars = this.tempVarStack_[this.tempVarStack_.length - 1];
+    let name = this.getName_();
     vars.push(new TempVarStatement(name, initializer));
     return name;
   }
 
   addTempVarForThis() {
-    var varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
+    let varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
     return varScope.thisName ||
         (varScope.thisName = this.addTempVar(createThisExpression()));
   }
 
   addTempVarForArguments() {
-    var varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
+    let varScope = this.tempVarStack_[this.tempVarStack_.length - 1];
     return varScope.argumentName || (varScope.argumentName =
         this.addTempVar(createIdentifierExpression(ARGUMENTS)));
   }

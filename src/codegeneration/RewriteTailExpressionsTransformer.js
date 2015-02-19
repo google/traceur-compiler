@@ -44,8 +44,8 @@ import {
 } from '../syntax/TokenType.js';
 
 function createCall(tree, operand, thisArg) {
-  var argList = tree.args; // can be null
-  var argArray = argList ? argList.args : [];
+  let argList = tree.args; // can be null
+  let argArray = argList ? argList.args : [];
   argArray = argArray.map(arg => {
     if (arg.type === COMMA_EXPRESSION) {
       return createParenExpression(arg.type);
@@ -66,11 +66,11 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformBinaryExpression(tree) {
-    var operator = tree.operator;
+    let operator = tree.operator;
     if (operator.type !== AND && operator.type !== OR) {
       return tree;
     }
-    var right = this.transformAny(tree.right);
+    let right = this.transformAny(tree.right);
     if (right !== tree.right) {
       return new BinaryExpression(tree.location, tree.left, operator, right);
     }
@@ -78,7 +78,7 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformCallExpression(tree) {
-    var operand = tree.operand;
+    let operand = tree.operand;
     while (operand.type === PAREN_EXPRESSION) {
       operand = operand.expression;
       // TODO(mnieper): Readd parens to the resulting call.
@@ -94,9 +94,9 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformMemberExpressionCall_(tree, operand) {
-    var object = operand.operand;
-    var thisArg;
-    var assignment;
+    let object = operand.operand;
+    let thisArg;
+    let assignment;
     if (object.type === IDENTIFIER_EXPRESSION ||
         object.type === THIS_EXPRESSION) {
         // If we wanted to be strict, we would have to leave out identifier
@@ -121,9 +121,9 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformCommaExpression(tree) {
-    var expressions = tree.expressions;
-    var expression = expressions[expressions.length - 1];
-    var transformedExpression = this.transformAny(expression);
+    let expressions = tree.expressions;
+    let expression = expressions[expressions.length - 1];
+    let transformedExpression = this.transformAny(expression);
     if (expression !== transformedExpression) {
       expressions = expressions.slice(0, -1);
       expressions.push(transformedExpression);
@@ -133,8 +133,8 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformConditionalExpression(tree) {
-    var left = this.transformAny(tree.left);
-    var right = this.transformAny(tree.right);
+    let left = this.transformAny(tree.left);
+    let right = this.transformAny(tree.right);
     if (left !== tree.left || right !== tree.right) {
       return new ConditionalExpression(tree.location, tree.condition,
           left, right);

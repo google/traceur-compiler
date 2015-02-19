@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 // Applies Traceur to all scripts in a Web page.
 
 import {Loader} from './runtime/Loader.js';
@@ -44,14 +43,14 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var options = $traceurRuntime.options;
-    var nameInfo = {
+    let options = $traceurRuntime.options;
+    let nameInfo = {
       address: name,
       referrerName: window.location.href,
       name: name,
       metadata: {traceurOptions: options}
     };
-    var loadingResult;
+    let loadingResult;
     if (scriptElement.type === 'module')
       loadingResult = this.loader.module(content, nameInfo);
     else
@@ -68,7 +67,7 @@ export class WebPageTranscoder {
   nextInlineScriptName_() {
     this.numberInlined_ += 1;
     if (!this.inlineScriptNameBase_) {
-      var segments = this.url.split('.');
+      let segments = this.url.split('.');
       segments.pop();
       this.inlineScriptNameBase_ = segments.join('.');
     }
@@ -76,14 +75,14 @@ export class WebPageTranscoder {
   }
 
   addFilesFromScriptElements(scriptElements, onScriptsReady) {
-    for (var i = 0, length = scriptElements.length; i < length; i++) {
-      var scriptElement = scriptElements[i];
+    for (let i = 0, length = scriptElements.length; i < length; i++) {
+      let scriptElement = scriptElements[i];
       if (!scriptElement.src) {
-        var name = this.nextInlineScriptName_();
-        var content =  scriptElement.textContent;
+        let name = this.nextInlineScriptName_();
+        let content =  scriptElement.textContent;
         this.addFileFromScriptElement(scriptElement, name, content);
       } else {
-        var name = scriptElement.src;
+        let name = scriptElement.src;
         this.asyncLoad_(
             name,
             this.addFileFromScriptElement.bind(this, scriptElement, name),
@@ -111,17 +110,17 @@ export class WebPageTranscoder {
   }
 
   putFile(file) {
-    var scriptElement = document.createElement('script');
+    let scriptElement = document.createElement('script');
     scriptElement.setAttribute('data-traceur-src-url', file.name);
     scriptElement.textContent = file.generatedSource;
 
-    var parent = file.scriptElement.parentNode;
+    let parent = file.scriptElement.parentNode;
     parent.insertBefore(scriptElement, file.scriptElement || null);
   }
 
   selectAndProcessScripts(done) {
-    var selector = 'script[type="module"],script[type="text/traceur"]';
-    var scripts = document.querySelectorAll(selector);
+    let selector = 'script[type="module"],script[type="text/traceur"]';
+    let scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {
       done();
@@ -134,7 +133,7 @@ export class WebPageTranscoder {
   }
 
   run(done = () => {}) {
-    var ready = document.readyState;
+    let ready = document.readyState;
     if (ready === 'complete' || ready === 'loaded') {
       this.selectAndProcessScripts(done);
     } else {

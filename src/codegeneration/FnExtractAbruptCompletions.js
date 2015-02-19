@@ -79,17 +79,17 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
     body = this.transformAny(body);
 
     body = alphaRenameThisAndArguments(this, body);
-    var tmpFnName = this.idGenerator_.generateUniqueIdentifier();
-    var functionKind = inGenerator ? new Token(STAR, null) : null;
+    let tmpFnName = this.idGenerator_.generateUniqueIdentifier();
+    let functionKind = inGenerator ? new Token(STAR, null) : null;
     // function ( * )opt (...) { ... }
-    var functionExpression = new FunctionExpression(null, null, functionKind,
+    let functionExpression = new FunctionExpression(null, null, functionKind,
         new FormalParameterList(null, paramList), null, [],
         createFunctionBody(body.statements || [body]));
     // var $tmpFn = ${functionExpression}
     this.variableDeclarations_.push(
         createVariableDeclaration(tmpFnName, functionExpression));
     // $tmpFn(...)
-    var functionCall = createCallExpression(
+    let functionCall = createCallExpression(
         createIdentifierExpression(tmpFnName),
         createArgumentList(argsList));
     // yield* $tmpFn(...)
@@ -97,15 +97,15 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
       functionCall = new YieldExpression(null, functionCall, true);
     }
 
-    var loopBody = null;
+    let loopBody = null;
     if (this.extractedStatements_.length || this.hasReturns) {
-      var tmpVarName = createIdentifierExpression(
+      let tmpVarName = createIdentifierExpression(
           this.idGenerator_.generateUniqueIdentifier());
       // hoist declaration
       this.variableDeclarations_.push(
           createVariableDeclaration(tmpVarName, null));
 
-      var maybeReturn;
+      let maybeReturn;
       if (this.hasReturns) {
         // ${tmpVarName} is either a number of an object
         // this check is enough since it's never null
@@ -115,7 +115,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
       if (this.extractedStatements_.length) {
         // handle each extractedStatement as a case clause
-        var caseClauses = this.extractedStatements_.map(
+        let caseClauses = this.extractedStatements_.map(
             (statement, index) => createCaseClause(
                 createNumberLiteral(index), [statement])
         );
@@ -154,14 +154,14 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
   // alphaRenameThisAndArguments
   addTempVarForArguments() {
-    var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
+    let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, createIdentifierExpression(ARGUMENTS)));
     return tmpVarName;
   }
   // alphaRenameThisAndArguments
   addTempVarForThis() {
-    var tmpVarName = this.idGenerator_.generateUniqueIdentifier();
+    let tmpVarName = this.idGenerator_.generateUniqueIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, createThisExpression()));
     return tmpVarName;
@@ -188,7 +188,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
   transformAbruptCompletion_(tree) {
     this.extractedStatements_.push(tree);
 
-    var index = this.extractedStatements_.length - 1;
+    let index = this.extractedStatements_.length - 1;
     return parseStatement `return ${index};`
   }
 
@@ -228,10 +228,10 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
   transformVariableStatement(tree) {
     if (tree.declarations.declarationType === VAR) {
-      var assignments = [];
+      let assignments = [];
       tree.declarations.declarations.forEach((variableDeclaration) => {
-        var variableName = variableDeclaration.lvalue.getStringValue();
-        var initializer = super.transformAny(variableDeclaration.initializer);
+        let variableName = variableDeclaration.lvalue.getStringValue();
+        let initializer = super.transformAny(variableDeclaration.initializer);
 
         this.variableDeclarations_.push(
             createVariableDeclaration(variableName, null));

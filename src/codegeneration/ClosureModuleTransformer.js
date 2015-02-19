@@ -55,7 +55,7 @@ export class ClosureModuleTransformer extends ModuleTransformer {
 
   appendExportStatement(statements) {
     if (!this.hasExports()) return statements;
-    var exportObject = this.getExportObject();
+    let exportObject = this.getExportObject();
     statements.push(parseStatement `exports = ${exportObject}`);
     return statements;
   }
@@ -63,7 +63,7 @@ export class ClosureModuleTransformer extends ModuleTransformer {
   getGetterExport({name, tree, moduleSpecifier}) {
     // goog.module does not support getters in exports, so all exports are
     // simple assignments into the exports object.
-    var expression;
+    let expression;
     switch (tree.type) {
       case EXPORT_DEFAULT:
         expression = createIdentifierExpression('$__default');
@@ -71,7 +71,7 @@ export class ClosureModuleTransformer extends ModuleTransformer {
 
       case EXPORT_SPECIFIER:
         if (moduleSpecifier) {
-          var idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
+          let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
           expression = createMemberExpression(idName, tree.lhs);
         } else {
           expression = createPropertyNameAssignment(name, tree.lhs)
@@ -86,7 +86,7 @@ export class ClosureModuleTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    var moduleName = tree.token.processedValue;
+    let moduleName = tree.token.processedValue;
     return parseExpression `goog.require(${moduleName})`;
   }
 }

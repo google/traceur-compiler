@@ -44,9 +44,9 @@ export class GeneratorComprehensionTransformer extends
     ComprehensionTransformer {
 
   transformGeneratorComprehension(tree) {
-    var expression = this.transformAny(tree.expression);
-    var statement = parseStatement `yield ${expression}`;
-    var isGenerator = true;
+    let expression = this.transformAny(tree.expression);
+    let statement = parseStatement `yield ${expression}`;
+    let isGenerator = true;
     return this.transformComprehension(tree, statement, isGenerator);
   }
 }

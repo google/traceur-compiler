@@ -87,7 +87,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformVariableDeclaration(tree) {
     if (tree.typeAnnotation && tree.initializer) {
-      var assert = parseExpression `assert.type(${tree.initializer}, ${tree.typeAnnotation})`;
+      let assert = parseExpression `assert.type(${tree.initializer}, ${tree.typeAnnotation})`;
       tree = new VariableDeclaration(tree.location, tree.lvalue, tree.typeAnnotation, assert);
 
       this.assertionAdded_ = true;
@@ -103,12 +103,12 @@ export class TypeAssertionTransformer extends ParameterTransformer {
       arguments: []
     });
 
-    var transformed = super.transformFormalParameterList(tree);
-    var params = this.parametersStack_.pop();
+    let transformed = super.transformFormalParameterList(tree);
+    let params = this.parametersStack_.pop();
 
     if (params.atLeastOneParameterTyped) {
-      var argumentList = createArgumentList(params.arguments);
-      var assertStatement = parseStatement `assert.argumentTypes(${argumentList})`;
+      let argumentList = createArgumentList(params.arguments);
+      let assertStatement = parseStatement `assert.argumentTypes(${argumentList})`;
 
       this.parameterStatements.push(assertStatement);
       this.assertionAdded_ = true;
@@ -122,7 +122,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @return {ParseTree}
    */
   transformFormalParameter(tree) {
-    var transformed = super.transformFormalParameter(tree);
+    let transformed = super.transformFormalParameter(tree);
 
     switch (transformed.parameter.type) {
       case BINDING_ELEMENT:
@@ -233,8 +233,8 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     if (!this.assertionAdded_ || this.options_.typeAssertionModule === null)
       return tree;
 
-    var binding = createImportedBinding('assert');
-    var importStatement = new ImportDeclaration(null,
+    let binding = createImportedBinding('assert');
+    let importStatement = new ImportDeclaration(null,
         new ImportSpecifierSet(null,
             [new ImportSpecifier(null, binding, null)]),
         new ModuleSpecifier(null,

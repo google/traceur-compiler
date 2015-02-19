@@ -52,7 +52,7 @@ class AwaitFinder extends FindInFunctionScope {
 }
 
 function scopeContainsAwait(tree) {
-  var visitor = new AwaitFinder();
+  let visitor = new AwaitFinder();
   visitor.visitAny(tree);
   return visitor.found;
 }
@@ -76,7 +76,7 @@ export class AsyncTransformer extends CPSTransformer {
   }
 
   transformExpressionStatement(tree) {
-    var expression = tree.expression;
+    let expression = tree.expression;
     if (expression.type === AWAIT_EXPRESSION)
       return this.transformAwaitExpression_(expression);
 
@@ -104,18 +104,18 @@ export class AsyncTransformer extends CPSTransformer {
   }
 
   transformAwait_(tree, inExpression, left, operator) {
-    var expression, machine;
+    let expression, machine;
     if (this.expressionNeedsStateMachine(inExpression)) {
       ({expression, machine} = this.expressionToStateMachine(inExpression));
     } else {
       expression = this.transformAny(inExpression);
     }
 
-    var createTaskState = this.allocateState();
-    var fallThroughState = this.allocateState();
-    var callbackState = left ? this.allocateState() : fallThroughState;
+    let createTaskState = this.allocateState();
+    let fallThroughState = this.allocateState();
+    let callbackState = left ? this.allocateState() : fallThroughState;
 
-    var states = [];
+    let states = [];
     //  case createTaskState:
     states.push(new AwaitState(createTaskState, callbackState, expression));
 
@@ -124,7 +124,7 @@ export class AsyncTransformer extends CPSTransformer {
     //    $ctx.state = fallThroughState;
     //    break;
     if (left) {
-      var statement = new ExpressionStatement(
+      let statement = new ExpressionStatement(
           tree.location,
           new BinaryExpression(
               tree.location,
@@ -135,7 +135,7 @@ export class AsyncTransformer extends CPSTransformer {
                                        [statement]));
     }
 
-    var awaitMachine =
+    let awaitMachine =
         new StateMachine(createTaskState, fallThroughState, states, []);
 
     if (machine) {
@@ -150,7 +150,7 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformFinally(tree) {
-    var result = super.transformFinally(tree);
+    let result = super.transformFinally(tree);
     if (result.block.type !== STATE_MACHINE) {
       return result;
     }
@@ -165,19 +165,19 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformReturnStatement(tree) {
-    var expression, machine;
+    let expression, machine;
     if (this.expressionNeedsStateMachine(tree.expression)) {
       ({expression, machine} = this.expressionToStateMachine(tree.expression));
     } else {
       expression = tree.expression || createUndefinedExpression();
     }
 
-    var startState = this.allocateState();
-    var endState = this.allocateState();
-    var completeState = new FallThroughState(startState, endState,
+    let startState = this.allocateState();
+    let endState = this.allocateState();
+    let completeState = new FallThroughState(startState, endState,
         parseStatements `$ctx.returnValue = ${expression}`);
-    var end = new EndState(endState);
-    var returnMachine = new StateMachine(
+    let end = new EndState(endState);
+    let returnMachine = new StateMachine(
         startState,
         // TODO: this should not be required, but removing requires making consumers resilient
         // TODO: to INVALID fallThroughState
@@ -213,7 +213,7 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {FunctionBody}
    */
   transformAsyncBody(tree) {
-    var runtimeFunction = parseExpression `$traceurRuntime.asyncWrap`;
+    let runtimeFunction = parseExpression `$traceurRuntime.asyncWrap`;
     return this.transformCpsFunctionBody(tree, runtimeFunction);
   }
 

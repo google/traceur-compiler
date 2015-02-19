@@ -53,7 +53,7 @@ class YieldFinder extends FindInFunctionScope {
 }
 
 function scopeContainsYield(tree) {
-  var finder = new YieldFinder();
+  let finder = new YieldFinder();
   finder.visitAny(tree);
   return finder.found;
 }
@@ -91,7 +91,7 @@ export class GeneratorTransformer extends CPSTransformer {
    * @private
    */
   transformYieldExpression_(tree) {
-    var expression, machine;
+    let expression, machine;
     if (this.expressionNeedsStateMachine(tree.expression)) {
       ({expression, machine} = this.expressionToStateMachine(tree.expression));
     } else {
@@ -103,9 +103,9 @@ export class GeneratorTransformer extends CPSTransformer {
     if (tree.isYieldFor)
       return this.transformYieldForExpression_(expression, machine);
 
-    var startState = this.allocateState();
-    var fallThroughState = this.allocateState();
-    var yieldMachine = this.stateToStateMachine_(
+    let startState = this.allocateState();
+    let fallThroughState = this.allocateState();
+    let yieldMachine = this.stateToStateMachine_(
         new YieldState(startState, fallThroughState, expression),
         fallThroughState);
 
@@ -122,13 +122,13 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   transformYieldForExpression_(expression, machine = undefined) {
-    var gName = this.getTempIdentifier();
+    let gName = this.getTempIdentifier();
     this.addMachineVariable(gName);
-    var g = id(gName);
+    let g = id(gName);
 
-    var nextName = this.getTempIdentifier();
+    let nextName = this.getTempIdentifier();
     this.addMachineVariable(nextName);
-    var next = id(nextName);
+    let next = id(nextName);
 
     // http://wiki.ecmascript.org/doku.php?id=harmony:generators
     // Updated on es-discuss
@@ -152,7 +152,7 @@ export class GeneratorTransformer extends CPSTransformer {
     //   next.value;
     // }
 
-    var statements = parseStatements `
+    let statements = parseStatements `
         ${g} = $ctx.wrapYieldStar(${expression}[Symbol.iterator]());
         // received = void 0;
         $ctx.sent = void 0;
@@ -170,10 +170,10 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // The yield above should not be treated the same way as a normal yield.
     // See comment in transformYieldExpression_.
-    var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+    let shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
     this.shouldAppendThrowCloseState_ = false;
     statements = this.transformList(statements);
-    var yieldMachine = this.transformStatementList_(statements);
+    let yieldMachine = this.transformStatementList_(statements);
     this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
 
     if (machine)
@@ -200,21 +200,21 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {BinaryExpression} tree
    */
   transformYieldAssign_(tree) {
-    var shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
+    let shouldAppendThrowCloseState = this.shouldAppendThrowCloseState_;
     this.shouldAppendThrowCloseState_ = false;
-    var machine = this.transformYieldExpression_(tree.right);
-    var left = this.transformAny(tree.left);
-    var sentExpression = tree.right.isYieldFor ?
+    let machine = this.transformYieldExpression_(tree.right);
+    let left = this.transformAny(tree.left);
+    let sentExpression = tree.right.isYieldFor ?
         parseExpression `$ctx.sentIgnoreThrow` :
         parseExpression `$ctx.sent`;
-    var statement = new ExpressionStatement(
+    let statement = new ExpressionStatement(
         tree.location,
         new BinaryExpression(
             tree.location,
             left,
             tree.operator,
             sentExpression));
-    var assignMachine = this.statementToStateMachine_(statement);
+    let assignMachine = this.statementToStateMachine_(statement);
     this.shouldAppendThrowCloseState_ = shouldAppendThrowCloseState;
     return machine.append(assignMachine);
   }
@@ -228,7 +228,7 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformExpressionStatement(tree) {
-    var expression = tree.expression;
+    let expression = tree.expression;
     if (expression.type === YIELD_EXPRESSION)
       return this.transformYieldExpression_(expression);
 
@@ -258,16 +258,16 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformReturnStatement(tree) {
-    var expression, machine;
+    let expression, machine;
 
     if (this.expressionNeedsStateMachine(tree.expression))
       ({expression, machine} = this.expressionToStateMachine(tree.expression));
     else
       expression = tree.expression;
 
-    var startState = this.allocateState();
-    var fallThroughState = this.allocateState();
-    var returnMachine = this.stateToStateMachine_(
+    let startState = this.allocateState();
+    let fallThroughState = this.allocateState();
+    let returnMachine = this.stateToStateMachine_(
         new ReturnState(
             startState,
             fallThroughState,
@@ -297,7 +297,7 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {FunctionBody}
    */
   transformGeneratorBody(tree, name) {
-    var runtimeFunction =
+    let runtimeFunction =
         parseExpression `$traceurRuntime.createGeneratorInstance`;
     return this.transformCpsFunctionBody(tree, runtimeFunction, name);
   }

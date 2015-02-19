@@ -35,12 +35,12 @@ import {
 } from './ParseTreeFactory.js';
 
 function createDefaultAssignment(index, binding, initializer) {
-  var argumentsExpression =
+  let argumentsExpression =
       createMemberLookupExpression(
           createIdentifierExpression(ARGUMENTS),
           createNumberLiteral(index));
 
-  var assignmentExpression;
+  let assignmentExpression;
   // If the default value is undefined we can skip testing if arguments[i] is
   // undefined.
   if (initializer === null || isUndefined(initializer) ||
@@ -69,11 +69,11 @@ function createDefaultAssignment(index, binding, initializer) {
 export class DefaultParametersTransformer extends ParameterTransformer {
 
   transformFormalParameterList(tree) {
-    var parameters = [];
-    var changed = false;
-    var defaultToUndefined = false;
-    for (var i = 0; i < tree.parameters.length; i++) {
-      var param = this.transformAny(tree.parameters[i]);
+    let parameters = [];
+    let changed = false;
+    let defaultToUndefined = false;
+    for (let i = 0; i < tree.parameters.length; i++) {
+      let param = this.transformAny(tree.parameters[i]);
       if (param !== tree.parameters[i])
         changed = true;
 

@@ -65,13 +65,13 @@ export class ConstChecker extends ScopeVisitor {
     if (this.inWithBlock) {
       return;
     }
-    var binding = this.scope.getBinding(identifierExpression);
+    let binding = this.scope.getBinding(identifierExpression);
     if (binding === null) {
       // We don't know anything about this binding.
       return;
     }
 
-    var {type, tree} = binding;
+    let {type, tree} = binding;
     if (type === CONST) {
       this.reportError_(identifierExpression.location,
           `${tree.getStringValue()} is read-only`);
@@ -84,8 +84,8 @@ export class ConstChecker extends ScopeVisitor {
 }
 
 export function validate(tree, reporter) {
-  var builder = new ScopeChainBuilder(reporter);
+  let builder = new ScopeChainBuilder(reporter);
   builder.visitAny(tree);
-  var checker = new ConstChecker(builder, reporter);
+  let checker = new ConstChecker(builder, reporter);
   checker.visitAny(tree);
 }

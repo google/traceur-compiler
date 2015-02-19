@@ -94,8 +94,8 @@ import {
   YIELD
 } from '../syntax/TokenType.js';
 
-var NEW_LINE = '\n';
-var LINE_LENGTH = 80;
+const NEW_LINE = '\n';
+const LINE_LENGTH = 80;
 
 /**
  * Converts a ParseTree to text.
@@ -233,9 +233,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {BinaryExpression} tree
    */
   visitBinaryExpression(tree) {
-    var left = tree.left;
+    let left = tree.left;
     this.visitAny(left);
-    var operator = tree.operator;
+    let operator = tree.operator;
     if (left.type === POSTFIX_EXPRESSION &&
         requiresSpaceBetween(left.operator.type, operator.type)) {
       this.writeRequiredSpace_();
@@ -243,7 +243,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeSpace_();
     }
     this.write_(operator);
-    var right = tree.right;
+    let right = tree.right;
     if (right.type === UNARY_EXPRESSION &&
         requiresSpaceBetween(operator.type, right.operator.type)) {
       this.writeRequiredSpace_();
@@ -257,7 +257,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {BindingElement} tree
    */
   visitBindingElement(tree) {
-    var typeAnnotation = this.currentParameterTypeAnnotation_;
+    let typeAnnotation = this.currentParameterTypeAnnotation_;
     // resetting type annotation so it doesn't filter down recursively
     this.currentParameterTypeAnnotation_ = null;
     this.visitAny(tree.binding);
@@ -661,10 +661,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FormalParameterList} tree
    */
   visitFormalParameterList(tree) {
-    var first = true;
+    let first = true;
 
-    for (var i = 0; i < tree.parameters.length; i++) {
-      var parameter = tree.parameters[i];
+    for (let i = 0; i < tree.parameters.length; i++) {
+      let parameter = tree.parameters[i];
 
       if (first) {
         first = false;
@@ -1318,9 +1318,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitTypeArguments(tree) {
     this.write_(OPEN_ANGLE);
-    var {args} = tree;
+    let {args} = tree;
     this.visitAny(args[0]);
-    for (var i = 1; i < args.length; i++) {
+    for (let i = 1; i < args.length; i++) {
       this.write_(COMMA);
       this.writeSpace_();
       this.visitAny(args[i]);
@@ -1367,9 +1367,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {UnaryExpression} tree
    */
   visitUnaryExpression(tree) {
-    var op = tree.operator;
+    let op = tree.operator;
     this.write_(op);
-    var operand = tree.operand;
+    let operand = tree.operand;
     if (operand.type === UNARY_EXPRESSION &&
         requiresSpaceBetween(op.type, operand.operator.type)) {
       this.writeRequiredSpace_();
@@ -1382,7 +1382,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitUnionType(tree) {
     this.visitAny(tree.types[0]);
-    for (var i = 1; i < tree.types.length; i++) {
+    for (let i = 1; i < tree.types.length; i++) {
       this.writeSpace_();
       this.write_(BAR);
       this.writeSpace_();
@@ -1495,8 +1495,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   writeList_(list, delimiter, writeNewLine, indent = 0) {
-    var first = true;
-    for (var i = 0; i < list.length; i++) {
+    let first = true;
+    for (let i = 0; i < list.length; i++) {
       if (first) {
         first = false;
       } else {
@@ -1538,7 +1538,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (value === null) return;
 
     if (this.prettyPrint_ && this.currentLine_.length === 0) {
-      for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
+      for (let i = 0, indent = this.indentDepth_; i < indent; i++) {
         this.writeRaw_('  ');
       }
     }
@@ -1595,9 +1595,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {string|Token|TokenType} value
    */
   needsSpace_(token) {
-    var lastCode = this.lastCode_;
+    let lastCode = this.lastCode_;
     if (isWhitespace(lastCode)) return false;
-    var firstCode = token.toString().charCodeAt(0);
+    let firstCode = token.toString().charCodeAt(0);
     return isIdentifierPart(firstCode) &&
         // /m is treated as regexp flag
         (isIdentifierPart(lastCode) || lastCode === 47);

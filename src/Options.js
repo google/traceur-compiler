@@ -14,7 +14,7 @@
 
 
 function enumerableOnlyObject(obj) {
-  var result = Object.create(null);
+  let result = Object.create(null);
   Object.keys(obj).forEach(function(key) {
     Object.defineProperty(result, key, {enumerable: true, value: obj[key]});
   });
@@ -22,7 +22,7 @@ function enumerableOnlyObject(obj) {
 }
 
 // Traceur sets these default options and no others for v 0.1.*
-export var optionsV01 = enumerableOnlyObject({
+export const optionsV01 = enumerableOnlyObject({
   annotations: false,
   arrayComprehension: false,
   arrowFunctions: true,
@@ -69,7 +69,7 @@ export var optionsV01 = enumerableOnlyObject({
   validate: false,
 });
 
-export var versionLockedOptions = optionsV01;
+export const versionLockedOptions = optionsV01;
 
 // Options are just a plain old object. There are two read only views on this
 // object, parseOptions and transformOptions.
@@ -87,14 +87,14 @@ export var versionLockedOptions = optionsV01;
 // This allows you to parse certain features without transforming them, leaving
 // the syntax intact in the output.
 
-var defaultValues = Object.create(null);
-var featureOptions = Object.create(null);
-var experimentalOptions = Object.create(null);
-var moduleOptions =
+let defaultValues = Object.create(null);
+let featureOptions = Object.create(null);
+let experimentalOptions = Object.create(null);
+let moduleOptions =
     ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
 
-var EXPERIMENTAL = 0;
-var ON_BY_DEFAULT = 1;
+const EXPERIMENTAL = 0;
+const ON_BY_DEFAULT = 1;
 
 /**
  * Adds a feature option.  Feature options can be tested with parseOptions
@@ -106,7 +106,7 @@ function addFeatureOption(name, kind) {
   if (kind === EXPERIMENTAL)
     experimentalOptions[name] = true;
 
-  var defaultValue = kind === ON_BY_DEFAULT;
+  let defaultValue = kind === ON_BY_DEFAULT;
   defaultValues[name] = defaultValue;
 }
 
@@ -153,12 +153,12 @@ addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
-var transformOptionsPrototype = {};
+let transformOptionsPrototype = {};
 
 Object.keys(featureOptions).forEach((name) => {
   Object.defineProperty(transformOptionsPrototype, name, {
     get: function() {
-      var v = this.proxiedOptions_[name];
+      let v = this.proxiedOptions_[name];
       if (v === 'parse')
         return false;
       return v;
@@ -167,7 +167,7 @@ Object.keys(featureOptions).forEach((name) => {
   });
 });
 
-var parseOptionsPrototype = {};
+let parseOptionsPrototype = {};
 
 Object.keys(featureOptions).forEach((name) => {
   Object.defineProperty(parseOptionsPrototype, name, {
@@ -244,9 +244,9 @@ export class Options {
   }
 
   get experimental() {
-    var value;
+    let value;
     Object.keys(experimentalOptions).every((name) => {
-      var currentValue = this[name];
+      let currentValue = this[name];
       if (value === undefined) {
         value = currentValue;
         return true;
@@ -321,7 +321,7 @@ export class Options {
    * @param {boolean=} allOff
    */
   reset(allOff = undefined) {
-    var useDefault = allOff === undefined;
+    let useDefault = allOff === undefined;
     Object.keys(defaultValues).forEach((name) => {
       this[name] = useDefault && defaultValues[name];
     });
@@ -370,7 +370,7 @@ export class Options {
   }
 
   diff(ref) {
-    var mismatches = [];
+    let mismatches = [];
     Object.keys(this).forEach((key) => {
       if (this[key] !== ref[key]) {
         mismatches.push({
@@ -387,7 +387,7 @@ export class Options {
 
 
 // TODO: Refactor this so that we can keep all of these in one place.
-var descriptions = {
+let descriptions = {
   experimental: 'Turns on all experimental features',
   require: 'Generate require function argument for node when modules=register',
   sourceMaps: 'Generate source map and (\'file\') write to .map' +
@@ -408,7 +408,7 @@ export class CommandOptions extends Options {
    * Takes an array of command line params and sets the options based on that.
    */
   static fromArgv(args) {
-    var options = new CommandOptions();
+    let options = new CommandOptions();
     args.forEach((arg) => options.parseCommand(arg));
     return options;
   }
@@ -423,8 +423,8 @@ export class CommandOptions extends Options {
    *   --modules=amd
    */
   parseCommand(s) {
-    var re = /--([^=]+)(?:=(.+))?/;
-    var m = re.exec(s);
+    let re = /--([^=]+)(?:=(.+))?/;
+    let m = re.exec(s);
 
     if (m)
       this.setOptionCoerced(m[1], m[2]);
@@ -548,7 +548,7 @@ export function addOptions(flags, commandOptions) {
   );
 
   Object.keys(commandOptions).forEach(function(name) {
-    var dashedName = toDashCase(name);
+    let dashedName = toDashCase(name);
     if (flags.optionFor('--' + name) || flags.optionFor('--' + dashedName)) {
       return;   // non-boolean already in flags.
     } else if (name in featureOptions) {

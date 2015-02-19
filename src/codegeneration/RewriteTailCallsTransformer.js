@@ -26,7 +26,7 @@ export class RewriteTailCallsTransformer extends ParseTreeTransformer {
   }
 
   transformReturnStatement(tree) {
-    var expression = tree.expression;
+    let expression = tree.expression;
     if (expression !== null) {
       expression = RewriteTailExpressionsTransformer.transform(
           this.bodyTransformer_, expression);
@@ -38,7 +38,7 @@ export class RewriteTailCallsTransformer extends ParseTreeTransformer {
   }
 
   transformTryStatement(tree) {
-    var block;
+    let block;
     if (tree.finallyBlock !== null) {
       block = this.transformAny(tree.finallyBlock);
       if (block !== tree.finallyBlock) {

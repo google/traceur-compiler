@@ -31,7 +31,7 @@ import {IDENTIFIER} from '../syntax/TokenType.js';
 export function propName(tree) {
   switch (tree.type) {
     case LITERAL_PROPERTY_NAME:
-      var token = tree.literalToken;
+      let token = tree.literalToken;
       if (token.isKeyword() || token.type === IDENTIFIER)
         return token.toString();
       return String(tree.literalToken.processedValue);

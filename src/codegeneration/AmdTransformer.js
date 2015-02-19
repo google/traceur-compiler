@@ -42,7 +42,7 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   getExportProperties() {
-    var properties = super.getExportProperties();
+    let properties = super.getExportProperties();
 
     if (this.exportVisitor_.hasExports())
       properties.push(parsePropertyDefinition `__esModule: true`);
@@ -51,8 +51,8 @@ export class AmdTransformer extends ModuleTransformer {
 
   moduleProlog() {
     // insert the default handling after the "use strict" and __moduleName lines
-    var locals = this.dependencies.map((dep) => {
-      var local = createIdentifierExpression(dep.local);
+    let locals = this.dependencies.map((dep) => {
+      let local = createIdentifierExpression(dep.local);
       return parseStatement
           `if (!${local} || !${local}.__esModule)
             ${local} = {default: ${local}}`;
@@ -61,12 +61,12 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   wrapModule(statements) {
-    var depPaths = this.dependencies.map((dep) => dep.path);
-    var depLocals = this.dependencies.map((dep) => dep.local);
+    let depPaths = this.dependencies.map((dep) => dep.path);
+    let depLocals = this.dependencies.map((dep) => dep.local);
 
-    var hasTopLevelThis = statements.some(scopeContainsThis);
+    let hasTopLevelThis = statements.some(scopeContainsThis);
 
-    var func = parseExpression `function(${depLocals}) {
+    let func = parseExpression `function(${depLocals}) {
       ${statements}
     }`;
 
@@ -82,10 +82,10 @@ export class AmdTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    var localName = this.getTempIdentifier();
+    let localName = this.getTempIdentifier();
     // AMD does not allow .js
-    var value = tree.token.processedValue
-    var stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));
+    let value = tree.token.processedValue
+    let stringLiteral = createStringLiteralToken(value.replace(/\.js$/, ''));
     this.dependencies.push({path: stringLiteral, local: localName});
     return createIdentifierExpression(localName);
   }

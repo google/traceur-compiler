@@ -25,7 +25,7 @@ import {
 import globalThis from './globalThis.js';
 import scopeContainsThis from './scopeContainsThis.js';
 
-var anonInlineModules = 0;
+let anonInlineModules = 0;
 
 /**
  * Inline modules are meant for compilation of all modules to a single file.
@@ -35,11 +35,11 @@ var anonInlineModules = 0;
 export class InlineModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
-    var seed = this.moduleName || 'anon_' + ++anonInlineModules;
-    var idName = this.getTempVarNameForModuleName(seed);
+    let seed = this.moduleName || 'anon_' + ++anonInlineModules;
+    let idName = this.getTempVarNameForModuleName(seed);
 
-    var body = createFunctionBody(statements);
-    var moduleExpression;
+    let body = createFunctionBody(statements);
+    let moduleExpression;
     if (statements.some(scopeContainsThis)) {
       moduleExpression = createScopedExpression(body, globalThis());
     } else {

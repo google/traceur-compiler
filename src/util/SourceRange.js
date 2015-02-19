@@ -26,7 +26,7 @@ export class SourceRange {
   }
 
   toString() {
-    var str = this.start.source.contents;
+    let str = this.start.source.contents;
     return str.slice(this.start.offset, this.end.offset);
   }
 }

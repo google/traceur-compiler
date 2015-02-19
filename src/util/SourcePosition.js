@@ -40,7 +40,7 @@ export class SourcePosition {
   }
 
   toString() {
-    var name = this.source ? this.source.name : '';
+    let name = this.source ? this.source.name : '';
     return `${name}:${this.line + 1}:${this.column + 1}`;
   }
 }

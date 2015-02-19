@@ -60,18 +60,18 @@ export class ProperTailCallTransformer extends TempVarTransformer {
   }
 
   transformFunctionDeclaration(tree) {
-    var tree = super.transformFunctionDeclaration(tree);
+    tree = super.transformFunctionDeclaration(tree);
     if (tree.functionKind !== null) {
       // do not transform async/generator functions
       return tree;
     }
 
-    var nameIdExpression = id(tree.name.identifierToken);
+    let nameIdExpression = id(tree.name.identifierToken);
 
-    var setupFlagExpression = parseExpression
+    let setupFlagExpression = parseExpression
         `$traceurRuntime.initTailRecursiveFunction(${nameIdExpression})`;
 
-    var funcDecl = this.transformFunction_(tree, FunctionDeclaration);
+    let funcDecl = this.transformFunction_(tree, FunctionDeclaration);
     if (funcDecl === tree) {
       return tree;
     }
@@ -79,7 +79,7 @@ export class ProperTailCallTransformer extends TempVarTransformer {
     // Function declarations in blocks do not hoist. In that case we add the
     // variable declaration after the function declaration.
 
-    var tmpVar = id(this.inBlock_ ?
+    let tmpVar = id(this.inBlock_ ?
         this.getTempIdentifier() : this.addTempVar(setupFlagExpression));
 
     if (!this.inBlock_) {
@@ -93,13 +93,13 @@ export class ProperTailCallTransformer extends TempVarTransformer {
   }
 
   transformFunctionExpression(tree) {
-    var tree = super.transformFunctionExpression(tree);
+    tree = super.transformFunctionExpression(tree);
     if (tree.functionKind) {
       // do not transform async/generator functions
       return tree;
     }
 
-    var functionExpression =
+    let functionExpression =
         this.transformFunction_(tree, FunctionExpression);
 
     if (functionExpression === tree) {
@@ -111,22 +111,22 @@ export class ProperTailCallTransformer extends TempVarTransformer {
   }
 
   transformFunction_(tree, constructor) {
-    var body = RewriteTailCallsTransformer.transform(this, tree.body);
+    let body = RewriteTailCallsTransformer.transform(this, tree.body);
     if (body === tree.body) {
       return tree;
     }
-    var func = id(this.getTempIdentifier());
-    var innerFunction = createFunctionExpression(tree.parameterList, body);
-    var outerBody = createFunctionBody(parseStatements `
+    let func = id(this.getTempIdentifier());
+    let innerFunction = createFunctionExpression(tree.parameterList, body);
+    let outerBody = createFunctionBody(parseStatements `
         return $traceurRuntime.call(${innerFunction}, this, arguments);`);
     return new constructor(tree.location, tree.name, tree.functionKind,
         tree.parameterList, tree.typeAnnotation, tree.annotations, outerBody);
   }
 
   transformBlock(tree) {
-    var inBlock = this.inBlock_;
+    let inBlock = this.inBlock_;
     this.inBlock_ = true;
-    var rv = super.transformBlock(tree);
+    let rv = super.transformBlock(tree);
     this.inBlock_ = inBlock;
     return rv;
   }

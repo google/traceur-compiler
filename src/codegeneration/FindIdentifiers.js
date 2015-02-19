@@ -60,7 +60,7 @@ export class FindIdentifiers extends ScopeVisitor {
 
   visitList(list) {
     if (list) {
-      for (var i = 0; !this.found_ && i < list.length; i++) {
+      for (let i = 0; !this.found_ && i < list.length; i++) {
         this.visitAny(list[i]);
       }
     }

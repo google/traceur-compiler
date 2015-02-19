@@ -26,7 +26,7 @@ import {toSource} from './toSource.js';
  */
 export function write(tree, options = undefined,
 		outputName = '<TreeWriter-output>', sourceRoot = undefined) {
-  var [result, sourceMap] = toSource(tree, options, outputName, sourceRoot);
+  let [result, sourceMap] = toSource(tree, options, outputName, sourceRoot);
   if (sourceMap)
     options.generatedSourceMap = sourceMap;
   return result;

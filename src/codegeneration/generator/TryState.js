@@ -14,7 +14,7 @@
 
 import {State} from './State.js';
 
-var Kind = {
+const Kind = {
   CATCH: 'catch',
   FINALLY: 'finally'
 };
@@ -54,8 +54,8 @@ export class TryState {
    * @return {Array.<TryState>}
    */
   replaceNestedTrys(oldState, newState) {
-    var states = [];
-    for (var i = 0; i < this.nestedTrys.length; i++) {
+    let states = [];
+    for (let i = 0; i < this.nestedTrys.length; i++) {
       states.push(this.nestedTrys[i].replaceState(oldState, newState));
     }
     return states;

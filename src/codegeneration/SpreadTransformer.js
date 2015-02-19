@@ -68,12 +68,12 @@ export class SpreadTransformer extends TempVarTransformer {
    * @private
    */
   createArrayFromElements_(elements) {
-    var length = elements.length;
+    let length = elements.length;
 
     // Coalesce multiple non spread elements.
-    var args = [];
-    var lastArray;
-    for (var i = 0; i < length; i++) {
+    let args = [];
+    let lastArray;
+    for (let i = 0; i < length; i++) {
       // Arrays can contain holes which are represented by null.
       if (elements[i] && elements[i].type === SPREAD_EXPRESSION) {
         if (lastArray) {
@@ -96,8 +96,8 @@ export class SpreadTransformer extends TempVarTransformer {
   }
 
   desugarCallSpread_(tree) {
-    var operand = this.transformAny(tree.operand);
-    var functionObject, contextObject;
+    let operand = this.transformAny(tree.operand);
+    let functionObject, contextObject;
 
     this.pushTempScope();
 
@@ -106,10 +106,10 @@ export class SpreadTransformer extends TempVarTransformer {
       //
       // ($tmp = expr).fun.apply($tmp, expandedArgs)
 
-      var tempIdent = createIdentifierExpression(this.addTempVar());
-      var parenExpression = createParenExpression(
+      let tempIdent = createIdentifierExpression(this.addTempVar());
+      let parenExpression = createParenExpression(
           createAssignmentExpression(tempIdent, operand.operand));
-      var memberName = operand.memberName;
+      let memberName = operand.memberName;
 
       contextObject = tempIdent;
       functionObject = createMemberExpression(parenExpression, memberName);
@@ -119,10 +119,10 @@ export class SpreadTransformer extends TempVarTransformer {
       //
       // ($tmp = expr)[fun].apply($tmp, expandedArgs)
 
-      var tempIdent = createIdentifierExpression(this.addTempVar());
-      var parenExpression = createParenExpression(
+      let tempIdent = createIdentifierExpression(this.addTempVar());
+      let parenExpression = createParenExpression(
           createAssignmentExpression(tempIdent, operand.operand));
-      var memberExpression = this.transformAny(operand.memberExpression);
+      let memberExpression = this.transformAny(operand.memberExpression);
 
       contextObject = tempIdent;
       functionObject = createMemberLookupExpression(parenExpression,
@@ -140,7 +140,7 @@ export class SpreadTransformer extends TempVarTransformer {
     this.popTempScope();
 
     // functionObject.apply(contextObject, expandedArgs)
-    var arrayExpression = this.createArrayFromElements_(tree.args.args);
+    let arrayExpression = this.createArrayFromElements_(tree.args.args);
     return createCallExpression(
         createMemberExpression(functionObject, APPLY),
         createArgumentList([contextObject, arrayExpression]));
@@ -151,7 +151,7 @@ export class SpreadTransformer extends TempVarTransformer {
     //
     // new (Function.prototype.bind.apply(Fun, [null, ... args]))
 
-    var arrayExpression = [createNullLiteral(), ...tree.args.args];
+    let arrayExpression = [createNullLiteral(), ...tree.args.args];
     arrayExpression = this.createArrayFromElements_(arrayExpression);
 
     return createNewExpression(
