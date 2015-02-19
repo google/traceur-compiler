@@ -2196,10 +2196,10 @@ export class Parser {
         type = this.peekType_();
         switch (type) {
           case OPEN_PAREN:
-            var name = new LiteralPropertyName(start, staticToken);
+            var location = this.getTreeLocation_(start);
+            var name = new LiteralPropertyName(location, staticToken);
             return this.parseMethod_(start, isStatic, functionKind, name,
                                      annotations);
-
           default:
             isStatic = true;
             if (type === STAR && this.options_.generators)
