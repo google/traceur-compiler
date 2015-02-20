@@ -370,7 +370,7 @@ export class ParseTree {
   }
 
   getDirectivePrologueStringToken_() {
-    var tree = this;
+    let tree = this;
     if (tree.type !== EXPRESSION_STATEMENT || !(tree = tree.expression))
       return null;
     if (tree.type !== LITERAL_EXPRESSION   || !(tree = tree.literalToken))
@@ -385,10 +385,10 @@ export class ParseTree {
   }
 
   isDirective_(name) {
-    var token = this.getDirectivePrologueStringToken_();
+    let token = this.getDirectivePrologueStringToken_();
     if (!token)
       return false;
-    var v = token.value;
+    let v = token.value;
     // A Use Strict Directive may not contain an EscapeSequence or
     // LineContinuation. For example, 'use str\x69ct' is not a valid Use Strict
     // Directive.
@@ -456,7 +456,7 @@ export class ParseTree {
    */
   static replacer(k, v) {
     if (v instanceof ParseTree || v instanceof Token) {
-      var rv = {type: v.type};
+      let rv = {type: v.type};
       Object.keys(v).forEach(function(name) {
         // assigns 'type' again for Token, but no big deal.
         if (name !== 'location')

@@ -15,6 +15,7 @@
 'use strong';
 
 import {ParseTreeWriter} from './ParseTreeWriter.js';
+import {StringSet} from '../util/StringSet.js';
 
 /**
  * Converts a ParseTree to text and a source Map.
@@ -27,11 +28,11 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   constructor(sourceMapConfiguration, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
-    this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.lowResolution_ = sourceMapConfiguration.lowResolution;
     this.basepath_ = sourceMapConfiguration.basepath;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
+    this.sourcesInMap_ = new StringSet();
   }
 
   //
@@ -82,7 +83,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   generate() {
-    var column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
+    let column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
     this.generated_ = {
       line: this.outputLineCount_,
       column: column
@@ -95,8 +96,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   exitBranch(location) {
-    var position = location.end;
-    var endOfPreviousToken = {
+    let position = location.end;
+    let endOfPreviousToken = {
       line: position.line,
       column: position.column ? position.column - 1 : 0,
       source : position.source,
@@ -109,7 +110,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   * @param {Object} position Traceur SourcePosition, line and col zero based.
   */
   originate(position) {
-    var line = position.line + 1;  // source map lib uses one-based lines.
+    let line = position.line + 1;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
     if (this.original_ && this.original_.line !== line)
       this.flushMappings();
@@ -118,11 +119,11 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       line: line,
       column: position.column || 0  // source map uses zero based columns
     };
-    if (position.source.name !== this.sourceName_) {
-      this.sourceName_ = position.source.name;
+    if (position.source.name && !this.sourcesInMap_.has(position.source.name)) {
+      this.sourcesInMap_.add(position.source.name);
       this.relativeSourceName_ = relativePath(position.source.name,
               this.basepath_);
-      this.sourceMapGenerator_.setSourceContent(position.source.name,
+      this.sourceMapGenerator_.setSourceContent(this.relativeSourceName_,
           position.source.contents);
     }
     this.flushMappings();
@@ -155,7 +156,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     if (this.skipMapping())
       return;
 
-    var mapping = {
+    let mapping = {
       generated: this.generated_,
       original: this.original_,
       source: this.relativeSourceName_
@@ -171,27 +172,31 @@ export function relativePath(name, sourceRoot) {
   if (!sourceRoot)
     return name;
 
-  var nameSegments = name.split('/');
-  var rootSegments = sourceRoot.split('/');
-  // Handle dir name without /
+  let nameSegments = name.split('/');
+  let rootSegments = sourceRoot.split('/');
+
   if (rootSegments[rootSegments.length - 1]) {
-    rootSegments.push('');
+    // We can't patch this up because we can't know whether the caller sent
+    // a file path or a directory w/o a slash by mistake
+    throw new Error('rootPath must end in /');
   }
-  var commonSegmentsLength = 0;
-  var uniqueSegments = [];
+  let commonSegmentsLength = 0;
+  let uniqueSegments = [];
+  let foundUnique = false;
   nameSegments.forEach((segment, index)  => {
-    if (segment === rootSegments[index]) {
+    if (!foundUnique && segment === rootSegments[index]) {
       commonSegmentsLength++;
-      return false;
+      return;
     }
+    foundUnique = true;
     uniqueSegments.push(segment);
   });
 
   if (commonSegmentsLength < 1 || commonSegmentsLength === rootSegments.length)
     return name;
 
-  var dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
-  var segments = [];
+  let dotDotSegments = rootSegments.length - commonSegmentsLength - 1;
+  let segments = [];
   while (dotDotSegments--) {
     segments.push('..');
   }

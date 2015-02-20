@@ -42,7 +42,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ExportsList|null}
    */
   getExportsListForModuleSpecifier(name) {
-    var referrer = this.moduleSymbol.normalizedName;
+    let referrer = this.moduleSymbol.normalizedName;
     return this.loader_.getExportsListForModuleSpecifier(name, referrer);
   }
 

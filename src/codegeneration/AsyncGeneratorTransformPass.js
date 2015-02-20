@@ -51,17 +51,17 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
     if (!this.needsTransform_(tree))
       return super.transformFunctionDeclaration(tree);
 
-    var nameIdExpression = id(tree.name.identifierToken);
+    let nameIdExpression = id(tree.name.identifierToken);
 
-    var setupPrototypeExpression = parseExpression
+    let setupPrototypeExpression = parseExpression
         `$traceurRuntime.initAsyncGeneratorFunction(${nameIdExpression})`;
 
     // Function declarations in blocks do not hoist. In that case we add the
     // variable declaration after the function declaration.
 
-    var tmpVar = id(this.inBlock_ ?
+    let tmpVar = id(this.inBlock_ ?
         this.getTempIdentifier() : this.addTempVar(setupPrototypeExpression));
-    var funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
+    let funcDecl = this.transformFunction_(tree, FunctionDeclaration, tmpVar);
 
     if (!this.inBlock_)
       return funcDecl;
@@ -77,7 +77,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
       return super.transformFunctionExpression(tree);
     }
     
-    var name;
+    let name;
     if (!tree.name) {
       // We need a name to be able to reference the function object.
       name = createIdentifierToken(this.getTempIdentifier());
@@ -89,19 +89,19 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
       name = tree.name.identifierToken;
     }
 
-    var functionExpression =
+    let functionExpression =
         this.transformFunction_(tree, FunctionExpression, id(name));
     return parseExpression
         `$traceurRuntime.initAsyncGeneratorFunction(${functionExpression })`;
   }
 
   transformFunction_(tree, constructor, nameExpression) {
-    var body = super.transformAny(tree.body);
+    let body = super.transformAny(tree.body);
     body = AsyncGeneratorTransformer.transformAsyncGeneratorBody(
           this.identifierGenerator, this.reporter_, body, nameExpression);
 
     // The async generator has been transformed away.
-    var functionKind = null;
+    let functionKind = null;
 
     return new constructor(tree.location, tree.name, functionKind,
                            tree.parameterList, tree.typeAnnotation || null,
@@ -109,9 +109,9 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
   }
 
   transformBlock(tree) {
-    var inBlock = this.inBlock_;
+    let inBlock = this.inBlock_;
     this.inBlock_ = true;
-    var rv = super.transformBlock(tree);
+    let rv = super.transformBlock(tree);
     this.inBlock_ = inBlock;
     return rv;
   }

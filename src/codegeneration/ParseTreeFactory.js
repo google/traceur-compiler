@@ -94,8 +94,8 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 
 // Helpers so we can use these on Arguments objects.
-var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
-var map = Array.prototype.map.call.bind(Array.prototype.map);
+let slice = Array.prototype.slice.call.bind(Array.prototype.slice);
+let map = Array.prototype.map.call.bind(Array.prototype.map);
 
 // Tokens
 
@@ -204,7 +204,7 @@ export function createBindingIdentifier(identifier) {
 }
 
 export function createImportedBinding(name) {
-  var bindingIdentifier = createBindingIdentifier(name);
+  let bindingIdentifier = createBindingIdentifier(name);
   return new ImportedBinding(bindingIdentifier.location, bindingIdentifier);
 }
 
@@ -527,10 +527,10 @@ export function createMemberExpression(operand, memberName, memberNames) {
   if (memberName instanceof LiteralToken)
     memberName = new LiteralExpression(null, memberName);
 
-  var tree = memberName instanceof LiteralExpression ?
+  let tree = memberName instanceof LiteralExpression ?
       new MemberLookupExpression(null, operand, memberName) :
       new MemberExpression(null, operand, memberName);
-  for (var i = 2; i < arguments.length; i++) {
+  for (let i = 2; i < arguments.length; i++) {
     tree = createMemberExpression(tree, arguments[i]);
   }
   return tree;
@@ -577,7 +577,7 @@ export function createObjectFreeze(value) {
  * @return {ParseTree}
  */
 export function createObjectCreate(protoExpression, descriptors) {
-  var argumentList = [protoExpression];
+  let argumentList = [protoExpression];
   if (descriptors)
     argumentList.push(descriptors);
 
@@ -594,8 +594,8 @@ export function createObjectCreate(protoExpression, descriptors) {
  * @return {ObjectLiteralExpression}
  */
 export function createObjectLiteral(descr) {
-  var propertyNameAndValues = Object.keys(descr).map(function(name) {
-    var value = descr[name];
+  let propertyNameAndValues = Object.keys(descr).map(function(name) {
+    let value = descr[name];
     if (!(value instanceof ParseTree))
       value = createBooleanLiteral(!!value);
     return createPropertyNameAssignment(name, value);
@@ -754,11 +754,11 @@ export function createVariableDeclarationList(binding,
                                               identifierOrDeclarations,
                                               initializer) {
   if (identifierOrDeclarations instanceof Array) {
-    var declarations = identifierOrDeclarations;
+    let declarations = identifierOrDeclarations;
     return new VariableDeclarationList(null, binding, declarations);
   }
 
-  var identifier = identifierOrDeclarations;
+  let identifier = identifierOrDeclarations;
   return createVariableDeclarationList(
       binding, [createVariableDeclaration(identifier, initializer)]);
 }
@@ -790,8 +790,8 @@ export function createVariableStatement(listOrBinding,
                                         initializer) {
   if (listOrBinding instanceof VariableDeclarationList)
     return new VariableStatement(null, listOrBinding);
-  var binding = listOrBinding;
-  var list = createVariableDeclarationList(binding, identifier, initializer);
+  let binding = listOrBinding;
+  let list = createVariableDeclarationList(binding, identifier, initializer);
   return createVariableStatement(list);
 }
 

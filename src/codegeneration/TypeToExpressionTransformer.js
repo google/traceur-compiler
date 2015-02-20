@@ -28,7 +28,7 @@ export class TypeToExpressionTransformer extends ParseTreeTransformer {
 
   transformTypeName(tree) {
     if (tree.moduleName) {
-      var operand = this.transformAny(tree.moduleName);
+      let operand = this.transformAny(tree.moduleName);
       return new MemberExpression(tree.location, operand, tree.name);
     }
     return new IdentifierExpression(tree.location, tree.name);
@@ -39,9 +39,9 @@ export class TypeToExpressionTransformer extends ParseTreeTransformer {
   }
 
   transformTypeReference(tree) {
-    var typeName = this.transformAny(tree.typeName);
-    var args = this.transformAny(tree.args);
-    var argumentList = new ArgumentList(tree.location, [typeName, ...args]);
+    let typeName = this.transformAny(tree.typeName);
+    let args = this.transformAny(tree.args);
+    let argumentList = new ArgumentList(tree.location, [typeName, ...args]);
     return parseExpression `$traceurRuntime.genericType(${argumentList})`;
   }
 

@@ -39,8 +39,8 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   addExport(name, tree) {
-    var moduleSymbol = this.moduleSymbol;
-    var existingExport = moduleSymbol.getExport(name);
+    let moduleSymbol = this.moduleSymbol;
+    let existingExport = moduleSymbol.getExport(name);
     if (existingExport) {
       this.reportError(tree, `Duplicate export. '${name}' was previously ` +
           `exported at ${existingExport.location.start}`);
@@ -74,8 +74,8 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var name = this.moduleSpecifier.token.processedValue;
-    var exportList =
+    let name = this.moduleSpecifier.token.processedValue;
+    let exportList =
         this.getExportsListForModuleSpecifier(name);
     if (exportList) {
       exportList.getExports().forEach((name) => this.addExport(name, tree));
@@ -87,7 +87,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitModuleDeclaration(tree) {
-    var name = tree.binding.getStringValue();
+    let name = tree.binding.getStringValue();
     this.addExport_(name, tree);
   }
 

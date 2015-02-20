@@ -20,13 +20,13 @@ import {createIdentifierToken} from './ParseTreeFactory.js';
 import {parseStatement} from './PlaceholderParser.js';
 
 function hasRestParameter(parameterList) {
-  var parameters = parameterList.parameters;
+  let parameters = parameterList.parameters;
   return parameters.length > 0 &&
       parameters[parameters.length - 1].isRestParameter();
 }
 
 function getRestParameterLiteralToken(parameterList) {
-  var parameters = parameterList.parameters;
+  let parameters = parameterList.parameters;
   return parameters[parameters.length - 1].parameter.identifier.identifierToken;
 }
 
@@ -38,16 +38,16 @@ function getRestParameterLiteralToken(parameterList) {
 export class RestParameterTransformer extends ParameterTransformer {
 
   transformFormalParameterList(tree) {
-    var transformed = super.transformFormalParameterList(tree);
+    let transformed = super.transformFormalParameterList(tree);
     if (hasRestParameter(transformed)) {
-      var parametersWithoutRestParam = new FormalParameterList(
+      let parametersWithoutRestParam = new FormalParameterList(
           transformed.location,
           transformed.parameters.slice(0, -1));
 
-      var startIndex = transformed.parameters.length - 1;
-      var i = createIdentifierToken(this.getTempIdentifier());
-      var name = getRestParameterLiteralToken(transformed);
-      var loop;
+      let startIndex = transformed.parameters.length - 1;
+      let i = createIdentifierToken(this.getTempIdentifier());
+      let name = getRestParameterLiteralToken(transformed);
+      let loop;
       if (startIndex) {
         // If startIndex is 0 we can generate slightly cleaner code.
         loop = parseStatement `

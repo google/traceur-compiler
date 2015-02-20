@@ -33,7 +33,7 @@ export class StringSet {
     delete this.storage_[value];
   }
   isEmpty() {
-    for (var _ in this.storage_) {
+    for (let _ in this.storage_) {
       return false;
     }
     return true;
@@ -42,7 +42,7 @@ export class StringSet {
     return Object.keys(this.storage_);
   }
   forEach(func) {
-    for (var value in this.storage_) {
+    for (let value in this.storage_) {
       func(value);
     }
   }

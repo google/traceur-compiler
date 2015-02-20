@@ -48,8 +48,8 @@ export class MultiTransformer {
    * @return {ParseTree}
    */
   transform(tree) {
-    var reporter = this.reporter_;
-    var validate = this.validate_;
+    let reporter = this.reporter_;
+    let validate = this.validate_;
 
     this.treeTransformers_.every((transformTree) => {
       tree = transformTree(tree);

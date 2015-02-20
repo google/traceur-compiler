@@ -51,19 +51,19 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
   transformArrayComprehension(tree) {
     this.pushTempScope();
 
-    var expression = this.transformAny(tree.expression);
+    let expression = this.transformAny(tree.expression);
 
-    var index = createIdentifierExpression(this.getTempIdentifier());
-    var result = createIdentifierExpression(this.getTempIdentifier());
+    let index = createIdentifierExpression(this.getTempIdentifier());
+    let result = createIdentifierExpression(this.getTempIdentifier());
 
-    var tempVarsStatatement = parseStatement `var ${index} = 0, ${result} = [];`;
-    var statement = parseStatement `${result}[${index}++] = ${expression};`;
-    var returnStatement = parseStatement `return ${result};`;
-    var functionKind = null;
+    let tempVarsStatatement = parseStatement `var ${index} = 0, ${result} = [];`;
+    let statement = parseStatement `${result}[${index}++] = ${expression};`;
+    let returnStatement = parseStatement `return ${result};`;
+    let functionKind = null;
 
-    var result = this.transformComprehension(tree, statement, functionKind,
-                                             tempVarsStatatement,
-                                             returnStatement);
+    result = this.transformComprehension(tree, statement, functionKind,
+                                         tempVarsStatatement,
+                                         returnStatement);
     this.popTempScope();
     return result;
   }

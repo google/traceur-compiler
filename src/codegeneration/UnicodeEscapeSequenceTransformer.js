@@ -18,7 +18,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {LiteralExpression} from '../syntax/trees/ParseTrees.js';
 import {STRING} from '../syntax/TokenType.js';
 
-var re = /(\\*)\\u{([0-9a-fA-F]+)}/g;
+let re = /(\\*)\\u{([0-9a-fA-F]+)}/g;
 
 function zeroPad(value) {
   return '0000'.slice(value.length) + value;
@@ -30,18 +30,18 @@ function needsTransform(token) {
 
 function transformToken(token) {
   return token.value.replace(re, (match, backslashes, hexDigits) => {
-    var backslashIsEscaped = backslashes.length % 2 === 1;
+    let backslashIsEscaped = backslashes.length % 2 === 1;
     if (backslashIsEscaped) {
       return match;
     }
 
-    var codePoint = parseInt(hexDigits, 16);
-    var value;
+    let codePoint = parseInt(hexDigits, 16);
+    let value;
     if (codePoint <= 0xFFFF) {
       value = '\\u' + zeroPad(codePoint.toString(16).toUpperCase());
     } else {
-      var high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
-      var low = (codePoint - 0x10000) % 0x400 + 0xDC00;
+      let high = Math.floor((codePoint - 0x10000) / 0x400) + 0xD800;
+      let low = (codePoint - 0x10000) % 0x400 + 0xDC00;
       value = '\\u' + high.toString(16).toUpperCase() +
               '\\u' + low.toString(16).toUpperCase();
     }
@@ -52,7 +52,7 @@ function transformToken(token) {
 
 export class UnicodeEscapeSequenceTransformer extends ParseTreeTransformer {
   transformLiteralExpression(tree) {
-    var token = tree.literalToken;
+    let token = tree.literalToken;
     if (needsTransform(token))
       return new LiteralExpression(tree.location, transformToken(token));
     return tree;

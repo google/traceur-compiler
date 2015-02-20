@@ -49,7 +49,7 @@ export class AwaitState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    var stateId, statements;
+    let stateId, statements;
     if (State.isFinallyExit(enclosingFinally, this.callbackState)) {
       stateId = enclosingFinally.finallyState;
       statements =

@@ -44,14 +44,14 @@ class FindThisOrArguments extends FindInFunctionScope {
 }
 
 export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
-  var finder = new FindThisOrArguments();
+  let finder = new FindThisOrArguments();
   finder.visitAny(tree);
   if (finder.foundArguments) {
-    var argumentsTempName = tempVarTransformer.addTempVarForArguments();
+    let argumentsTempName = tempVarTransformer.addTempVarForArguments();
     tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
   }
   if (finder.foundThis) {
-    var thisTempName = tempVarTransformer.addTempVarForThis();
+    let thisTempName = tempVarTransformer.addTempVarForThis();
     tree = AlphaRenamer.rename(tree, THIS, thisTempName);
   }
   return tree;

@@ -18,7 +18,7 @@ import {FunctionBody} from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {prependStatements} from './PrependStatements.js';
 
-var stack = [];
+let stack = [];
 
 /**
  * Base class for rest, default and destructuring parameters.
@@ -62,13 +62,13 @@ export class ParameterTransformer extends TempVarTransformer {
   }
 
   transformFunctionBody(tree) {
-    var transformedTree = super.transformFunctionBody(tree);
+    let transformedTree = super.transformFunctionBody(tree);
 
     // The stack is pushed onto further up in the call chain
     // (transformFunctionDeclaration, transformFunctionExpression,
     // transformGetAccessor, transformSetAccessor,
     // transformPropertyMethodAssignment)
-    var statements = stack.pop();
+    let statements = stack.pop();
     if (!statements.length)
       return transformedTree;
 

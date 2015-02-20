@@ -24,11 +24,11 @@ export function transform(v, replacer = (k, v) => v) {
 }
 
 function transform_(v, replacer) {
-  var rv, tv;
+  let rv, tv;
   if (Array.isArray(v)) {
-    var len = v.length;
+    let len = v.length;
     rv = Array(len);
-    for (var i = 0; i < len; i++) {
+    for (let i = 0; i < len; i++) {
       tv = transform_(replacer(String(i), v[i]), replacer);
       rv[i] = tv === undefined ? null : tv;
     }

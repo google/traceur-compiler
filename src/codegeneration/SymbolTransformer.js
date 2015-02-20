@@ -76,7 +76,7 @@ function isTypeof(tree) {
 function isSafeTypeofString(tree) {
   if (tree.type !== LITERAL_EXPRESSION)
     return false;
-  var value = tree.literalToken.processedValue;
+  let value = tree.literalToken.processedValue;
   switch (value) {
     case 'symbol':
     case 'object':
@@ -85,7 +85,7 @@ function isSafeTypeofString(tree) {
   return true;
 }
 
-var runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
+let runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
 
 /**
  * This transformer is used with symbol values to ensure that symbols can be
@@ -122,14 +122,14 @@ export class SymbolTransformer extends TempVarTransformer {
    * the typeof expression.
    */
   transformTypeofOperand_(tree) {
-    var operand = this.transformAny(tree.operand);
+    let operand = this.transformAny(tree.operand);
     return new UnaryExpression(tree.location, tree.operator, operand);
   }
 
   transformBinaryExpression(tree) {
     if (tree.operator.type === IN) {
-      var name = this.transformAny(tree.left);
-      var object = this.transformAny(tree.right);
+      let name = this.transformAny(tree.left);
+      let object = this.transformAny(tree.right);
 
       if (name.type === LITERAL_EXPRESSION)
         return new BinaryExpression(tree.location, name, tree.operator, object);
@@ -146,14 +146,14 @@ export class SymbolTransformer extends TempVarTransformer {
     // use the built in typeof.
     if (isEqualityExpression(tree)) {
       if (isTypeof(tree.left) && isSafeTypeofString(tree.right)) {
-        var left = this.transformTypeofOperand_(tree.left);
-        var right = tree.right;
+        let left = this.transformTypeofOperand_(tree.left);
+        let right = tree.right;
         return new BinaryExpression(tree.location, left, tree.operator, right);
       }
 
       if (isTypeof(tree.right) && isSafeTypeofString(tree.left)) {
-        var left = tree.left;
-        var right = this.transformTypeofOperand_(tree.right);
+        let left = tree.left;
+        let right = this.transformTypeofOperand_(tree.right);
         return new BinaryExpression(tree.location, left, tree.operator, right);
       }
     }
@@ -162,8 +162,8 @@ export class SymbolTransformer extends TempVarTransformer {
   }
 
   transformMemberLookupExpression(tree) {
-    var operand = this.transformAny(tree.operand);
-    var memberExpression = this.transformAny(tree.memberExpression);
+    let operand = this.transformAny(tree.operand);
+    let memberExpression = this.transformAny(tree.memberExpression);
 
     // Only string literals can overlap with the symbol.
     if (memberExpression.type === LITERAL_EXPRESSION &&
@@ -182,8 +182,8 @@ export class SymbolTransformer extends TempVarTransformer {
     if (tree.operator.type !== TYPEOF)
       return super.transformUnaryExpression(tree);
 
-    var operand = this.transformAny(tree.operand);
-    var expression = this.getRuntimeTypeof(operand);
+    let operand = this.transformAny(tree.operand);
+    let expression = this.getRuntimeTypeof(operand);
 
     if (operand.type === IDENTIFIER_EXPRESSION) {
       // For ident we cannot just call the function since the ident might not
@@ -209,11 +209,11 @@ export class SymbolTransformer extends TempVarTransformer {
     // =>
     //
     // for (i in coll) if (!isSymbol(i)) ...
-    var initializer = this.transformAny(tree.initializer);
-    var collection = this.transformAny(tree.collection);
-    var body = this.transformAny(tree.body);
+    let initializer = this.transformAny(tree.initializer);
+    let collection = this.transformAny(tree.collection);
+    let body = this.transformAny(tree.body);
 
-    var initIdentToken;
+    let initIdentToken;
     if (initializer.type === VARIABLE_DECLARATION_LIST) {
       initIdentToken = initializer.declarations[0].lvalue.identifierToken;
     } else {

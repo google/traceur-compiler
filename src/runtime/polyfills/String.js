@@ -173,7 +173,7 @@ export function raw(callsite) {
 }
 
 // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.fromcodepoint
-export function fromCodePoint() {
+export function fromCodePoint(_) {  // length = 1
   // https://mths.be/fromcodepoint v0.1.0 by @mathias
   var codeUnits = [];
   var floor = Math.floor;

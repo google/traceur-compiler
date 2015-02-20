@@ -59,11 +59,11 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   moduleProlog() {
-    var statements = super.moduleProlog();
+    let statements = super.moduleProlog();
 
     // declare temp vars in prolog
     if (this.moduleVars_.length) {
-      var tmpVarDeclarations = createVariableStatement(createVariableDeclarationList(VAR,
+      let tmpVarDeclarations = createVariableStatement(createVariableDeclarationList(VAR,
           this.moduleVars_.map((varName) => createVariableDeclaration(varName, null))));
 
       statements.push(tmpVarDeclarations);
@@ -74,7 +74,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
 
-    var needsIife = statements.some(scopeContainsThis);
+    let needsIife = statements.some(scopeContainsThis);
 
     if (needsIife) {
       return parseStatements
@@ -83,17 +83,17 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
           }.call(${globalThis()});`;
     }
 
-    var last = statements[statements.length - 1];
+    let last = statements[statements.length - 1];
     statements = statements.slice(0, -1);
     assert(last.type === RETURN_STATEMENT);
-    var exportObject = last.expression;
+    let exportObject = last.expression;
 
     // If the module doesn't use any export statements, nor global "this", it
     // might be because it wants to make its own changes to "exports" or
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
-      var descriptors = this.transformObjectLiteralToDescriptors(exportObject);
-      var exportStatement = parseStatement `Object.defineProperties(module.exports, ${descriptors});`;
+      let descriptors = this.transformObjectLiteralToDescriptors(exportObject);
+      let exportStatement = parseStatement `Object.defineProperties(module.exports, ${descriptors});`;
       statements = prependStatements(statements, exportStatement);
     }
     return statements;
@@ -102,12 +102,12 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   transformObjectLiteralToDescriptors(literalTree) {
     assert(literalTree.type === OBJECT_LITERAL_EXPRESSION);
 
-    var props = literalTree.propertyNameAndValues.map((exp) => {
-      var descriptor;
+    let props = literalTree.propertyNameAndValues.map((exp) => {
+      let descriptor;
 
       switch (exp.type) {
         case GET_ACCESSOR:
-          var getterFunction = createFunctionExpression(createEmptyParameterList(), exp.body);
+          let getterFunction = createFunctionExpression(createEmptyParameterList(), exp.body);
           descriptor = parseExpression `{get: ${getterFunction}}`;
           break;
 
@@ -126,10 +126,10 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    var moduleName = tree.token.processedValue;
-    var tmpVar = this.getTempVarNameForModuleSpecifier(tree);
+    let moduleName = tree.token.processedValue;
+    let tmpVar = this.getTempVarNameForModuleSpecifier(tree);
     this.moduleVars_.push(tmpVar);
-    var tvId = createIdentifierExpression(tmpVar);
+    let tvId = createIdentifierExpression(tmpVar);
 
     // require the module, if it is not marked as an ES6 module, treat it as { default: module }
     // this allows for an unlinked CommonJS / ES6 interop
@@ -140,7 +140,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   getExportProperties() {
-    var properties = super.getExportProperties();
+    let properties = super.getExportProperties();
 
     if (this.exportVisitor_.hasExports())
       properties.push(parsePropertyDefinition `__esModule: true`);

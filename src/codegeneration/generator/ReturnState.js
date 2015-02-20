@@ -33,8 +33,8 @@ export class ReturnState extends YieldState {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    var e = this.expression;
-    var statements = [];
+    let e = this.expression;
+    let statements = [];
     if (e && !isUndefined(e) && !isVoidExpression(e))
       statements.push(parseStatement `$ctx.returnValue = ${this.expression}`);
     statements.push(...State.generateJump(enclosingFinally, machineEndState));

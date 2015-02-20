@@ -32,7 +32,7 @@ import {
  * @return {boolean}
  */
 export function hasUseStrict(list) {
-  for (var i = 0; i < list.length; i++) {
+  for (let i = 0; i < list.length; i++) {
     if (!list[i].isDirectivePrologue()) {
       return false;
     }

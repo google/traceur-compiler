@@ -129,7 +129,7 @@ suite('context test', function() {
     exec(executable + ' --source-maps --out ' + tempFileName + ' -- ' + inputFilename,
         function(error, stdout, stderr) {
           assert.isNull(error);
-          tempMapName = tempFileName.replace('.js','') + '.map';
+          tempMapName = tempFileName + '.map';
           var map = fs.readFileSync(tempMapName, 'utf-8');
           assert(map, 'contains a source map');
           done();
@@ -148,10 +148,8 @@ suite('context test', function() {
       var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
-      var expected = forwardSlash(path.resolve(path.dirname(tempFileName),
-          'sourceroot-test.map'));
-      assert.equal(sourceMappingURL, expected);
-      tempMapName = tempFileName.replace('.js','') + '.map';
+      assert.equal(sourceMappingURL, 'sourceroot-test.js.map');
+      tempMapName = tempFileName + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
@@ -186,10 +184,8 @@ suite('context test', function() {
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
       var basepath = path.dirname(tempFileName);
-      var expected = forwardSlash(
-          path.resolve(basepath, 'sourceroot-test.map'));
-      assert.equal(sourceMappingURL, expected);
-      tempMapName = tempFileName.replace('.js','') + '.map';
+      assert.equal(sourceMappingURL, 'sourceroot-test.js.map');
+      tempMapName = tempFileName + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
@@ -223,10 +219,8 @@ suite('context test', function() {
       assert(m, 'sourceMappingURL appears in the output');
       var sourceMappingURL = m[1];
       var basepath = path.dirname(tempFileName);
-      var expected = forwardSlash(
-          path.resolve(basepath, 'sourceroot-test.map'));
-      assert.equal(sourceMappingURL, expected);
-      tempMapName = tempFileName.replace('.js','') + '.map';
+      assert.equal(sourceMappingURL, 'sourceroot-test.js.map');
+      tempMapName = tempFileName + '.map';
       var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
       var actualSourceRoot = map.sourceRoot;
       // Trailing slash as in the example,
@@ -271,6 +265,49 @@ suite('context test', function() {
       });
       assert(foundInput,
           'the inputFilename is one of the sourcemap sources');
+      done();
+    });
+  });
+
+  test('sourceMappingURL from --source-maps=true and deep directories', function(done){
+    var deepDirectory = 'test/wiki/CompilingOffline/deepDirectory/';
+    var pwd = process.cwd();
+    process.chdir(deepDirectory);
+    var executable = '../../../../traceur';
+    var inputFilename = './src/js/app.js';
+    var cmd = executable + ' --source-maps ' +
+        '--source-root=false --out ./dist/js/bundle.js ' + inputFilename;
+    var child = exec(cmd, function(error, stdout, stderr) {
+      assert.isNull(error);
+      process.chdir(pwd);
+      var tempFileName = resolve(deepDirectory + '/dist/js/bundle.js');
+      var transcoded = fs.readFileSync(tempFileName, 'utf-8');
+      var m = /\/\/#\s*sourceMappingURL=(.*)/.exec(transcoded);
+      assert(m, 'sourceMappingURL appears in the output');
+      var sourceMappingURL = m[1];
+      var basepath = path.dirname(tempFileName);
+      var expected = 'bundle.js.map';
+      assert.equal(sourceMappingURL, expected);
+      // The map file should be in the same dir as the output file, with
+      // the name given in the URL
+      tempMapName = path.resolve(path.dirname(tempFileName), sourceMappingURL);
+      var map = JSON.parse(fs.readFileSync(tempMapName, 'utf-8'));
+      var actualSourceRoot = map.sourceRoot;
+      // Trailing slash as in the example,
+      // https://github.com/mozilla/source-map
+      assert.equal(undefined, actualSourceRoot, 'has undefined sourceroot');
+      var absoluteInputFilename = path.resolve(deepDirectory, inputFilename);
+      var inputRelativeToOutput =
+          path.relative(path.dirname(tempFileName), absoluteInputFilename);
+      var foundInput = map.sources.some(function(name) {
+        if (inputRelativeToOutput === name) {
+          // The 'sources' entry is relative
+          assert.equal(name.indexOf('.'), 0);
+          return true;
+        }
+      });
+      assert(foundInput, 'the inputFilename '+ inputRelativeToOutput +
+          ' is one of the sourcemap sources ' + map.sources.join(','));
       done();
     });
   });
@@ -441,7 +478,7 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './test/unit/node/resources/compile-dir';
     var goldenDir = './test/unit/node/resources/golden-amd';
-    var outDir = './test/unit/node/resources/compile-amd';
+    var outDir = './test/unit/node/out/compile-amd';
     var cmd = executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -455,7 +492,7 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './test/unit/node/resources/compile-dir';
     var goldenDir = './test/unit/node/resources/golden-cjs';
-    var outDir = './test/unit/node/resources/compile-cjs';
+    var outDir = './test/unit/node/out/compile-cjs';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
       assert.isNull(error);
       checkFile(outDir, goldenDir, 'file.js');
@@ -513,14 +550,14 @@ suite('context test', function() {
   test('compile module dir option CommonJS with source-maps', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = './test/unit/node/resources/compile-dir';
-    var outDir = './test/unit/node/resources/compile-cjs-maps';
+    var outDir = './test/unit/node/out/compile-cjs-maps';
     var cmd = executable + ' --source-maps=file --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
-      var fileContents = fs.readFileSync(path.resolve(outDir, 'file.map'));
-      var depContents = fs.readFileSync(path.resolve(outDir, 'dep.map'));
-      assert(fileContents + '');
-      assert(depContents + '')
+      var fileMapContents = fs.readFileSync(path.resolve(outDir, 'file.js.map'));
+      var depMapContents = fs.readFileSync(path.resolve(outDir, 'dep.js.map'));
+      assert(fileMapContents + '');
+      assert(depMapContents + '')
       done();
     });
   });
@@ -533,4 +570,5 @@ suite('context test', function() {
       done();
     });
   });
+
 });

@@ -30,8 +30,8 @@ import {SourceMapGenerator} from './SourceMapIntegration.js';
  */
 export function toSource(tree, options = undefined,
     outputName = '<toSourceOutput>', sourceRoot = undefined) {
-  var sourceMapGenerator = options && options.sourceMapGenerator;
-  var sourcemaps = options && options.sourceMaps;
+  let sourceMapGenerator = options && options.sourceMapGenerator;
+  let sourcemaps = options && options.sourceMaps;
   if (!sourceMapGenerator && sourcemaps)  {
     sourceMapGenerator = new SourceMapGenerator({
       file: outputName,
@@ -40,13 +40,13 @@ export function toSource(tree, options = undefined,
     });
   }
 
-  var sourceMapConfiguration = {
+  let sourceMapConfiguration = {
     sourceMapGenerator: sourceMapGenerator,
     sourceRoot: sourceRoot,
     lowResolution: options && options.lowResolutionSourceMap
   };
 
-  var writer;
+  let writer;
   if (sourceMapGenerator)
     writer = new ParseTreeMapWriter(sourceMapConfiguration, options);
   else

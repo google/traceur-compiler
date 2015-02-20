@@ -76,9 +76,9 @@ import {
 /**
  * Sentinel used for |getValue_| to signal no value was found.
  */
-var NOT_FOUND = {};
+const NOT_FOUND = {};
 
-var cache = new Map();
+let cache = new Map();
 
 /**
  * @param {function(Parser) : ParseTree} doParse Function that calls the correct
@@ -93,20 +93,20 @@ function makeParseFunction(doParse) {
  * @param {Array} values An array containing values or parse trees.
  * @return {ParseTree}
  */
-export var parseExpression = makeParseFunction((p) => p.parseExpression());
-export var parseStatement = makeParseFunction((p) => p.parseStatement());
-export var parseModule = makeParseFunction((p) => p.parseModule());
-export var parseScript = makeParseFunction((p) => p.parseScript());
-export var parseStatements = makeParseFunction((p) => p.parseStatements());
-export var parsePropertyDefinition =
+export let parseExpression = makeParseFunction((p) => p.parseExpression());
+export let parseStatement = makeParseFunction((p) => p.parseStatement());
+export let parseModule = makeParseFunction((p) => p.parseModule());
+export let parseScript = makeParseFunction((p) => p.parseScript());
+export let parseStatements = makeParseFunction((p) => p.parseStatements());
+export let parsePropertyDefinition =
     makeParseFunction((p) => p.parsePropertyDefinition());
 
 function parse(sourceLiterals, values, doParse) {
-  var tree = cache.get(sourceLiterals);
+  let tree = cache.get(sourceLiterals);
   if (!tree) {
-    var source = insertPlaceholderIdentifiers(sourceLiterals);
-    var errorReporter = new CollectingErrorReporter();
-    var parser = getParser(source, errorReporter);
+    let source = insertPlaceholderIdentifiers(sourceLiterals);
+    let errorReporter = new CollectingErrorReporter();
+    let parser = getParser(source, errorReporter);
     tree = doParse(parser);
     if (errorReporter.hadError() || !tree || !parser.isAtEnd()) {
       throw new Error(
@@ -125,29 +125,28 @@ function parse(sourceLiterals, values, doParse) {
   return new PlaceholderTransformer(values).transformList(tree);
 }
 
-var PREFIX = '$__placeholder__';
+const PREFIX = '$__placeholder__';
 
 /**
  * @param {Array.<string>} sourceLiterals
  * @return {string}
  */
 function insertPlaceholderIdentifiers(sourceLiterals) {
-  var source = sourceLiterals[0];
-  for (var i = 1; i < sourceLiterals.length; i++) {
+  let source = sourceLiterals[0];
+  for (let i = 1; i < sourceLiterals.length; i++) {
     source += PREFIX + (i - 1) + sourceLiterals[i];
   }
   return source;
 }
 
-var counter = 0;
+let counter = 0;
 
 function getParser(source, errorReporter) {
-  var file = new SourceFile(
-      '@traceur/generated/TemplateParser/' + counter++, source);
-  var options = new Options();
+  let file = new SourceFile(null, source);
+  let options = new Options();
   // Enable internal code to always use all experimental features.
   options.experimental = true;
-  var parser = new Parser(file, errorReporter, options);
+  let parser = new Parser(file, errorReporter, options);
   parser.allowYield = true;
   parser.allowAwait = true;
   parser.allowForOn = true;
@@ -248,14 +247,14 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   }
 
   transformIdentifierExpression(tree) {
-    var value = this.getValue_(tree.identifierToken.value);
+    let value = this.getValue_(tree.identifierToken.value);
     if (value === NOT_FOUND)
       return tree;
     return convertValueToExpression(value);
   }
 
   transformBindingIdentifier(tree) {
-    var value = this.getValue_(tree.identifierToken.value);
+    let value = this.getValue_(tree.identifierToken.value);
     if (value === NOT_FOUND)
       return tree;
     return createBindingIdentifier(value);
@@ -263,7 +262,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
 
   transformExpressionStatement(tree) {
     if (tree.expression.type === IDENTIFIER_EXPRESSION) {
-      var transformedExpression =
+      let transformedExpression =
           this.transformIdentifierExpression(tree.expression);
       if (transformedExpression === tree.expression)
         return tree;
@@ -277,7 +276,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   transformBlock(tree) {
     if (tree.statements.length === 1 &&
         tree.statements[0].type === EXPRESSION_STATEMENT) {
-      var transformedStatement =
+      let transformedStatement =
           this.transformExpressionStatement(tree.statements[0]);
       if (transformedStatement === tree.statements[0])
         return tree;
@@ -290,7 +289,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   transformFunctionBody(tree) {
     if (tree.statements.length === 1 &&
         tree.statements[0].type === EXPRESSION_STATEMENT) {
-      var transformedStatement =
+      let transformedStatement =
           this.transformExpressionStatement(tree.statements[0]);
       if (transformedStatement === tree.statements[0])
         return tree;
@@ -301,16 +300,16 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   }
 
   transformMemberExpression(tree) {
-    var value = this.getValue_(tree.memberName.value);
+    let value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
       return super.transformMemberExpression(tree);
-    var operand = this.transformAny(tree.operand);
+    let operand = this.transformAny(tree.operand);
     return createMemberExpression(operand, value);
   }
 
   transformLiteralPropertyName(tree) {
     if (tree.literalToken.type === IDENTIFIER) {
-      var value = this.getValue_(tree.literalToken.value);
+      let value = this.getValue_(tree.literalToken.value);
       if (value !== NOT_FOUND) {
         return new LiteralPropertyName(null,
             convertValueToIdentifierToken(value));
@@ -322,7 +321,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   transformArgumentList(tree) {
     if (tree.args.length === 1 &&
         tree.args[0].type === IDENTIFIER_EXPRESSION) {
-      var arg0 = this.transformAny(tree.args[0]);
+      let arg0 = this.transformAny(tree.args[0]);
       if (arg0 === tree.args[0])
         return tree;
       if (arg0.type === ARGUMENT_LIST)
@@ -332,10 +331,10 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   }
 
   transformTypeName(tree) {
-    var value = this.getValue_(tree.name.value);
+    let value = this.getValue_(tree.name.value);
     if (value === NOT_FOUND)
       return super.transformTypeName(tree);
-    var moduleName = this.transformAny(tree.moduleName);
+    let moduleName = this.transformAny(tree.moduleName);
     if (moduleName !== null) {
       return new TypeName(null, moduleName,
                           convertValueToIdentifierToken(value));

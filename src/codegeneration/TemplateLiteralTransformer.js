@@ -50,9 +50,9 @@ import {parseExpression} from './PlaceholderParser.js';
  * @return {ParseTree}
  */
 function createCallSiteIdObject(tree) {
-  var elements = tree.elements;
-  var cooked = createCookedStringArray(elements);
-  var raw = createRawStringArray(elements);
+  let elements = tree.elements;
+  let cooked = createCookedStringArray(elements);
+  let raw = createRawStringArray(elements);
   return parseExpression `Object.freeze(Object.defineProperties(${cooked}, {
     raw: {
       value: Object.freeze(${raw})
@@ -67,22 +67,22 @@ function createCallSiteIdObject(tree) {
  * @param {Array.<ParseTree>} items This is the array that gets mutated.
  */
 function maybeAddEmptyStringAtEnd(elements, items) {
-  var length = elements.length;
+  let length = elements.length;
   if (!length || elements[length - 1].type !== TEMPLATE_LITERAL_PORTION)
     items.push(createStringLiteral(''));
 }
 
 function createRawStringArray(elements) {
-  var items = [];
-  for (var i = 0; i < elements.length; i += 2) {
-    var str = elements[i].value.value;
+  let items = [];
+  for (let i = 0; i < elements.length; i += 2) {
+    let str = elements[i].value.value;
     // Normalize line endings before using JSON for the rest.
     str = str.replace(/\r\n?/g, '\n');
     str = JSON.stringify(str);
     // JSON does not handle Unicode line terminators \u2028 and \u2029.
     str = replaceRaw(str);
-    var loc = elements[i].location;
-    var expr = new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
+    let loc = elements[i].location;
+    let expr = new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
     items.push(expr);
   }
   maybeAddEmptyStringAtEnd(elements, items);
@@ -90,14 +90,14 @@ function createRawStringArray(elements) {
 }
 
 function createCookedStringLiteralExpression(tree) {
-  var str = cookString(tree.value.value);
-  var loc = tree.location;
+  let str = cookString(tree.value.value);
+  let loc = tree.location;
   return new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
 }
 
 function createCookedStringArray(elements) {
-  var items = [];
-  for (var i = 0; i < elements.length; i += 2) {
+  let items = [];
+  for (let i = 0; i < elements.length; i += 2) {
     items.push(createCookedStringLiteralExpression(elements[i]));
   }
   maybeAddEmptyStringAtEnd(elements, items);
@@ -123,8 +123,8 @@ function replaceRaw(s) {
  * and escaping whitespace.
  */
 function cookString(s) {
-  var sb = ['"'];
-  var i = 0, k = 1, c, c2;
+  let sb = ['"'];
+  let i = 0, k = 1, c, c2;
   while (i < s.length) {
     c = s[i++];
     switch (c) {
@@ -204,15 +204,15 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
     if (!tree.operand)
       return this.createDefaultTemplateLiteral(tree);
 
-    var operand = this.transformAny(tree.operand);
-    var elements = tree.elements;
+    let operand = this.transformAny(tree.operand);
+    let elements = tree.elements;
 
-    var callsiteIdObject = createCallSiteIdObject(tree);
-    var idName = this.addTempVar(callsiteIdObject);
+    let callsiteIdObject = createCallSiteIdObject(tree);
+    let idName = this.addTempVar(callsiteIdObject);
 
-    var args = [createIdentifierExpression(idName)];
+    let args = [createIdentifierExpression(idName)];
 
-    for (var i = 1; i < elements.length; i += 2) {
+    for (let i = 1; i < elements.length; i += 2) {
       args.push(this.transformAny(elements[i]));
     }
 
@@ -220,7 +220,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
   }
 
   transformTemplateSubstitution(tree) {
-    var transformedTree = this.transformAny(tree.expression);
+    let transformedTree = this.transformAny(tree.expression);
     // Wrap in a paren expression if needed.
     switch (transformedTree.type) {
       case BINARY_EXPRESSION:
@@ -246,27 +246,27 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
 
   createDefaultTemplateLiteral(tree) {
     // convert to ("a" + b + "c" + d + "")
-    var length = tree.elements.length;
+    let length = tree.elements.length;
     if (length === 0) {
-      var loc = tree.location;
+      let loc = tree.location;
       return new LiteralExpression(loc, new LiteralToken(STRING, '""', loc));
     }
 
-    var firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;
-    var binaryExpression = this.transformAny(tree.elements[0]);
+    let firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;
+    let binaryExpression = this.transformAny(tree.elements[0]);
     if (length === 1)
       return binaryExpression;
 
-    var plusToken = createOperatorToken(PLUS);
-    for (var i = 1; i < length; i++) {
-      var element = tree.elements[i];
+    let plusToken = createOperatorToken(PLUS);
+    for (let i = 1; i < length; i++) {
+      let element = tree.elements[i];
       if (element.type === TEMPLATE_LITERAL_PORTION) {
         if (element.value.value === '')
           continue;
         else if (firstNonEmpty < 0 && i === 2)
           binaryExpression = binaryExpression.right;
       }
-      var transformedTree = this.transformAny(tree.elements[i]);
+      let transformedTree = this.transformAny(tree.elements[i]);
       binaryExpression = createBinaryExpression(binaryExpression, plusToken,
                                               transformedTree);
     }

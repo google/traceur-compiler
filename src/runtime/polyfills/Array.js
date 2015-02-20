@@ -15,7 +15,7 @@
 import {
   entries,
   keys,
-  values
+  values as jsValues
 } from './ArrayIterator.js';
 import {
   checkIterable,
@@ -143,8 +143,15 @@ function findHelper(self, predicate, thisArg = undefined, returnIndex = false) {
   return returnIndex ? -1 : undefined;
 }
 
+
+
 export function polyfillArray(global) {
   var {Array, Object, Symbol} = global;
+  var values = jsValues;
+  if (Symbol && Symbol.iterator && Array.prototype[Symbol.iterator]) {
+    values = Array.prototype[Symbol.iterator];
+  }
+
   maybeAddFunctions(Array.prototype, [
     'entries', entries,
     'keys', keys,

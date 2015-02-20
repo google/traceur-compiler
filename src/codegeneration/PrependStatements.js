@@ -28,8 +28,8 @@ export function prependStatements(statements, ...statementsToPrepend) {
   if (!statementsToPrepend.length)
     return statements;
 
-  var transformed  = [];
-  var inProlog = true;
+  let transformed  = [];
+  let inProlog = true;
   statements.forEach((statement) => {
     if (inProlog && !statement.isDirectivePrologue()) {
       transformed.push(...statementsToPrepend);

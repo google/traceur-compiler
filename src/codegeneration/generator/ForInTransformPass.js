@@ -77,28 +77,28 @@ export class ForInTransformPass extends TempVarTransformer {
    */
   transformForInStatement(tree) {
     // Transform body first
-    var bodyStatements = [];
-    var body = this.transformAny(tree.body);
+    let bodyStatements = [];
+    let body = this.transformAny(tree.body);
     if (body.type === BLOCK) {
       bodyStatements.push(...body.statements);
     } else {
       bodyStatements.push(body);
     }
 
-    var elements = [];
+    let elements = [];
 
-    // var $keys = [];
-    var keys = this.getTempIdentifier();
+    // let $keys = [];
+    let keys = this.getTempIdentifier();
     elements.push(
         createVariableStatement(VAR, keys,
         createEmptyArrayLiteralExpression()));
 
     // var $collection = object;
-    var collection = this.getTempIdentifier();
+    let collection = this.getTempIdentifier();
     elements.push(createVariableStatement(VAR, collection, tree.collection));
 
-    // for (var $p in $collection) $keys.push($p);
-    var p = this.getTempIdentifier();
+    // for (let $p in $collection) $keys.push($p);
+    let p = this.getTempIdentifier();
     elements.push(
         createForInStatement(
             // var $p
@@ -110,16 +110,16 @@ export class ForInTransformPass extends TempVarTransformer {
                 createMemberExpression(keys, PUSH),
                 createArgumentList([createIdentifierExpression(p)]))));
 
-    var i = this.getTempIdentifier();
+    let i = this.getTempIdentifier();
 
     // $keys[$i]
-    var lookup = createMemberLookupExpression(
+    let lookup = createMemberLookupExpression(
         createIdentifierExpression(keys),
         createIdentifierExpression(i));
 
-    var originalKey, assignOriginalKey;
+    let originalKey, assignOriginalKey;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
-      var decList = tree.initializer;
+      let decList = tree.initializer;
       originalKey = createIdentifierExpression(decList.declarations[0].lvalue);
       // var key = $keys[$i];
       assignOriginalKey = createVariableStatement(decList.declarationType,
@@ -132,7 +132,7 @@ export class ForInTransformPass extends TempVarTransformer {
       throw new Error('Invalid left hand side of for in loop');
     }
 
-    var innerBlock = [];
+    let innerBlock = [];
 
     // var key = $keys[$i];
     innerBlock.push(assignOriginalKey);

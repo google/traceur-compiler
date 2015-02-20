@@ -155,13 +155,13 @@ export class ClassTransformer extends TempVarTransformer {
 
   // Override to handle AnonBlock
   transformExportDeclaration(tree) {
-    var transformed = super.transformExportDeclaration(tree);
+    let transformed = super.transformExportDeclaration(tree);
     if (transformed === tree)
       return tree;
 
-    var declaration = transformed.declaration;
+    let declaration = transformed.declaration;
     if (declaration instanceof AnonBlock) {
-      var statements = [
+      let statements = [
         new ExportDeclaration(null, declaration.statements[0], []),
         ...declaration.statements.slice(1)
       ];
@@ -181,9 +181,9 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   transformFunctionBody(tree) {
-    var useStrict = +hasUseStrict(tree.statements);
+    let useStrict = +hasUseStrict(tree.statements);
     this.strictCount_ += useStrict;
-    var result = super.transformFunctionBody(tree);
+    let result = super.transformFunctionBody(tree);
     this.strictCount_ -= useStrict;
     return result;
   }
@@ -196,17 +196,17 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   transformClassElements_(tree, internalName, originalName) {
-    var oldState = this.state_;
+    let oldState = this.state_;
     this.state_ = {hasSuper: false};
-    var superClass = this.transformAny(tree.superClass);
+    let superClass = this.transformAny(tree.superClass);
 
-    var hasConstructor = false;
-    var protoElements = [], staticElements = [];
-    var initInstanceVars = [], initStaticVars = [];
-    var constructor;
+    let hasConstructor = false;
+    let protoElements = [], staticElements = [];
+    let initInstanceVars = [], initStaticVars = [];
+    let constructor;
 
     tree.elements.forEach((tree) => {
-      var elements, homeObject, initVars;
+      let elements, homeObject, initVars;
       if (tree.isStatic) {
         elements = staticElements;
         homeObject = internalName;
@@ -231,7 +231,7 @@ export class ClassTransformer extends TempVarTransformer {
             hasConstructor = true;
             constructor = tree;
           } else {
-            var transformed = this.transformPropertyMethodAssignment_(
+            let transformed = this.transformPropertyMethodAssignment_(
                 tree, homeObject, internalName, originalName);
             elements.push(transformed);
           }
@@ -249,10 +249,10 @@ export class ClassTransformer extends TempVarTransformer {
       }
     });
 
-    var object = createObjectLiteralExpression(protoElements);
-    var staticObject = createObjectLiteralExpression(staticElements);
-    var initStatements = getInstanceInitStatements(initInstanceVars);
-    var func;
+    let object = createObjectLiteralExpression(protoElements);
+    let staticObject = createObjectLiteralExpression(staticElements);
+    let initStatements = getInstanceInitStatements(initInstanceVars);
+    let func;
 
     if (!hasConstructor) {
       func = this.getDefaultConstructor_(tree, internalName, initStatements);
@@ -261,14 +261,14 @@ export class ClassTransformer extends TempVarTransformer {
         constructor = this.appendInstanceInitializers_(constructor,
             initStatements, tree.superClass);
       }
-      var homeObject = createMemberExpression(internalName, 'prototype');
-      var transformedCtor = this.transformPropertyMethodAssignment_(
+      let homeObject = createMemberExpression(internalName, 'prototype');
+      let transformedCtor = this.transformPropertyMethodAssignment_(
           constructor, homeObject, internalName);
       func = new FunctionExpression(tree.location, tree.name, false,
           transformedCtor.parameterList, null, [], transformedCtor.body);
     }
 
-    var state = this.state_;
+    let state = this.state_;
     this.state_ = oldState;
 
     return {
@@ -288,14 +288,14 @@ export class ClassTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformClassDeclaration(tree) {
-    var name = tree.name.identifierToken;
-    var internalName = id(`$${name}`);
+    let name = tree.name.identifierToken;
+    let internalName = id(`$${name}`);
 
-    var renamed = AlphaRenamer.rename(tree, name.value, internalName.identifierToken.value);
-    var referencesClassName = renamed !== tree
-    var tree = renamed;
+    let renamed = AlphaRenamer.rename(tree, name.value, internalName.identifierToken.value);
+    let referencesClassName = renamed !== tree
+    tree = renamed;
 
-    var {
+    let {
       func,
       hasSuper,
       object,
@@ -305,11 +305,11 @@ export class ClassTransformer extends TempVarTransformer {
     } = this.transformClassElements_(tree, internalName, name);
 
     // TODO(arv): Use let.
-    var statements = parseStatements `var ${name} = ${func}`;
+    let statements = parseStatements `var ${name} = ${func}`;
 
     staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
-    var expr = classCall(name, object, staticObject, superClass);
+    let expr = classCall(name, object, staticObject, superClass);
 
     if (hasSuper || referencesClassName) {
       // The internal name is so that super lookups continue to work even in
@@ -320,22 +320,22 @@ export class ClassTransformer extends TempVarTransformer {
     }
     statements.push(createExpressionStatement(expr));
 
-    var anonBlock = new AnonBlock(null, statements);
+    let anonBlock = new AnonBlock(null, statements);
     return this.makeStrict_(anonBlock);
   }
 
   transformClassExpression(tree) {
     this.pushTempScope();
 
-    var name;
+    let name;
     if (tree.name)
       name = tree.name.identifierToken;
     else
       name = createIdentifierToken(this.getTempIdentifier());
 
-    var internalName = id(`${name}`);
+    let internalName = id(`${name}`);
 
-    var {
+    let {
       func,
       hasSuper,
       object,
@@ -344,7 +344,7 @@ export class ClassTransformer extends TempVarTransformer {
       initStaticVars,
     } = this.transformClassElements_(tree, internalName, name);
 
-    var expression;
+    let expression;
 
     staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
@@ -375,8 +375,8 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   transformPropertyMethodAssignment_(tree, homeObject, internalName, originalName) {
-    var parameterList = this.transformAny(tree.parameterList);
-    var body = this.transformSuperInFunctionBody_(
+    let parameterList = this.transformAny(tree.parameterList);
+    let body = this.transformSuperInFunctionBody_(
         tree.body, homeObject, internalName);
 
     if (this.showDebugNames_) {
@@ -389,14 +389,14 @@ export class ClassTransformer extends TempVarTransformer {
       return tree;
     }
 
-    var isStatic = false;
+    let isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
         tree.annotations, body, tree.debugName);
   }
 
   transformGetAccessor_(tree, homeObject) {
-    var body = this.transformSuperInFunctionBody_(tree.body, homeObject);
+    let body = this.transformSuperInFunctionBody_(tree.body, homeObject);
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
@@ -405,8 +405,8 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   transformSetAccessor_(tree, homeObject) {
-    var parameterList = this.transformAny(tree.parameterList);
-    var body = this.transformSuperInFunctionBody_(tree.body, homeObject);
+    let parameterList = this.transformAny(tree.parameterList);
+    let body = this.transformSuperInFunctionBody_(tree.body, homeObject);
     if (!tree.isStatic && body === tree.body)
       return tree;
     return new SetAccessor(tree.location, false, tree.name, parameterList,
@@ -415,13 +415,13 @@ export class ClassTransformer extends TempVarTransformer {
 
   transformSuperInFunctionBody_(tree, homeObject, internalName) {
     this.pushTempScope();
-    var thisName = this.getTempIdentifier();
-    var thisDecl = createVariableStatement(VAR, thisName,
+    let thisName = this.getTempIdentifier();
+    let thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
-    var superTransformer = new SuperTransformer(this, homeObject,
+    let superTransformer = new SuperTransformer(this, homeObject,
                                                 thisName, internalName);
     // ref_1: the inner transformFunctionBody call is key to proper super nesting.
-    var transformedTree =
+    let transformedTree =
         superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
 
     if (superTransformer.hasSuper)
@@ -435,10 +435,10 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   getDefaultConstructor_(tree, internalName, initStatements) {
-    var constructorParams = createEmptyParameterList();
-    var constructorBody;
+    let constructorParams = createEmptyParameterList();
+    let constructorBody;
     if (tree.superClass) {
-      var statement = parseStatement `$traceurRuntime.superConstructor(
+      let statement = parseStatement `$traceurRuntime.superConstructor(
           ${internalName}).apply(this, arguments)`;
       constructorBody = createFunctionBody([statement, ...initStatements]);
       this.state_.hasSuper = true;
@@ -451,13 +451,13 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   appendInstanceInitializers_(constructor, initStatements, superClass) {
-    var statements = constructor.body.statements;
+    let statements = constructor.body.statements;
 
     if (superClass) {
-      var superExpressionIndex = -1;
+      let superExpressionIndex = -1;
 
-      for (var index = 0; index < statements.length; index++) {
-        var statement = statements[index];
+      for (let index = 0; index < statements.length; index++) {
+        let statement = statements[index];
         if (statement.isDirectivePrologue()) {
           continue;
         }
@@ -498,9 +498,9 @@ function appendStaticInitializers(staticObject, initStaticMemberVars) {
   // Initializes static member variables
   if (initStaticMemberVars.length === 0) return staticObject;
 
-  var properties =[];
-  for (var i = 0; i < initStaticMemberVars.length; i++) {
-    var mv = initStaticMemberVars[i];
+  let properties =[];
+  for (let i = 0; i < initStaticMemberVars.length; i++) {
+    let mv = initStaticMemberVars[i];
     properties.push(createPropertyNameAssignment(mv.name, mv.initializer));
   }
   return createObjectLiteralExpression(
@@ -510,10 +510,10 @@ function appendStaticInitializers(staticObject, initStaticMemberVars) {
 // TODO(vicb): Does not handle computed properties
 function getInstanceInitStatements(initInstanceVars) {
     // Compute instance member variable initialization statements
-    var initStatements = [];
-    for (var i = 0; i < initInstanceVars.length; i++) {
-      var mv = initInstanceVars[i];
-      var name = mv.name.literalToken;
+    let initStatements = [];
+    for (let i = 0; i < initInstanceVars.length; i++) {
+      let mv = initInstanceVars[i];
+      let name = mv.name.literalToken;
       initStatements.push(parseStatement `this.${name} = ${mv.initializer};`);
     }
   return initStatements;

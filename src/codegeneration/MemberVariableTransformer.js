@@ -70,16 +70,16 @@ export class MemberVariableTransformer extends ParseTreeTransformer{
   }
 
   transformPropertyVariableDeclaration(tree) {
-    var identifier = this.identifierGenerator_.generateUniqueIdentifier();
-    var getter = this.createGetAccessor_(identifier, tree);
-    var setter = this.createSetAccessor_(identifier, tree);
+    let identifier = this.identifierGenerator_.generateUniqueIdentifier();
+    let getter = this.createGetAccessor_(identifier, tree);
+    let setter = this.createSetAccessor_(identifier, tree);
     return new AnonBlock(tree.location, [getter, setter, tree]);
   }
 
   createGetAccessor_(identifier, tree) {
-    var name = tree.name.literalToken;
-    var type = tree.typeAnnotation;
-    var def = parsePropertyDefinition `get ${name}():${type}
+    let name = tree.name.literalToken;
+    let type = tree.typeAnnotation;
+    let def = parsePropertyDefinition `get ${name}():${type}
       { return this.${identifier}; }`;
     // Ok to mutate the tree before it's being published
     def.isStatic = tree.isStatic;
@@ -87,9 +87,9 @@ export class MemberVariableTransformer extends ParseTreeTransformer{
   }
 
   createSetAccessor_(identifier, tree) {
-    var name = tree.name.literalToken;
-    var type = tree.typeAnnotation;
-    var def = parsePropertyDefinition `set ${name}(value:${type})
+    let name = tree.name.literalToken;
+    let type = tree.typeAnnotation;
+    let def = parsePropertyDefinition `set ${name}(value:${type})
       { this.${identifier} = value; }`;
     // Ok to mutate the tree before it's being published
     def.isStatic = tree.isStatic;

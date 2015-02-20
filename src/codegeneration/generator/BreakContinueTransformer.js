@@ -60,7 +60,7 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
     // TODO: this shouldn't be required, but removing it requires making
     // consumers resilient
     // TODO: to a machine with INVALID fallThroughState
-    var fallThroughState = this.allocateState_();
+    let fallThroughState = this.allocateState_();
     return new StateMachine(newState.id, fallThroughState, [newState], []);
   }
 
@@ -145,9 +145,9 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformSwitchStatement(tree) {
-    var oldState = this.transformBreaks_;
+    let oldState = this.transformBreaks_;
     this.transformBreaks_ = false;
-    var result = super.transformSwitchStatement(tree);
+    let result = super.transformSwitchStatement(tree);
     this.transformBreaks_ = oldState;
     return result;
   }

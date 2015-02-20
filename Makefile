@@ -278,7 +278,7 @@ update-version-number: npm-publish updateSemver
 	$(MAKE) clean # sync to the npm version N after update
 	$(MAKE) test  # build version N+1
 
-git-update-version: update-version-number
+git-update-version: # update-version-number
 	cat build/npm-version-number | xargs -I VERSION git commit -a -m "VERSION"
 	cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master

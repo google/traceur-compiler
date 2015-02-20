@@ -37,9 +37,9 @@ export class PureES6Transformer extends MultiTransformer {
    */
   constructor(reporter, options) {
     super(reporter, options.validate);
-    var idGenerator = new UniqueIdentifierGenerator();
+    let idGenerator = new UniqueIdentifierGenerator();
 
-    var append = (transformer) => {
+    let append = (transformer) => {
       this.append((tree) => {
         return new transformer(idGenerator, reporter).transformAny(tree);
       });

@@ -30,15 +30,15 @@ import {ValidationVisitor} from './ValidationVisitor.js';
 export function buildExportList(deps, loader, reporter) {
 
   function doVisit(ctor) {
-    for (var i = 0; i < deps.length; i++) {
-      var visitor = new ctor(reporter, loader, deps[i]);
+    for (let i = 0; i < deps.length; i++) {
+      let visitor = new ctor(reporter, loader, deps[i]);
       visitor.visitAny(deps[i].tree);
     }
   }
 
   function reverseVisit(ctor) {
-    for (var i = deps.length - 1; i >= 0; i--) {
-      var visitor = new ctor(reporter, loader, deps[i]);
+    for (let i = deps.length - 1; i >= 0; i--) {
+      let visitor = new ctor(reporter, loader, deps[i]);
       visitor.visitAny(deps[i].tree);
     }
   }

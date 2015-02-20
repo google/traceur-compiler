@@ -22,14 +22,14 @@ import {regexpuRewritePattern} from '../outputgeneration/regexpuRewritePattern.j
 
 export class RegularExpressionTransformer extends ParseTreeTransformer {
   transformLiteralExpression(tree) {
-    var token = tree.literalToken;
+    let token = tree.literalToken;
     if (token.type === REGULAR_EXPRESSION) {
-      var value = token.value;
-      var lastIndex = value.lastIndexOf('/');
-      var pattern = value.slice(1, lastIndex);
-      var flags = value.slice(lastIndex + 1);
+      let value = token.value;
+      let lastIndex = value.lastIndexOf('/');
+      let pattern = value.slice(1, lastIndex);
+      let flags = value.slice(lastIndex + 1);
       if (flags.indexOf('u') !== -1) {
-        var result = '/' + regexpuRewritePattern(pattern, flags) + '/' +
+        let result = '/' + regexpuRewritePattern(pattern, flags) + '/' +
             flags.replace('u', '');
         return new LiteralExpression(
             tree.location,

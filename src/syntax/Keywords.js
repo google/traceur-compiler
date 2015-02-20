@@ -17,7 +17,7 @@
 /**
  * The javascript keywords.
  */
-var keywords = [
+const keywords = [
   // 7.6.1.1 Keywords
   'break',
   'case',
@@ -62,7 +62,7 @@ var keywords = [
   'false'
 ];
 
-var strictKeywords = [
+const strictKeywords = [
   // Future Reserved Words in a strict context
   'implements',
   'interface',
@@ -74,10 +74,10 @@ var strictKeywords = [
   'yield'
 ];
 
-var keywordsByName = Object.create(null);
+const keywordsByName = Object.create(null);
 
-export var NORMAL_KEYWORD = 1;
-export var STRICT_KEYWORD = 2;
+export const NORMAL_KEYWORD = 1;
+export const STRICT_KEYWORD = 2;
 
 keywords.forEach((value) => {
   keywordsByName[value] = NORMAL_KEYWORD;

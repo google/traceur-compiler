@@ -1,6 +1,6 @@
 // Tests taken from https://mths.be/fromcodepoint
 
-assert.equal(String.fromCodePoint.length, 0);
+assert.equal(String.fromCodePoint.length, 1);
 
 assert.equal(String.fromCodePoint(''), '\0');
 assert.equal(String.fromCodePoint(), '');

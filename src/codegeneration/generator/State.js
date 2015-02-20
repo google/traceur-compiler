@@ -102,7 +102,7 @@ State.generateJump = function(enclosingFinally, fallThroughState) {
  * @return {Array.<ParseTree>}
  */
 State.generateAssignState = function(enclosingFinally, fallThroughState) {
-  var assignState;
+  let assignState;
   if (State.isFinallyExit(enclosingFinally, fallThroughState)) {
     assignState = generateAssignStateOutOfFinally(
         enclosingFinally,
@@ -131,7 +131,7 @@ State.isFinallyExit = function(enclosingFinally, destination) {
  * @return {Array.<ParseTree>}
  */
 function generateAssignStateOutOfFinally(enclosingFinally, destination) {
-  var finallyState = enclosingFinally.finallyState;
+  let finallyState = enclosingFinally.finallyState;
   // $ctx.state = finallyState;
   // $fallThrough = destination;
   return [
@@ -147,8 +147,8 @@ function generateAssignStateOutOfFinally(enclosingFinally, destination) {
  * @param {number} newState
  */
 State.replaceStateList = function(oldStates, oldState,  newState) {
-  var states = [];
-  for (var i = 0; i < oldStates.length; i++) {
+  let states = [];
+  for (let i = 0; i < oldStates.length; i++) {
     states.push(State.replaceStateId(oldStates[i], oldState, newState));
   }
   return states;
@@ -172,8 +172,8 @@ State.replaceStateId = function(current, oldState, newState) {
  * @return {Array.<TryState>}
  */
 State.replaceAllStates = function(exceptionBlocks, oldState, newState) {
-  var result = [];
-  for (var i = 0; i < exceptionBlocks.length; i++) {
+  let result = [];
+  for (let i = 0; i < exceptionBlocks.length; i++) {
     result.push(exceptionBlocks[i].replaceState(oldState, newState));
   }
   return result;

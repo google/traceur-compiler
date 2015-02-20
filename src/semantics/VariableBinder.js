@@ -44,15 +44,15 @@ import {ScopeChainBuilder} from './ScopeChainBuilder.js';
  * @return {StringSet}
  */
 export function variablesInBlock(tree, includeFunctionScope = undefined) {
-  var builder = new ScopeChainBuilder(null);
+  let builder = new ScopeChainBuilder(null);
   builder.visitAny(tree);
-  var scope = builder.getScopeForTree(tree);
-  var names = scope.getLexicalBindingNames();
+  let scope = builder.getScopeForTree(tree);
+  let names = scope.getLexicalBindingNames();
   if (!includeFunctionScope) {
     return names;
   }
 
-  var variableBindingNames = scope.getVariableBindingNames();
+  let variableBindingNames = scope.getVariableBindingNames();
   variableBindingNames.forEach((name) => names.add(name));
   return names;
 }
@@ -92,8 +92,8 @@ export function variablesInBlock(tree, includeFunctionScope = undefined) {
  * @return {StringSet}
  */
 export function variablesInFunction(tree) {
-  var builder = new ScopeChainBuilder(null);
+  let builder = new ScopeChainBuilder(null);
   builder.visitAny(tree);
-  var scope = builder.getScopeForTree(tree);
+  let scope = builder.getScopeForTree(tree);
   return scope.getAllBindingNames();
 }

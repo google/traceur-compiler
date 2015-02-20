@@ -42,12 +42,12 @@ export class StringMap {
     return Object.keys(this.storage_);
   }
   keysAsSet() {
-    var set = new StringSet();
+    let set = new StringSet();
     this.forEach((key) => set.add(key));
     return set;
   }
   forEach(func) {
-    for (var key in this.storage_) {
+    for (let key in this.storage_) {
       func(key, this.storage_[key]);
     }
   }

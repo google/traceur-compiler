@@ -21,13 +21,13 @@ import {isLineTerminator} from './Scanner.js';
 // Largest int that can be distinguished
 // assert(n + 1 === n)
 // assert(n - 1 !== n)
-var MAX_INT_REPRESENTATION = 9007199254740992;
+const MAX_INT_REPRESENTATION = 9007199254740992;
 
 function computeLineStartOffsets(source) {
-  var lineStartOffsets = [0];
-  var k = 1;
-  for (var index = 0; index < source.length; index++) {
-    var code = source.charCodeAt(index);
+  let lineStartOffsets = [0];
+  let k = 1;
+  for (let index = 0; index < source.length; index++) {
+    let code = source.charCodeAt(index);
     if (isLineTerminator(code)) {
       if (code === 13 &&  // \r
           source.charCodeAt(index + 1) === 10) {  // \n
@@ -82,16 +82,16 @@ export class LineNumberTable {
     if (offset < 0)
       return 0;
 
-    var line;
+    let line;
     if (offset < this.lastOffset_) {
-      for (var i = this.lastLine_; i >= 0; i--) {
+      for (let i = this.lastLine_; i >= 0; i--) {
         if (this.lineStartOffsets_[i] <= offset) {
           line = i;
           break;
         }
       }
     } else {
-      for (var i = this.lastLine_; true; i++) {
+      for (let i = this.lastLine_; true; i++) {
         if (this.lineStartOffsets_[i] > offset) {
           line = i - 1;
           break;
@@ -110,7 +110,7 @@ export class LineNumberTable {
   }
 
   getColumn(offset) {
-    var line = this.getLine(offset);
+    let line = this.getLine(offset);
     return offset - this.lineStartOffsets_[line];
   }
 

@@ -78,8 +78,8 @@ export class ForOnTransformer extends TempVarTransformer {
 
   // keep track of labels in the tree
   transformLabelledStatement(tree) {
-    var labelSet = [tree];
-    var statement;
+    let labelSet = [tree];
+    let statement;
     for (statement = tree.statement; statement.type === LABELLED_STATEMENT;
         statement = statement.statement) {
       labelSet.push(statement);

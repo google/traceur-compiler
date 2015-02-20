@@ -45,7 +45,7 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
   }
 
   transformYieldExpression(tree) {
-    var argList = createArgumentList([tree.expression]);
+    let argList = createArgumentList([tree.expression]);
     if (tree.isYieldFor) {
       return new AwaitExpression(tree.location,
           new CallExpression(null, createMemberExpression(this.ctx_, 'yieldFor'),
@@ -56,7 +56,7 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
   }
 
   transformCatch(tree) {
-    var body = tree.catchBody;
+    let body = tree.catchBody;
     body = new Block(body.location, [parseStatement `
         if (${this.ctx_}.inReturn) {
           throw undefined;
@@ -80,12 +80,12 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
   transformAsyncGeneratorBody_(tree, name) {
     tree = this.transformAny(tree);
     tree = alphaRenameThisAndArguments(this, tree);
-    var statements = [];
+    let statements = [];
     if (this.variableDeclarations_.length > 0) {
       statements.push(createVariableStatement(
           createVariableDeclarationList(VAR, this.variableDeclarations_)));
     }
-    var body = createBlock(tree.statements);
+    let body = createBlock(tree.statements);
     statements.push(parseStatement `
         return $traceurRuntime.createAsyncGeneratorInstance(
             async function (${this.ctx_}) {
@@ -96,7 +96,7 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
 
   // alphaRenameThisAndArguments
   addTempVarForArguments() {
-    var tmpVarName = this.getTempIdentifier();
+    let tmpVarName = this.getTempIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, id(ARGUMENTS)));
     return tmpVarName;
@@ -104,7 +104,7 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
 
   // alphaRenameThisAndArguments
   addTempVarForThis() {
-    var tmpVarName = this.getTempIdentifier();
+    let tmpVarName = this.getTempIdentifier();
     this.variableDeclarations_.push(createVariableDeclaration(
         tmpVarName, createThisExpression()));
     return tmpVarName;

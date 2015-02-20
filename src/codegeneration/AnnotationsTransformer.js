@@ -115,19 +115,19 @@ class AnnotationsScope {
   }
 
   transformExportDeclaration(tree) {
-    var scope = this.pushAnnotationScope_();
+    let scope = this.pushAnnotationScope_();
     scope.isExport = true;
     scope.annotations.push(...tree.annotations);
-    var declaration = this.transformAny(tree.declaration);
+    let declaration = this.transformAny(tree.declaration);
     if (declaration !== tree.declaration || tree.annotations.length > 0)
       tree = new ExportDeclaration(tree.location, declaration, []);
     return this.appendMetadata_(tree);
   }
 
   transformClassDeclaration(tree) {
-    var elementsChanged = false;
-    var exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
-    var scope = this.pushAnnotationScope_();
+    let elementsChanged = false;
+    let exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
+    let scope = this.pushAnnotationScope_();
     scope.className = tree.name;
     scope.annotations.push(...exportAnnotations, ...tree.annotations);
 
@@ -147,8 +147,8 @@ class AnnotationsScope {
   }
 
   transformFunctionDeclaration(tree) {
-    var exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
-    var scope = this.pushAnnotationScope_();
+    let exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
+    let scope = this.pushAnnotationScope_();
     scope.annotations.push(...exportAnnotations, ...tree.annotations);
 
     scope.metadata.push(...this.transformMetadata_(
@@ -197,7 +197,7 @@ class AnnotationsScope {
         tree.annotations,
         tree.parameterList.parameters));
 
-    var parameterList = this.transformAny(tree.parameterList);
+    let parameterList = this.transformAny(tree.parameterList);
     if (parameterList !== tree.parameterList || tree.annotations.length > 0) {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
           parameterList, [], tree.body);
@@ -219,7 +219,7 @@ class AnnotationsScope {
           tree.parameterList.parameters));
     }
 
-    var parameterList = this.transformAny(tree.parameterList);
+    let parameterList = this.transformAny(tree.parameterList);
     if (parameterList !== tree.parameterList ||
         tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
@@ -230,7 +230,7 @@ class AnnotationsScope {
   }
 
   appendMetadata_(tree) {
-    var metadata = this.stack_.pop().metadata;
+    let metadata = this.stack_.pop().metadata;
     if (metadata.length > 0) {
       if (this.scope.isExport) {
         this.scope.metadata.push(...metadata);
@@ -242,7 +242,7 @@ class AnnotationsScope {
   }
 
   transformClassReference_(tree, className) {
-    var parent = createIdentifierExpression(className);
+    let parent = createIdentifierExpression(className);
     if (!tree.isStatic)
       parent = createMemberExpression(parent, 'prototype');
     return parent;
@@ -254,20 +254,20 @@ class AnnotationsScope {
   }
 
   transformAccessor_(tree, className, accessor) {
-    var args = createArgumentList([
+    let args = createArgumentList([
       this.transformClassReference_(tree, className),
       this.createLiteralStringExpression_(tree.name)
     ]);
 
-    var descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
+    let descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);
   }
 
   transformParameters_(parameters) {
-    var hasParameterMetadata = false;
+    let hasParameterMetadata = false;
 
     parameters = parameters.map((param) => {
-      var metadata = [];
+      let metadata = [];
       if (param.typeAnnotation)
         metadata.push(this.transformAny(param.typeAnnotation));
       if (param.annotations && param.annotations.length > 0)
@@ -289,7 +289,7 @@ class AnnotationsScope {
   }
 
   transformMetadata_(target, annotations, parameters) {
-    var metadataStatements = [];
+    let metadataStatements = [];
 
     if (annotations !== null) {
       annotations = this.transformAnnotations_(annotations);
@@ -315,7 +315,7 @@ class AnnotationsScope {
   }
 
   createLiteralStringExpression_(tree) {
-    var token = tree.literalToken;
+    let token = tree.literalToken;
     if (tree.literalToken.type !== STRING)
       token = createStringLiteralToken(tree.literalToken.value);
     return new LiteralExpression(null, token);
@@ -326,7 +326,7 @@ class AnnotationsScope {
   }
 
   pushAnnotationScope_() {
-    var scope = new AnnotationsScope();
+    let scope = new AnnotationsScope();
     this.stack_.push(scope);
     return scope;
   }

@@ -154,7 +154,7 @@ function varNeedsInitializer(tree, loopTree) {
   if (loopTree === null) return false;
 
   // Loop initializers for for-in/for-of must not have an initializer RHS.
-  var type = loopTree.type;
+  let type = loopTree.type;
   if (type !== FOR_IN_STATEMENT && type !== FOR_OF_STATEMENT) return true;
   return loopTree.initializer.declarations[0] !== tree;
 }
@@ -197,7 +197,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {string}
    */
   getVariableName_(variable) {
-    var lvalue = variable.lvalue;
+    let lvalue = variable.lvalue;
     if (lvalue.type === BINDING_IDENTIFIER) {
       return lvalue.getStringValue();
     }
@@ -216,7 +216,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {Scope}
    */
   pushScope(tree) {
-    var scope = this.scopeBuilder_.getScopeForTree(tree);
+    let scope = this.scopeBuilder_.getScopeForTree(tree);
     if (!scope) throw new Error('BlockBindingTransformer tree with no scope');
     if (this.scope_) this.scope_.blockBindingRenames = this.blockRenames_;
     this.scope_ = scope;
@@ -244,25 +244,25 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   needsRename_(name) {
     if (this.usedVars_.has(name)) return true;
-    var scope = this.scope_;
-    var parent = scope.parent;
+    let scope = this.scope_;
+    let parent = scope.parent;
     if (!parent || scope.isVarScope) return false;
 
     // Look for free variables with the same name in the current var scope.
-    var varScope = scope.getVarScope();
+    let varScope = scope.getVarScope();
     if (varScope && varScope.hasFreeVariable(name)) {
       return true;
     }
 
-    var parentBinding = parent.getBindingByName(name);
+    let parentBinding = parent.getBindingByName(name);
     if (!parentBinding) return false;
-    var currentBinding = scope.getBindingByName(name);
+    let currentBinding = scope.getBindingByName(name);
     if (currentBinding.tree === parentBinding.tree) return false;
     return true;
   }
 
   newNameFromOrig(origName, renames) {
-    var newName;
+    let newName;
     if (this.needsRename_(origName)) {
       newName = origName + this.idGenerator_.generateUniqueIdentifier();
       renames.push(new Rename(origName, newName));
@@ -278,15 +278,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     if (tree === this.rootTree_ || !this.rootTree_) {
       tree = super.transformFunctionBody(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
-        var statements = prependStatements(tree.statements,
+        let statements = prependStatements(tree.statements,
             ...this.prependStatement_);
         tree = new FunctionBody(tree.location, statements);
         tree = this.flushRenames(tree);
       }
     } else {
-      var functionTransform = new BlockBindingTransformer(this.idGenerator_,
+      let functionTransform = new BlockBindingTransformer(this.idGenerator_,
           this.reporter_, tree, this.scopeBuilder_, this.scope_);
-      var functionBodyTree = functionTransform.transformAny(tree);
+      let functionBodyTree = functionTransform.transformAny(tree);
 
       if (functionBodyTree === tree) {
         return tree;
@@ -301,15 +301,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     if (tree === this.rootTree_ || !this.rootTree_) {
       tree = super.transformScript(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
-        var scriptItemList = prependStatements(tree.scriptItemList,
+        let scriptItemList = prependStatements(tree.scriptItemList,
             ...this.prependStatement_);
         tree = new Script(tree.location, scriptItemList, tree.moduleName);
         tree = this.flushRenames(tree);
       }
     } else {
-      var functionTransform = new BlockBindingTransformer(this.idGenerator_,
+      let functionTransform = new BlockBindingTransformer(this.idGenerator_,
           this.reporter_, tree, this.scopeBuilder_);
-      var newTree = functionTransform.transformAny(tree);
+      let newTree = functionTransform.transformAny(tree);
 
       if (newTree === tree) {
         return tree;
@@ -324,15 +324,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     if (tree === this.rootTree_ || !this.rootTree_) {
       tree = super.transformModule(tree);
       if (this.prependStatement_.length || this.blockRenames_.length) {
-        var scriptItemList = prependStatements(tree.scriptItemList,
+        let scriptItemList = prependStatements(tree.scriptItemList,
             ...this.prependStatement_);
         tree = new Module(tree.location, scriptItemList, tree.moduleName);
         tree = this.flushRenames(tree);
       }
     } else {
-      var functionTransform = new BlockBindingTransformer(this.idGenerator_,
+      let functionTransform = new BlockBindingTransformer(this.idGenerator_,
           this.reporter_, tree, this.scopeBuilder_);
-      var newTree = functionTransform.transformAny(tree);
+      let newTree = functionTransform.transformAny(tree);
 
       if (newTree === tree) {
         return tree;
@@ -345,7 +345,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   // even if the actual transformations are in the transformVarDeclarationList
   // the Statement itself might become a AnonBlock
   transformVariableStatement(tree) {
-    var declarations = this.transformAny(tree.declarations);
+    let declarations = this.transformAny(tree.declarations);
     if (declarations.type === ANON_BLOCK) {
       return declarations;
     }
@@ -363,16 +363,16 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     // If we are at a var scope we do not need to rename.
     this.maybeRename_ = !this.scope_.isVarScope;
-    var declarations = this.transformList(tree.declarations);
+    let declarations = this.transformList(tree.declarations);
     this.maybeRename_ = false;
     return new VariableDeclarationList(tree.location, VAR, declarations);
   }
 
   transformVariableDeclaration(tree) {
-    var maybeRename = this.maybeRename_;
-    var lvalue = this.transformAny(tree.lvalue);
+    let maybeRename = this.maybeRename_;
+    let lvalue = this.transformAny(tree.lvalue);
     this.maybeRename_ = false;
-    var initializer = null;
+    let initializer = null;
     if (tree.initializer) {
       initializer = this.transformAny(tree.initializer);
     } else if (varNeedsInitializer(tree, this.currentLoopTree_)) {
@@ -390,12 +390,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   transformBindingIdentifier(tree) {
     if (this.maybeRename_) {
-      var origName = tree.getStringValue()
-      var newName = this.newNameFromOrig(origName, this.blockRenames_);
+      let origName = tree.getStringValue()
+      let newName = this.newNameFromOrig(origName, this.blockRenames_);
       if (origName === newName) {
         return tree;
       }
-      var bindingIdentifier = new BindingIdentifier(tree.location, newName);
+      let bindingIdentifier = new BindingIdentifier(tree.location, newName);
       this.scope_.renameBinding(origName, bindingIdentifier, VAR,
                                 this.reporter_);
       return bindingIdentifier;
@@ -404,19 +404,19 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformBindingElement(tree) {
-    var maybeRename = this.maybeRename_;
-    var inObjectPattern = this.inObjectPattern_;
-    var binding = this.transformAny(tree.binding);
+    let maybeRename = this.maybeRename_;
+    let inObjectPattern = this.inObjectPattern_;
+    let binding = this.transformAny(tree.binding);
     this.maybeRename_ = false;
     this.inObjectPattern_ = false;
-    var initializer = this.transformAny(tree.initializer);
+    let initializer = this.transformAny(tree.initializer);
     this.maybeRename_ = maybeRename;
     this.inObjectPattern_ = inObjectPattern;
     if (tree.binding === binding && tree.initializer === initializer) {
       return tree;
     }
 
-    var bindingElement =
+    let bindingElement =
         new BindingElement(tree.location, binding, initializer);
 
     // Need to transform {x} into {x: x$__0}
@@ -431,17 +431,17 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformObjectPattern(tree) {
-    var inObjectPattern = this.inObjectPattern_;
+    let inObjectPattern = this.inObjectPattern_;
     this.inObjectPattern_ = true;
-    var transformed = super.transformObjectPattern(tree);
+    let transformed = super.transformObjectPattern(tree);
     this.inObjectPattern_ = inObjectPattern;
     return transformed;
   }
 
   transformObjectPatternField(tree) {
-    var name = this.transformAny(tree.name);
+    let name = this.transformAny(tree.name);
     this.inObjectPattern_ = false;
-    var element = this.transformAny(tree.element);
+    let element = this.transformAny(tree.element);
     this.inObjectPattern_ = true;
     if (tree.name === name && tree.element === element) {
       return tree;
@@ -450,8 +450,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformBlock(tree) {
-    var scope = this.pushScope(tree);
-    var outerPrepends = this.prependBlockStatement_;
+    let scope = this.pushScope(tree);
+    let outerPrepends = this.prependBlockStatement_;
     this.prependBlockStatement_ = [];
     tree = super.transformBlock(tree);
     if (this.prependBlockStatement_.length) {
@@ -465,11 +465,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformCatch(tree) {
-    var scope = this.pushScope(tree);
-    var binding = this.transformAny(tree.binding);
+    let scope = this.pushScope(tree);
+    let binding = this.transformAny(tree.binding);
     // The catchBody block does not have a scope because the catch itself
     // has the scope. See ScopeVisitor.transformCatch
-    var statements = this.transformList(tree.catchBody.statements);
+    let statements = this.transformList(tree.catchBody.statements);
     if (binding !== tree.binding || statements !== tree.catchBody.statements) {
       tree = new Catch(tree.location, binding,
           new Block(tree.catchBody.location, statements));
@@ -480,7 +480,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   transformFunctionForScope_(func, tree) {
-    var scope = this.pushScope(tree);
+    let scope = this.pushScope(tree);
     tree = func();
     tree = this.flushRenames(tree);
     this.popScope(scope);
@@ -506,18 +506,18 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // Named function in a block scope is only scoped to the block.
     // Change to variable statement and "hoist" it to the top of the block.
     if (!this.scope_.isVarScope) {
-      var origName = tree.name.getStringValue();
-      var newName = this.newNameFromOrig(origName, this.blockRenames_);
+      let origName = tree.name.getStringValue();
+      let newName = this.newNameFromOrig(origName, this.blockRenames_);
 
       // var f = function( ... ) { ... }
-      var functionExpression =
+      let functionExpression =
           new FunctionExpression(tree.location, null, tree.functionKind,
                                  tree.parameterList, tree.typeAnnotation,
                                  tree.annotations, tree.body);
       this.revisitTreeForScopes(functionExpression);
       functionExpression = this.transformAny(functionExpression);
-      var bindingIdentifier = createBindingIdentifier(newName);
-      var statement = new VariableStatement(tree.location,
+      let bindingIdentifier = createBindingIdentifier(newName);
+      let statement = new VariableStatement(tree.location,
           new VariableDeclarationList(tree.location, VAR,
               [new VariableDeclaration(tree.location, bindingIdentifier,
                                        null, functionExpression)]));
@@ -540,7 +540,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @returns {ParseTree}
    */
   transformLoop_(func, tree, loopFactory) {
-    var scope, initializerIsBlockBinding;
+    let scope, initializerIsBlockBinding;
     if (tree.initializer &&
         tree.initializer.type === VARIABLE_DECLARATION_LIST &&
         tree.initializer.declarationType !== VAR) {
@@ -553,18 +553,18 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     // We only create an "iife" if the loop has block bindings and functions
     // that use those block binded variables
-    var finder = new FindBlockBindingInLoop(tree, this.scopeBuilder_);
+    let finder = new FindBlockBindingInLoop(tree, this.scopeBuilder_);
     finder.visitAny(tree);
     if (!finder.found) {
       // just switch it to var
       if (initializerIsBlockBinding) {
-        var renames = [];
-        var initializer = new VariableDeclarationList(null, VAR,
+        let renames = [];
+        let initializer = new VariableDeclarationList(null, VAR,
             tree.initializer.declarations.map((declaration) => {
-                var origName = this.getVariableName_(declaration);
-                var newName = this.newNameFromOrig(origName, renames);
+                let origName = this.getVariableName_(declaration);
+                let newName = this.newNameFromOrig(origName, renames);
 
-                var bindingIdentifier = createBindingIdentifier(newName);
+                let bindingIdentifier = createBindingIdentifier(newName);
                 this.scope_.renameBinding(origName, bindingIdentifier,
                     VAR, this.reporter_);
                 return new VariableDeclaration(null,
@@ -577,17 +577,17 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         this.revisitTreeForScopes(tree);
         tree = func(tree);
       } else {
-        var currentLoopTree = this.currentLoopTree_;
+        let currentLoopTree = this.currentLoopTree_;
         this.currentLoopTree_ = tree
-        var rv = func(tree);
+        let rv = func(tree);
         this.currentLoopTree_ = currentLoopTree;
         return rv;
       }
     } else {
-      var iifeParameterList = [];
-      var iifeArgumentList = [];
-      var renames = [];
-      var initializer = null;
+      let iifeParameterList = [];
+      let iifeArgumentList = [];
+      let renames = [];
+      let initializer = null;
       // switch to var and rename variables, holding them in potential
       // iife argument/parameter list
       if (tree.initializer &&
@@ -595,15 +595,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           tree.initializer.declarationType !== VAR) {
         initializer = new VariableDeclarationList(null, VAR,
             tree.initializer.declarations.map((declaration) => {
-              var origName = this.getVariableName_(declaration);
-              var newName = this.newNameFromOrig(origName, renames);
+              let origName = this.getVariableName_(declaration);
+              let newName = this.newNameFromOrig(origName, renames);
 
               iifeArgumentList.push(createIdentifierExpression(newName));
               iifeParameterList.push(new FormalParameter(null,
                   new BindingElement(null,
                       createBindingIdentifier(origName), null), null, []));
 
-              var bindingIdentifier = createBindingIdentifier(newName);
+              let bindingIdentifier = createBindingIdentifier(newName);
               this.scope_.renameBinding(origName, bindingIdentifier,
                   VAR, this.reporter_);
               return new VariableDeclaration(null,
@@ -616,9 +616,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       }
 
       // the loop might already have a label, let's keep it with us
-      var loopLabel = this.labelledLoops_.get(tree);
+      let loopLabel = this.labelledLoops_.get(tree);
 
-      var iifeInfo = FnExtractAbruptCompletions.createIIFE(
+      let iifeInfo = FnExtractAbruptCompletions.createIIFE(
           this.idGenerator_, tree.body, iifeParameterList, iifeArgumentList,
           () => {
             return loopLabel = loopLabel ||
@@ -680,7 +680,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   transformLabelledStatement(tree) {
     if (tree.statement.isIterationStatement()) {
       this.labelledLoops_.set(tree.statement, tree.name.value);
-      var statement = this.transformAny(tree.statement);
+      let statement = this.transformAny(tree.statement);
       if (!statement.isStatement()) {
         return statement;
       }
@@ -769,7 +769,7 @@ class FindBlockBindingInLoop extends FindVisitor {
     this.found = new FindIdentifiers(tree,
         (identifierToken, identScope) => {
           identScope = this.scopeBuilder_.getScopeForTree(identScope);
-          var fnScope = this.outOfScope_ ||
+          let fnScope = this.outOfScope_ ||
               this.scopeBuilder_.getScopeForTree(tree);
           if (identScope.hasLexicalBindingName(identifierToken)) {
             return false;

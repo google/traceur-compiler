@@ -121,21 +121,21 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   findSeenAccessor_(name) {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return null;
-    var s = propName(name);
+    let s = propName(name);
     return this.seenAccessors.get(s);
   }
 
   removeSeenAccessor_(name) {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return;
-    var s = propName(name);
+    let s = propName(name);
     this.seenAccessors.delete(s);
   }
 
   addSeenAccessor_(name, descr) {
     if (name.type === COMPUTED_PROPERTY_NAME)
       return;
-    var s = propName(name);
+    let s = propName(name);
     this.seenAccessors.set(s, descr);
   }
 
@@ -151,7 +151,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    *     accessor.
    */
   createProperty_(name, descr) {
-    var expression;
+    let expression;
 
     if (name.type === LITERAL_PROPERTY_NAME) {
       if (this.needsAdvancedTransform)
@@ -163,7 +163,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     }
 
     if (descr.get || descr.set) {
-      var oldAccessor = this.findSeenAccessor_(name);
+      let oldAccessor = this.findSeenAccessor_(name);
       if (oldAccessor) {
         oldAccessor.get = descr.get || oldAccessor.get;
         oldAccessor.set = descr.set || oldAccessor.set;
@@ -186,7 +186,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   getPropertyName_(nameTree) {
-    var token = nameTree.literalToken;
+    let token = nameTree.literalToken;
     switch (token.type) {
       case IDENTIFIER:
         return createStringLiteral(token.value);
@@ -210,11 +210,11 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     // to Object.create or a temporary object that we call defineProperty/ies
     // on.
 
-    var oldNeedsTransform = this.needsAdvancedTransform;
-    var oldSeenAccessors = this.seenAccessors;
+    let oldNeedsTransform = this.needsAdvancedTransform;
+    let oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new FindAdvancedProperty(this.transformOptions_);
+      let finder = new FindAdvancedProperty(this.transformOptions_);
       finder.visitAny(tree);
       if (!finder.found) {
         this.needsAdvancedTransform = false;
@@ -224,25 +224,25 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       this.needsAdvancedTransform = true;
       this.seenAccessors = new StringMap();
 
-      var properties = this.transformList(tree.propertyNameAndValues);
+      let properties = this.transformList(tree.propertyNameAndValues);
       // Filter out the __proto__ here which is represented as a null value.
       properties = properties.filter((tree) => tree);
 
       // (tmp = ..., Object.defineProperty(...), ..., tmp)
-      var tempVar = this.addTempVar();
-      var tempVarIdentifierExpression = createIdentifierExpression(tempVar);
+      let tempVar = this.addTempVar();
+      let tempVarIdentifierExpression = createIdentifierExpression(tempVar);
 
-      var expressions = properties.map((property) => {
-        var expression = property[0];
-        var descr = property[1];
+      let expressions = properties.map((property) => {
+        let expression = property[0];
+        let descr = property[1];
         return createDefineProperty(
             tempVarIdentifierExpression,
             expression,
             descr);
       });
 
-      var protoExpression = this.transformAny(finder.protoExpression);
-      var objectExpression;
+      let protoExpression = this.transformAny(finder.protoExpression);
+      let objectExpression;
       if (protoExpression)
         objectExpression = createObjectCreate(protoExpression);
       else
@@ -280,8 +280,8 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     if (!this.needsAdvancedTransform)
       return super.transformGetAccessor(tree);
 
-    var body = this.transformAny(tree.body);
-    var func = createFunctionExpression(createEmptyParameterList(), body);
+    let body = this.transformAny(tree.body);
+    let func = createFunctionExpression(createEmptyParameterList(), body);
     return this.createProperty_(tree.name,
         {
           get: func,
@@ -293,9 +293,9 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     if (!this.needsAdvancedTransform)
       return super.transformSetAccessor(tree);
 
-    var body = this.transformAny(tree.body);
-    var parameterList = this.transformAny(tree.parameterList);
-    var func = createFunctionExpression(parameterList, body);
+    let body = this.transformAny(tree.body);
+    let parameterList = this.transformAny(tree.parameterList);
+    let func = createFunctionExpression(parameterList, body);
     return this.createProperty_(tree.name,
         {
           set: func,
@@ -305,7 +305,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyMethodAssignment(tree) {
-    var func = new FunctionExpression(tree.location, tree.debugName, tree.functionKind,
+    let func = new FunctionExpression(tree.location, tree.debugName, tree.functionKind,
         this.transformAny(tree.parameterList), tree.typeAnnotation, [],
         this.transformAny(tree.body));
     if (!this.needsAdvancedTransform) {
@@ -315,7 +315,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       return createPropertyNameAssignment(tree.name, func);
     }
 
-    var expression = this.transformAny(tree.name);
+    let expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,
         {
           value: func,
@@ -329,7 +329,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     if (!this.needsAdvancedTransform)
       return super.transformPropertyNameShorthand(tree);
 
-    var expression = this.transformAny(tree.name);
+    let expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,
         {
           value: new IdentifierExpression(tree.location, tree.name.identifierToken),

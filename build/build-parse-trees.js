@@ -30,7 +30,7 @@ util.printUseStrong();
 print("import {ParseTree} from './ParseTree.js';");
 print("import * as ParseTreeType from './ParseTreeType.js';");
 
-// export var ARGUMENT_LIST = 'ARGUMENT_LIST';
+// export const ARGUMENT_LIST = 'ARGUMENT_LIST';
 var data = fs.readFileSync(process.argv[2], 'utf-8');
 var trees = util.parseJSON(data);
 
@@ -50,7 +50,7 @@ names.forEach(function(name) {
   // var params = trees[name];
   // var paramNames = params.map(function(p) { return p.name; });
   print();
-  print('var %s = ParseTreeType.%s;', treeTypeName, treeTypeName);
+  print('const %s = ParseTreeType.%s;', treeTypeName, treeTypeName);
   print('export class %s extends ParseTree {', name);
   print('  /**');
   paramNames.forEach(function(paramName) {

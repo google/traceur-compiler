@@ -92,17 +92,8 @@ import {
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.
 
-var isWhitespaceArray = [];
-for (var i = 0; i < 128; i++) {
-  isWhitespaceArray[i] = i >= 9 && i <= 13 ||  // Tab - Carriage Return
-      i === 0x20;  // Space
-}
-
-// Some of these is* functions use an array as a lookup table for the lower 7
-// bit code points.
-
-var isWhitespaceArray = [];
-for (var i = 0; i < 128; i++) {
+let isWhitespaceArray = [];
+for (let i = 0; i < 128; i++) {
   isWhitespaceArray[i] = i >= 9 && i <= 13 ||  // Tab - Carriage Return
       i === 0x20;  // Space
 }
@@ -137,8 +128,8 @@ function isDecimalDigit(code) {
   return code >= 48 && code <= 57;
 }
 
-var isHexDigitArray = [];
-for (var i = 0; i < 128; i++) {
+let isHexDigitArray = [];
+for (let i = 0; i < 128; i++) {
   isHexDigitArray[i] = i >= 48 && i <= 57 ||  // 0 - 9
       i >= 65 && i <= 70 ||  // A - F
       i >= 97 && i <= 102; // a - f
@@ -155,8 +146,8 @@ function isOctalDigit(code) {
   return code >= 48 && code <= 55;  // 0 - 7
 }
 
-var isIdentifierStartArray = [];
-for (var i = 0; i < 128; i++) {
+let isIdentifierStartArray = [];
+for (let i = 0; i < 128; i++) {
   isIdentifierStartArray[i] = i === 36 ||  // $
       i >= 65 && i <= 90 ||  // A - Z
       i === 95 ||  // _
@@ -168,8 +159,8 @@ function isIdentifierStart(code) {
       inTable(idStartTable, code);
 }
 
-var isIdentifierPartArray = [];
-for (var i = 0; i < 128; i++) {
+let isIdentifierPartArray = [];
+for (let i = 0; i < 128; i++) {
   isIdentifierPartArray[i] = isIdentifierStart(i) || isDecimalDigit(i);
 }
 
@@ -181,7 +172,7 @@ export function isIdentifierPart(code) {
 
 
 function inTable(table, code) {
-  for (var i = 0; i < table.length;) {
+  for (let i = 0; i < table.length;) {
     if (code < table[i++])
       return false;
     if (code <= table[i++])
@@ -205,7 +196,7 @@ function isRegularExpressionFirstChar(code) {
   return isRegularExpressionChar(code) && code !== 42;  // *
 }
 
-var index, input, length, token, lastToken, lookaheadToken, currentCharCode,
+let index, input, length, token, lastToken, lookaheadToken, currentCharCode,
     lineNumberTable, errorReporter, currentParser, options;
 
 /**
@@ -252,7 +243,7 @@ export class Scanner {
   }
 
   nextTemplateLiteralToken() {
-    var t = nextTemplateLiteralToken();
+    let t = nextTemplateLiteralToken();
     token = scanToken();
     return t;
   }
@@ -330,7 +321,7 @@ function getOffset() {
 function nextRegularExpressionLiteralToken() {
   // We already passed the leading / or /= so subtract the length of the last
   // token.
-  var beginIndex = index - token.toString().length;
+  let beginIndex = index - token.toString().length;
 
   // body
   // Also, check if we are done with the body in case we had /=/
@@ -450,7 +441,7 @@ function skipTemplateCharacter() {
         skipStringLiteralEscapeSequence();
         break;
       case 36:  // $
-        var code = input.charCodeAt(index + 1);
+        let code = input.charCodeAt(index + 1);
         if (code === 123)  // {
           return;
         // Fall through.
@@ -491,7 +482,7 @@ function nextTemplateLiteralToken() {
 }
 
 function nextTemplateLiteralTokenShared(endType, middleType) {
-  var beginIndex = index;
+  let beginIndex = index;
 
   skipTemplateCharacter();
 
@@ -500,7 +491,7 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
     return createToken(ERROR, beginIndex);
   }
 
-  var value = getTokenString(beginIndex);
+  let value = getTokenString(beginIndex);
 
   switch (currentCharCode) {
     case  96:  // `
@@ -519,7 +510,7 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
 
 /** @return {Token} */
 function nextToken() {
-  var t = peekToken();
+  let t = peekToken();
   token = lookaheadToken || scanToken();
   lookaheadToken = null;
   lastToken = t;
@@ -533,11 +524,11 @@ function nextToken() {
  *     line terminator.
  */
 function peekTokenNoLineTerminator() {
-  var t = peekToken();
-  var start = lastToken.location.end.offset;
-  var end = t.location.start.offset;
-  for (var i = start; i < end; i++) {
-    var code = input.charCodeAt(i);
+  let t = peekToken();
+  let start = lastToken.location.end.offset;
+  let end = t.location.start.offset;
+  for (let i = start; i < end; i++) {
+    let code = input.charCodeAt(i);
     if (isLineTerminator(code))
       return null;
 
@@ -585,7 +576,7 @@ function skipComments() {
 
 function skipComment() {
   skipWhitespace();
-  var code = currentCharCode;
+  let code = currentCharCode;
   if (code === 47) {  // /
     code = input.charCodeAt(index + 1);
     switch (code) {
@@ -606,7 +597,7 @@ function commentCallback(start, index) {
 }
 
 function skipSingleLineComment() {
-  var start = index;
+  let start = index;
   // skip '//'
   index += 2;
   while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
@@ -615,8 +606,8 @@ function skipSingleLineComment() {
 }
 
 function skipMultiLineComment() {
-  var start = index;
-  var i = input.indexOf('*/', index + 2);
+  let start = index;
+  let i = input.indexOf('*/', index + 2);
   if (i !== -1)
     index = i + 2;
   else
@@ -630,11 +621,11 @@ function skipMultiLineComment() {
  */
 function scanToken() {
   skipComments();
-  var beginIndex = index;
+  let beginIndex = index;
   if (isAtEnd())
     return createToken(END_OF_FILE, beginIndex);
 
-  var code = currentCharCode;
+  let code = currentCharCode;
   next();
 
   switch (code) {
@@ -935,7 +926,7 @@ function createToken(type, beginIndex) {
 }
 
 function readUnicodeEscapeSequence() {
-  var beginIndex = index;
+  let beginIndex = index;
   if (currentCharCode === 117) {  // u
     next();
     if (skipHexDigit() && skipHexDigit() &&
@@ -956,7 +947,7 @@ function readUnicodeEscapeSequence() {
  */
 function scanIdentifierOrKeyword(beginIndex, code) {
   // Keep track of any unicode escape sequences.
-  var escapedCharCodes;
+  let escapedCharCodes;
   if (code === 92) {  // \
     code = readUnicodeEscapeSequence();
     escapedCharCodes = [code];
@@ -986,13 +977,13 @@ function scanIdentifierOrKeyword(beginIndex, code) {
     }
   }
 
-  var value = input.slice(beginIndex, index);
-  var keywordType = getKeywordType(value);
+  let value = input.slice(beginIndex, index);
+  let keywordType = getKeywordType(value);
   if (keywordType)
     return new KeywordToken(value, keywordType, getTokenRange(beginIndex));
 
   if (escapedCharCodes) {
-    var i = 0;
+    let i = 0;
     value = value.replace(/\\u..../g, function(s) {
       return String.fromCharCode(escapedCharCodes[i++]);
     });
@@ -1051,7 +1042,7 @@ function skipStringLiteralEscapeSequence() {
     return true;
   }
 
-  var code = currentCharCode;
+  let code = currentCharCode;
   next();
   switch (code) {
     case 39:  // '
@@ -1077,7 +1068,7 @@ function skipStringLiteralEscapeSequence() {
 function skipUnicodeEscapeSequence() {
   if (currentCharCode === 123 && options.unicodeEscapeSequences) {  // {
     next();
-    var beginIndex = index;
+    let beginIndex = index;
 
     if (!isHexDigit(currentCharCode)) {
       reportError('Hex digit expected');
@@ -1091,7 +1082,7 @@ function skipUnicodeEscapeSequence() {
       return false;
     }
 
-    var codePoint = getTokenString(beginIndex, index);
+    let codePoint = getTokenString(beginIndex, index);
     if (parseInt(codePoint, 16) > 0x10FFFF) { // 11.8.4.1
       reportError('The code point in a Unicode escape sequence cannot exceed 10FFFF');
       return false;
@@ -1114,7 +1105,7 @@ function skipHexDigit() {
 }
 
 function skipLineTerminator() {
-  var first = currentCharCode;
+  let first = currentCharCode;
   next();
   if (first === 13 && currentCharCode === 10) {  // \r and \n
     next();
@@ -1197,6 +1188,6 @@ function updateCurrentCharCode() {
 }
 
 function reportError(message, indexArg = index) {
-  var position = getPosition(indexArg);
+  let position = getPosition(indexArg);
   errorReporter.reportError(position, message);
 }

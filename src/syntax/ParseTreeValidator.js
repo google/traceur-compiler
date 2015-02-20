@@ -178,8 +178,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ArgumentList} tree
    */
   visitArgumentList(tree) {
-    for (var i = 0; i < tree.args.length; i++) {
-      var argument = tree.args[i];
+    for (let i = 0; i < tree.args.length; i++) {
+      let argument = tree.args[i];
       this.checkVisit_(argument.isAssignmentOrSpread(), argument,
           'assignment or spread expected');
     }
@@ -189,8 +189,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ArrayLiteralExpression} tree
    */
   visitArrayLiteralExpression(tree) {
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
+    for (let i = 0; i < tree.elements.length; i++) {
+      let element = tree.elements[i];
       this.checkVisit_(element === null || element.isAssignmentOrSpread(),
           element, 'assignment or spread expected');
     }
@@ -200,8 +200,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ArrayPattern} tree
    */
   visitArrayPattern(tree) {
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
+    for (let i = 0; i < tree.elements.length; i++) {
+      let element = tree.elements[i];
       this.checkVisit_(element === null ||
           element.type === BINDING_ELEMENT ||
           element.type === ASSIGNMENT_ELEMENT ||
@@ -300,7 +300,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {BindingElement} tree
    */
   visitBindingElement(tree) {
-    var binding = tree.binding;
+    let binding = tree.binding;
     this.checkVisit_(
         binding.type === BINDING_IDENTIFIER ||
         binding.type === OBJECT_PATTERN ||
@@ -314,7 +314,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {AssignmentElement} tree
    */
   visitAssignmentElement(tree) {
-    var assignment = tree.assignment;
+    let assignment = tree.assignment;
     this.checkVisit_(
         assignment.type === OBJECT_PATTERN ||
         assignment.type === ARRAY_PATTERN ||
@@ -328,8 +328,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {Block} tree
    */
   visitBlock(tree) {
-    for (var i = 0; i < tree.statements.length; i++) {
-      var statement = tree.statements[i];
+    for (let i = 0; i < tree.statements.length; i++) {
+      let statement = tree.statements[i];
       this.checkVisit_(statement.isStatementListItem(), statement,
           'statement or function declaration expected');
     }
@@ -356,8 +356,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitCaseClause(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
-    for (var i = 0; i < tree.statements.length; i++) {
-      var statement = tree.statements[i];
+    for (let i = 0; i < tree.statements.length; i++) {
+      let statement = tree.statements[i];
       this.checkVisit_(statement.isStatement(), statement,
           'statement expected');
     }
@@ -395,8 +395,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
           tree.typeParameters,
           'type parameters expected');
     }
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
+    for (let i = 0; i < tree.elements.length; i++) {
+      let element = tree.elements[i];
       switch (element.type) {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
@@ -415,8 +415,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {CommaExpression} tree
    */
   visitCommaExpression(tree) {
-    for (var i = 0; i < tree.expressions.length; i++) {
-      var expression = tree.expressions[i];
+    for (let i = 0; i < tree.expressions.length; i++) {
+      let expression = tree.expressions[i];
       this.checkVisit_(expression.isAssignmentExpression(), expression,
           'expression expected');
     }
@@ -446,8 +446,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {DefaultClause} tree
    */
   visitDefaultClause(tree) {
-    for (var i = 0; i < tree.statements.length; i++) {
-      var statement = tree.statements[i];
+    for (let i = 0; i < tree.statements.length; i++) {
+      let statement = tree.statements[i];
       this.checkVisit_(statement.isStatement(), statement,
           'statement expected');
     }
@@ -467,7 +467,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
-    var declType = tree.declaration.type;
+    let declType = tree.declaration.type;
     this.checkVisit_(
         declType === VARIABLE_STATEMENT ||
         declType === FUNCTION_DECLARATION ||
@@ -490,7 +490,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
           'module expression expected');
     }
 
-    var specifierType = tree.specifierSet.type;
+    let specifierType = tree.specifierSet.type;
     this.checkVisit_(specifierType === EXPORT_SPECIFIER_SET ||
                      specifierType === EXPORT_STAR,
                      tree.specifierSet,
@@ -503,8 +503,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitExportSpecifierSet(tree) {
     this.check_(tree.specifiers.length > 0, tree,
         'expected at least one identifier');
-    for (var i = 0; i < tree.specifiers.length; i++) {
-      var specifier = tree.specifiers[i];
+    for (let i = 0; i < tree.specifiers.length; i++) {
+      let specifier = tree.specifiers[i];
       this.checkVisit_(
           specifier.type === EXPORT_SPECIFIER ||
           specifier.type === IDENTIFIER_EXPRESSION,
@@ -573,8 +573,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {FormalParameterList} tree
    */
   visitFormalParameterList(tree) {
-    for (var i = 0; i < tree.parameters.length; i++) {
-      var parameter = tree.parameters[i];
+    for (let i = 0; i < tree.parameters.length; i++) {
+      let parameter = tree.parameters[i];
       assert(parameter.type === FORMAL_PARAMETER)
       parameter = parameter.parameter;
 
@@ -627,8 +627,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {Block} tree
    */
   visitFunctionBody(tree) {
-    for (var i = 0; i < tree.statements.length; i++) {
-      var statement = tree.statements[i];
+    for (let i = 0; i < tree.statements.length; i++) {
+      let statement = tree.statements[i];
       this.checkVisit_(statement.isStatementListItem(), statement,
           'statement expected');
     }
@@ -774,8 +774,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ObjectLiteralExpression} tree
    */
   visitObjectLiteralExpression(tree) {
-    for (var i = 0; i < tree.propertyNameAndValues.length; i++) {
-      var propertyNameAndValue = tree.propertyNameAndValues[i];
+    for (let i = 0; i < tree.propertyNameAndValues.length; i++) {
+      let propertyNameAndValue = tree.propertyNameAndValues[i];
       switch (propertyNameAndValue.type) {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
@@ -797,8 +797,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ObjectPattern} tree
    */
   visitObjectPattern(tree) {
-    for (var i = 0; i < tree.fields.length; i++) {
-      var field = tree.fields[i];
+    for (let i = 0; i < tree.fields.length; i++) {
+      let field = tree.fields[i];
       this.checkVisit_(field.type === OBJECT_PATTERN_FIELD ||
                        field.type === ASSIGNMENT_ELEMENT ||
                        field.type === BINDING_ELEMENT,
@@ -851,8 +851,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {Script} tree
    */
   visitScript(tree) {
-    for (var i = 0; i < tree.scriptItemList.length; i++) {
-      var scriptItemList = tree.scriptItemList[i];
+    for (let i = 0; i < tree.scriptItemList.length; i++) {
+      let scriptItemList = tree.scriptItemList[i];
       this.checkVisit_(scriptItemList.isScriptElement(),
           scriptItemList,
           'global script item expected');
@@ -888,7 +888,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {LiteralPropertyName} tree
    */
   visitLiteralPropertyName(tree) {
-    var type = tree.literalToken.type;
+    let type = tree.literalToken.type;
     this.check_(tree.literalToken.isKeyword() ||
         type === IDENTIFIER ||
         type === NUMBER ||
@@ -908,8 +908,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
 
     // The elements are alternating between TemplateLiteralPortion and
     // TemplateSubstitution.
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
+    for (let i = 0; i < tree.elements.length; i++) {
+      let element = tree.elements[i];
       if (i % 2) {
         this.checkType_(TEMPLATE_SUBSTITUTION,
                         element,
@@ -964,9 +964,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitSwitchStatement(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
-    var defaultCount = 0;
-    for (var i = 0; i < tree.caseClauses.length; i++) {
-      var caseClause = tree.caseClauses[i];
+    let defaultCount = 0;
+    for (let i = 0; i < tree.caseClauses.length; i++) {
+      let caseClause = tree.caseClauses[i];
       if (caseClause.type === DEFAULT_CLAUSE) {
         ++defaultCount;
         this.checkVisit_(defaultCount <= 1, caseClause,
@@ -1011,8 +1011,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {TypeArguments} tree
    */
   visitTypeArguments(tree) {
-    var {args} = tree;
-    for (var i = 0; i < args.length; i++) {
+    let {args} = tree;
+    for (let i = 0; i < args.length; i++) {
       this.checkVisit_(args[i].isType(), args[i],
                        'Type arguments must be type expressions');
     }
@@ -1042,8 +1042,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {TypeParameters} tree
    */
   visitTypeParameters(tree) {
-    var {parameters} = tree;
-    for (var i = 0; i < parameters.length; i++) {
+    let {parameters} = tree;
+    for (let i = 0; i < parameters.length; i++) {
       this.checkType_(TYPE_PARAMETER, parameters[i],
                       'Type parameters must all be type parameters');
     }
@@ -1122,7 +1122,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
  * @param {ParseTree} tree
  */
 ParseTreeValidator.validate = function(tree) {
-  var validator = new ParseTreeValidator();
+  let validator = new ParseTreeValidator();
   try {
     validator.visitAny(tree);
   } catch (e) {
@@ -1130,14 +1130,14 @@ ParseTreeValidator.validate = function(tree) {
       throw e;
     }
 
-    var location = null;
+    let location = null;
     if (e.tree !== null) {
       location = e.tree.location;
     }
     if (location === null) {
       location = tree.location;
     }
-    var locationString = location !== null ?
+    let locationString = location !== null ?
         location.start.toString() :
         '(unknown)';
     throw new Error(
