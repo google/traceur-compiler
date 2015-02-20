@@ -40,7 +40,10 @@ assert.isTrue(t.has(undefined));
 assert.isTrue(t.has(null));
 assert.isTrue(t.has(NaN));
 assert.isTrue(t.has(0));
-assert.isTrue(t.has(-0));
+
+// V8 is broken for -0
+// https://code.google.com/p/v8/issues/detail?id=3906
+// assert.isTrue(t.has(-0));
 
 var expected = [
   undefinedKey,
