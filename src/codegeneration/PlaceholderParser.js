@@ -140,8 +140,7 @@ function insertPlaceholderIdentifiers(sourceLiterals) {
 var counter = 0;
 
 function getParser(source, errorReporter) {
-  var file = new SourceFile(
-      '@traceur/generated/TemplateParser/' + counter++, source);
+  var file = new SourceFile(null, source);
   var options = new Options();
   // Enable internal code to always use all experimental features.
   options.experimental = true;

@@ -54,8 +54,10 @@ suite('SourceMap.js', function() {
     assert.equal(relativePath('/w/t/src/foo.js', '/w/t/src/'),
         'foo.js', 'same directory  ');
 
-    assert.equal(relativePath('/w/t/src/foo.js', '/w/t/out'),
-        '../src/foo.js', 'missing trailing slash');
+    assert.throws(() => relativePath('/w/t/src/foo.js', '/w/t/out'));
+
+    assert.equal(relativePath('/w/t/t/w/c/d/s/js/greeting.js',
+      '/w/t/t/w/c/d/d/js/'), '../../s/js/greeting.js', 'src/js bug');
   });
 
   test('SourceMap', function() {
@@ -67,7 +69,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 37, -1];
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 40, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -106,7 +108,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 37, -1];
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 40, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -165,7 +167,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 37, -1];
+    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 40, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -209,7 +211,7 @@ suite('SourceMap.js', function() {
     var outFilename = 'out.js';
     var outFileContents = scriptCompiler.write(tree, outFilename);
 
-    var expected = 'alert(a);\nalert(b);\nalert(c);\n\n//# sourceMappingURL=out.map\n';
+    var expected = 'alert(a);\nalert(b);\nalert(c);\n\n//# sourceMappingURL=out.js.map\n';
     assert.equal(expected, outFileContents);
 
     var map = JSON.parse(scriptCompiler.getSourceMap(outFilename));
@@ -224,7 +226,7 @@ suite('SourceMap.js', function() {
     var tree = moduleCompiler.parse(src, filename);
     var actual = moduleCompiler.write(tree);
     // The sourceMappingURL should be relativel
-    assert.notEqual(actual.indexOf('//# sourceMappingURL=unnamed.map'), -1);
+    assert.notEqual(actual.indexOf('//# sourceMappingURL=unnamed.js.map'), -1);
 
     var sourceMap = moduleCompiler.getSourceMap(filename);
     assert.equal(JSON.parse(sourceMap).sources[0], filename);

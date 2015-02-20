@@ -44,7 +44,6 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
 
   mkdirRecursive(outputDir);
   process.chdir(outputDir);
-
   // Make includes relative to output dir so that sourcemap paths are correct.
   resolvedIncludes = resolvedIncludes.map(function(include) {
     include.name = normalizePath(path.relative(outputDir, include.name));

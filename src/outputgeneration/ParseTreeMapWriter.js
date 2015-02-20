@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {ParseTreeWriter} from './ParseTreeWriter.js';
+import {StringSet} from '../util/StringSet.js';
 
 /**
  * Converts a ParseTree to text and a source Map.
@@ -25,11 +26,11 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   constructor(sourceMapConfiguration, options = undefined) {
     super(options);
     this.sourceMapGenerator_ = sourceMapConfiguration.sourceMapGenerator;
-    this.sourceRoot_ = sourceMapConfiguration.sourceRoot;
     this.lowResolution_ = sourceMapConfiguration.lowResolution;
     this.basepath_ = sourceMapConfiguration.basepath;
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
+    this.sourcesInMap_ = new StringSet();
   }
 
   //
@@ -116,11 +117,11 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
       line: line,
       column: position.column || 0  // source map uses zero based columns
     };
-    if (position.source.name !== this.sourceName_) {
-      this.sourceName_ = position.source.name;
+    if (position.source.name && !this.sourcesInMap_.has(position.source.name)) {
+      this.sourcesInMap_.add(position.source.name);
       this.relativeSourceName_ = relativePath(position.source.name,
               this.basepath_);
-      this.sourceMapGenerator_.setSourceContent(position.source.name,
+      this.sourceMapGenerator_.setSourceContent(this.relativeSourceName_,
           position.source.contents);
     }
     this.flushMappings();
@@ -171,17 +172,21 @@ export function relativePath(name, sourceRoot) {
 
   var nameSegments = name.split('/');
   var rootSegments = sourceRoot.split('/');
-  // Handle dir name without /
+
   if (rootSegments[rootSegments.length - 1]) {
-    rootSegments.push('');
+    // We can't patch this up because we can't know whether the caller sent
+    // a file path or a directory w/o a slash by mistake
+    throw new Error('rootPath must end in /');
   }
   var commonSegmentsLength = 0;
   var uniqueSegments = [];
+  var foundUnique = false;
   nameSegments.forEach((segment, index)  => {
-    if (segment === rootSegments[index]) {
+    if (!foundUnique && segment === rootSegments[index]) {
       commonSegmentsLength++;
-      return false;
+      return;
     }
+    foundUnique = true;
     uniqueSegments.push(segment);
   });
 

@@ -220,7 +220,6 @@ export class Compiler {
           skipValidation: true
         }),
         basepath: basePath(outputName),
-        sourceRoot: sourceRoot,
         inputSourceMap: this.options_.inputSourceMap
       };
     }
@@ -320,7 +319,8 @@ export class Compiler {
       }
     }
     path = path || 'unamed.js';
-    return path.replace(/\.[^.]+$/, '.map');
+    path = path.split('/').pop();
+    return path + '.map';
   }
 
   sourceNameFromTree(tree) {
