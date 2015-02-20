@@ -297,10 +297,10 @@ export class Compiler {
         outputName: outputName,
         map: sourceMap
       };
+    } else {
+      if (sourceURL)
+        compiledCode += '//# sourceURL=' + sourceURL;
     }
-
-    if (sourceURL)
-      compiledCode += '//# sourceURL=' + sourceURL;
 
     return compiledCode;
   }

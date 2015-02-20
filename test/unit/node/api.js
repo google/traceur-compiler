@@ -75,4 +75,12 @@ suite('api.js', function() {
     assert.equal(result.indexOf('sourceURL'), -1);
   });
 
+  test('not both sourceURL and sourceMappingURL', function() {
+    var src = 'var x = 4;';
+    var sourceName = 'source.js';
+    var outputName = 'output.js';
+
+    var result = api.compile(src, {sourceMaps: 'inline'}, sourceName, outputName);
+    assert.equal(result.indexOf('sourceURL'), -1);
+  });
 });
