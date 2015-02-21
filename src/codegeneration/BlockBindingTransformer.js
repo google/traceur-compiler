@@ -42,6 +42,7 @@ import {
   VariableStatement,
   WhileStatement
 } from '../syntax/trees/ParseTrees.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
@@ -393,7 +394,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       if (origName === newName) {
         return tree;
       }
-      let bindingIdentifier = new BindingIdentifier(tree.location, newName);
+      var newToken = new IdentifierToken(tree.location, newName);
+      let bindingIdentifier = new BindingIdentifier(tree.location, newToken);
       this.scope_.renameBinding(origName, bindingIdentifier, VAR,
                                 this.reporter_);
       return bindingIdentifier;
