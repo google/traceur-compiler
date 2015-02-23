@@ -1,0 +1,9 @@
+<link rel="import" href="b.html">
+
+<script type="text/traceur">
+  thisShouldBeAGlobalVariable = 'Success!';
+</script>
+
+<script type="text/traceur">
+  document.querySelector('#message').textContent = thisShouldBeAGlobalVariable;
+</script>

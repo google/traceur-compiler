@@ -26,6 +26,10 @@ export class WebPageTranscoder {
     this.numberInlined_ = 0;
   }
 
+  static get scriptSelector() {
+    return 'script[type="module"],script[type="text/traceur"]';
+  }
+
   asyncLoad_(url, fncOfContent, onScriptsReady) {
     this.numPending_++;
     webLoader.load(url, (content) => {
@@ -119,7 +123,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    let selector = 'script[type="module"],script[type="text/traceur"]';
+    let selector = WebPageTranscoder.scriptSelector;
     let scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {

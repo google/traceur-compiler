@@ -55,7 +55,8 @@
     "regexpu": "1.1.0",
     "requirejs": "2.x",
     "traceur": "0.0.85",
-    "promises-aplus-tests": "2.x"
+    "promises-aplus-tests": "2.x",
+    "webcomponents.js": "^0.5.4-1"
   },
   "subdomain": "traceur"
 }
