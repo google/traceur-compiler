@@ -69,9 +69,10 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 40, -1];
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, 40, -1];
     generatedLines.forEach(function(line, index) {
-      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
+      assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index],
+        'line ' + index + ', length mismatch ');
     });
 
     var consumer = new SourceMapConsumer(scriptCompiler.getSourceMap(filename));
@@ -108,7 +109,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, -1, 40, -1];
+    var expectedFilledColumnsZeroThrough = [16, 10, 0, 9, 0, 40, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -167,7 +168,7 @@ suite('SourceMap.js', function() {
     var generatedLines = generatedSource.split('\n');
 
     // Check that the generated code did not change since we analyzed the map.
-    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, -1, 40, -1];
+    var expectedFilledColumnsZeroThrough = [15, 10, 0, 9, 0, 40, -1];
     generatedLines.forEach(function(line, index) {
       assert.equal(line.length - 1, expectedFilledColumnsZeroThrough[index]);
     });
@@ -211,7 +212,7 @@ suite('SourceMap.js', function() {
     var outFilename = 'out.js';
     var outFileContents = scriptCompiler.write(tree, outFilename);
 
-    var expected = 'alert(a);\nalert(b);\nalert(c);\n\n//# sourceMappingURL=out.js.map\n';
+    var expected = 'alert(a);\nalert(b);\nalert(c);\n//# sourceMappingURL=out.js.map\n';
     assert.equal(expected, outFileContents);
 
     var map = JSON.parse(scriptCompiler.getSourceMap(outFilename));
