@@ -19,15 +19,13 @@ import {TraceurLoader} from './runtime/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
 import {webLoader} from './runtime/webLoader.js';
 
+export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
+
 export class WebPageTranscoder {
   constructor(url) {
     this.url = url;
     this.numPending_ = 0;
     this.numberInlined_ = 0;
-  }
-
-  static get scriptSelector() {
-    return 'script[type="module"],script[type="text/traceur"]';
   }
 
   asyncLoad_(url, fncOfContent, onScriptsReady) {
@@ -123,7 +121,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    let selector = WebPageTranscoder.scriptSelector;
+    let selector = scriptSelector;
     let scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {
