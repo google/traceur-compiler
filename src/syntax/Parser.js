@@ -2016,7 +2016,6 @@ export class Parser {
    * @private
    */
   parseArrayLiteral_() {
-
     let start = this.getTreeStartLocation_();
     let expression;
     let elements = [];
@@ -2030,6 +2029,10 @@ export class Parser {
     while (true) {
       type = this.peekType_();
       if (type === COMMA) {
+        if (this.isStrongMode_()) {
+          this.reportError_('Arrays with holes are not supported in strong ' +
+                            'mode. Please use a Map instead.');
+        }
         expression = null;
       } else if (this.peekSpread_(type)) {
         expression = this.parseSpreadExpression_();
