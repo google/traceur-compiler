@@ -68,11 +68,17 @@ suite('api.js', function() {
     var sourceName = 'source.js';
     var outputName = 'output.js';
 
+    // Different
     var result = api.compile(src, {}, sourceName, outputName);
     assert.equal(result.indexOf('sourceURL'), 29);
 
+    // Same
     result = api.compile(src, {}, sourceName, sourceName);
     assert.equal(result.indexOf('sourceURL'), -1);
+
+    // Output name omitted
+    result = api.compile(src, {}, sourceName);
+    assert.equal(result.indexOf('sourceURL'), 29);
   });
 
   test('not both sourceURL and sourceMappingURL', function() {
@@ -82,5 +88,10 @@ suite('api.js', function() {
 
     var result = api.compile(src, {sourceMaps: 'inline'}, sourceName, outputName);
     assert.equal(result.indexOf('sourceURL'), -1);
+  });
+
+  test('no URL for memory sourceMaps', function() {
+    var result = api.compile(';', {sourceMaps: 'memory'}, '/a/b/c.js', '/x/y/z.js');
+    assert.equal(result.indexOf('sourceMappingURL'), -1);
   });
 });
