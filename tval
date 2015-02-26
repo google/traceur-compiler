@@ -43,7 +43,7 @@ var moduleName = path.resolve(filename.replace(/\\/g, '/'));
 process.argv = [process.mainModule.filename].concat(process.argv.slice(2));
 
 var metadata = {
-	traceurOptions: {require: true}
+  traceurOptions: {require: true}
 };
 
 // The module will evaluate and have process.argv ['node', filename, ...]
