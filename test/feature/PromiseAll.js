@@ -1,4 +1,8 @@
+// Skip.
 // Async.
+
+// V8 does not yet support iterable argument to Promise.all.
+// https://code.google.com/p/v8/issues/detail?id=3705
 
 function* gen() {
   yield 1;

@@ -626,6 +626,10 @@ export class Parser {
     switch (type) {
       case CONST:
       case LET:
+        if (!this.options_.blockBinding) {
+          return this.parseUnexpectedToken_(type);
+        }
+        // Fall through.
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -1213,8 +1217,6 @@ export class Parser {
     switch (type) {
       case CONST:
       case LET:
-        if (!this.options_.blockBinding)
-          debugger;
       case VAR:
         this.nextToken_();
         break;

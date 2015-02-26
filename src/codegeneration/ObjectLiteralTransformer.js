@@ -213,51 +213,55 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     let oldNeedsTransform = this.needsAdvancedTransform;
     let oldSeenAccessors = this.seenAccessors;
 
-    try {
-      let finder = new FindAdvancedProperty(this.transformOptions_);
-      finder.visitAny(tree);
-      if (!finder.found) {
-        this.needsAdvancedTransform = false;
-        return super.transformObjectLiteralExpression(tree);
-      }
+    let transformed = this.transformObjectLiteralExpressionInner_(tree);
 
-      this.needsAdvancedTransform = true;
-      this.seenAccessors = new StringMap();
+    this.needsAdvancedTransform = oldNeedsTransform;
+    this.seenAccessors = oldSeenAccessors;
 
-      let properties = this.transformList(tree.propertyNameAndValues);
-      // Filter out the __proto__ here which is represented as a null value.
-      properties = properties.filter((tree) => tree);
+    return transformed;
+  }
 
-      // (tmp = ..., Object.defineProperty(...), ..., tmp)
-      let tempVar = this.addTempVar();
-      let tempVarIdentifierExpression = createIdentifierExpression(tempVar);
-
-      let expressions = properties.map((property) => {
-        let expression = property[0];
-        let descr = property[1];
-        return createDefineProperty(
-            tempVarIdentifierExpression,
-            expression,
-            descr);
-      });
-
-      let protoExpression = this.transformAny(finder.protoExpression);
-      let objectExpression;
-      if (protoExpression)
-        objectExpression = createObjectCreate(protoExpression);
-      else
-        objectExpression = createObjectLiteralExpression([]);
-
-      expressions.unshift(
-          createAssignmentExpression(
-              tempVarIdentifierExpression,
-              objectExpression));
-      expressions.push(tempVarIdentifierExpression);
-      return createParenExpression(createCommaExpression(expressions));
-    } finally {
-      this.needsAdvancedTransform = oldNeedsTransform;
-      this.seenAccessors = oldSeenAccessors;
+  transformObjectLiteralExpressionInner_(tree) {
+    let finder = new FindAdvancedProperty(this.transformOptions_);
+    finder.visitAny(tree);
+    if (!finder.found) {
+      this.needsAdvancedTransform = false;
+      return super.transformObjectLiteralExpression(tree);
     }
+
+    this.needsAdvancedTransform = true;
+    this.seenAccessors = new StringMap();
+
+    let properties = this.transformList(tree.propertyNameAndValues);
+    // Filter out the __proto__ here which is represented as a null value.
+    properties = properties.filter((tree) => tree);
+
+    // (tmp = ..., Object.defineProperty(...), ..., tmp)
+    let tempVar = this.addTempVar();
+    let tempVarIdentifierExpression = createIdentifierExpression(tempVar);
+
+    let expressions = properties.map((property) => {
+      let expression = property[0];
+      let descr = property[1];
+      return createDefineProperty(
+          tempVarIdentifierExpression,
+          expression,
+          descr);
+    });
+
+    let protoExpression = this.transformAny(finder.protoExpression);
+    let objectExpression;
+    if (protoExpression)
+      objectExpression = createObjectCreate(protoExpression);
+    else
+      objectExpression = createObjectLiteralExpression([]);
+
+    expressions.unshift(
+        createAssignmentExpression(
+            tempVarIdentifierExpression,
+            objectExpression));
+    expressions.push(tempVarIdentifierExpression);
+    return createParenExpression(createCommaExpression(expressions));
   }
 
   transformPropertyNameAssignment(tree) {

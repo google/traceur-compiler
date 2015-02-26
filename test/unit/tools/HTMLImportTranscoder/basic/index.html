@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic HTML Import Test</title>
+    <script src="../../../../../bin/traceur.js"></script>
+    <script src="../../../../../src/bootstrap.js"></script>
+    <script src="../../../../../node_modules/webcomponents.js/HTMLImports.js"></script>
+    <link rel="import" href="a.html">
+</head>
+<body>
+<h1 id="message"></h1>
+<h2 id="description"></h2>
+<script>
+  new traceur.HTMLImportTranscoder().run();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HTML Import Order Test</title>
+  <script src="../../../../../bin/traceur.js"></script>
+  <script src="../../../../../src/bootstrap.js"></script>
+  <script src="../../../../../node_modules/webcomponents.js/HTMLImports.js"></script>
+  <script>
+    document.actualLoadOrder = [];
+    new traceur.HTMLImportTranscoder().run();
+  </script>
+  <link rel="import" href="a.html">
+</head>
+</html>

@@ -213,7 +213,8 @@ export class Compiler {
     return transformedTree;
   }
 
-  createSourceMapConfiguration_(outputName, sourceRoot = undefined) {
+  createSourceMapConfiguration_(outputName, sourceRoot = undefined,
+      sourceURL = undefined) {
     if (this.options_.sourceMaps) {
       return {
         sourceMapGenerator: new SourceMapGenerator({
@@ -222,7 +223,9 @@ export class Compiler {
           skipValidation: true
         }),
         basepath: basePath(outputName),
-        inputSourceMap: this.options_.inputSourceMap
+        inputSourceMap: this.options_.inputSourceMap,
+        sourceURL: sourceURL,
+        outputName: outputName
       };
     }
   }
@@ -236,7 +239,8 @@ export class Compiler {
       let sourceMap = this.sourceMapConfiguration_.sourceMapGenerator.toString();
       let inputSourceMap = this.sourceMapConfiguration_.inputSourceMap;
       if (inputSourceMap) {
-        let generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(sourceMap));
+        let generator = SourceMapGenerator.fromSourceMap(
+            new SourceMapConsumer(sourceMap));
         generator.applySourceMap(new SourceMapConsumer(inputSourceMap));
         sourceMap = generator.toJSON();
       }
@@ -246,6 +250,15 @@ export class Compiler {
   }
 
   get sourceMapInfo() {
+    if (!this.sourceMapInfo_ && this.sourceMapConfiguration_) {
+      let sourceMap = this.getSourceMap();
+      // The source map info for in-memory maps
+      this.sourceMapInfo_ = {
+        url: this.sourceMapConfiguration_.sourceURL,
+        outputName: this.sourceMapConfiguration_.outputName,
+        map: sourceMap
+      };
+    }
     return this.sourceMapInfo_;
   }
 
@@ -274,7 +287,7 @@ export class Compiler {
     let writer;
     this.sourceMapCache_ = null;
     this.sourceMapConfiguration_ =
-        this.createSourceMapConfiguration_(outputName, sourceRoot);
+        this.createSourceMapConfiguration_(outputName, sourceRoot, sourceURL);
     if (this.sourceMapConfiguration_) {
       this.sourceMapConfiguration_.lowResolution =
           this.options_.lowResolutionSourceMap;
@@ -288,23 +301,27 @@ export class Compiler {
 
     let compiledCode = writer.toString();
 
-    if (this.sourceMapConfiguration_) {
-      let sourceMappingURL =
-          this.sourceMappingURL(sourceURL || outputName || 'unnamed.js');
-      let sourceMap = this.getSourceMap();
-      compiledCode += '\n//# sourceMappingURL=' + sourceMappingURL + '\n';
-      // The source map info for in-memory maps
-      this.sourceMapInfo_ = {
-        url: sourceURL,
-        outputName: outputName,
-        map: sourceMap
-      };
-    } else {
-      if (sourceURL)
-        compiledCode += '//# sourceURL=' + sourceURL;
+    let link = this.debuggerLink(sourceURL, outputName);
+    if (link) {
+      compiledCode += link;
     }
 
     return compiledCode;
+  }
+
+  debuggerLink(sourceURL, outputName) {
+    if (this.sourceMapConfiguration_) {
+      if (this.options_.sourceMaps === 'memory') {
+        return;
+      }
+      let sourceMappingURL =
+         this.sourceMappingURL(sourceURL || outputName || 'unnamed.js');
+      return '//# sourceMappingURL=' + sourceMappingURL + '\n';
+    } else {
+      if (sourceURL) {
+        return '//# sourceURL=' + sourceURL + '\n';
+      }
+    }
   }
 
   sourceName(filename) {

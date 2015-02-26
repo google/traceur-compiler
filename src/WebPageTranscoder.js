@@ -21,6 +21,8 @@ import {TraceurLoader} from './runtime/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
 import {webLoader} from './runtime/webLoader.js';
 
+export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
+
 export class WebPageTranscoder {
   constructor(url) {
     this.url = url;
@@ -121,7 +123,7 @@ export class WebPageTranscoder {
   }
 
   selectAndProcessScripts(done) {
-    let selector = 'script[type="module"],script[type="text/traceur"]';
+    let selector = scriptSelector;
     let scripts = document.querySelectorAll(selector);
 
     if (!scripts.length) {

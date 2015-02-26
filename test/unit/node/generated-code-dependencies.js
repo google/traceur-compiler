@@ -249,7 +249,8 @@ suite('context test', function() {
     exec(commandLine, function(error, stdout, stderr) {
       assert.isNull(error);
       var transcoded = fs.readFileSync(tempFileName, 'utf-8');
-      var m = /\/\/#\s*sourceMappingURL=data:application\/json;base64,(.*)/.exec(transcoded);
+      var m = /\/\/#\s*sourceMappingURL=data:application\/json;base64,(.*)/.
+          exec(transcoded);
       var b64string = m[1];
       assert(b64string, 'expected data: URL');
       var mapText = new Buffer(b64string, 'base64');
