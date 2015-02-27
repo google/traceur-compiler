@@ -38,9 +38,9 @@ suite('PureES6Transformer.js', function() {
     });
     var reporter = new ErrorReporter();
 
-    var code = 'var x : T = f();';
+    var code = 'let x : T = f();';
     var expected = 'import {assert} from "/dummy.js";\n' +
-                   'var x = assert.type(f(), T);';
+                   'let x = assert.type(f(), T);';
 
     var tree = parse(code, reporter, options);
     var expectedTree = parse(expected, reporter, options);
