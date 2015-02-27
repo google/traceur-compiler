@@ -14,38 +14,33 @@
 
 import {suite, test, assert} from '../../modular/testRunner.js';
 
+import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
+import {Options} from '../../../src/Options.js';
+import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {TypeAssertionTransformer} from '../../../src/codegeneration/TypeAssertionTransformer.js';
+import {UniqueIdentifierGenerator} from '../../../src/codegeneration/UniqueIdentifierGenerator.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+
 suite('TypeAssertionTransformer.js', function() {
 
-  var TypeAssertionTransformer = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/TypeAssertionTransformer.js').TypeAssertionTransformer;
-  var Parser = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/Parser.js').Parser;
-  var SourceFile = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/SourceFile.js').SourceFile;
-  var write = $traceurRuntime.ModuleStore.
-      getForTesting('src/outputgeneration/TreeWriter.js').write;
-  var ParseTreeValidator = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var Options = $traceurRuntime.ModuleStore.
-      getForTesting('src/Options.js').Options;
-
-  var options;
-  setup(function() {
-    options = new Options();
-    options.types = true;
-    options.typeAssertions = true;
-  });
-
-  function parseExpression(content) {
+  function parseExpression(content, reporter, options) {
     var file = new SourceFile('test', content);
-    var parser = new Parser(file, undefined, options);
+    var parser = new Parser(file, reporter, options);
     return parser.parseExpression();
   }
 
   function testAssertions(code, expected) {
-    var tree = parseExpression(code);
-    var expectedTree = parseExpression(expected);
-    var transformer = new TypeAssertionTransformer(null);
+    var options = new Options();
+    options.types = true;
+    options.typeAssertions = true;
+    var tree = parseExpression(code, reporter, options);
+    var expectedTree = parseExpression(expected, reporter, options);
+    var identifierGenerator = new UniqueIdentifierGenerator();
+    var reporter = new ErrorReporter();
+
+    var transformer = new TypeAssertionTransformer(identifierGenerator, reporter, options);
     var transformed = transformer.transformAny(tree);
 
     assert.equal(write(transformed), write(expectedTree));

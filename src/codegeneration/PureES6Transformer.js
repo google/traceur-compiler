@@ -39,7 +39,7 @@ export class PureES6Transformer extends MultiTransformer {
 
     let append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter).transformAny(tree);
+        return new transformer(idGenerator, reporter, options).transformAny(tree);
       });
     };
 
