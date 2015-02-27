@@ -23,21 +23,27 @@ import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
 suite('PureES6Transformer.js', function() {
 
-  function parseStatement(content, reporter, options) {
+  function parse(content, reporter, options) {
     var file = new SourceFile('test', content);
     var parser = new Parser(file, reporter, options);
-    return parser.parseStatement();
+    return parser.parseModule();
   }
 
   // https://github.com/google/traceur-compiler/issues/1774
   test('Basic', function() {
-    var code = 'var x : number = 42;';
-    var expected = 'var x = 42;';
-
-    var options = new Options({types: true});
+    var options = new Options({
+      types: true,
+      typeAssertions: true,
+      typeAssertionModule: '/dummy.js'
+    });
     var reporter = new ErrorReporter();
-    var tree = parseStatement(code, reporter, options);
-    var expectedTree = parseStatement(expected, reporter, options);
+
+    var code = 'var x : T = f();';
+    var expected = 'import {assert} from "/dummy.js";\n' +
+                   'var x = assert.type(f(), T);';
+
+    var tree = parse(code, reporter, options);
+    var expectedTree = parse(expected, reporter, options);
     var transformer = new PureES6Transformer(reporter, options);
     var transformed = transformer.transform(tree);
     assert.equal(write(transformed), write(expectedTree));
