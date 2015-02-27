@@ -305,4 +305,21 @@ suite('Loader.js', function() {
     }).catch(done);
   });
 
+  test('import with metadata having junk', function(done) {
+    var loader = getTestLoader();
+    let consoleWarn = console.warn;
+    var actualWarning = '';
+    console.warn = function(msg) {
+      actualWarning = msg;
+    };
+    var metadata = {traceurOptions: {junk: true}};
+    getTestLoader().import('./resources/test_module.js', {metadata: metadata}).
+        then(function(mod) {
+          assert.equal(actualWarning,
+            'Unknown metadata.traceurOptions ignored: junk');
+          console.warn = consoleWarn;
+          done();
+      }).catch(done);
+  });
+
 });
