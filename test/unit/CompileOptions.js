@@ -156,6 +156,14 @@ suite('options', function() {
 
     options.sourceRoot = true;
     assert.equal(options.sourceRoot, true);
+  });
 
+  test('listUnknownOptions', function() {
+    let unknown = Options.listUnknownOptions({});
+    assert.equal(unknown.length, 0);
+    unknown = Options.listUnknownOptions({junk: true});
+    assert.deepEqual(unknown, ['junk']);
+    unknown = Options.listUnknownOptions(new Options());
+    assert.equal(unknown.length, 0);
   });
 });
