@@ -129,8 +129,7 @@ export class LiteralToken extends Token {
    * @param {SourceRange} location
    */
   constructor(type, value, location) {
-    this.type = type;
-    this.location = location;
+    super(type, location);
     this.value = value;
   }
 

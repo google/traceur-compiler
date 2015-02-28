@@ -67,6 +67,7 @@ export class SuperTransformer extends ParseTreeTransformer {
    * @param {ParseTree} internalName The name of the save class binding.
    */
   constructor(tempVarTransformer, protoName, thisName, internalName) {
+    super();
     this.tempVarTransformer_ = tempVarTransformer;
     this.protoName_ = protoName;
     this.internalName_ = internalName;

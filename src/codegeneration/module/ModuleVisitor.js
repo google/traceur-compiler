@@ -30,6 +30,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @param {ModuleSymbol} moduleSymbol The root of the module system.
    */
   constructor(reporter, loader, moduleSymbol) {
+    super();
     this.reporter = reporter;
     this.loader_ = loader;
     this.moduleSymbol = moduleSymbol;

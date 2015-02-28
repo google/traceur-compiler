@@ -26,6 +26,7 @@ export class FindVisitor extends ParseTreeVisitor {
    *     found condition.
    */
   constructor(keepOnGoing = undefined) {
+    super();
     this.found_ = false;
     this.shouldContinue_ = true;
     this.keepOnGoing_ = keepOnGoing;

@@ -24,15 +24,11 @@ export class IdentifierToken extends Token {
    * @param {string} value
    */
   constructor(location, value) {
-    this.location = location;
+    super(IDENTIFIER, location);
     this.value = value;
   }
 
   toString() {
     return this.value;
-  }
-
-  get type() {
-    return IDENTIFIER;
   }
 }

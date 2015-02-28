@@ -62,6 +62,7 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   // TODO(mnieper): template literals in tail position
 
   constructor(bodyTransformer) {
+    super();
     this.bodyTransformer_ = bodyTransformer;
   }
 

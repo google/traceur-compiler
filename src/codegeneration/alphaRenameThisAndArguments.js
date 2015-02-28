@@ -17,29 +17,7 @@ import {
   THIS
 } from '../syntax/PredefinedName.js';
 import {AlphaRenamer} from './AlphaRenamer.js';
-import {FindInFunctionScope} from './FindInFunctionScope.js';
-
-/**
- * This is used to find whether a function contains a reference to 'this' or
- * 'arguments'.
- */
-class FindThisOrArguments extends FindInFunctionScope {
-  constructor() {
-    super();
-    this.foundThis = false;
-    this.foundArguments = false;
-  }
-  visitThisExpression(tree) {
-    this.foundThis = true;
-    this.found = this.foundArguments;
-  }
-  visitIdentifierExpression(tree) {
-    if (tree.identifierToken.value === ARGUMENTS) {
-      this.foundArguments = true;
-      this.found = this.foundThis;
-    }
-  }
-}
+import {FindThisOrArguments} from './FindThisOrArguments.js';
 
 export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
   let finder = new FindThisOrArguments();

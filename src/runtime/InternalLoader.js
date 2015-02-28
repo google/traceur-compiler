@@ -42,6 +42,7 @@ function mapToValues(map) {
 
 class LoaderError extends Error {
   constructor(msg, tree) {
+    super();
     this.message = msg;
     this.tree = tree;
     this.name = 'LoaderError';

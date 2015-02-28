@@ -22,8 +22,7 @@ export class KeywordToken extends Token {
    * @param {SourceRange} location
    */
   constructor(type, keywordType, location) {
-    this.type = type;
-    this.location = location;
+    super(type, location);
     this.isStrictKeyword_ = keywordType === STRICT_KEYWORD;
   }
 

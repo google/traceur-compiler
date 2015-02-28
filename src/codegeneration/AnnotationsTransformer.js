@@ -109,6 +109,7 @@ class AnnotationsScope {
  */
  export class AnnotationsTransformer extends ParseTreeTransformer {
   constructor() {
+    super();
     this.stack_ = [new AnnotationsScope()];
   }
 

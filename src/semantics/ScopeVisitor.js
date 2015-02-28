@@ -26,6 +26,7 @@ import {
  */
 export class ScopeVisitor extends ParseTreeVisitor {
   constructor() {
+    super();
     this.map_ = new Map();
     this.scope = null;
     this.withBlockCounter_ = 0;

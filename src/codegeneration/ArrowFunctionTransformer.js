@@ -12,14 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ARGUMENTS, CONSTRUCTOR, THIS} from '../syntax/PredefinedName.js';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
-import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType.js';
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
+import {FUNCTION_BODY, LITERAL_PROPERTY_NAME} from '../syntax/trees/ParseTreeType.js';
+import {FindThisOrArguments} from './FindThisOrArguments.js';
 import {
+  createAssignmentExpression,
+  createCommaExpression,
   createFunctionBody,
+  createIdentifierExpression,
   createParenExpression,
-  createReturnStatement
+  createReturnStatement,
+  createThisExpression,
 } from './ParseTreeFactory.js';
 
 /**
@@ -39,6 +46,12 @@ function convertConciseBody(tree) {
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
  */
 export class ArrowFunctionTransformer extends TempVarTransformer {
+  constructor(identifierGenerator) {
+    super(identifierGenerator);
+    this.inDerivedClass_ = false;
+    this.inConstructor_ = false;
+  }
+
 
   /**
    * Transforms an arrow function expression into a function declaration.
@@ -46,6 +59,68 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
    * function body and return statement if needed.
    */
   transformArrowFunctionExpression(tree) {
+    if (this.inDerivedClass_ && this.inConstructor_) {
+      return this.transformUsingCommaExpression_(tree);
+    }
+    return this.transformUsingTempVar_(tree);
+  }
+
+  // Transforms the arrow function using a comman expression to avoid needing to
+  // read this earlier in the funciton.
+  //
+  //   ($tmp = this, function() {})
+  transformUsingCommaExpression_(tree) {
+    let finder = new FindThisOrArguments();
+    let argumentsTempName, thisTempName;
+    finder.visitAny(tree);
+    if (finder.foundArguments) {
+      argumentsTempName = this.addTempVar();
+      tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
+    }
+    if (finder.foundThis) {
+      thisTempName = this.addTempVar();
+      tree = AlphaRenamer.rename(tree, THIS, thisTempName);
+    }
+
+    let parameterList = this.transformAny(tree.parameterList);
+
+    let body = this.transformAny(tree.body);
+    body = convertConciseBody(body);
+    let functionExpression = new FunctionExpression(tree.location, null,
+        tree.functionKind, parameterList, null, [], body);
+
+    var expressions = [];
+    if (argumentsTempName) {
+      expressions.push(createAssignmentExpression(
+          createIdentifierExpression(argumentsTempName),
+          createIdentifierExpression(ARGUMENTS)));
+    }
+    if (thisTempName) {
+      expressions.push(createAssignmentExpression(
+          createIdentifierExpression(thisTempName),
+          createThisExpression()));
+    }
+
+    if (expressions.length === 0) {
+      return createParenExpression(functionExpression);
+    }
+
+    expressions.push(functionExpression);
+    return createParenExpression(createCommaExpression(expressions));
+  }
+
+  // This transforms the arrow function into:
+  //
+  //   var $tmp = this;
+  //   ...
+  //   (function() {})
+  //
+  // with a temp variable added to the top of the current function.
+  transformUsingTempVar_(tree) {
+    // TODO(arv): alphaRenameThisAndArguments is used in other places. It is
+    // possible that we run into the same issues with super() in derived
+    // constructors in those cases (that we hoist this before the super call).
+    // Come up with a better reusable way to do this.
     let alphaRenamed = alphaRenameThisAndArguments(this, tree);
     let parameterList = this.transformAny(alphaRenamed.parameterList);
 
@@ -55,6 +130,34 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
         tree.functionKind, parameterList, null, [], body);
 
     return createParenExpression(functionExpression);
+  }
+
+  transformClassExpression(tree) {
+    let inDerivedClass = this.inDerivedClass_;
+    this.inDerivedClass_ = tree.superClass !== null;
+    let result = super.transformClassExpression(tree);
+    this.inDerivedClass_ = inDerivedClass;
+    return result;
+
+  }
+
+  transformClassDeclaration(tree) {
+    let inDerivedClass = this.inDerivedClass_;
+    this.inDerivedClass_ = tree.superClass !== null;
+    let result = super.transformClassDeclaration(tree);
+    this.inDerivedClass_ = inDerivedClass;
+    return result;
+  }
+
+  transformPropertyMethodAssignment(tree) {
+    let inConstructor = this.inConstructor_;
+    this.inConstructor_ = !tree.isStatic && tree.functionKind === null &&
+        tree.name.type === LITERAL_PROPERTY_NAME &&
+        tree.name.literalToken.value === CONSTRUCTOR;
+    let result = super.transformPropertyMethodAssignment(tree);
+    this.inConstructor_ = inConstructor;
+    return result;
+
   }
 
   /**

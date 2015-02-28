@@ -16,6 +16,7 @@ import {ErrorReporter} from '../util/ErrorReporter.js';
 
 export class MultipleErrors extends Error {
   constructor(errors) {
+    super();
     this.message = errors ? errors.join('\n')  + '': '';
     this.name = errors && (errors.length > 1) ? 'MultipleErrors' : '';
     // Access for alternative formatting.

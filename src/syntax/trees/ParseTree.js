@@ -112,12 +112,9 @@ export {ParseTreeType};
  */
 export class ParseTree {
   /**
-   * @param {ParseTreeType} type
    * @param {SourceRange} location
    */
-  constructor(type, location) {
-    throw new Error("Don't use for now. 'super' is currently very slow.");
-    this.type = type;
+  constructor(location) {
     this.location = location;
   }
 

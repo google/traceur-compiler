@@ -66,6 +66,7 @@ import {
 export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
   constructor(idGenerator, requestParentLabel) {
+    super();
     this.idGenerator_ = idGenerator;
     this.inLoop_ = 0;
     this.inBreakble_ = 0;

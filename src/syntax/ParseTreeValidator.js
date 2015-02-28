@@ -125,6 +125,7 @@ non-local grammar rules, such as:
  */
 class ValidationError extends Error {
   constructor(tree, message) {
+    super();
     this.tree = tree;
     this.message = message;
   }
