@@ -145,7 +145,6 @@ function getParser(source, errorReporter) {
   // Enable internal code to always use all experimental features.
   options.experimental = true;
   let parser = new Parser(file, errorReporter, options);
-  parser.allowYield = true;
   parser.allowAwait = true;
   parser.allowForOn = true;
   return parser;
