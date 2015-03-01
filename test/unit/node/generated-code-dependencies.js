@@ -563,6 +563,21 @@ suite('context test', function() {
     });
   });
 
+  test('Instantiate output has "use strict" within System.register', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var inputFilename = './test/unit/node/resources/class.js';
+    var executable = 'node ' + resolve('src/node/command.js');
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=instantiate ' + inputFilename,
+        function (error, stdout, stderr) {
+      if (error) return done(error);
+      var fileContents = fs.readFileSync(tempFileName).toString();
+      assert.isNull(fileContents.match(/^\s*"use strict"/));
+      assert.notEqual(fileContents.indexOf('"use strict"'), -1);
+      done();
+    });
+  });
+
   test('tval uses argv', function(done) {
     var cmd = './tval test/unit/node/resources/test_tval.js --arg1 --arg2 arg3';
     exec(cmd, function(error, stdout, stderr) {
