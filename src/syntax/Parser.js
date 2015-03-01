@@ -350,6 +350,10 @@ class FunctionState {
   isArrowFunction() {
     return this.kind & FUNCTION_STATE_ARROW;
   }
+
+  isGenerator() {
+    return this.kind & FUNCTION_STATE_GENERATOR;
+  }
 }
 
 /**
@@ -402,9 +406,7 @@ export class Parser {
     this.scanner_ = new Scanner(errorReporter, file, this, options);
     this.options_ = options;
 
-    // yield is only allowed inside a generator and await and for-on are only
-    // allowed inside an async function.
-    this.allowYield = false;
+    // await and for-on are only allowed inside an async function.
     this.allowAwait = false;
     this.allowForOn = false;
 
@@ -420,8 +422,12 @@ export class Parser {
 
     this.annotations_ = [];
 
-    // TODO(arv): Use function state to track allowYield etc and strict mode.
+    // TODO(arv): Use function state to track allowAwait etc and strict mode.
     this.functionState_ = null;
+  }
+
+  get allowYield_() {
+    return this.functionState_.isGenerator();
   }
 
   // 14 Script
@@ -920,7 +926,8 @@ export class Parser {
    */
   parseStatement() {
     // Allow return.
-    let fs = this.pushFunctionState_(FUNCTION_STATE_FUNCTION);
+    let fs = this.pushFunctionState_(
+        FUNCTION_STATE_FUNCTION | FUNCTION_STATE_GENERATOR);
     let result = this.parseModuleItem_(this.peekType_());
     this.popFunctionState_(fs);
     return result;
@@ -934,7 +941,8 @@ export class Parser {
    */
   parseStatements() {
     // Allow return.
-    let fs = this.pushFunctionState_(FUNCTION_STATE_FUNCTION);
+    let fs = this.pushFunctionState_(
+        FUNCTION_STATE_FUNCTION | FUNCTION_STATE_GENERATOR);
     let result = this.parseModuleItemList_();
     this.popFunctionState_(fs);
     return result;
@@ -1171,13 +1179,10 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
-    let allowYield = this.allowYield;
     let allowAwait = this.allowAwait;
     let allowForOn = this.allowForOn;
     let strictMode = this.strictMode_;
 
-    this.allowYield = functionKind && (functionKind.type === STAR ||
-        functionKind.type === IDENTIFIER && functionKind.value === ASYNC_STAR);
     this.allowAwait = this.allowForOn = functionKind && (
         functionKind.type === IDENTIFIER && (
             functionKind.value === ASYNC || functionKind.value === ASYNC_STAR));
@@ -1188,7 +1193,6 @@ export class Parser {
       StrictParams.visit(params, this.errorReporter_);
 
     this.strictMode_ = strictMode;
-    this.allowYield = allowYield;
     this.allowAwait = allowAwait;
     this.allowForOn = allowForOn;
 
@@ -1357,7 +1361,7 @@ export class Parser {
       expression = new IdentifierExpression(this.getTreeLocation_(start),
                                             asyncToken);
     } else {
-      expression = this.parseExpression();
+      expression = this.parseExpression_();
     }
 
     if (expression.type === IDENTIFIER_EXPRESSION) {
@@ -1383,7 +1387,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(IF);
     this.eat_(OPEN_PAREN);
-    let condition = this.parseExpression();
+    let condition = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let ifClause = this.parseStatement_();
     let elseClause = null;
@@ -1406,7 +1410,7 @@ export class Parser {
     let body = this.parseStatement_();
     this.eat_(WHILE);
     this.eat_(OPEN_PAREN);
-    let condition = this.parseExpression();
+    let condition = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     this.eatPossibleImplicitSemiColon_();
     return new DoWhileStatement(this.getTreeLocation_(start), body, condition);
@@ -1421,7 +1425,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(WHILE);
     this.eat_(OPEN_PAREN);
-    let condition = this.parseExpression();
+    let condition = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
     return new WhileStatement(this.getTreeLocation_(start), condition, body);
@@ -1505,7 +1509,7 @@ export class Parser {
    */
   parseForOfStatement_(start, initializer) {
     this.eatId_(); // of
-    let collection = this.parseExpression();
+    let collection = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
     return new ForOfStatement(this.getTreeLocation_(start), initializer,
@@ -1522,7 +1526,7 @@ export class Parser {
    */
   parseForOnStatement_(start, initializer) {
     this.eatId_(); // on
-    let observable = this.parseExpression();
+    let observable = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
     return new ForOnStatement(this.getTreeLocation_(start), initializer,
@@ -1593,13 +1597,13 @@ export class Parser {
 
     let condition = null;
     if (!this.peek_(SEMI_COLON)) {
-      condition = this.parseExpression();
+      condition = this.parseExpression_();
     }
     this.eat_(SEMI_COLON);
 
     let increment = null;
     if (!this.peek_(CLOSE_PAREN)) {
-      increment = this.parseExpression();
+      increment = this.parseExpression_();
     }
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
@@ -1616,7 +1620,7 @@ export class Parser {
    */
   parseForInStatement_(start, initializer) {
     this.eat_(IN);
-    let collection = this.parseExpression();
+    let collection = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
     return new ForInStatement(this.getTreeLocation_(start), initializer,
@@ -1668,7 +1672,7 @@ export class Parser {
     this.eat_(RETURN);
     let expression = null;
     if (!this.peekImplicitSemiColon_(this.peekType_())) {
-      expression = this.parseExpression();
+      expression = this.parseExpression_();
     }
     this.eatPossibleImplicitSemiColon_();
     return new ReturnStatement(this.getTreeLocation_(start), expression);
@@ -1706,7 +1710,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(WITH);
     this.eat_(OPEN_PAREN);
-    let expression = this.parseExpression();
+    let expression = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     let body = this.parseStatement_();
     return new WithStatement(this.getTreeLocation_(start), expression, body);
@@ -1721,7 +1725,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(SWITCH);
     this.eat_(OPEN_PAREN);
-    let expression = this.parseExpression();
+    let expression = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     this.eat_(OPEN_CURLY);
     let caseClauses = this.parseCaseClauses_();
@@ -1742,7 +1746,7 @@ export class Parser {
       switch (this.peekType_()) {
         case CASE:
           this.nextToken_();
-          let expression = this.parseExpression();
+          let expression = this.parseExpression_();
           this.eat_(COLON);
           let statements = this.parseCaseStatementsOpt_();
           result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
@@ -1792,7 +1796,7 @@ export class Parser {
     this.eat_(THROW);
     let value = null;
     if (!this.peekImplicitSemiColon_(this.peekType_())) {
-      value = this.parseExpression();
+      value = this.parseExpression_();
     }
     this.eatPossibleImplicitSemiColon_();
     return new ThrowStatement(this.getTreeLocation_(start), value);
@@ -2171,7 +2175,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     let left = this.parseForBinding_();
     this.eatId_(OF);
-    let iterator = this.parseExpression();
+    let iterator = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     return new ComprehensionFor(this.getTreeLocation_(start), left, iterator);
   }
@@ -2180,7 +2184,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(IF);
     this.eat_(OPEN_PAREN);
-    let expression = this.parseExpression();
+    let expression = this.parseExpression_();
     this.eat_(CLOSE_PAREN);
     return new ComprehensionIf(this.getTreeLocation_(start), expression);
   }
@@ -2196,7 +2200,7 @@ export class Parser {
 
     this.eat_(OPEN_CURLY);
     while (this.peekPropertyDefinition_(this.peekType_())) {
-      let propertyDefinition = this.parsePropertyDefinition();
+      let propertyDefinition = this.parsePropertyDefinition_();
       result.push(propertyDefinition);
       if (!this.eatIf_(COMMA))
         break;
@@ -2213,6 +2217,12 @@ export class Parser {
    *   MethodDefinition
    */
   parsePropertyDefinition() {
+    let fs = this.pushFunctionState_(FUNCTION_STATE_SCRIPT);
+    let result = this.parsePropertyDefinition_();
+    this.popFunctionState_(fs);
+    return result;
+  }
+  parsePropertyDefinition_() {
     let start = this.getTreeStartLocation_();
 
     let functionKind = null;
@@ -2382,7 +2392,7 @@ export class Parser {
     let name = this.parsePropertyName_();
     let type = this.peekType_();
 
-    // TODO(arv): Can we unify this with parsePropertyDefinition?
+    // TODO(arv): Can we unify this with parsePropertyDefinition_?
 
     if (name.type === LITERAL_PROPERTY_NAME &&
         name.literalToken.value === GET &&
@@ -2599,10 +2609,18 @@ export class Parser {
    *
    * @return {ParseTree}
    */
-  parseExpression(expressionIn = Expression.IN) {
+  parseExpression_(expressionIn = Expression.IN) {
     let coverInitializedNameCount = this.coverInitializedNameCount_;
     let expression = this.parseExpressionAllowPattern_(expressionIn);
     this.ensureNoCoverInitializedNames_(expression, coverInitializedNameCount);
+    return expression;
+  }
+
+  parseExpression() {
+    let fs = this.pushFunctionState_(FUNCTION_STATE_FUNCTION |
+        FUNCTION_STATE_GENERATOR);
+    let expression = this.parseExpression_();
+    this.popFunctionState_(fs);
     return expression;
   }
 
@@ -2651,7 +2669,7 @@ export class Parser {
    * @return {ParseTree}
    */
   parseAssignmentExpression(expressionIn = Expression.NORMAL) {
-    if (this.allowYield && this.peek_(YIELD))
+    if (this.allowYield_ && this.peek_(YIELD))
       return this.parseYieldExpression_();
 
     let start = this.getTreeStartLocation_();
@@ -3035,7 +3053,7 @@ export class Parser {
       // no newline?
 
       let operand;
-      if (this.allowYield && this.peek_(YIELD)) {
+      if (this.allowYield_ && this.peek_(YIELD)) {
         operand = this.parseYieldExpression_();
       } else {
         operand = this.parseUnaryExpression_();
@@ -3206,7 +3224,7 @@ export class Parser {
 
   parseMemberLookupExpression_(start, operand) {
     this.eat_(OPEN_SQUARE);
-    let member = this.parseExpression();
+    let member = this.parseExpression_();
     this.eat_(CLOSE_SQUARE);
     return new MemberLookupExpression(this.getTreeLocation_(start), operand,
                                       member);
@@ -3863,7 +3881,7 @@ export class Parser {
     }
 
     // `abc${
-    let expression = this.parseExpression();
+    let expression = this.parseExpression_();
     elements.push(new TemplateSubstitution(expression.location, expression));
 
     while (expression.type !== SYNTAX_ERROR_TREE) {
@@ -3875,7 +3893,7 @@ export class Parser {
       if (token.type === TEMPLATE_TAIL)
         break;
 
-      expression = this.parseExpression();
+      expression = this.parseExpression_();
       elements.push(new TemplateSubstitution(expression.location, expression));
     }
 
