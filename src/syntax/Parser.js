@@ -1098,7 +1098,7 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
 
     let typeAnnotation = this.parseTypeAnnotationOpt_();
-    let body = this.parseFunctionBody_(functionKind, parameters);
+    let body = this.parseFunctionBody_(parameters);
     return new ctor(this.getTreeLocation_(start), name, functionKind,
                     parameters, typeAnnotation, annotations, body);
   }
@@ -1189,7 +1189,7 @@ export class Parser {
    * @return {Block}
    * @private
    */
-  parseFunctionBody_(functionKind, params) {
+  parseFunctionBody_(params) {
     let start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
@@ -2379,7 +2379,7 @@ export class Parser {
     let parameterList = this.parseFormalParameters_();
     this.eat_(CLOSE_PAREN);
     let typeAnnotation = this.parseTypeAnnotationOpt_();
-    let body = this.parseFunctionBody_(functionKind, parameterList);
+    let body = this.parseFunctionBody_(parameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, functionKind, name, parameterList, typeAnnotation,
         annotations, body, null);
@@ -2447,26 +2447,24 @@ export class Parser {
   }
 
   parseGetAccessor_(start, isStatic, annotations) {
-    let functionKind = null;
     let name = this.parsePropertyName_();
     let fs = this.pushFunctionState_(FUNCTION_STATE_METHOD);
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
     let typeAnnotation = this.parseTypeAnnotationOpt_();
-    let body = this.parseFunctionBody_(functionKind, null);
+    let body = this.parseFunctionBody_(null);
     this.popFunctionState_(fs);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
                            typeAnnotation, annotations, body);
   }
 
   parseSetAccessor_(start, isStatic, annotations) {
-    let functionKind = null;
     let name = this.parsePropertyName_();
     let fs = this.pushFunctionState_(FUNCTION_STATE_METHOD);
     this.eat_(OPEN_PAREN);
     let parameterList = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
-    let body = this.parseFunctionBody_(functionKind, parameterList);
+    let body = this.parseFunctionBody_(parameterList);
     this.popFunctionState_(fs);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
                            parameterList, annotations, body);
@@ -3364,7 +3362,7 @@ export class Parser {
     }
 
     this.eat_(ARROW);
-    let body = this.parseConciseBody_(asyncToken);
+    let body = this.parseConciseBody_();
     this.popFunctionState_(fs);
     return new ArrowFunctionExpression(this.getTreeLocation_(start),
         asyncToken, formals, body);
@@ -3482,17 +3480,13 @@ export class Parser {
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
-   * @param {Token} asyncToken
    * @return {ParseTree}
    */
-  parseConciseBody_(asyncToken) {
+  parseConciseBody_() {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
-
-    // TODO(arv): Remove param asyncToken?
-
     if (this.peek_(OPEN_CURLY))
-      return this.parseFunctionBody_(asyncToken);
+      return this.parseFunctionBody_(null);
 
     return this.parseAssignmentExpression_();
   }
