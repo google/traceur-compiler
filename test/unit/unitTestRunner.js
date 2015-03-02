@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* @fileoverview Configure mocha for Traceur testing. */
+import {TraceurTestRunner} from '../modular/TraceurTestRunner.js';
 
-import {Mocha6} from './Mocha6.js';
-
-export var testRunner = new Mocha6({
-  ui: 'tdd',
-  ignoreLeaks: true,
-  importMetadata: {
-    traceurOptions: {
-      sourceMaps: 'memory'
-    }
-  }
+export var unitTestRunner = new TraceurTestRunner({
+	patterns: [
+    'test/unit/util/*.js',
+    'test/unit/syntax/*.js',
+    'test/unit/codegeneration/*.js',
+    'test/unit/semantics/*.js',
+    'test/unit/tools/*.js',
+    'test/unit/runtime/*.js',
+    'test/unit/system/*.js',
+    'test/unit/node/*.js',
+    'test/unit/*.js'
+  ]
 });
 
-var context = testRunner.getContext();
+var context = unitTestRunner.getContext();
 
 export var suite = context.suite;
 export var test = context.test;
@@ -35,6 +37,7 @@ export var teardown = context.teardown;
 
 var chai = require('chai');
 export var assert = chai.assert;
+export var AssertionError = chai.AssertionError;
 
 export function assertArrayEquals(expected, actual) {
   assert.equal(JSON.stringify(actual, null, 2),

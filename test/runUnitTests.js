@@ -1,4 +1,4 @@
-// Copyright 2011 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+/* @fileoverview Configure mocha and run the test list */
 
-suite('ParseTreeValidator.js', function() {
+import {unitTestRunner} from './unit/unitTestRunner.js';
 
-  var ParseTreeValidator =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-
-  test('Validate null', function() {
-    ParseTreeValidator.validate(null);
-  });
-
-});
+unitTestRunner.parseOptionsAndRun();
