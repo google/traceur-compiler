@@ -7,4 +7,4 @@ class StaticGetter {
 }
 
 assertArrayEquals([new Anno],
-    Object.getOwnPropertyDescriptor(StaticGetter, 'prop').get.annotations);
+    Object.getOwnPropertyDescriptor(StaticGetter, 'prop').get.annotate);

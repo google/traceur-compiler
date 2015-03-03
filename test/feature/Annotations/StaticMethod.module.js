@@ -6,5 +6,5 @@ class StaticMethod {
   static method(@Anno x) {}
 }
 
-assertArrayEquals([new Anno], StaticMethod.method.annotations);
+assertArrayEquals([new Anno], StaticMethod.method.annotate);
 assertArrayEquals([[new Anno]], StaticMethod.method.parameters);

@@ -8,5 +8,5 @@ class C {
   xyz() { return 1; }
 }
 
-assertArrayEquals([new Anno('x y z')], C.prototype['x y z'].annotations);
-assertArrayEquals([new Anno('xyz')], C.prototype.xyz.annotations);
+assertArrayEquals([new Anno('x y z')], C.prototype['x y z'].annotate);
+assertArrayEquals([new Anno('xyz')], C.prototype.xyz.annotate);

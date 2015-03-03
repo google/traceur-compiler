@@ -1,4 +1,3 @@
-
 var traceurSystem = global.System;
 var System = require('../third_party/es6-module-loader/index').System;
 global.System = traceurSystem;
@@ -43,8 +42,8 @@ suite('instantiate', function() {
   test('Circular annotations', function(done) {
     System.import('./circular_annotation1.js').then(function(m1) {
       System.import('./circular_annotation2.js').then(function(m2) {
-        assert.instanceOf(m1.BarAnnotation.annotations[0], m2.FooAnnotation);
-        assert.instanceOf(m2.FooAnnotation.annotations[0], m1.BarAnnotation);
+        assert.instanceOf(m1.BarAnnotation.annotate[0], m2.FooAnnotation);
+        assert.instanceOf(m2.FooAnnotation.annotate[0], m1.BarAnnotation);
         done();
       }).catch(done);
     }).catch(done);

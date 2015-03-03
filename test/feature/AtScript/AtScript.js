@@ -13,5 +13,5 @@ class Foo {
 
 var foo = new Foo(new Bar());
 
-assertArrayEquals([new Inject], Foo.annotations);
+assertArrayEquals([new Inject], Foo.annotate);
 assertArrayEquals([[Bar]], Foo.parameters);

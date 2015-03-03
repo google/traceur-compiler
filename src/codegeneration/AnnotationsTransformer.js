@@ -294,7 +294,7 @@ class AnnotationsScope {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
         metadataStatements.push(this.createDefinePropertyStatement_(target,
-            'annotations', createArrayLiteralExpression(annotations)));
+            'annotate', createArrayLiteralExpression(annotations)));
       }
     }
 

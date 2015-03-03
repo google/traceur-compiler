@@ -8,5 +8,4 @@ import {
 @Anno2('val')
 function Multi() {}
 
-assertArrayEquals([new Anno, new Anno2('val')], Multi.annotations);
-
+assertArrayEquals([new Anno, new Anno2('val')], Multi.annotate);

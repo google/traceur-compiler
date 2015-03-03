@@ -13,15 +13,14 @@ class AnnotatedClass {
   set prop(x) {}
 }
 
-assertArrayEquals([new Anno], AnnotatedClass.annotations);
+assertArrayEquals([new Anno], AnnotatedClass.annotate);
 assertArrayEquals([new Anno],
-    AnnotatedClass.prototype.annotatedMethod.annotations);
+    AnnotatedClass.prototype.annotatedMethod.annotate);
 
 assertArrayEquals([new Anno],
     Object.getOwnPropertyDescriptor(AnnotatedClass.prototype, 'prop').
-        get.annotations);
+        get.annotate);
 
 assertArrayEquals([new Anno],
     Object.getOwnPropertyDescriptor(AnnotatedClass.prototype, 'prop').
-        set.annotations);
-
+        set.annotate);

@@ -13,6 +13,6 @@ class AnnotatedClass {
 }
 
 assertArrayEquals([new Anno],
-    AnnotatedClass.prototype.generate.annotations);
+    AnnotatedClass.prototype.generate.annotate);
 assertArrayEquals([new Anno2],
-    AnnotatedClass.staticGenerate.annotations);
+    AnnotatedClass.staticGenerate.annotate);
