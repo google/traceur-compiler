@@ -15,7 +15,7 @@
 /* @fileoverview Configure mocha for Traceur testing. */
 
 import {Mocha6} from './Mocha6.js';
-let commander = require('commander');
+let {Command} = require('commander');
 let glob = require('glob');
 
 export class TraceurTestRunner extends Mocha6 {
@@ -41,13 +41,13 @@ export class TraceurTestRunner extends Mocha6 {
   parseCommandLine() {
     let testOptions = this.defaultOptions();
     let commandLine =
-        new commander.Command(process.argv[0] + ' ' + process.argv[1]);
+        new Command(process.argv[0] + ' ' + process.argv[1]);
 
-    Object.getOwnPropertyNames(testOptions).forEach( (prop) => {
+    Object.getOwnPropertyNames(testOptions).forEach((prop) => {
       commandLine[prop] = testOptions[prop];
     });
 
-    commandLine.option('-?, --help', 'Show this help text', () =>{
+    commandLine.option('-?, --help', 'Show this help text', () => {
       commandLine.help();
     }).usage('[options] [files]')
 

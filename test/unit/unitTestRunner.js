@@ -15,7 +15,7 @@
 import {TraceurTestRunner} from '../modular/TraceurTestRunner.js';
 
 export var unitTestRunner = new TraceurTestRunner({
-	patterns: [
+  patterns: [
     'test/unit/util/*.js',
     'test/unit/syntax/*.js',
     'test/unit/codegeneration/*.js',
