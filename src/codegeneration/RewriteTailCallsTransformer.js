@@ -22,6 +22,7 @@ import {
 
 export class RewriteTailCallsTransformer extends ParseTreeTransformer {
   constructor(bodyTransformer) {
+    super();
     this.bodyTransformer_ = bodyTransformer;
   }
 

@@ -482,7 +482,7 @@ suite('context test', function() {
     var outDir = './test/unit/node/out/compile-amd';
     var cmd = executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=amd';
     exec(cmd, function(error, stdout, stderr) {
-      assert.isNull(error);
+      if (error) return done(error);
       checkFile(outDir, goldenDir, 'file.js');
       checkFile(outDir, goldenDir, 'dep.js');
       done();
@@ -495,7 +495,7 @@ suite('context test', function() {
     var goldenDir = './test/unit/node/resources/golden-cjs';
     var outDir = './test/unit/node/out/compile-cjs';
     exec(executable + ' --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs', function(error, stdout, stderr) {
-      assert.isNull(error);
+      if (error) return done(error);
       checkFile(outDir, goldenDir, 'file.js');
       checkFile(outDir, goldenDir, 'dep.js');
       done();
@@ -509,8 +509,7 @@ suite('context test', function() {
 
     exec(executable + ' --out ' + tempFileName + ' ' + inputFilename,
       function(error, stdout, stderr) {
-        assert.isNull(error);
-        done();
+        done(error);
       });
   });
 
@@ -521,7 +520,7 @@ suite('context test', function() {
 
     exec(executable + ' --out ' + tempFileName + ' ' + inputFilename,
       function(error, stdout, stderr) {
-        assert.isNull(error);
+        if (error) return done(error);
         executeFileWithRuntime(tempFileName).then(function() {
           assert.equal(global.someResult, 42);
           assert.equal(global.anotherResult, 17);
@@ -554,11 +553,26 @@ suite('context test', function() {
     var outDir = './test/unit/node/out/compile-cjs-maps';
     var cmd = executable + ' --source-maps=file --dir ' + inputDir + ' ' + outDir + ' --modules=commonjs';
     exec(cmd, function(error, stdout, stderr) {
-      assert.isNull(error);
+      if (error) return done(error);
       var fileMapContents = fs.readFileSync(path.resolve(outDir, 'file.js.map'));
       var depMapContents = fs.readFileSync(path.resolve(outDir, 'dep.js.map'));
       assert(fileMapContents + '');
       assert(depMapContents + '')
+      done();
+    });
+  });
+
+  test('Instantiate output has "use strict" within System.register', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var inputFilename = './test/unit/node/resources/class.js';
+    var executable = 'node ' + resolve('src/node/command.js');
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=instantiate ' + inputFilename,
+        function (error, stdout, stderr) {
+      if (error) return done(error);
+      var fileContents = fs.readFileSync(tempFileName).toString();
+      assert.isNull(fileContents.match(/^\s*"use strict"/));
+      assert.notEqual(fileContents.indexOf('"use strict"'), -1);
       done();
     });
   });

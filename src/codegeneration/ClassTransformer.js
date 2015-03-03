@@ -450,39 +450,31 @@ export class ClassTransformer extends TempVarTransformer {
                                   constructorParams, null, [], constructorBody);
   }
 
+  /**
+   *  Appends assignment to this for the member variables after the super call.
+   */
   appendInstanceInitializers_(constructor, initStatements, superClass) {
+    if (initStatements.length === 0) return constructor;
+
     let statements = constructor.body.statements;
 
     if (superClass) {
       let superExpressionIndex = -1;
 
-      for (let index = 0; index < statements.length; index++) {
-        let statement = statements[index];
+      for (let i = 0; i < statements.length; i++) {
+        let statement = statements[i];
         if (statement.isDirectivePrologue()) {
           continue;
         }
         if (isSuper(statement)) {
-          superExpressionIndex = index;
+          superExpressionIndex = i;
           break;
-        }
-        if (initStatements.length > 0) {
-          this.reporter_.reportError(statement.location.start,
-              'The first statement of the constructor must be a super ' +
-              'call when the memberVariables option is enabled and the ' +
-              'class contains initialized instance variables');
         }
       }
 
-      if (superExpressionIndex === -1) {
-        this.reporter_.reportError(constructor.location.start,
-            'Constructors of derived class must contain a super call ' +
-            'when the memberVariables option is enabled');
-      }
-      if (initStatements.length === 0) return constructor;
       statements = statements.slice();
       statements.splice(superExpressionIndex + 1, 0, ...initStatements);
     } else {
-      if (initStatements.length === 0) return constructor;
       statements = prependStatements(statements, ...initStatements);
     }
 

@@ -224,7 +224,16 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     return tree.moduleName;
   }
 
+  // module prolog is moved inside System.register
+  moduleProlog() {
+    return [];
+  }
+
   wrapModule(statements) {
+    let prolog = super.moduleProlog();
+
+    statements = prolog.concat(statements);
+
     if (this.moduleName) {
       return parseStatements
         `System.register(${this.moduleName}, ${this.dependencies}, function($__export) {

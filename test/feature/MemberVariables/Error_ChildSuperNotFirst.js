@@ -1,5 +1,5 @@
 // Options: --member-variables --types
-// Error: :10:5: The first statement of the constructor must be a super call
+// Error: :10:5: 'this' is not allowed before super()
 
 class A {
 }

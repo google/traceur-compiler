@@ -2,8 +2,9 @@ export class Foo {
 };
 
 export class Bar extends Foo {
-    constructor() {
-    }
+  constructor() {
+    super();
+  }
 };
 
 export var test = new Bar();

@@ -345,6 +345,16 @@ export class Options {
     this.inputSourceMap = false;
     this.typeAssertionModule = null;
   }
+
+  static listUnknownOptions(obj) {
+    let unknowns = [];
+    Object.keys(obj).forEach((propName) => {
+      if (!(propName in optionsV01)) {
+        unknowns.push(propName);
+      }
+    });
+    return unknowns;
+  }
   /**
    * Sets the options based on an object.
    */

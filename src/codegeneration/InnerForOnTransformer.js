@@ -51,6 +51,7 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
   // into an abstract base class.
 
   constructor(tempIdGenerator, labelSet) {
+    super();
     this.idGenerator_ = tempIdGenerator;
     this.inLoop_ = 0;
     this.inBreakble_ = 0;

@@ -3,7 +3,9 @@ class ConstructorMember {
 }
 
 class DerivedConstructorMember extends ConstructorMember {
-  constructor() {}
+  constructor() {
+    super();
+  }
 }
 
 // ----------------------------------------------------------------------------

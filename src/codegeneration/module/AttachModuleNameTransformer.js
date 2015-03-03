@@ -31,6 +31,7 @@ export class AttachModuleNameTransformer extends ParseTreeTransformer {
    * @param {SourceFile} file
    */
   constructor(moduleName) {
+    super();
     this.moduleName_ = moduleName;
   }
 

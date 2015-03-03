@@ -42,6 +42,7 @@ function mapToValues(map) {
 
 class LoaderError extends Error {
   constructor(msg, tree) {
+    super();
     this.message = msg;
     this.tree = tree;
     this.name = 'LoaderError';
@@ -228,7 +229,15 @@ export class InternalLoader {
   }
 
   defaultMetadata_(metadata = {}) {
-    metadata.traceurOptions = metadata.traceurOptions || new Options();
+    let incoming = metadata.traceurOptions;
+    if (incoming  && !(incoming instanceof Options)) {
+      var unknown = Options.listUnknownOptions(incoming);
+      if (unknown.length) {
+        console.warn('Unknown metadata.traceurOptions ignored: ' +
+            unknown.join(','));
+      }
+    }
+    metadata.traceurOptions = incoming || new Options();
     return metadata;
   }
 

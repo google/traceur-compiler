@@ -13,9 +13,9 @@ class SuperDerived extends SuperBase {
   superM() { return super.m(); }
   superX() { return super.x; }
   constructor() {
+    super();
     this.x = 10;
     this.derC = 3;
-    super();
   }
 }
 
@@ -24,8 +24,8 @@ class SuperDerived extends SuperBase {
 var obj = new SuperDerived();
 assert.equal(41, obj.m());
 assert.equal(40, obj.superM());
-assert.equal(4, obj.baseX);
-assert.equal(4, obj.x);
-assert.equal(4, obj.superX());
+assert.equal(10, obj.baseX);
+assert.equal(10, obj.x);
+assert.equal(10, obj.superX());
 assert.equal(2, obj.baseC);
 assert.equal(3, obj.derC);
