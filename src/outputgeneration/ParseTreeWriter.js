@@ -104,8 +104,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   /**
    * @param {{prettyPrint: boolean=}} options
    */
-  constructor({prettyPrint = true} = {}) {
+  constructor(options = {}) {
     super();
+    let { prettyPrint = true } = options;
+    this.options_ = options;
     this.prettyPrint_ = prettyPrint;
     this.result_ = '';
     this.currentLine_ = '';
@@ -1137,6 +1139,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {PropertyVariableDeclaration} tree
    */
   visitPropertyVariableDeclaration(tree) {
+    if (this.options_.outputLanguage === 'es6') return;
     this.writeAnnotations_(tree.annotations);
     if (tree.isStatic) {
       this.write_(STATIC);
