@@ -1,9 +1,9 @@
 tools/gulp
 
 ./modularTests.js
-  Applies testRunner.js to tests.js
+  Applies unitTests.js to tests.js
 
-./testRunner.js
+./unitTests.js
   Configures Mocha6 to run Tracuer tests.
 
 ./tests.js

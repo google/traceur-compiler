@@ -90,7 +90,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js \
-		$(UNIT_TESTS) \
+		test/unit \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
@@ -99,11 +99,8 @@ test: test/test-list.js bin/traceur.js \
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
-test/unit/util/: bin/traceur.js bin/traceur-runtime.js
-	./tval test/traceurTests.js
-
 test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
-	./tval test/traceurTests.js
+	./tval test/runUnitTests.js
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<

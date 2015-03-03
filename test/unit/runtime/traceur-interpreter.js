@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../modular/testRunner.js';
+import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
 suite('interpreter', function(){
 
