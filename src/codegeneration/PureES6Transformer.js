@@ -17,6 +17,7 @@ import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
+import {ES6ClassTransformer} from './ES6ClassTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker.js';
@@ -56,6 +57,9 @@ export class PureES6Transformer extends MultiTransformer {
       // sense when the type assertions are enabled.
       if (options.memberVariables) append(MemberVariableTransformer);
       append(TypeAssertionTransformer);
+    }
+    if (options.memberVariables) {
+      append(ES6ClassTransformer);
     }
     append(AnnotationsTransformer);
     append(TypeTransformer);
