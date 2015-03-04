@@ -112,7 +112,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(AnnotationsTransformer);
 
     if (options.typeAssertions) {
-      // Transforming member variabless to getters/setters only make
+      // Transforming member variables to getters/setters only make
       // sense when the type assertions are enabled.
       if (transformOptions.memberVariables) append(MemberVariableTransformer);
       append(TypeAssertionTransformer);

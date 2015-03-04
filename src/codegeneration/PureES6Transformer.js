@@ -52,7 +52,7 @@ export class PureES6Transformer extends MultiTransformer {
     }
 
     if (options.typeAssertions) {
-      // Transforming member variabless to getters/setters only make
+      // Transforming member variables to getters/setters only make
       // sense when the type assertions are enabled.
       if (options.memberVariables) append(MemberVariableTransformer);
       append(TypeAssertionTransformer);

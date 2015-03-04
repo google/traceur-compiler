@@ -65,8 +65,8 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     return this.transformUsingTempVar_(tree);
   }
 
-  // Transforms the arrow function using a comman expression to avoid needing to
-  // read this earlier in the funciton.
+  // Transforms the arrow function using a comma expression to avoid needing to
+  // read this earlier in the function.
   //
   //   ($tmp = this, function() {})
   transformUsingCommaExpression_(tree) {
