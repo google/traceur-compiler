@@ -31,6 +31,7 @@ export const CREATE = 'create';
 export const CURRENT = 'current';
 export const DEFINE_PROPERTY = 'defineProperty';
 export const ENUMERABLE = 'enumerable';
+export const EVAL = 'eval';
 export const FREEZE = 'freeze';
 export const FROM = 'from';
 export const FUNCTION = 'Function';

@@ -36,6 +36,7 @@ import {
   ASYNC_STAR,
   AWAIT,
   CONSTRUCTOR,
+  EVAL,
   FROM,
   GET,
   OF,
@@ -3297,6 +3298,11 @@ export class Parser {
   }
 
   parseCallExpression_(start, operand) {
+    if (this.isStrongMode_() && operand.type === IDENTIFIER_EXPRESSION &&
+        operand.identifierToken.value === EVAL) {
+      this.reportError_(operand.location,
+                        'Direct eval is not allowed in strong mode');
+    }
     let args = this.parseArguments_();
     return new CallExpression(this.getTreeLocation_(start), operand, args);
   }
