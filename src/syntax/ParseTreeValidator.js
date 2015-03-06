@@ -416,7 +416,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitCommaExpression(tree) {
     for (let i = 0; i < tree.expressions.length; i++) {
       let expression = tree.expressions[i];
-      this.checkVisit_(expression.isAssignmentExpression(), expression,
+      this.checkVisit_(expression.isExpression(), expression,
           'expression expected');
     }
   }
