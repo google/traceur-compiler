@@ -44,6 +44,22 @@ export function hasUseStrict(list) {
 }
 
 /**
+ * @param {Array<ParseTree>} list
+ * @return {boolean}
+ */
+export function hasUseStrong(list) {
+  for (let i = 0; i < list.length; i++) {
+    if (!list[i].isDirectivePrologue()) {
+      return false;
+    }
+    if (list[i].isUseStrongDirective()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * @param {ParseTree} tree
  * @return {boolean}
  */

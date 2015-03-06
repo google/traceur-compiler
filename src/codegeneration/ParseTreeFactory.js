@@ -745,6 +745,13 @@ export function createUseStrictDirective() {
 }
 
 /**
+ * @return {ParseTree}
+ */
+export function createUseStrongDirective() {
+  return createExpressionStatement(createStringLiteral('use strong'));
+}
+
+/**
  * @param {TokenType} binding
  * @param {IdentifierToken|Array.<VariableDeclaration>} identifierOrDeclarations
  * @param {ParseTree=} initializer
