@@ -15,7 +15,9 @@
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Loader} from '../runtime/Loader.js';
 import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {NodeLoaderCompiler} from '../node/NodeLoaderCompiler.js';
 import {systemjs} from '../runtime/system-map.js';
+import {webLoader} from './webLoader.js';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));
 var uniqueNameCount = 0;
@@ -298,6 +300,18 @@ export class TraceurLoader extends Loader {
     if (lastSlash === 0)
       return '/';
     return filename.slice(0, lastSlash);
+  }
+
+  static createLoader() {
+    if (typeof window !== 'undefined' && window.location) {
+      return new TraceurLoader(webLoader,
+        window.location.href, new LoaderCompiler());
+    } else {
+      let path = require('path');
+      let fileloader = require('../node/nodeLoader.js');
+      let url = (path.resolve('./') + '/').replace(/\\/g, '/');
+      return new TraceurLoader(fileloader, url, new NodeLoaderCompiler());
+    }
   }
 
 }
