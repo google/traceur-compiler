@@ -41,6 +41,7 @@ import {
   createCallExpression,
   createIdentifierExpression,
   createOperatorToken,
+  createParenExpression,
   createStringLiteral
 } from './ParseTreeFactory.js';
 import {parseExpression} from './PlaceholderParser.js';
@@ -231,10 +232,11 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
           case SLASH:
             return transformedTree;
         }
-        // Fall through.
+        return createParenExpression(transformedTree);
+
       case COMMA_EXPRESSION:
       case CONDITIONAL_EXPRESSION:
-        return new ParenExpression(null, transformedTree);
+        return createParenExpression(transformedTree);
     }
 
     return transformedTree;

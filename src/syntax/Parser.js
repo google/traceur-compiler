@@ -19,15 +19,23 @@ import {IdentifierToken} from './IdentifierToken.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINDING_IDENTIFIER,
+  BLOCK,
+  BREAK_STATEMENT,
   CALL_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
+  CONTINUE_STATEMENT,
   COVER_FORMALS,
+  DEFAULT_CLAUSE,
   FORMAL_PARAMETER_LIST,
   IDENTIFIER_EXPRESSION,
+  IF_STATEMENT,
   LITERAL_PROPERTY_NAME,
   OBJECT_LITERAL_EXPRESSION,
   REST_PARAMETER,
-  SYNTAX_ERROR_TREE
+  RETURN_STATEMENT,
+  SWITCH_STATEMENT,
+  SYNTAX_ERROR_TREE,
+  THROW_STATEMENT,
 } from './trees/ParseTreeType.js';
 import {Options} from '../Options.js';
 import {
@@ -706,10 +714,11 @@ export class Parser {
     switch (type) {
       case CONST:
       case LET:
-        if (!this.options_.blockBinding) {
-          return this.parseUnexpectedToken_(type);
+        if (this.options_.blockBinding) {
+          exportTree = this.parseVariableStatement_();
+          break;
         }
-        // Fall through.
+        return this.parseUnexpectedToken_(type);
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -732,7 +741,7 @@ export class Parser {
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
           break;
         }
-        // Fall through.
+        return this.parseUnexpectedToken_(type);
       default:
         return this.parseUnexpectedToken_(type);
     }
@@ -746,7 +755,7 @@ export class Parser {
     this.eat_(DEFAULT);
     let exportValue;
     switch (this.peekType_()) {
-      case FUNCTION:
+      case FUNCTION: {
         // Use FunctionExpression as a cover grammar. If it has a name it is
         // treated as a declaration.
         let tree = this.parseFunctionExpression_();
@@ -758,20 +767,23 @@ export class Parser {
         }
         exportValue = tree;
         break;
-      case CLASS:
-        if (this.options_.classes) {
-          // Use ClassExpression as a cover grammar. If it has a name it is
-          // treated as a declaration.
-          let tree = this.parseClassExpression_();
-          if (tree.name) {
-            tree = new ClassDeclaration(tree.location, tree.name,
-                                        tree.superClass, tree.elements,
-                                        tree.annotations);
-          }
-          exportValue = tree;
-          break;
+      }
+      case CLASS: {
+        if (!this.options_.classes) {
+          return this.parseSyntaxError_('Unexpected reserved word');
         }
-        // Fall through.
+
+        // Use ClassExpression as a cover grammar. If it has a name it is
+        // treated as a declaration.
+        let tree = this.parseClassExpression_();
+        if (tree.name) {
+          tree = new ClassDeclaration(tree.location, tree.name,
+                                      tree.superClass, tree.elements,
+                                      tree.annotations);
+        }
+        exportValue = tree;
+        break;
+      }
       default:
         exportValue = this.parseAssignmentExpression_();
         this.eatPossibleImplicitSemiColon_();
@@ -1020,9 +1032,10 @@ export class Parser {
         return this.parseReturnStatement_();
       case CONST:
       case LET:
-        if (!this.options_.blockBinding)
-          break;
-        // Fall through.
+        if (this.options_.blockBinding) {
+          return this.parseVariableStatement_();
+        }
+        break;
       case VAR:
         return this.parseVariableStatement_();
       case IF:
@@ -1786,7 +1799,8 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     let caseClauses = this.parseCaseClauses_();
     this.eat_(CLOSE_CURLY);
-    return new SwitchStatement(this.getTreeLocation_(start), expression, caseClauses);
+    return new SwitchStatement(
+        this.getTreeLocation_(start), expression, caseClauses);
   }
 
   /**
@@ -1795,32 +1809,111 @@ export class Parser {
    */
   parseCaseClauses_() {
     let foundDefaultClause = false;
-    let result = [];
+    let clauses = [];
 
-    while (true) {
+    loop: while (true) {
       let start = this.getTreeStartLocation_();
       switch (this.peekType_()) {
-        case CASE:
+        case CASE: {
           this.nextToken_();
           let expression = this.parseExpression_();
           this.eat_(COLON);
           let statements = this.parseCaseStatementsOpt_();
-          result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
+          clauses.push(new CaseClause(this.getTreeLocation_(start),
+                                      expression, statements));
           break;
-        case DEFAULT:
+        }
+        case DEFAULT: {
           if (foundDefaultClause) {
-            this.reportError_('Switch statements may have at most one default clause');
+            this.reportError_(
+                'Switch statements may have at most one default clause');
           } else {
             foundDefaultClause = true;
           }
           this.nextToken_();
           this.eat_(COLON);
-          result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
+          let statements = this.parseCaseStatementsOpt_();
+          clauses.push(
+              new DefaultClause(this.getTreeLocation_(start), statements));
           break;
+        }
         default:
-          return result;
+          break loop;
       }
     }
+
+    if (clauses.length <= 1 || !this.isStrongMode_()) {
+      return clauses;
+    }
+
+    // Strong mode - All but last clause must end with break, continue,
+    // return or throw.
+
+    function isValid(tree, breakOk) {
+      switch (tree.type) {
+        case BREAK_STATEMENT:
+          // TODO(arv): break label should be sufficient depending on the label.
+          return breakOk;
+        case RETURN_STATEMENT:
+        case THROW_STATEMENT:
+        case CONTINUE_STATEMENT:
+          return true;
+        case IF_STATEMENT:
+          return isValid(tree.ifClause, breakOk) &&
+                 tree.elseClause !== null && isValid(tree.elseClause, breakOk);
+        case BLOCK:
+          return tree.statements.length > 0 &&
+              isValid(tree.statements[tree.statements.length - 1], breakOk);
+        case SWITCH_STATEMENT: {
+          // Last statement is a switch. All branches must exit. There must be
+          // a default too.
+          let clauses = tree.caseClauses;
+          if (clauses.length === 0) {
+            return false;
+          }
+          let foundDefaultClause = false;
+          let foundExit = false;
+          for (let i = 0; i < clauses.length; i++) {
+            let clause = clauses[i];
+            if (clause.type === DEFAULT_CLAUSE) {
+              foundDefaultClause = true;  // Duplicate default already handled.
+            }
+            let statements = clause.statements;
+            if (statements.length === 0) {
+              if (i === clauses.length - 1) {
+                // Last clause is not allowed to be fall through here.
+                return false;
+              }
+              continue;
+            }
+            let lastStatement = statements[statements.length - 1];
+            if (isValid(lastStatement, false)) {  // break is not sufficient.
+              foundExit = true;
+            } else {
+              return false;
+            }
+          }
+          return foundDefaultClause && foundExit;
+        }
+        default:
+          return false;
+      }
+    }
+
+    for (let i = 0; i < clauses.length - 1; i++) {
+      let clause = clauses[i];
+      if (clause.statements.length === 0) {
+        // Empty clause is allowed.
+        continue;
+      }
+      let lastStatement = clause.statements[clause.statements.length - 1];
+      if (!isValid(lastStatement, true)) {
+        this.reportError_(clauses[i + 1].location,
+                          'Fall through is not allowed in strong mode');
+      }
+    }
+
+    return clauses;
   }
 
   /**
@@ -1984,10 +2077,10 @@ export class Parser {
       case PUBLIC:
       case STATIC:
       case YIELD:
-        if (!this.isStrictMode_())
-          return this.parseIdentifierExpression_();
-        this.reportReservedIdentifier_(this.nextToken_());
-        // Fall through.
+        if (this.isStrictMode_()) {
+          this.reportReservedIdentifier_(this.nextToken_());
+        }
+        return this.parseIdentifierExpression_();
 
       case END_OF_FILE:
         return this.parseSyntaxError_('Unexpected end of input');
@@ -3412,14 +3505,18 @@ export class Parser {
       kind |= FUNCTION_STATE_ASYNC;
     }
     let fs = this.pushFunctionState_(kind);
+    let makeFormals = (tree) => {
+      return new FormalParameterList(this.getTreeLocation_(start),
+          [new FormalParameter(tree.location,
+              new BindingElement(tree.location, tree, null), null, [])]);
+    };
     switch (tree.type) {
       case IDENTIFIER_EXPRESSION:
-        tree = new BindingIdentifier(tree.location, tree.identifierToken);
-        // Fall through.
+        formals = makeFormals(
+              new BindingIdentifier(tree.location, tree.identifierToken));
+        break;
       case BINDING_IDENTIFIER:
-        formals = new FormalParameterList(this.getTreeLocation_(start),
-            [new FormalParameter(tree.location,
-                new BindingElement(tree.location, tree, null), null, [])]);
+        formals = makeFormals(tree);
         break;
       case FORMAL_PARAMETER_LIST:
         formals = tree;

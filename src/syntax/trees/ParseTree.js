@@ -397,7 +397,6 @@ export class ParseTree {
   }
 
   isUseStrongDirective() {
-    // TODO(arv): Rename
     return this.isDirective_('strong');
   }
 
