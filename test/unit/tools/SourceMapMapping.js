@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-import {suite, test, assert} from '../../modular/testRunner.js';
+import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
 import {SourceMapConsumer}
     from '../../../src/outputgeneration/SourceMapIntegration.js';

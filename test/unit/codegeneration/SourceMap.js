@@ -17,7 +17,7 @@ import {
   test,
   assert,
   assertArrayEquals
-} from '../../modular/testRunner.js';
+} from '../../unit/unitTestRunner.js';
 
 suite('SourceMap.js', function() {
 

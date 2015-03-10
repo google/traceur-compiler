@@ -90,7 +90,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js \
-		$(UNIT_TESTS) \
+		test/unit \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
@@ -99,11 +99,8 @@ test: test/test-list.js bin/traceur.js \
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
-test/unit/util/: bin/traceur.js bin/traceur-runtime.js
-	./tval test/traceurTests.js
-
 test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
-	./tval test/traceurTests.js
+	./tval test/runUnitTests.js
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
@@ -278,7 +275,7 @@ update-version-number: npm-publish updateSemver
 	$(MAKE) clean # sync to the npm version N after update
 	$(MAKE) test  # build version N+1
 
-git-update-version: # update-version-number
+git-update-version: update-version-number
 	cat build/npm-version-number | xargs -I VERSION git commit -a -m "VERSION"
 	cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
 	git push --tags upstream upstream_master:master

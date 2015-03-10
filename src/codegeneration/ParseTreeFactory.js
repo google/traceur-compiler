@@ -673,7 +673,7 @@ export function createPropertyNameAssignment(identifier, value) {
  * @param {string} name
  * @return {LiteralPropertyName}
  */
-function createLiteralPropertyName(name) {
+export function createLiteralPropertyName(name) {
   return new LiteralPropertyName(null, createIdentifierToken(name));
 }
 
@@ -681,7 +681,7 @@ function createLiteralPropertyName(name) {
  * @param {string|IdentifierToken|BindingIdentifier} identifier
  * @return {RestParameter}
  */
-function createRestParameter(identifier) {
+export function createRestParameter(identifier) {
   return new RestParameter(null, createBindingIdentifier(identifier), null);
 }
 

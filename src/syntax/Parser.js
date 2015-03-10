@@ -332,6 +332,10 @@ const FUNCTION_STATE_DERIVED_CONSTRUCTOR = 1 << 5;
 const FUNCTION_STATE_GENERATOR = 1 << 6;
 const FUNCTION_STATE_ASYNC = 1 << 7;
 
+const FUNCTION_STATE_LENIENT =
+    FUNCTION_STATE_METHOD | FUNCTION_STATE_GENERATOR |
+    FUNCTION_STATE_ASYNC | FUNCTION_STATE_DERIVED_CONSTRUCTOR;
+
 /**
  * This is used to track the functions as the parser descends. It allows
  * us to determine if we are in a function and what kind of function it is.
@@ -972,9 +976,7 @@ export class Parser {
    */
   parseStatement() {
     // Allow return, yield and await.
-    let fs = this.pushFunctionState_(
-        FUNCTION_STATE_FUNCTION | FUNCTION_STATE_GENERATOR |
-        FUNCTION_STATE_ASYNC);
+    let fs = this.pushFunctionState_(FUNCTION_STATE_LENIENT);
     let result = this.parseModuleItem_(this.peekType_());
     this.popFunctionState_(fs);
     return result;
@@ -988,9 +990,7 @@ export class Parser {
    */
   parseStatements() {
     // Allow return, yield and await.
-    let fs = this.pushFunctionState_(
-        FUNCTION_STATE_FUNCTION | FUNCTION_STATE_GENERATOR |
-        FUNCTION_STATE_ASYNC);
+    let fs = this.pushFunctionState_(FUNCTION_STATE_LENIENT);
     let result = this.parseModuleItemList_();
     this.popFunctionState_(fs);
     return result;
@@ -2674,8 +2674,7 @@ export class Parser {
   }
 
   parseExpression() {
-    let fs = this.pushFunctionState_(FUNCTION_STATE_FUNCTION |
-        FUNCTION_STATE_GENERATOR | FUNCTION_STATE_ASYNC);
+    let fs = this.pushFunctionState_(FUNCTION_STATE_LENIENT);
     let expression = this.parseExpression_();
     this.popFunctionState_(fs);
     return expression;

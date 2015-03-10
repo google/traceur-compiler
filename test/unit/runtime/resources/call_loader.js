@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {resolveUrl} from '../../../../src/util/url.js';
-import {suite, test, assert} from '../../../modular/testRunner.js';
+import {suite, test, assert} from '../../../unit/unitTestRunner.js';
 
 
 var testScriptName = '../../unit/runtime/test_script.js';
