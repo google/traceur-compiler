@@ -102,15 +102,13 @@ traceurAPI.util.addOptions(commandLine, commandOptions);
 
 commandLine.usage('[options] [files]');
 
-commandLine.command('*').action(function() {
-    // The callback seems to receive a "command" at the end of arguments
-    for (var i = 0; i < arguments.length - 1; i++) {
-      rootSources.push({name: arguments[i], type: 'module'});
-    }
-  });
-
 commandLine.sourceMaps = false;
 commandLine.parse(process.argv);
+
+// Any remaining arguments become module inputs to compile
+commandLine.args.forEach(function(arg) {
+  rootSources.push({name: arg, type: 'module'});
+});
 
 // commanderjs sets self[name]=defaultValue if the argument is null.
 // To support --source-maps a legacy boolean we need to transfer the
