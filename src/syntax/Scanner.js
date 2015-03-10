@@ -522,22 +522,15 @@ function nextToken() {
  *     line terminator.
  */
 function peekTokenNoLineTerminator() {
+  // Search the text between lastToken and next token.
   let t = peekToken();
   let start = lastToken.location.end.offset;
   let end = t.location.start.offset;
   for (let i = start; i < end; i++) {
-    let code = input.charCodeAt(i);
-    if (isLineTerminator(code))
+    // Any newline counts; a new line inside a block comment, the new line
+    // at the end of a line comment as well as a new line as a whitespace.
+    if (isLineTerminator(input.charCodeAt(i))) {
       return null;
-
-    // If we have a block comment we need to skip it since new lines inside
-    // the comment are not significant.
-    if (code === 47) {  // '/'
-      code = input.charCodeAt(++i);
-      // End of line comments always mean a new line is present.
-      if (code === 47)  // '/'
-        return null;
-      i = input.indexOf('*/', i) + 2;
     }
   }
   return t;
