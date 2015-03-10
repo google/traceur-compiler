@@ -855,6 +855,7 @@ export class Parser {
     let superClass = null;
     if (this.eatIf_(EXTENDS)) {
       superClass = this.parseLeftHandSideExpression_();
+      superClass = this.coverFormalsToParenExpression_(superClass);
     }
     this.eat_(OPEN_CURLY);
     let elements = this.parseClassElements_(superClass);
