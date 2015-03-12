@@ -3258,6 +3258,8 @@ export class Parser {
         let args = null;
         if (this.peek_(OPEN_PAREN)) {
           args = this.parseArguments_();
+        } else if (this.peek_(NO_SUBSTITUTION_TEMPLATE) || this.peek_(TEMPLATE_HEAD)) {
+          operand = this.parseMemberExpression_();
         }
         return new NewExpression(this.getTreeLocation_(start), operand, args);
 
