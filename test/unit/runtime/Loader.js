@@ -322,4 +322,12 @@ suite('Loader.js', function() {
       }).catch(done);
   });
 
+  test('System.constructor', function() {
+    let secondaryLoader = new System.constructor();
+    var path = './test/unit/runtime/resources/test_module.js';
+    secondaryLoader.import(path).then((module) => {
+      assert(module.a);
+    });
+  });
+
 });

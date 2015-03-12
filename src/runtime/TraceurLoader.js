@@ -302,16 +302,19 @@ export class TraceurLoader extends Loader {
     return filename.slice(0, lastSlash);
   }
 
-  static createLoader() {
-    if (typeof window !== 'undefined' && window.location) {
-      return new TraceurLoader(webLoader,
-        window.location.href, new LoaderCompiler());
-    } else {
-      let path = require('path');
-      let fileloader = require('../node/nodeLoader.js');
-      let url = (path.resolve('./') + '/').replace(/\\/g, '/');
-      return new TraceurLoader(fileloader, url, new NodeLoaderCompiler());
-    }
-  }
+}
 
+export class BrowserTraceurLoader extends TraceurLoader {
+  constructor() {
+    super(webLoader, window.location.href, new LoaderCompiler());
+  }
+}
+
+export class NodeTraceurLoader extends TraceurLoader {
+  constructor() {
+    let path = require('path');
+    let fileloader = require('../node/nodeLoader.js');
+    let url = (path.resolve('./') + '/').replace(/\\/g, '/');
+    super(fileloader, url, new NodeLoaderCompiler());
+  }
 }

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TraceurLoader} from '../runtime/TraceurLoader.js';
+import {BrowserTraceurLoader} from '../runtime/TraceurLoader.js';
 
-let traceurLoader = TraceurLoader.createLoader();
+let traceurLoader = new BrowserTraceurLoader();
 
 Reflect.global.System = traceurLoader;
 
