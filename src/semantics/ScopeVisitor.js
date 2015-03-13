@@ -14,7 +14,6 @@
 
 'use strong';
 
-import {Map} from '../runtime/polyfills/Map.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {VAR} from '../syntax/TokenType.js';
 import {Scope} from './Scope.js';

@@ -198,9 +198,16 @@ bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
+STRONG_OPTIONS = --strong-mode \
+	--block-binding=parse \
+	--for-of=parse \
+	--generators=parse \
+	--numeric-literals=parse \
+	--template-literals
+
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --strong-mode --out bin/traceur.js \
+	./traceur $(STRONG_OPTIONS) --out bin/traceur.js \
 	  --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 

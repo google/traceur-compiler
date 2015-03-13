@@ -22,7 +22,6 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
-import {Map} from '../runtime/polyfills/Map.js';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
 import {Options} from '../Options.js';
 import {ParseTree} from '../syntax/trees/ParseTree.js';
