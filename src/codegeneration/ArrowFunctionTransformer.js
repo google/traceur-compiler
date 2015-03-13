@@ -89,7 +89,7 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     let functionExpression = new FunctionExpression(tree.location, null,
         tree.functionKind, parameterList, null, [], body);
 
-    var expressions = [];
+    let expressions = [];
     if (argumentsTempName) {
       expressions.push(createAssignmentExpression(
           createIdentifierExpression(argumentsTempName),

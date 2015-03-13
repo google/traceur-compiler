@@ -781,6 +781,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         case PROPERTY_METHOD_ASSIGNMENT:
           this.check_(!propertyNameAndValue.isStatic, propertyNameAndValue,
                       'static is not allowed in object literal expression');
+          break;
         case PROPERTY_NAME_ASSIGNMENT:
         case PROPERTY_NAME_SHORTHAND:
           break;

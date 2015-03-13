@@ -498,29 +498,27 @@ export class DestructuringTransformer extends TempVarTransformer {
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:
         initializer = tree.initializer;
-
-      // Paren necessary for single value case.
-      default:
-        // [1] Try first using a temporary (used later as the base rvalue).
-        desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
-        desugaring.assign(desugaring.rvalue, tree.initializer);
-        let initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
-
-        // [2] Was the temporary necessary? Then return.
-        if (initializerFound || desugaring.declarations.length > 2) {
-          return desugaring.declarations;
-        }
-
-        if (!initializer) {
-          initializer = createParenExpression(tree.initializer);
-        }
-
-        // [3] Redo everything without the temporary.
-        desugaring = new VariableDeclarationDesugaring(initializer);
-        this.desugarPattern_(desugaring, tree.lvalue);
-
-        return desugaring.declarations;
     }
+
+    // [1] Try first using a temporary (used later as the base rvalue).
+    desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
+    desugaring.assign(desugaring.rvalue, tree.initializer);
+    let initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
+
+    // [2] Was the temporary necessary? Then return.
+    if (initializerFound || desugaring.declarations.length > 2) {
+      return desugaring.declarations;
+    }
+
+    if (!initializer) {
+      initializer = createParenExpression(tree.initializer);
+    }
+
+    // [3] Redo everything without the temporary.
+    desugaring = new VariableDeclarationDesugaring(initializer);
+    this.desugarPattern_(desugaring, tree.lvalue);
+
+    return desugaring.declarations;
   }
 
   /**

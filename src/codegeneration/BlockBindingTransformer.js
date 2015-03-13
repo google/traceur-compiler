@@ -394,7 +394,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       if (origName === newName) {
         return tree;
       }
-      var newToken = new IdentifierToken(tree.location, newName);
+      let newToken = new IdentifierToken(tree.location, newName);
       let bindingIdentifier = new BindingIdentifier(tree.location, newToken);
       this.scope_.renameBinding(origName, bindingIdentifier, VAR,
                                 this.reporter_);

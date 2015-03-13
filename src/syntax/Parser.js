@@ -691,10 +691,11 @@ export class Parser {
     switch (type) {
       case CONST:
       case LET:
-        if (!this.options_.blockBinding) {
-          return this.parseUnexpectedToken_(this.peekToken_());
+        if (this.options_.blockBinding) {
+          exportTree = this.parseVariableStatement_();
+          break;
         }
-        // Fall through.
+        return this.parseUnexpectedToken_(this.peekToken_());
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -717,7 +718,7 @@ export class Parser {
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
           break;
         }
-        // Fall through.
+        return this.parseUnexpectedToken_(this.peekToken_());
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
@@ -731,7 +732,7 @@ export class Parser {
     this.eat_(DEFAULT);
     let exportValue;
     switch (this.peekType_()) {
-      case FUNCTION:
+      case FUNCTION: {
         // Use FunctionExpression as a cover grammar. If it has a name it is
         // treated as a declaration.
         let tree = this.parseFunctionExpression_();
@@ -743,20 +744,23 @@ export class Parser {
         }
         exportValue = tree;
         break;
-      case CLASS:
-        if (this.options_.classes) {
-          // Use ClassExpression as a cover grammar. If it has a name it is
-          // treated as a declaration.
-          let tree = this.parseClassExpression_();
-          if (tree.name) {
-            tree = new ClassDeclaration(tree.location, tree.name,
-                                        tree.superClass, tree.elements,
-                                        tree.annotations);
-          }
-          exportValue = tree;
-          break;
+      }
+      case CLASS: {
+        if (!this.options_.classes) {
+          return this.parseSyntaxError_('Unexpected reserved word');
         }
-        // Fall through.
+
+        // Use ClassExpression as a cover grammar. If it has a name it is
+        // treated as a declaration.
+        let tree = this.parseClassExpression_();
+        if (tree.name) {
+          tree = new ClassDeclaration(tree.location, tree.name,
+                                      tree.superClass, tree.elements,
+                                      tree.annotations);
+        }
+        exportValue = tree;
+        break;
+      }
       default:
         exportValue = this.parseAssignmentExpression_();
         this.eatPossibleImplicitSemiColon_();
@@ -1073,7 +1077,7 @@ export class Parser {
       asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
     }
     let fs = this.pushFunctionState_(kind);
-    var f = this.parseFunction2_(start, asyncToken, ctor);
+    let f = this.parseFunction2_(start, asyncToken, ctor);
     this.popFunctionState_(fs);
     return f;
   }
@@ -1962,10 +1966,10 @@ export class Parser {
       case PUBLIC:
       case STATIC:
       case YIELD:
-        if (!this.strictMode_)
-          return this.parseIdentifierExpression_();
-        this.reportReservedIdentifier_(this.nextToken_());
-        // Fall through.
+        if (this.strictMode_) {
+          this.reportReservedIdentifier_(this.nextToken_());
+        }
+        return this.parseIdentifierExpression_();
 
       case END_OF_FILE:
         return this.parseSyntaxError_('Unexpected end of input');
@@ -1985,7 +1989,7 @@ export class Parser {
   parseSuperExpression_(isNew) {
     let start = this.getTreeStartLocation_();
 
-    var fs = this.functionState_;
+    let fs = this.functionState_;
     while (fs && fs.isArrowFunction()) {
       fs = fs.outer;
     }
@@ -2121,7 +2125,6 @@ export class Parser {
    * @private
    */
   parseArrayLiteral_() {
-
     let start = this.getTreeStartLocation_();
     let expression;
     let elements = [];
@@ -3387,14 +3390,18 @@ export class Parser {
       kind |= FUNCTION_STATE_ASYNC;
     }
     let fs = this.pushFunctionState_(kind);
+    let makeFormals = (tree) => {
+      return new FormalParameterList(this.getTreeLocation_(start),
+          [new FormalParameter(tree.location,
+              new BindingElement(tree.location, tree, null), null, [])]);
+    };
     switch (tree.type) {
       case IDENTIFIER_EXPRESSION:
-        tree = new BindingIdentifier(tree.location, tree.identifierToken);
-        // Fall through.
+        formals = makeFormals(
+              new BindingIdentifier(tree.location, tree.identifierToken));
+        break;
       case BINDING_IDENTIFIER:
-        formals = new FormalParameterList(this.getTreeLocation_(start),
-            [new FormalParameter(tree.location,
-                new BindingElement(tree.location, tree, null), null, [])]);
+        formals = makeFormals(tree);
         break;
       case FORMAL_PARAMETER_LIST:
         formals = tree;

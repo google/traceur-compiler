@@ -117,7 +117,8 @@ State.generateAssignState = function(enclosingFinally, fallThroughState) {
  * @return {boolean}
  */
 State.isFinallyExit = function(enclosingFinally, destination) {
-  return enclosingFinally != null &&
+  // TODO(arv): Track down who calls this with undefined.
+  return !!enclosingFinally &&
       enclosingFinally.tryStates.indexOf(destination) < 0;
 };
 

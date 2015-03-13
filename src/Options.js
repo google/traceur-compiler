@@ -344,7 +344,7 @@ export class Options {
   }
 
   static listUnknownOptions(obj) {
-    var unknowns = [];
+    let unknowns = [];
     Object.keys(obj).forEach((propName) => {
       if (!(propName in optionsV01)) {
         unknowns.push(propName);

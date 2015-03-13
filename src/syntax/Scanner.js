@@ -442,7 +442,8 @@ function skipTemplateCharacter() {
         let code = input.charCodeAt(index + 1);
         if (code === 123)  // {
           return;
-        // Fall through.
+        next();
+        break;
       default:
         next();
     }
