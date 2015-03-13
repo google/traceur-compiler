@@ -18,11 +18,12 @@ import {
   BINARY_EXPRESSION,
   COMMA_EXPRESSION,
   CONDITIONAL_EXPRESSION,
-  TEMPLATE_LITERAL_PORTION
+  TEMPLATE_LITERAL_PORTION,
+  TEMPLATE_LITERAL_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {
   LiteralExpression,
-  ParenExpression
+  NewExpression
 } from '../syntax/trees/ParseTrees.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
@@ -201,6 +202,21 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
     return ParseTreeTransformer.prototype.transformFunctionBody.call(this, tree);
   }
 
+  transformNewExpression(tree) {
+    if (tree.operand) {
+      let operand = tree.operand;
+      do {
+        // If operand contains a tagged TemplateLiteral, parenthesize the entire
+        // operand.
+        if (operand.type === TEMPLATE_LITERAL_EXPRESSION && operand.operand !== null) {
+          tree = new NewExpression(tree.location, createParenExpression(tree.operand), tree.args);
+          break;
+        }
+      } while (operand = operand.operand);
+    }
+    return super.transformNewExpression(tree);
+  }
+
   transformTemplateLiteralExpression(tree) {
     if (!tree.operand)
       return this.createDefaultTemplateLiteral(tree);
@@ -273,6 +289,6 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
                                               transformedTree);
     }
 
-    return new ParenExpression(null, binaryExpression);
+    return new createParenExpression(binaryExpression);
   }
 }

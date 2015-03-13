@@ -549,7 +549,26 @@ export class Parser {
    * @private
    */
   parseStatementListItem_(type) {
-    // TODO(arv): Split into Declaration and Statement
+    // Declaration
+    switch (type) {
+      case LET:
+      case CONST:
+        if (this.options_.blockBinding) {
+          return this.parseVariableStatement_();
+        }
+        break;
+
+      case CLASS:
+        if (this.options_.classes) {
+          return this.parseClassDeclaration_();
+        }
+        break;
+
+      case FUNCTION:
+        return this.parseFunctionDeclaration_();
+    }
+
+    // Statement
     return this.parseStatementWithType_(type);
   }
 
@@ -718,7 +737,7 @@ export class Parser {
           exportTree = this.parseVariableStatement_();
           break;
         }
-        return this.parseUnexpectedToken_(type);
+        return this.parseUnexpectedToken_(this.peekToken_());
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -743,7 +762,7 @@ export class Parser {
         }
         return this.parseUnexpectedToken_(type);
       default:
-        return this.parseUnexpectedToken_(type);
+        return this.parseUnexpectedToken_(this.peekToken_());
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
                                  annotations);
@@ -901,6 +920,7 @@ export class Parser {
     let superClass = null;
     if (this.eatIf_(EXTENDS)) {
       superClass = this.parseLeftHandSideExpression_();
+      superClass = this.coverFormalsToParenExpression_(superClass);
     }
     this.eat_(OPEN_CURLY);
     let elements = this.parseClassElements_(superClass);
@@ -1030,12 +1050,6 @@ export class Parser {
       // Most common first (based on building Traceur).
       case RETURN:
         return this.parseReturnStatement_();
-      case CONST:
-      case LET:
-        if (this.options_.blockBinding) {
-          return this.parseVariableStatement_();
-        }
-        break;
       case VAR:
         return this.parseVariableStatement_();
       case IF:
@@ -1050,17 +1064,11 @@ export class Parser {
         return this.parseThrowStatement_();
       case WHILE:
         return this.parseWhileStatement_();
-      case FUNCTION:
-        return this.parseFunctionDeclaration_();
 
       // Rest are just alphabetical order.
       case AT:
         if (this.options_.annotations)
           return this.parseAnnotatedDeclarations_(false);
-        break;
-      case CLASS:
-        if (this.options_.classes)
-          return this.parseClassDeclaration_();
         break;
       case CONTINUE:
         return this.parseContinueStatement_();
@@ -1266,9 +1274,6 @@ export class Parser {
    * @private
    */
   parseSpreadExpression_() {
-    if (!this.options_.spread)
-      return this.parseUnexpectedToken_(DOT_DOT_DOT);
-
     let start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     let operand = this.parseAssignmentExpression_();
@@ -1409,16 +1414,33 @@ export class Parser {
   }
 
   /**
-   * @return {ExpressionStatement|LabelledStatement|FunctionDeclaration}
+   * @return {ExpressionStatement|LabelledStatement}
    * @private
    */
   parseFallThroughStatement_() {
+    // ExpressionStatement :
+    //   [lookahead ∉ {{, function, class, let [}] Expression ;
+
     let start = this.getTreeStartLocation_();
     let expression;
+
+    switch (this.peekType_()) {
+      case OPEN_CURLY:
+        return this.parseUnexpectedToken_(this.peekToken_());
+      case FUNCTION:
+      case CLASS:
+        return this.parseUnexpectedReservedWord_(this.peekToken_());
+      case LET:
+        if (this.peek_(OPEN_SQUARE, 1)) {
+          return this.parseSyntaxError_(
+              `A statement cannot start with 'let ['`);
+        }
+    }
 
     // async [no line terminator] function ...
     if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
         this.peek_(FUNCTION, 1)) {
+      // TODO(arv): This look ahead should not be needed.
       let asyncToken = this.eatId_();
       let functionToken = this.peekTokenNoLineTerminator_();
       if (functionToken !== null)
@@ -1921,6 +1943,8 @@ export class Parser {
    * @private
    */
   parseCaseStatementsOpt_() {
+    // CaseClause :
+    //   case Expression : StatementList
     let result = [];
     let type;
     while (true) {
@@ -1931,7 +1955,7 @@ export class Parser {
         case END_OF_FILE:
           return result;
       }
-      result.push(this.parseStatementWithType_(type));
+      result.push(this.parseStatementListItem_(type));
     }
   }
 
@@ -2036,7 +2060,7 @@ export class Parser {
       case CLASS:
         return this.options_.classes ?
             this.parseClassExpression_() :
-            this.parseSyntaxError_('Unexpected reserved word');
+            this.parseUnexpectedReservedWord_(this.peekToken_());
       case THIS:
         return this.parseThisExpression_();
       case IDENTIFIER:
@@ -2067,7 +2091,10 @@ export class Parser {
         return this.parseRegularExpressionLiteral_();
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
-        return this.parseTemplateLiteral_(null);
+        if (this.options_.templateLiterals) {
+          return this.parseTemplateLiteral_(null);
+        }
+        break;
 
       case IMPLEMENTS:
       case INTERFACE:
@@ -2084,10 +2111,13 @@ export class Parser {
 
       case END_OF_FILE:
         return this.parseSyntaxError_('Unexpected end of input');
-
-      default:
-        return this.parseUnexpectedToken_(this.peekToken_());
     }
+
+    let token = this.peekToken_();
+    if (token.isKeyword()) {
+      return this.parseUnexpectedReservedWord_(token);
+    }
+    return this.parseUnexpectedToken_(token);
   }
 
   /**
@@ -2130,7 +2160,7 @@ export class Parser {
         return superCall;
     }
 
-    return this.parseUnexpectedToken_(type);
+    return this.parseUnexpectedToken_(this.peekToken_());
   }
 
   /**
@@ -2697,12 +2727,22 @@ export class Parser {
   }
 
   /**
-   * @param {*} name Name of the token. Token object and TokenType both
-   *     stringigy to a user friendly string.
+   * @param {Token} token
    * @return {SyntaxErrorTree}
    */
-  parseUnexpectedToken_(name) {
-    return this.parseSyntaxError_(`Unexpected token ${name}`);
+  parseUnexpectedToken_(token) {
+    if (token.type === NO_SUBSTITUTION_TEMPLATE) {
+        return this.parseSyntaxError_('Unexpected token `');
+    }
+    return this.parseSyntaxError_(`Unexpected token ${token}`);
+  }
+
+  /**
+   * @param {Token} token
+   * @return {SyntaxErrorTree}
+   */
+  parseUnexpectedReservedWord_(token) {
+    return this.parseSyntaxError_(`Unexpected reserved word ${token}`);
   }
 
   // 11.14 Expressions
@@ -3323,7 +3363,9 @@ export class Parser {
             if (!this.options_.templateLiterals)
               break loop;
             operand = this.toPrimaryExpression_(operand);
-            operand = this.parseTemplateLiteral_(operand);
+            if (this.options_.templateLiterals) {
+              operand = this.parseTemplateLiteral_(operand);
+            }
             break;
 
           default:
@@ -4029,9 +4071,6 @@ export class Parser {
    * @private
    */
   parseTemplateLiteral_(operand) {
-    if (!this.options_.templateLiterals)
-      return this.parseUnexpectedToken_('`');
-
     let start = operand ?
         operand.location.start : this.getTreeStartLocation_();
 
@@ -4206,7 +4245,7 @@ export class Parser {
 
     let token = this.nextCloseAngle_();
     if (token.type !== CLOSE_ANGLE) {
-      return this.parseUnexpectedToken_(token.type);
+      return this.parseUnexpectedToken_(token);
     }
 
     return new TypeArguments(this.getTreeLocation_(start), args);

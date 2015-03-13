@@ -25,6 +25,15 @@ class ConstructorValidator extends FindVisitor {
     this.hasError = false;
   }
 
+  // Do not let inner classes initialize this.
+  visitClassExpression(tree) {
+    this.visitAny(tree.superClass);
+  }
+
+  visitClassDeclaration(tree) {
+    this.visitAny(tree.superClass);
+  }
+
   visitThisExpression(tree) {
     this.reportError_(tree.location, 'this');
   }

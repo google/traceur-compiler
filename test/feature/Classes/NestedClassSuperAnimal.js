@@ -18,9 +18,9 @@ class Roo extends Animal {
       get sn() { return super.n; }
       get fn() { return this.n + ' aka ' + this.sn; }
     }
-    this.a = new Koala(n + ' II');
 
     super(n);
+    this.a = new Koala(n + ' II');
     this.n2 = n + ' Roo';
   }
   wn(n) {
