@@ -54,7 +54,7 @@ suite('require.js', function() {
 
     // Trigger the node compile, working around the local require()
     // set by traceur for es6 compiles.
-    var foo = traceurRequire.nodeRequireJs(fixturePath).foo;
+    var foo = traceurRequire.nodeRequire(fixturePath).foo;
     assert.equal(typeof foo, 'function');
 
     // reset traceur.makeDefault options
@@ -75,7 +75,7 @@ suite('require.js', function() {
 
     // As above, use node's original require, not the local Tracuer
     // supplied one.
-    var Q = traceurRequire.nodeRequireJs(
+    var Q = traceurRequire.nodeRequire(
       path.join(__dirname, './resources/import-export.js')).Q;
     var q = new Q();
     assert.equal(q.name, 'Q');

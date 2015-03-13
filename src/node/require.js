@@ -54,7 +54,7 @@ function shouldCompile(filename) {
   return false;
 }
 
-traceurRequire.nodeRequireJs = require;
+traceurRequire.nodeRequire = require;
 
 traceurRequire.makeDefault = function(filter, options) {
   if (!filter)
