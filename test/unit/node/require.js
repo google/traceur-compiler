@@ -17,7 +17,7 @@ import {suite, test, assert} from '../../unit/unitTestRunner.js';
 suite('require.js', function() {
 
   var path = require('path');
-  var traceurRequire = require('../../src/node/require');
+  var traceurRequire = require('../../../src/node/require');
 
   test('traceurRequire', function() {
     // TODO(arv): The path below is sucky...
@@ -41,7 +41,6 @@ suite('require.js', function() {
     // TODO(arv): The path below is sucky...
     var fixturePath = path.join(__dirname, './resources/async-function.js');
     var experimentalOption = {asyncFunctions: true};
-
     // traceur.require must throw without the experimentalOption
     try {
       traceurRequire(fixturePath);
@@ -50,8 +49,13 @@ suite('require.js', function() {
       assert.ok(true);
     }
 
+    // Intercept node compiles and apply options.
     traceurRequire.makeDefault(undefined, experimentalOption);
-    assert.equal(typeof require(fixturePath).foo, 'function');
+
+    // Trigger the node compile, working around the local require()
+    // set by traceur for es6 compiles.
+    var foo = traceurRequire.nodeRequire(fixturePath).foo;
+    assert.equal(typeof foo, 'function');
 
     // reset traceur.makeDefault options
     traceurRequire.makeDefault();
@@ -69,8 +73,10 @@ suite('require.js', function() {
           filename.replace(/\\/g, '/'));
     });
 
-    // // TODO(arv): The path below is sucky...
-    var Q = require(path.join(__dirname, './resources/import-export.js')).Q;
+    // As above, use node's original require, not the local Tracuer
+    // supplied one.
+    var Q = traceurRequire.nodeRequire(
+      path.join(__dirname, './resources/import-export.js')).Q;
     var q = new Q();
     assert.equal(q.name, 'Q');
   });

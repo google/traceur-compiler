@@ -25,7 +25,8 @@ export class TraceurTestRunner extends Mocha6 {
       ignoreLeaks: true,
       importMetadata: {
         traceurOptions: {
-          sourceMaps: 'memory'
+          sourceMaps: 'memory',
+          require: true
         }
       }
     });
