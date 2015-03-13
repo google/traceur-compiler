@@ -25,15 +25,17 @@ import {parseExpression} from './PlaceholderParser.js';
 export class ExponentiationTransformer extends TempVarTransformer {
   transformBinaryExpression(tree) {
     switch (tree.operator.type) {
-      case STAR_STAR:
+      case STAR_STAR: {
         let left = this.transformAny(tree.left);
         let right = this.transformAny(tree.right);
         return parseExpression `Math.pow(${left}, ${right})`;
+      }
 
-      case STAR_STAR_EQUAL:
+      case STAR_STAR_EQUAL: {
         let exploded =
             new ExplodeExpressionTransformer(this).transformAny(tree);
         return this.transformAny(exploded);
+      }
     }
 
     return super.transformBinaryExpression(tree);

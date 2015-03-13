@@ -1955,7 +1955,11 @@ export class Parser {
         case END_OF_FILE:
           return result;
       }
-      result.push(this.parseStatementListItem_(type));
+      if (this.isStrongMode_()) {
+        result.push(this.parseStatementWithType_(type));
+      } else {
+        result.push(this.parseStatementListItem_(type));
+      }
     }
   }
 
@@ -2063,7 +2067,7 @@ export class Parser {
             this.parseUnexpectedReservedWord_(this.peekToken_());
       case THIS:
         return this.parseThisExpression_();
-      case IDENTIFIER:
+      case IDENTIFIER: {
         let identifier = this.parseIdentifierExpression_();
         if (this.options_.asyncFunctions &&
             identifier.identifierToken.value === ASYNC) {
@@ -2074,6 +2078,7 @@ export class Parser {
           }
         }
         return identifier;
+      }
       case NUMBER:
       case STRING:
       case TRUE:
@@ -2151,13 +2156,14 @@ export class Parser {
         return this.parseMemberLookupExpression_(start, operand);
       case PERIOD:
         return this.parseMemberExpression_(start, operand);
-      case OPEN_PAREN:
+      case OPEN_PAREN: {
         let superCall = this.parseCallExpression_(start, operand);
         if (!fs.isDerivedConstructor()) {
           this.errorReporter_.reportError(start,
             'super call is only allowed in derived constructor');
         }
         return superCall;
+      }
     }
 
     return this.parseUnexpectedToken_(this.peekToken_());
@@ -2509,11 +2515,11 @@ export class Parser {
     let type = this.peekType_();
     let isStatic = false, functionKind = null;
     switch (type) {
-      case STATIC:
+      case STATIC: {
         let staticToken = this.nextToken_();
         type = this.peekType_();
         switch (type) {
-          case OPEN_PAREN:
+          case OPEN_PAREN: {
             let location = this.getTreeLocation_(start);
             let name = new LiteralPropertyName(location, staticToken);
             let fs = this.pushFunctionState_(FUNCTION_STATE_METHOD);
@@ -2521,6 +2527,7 @@ export class Parser {
                                       annotations);
             this.popFunctionState_(fs);
             return m;
+          }
           default:
             isStatic = true;
             if (type === STAR && this.options_.generators)
@@ -2530,6 +2537,7 @@ export class Parser {
                                             derivedClass);
         }
         break;
+      }
 
       case STAR:
         return this.parseGeneratorMethod_(start, isStatic, annotations);
@@ -3314,9 +3322,10 @@ export class Parser {
   peekPostfixOperator_(type) {
     switch (type) {
       case PLUS_PLUS:
-      case MINUS_MINUS:
+      case MINUS_MINUS: {
         let token = this.peekTokenNoLineTerminator_();
         return token !== null;
+      }
     }
     return false;
   }
@@ -3449,7 +3458,7 @@ export class Parser {
   parseNewExpression_() {
     let operand, start;
     switch (this.peekType_()) {
-      case NEW:
+      case NEW: {
         start = this.getTreeStartLocation_();
         this.eat_(NEW);
         if (this.peek_(SUPER)) {
@@ -3462,6 +3471,7 @@ export class Parser {
           args = this.parseArguments_();
         }
         return new NewExpression(this.getTreeLocation_(start), operand, args);
+      }
 
       case SUPER:
         return this.parseSuperExpression_(false);
@@ -4458,10 +4468,11 @@ export class Parser {
       case 'any':
       case 'number':
       case 'boolean':
-      case 'string':
-      // void is handled in parseTye
+      case 'string': {
         let token = this.nextToken_();
         return new PredefinedType(this.getTreeLocation_(start), token);
+      }
+      // void is handled in parseType
       default:
         return this.parseTypeName_();
     }
