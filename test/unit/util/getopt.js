@@ -15,7 +15,7 @@
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
 suite('getopt', function() {
-  var Getopt = require('../../src/node/getopt.js').Getopt;
+  var Getopt = require('../../../src/node/getopt.js').Getopt;
 
   test('invalid long options', function() {
     var g = new Getopt(['0', '1:', '2::', '0test', '1test:', '2test::']);

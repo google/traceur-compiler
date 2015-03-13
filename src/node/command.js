@@ -195,6 +195,7 @@ if (!shouldExit) {
     traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name, commandOptions);
   } else {
     rootSources.forEach(function(obj) {
+      commandOptions.require = true;
       interpret(path.resolve(obj.name), commandOptions);
     });
   }
