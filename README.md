@@ -3,6 +3,8 @@
 <img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px">
 ## What is Traceur?
 
+[![Join the chat at https://gitter.im/google/traceur-compiler](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/google/traceur-compiler?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to
 use features from the future **today**. Traceur supports ES6, some ES7 features as 
 well as some AtScript features.
