@@ -357,7 +357,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         'expression expected');
     for (let i = 0; i < tree.statements.length; i++) {
       let statement = tree.statements[i];
-      this.checkVisit_(statement.isStatement(), statement,
+      this.checkVisit_(statement.isStatementListItem(), statement,
           'statement expected');
     }
   }
@@ -447,7 +447,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitDefaultClause(tree) {
     for (let i = 0; i < tree.statements.length; i++) {
       let statement = tree.statements[i];
-      this.checkVisit_(statement.isStatement(), statement,
+      this.checkVisit_(statement.isStatementListItem(), statement,
           'statement expected');
     }
   }
