@@ -41,7 +41,10 @@ import {
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
-import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
+import {
+  VARIABLE_DECLARATION_LIST,
+  BLOCK
+} from '../syntax/trees/ParseTreeType.js';
 
 export class InnerForOnTransformer extends ParseTreeTransformer {
   // TODO: This class has considerable overlap with
@@ -78,8 +81,13 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
           ${tree.initializer} = ${value};`;
     }
 
-    let body = new Block(tree.body.location,
-        [assignment, ...tree.body.statements]);
+    let body;
+    if (tree.body.type === BLOCK) {
+      body = new Block(tree.body.location,
+          [assignment, ...tree.body.statements]);
+    } else {
+      body = new Block(null, [assignment, tree.body]);
+    }
     body = this.transformAny(body);
     body = alphaRenameThisAndArguments(this, body);
 
