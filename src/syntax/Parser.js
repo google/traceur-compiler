@@ -24,6 +24,7 @@ import {
   IDENTIFIER_EXPRESSION,
   LITERAL_PROPERTY_NAME,
   OBJECT_LITERAL_EXPRESSION,
+  PAREN_EXPRESSION,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
 } from './trees/ParseTreeType.js';
@@ -2788,6 +2789,13 @@ export class Parser {
         // If we fail to parse as an AssignmentPattern then
         // parseAssignmentPattern_ will take care reporting errors.
         return this.parseAssignmentPattern_();
+      case PAREN_EXPRESSION:
+        let location = tree.expression.location;
+        tree = this.transformLeftHandSideExpression_(tree.expression);
+        if (tree.isPattern()) {
+          this.scanner_.index = location.end.offset + 1;
+        }
+        return new ParenExpression(location, tree);
     }
     return tree;
   }

@@ -124,6 +124,8 @@ export class ParseTree {
       case ARRAY_PATTERN:
       case OBJECT_PATTERN:
         return true;
+      case PAREN_EXPRESSION:
+        return this.expression.isPattern();
       default:
         return false;
     }
