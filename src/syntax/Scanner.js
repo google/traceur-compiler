@@ -194,9 +194,8 @@ function isRegularExpressionFirstChar(code) {
   return isRegularExpressionChar(code) && code !== 42;  // *
 }
 
-let index, input, length, token, lastToken, lookaheadToken, currentCharCode,
-    nextCharCode, lineNumberTable, errorReporter, currentParser, options,
-    currentCodePoint;
+let index, input, length, token, lastToken, lookaheadToken, currentCodePoint,
+    lineNumberTable, errorReporter, currentParser, options;
 
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
@@ -1174,17 +1173,20 @@ function isAtEnd() {
 function next() {
   index++;
   if (currentCodePoint >= 0x10000) {
+    // If code point is higher than Plane 0, move past trail surrogate
     index++;
   }
   updateCurrentCodePoint();
 }
 
 function updateCurrentCodePoint() {
-  currentCodePoint = currentCharCode = input.charCodeAt(index);
-  nextCharCode = input.charCodeAt(index + 1) | 0;
-  if (isLeadSurrogate(currentCodePoint) && isTrailSurrogate(nextCharCode)) {
-    currentCodePoint = getSupplementaryCode(currentCodePoint, nextCharCode);
-  }
+  currentCodePoint = input.charCodeAt(index);
+  // Return if code point is in Plane 0
+  if (currentCodePoint < 0xD800 || !isLeadSurrogate(currentCodePoint)) return;
+  let nextCharCode = input.charCodeAt(index + 1) | 0;
+  // ASSERT: isTrailSurrogate(nextCharCode)
+  // Should report an error if it's not?
+  currentCodePoint = getSupplementaryCode(currentCodePoint, nextCharCode);
 }
 
 function isLeadSurrogate(code) {
