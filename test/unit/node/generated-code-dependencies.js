@@ -22,6 +22,7 @@ suite('context test', function() {
   var uuid = require('node-uuid');
   var exec = require('child_process').exec;
   var nodeLoader = require('../../../src/node/nodeLoader.js');
+  var theDirName = System.dirname(__moduleName);
 
   var tempFileName;
   var tempMapName;
@@ -39,7 +40,7 @@ suite('context test', function() {
   }
 
   function resolve(name) {
-    return forwardSlash(path.resolve(__dirname, '../../../' + name));
+    return forwardSlash(path.resolve(theDirName, '../../../' + name));
   }
 
   function executeFileWithRuntime(fileName, options, debug) {
@@ -76,7 +77,7 @@ suite('context test', function() {
   }
 
   test('class', function(done) {
-    var fileName = path.resolve(__dirname, 'resources/class.js');
+    var fileName = path.resolve(theDirName, 'resources/class.js');
     executeFileWithRuntime(fileName).then(function(value) {
       assert.equal(value, 2);
       done();
@@ -84,7 +85,7 @@ suite('context test', function() {
   });
 
   test('generator', function(done) {
-    var fileName = path.resolve(__dirname, 'resources/generator.js');
+    var fileName = path.resolve(theDirName, 'resources/generator.js');
     var options = {
       generatorComprehension: true
     };
@@ -95,7 +96,7 @@ suite('context test', function() {
   });
 
   test('generator (symbols)', function(done) {
-    var fileName = path.resolve(__dirname, 'resources/generator.js');
+    var fileName = path.resolve(theDirName, 'resources/generator.js');
     var options = {
       generatorComprehension: true,
       symbols: true

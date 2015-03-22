@@ -21,14 +21,14 @@ suite('require.js', function() {
 
   test('traceurRequire', function() {
     // TODO(arv): The path below is sucky...
-    var x = traceurRequire(path.join(__dirname, './resources/x.js')).x;
+    var x = traceurRequire(path.join(System.dirname(__moduleName), './resources/x.js')).x;
     assert.equal(x, 'x');
   });
 
   test('traceurRequire errors', function() {
     try {
       var filename = 'resources/syntax-error.js';
-      traceurRequire(path.join(__dirname, './' + filename));
+      traceurRequire(path.join(System.dirname(__moduleName), './' + filename));
       assert.notOk(true);
     } catch (ex) {
       assert.equal(ex.length, 1, 'One error is reported');
@@ -39,7 +39,7 @@ suite('require.js', function() {
 
   test('traceurRequire.makeDefault options', function() {
     // TODO(arv): The path below is sucky...
-    var fixturePath = path.join(__dirname, './resources/async-function.js');
+    var fixturePath = path.join(System.dirname(__moduleName), './resources/async-function.js');
     var experimentalOption = {asyncFunctions: true};
     // traceur.require must throw without the experimentalOption
     try {
@@ -76,7 +76,7 @@ suite('require.js', function() {
     // As above, use node's original require, not the local Tracuer
     // supplied one.
     var Q = traceurRequire.nodeRequire(
-      path.join(__dirname, './resources/import-export.js')).Q;
+      path.join(System.dirname(__moduleName), './resources/import-export.js')).Q;
     var q = new Q();
     assert.equal(q.name, 'Q');
   });

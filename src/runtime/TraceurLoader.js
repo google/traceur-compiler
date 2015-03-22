@@ -287,4 +287,18 @@ export class TraceurLoader extends Loader {
       factoryFunction);
   }
 
+  /**
+   * @return {string} The directory part of a file name.
+   * Emulates node path.dirname.
+   */
+  dirname(filename) {
+    var lastSlash = filename.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return '.';
+    } else if (lastSlash === 0) {
+      return '/';
+    }
+    return filename.slice(0, lastSlash);
+  }
+
 }

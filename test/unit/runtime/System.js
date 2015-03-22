@@ -177,4 +177,12 @@ suite('System.js', function() {
     }).catch(done);
   });
 
+
+  test('System.dirname', function(){
+    assert.equal(System.dirname(''), '.');
+    assert.equal(System.dirname('a.js'), '.');
+    assert.equal(System.dirname('/a.js'), '/');
+    assert.equal(System.dirname('a/b.js'), 'a');
+    assert.equal(System.dirname('/a/b.js'), '/a');
+  });
 });
