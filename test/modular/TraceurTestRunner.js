@@ -26,7 +26,7 @@ export class TraceurTestRunner extends Mocha6 {
       importMetadata: {
         traceurOptions: {
           sourceMaps: 'memory',
-          require: true
+          require: true // Some unit tests use require()
         }
       }
     });
@@ -94,6 +94,9 @@ export class TraceurTestRunner extends Mocha6 {
       runner.on('end', () => {
         process.exit(failed);
       });
+    }, (ex) => {
+      console.log('Test setup FAILED ', ex.stack || ex);
+      process.exit(failed);
     });
   }
 

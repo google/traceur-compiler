@@ -49,10 +49,6 @@ export class Mocha6 extends Mocha {
           then(() => {
             this.suite.emit('require', global, file, this);
             this.suite.emit('post-require', global, file, this);
-          }, (ex) => {
-            console.error('Mocha6.importFiles FAILED for ' + file);
-            console.error(ex.stack || ex);
-            return ex;
           });
     });
     return Promise.all(promiseImports);
@@ -66,8 +62,8 @@ export class Mocha6 extends Mocha {
    */
 
   run(fn) {
+    // The base mocha.run will not load files, see loadFiles() override.
     return this.importFiles().then(() => {
-      // The base mocha.run will not load files, see loadFiles() override.
       return super.run(fn);
     });
   }
