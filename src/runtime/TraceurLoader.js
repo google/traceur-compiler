@@ -293,11 +293,10 @@ export class TraceurLoader extends Loader {
    */
   dirname(filename) {
     var lastSlash = filename.lastIndexOf('/');
-    if (lastSlash === -1) {
+    if (lastSlash === -1)
       return '.';
-    } else if (lastSlash === 0) {
+    if (lastSlash === 0)
       return '/';
-    }
     return filename.slice(0, lastSlash);
   }
 
