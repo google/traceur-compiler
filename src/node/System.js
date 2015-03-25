@@ -19,9 +19,17 @@ var traceur = require('./traceur.js');
 
 var System = new traceur.runtime.NodeTraceurLoader();
 
+var traceurMap;
+
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
     var map = System.getSourceMap(filename);
+    if (!map && filename === traceur.binFilename) {
+      if (!traceurMap) {
+        traceurMap = fs.readFileSync(traceur.binFilename + '.map', 'utf8');
+      }
+      map = traceurMap;
+    }
     if (map) {
       return {
         url: filename,
