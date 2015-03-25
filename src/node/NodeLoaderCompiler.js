@@ -18,11 +18,11 @@ import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
 export class NodeLoaderCompiler extends LoaderCompiler {
   evaluateCodeUnit(codeUnit) {
     // Node eval does not support //# sourceURL yet.
-  	// In node we use a low level evaluator so that the
-  	// sourcemap=memory mechanism can help us debug.
-		let runInThisContext = require('vm').runInThisContext;
-  	let content = codeUnit.metadata.transcoded;
-  	let filename = codeUnit.address || codeUnit.normalizedName;
+    // In node we use a low level evaluator so that the
+    // sourcemap=memory mechanism can help us debug.
+    let runInThisContext = require('vm').runInThisContext;
+    let content = codeUnit.metadata.transcoded;
+    let filename = codeUnit.address || codeUnit.normalizedName;
     let result = runInThisContext(content, filename);
     codeUnit.metadata.transformedTree = null;
   }
