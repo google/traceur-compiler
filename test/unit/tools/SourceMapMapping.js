@@ -19,10 +19,8 @@ import {SourceMapConsumer}
     from '../../../src/outputgeneration/SourceMapIntegration.js';
 import {OriginalSourceMapMapping} from '../../../demo/SourceMapMapping.js';
 
-import {getTestLoader} from '../../modular/getTestLoader.js';
-
 var path = 'test_a.js';
-var input = '../runtime/resources/' + path;
+var input = './test/unit/runtime/resources/' + path;
 var output = './out/' + path;
 // Force sourceMaps on for test.
 var importOptions = {
@@ -32,7 +30,7 @@ var importOptions = {
   }
 };
 
-var loader = getTestLoader();
+var loader = new System.constructor();
 
 var whenSourceMapMapping = loader.import(input, importOptions).
     then((imported) => {

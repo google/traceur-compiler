@@ -102,5 +102,6 @@ export let runtime = {
   Loader,
   LoaderCompiler,
   NodeLoaderCompiler,
+  NodeTraceurLoader,
   TraceurLoader
 };

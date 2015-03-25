@@ -48,6 +48,6 @@ var metadata = {
 
 // The module will evaluate and have process.argv ['node', filename, ...]
 System.import(moduleName, {metadata: metadata}).catch(function(err) {
-  console.error(err.stack || err + '');
+  console.error('tval fails:',  err.stack || err + '');
   process.exit(1);
 });

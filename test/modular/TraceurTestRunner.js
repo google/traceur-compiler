@@ -92,6 +92,7 @@ export class TraceurTestRunner extends Mocha6 {
         failed++;
       });
       runner.on('end', () => {
+        console.log('TraceurTestRunner.run calling exit');
         process.exit(failed);
       });
     }, (ex) => {

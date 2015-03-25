@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {isAbsolute, resolveUrl} from '../util/url.js';
-import {Loader} from '../runtime/Loader.js';
-import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {Loader} from './Loader.js';
+import {LoaderCompiler} from './LoaderCompiler.js';
 import {NodeLoaderCompiler} from '../node/NodeLoaderCompiler.js';
-import {systemjs} from '../runtime/system-map.js';
+import {systemjs} from './system-map.js';
 import {webLoader} from './webLoader.js';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));

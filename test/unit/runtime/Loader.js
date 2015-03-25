@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
-import {getTestLoader} from '../../modular/getTestLoader.js';
+
+function getTestLoader() {
+  return new System.constructor();
+}
 
 suite('Loader.js', function() {
 
@@ -108,9 +111,9 @@ suite('Loader.js', function() {
 
   test('LoaderModule', function(done) {
     var code =
-        'import * as a from "./resources/test_a.js";\n' +
-        'import * as b from "./resources/test_b.js";\n' +
-        'import * as c from "./resources/test_c.js";\n' +
+        'import * as a from "./test/unit/runtime/resources/test_a.js";\n' +
+        'import * as b from "./test/unit/runtime/resources/test_b.js";\n' +
+        'import * as c from "./test/unit/runtime/resources/test_c.js";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
@@ -127,7 +130,7 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'import * as d from "./subdir/test_d.js";\n' +
+        'import * as d from "./test/unit/runtime/subdir/test_d.js";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
@@ -141,9 +144,9 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'import * as a from "./resources/test_a.js";\n' +
-        'import * as b from "./resources/test_b.js";\n' +
-        'import * as c from "./resources/test_c.js";\n' +
+        'import * as a from "./test/unit/runtime/resources/test_a.js";\n' +
+        'import * as b from "./test/unit/runtime/resources/test_b.js";\n' +
+        'import * as c from "./rtest/unit/runtime/esources/test_c.js";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
@@ -163,7 +166,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getTestLoader().loadAsScript('./resources/test_script.js', {}).then(function(result) {
+    getTestLoader().loadAsScript('./test/unit/runtime/resources/test_script.js', {}).then(function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -173,7 +176,7 @@ suite('Loader.js', function() {
 
   test('LoaderLoad.Fail', function(done) {
     var reporter = new MutedErrorReporter();
-    getTestLoader(reporter).loadAsScript('./resources/non_existing.js', {}).then(function(result) {
+    getTestLoader(reporter).loadAsScript('./test/unit/runtime/resources/non_existing.js', {}).then(function(result) {
       fail('should not have succeeded');
       done();
     }, function(error) {
@@ -183,7 +186,7 @@ suite('Loader.js', function() {
   });
 
   test('Loader.LoadAsScriptAll', function(done) {
-    var names = ['./resources/test_script.js'];
+    var names = ['./test/unit/runtime/resources/test_script.js'];
     getTestLoader().loadAsScriptAll(names, {}).then(function(results) {
       var result = results[0];
       assert.equal('A', result[0]);
@@ -194,7 +197,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getTestLoader().import('./resources/test_module.js', {}).then(function(mod) {
+    getTestLoader().import('./test/unit/runtime/resources/test_module.js', {}).then(function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -204,7 +207,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImportAll', function(done) {
-    var names = ['./resources/test_module.js'];
+    var names = ['./test/unit/runtime/resources/test_module.js'];
     getTestLoader().importAll(names, {}).then(function(mods) {
       var mod = mods[0];
       assert.equal('test', mod.name);
@@ -232,7 +235,7 @@ suite('Loader.js', function() {
 
   test('LoaderImport.Fail', function(done) {
     var reporter = new MutedErrorReporter();
-    getTestLoader(reporter).import('./resources/non_existing.js', {}).then(function(mod) {
+    getTestLoader(reporter).import('./test/unit/runtime/resources/non_existing.js', {}).then(function(mod) {
       fail('should not have succeeded')
       done();
     }, function(error) {
@@ -244,7 +247,7 @@ suite('Loader.js', function() {
   test('LoaderImport.Fail.deperror', function(done) {
     var reporter = new MutedErrorReporter();
     var metadata = {traceurOptions: {sourceMaps: 'memory'}};
-    getTestLoader(reporter).import('loads/main.js', {metadata: metadata}).then(
+    getTestLoader(reporter).import('test/unit/runtime/loads/main.js', {metadata: metadata}).then(
       function(mod) {
         fail('should not have succeeded')
         done();
@@ -258,9 +261,9 @@ suite('Loader.js', function() {
 
   test('Loader.define', function(done) {
     var name = System.normalize('./test_define.js');
-    getTestLoader().import('./resources/side-effect.js', {}).then(function(mod) {
+    getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
-      var src = 'export {name as a} from \'./resources/test_a.js\';\n' +
+      var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\n' +
         'export var d = 4;\n' + 'this.sideEffect++;';
       return getTestLoader().define(name, src, {}).then(function() {
         return mod;
@@ -277,7 +280,7 @@ suite('Loader.js', function() {
 
   test('Loader.define.Fail', function(done) {
     var name = System.normalize('./test_define.js');
-    getTestLoader().import('./resources/side-effect.js', {}).then(function(mod) {
+    getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       var src = 'syntax error';
       getTestLoader().define(name, src, {}).then(function() {
           fail('should not have succeeded');
@@ -293,7 +296,7 @@ suite('Loader.js', function() {
     var normalizedName = System.normalize('./test_define_with_source_map.js');
     var loader = getTestLoader();
     var metadata = {traceurOptions: {sourceMaps: true}};
-    var src = 'export {name as a} from \'./resources/test_a.js\';\nexport var d = 4;\n';
+    var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\nexport var d = 4;\n';
     loader.define(normalizedName, src, {metadata: metadata}).then(function() {
       var sourceMap = loader.getSourceMap(normalizedName);
       assert(sourceMap, normalizedName + ' has a sourceMap');
@@ -313,7 +316,7 @@ suite('Loader.js', function() {
       actualWarning = msg;
     };
     var metadata = {traceurOptions: {junk: true}};
-    getTestLoader().import('./resources/test_module.js', {metadata: metadata}).
+    getTestLoader().import('./test/unit/runtime/resources/test_module.js', {metadata: metadata}).
         then(function(mod) {
           assert.equal(actualWarning,
             'Unknown metadata.traceurOptions ignored: junk');

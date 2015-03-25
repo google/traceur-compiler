@@ -15,9 +15,8 @@
 // Applies Traceur to all scripts in a Web page.
 
 import {Loader} from './runtime/Loader.js';
-import {TraceurLoader} from './runtime/TraceurLoader.js';
+import {BrowserTraceurLoader} from './runtime/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
-import {webLoader} from './runtime/webLoader.js';
 
 export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
 
@@ -106,7 +105,7 @@ export class WebPageTranscoder {
 
   get loader() {
     if (!this.loader_) {
-      this.loader_ = new TraceurLoader(webLoader, this.url);
+      this.loader_ = new BrowserTraceurLoader();
     }
     return this.loader_;
   }

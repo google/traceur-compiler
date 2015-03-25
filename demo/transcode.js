@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader.js';
+import {BrowserTraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader.js';
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter.js';
 import {
   SourceMapGenerator,
@@ -39,7 +39,7 @@ export function transcode(contents, options, onSuccess, onFailure) {
     }
   };
 
-  var loader = new TraceurLoader(webLoader, url);
+  var loader = new BrowserTraceurLoader();
   var load = options.script ? loader.script : loader.module;
   load.call(loader, contents, loadOptions).
       then(() => onSuccess(loadOptions.metadata),

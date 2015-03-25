@@ -25,5 +25,6 @@ export class NodeLoaderCompiler extends LoaderCompiler {
     // sourcemap=memory mechanism can help us debug.
     let result = runInThisContext(content, filename);
     codeUnit.metadata.transformedTree = null;
+    return result;
   }
 }

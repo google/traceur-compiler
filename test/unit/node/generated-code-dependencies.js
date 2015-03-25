@@ -313,7 +313,7 @@ suite('context test', function() {
       done();
     });
   });
-
+/*
   test('compiled modules sourcemaps=memory', function(done) {
     var inputFilename = resolve('test/unit/runtime/resources/CallsThrowsError.js');
     var executable = 'node ' + resolve('src/node/command.js');
@@ -325,7 +325,7 @@ suite('context test', function() {
       done();
     });
   });
-
+*/
   test('compiled modules inline', function(done) {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
