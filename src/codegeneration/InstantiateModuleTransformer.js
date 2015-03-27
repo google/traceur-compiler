@@ -328,10 +328,11 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
       // then do export bindings of re-exported dependencies
       if (externalExportBindings) {
-        externalExportBindings.forEach((binding) => {
-          setterStatements.push(
-            parseStatement `$__export(${binding.exportName}, $__m.${binding.importName});`
-          );
+        externalExportBindings.forEach(({exportName, importName}) => {
+          let statement = importName === null ?
+              parseStatement `$__export(${exportName}, $__m);` :
+              parseStatement `$__export(${exportName}, $__m.${importName});`;
+          setterStatements.push(statement);
         });
       }
 
@@ -408,10 +409,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   // export {a as p} from 'q';
   addExternalExportBinding(depIndex, exportName, importName) {
     this.externalExportBindings[depIndex] = this.externalExportBindings[depIndex] || [];
-    this.externalExportBindings[depIndex].push({
-      exportName: exportName,
-      importName: importName
-    });
+    this.externalExportBindings[depIndex].push({exportName, importName});
   }
   // Note that we have an export * for a dep index
   addExportStarBinding(depIndex) {
@@ -529,11 +527,11 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // visit the module specifier, which sets the current dependency index
     this.transformAny(tree.moduleSpecifier);
 
-    let specifierSet = this.transformAny(tree.specifierSet);
+    let exportClause = this.transformAny(tree.exportClause);
 
     if (this.curDepIndex_ === null) {
       // if it is an export statement, it just becomes the variable declarations
-      return specifierSet;
+      return exportClause;
     }
     // if it is a re-export, it becomes empty
     return new AnonBlock(null, []);
@@ -654,6 +652,11 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     return new ExpressionStatement(tree.location,
         new CommaExpression(tree.location,
                             specifiers.filter((specifier) => specifier)));
+  }
+
+  transformNameSpaceExport(tree) {
+    this.addExternalExportBinding(this.curDepIndex_, tree.name.value, null);
+    return tree;
   }
 
   transformImportSpecifier(tree) {

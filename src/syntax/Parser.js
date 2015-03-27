@@ -218,6 +218,7 @@ import {
   MethodSignature,
   Module,
   ModuleSpecifier,
+  NameSpaceExport,
   NameSpaceImport,
   NamedExport,
   NewExpression,
@@ -734,7 +735,7 @@ export class Parser {
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
           break;
         }
-        return this.parseUnexpectedToken_(this.peekToken_());
+        return this.parseNamedExport_();
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
@@ -793,31 +794,52 @@ export class Parser {
     //   "*" "as" Identifier "from" ModuleSpecifier
     //   Identifier "from" ModuleSpecifier
     let start = this.getTreeStartLocation_();
+    let exportClause, moduleSpecifier = null;
 
-    let specifierSet, expression = null;
+    switch (this.peekType_()) {
+      case OPEN_CURLY:
+        exportClause = this.parseExportSpecifierSet_();
+        if (this.peekPredefinedString_(FROM)) {
+          this.eatId_(FROM);
+          moduleSpecifier = this.parseModuleSpecifier_();
+        } else {
+          // When there is no `from` the left hand side may not be a keyword
+          // since it references a local binding.
+          //
+          //   export {notAKeyword as keywordOK};
+          //
+          this.validateExportSpecifierSet_(exportClause);
+        }
+        break;
 
-    if (this.peek_(OPEN_CURLY)) {
-      specifierSet = this.parseExportSpecifierSet_();
-      if (this.peekPredefinedString_(FROM)) {
+      case IDENTIFIER:
+        throw 'NYI';
+        break;
+
+      case STAR:
+        exportClause = this.parseExportStar_();
         this.eatId_(FROM);
-        expression = this.parseModuleSpecifier_();
-      } else {
-        // Ensure that the bindings (lhs) of the specifiers are not keywords.
-        // Keywords are only disallowed when we do not have a 'from' following
-        // the ExportSpecifierSet.
-        this.validateExportSpecifierSet_(specifierSet);
-      }
-    } else {
-      this.eat_(STAR);
-      specifierSet = new ExportStar(this.getTreeLocation_(start));
-      this.eatId_(FROM);
-      expression = this.parseModuleSpecifier_();
+        moduleSpecifier = this.parseModuleSpecifier_();
+        break;
     }
 
     this.eatPossibleImplicitSemiColon_();
 
-    return new NamedExport(this.getTreeLocation_(start), expression,
-                             specifierSet);
+    return new NamedExport(this.getTreeLocation_(start), exportClause,
+                           moduleSpecifier);
+  }
+
+  parseExportStar_() {
+    // *
+    // * as IdentiferName
+    let start = this.getTreeStartLocation_();
+    this.eat_(STAR);
+    if (this.peekPredefinedString_(AS)) {
+      this.eatId_(AS);
+      let name = this.eatIdName_();
+      return new NameSpaceExport(this.getTreeLocation_(start), name);
+    }
+    return new ExportStar(this.getTreeLocation_(start));
   }
 
   parseExportSpecifierSet_() {

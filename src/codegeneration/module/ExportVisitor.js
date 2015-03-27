@@ -59,7 +59,7 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitNamedExport(tree) {
     this.moduleSpecifier = tree.moduleSpecifier;
-    this.visitAny(tree.specifierSet);
+    this.visitAny(tree.exportClause);
     this.moduleSpecifier = null;
   }
 
@@ -78,6 +78,10 @@ export class ExportVisitor extends ModuleVisitor {
     if (exportList) {
       exportList.getExports().forEach((name) => this.addExport(name, tree));
     }  // Else: we already reported an error.
+  }
+
+  visitNameSpaceExport(tree) {
+    this.addExport_(tree.name.value, tree);
   }
 
   visitFunctionDeclaration(tree) {

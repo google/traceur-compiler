@@ -63,7 +63,7 @@ export class ValidationVisitor extends ModuleVisitor {
       let name = tree.moduleSpecifier.token.processedValue;
       let moduleDescription =
           this.getExportsListForModuleSpecifier(name);
-      this.visitAndValidate_(moduleDescription, tree.specifierSet);
+      this.visitAndValidate_(moduleDescription, tree.exportClause);
     }
     // The else case is checked else where and duplicate exports are caught
     // as well as undefined variables.
@@ -96,7 +96,6 @@ export class ValidationVisitor extends ModuleVisitor {
 
   visitNameSpaceImport(tree) {
     let importName = tree.binding.binding.getStringValue();
-    // TODO(arv): Make checkImport take an ImportBinding.
     this.checkImport_(tree, importName);
   }
 }

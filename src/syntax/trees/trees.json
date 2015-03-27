@@ -789,6 +789,14 @@
       "Token"
     ]
   },
+  "NameSpaceExport": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
   "NameSpaceImport": {
     "location": [
       "SourceRange"
@@ -801,10 +809,10 @@
     "location": [
       "SourceRange"
     ],
-    "moduleSpecifier": [
+    "exportClause": [
       "ParseTree"
     ],
-    "specifierSet": [
+    "moduleSpecifier": [
       "ParseTree"
     ]
   },

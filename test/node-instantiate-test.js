@@ -155,4 +155,11 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('Export star as', function(done) {
+    System.import('./export-star-as.js').then(function(m) {
+      assert.equal(2, m.a.b);
+      done();
+    }).catch(done);
+  });
+
 });

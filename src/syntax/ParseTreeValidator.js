@@ -84,6 +84,7 @@ import {
   LITERAL_PROPERTY_NAME,
   MODULE_SPECIFIER,
   NAMED_EXPORT,
+  NAME_SPACE_EXPORT,
   NAME_SPACE_IMPORT,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
@@ -482,18 +483,18 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {NamedExport} tree
    */
   visitNamedExport(tree) {
+    let specifierType = tree.exportClause.type;
+    this.checkVisit_(specifierType === EXPORT_SPECIFIER_SET ||
+                     specifierType === EXPORT_STAR ||
+                     specifierType === NAME_SPACE_EXPORT,
+                     tree.exportClause,
+                     'specifier set or identifier expected');
     if (tree.moduleSpecifier) {
       this.checkVisit_(
           tree.moduleSpecifier.type === MODULE_SPECIFIER,
           tree.moduleSpecifier,
           'module expression expected');
     }
-
-    let specifierType = tree.specifierSet.type;
-    this.checkVisit_(specifierType === EXPORT_SPECIFIER_SET ||
-                     specifierType === EXPORT_STAR,
-                     tree.specifierSet,
-                     'specifier set or identifier expected');
   }
 
   /**

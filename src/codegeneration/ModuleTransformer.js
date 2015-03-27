@@ -29,7 +29,8 @@ import {
   EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
   FUNCTION_DECLARATION,
-  IMPORT_SPECIFIER_SET
+  IMPORT_SPECIFIER_SET,
+  NAME_SPACE_EXPORT
 } from '../syntax/trees/ParseTreeType.js';
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
@@ -152,6 +153,12 @@ export class ModuleTransformer extends TempVarTransformer {
           returnExpression = createIdentifierExpression(tree.lhs)
         }
         break;
+
+      case NAME_SPACE_EXPORT: {
+        let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
+        returnExpression = createIdentifierExpression(idName);
+        break;
+      }
 
       default:
         returnExpression = createIdentifierExpression(name);
