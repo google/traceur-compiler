@@ -84,11 +84,6 @@ export class ExportVisitor extends ModuleVisitor {
     this.addExport_(tree.name.getStringValue(), tree);
   }
 
-  visitModuleDeclaration(tree) {
-    let name = tree.binding.getStringValue();
-    this.addExport_(name, tree);
-  }
-
   visitVariableDeclaration(tree) {
     this.addExport_(tree.lvalue.getStringValue(), tree);
   }

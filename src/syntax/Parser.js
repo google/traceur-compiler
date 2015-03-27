@@ -217,8 +217,8 @@ import {
   MemberLookupExpression,
   MethodSignature,
   Module,
-  ModuleDeclaration,
   ModuleSpecifier,
+  NameSpaceImport,
   NamedExport,
   NewExpression,
   ObjectLiteralExpression,
@@ -502,7 +502,6 @@ export class Parser {
   }
 
   // ScriptItem :
-  //   ModuleDeclaration
   //   ImportDeclaration
   //   StatementListItem
 
@@ -580,12 +579,22 @@ export class Parser {
   // ClassDeclaration
   // ImportDeclaration
   // ExportDeclaration
-  // ModuleDeclaration
-  // TODO: ModuleBlock
   // Statement (other than BlockStatement)
   // FunctionDeclaration
 
   // ImportDeclaration ::= "import" ImportDeclaration
+
+  /**
+   * @return {NameSpaceImport}
+   */
+  parseNameSpaceImport_() {
+    let start = this.getTreeStartLocation_();
+    this.eat_(STAR);
+    this.eatId_(AS);
+    let binding = this.parseImportedBinding_();
+    return new NameSpaceImport(this.getTreeLocation_(start), binding);
+  }
+
   /**
    * @return {ParseTree}
    * @private
@@ -594,37 +603,45 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
 
-    // import * as m from './m.js'
-    if (this.peek_(STAR)) {
-      this.eat_(STAR);
-      this.eatId_(AS);
-      let binding = this.parseImportedBinding_();
-      this.eatId_(FROM);
-      let moduleSpecifier = this.parseModuleSpecifier_();
-      this.eatPossibleImplicitSemiColon_();
-      return new ModuleDeclaration(this.getTreeLocation_(start), binding,
-                                   moduleSpecifier);
-    }
-
     let importClause = null;
-    if (this.peekImportClause_(this.peekType_())) {
-      importClause = this.parseImportClause_();
-      this.eatId_(FROM);
+    switch (this.peekType_()) {
+      case STAR:
+        importClause = this.parseNameSpaceImport_();
+        this.eatId_(FROM);
+        break;
+      case OPEN_CURLY:
+        importClause = this.parseImportSpecifierSet_();
+        this.eatId_(FROM);
+        break;
+      case IDENTIFIER:
+        importClause = this.parseImportedBinding_();
+        this.eatId_(FROM);
+        break;
     }
     let moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
-        importClause, moduleSpecifier);
-  }
-
-  peekImportClause_(type) {
-    return type === OPEN_CURLY || this.peekBindingIdentifier_(type);
+                                 importClause, moduleSpecifier);
   }
 
   // https://bugs.ecmascript.org/show_bug.cgi?id=2287
   // ImportClause :
   //   ImportedBinding
   //   NamedImports
+
+  parseImportSpecifierSet_() {
+    let start = this.getTreeStartLocation_();
+    let specifiers = [];
+    this.eat_(OPEN_CURLY);
+    while (!this.peek_(CLOSE_CURLY) && !this.isAtEnd()) {
+      specifiers.push(this.parseImportSpecifier_());
+      if (!this.eatIf_(COMMA))
+        break;
+    }
+    this.eat_(CLOSE_CURLY);
+
+    return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
+  }
 
   parseImportClause_() {
     let start = this.getTreeStartLocation_();
@@ -672,11 +689,10 @@ export class Parser {
     return new ImportSpecifier(this.getTreeLocation_(start), binding, name);
   }
 
-  // export  VariableStatement
-  // export  FunctionDeclaration
-  // export  ConstStatement
-  // export  ClassDeclaration
-  // export  ModuleDeclaration
+  // export VariableStatement
+  // export FunctionDeclaration
+  // export ConstStatement
+  // export ClassDeclaration
 
   /**
    * @return {ParseTree}
@@ -771,8 +787,11 @@ export class Parser {
 
   parseNamedExport_() {
     // NamedExport ::=
-    //     "*" "from" ModuleSpecifier(load)
-    //     ExportSpecifierSet ("from" ModuleSpecifier(load))?
+    //   "*" "from" ModuleSpecifier
+    //   ExportSpecifierSet
+    //   "*" "from" ModuleSpecifier
+    //   "*" "as" Identifier "from" ModuleSpecifier
+    //   Identifier "from" ModuleSpecifier
     let start = this.getTreeStartLocation_();
 
     let specifierSet, expression = null;

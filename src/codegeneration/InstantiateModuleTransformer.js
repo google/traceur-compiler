@@ -23,15 +23,20 @@ import {
   CLASS_DECLARATION,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
-  IMPORT_SPECIFIER_SET
+  IMPORT_SPECIFIER_SET,
+  NAME_SPACE_IMPORT
 } from '../syntax/trees/ParseTreeType.js';
 import {ScopeTransformer} from './ScopeTransformer.js';
 import {
+  createEmptyParameterList,
+  createFunctionBody,
+  createFunctionExpression,
   createIdentifierExpression as id,
   createIdentifierToken,
-  createVariableStatement,
+  createObjectLiteral,
   createVariableDeclaration,
-  createVariableDeclarationList
+  createVariableDeclarationList,
+  createVariableStatement
 } from './ParseTreeFactory.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {
@@ -45,12 +50,6 @@ import {
   parseStatements
 } from './PlaceholderParser.js';
 import HoistVariablesTransformer from './HoistVariablesTransformer.js';
-import {
-  createFunctionExpression,
-  createEmptyParameterList,
-  createFunctionBody,
-  createObjectLiteral
-} from './ParseTreeFactory.js';
 
 /**
  * Extracts variable and function declarations from the module scope.
@@ -304,8 +303,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     let executionFunction = createFunctionExpression(
         createEmptyParameterList(),
-        createFunctionBody(executionStatements)
-    );
+        createFunctionBody(executionStatements));
 
     // Extract the declaration statements for hoisting from the previous transform.
     let declarationStatements = declarationExtractionTransformer.getDeclarationStatements();
@@ -368,9 +366,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
           ${setterStatements}
         }`;
       }
-      else {
-        return parseExpression `function($__m) {}`;
-      }
+
+      return parseExpression `function($__m) {}`;
     });
 
     // add function declaration assignments for hoisted function exports
@@ -537,10 +534,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     if (this.curDepIndex_ === null) {
       // if it is an export statement, it just becomes the variable declarations
       return specifierSet;
-    } else {
-      // if it is a re-export, it becomes empty
-      return new AnonBlock(null, []);
     }
+    // if it is a re-export, it becomes empty
+    return new AnonBlock(null, []);
   }
 
   transformImportDeclaration(tree) {
@@ -557,36 +553,44 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     // =>
     // <empty>
     //
-    //
+    // import * as m from 'module';
+    // =>
+    // var m;
     //
     this.curDepIndex_ = this.getOrCreateDependencyIndex(tree.moduleSpecifier);
 
     let initializer = this.transformAny(tree.moduleSpecifier);
 
-    if (!tree.importClause)
+    if (!tree.importClause) {
       return new AnonBlock(null, []);
+    }
 
     // visit the import clause to store the bindings
     let importClause = this.transformAny(tree.importClause);
 
+    if (tree.importClause.type === NAME_SPACE_IMPORT) {
+      // we visit the declaration only
+      let bindingIdentifier = tree.importClause.binding.binding;
+      let name = bindingIdentifier.getStringValue();
+      this.addModuleBinding(this.curDepIndex_, name);
+      return parseStatement `var ${bindingIdentifier};`;
+    }
+
     if (tree.importClause.type === IMPORT_SPECIFIER_SET) {
       // loop each specifier generating the variable declaration list
       return importClause;
-    } else {
-      // import default form
-      let bindingName = tree.importClause.binding.getStringValue();
-      this.addImportBinding(this.curDepIndex_, bindingName, 'default');
-      return parseStatement `var ${bindingName};`;
     }
 
-    return new AnonBlock(null, []);
+    // import default form
+    let bindingName = tree.importClause.binding.getStringValue();
+    this.addImportBinding(this.curDepIndex_, bindingName, 'default');
+    return parseStatement `var ${bindingName};`;
   }
 
   transformImportSpecifierSet(tree) {
     return createVariableStatement(
         createVariableDeclarationList(VAR, this.transformList(tree.specifiers)));
   }
-
 
   transformExportDefault(tree) {
     //
@@ -648,7 +652,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   transformExportSpecifierSet(tree) {
     let specifiers = this.transformList(tree.specifiers);
     return new ExpressionStatement(tree.location,
-      new CommaExpression(tree.location, specifiers.filter((specifier) => specifier)));
+        new CommaExpression(tree.location,
+                            specifiers.filter((specifier) => specifier)));
   }
 
   transformImportSpecifier(tree) {
@@ -657,15 +662,6 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     let importName = (tree.name || localBindingToken).value;
     this.addImportBinding(this.curDepIndex_, localBindingToken.value, importName);
     return createVariableDeclaration(localBinding);
-  }
-
-  transformModuleDeclaration(tree) {
-    // we visit the declaration only
-    this.transformAny(tree.expression);
-    let bindingIdentifier = tree.binding.binding;
-    let name = bindingIdentifier.getStringValue();
-    this.addModuleBinding(this.curDepIndex_, name);
-    return parseStatement `var ${bindingIdentifier};`;
   }
 
   transformModuleSpecifier(tree) {

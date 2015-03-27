@@ -80,10 +80,11 @@ import {
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
   IMPORTED_BINDING,
+  IMPORT_SPECIFIER_SET,
   LITERAL_PROPERTY_NAME,
-  MODULE_DECLARATION,
   MODULE_SPECIFIER,
   NAMED_EXPORT,
+  NAME_SPACE_IMPORT,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PROPERTY_METHOD_ASSIGNMENT,
@@ -470,7 +471,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkVisit_(
         declType === VARIABLE_STATEMENT ||
         declType === FUNCTION_DECLARATION ||
-        declType === MODULE_DECLARATION ||
         declType === CLASS_DECLARATION ||
         declType === NAMED_EXPORT ||
         declType === EXPORT_DEFAULT,
@@ -687,6 +687,18 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     }
   }
 
+  visitImportDeclaration(tree) {
+    if (tree.importClause !== null) {
+      this.check_(tree.importClause.type === NAME_SPACE_IMPORT ||
+                  tree.importClause.type === IMPORTED_BINDING ||
+                  tree.importClause.type === IMPORT_SPECIFIER_SET,
+                  tree.importClause,
+                  'Invalid import clause');
+    }
+    this.checkType_(MODULE_SPECIFIER, tree.moduleSpecifier,
+                    'module specifier expected');
+  }
+
   visitImportSpecifier(tree) {
     this.checkType_(IMPORTED_BINDING, tree.binding, 'ImportedBinding expected');
   }
@@ -745,18 +757,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.check_(tree.token.type === STRING ||
                 tree.moduleName,
                 'string or identifier expected');
-  }
-
-  /**
-   * @param {ModuleDeclaration} tree
-   */
-  visitModuleDeclaration(tree) {
-    this.checkType_(IMPORTED_BINDING,
-                    tree.binding,
-                    'ImportedBinding expected');
-    this.checkType_(MODULE_SPECIFIER,
-                    tree.expression,
-                    'module expression expected');
   }
 
   /**

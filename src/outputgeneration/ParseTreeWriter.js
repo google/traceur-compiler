@@ -532,6 +532,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {NameSpaceImport} tree
+   */
+  visitNameSpaceImport(tree) {
+    this.write_(STAR);
+    this.writeSpace_();
+    this.write_(AS);
+    this.writeSpace_();
+    this.visitAny(tree.binding);
+  }
+
+  /**
    * @param {NamedExport} tree
    */
   visitNamedExport(tree) {
@@ -983,23 +994,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleSpecifier(tree) {
     this.write_(tree.token);
-  }
-
-  /**
-   * @param {ModuleDeclaration} tree
-   */
-  visitModuleDeclaration(tree) {
-    this.write_(IMPORT);
-    this.writeSpace_();
-    this.write_(STAR);
-    this.writeSpace_();
-    this.write_(AS);
-    this.visitAny(tree.binding);
-    this.writeSpace_();
-    this.write_(FROM);
-    this.writeSpace_();
-    this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
   }
 
   /**

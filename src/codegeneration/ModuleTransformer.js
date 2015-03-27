@@ -64,7 +64,6 @@ export class ModuleTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.options_ = options;
     this.exportVisitor_ = new DirectExportVisitor();
-    this.moduleSpecifierKind_ = null;
     this.moduleName = null;
   }
 
@@ -255,19 +254,6 @@ export class ModuleTransformer extends TempVarTransformer {
     return parseExpression `System.get(${normalizedName})`;
   }
 
-  /**
-   * @param {ModuleDeclaration} tree
-   * @return {VariableDeclaration}
-   */
-  transformModuleDeclaration(tree) {
-    this.moduleSpecifierKind_ = 'module';
-    let initializer = this.transformAny(tree.expression);
-    let bindingIdentifier = tree.binding.binding;
-    // const a = b.c, d = e.f;
-    // TODO(arv): const is not allowed in ES5 strict
-    return createVariableStatement(VAR, bindingIdentifier, initializer);
-  }
-
   transformImportedBinding(tree) {
     let bindingElement = new BindingElement(tree.location, tree.binding, null);
     let name = new LiteralPropertyName(null, createIdentifierToken('default'));
@@ -278,16 +264,22 @@ export class ModuleTransformer extends TempVarTransformer {
   transformImportDeclaration(tree) {
     // import {id} from 'module'
     //  =>
-    // var {id} = moduleInstance
+    // const {id} = moduleInstance
     //
     // import id from 'module'
     //  =>
-    // var {default: id} = moduleInstance
+    // const {default: id} = moduleInstance
     //
     // import 'module'
     //  =>
     // moduleInstance;
-    this.moduleSpecifierKind_ = 'import';
+    //
+    // import * as m from 'module'
+    // =>
+    // const m = moduleInstance
+
+    // import 'module'
+    // import {} from 'module'
     if (!tree.importClause ||
         (tree.importClause.type === IMPORT_SPECIFIER_SET &&
          tree.importClause.specifiers.length === 0)) {
@@ -314,6 +306,10 @@ export class ModuleTransformer extends TempVarTransformer {
   transformImportSpecifierSet(tree) {
     let fields = this.transformList(tree.specifiers);
     return new ObjectPattern(null, fields);
+  }
+
+  transformNameSpaceImport(tree) {
+    return tree.binding.binding;
   }
 
   transformImportSpecifier(tree) {

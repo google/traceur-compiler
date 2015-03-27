@@ -781,23 +781,20 @@
       "string"
     ]
   },
-  "ModuleDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "binding": [
-      "ImportedBinding"
-    ],
-    "expression": [
-      "ParseTree"
-    ]
-  },
   "ModuleSpecifier": {
     "location": [
       "SourceRange"
     ],
     "token": [
       "Token"
+    ]
+  },
+  "NameSpaceImport": {
+    "location": [
+      "SourceRange"
+    ],
+    "binding": [
+      "ImportedBinding"
     ]
   },
   "NamedExport": {

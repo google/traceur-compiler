@@ -93,4 +93,10 @@ export class ValidationVisitor extends ModuleVisitor {
     this.checkImport_(tree, importName);
     this.checkExport_(tree, 'default');
   }
+
+  visitNameSpaceImport(tree) {
+    let importName = tree.binding.binding.getStringValue();
+    // TODO(arv): Make checkImport take an ImportBinding.
+    this.checkImport_(tree, importName);
+  }
 }
