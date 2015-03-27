@@ -74,6 +74,13 @@ export class ValidationVisitor extends ModuleVisitor {
     this.checkExport_(tree, tree.lhs.value);
   }
 
+  visitForwardDefaultExport(tree) {
+    // export name from 'module'
+    // same as
+    // export {default as name} from 'module'
+    this.checkExport_(tree, 'default');
+  }
+
   visitImportDeclaration(tree) {
     let name = tree.moduleSpecifier.token.processedValue;
     let moduleDescription =

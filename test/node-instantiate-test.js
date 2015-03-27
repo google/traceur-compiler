@@ -162,4 +162,11 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('Export name from', function(done) {
+    System.import('./export-forward-default.js').then(function(m) {
+      assert.equal(42, m.a);
+      done();
+    }).catch(done);
+  });
+
 });

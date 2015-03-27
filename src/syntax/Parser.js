@@ -196,6 +196,7 @@ import {
   ForStatement,
   FormalParameter,
   FormalParameterList,
+  ForwardDefaultExport,
   FunctionBody,
   FunctionDeclaration,
   FunctionExpression,
@@ -735,7 +736,8 @@ export class Parser {
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
           break;
         }
-        return this.parseNamedExport_();
+        exportTree = this.parseNamedExport_();
+        break;
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
@@ -813,7 +815,9 @@ export class Parser {
         break;
 
       case IDENTIFIER:
-        throw 'NYI';
+        exportClause = this.parseForwardDefaultExport_();
+        this.eatId_(FROM);
+        moduleSpecifier = this.parseModuleSpecifier_();
         break;
 
       case STAR:
@@ -874,6 +878,13 @@ export class Parser {
       rhs = this.eatIdName_();
     }
     return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
+  }
+
+  parseForwardDefaultExport_() {
+    // export IdentifierName from 'module'
+    let start = this.getTreeStartLocation_();
+    let idName = this.eatIdName_();
+    return new ForwardDefaultExport(this.getTreeLocation_(start), idName);
   }
 
   validateExportSpecifierSet_(tree) {

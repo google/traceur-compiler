@@ -514,6 +514,14 @@
       "Array<FormalParameter>"
     ]
   },
+  "ForwardDefaultExport": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
   "FunctionBody": {
     "location": [
       "SourceRange"

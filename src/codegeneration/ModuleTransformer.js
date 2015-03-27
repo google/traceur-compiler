@@ -28,6 +28,7 @@ import {
   CLASS_DECLARATION,
   EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
+  FORWARD_DEFAULT_EXPORT,
   FUNCTION_DECLARATION,
   IMPORT_SPECIFIER_SET,
   NAME_SPACE_EXPORT
@@ -160,6 +161,12 @@ export class ModuleTransformer extends TempVarTransformer {
         break;
       }
 
+      case FORWARD_DEFAULT_EXPORT: {
+        let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
+        returnExpression = createMemberExpression(idName, 'default');
+        break;
+      }
+
       default:
         returnExpression = createIdentifierExpression(name);
         break;
@@ -246,7 +253,7 @@ export class ModuleTransformer extends TempVarTransformer {
       return createVariableStatement(VAR, idName, expression);
     }
 
-    return new EmptyStatement(null);
+    return new AnonBlock(null, [])
   }
 
   /**

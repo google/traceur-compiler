@@ -84,6 +84,13 @@ export class ExportVisitor extends ModuleVisitor {
     this.addExport_(tree.name.value, tree);
   }
 
+  visitForwardDefaultExport(tree) {
+    // export name from 'module'
+    // same as
+    // export {default as name} from 'module'
+    this.addExport_(tree.name.value, tree);
+  }
+
   visitFunctionDeclaration(tree) {
     this.addExport_(tree.name.getStringValue(), tree);
   }

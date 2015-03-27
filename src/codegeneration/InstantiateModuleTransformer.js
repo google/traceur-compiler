@@ -659,6 +659,11 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     return tree;
   }
 
+  transformForwardDefaultExport(tree) {
+    this.addExternalExportBinding(this.curDepIndex_, tree.name.value, 'default');
+    return tree;
+  }
+
   transformImportSpecifier(tree) {
     let localBinding = tree.binding.binding;
     let localBindingToken = localBinding.identifierToken;

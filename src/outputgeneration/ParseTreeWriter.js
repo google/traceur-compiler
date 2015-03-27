@@ -710,6 +710,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {ForwardDefaultExport} tree
+   */
+  visitForwardDefaultExport(tree) {
+    this.write_(tree.name);
+  }
+
+  /**
    * @param {FunctionBody} tree
    */
   visitFunctionBody(tree) {

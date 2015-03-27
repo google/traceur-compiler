@@ -75,6 +75,7 @@ import {
   FINALLY,
   FORMAL_PARAMETER,
   FORMAL_PARAMETER_LIST,
+  FORWARD_DEFAULT_EXPORT,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
   GET_ACCESSOR,
@@ -484,11 +485,13 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitNamedExport(tree) {
     let specifierType = tree.exportClause.type;
-    this.checkVisit_(specifierType === EXPORT_SPECIFIER_SET ||
+    this.checkVisit_(specifierType === EXPORT_SPECIFIER ||
+                     specifierType === EXPORT_SPECIFIER_SET ||
                      specifierType === EXPORT_STAR ||
+                     specifierType === FORWARD_DEFAULT_EXPORT ||
                      specifierType === NAME_SPACE_EXPORT,
                      tree.exportClause,
-                     'specifier set or identifier expected');
+                     'Invalid export clause');
     if (tree.moduleSpecifier) {
       this.checkVisit_(
           tree.moduleSpecifier.type === MODULE_SPECIFIER,
