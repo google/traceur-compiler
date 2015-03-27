@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('interpreter', function(){
+suite('node-only: interpreter', function(){
 
   var exec = require('child_process').exec;
   var debug = false;

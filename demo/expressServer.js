@@ -1,12 +1,23 @@
-var express = require('express');
-var http = require('http');
-var serveIndex = require('serve-index');
+
+import {globPatterns} from '../test/modular/NodeTraceurTestRunner.js';
+
+let express = require('express');
+let http = require('http');
+let serveIndex = require('serve-index');
 
 function servePathAtPort(path, port) {
-  var app = express();
+  let app = express();
   app.use(express.static(path));   // before directory to allow index.html to work
   app.use(serveIndex(path));
-  var server = http.createServer(app);
+  app.get('/traceurService/testGlobs', function(req, res) {
+  	console.log('req', req.query.patterns);
+  	let patterns = JSON.parse(req.query.patterns);
+  	return globPatterns(patterns).then((files) => {
+  		console.log('files ', files);
+  		return res.send(files);
+  	});
+  });
+  let server = http.createServer(app);
   server.on('error', function(e) {
   	console.log('Port ' + port + ' did not work out');
   });
@@ -14,5 +25,6 @@ function servePathAtPort(path, port) {
   console.log('serving ' + path + ' at ' + port);
 }
 
-servePathAtPort(__dirname + '/..', 8099);
-servePathAtPort(__dirname + '/..', 80);
+console.log('moduleName ' + __moduleName);
+servePathAtPort(System.dirname(__moduleName) + '/..', 8099);
+servePathAtPort(System.dirname(__moduleName) + '/..', 80);

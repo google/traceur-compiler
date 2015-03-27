@@ -136,7 +136,7 @@
         var lines = this.func.toString().split('\n')
 
         var evaled = [];
-        ex.stack.split('\n').some(function(frame) {
+        ex.stack.split('\n').some(function(frame, index) {
           // End when we find ourselves on the stack.
           if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
             return true;
@@ -146,13 +146,18 @@
           if (m) {
             var line = parseInt(m[2], 10);
             evaled = evaled.concat(beforeLines(lines, line));
-            evaled.push(columnSpacing(m[3]) + '^');
+            // The first evaled frame should be the one from 'this.func'
+            if (index === 1) {
+              evaled.push(columnSpacing(m[3]) + '^ ' + this.url);
+            } else {
+              evaled.push(columnSpacing(m[3]) + '^');
+            }
             evaled = evaled.concat(afterLines(lines, line));
             evaled.push('= = = = = = = = =');
           } else {
             evaled.push(frame);
           }
-        });
+        }.bind(this));
         ex.stack = evaled.join('\n');
       }
 

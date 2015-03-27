@@ -12,10 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* @fileoverview Configure mocha and run the test list */
+/** @fileoverview Mocha dependencies from Node */
 
-import {unitTestRunner} from './unit/unitTestRunner.js';
+  export var Mocha;
+  export var Runner;
+  export var reporters;
 
-unitTestRunner.run().catch((ex) => {
-	console.log('unitTestRunner FAILED', ex.stack || ex);
-});
+  if (typeof window === 'undefined') {
+    Mocha = require('mocha');
+    Runner = require('mocha/lib/runner');
+    reporters = require('mocha/lib/reporters');
+  } else {
+    Mocha = window.Mocha;
+    Runner = Mocha.Runner;
+    reporters = Mocha.reporters;
+  }

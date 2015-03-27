@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('tree writer', function() {
+suite('node-only: tree writer', function() {
 
   var fs = require('fs');
   var path = require('path');
