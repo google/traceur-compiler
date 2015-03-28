@@ -96,6 +96,7 @@ export let codegeneration = {
 
 import {Loader} from './runtime/Loader.js';
 import {LoaderCompiler} from './runtime/LoaderCompiler.js';
+import {NodeLoaderCompiler} from './node/NodeLoaderCompiler.js';
 import {InlineLoaderCompiler} from './runtime/InlineLoaderCompiler.js';
 import {TraceurLoader} from './runtime/TraceurLoader.js';
 
@@ -103,5 +104,6 @@ export let runtime = {
   InlineLoaderCompiler,
   Loader,
   LoaderCompiler,
+  NodeLoaderCompiler,
   TraceurLoader
 };

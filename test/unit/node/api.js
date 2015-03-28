@@ -16,7 +16,7 @@ import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
 suite('api.js', function() {
 
-  var api = require('../../src/node/api');
+  var api = require('../../../src/node/api');
 
   test('api compile script function declaration', function() {
     var result = api.compile('function foo() {};',

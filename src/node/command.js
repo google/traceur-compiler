@@ -128,7 +128,11 @@ var dir = commandLine.dir;
 function compileAll(out, sources, options) {
   var isSingleFileCompile = /\.js$/.test(out);
   if (!isSingleFileCompile) {
-    traceurAPI.forEachRecursiveModuleCompile(out, sources, options);
+    traceurAPI.forEachRecursiveModuleCompile(out, sources, options).then(function() {
+      process.exit(0);
+    }).catch(function() {
+      process.exit(1);
+    });
   } else {
     traceurAPI.recursiveModuleCompileToSingleFile(out, sources, options).then(function() {
       process.exit(0);
@@ -195,6 +199,7 @@ if (!shouldExit) {
     traceurAPI.compileAllJsFilesInDir(dir, rootSources[0].name, commandOptions);
   } else {
     rootSources.forEach(function(obj) {
+      commandOptions.require = true;
       interpret(path.resolve(obj.name), commandOptions);
     });
   }

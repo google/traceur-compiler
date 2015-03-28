@@ -33,6 +33,7 @@ function compile(filename, options) {
 }
 
 function traceurRequire(filename) {
+  filename = require.resolve(filename);
   var source = compile(filename);
   var module = new Module(filename, require.main);
   module.compiledCode = source;
@@ -52,6 +53,8 @@ function shouldCompile(filename) {
   }
   return false;
 }
+
+traceurRequire.nodeRequire = require;
 
 traceurRequire.makeDefault = function(filter, options) {
   if (!filter)

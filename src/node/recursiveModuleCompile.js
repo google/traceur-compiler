@@ -62,17 +62,13 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
 function forEachRecursiveModuleCompile(outputDir, includes, options) {
   var outputDir = path.resolve(outputDir);
   var compiler = new NodeCompiler(options);
-
-  Promise.all(includes.map(function(input) {
+  function getPromise (input) {
     return recursiveModuleCompile([input], options).then(function(tree) {
       var outputFileName = path.join(outputDir, input.name);
       compiler.writeTreeToFile(tree, outputFileName);
     });
-  })).then(function() {
-    process.exit(0);
-  }, function() {
-    process.exit(1);
-  });
+  }
+  return Promise.all(includes.map(getPromise));
 }
 
 var TraceurLoader = traceur.runtime.TraceurLoader;

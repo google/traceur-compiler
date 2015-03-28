@@ -27,7 +27,7 @@ suite('tree writer', function() {
 
   function testWriteModule(resouceName) {
     test(resouceName, function() {
-      var fileName = path.resolve(__dirname, resouceName);
+      var fileName = path.resolve(System.dirname(__moduleName), resouceName);
       var source = fs.readFileSync(fileName, 'utf-8');
       var file = new traceur.syntax.SourceFile(fileName, source);
       var result = parseFileAsModule(file);

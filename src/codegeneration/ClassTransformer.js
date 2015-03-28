@@ -436,13 +436,18 @@ export class ClassTransformer extends TempVarTransformer {
     let constructorParams = createEmptyParameterList();
     let constructorBody;
     let initStatement = createExpressionStatement(initExpression);
+    let statements = [];
+    if (initExpression.expressions.length) {
+      statements.push(initStatement);
+    }
     if (tree.superClass) {
       let statement = parseStatement `$traceurRuntime.superConstructor(
           ${internalName}).apply(this, arguments)`;
-      constructorBody = createFunctionBody([statement, initStatement]);
+      statements.unshift(statement);
+      constructorBody = createFunctionBody(statements);
       this.state_.hasSuper = true;
     } else {
-      constructorBody = createFunctionBody([initStatement]);
+      constructorBody = createFunctionBody(statements);
     }
 
     return new FunctionExpression(tree.location, tree.name, false,

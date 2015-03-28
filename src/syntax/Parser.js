@@ -760,7 +760,7 @@ export class Parser {
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
           break;
         }
-        return this.parseUnexpectedToken_(type);
+        return this.parseUnexpectedToken_(this.peekToken_());
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
     }
