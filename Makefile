@@ -203,7 +203,7 @@ STRONG_OPTIONS = --strong-mode \
 	--for-of=parse \
 	--generators=parse \
 	--numeric-literals=parse \
-	--template-literals
+	--template-literals=parse
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js

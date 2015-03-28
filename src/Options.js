@@ -579,4 +579,3 @@ export function addOptions(flags, commandOptions) {
   // After we've processed the commandOptions, set defaults for commandOptions.
   commandOptions.setDefaults();
 }
-

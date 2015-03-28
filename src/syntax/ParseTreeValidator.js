@@ -625,7 +625,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {Block} tree
+   * @param {FunctionBody} tree
    */
   visitFunctionBody(tree) {
     for (let i = 0; i < tree.statements.length; i++) {
