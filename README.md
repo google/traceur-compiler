@@ -1,6 +1,11 @@
 [![Build Status](https://travis-ci.org/google/traceur-compiler.svg)](https://travis-ci.org/google/traceur-compiler)
 
 <img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px">
+
+## Strong Mode Branch
+
+This branch is for experimenting with strong mode. See https://developers.google.com/v8/experiments for more details.
+
 ## What is Traceur?
 
 Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to
