@@ -13,11 +13,10 @@
 // limitations under the License.
 
 import {
-  BINARY_EXPRESSION,
   COMMA_EXPRESSION,
-  CONDITIONAL_EXPRESSION,
+  TEMPLATE_LITERAL_EXPRESSION,
   TEMPLATE_LITERAL_PORTION,
-  TEMPLATE_LITERAL_EXPRESSION
+  TEMPLATE_SUBSTITUTION
 } from '../syntax/trees/ParseTreeType.js';
 import {
   LiteralExpression,
@@ -27,10 +26,7 @@ import {LiteralToken} from '../syntax/LiteralToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
-  PERCENT,
   PLUS,
-  SLASH,
-  STAR,
   STRING
 } from '../syntax/TokenType.js';
 import {
@@ -237,19 +233,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
   transformTemplateSubstitution(tree) {
     let transformedTree = this.transformAny(tree.expression);
     // Wrap in a paren expression if needed.
-    switch (transformedTree.type) {
-      case BINARY_EXPRESSION:
-        // Only * / and % have higher priority than +.
-        switch (transformedTree.operator.type) {
-          case STAR:
-          case PERCENT:
-          case SLASH:
-            return transformedTree;
-        }
-        return createParenExpression(transformedTree);
-
-      case COMMA_EXPRESSION:
-      case CONDITIONAL_EXPRESSION:
+    if (transformedTree.type === COMMA_EXPRESSION) {
         return createParenExpression(transformedTree);
     }
 
@@ -261,7 +245,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
   }
 
   createDefaultTemplateLiteral(tree) {
-    // convert to ("a" + b + "c" + d + "")
+    // convert to ("a" + String(b) + "c" + String(d) + "")
     let length = tree.elements.length;
     if (length === 0) {
       let loc = tree.location;
@@ -283,6 +267,9 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
           binaryExpression = binaryExpression.right;
       }
       let transformedTree = this.transformAny(tree.elements[i]);
+      if (element.type === TEMPLATE_SUBSTITUTION) {
+        transformedTree = parseExpression `String(${transformedTree})`;
+      }
       binaryExpression = createBinaryExpression(binaryExpression, plusToken,
                                               transformedTree);
     }
