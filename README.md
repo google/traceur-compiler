@@ -5,8 +5,7 @@
 ## What is Traceur?
 
 Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to
-use features from the future **today**. Traceur supports ES6, some ES7 features as 
-well as some AtScript features.
+use features from the future **today**. Traceur supports ES6 as well as some experimental ES.next features.
 
 Traceur's goal is to inform the design
 of new JavaScript features which are only valuable if they allow you to write
