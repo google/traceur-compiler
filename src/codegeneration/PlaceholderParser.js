@@ -20,7 +20,6 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
-import {Map} from '../runtime/polyfills/Map.js';
 import {CollectingErrorReporter} from '../util/CollectingErrorReporter.js';
 import {Options} from '../Options.js';
 import {ParseTree} from '../syntax/trees/ParseTree.js';
@@ -76,14 +75,15 @@ import {
  */
 const NOT_FOUND = {};
 
-let cache = new Map();
-
 /**
  * @param {function(Parser) : ParseTree} doParse Function that calls the correct
  *     parse method on the parser.
  */
 function makeParseFunction(doParse) {
-  return (sourceLiterals, ...values) => parse(sourceLiterals, values, doParse);
+  let cache = new Map();
+  return (sourceLiterals, ...values) => {
+    return parse(sourceLiterals, values, doParse, cache);
+  };
 }
 
 /**
@@ -99,7 +99,7 @@ export let parseStatements = makeParseFunction((p) => p.parseStatements());
 export let parsePropertyDefinition =
     makeParseFunction((p) => p.parsePropertyDefinition());
 
-function parse(sourceLiterals, values, doParse) {
+function parse(sourceLiterals, values, doParse, cache) {
   let tree = cache.get(sourceLiterals);
   if (!tree) {
     let source = insertPlaceholderIdentifiers(sourceLiterals);

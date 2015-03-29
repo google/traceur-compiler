@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @fileoverview import all runtime modules, eg for Traceur self-build. */
+let {defineProperty, freeze} = Object;
+let {slice} = Array.prototype;
+let map = Object.create(null);
 
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './classes.js';
-import './async.js';
-import './generators.js';
-import './template.js';
-import './type-assertions.js';
+function getTemplateObject(raw, cooked = undefined) {
+  var key = raw.join('${}');
+  var templateObject = map[key];
+  if (templateObject) return templateObject;
+  if (!cooked) {
+    cooked = slice.call(raw);
+  }
+  return map[key] = freeze(defineProperty(cooked, 'raw', {value: freeze(raw)}));
+}
+
+$traceurRuntime.getTemplateObject = getTemplateObject;
