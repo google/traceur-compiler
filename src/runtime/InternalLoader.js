@@ -390,6 +390,7 @@ export class InternalLoader {
       codeUnit.metadata = {
         traceurOptions: metadata.traceurOptions,
         outputName: metadata.outputName,
+        rootModule: metadata.rootModule
       };
       this.cache.set(key, codeUnit);
     }

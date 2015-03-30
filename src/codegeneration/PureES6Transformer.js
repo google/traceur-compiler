@@ -14,6 +14,7 @@
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
+import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
@@ -65,5 +66,9 @@ export class PureES6Transformer extends MultiTransformer {
     }
     append(AnnotationsTransformer);
     append(TypeTransformer);
+
+    if (options.modules === 'inline') {
+      append(InlineES6ModuleTransformer);
+    }
   }
 }

@@ -36,6 +36,7 @@ function recursiveModuleCompileToSingleFile(outputFile, includes, options) {
   // Resolve includes before changing directory.
   var resolvedIncludes = includes.map(function(include) {
     include.name = path.resolve(include.name);
+    include.rootModule = true;
     return include;
   });
 
@@ -144,7 +145,10 @@ function recursiveModuleCompile(fileNamesAndTypes, options) {
 
     var loadOptions = {
       referrerName: referrerName,
-      metadata: {traceurOptions: optionsCopy}
+      metadata: {
+        traceurOptions: optionsCopy,
+        rootModule: input.rootModule && input.name
+      }
     };
 
     return loadFunction.call(loader, name, loadOptions).then(function() {

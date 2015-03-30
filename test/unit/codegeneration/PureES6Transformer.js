@@ -48,4 +48,46 @@ suite('PureES6Transformer.js', function() {
     var transformed = transformer.transform(tree);
     assert.equal(write(transformed), write(expectedTree));
   });
+
+  test('Inline', function() {
+    var options = new Options({
+      modules: 'inline'
+    });
+    var metadata = {
+      rootModule: null
+    };
+    var reporter = new ErrorReporter();
+
+    var code = [
+      `import {TestA} from ${"'./resources/test_a.js'"};`,
+      `import {TestB} from ${"'./resources/test_b.js'"};`,
+      'export class App {',
+      '  constructor() {',
+      '    this.name = "hello";',
+      '  }',
+      '}',
+      'export const test = {TestA, TestB};'
+    ].join('\n');
+
+    var expected = [
+      '"use strict";',
+      'const {TestA} = $__resources_47_test_95_a_46_js__;',
+      'const {TestB} = $__resources_47_test_95_b_46_js__;',
+      'export class App {',
+      '  constructor() {',
+      '    this.name = "hello";',
+      '  }',
+      '}',
+      'export const test = {',
+      '  TestA,',
+      '  TestB',
+      '};'
+    ].join('\n');
+
+    var tree = parse(code, reporter, options);
+    var expectedTree = parse(expected, reporter, options);
+    var transformer = new PureES6Transformer(reporter, options, metadata);
+    var transformed = transformer.transform(tree);
+    assert.equal(write(transformed), write(expectedTree));
+  });
 });

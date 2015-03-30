@@ -342,6 +342,20 @@ suite('context test', function() {
         });
   });
 
+  test('compiled modules inline with outputLanguage=es6', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFilename = resolve('test/unit/node/resources/import-x.js');
+    exec(executable + ' --out ' + tempFileName + ' --modules=inline --outputLanguage=es6 -- ' + inputFilename,
+      function(error, stdout, stderr) {
+        assert.isNull(error);
+        executeFileWithRuntime(tempFileName).then(function() {
+          assert.equal(global.result, 'x');
+          done();
+        }).catch(done);
+      });
+  });
+
   test('working dir doesn\'t change when recursive compiling', function (done) {
     var recursiveCompile = require('../../../src/node/recursiveModuleCompile')
       .recursiveModuleCompileToSingleFile;
