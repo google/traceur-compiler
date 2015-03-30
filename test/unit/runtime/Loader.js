@@ -143,24 +143,13 @@ suite('Loader.js', function() {
   });
 
   test('LoaderModuleFail', function(done) {
-    var code =
-        'import * as a from "./test/unit/runtime/resources/test_a.js";\n' +
-        'import * as b from "./test/unit/runtime/resources/test_b.js";\n' +
-        'import * as c from "./rtest/unit/runtime/esources/test_c.js";\n' +
-        '\n' +
-        '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
-
-    var reporter = new MutedErrorReporter();
-
-    var result = getTestLoader(reporter).module(code, {}).then(
+    var code = 'DeliboratelyUndefined; \n';
+    var result = getTestLoader().module(code, {}).then(
       function(value) {
         fail('Should not have succeeded');
         done();
-      }, function(error) {
-        // TODO(jjb): We should probably get some meaningful error here.
-
-        //assert.isTrue(reporter.hadError());
-        assert.isTrue(true);
+      }, function(ex) {
+        assert((ex + '').indexOf('DeliboratelyUndefined') !== -1);
         done();
       }).catch(done);
   });
