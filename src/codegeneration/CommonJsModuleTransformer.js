@@ -14,17 +14,22 @@
 
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {
+  CALL_EXPRESSION,
   GET_ACCESSOR,
   OBJECT_LITERAL_EXPRESSION,
   PROPERTY_NAME_ASSIGNMENT,
   RETURN_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
+import {
+  ArgumentList,
+  CallExpression,
+  ExpressionStatement
+} from '../syntax/trees/ParseTrees.js';
 import {assert} from '../util/assert.js';
 import globalThis from './globalThis.js';
 import {
   parseExpression,
   parsePropertyDefinition,
-  parseStatement,
   parseStatements
 } from './PlaceholderParser.js';
 import scopeContainsThis from './scopeContainsThis.js';
@@ -39,7 +44,6 @@ import {
   createVariableDeclarationList
 } from './ParseTreeFactory.js';
 import {VAR} from '../syntax/TokenType.js';
-import {prependStatements} from './PrependStatements.js';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
@@ -84,17 +88,38 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     let last = statements[statements.length - 1];
     statements = statements.slice(0, -1);
     assert(last.type === RETURN_STATEMENT);
-    let exportObject = last.expression;
+    let exportExpression = last.expression;
 
     // If the module doesn't use any export statements, nor global "this", it
     // might be because it wants to make its own changes to "exports" or
     // "module.exports", so we don't append "module.exports = {}" to the output.
     if (this.hasExports()) {
-      let descriptors = this.transformObjectLiteralToDescriptors(exportObject);
-      let exportStatement = parseStatement `Object.defineProperties(module.exports, ${descriptors});`;
-      statements = prependStatements(statements, exportStatement);
+      let exportStatement =
+          this.transformExportExpressionToModuleExport(exportExpression);
+      statements = statements.concat(exportStatement);
     }
     return statements;
+  }
+
+  transformExportExpressionToModuleExport(tree) {
+    let expression;
+
+    // $traceurRuntime.exportStar({}, ...)
+    if (tree.type === CALL_EXPRESSION) {
+      let descriptors =
+          this.transformObjectLiteralToDescriptors(tree.args.args[0]);
+      let object = parseExpression
+          `Object.defineProperties(module.exports, ${descriptors})`;
+      let newArgs = new ArgumentList(tree.args.location,
+                                     [object, ...tree.args.args.slice(1)])
+      expression = new CallExpression(tree.location, tree.operand, newArgs);
+    } else {
+      let descriptors = this.transformObjectLiteralToDescriptors(tree);
+      expression = parseExpression
+          `Object.defineProperties(module.exports, ${descriptors})`;
+    }
+
+    return new ExpressionStatement(expression.location, expression);
   }
 
   transformObjectLiteralToDescriptors(literalTree) {

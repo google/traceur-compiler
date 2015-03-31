@@ -429,7 +429,7 @@
         var names = $getOwnPropertyNames(arguments[i]);
         for (var j = 0; j < names.length; j++) {
           var name = names[j];
-          if (isSymbolString(name)) continue;
+          if (name === '__esModule' || isSymbolString(name)) continue;
           (function(mod, name) {
             $defineProperty(object, name, {
               get: function() { return mod[name]; },
