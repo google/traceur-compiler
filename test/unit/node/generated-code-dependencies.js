@@ -351,7 +351,6 @@ suite('context test', function() {
       name: inputFilename
     }];
     var cwd = process.cwd();
-    traceur.System.baseURL = cwd;
     recursiveCompile(tempFileName, rootSources, new traceur.util.Options())
       .then(function () {
         assert.equal(process.cwd(), cwd);

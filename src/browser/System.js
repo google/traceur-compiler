@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from '../util/ErrorReporter.js';
-import {TraceurLoader} from '../runtime/TraceurLoader.js';
-import {LoaderCompiler} from './LoaderCompiler.js';
-import {webLoader} from './webLoader.js';
+import {BrowserTraceurLoader} from '../runtime/TraceurLoader.js';
 
-var url;
-var fileLoader;
-if (typeof window !== 'undefined' && window.location) {
-  url = window.location.href;
-  fileLoader = webLoader;
-}
-
-var traceurLoader = new TraceurLoader(fileLoader, url);
+let traceurLoader = new BrowserTraceurLoader();
 
 Reflect.global.System = traceurLoader;
 

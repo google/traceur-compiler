@@ -16,15 +16,8 @@
 
 var fs = require('fs');
 var traceur = require('./traceur.js');
-var path = require('path');
 
-var nodeLoader = require('./nodeLoader.js');
-var url = (path.resolve('./') + '/').replace(/\\/g, '/');
-
-var NodeLoaderCompiler = traceur.runtime.NodeLoaderCompiler;
-
-var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
-    new NodeLoaderCompiler());
+var System = new traceur.runtime.NodeTraceurLoader();
 
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
