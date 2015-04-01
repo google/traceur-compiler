@@ -205,6 +205,7 @@ import {
   GetAccessor,
   IdentifierExpression,
   IfStatement,
+  ImportClausePair,
   ImportDeclaration,
   ImportSpecifier,
   ImportSpecifierSet,
@@ -606,24 +607,36 @@ export class Parser {
     this.eat_(IMPORT);
 
     let importClause = null;
-    switch (this.peekType_()) {
-      case STAR:
-        importClause = this.parseNameSpaceImport_();
-        this.eatId_(FROM);
-        break;
-      case OPEN_CURLY:
-        importClause = this.parseImportSpecifierSet_();
-        this.eatId_(FROM);
-        break;
-      case IDENTIFIER:
-        importClause = this.parseImportedBinding_();
-        this.eatId_(FROM);
-        break;
+    if (!this.peek_(STRING)) {
+      importClause = this.parseImportClause_(true);
+      this.eatId_(FROM);
     }
     let moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
                                  importClause, moduleSpecifier);
+  }
+
+  parseImportClause_(allowImportedDefaultBinding) {
+    switch (this.peekType_()) {
+      case STAR:
+        return this.parseNameSpaceImport_();
+      case OPEN_CURLY:
+        return this.parseImportSpecifierSet_();
+      case IDENTIFIER:
+        if (allowImportedDefaultBinding) {
+          let start = this.getTreeStartLocation_();
+          let importedBinding = this.parseImportedBinding_();
+          if (this.eatIf_(COMMA)) {
+            let second = this.parseImportClause_(false);
+            return new ImportClausePair(this.getTreeLocation_(start),
+                                        importedBinding, second);
+          }
+          return importedBinding;
+        }
+        break;
+    }
+    return this.parseUnexpectedToken_(this.peekToken_());
   }
 
   // https://bugs.ecmascript.org/show_bug.cgi?id=2287
@@ -643,23 +656,6 @@ export class Parser {
     this.eat_(CLOSE_CURLY);
 
     return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
-  }
-
-  parseImportClause_() {
-    let start = this.getTreeStartLocation_();
-    if (this.eatIf_(OPEN_CURLY)) {
-      let specifiers = [];
-      while (!this.peek_(CLOSE_CURLY) && !this.isAtEnd()) {
-        specifiers.push(this.parseImportSpecifier_());
-        if (!this.eatIf_(COMMA))
-          break;
-      }
-      this.eat_(CLOSE_CURLY);
-
-      return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
-    }
-
-    return this.parseImportedBinding_();
   }
 
   parseImportedBinding_() {

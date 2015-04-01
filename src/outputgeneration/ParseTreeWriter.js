@@ -894,6 +894,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {ImportClausePair} tree
+   */
+  visitImportClausePair(tree) {
+    this.visitAny(tree.first);
+    this.write_(COMMA);
+    this.writeSpace_();
+    this.visitAny(tree.second);
+  }
+
+  /**
    * @param {ImportDeclaration} tree
    */
   visitImportDeclaration(tree) {

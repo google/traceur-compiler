@@ -80,8 +80,9 @@ import {
   FUNCTION_DECLARATION,
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
-  IMPORTED_BINDING,
+  IMPORT_CLAUSE_PAIR,
   IMPORT_SPECIFIER_SET,
+  IMPORTED_BINDING,
   LITERAL_PROPERTY_NAME,
   MODULE_SPECIFIER,
   NAMED_EXPORT,
@@ -695,7 +696,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     if (tree.importClause !== null) {
       this.check_(tree.importClause.type === NAME_SPACE_IMPORT ||
                   tree.importClause.type === IMPORTED_BINDING ||
-                  tree.importClause.type === IMPORT_SPECIFIER_SET,
+                  tree.importClause.type === IMPORT_SPECIFIER_SET ||
+                  tree.importClause.type === IMPORT_CLAUSE_PAIR,
                   tree.importClause,
                   'Invalid import clause');
     }
@@ -710,6 +712,14 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitImportedBinding(tree) {
     this.checkType_(BINDING_IDENTIFIER, tree.binding,
                     'binding identifier expected');
+  }
+
+  visitImportClausePair(tree) {
+    this.checkType_(IMPORTED_BINDING, tree.first, 'ImportedBinding expected');
+    this.check_(tree.second.type === NAME_SPACE_IMPORT ||
+                tree.second.type === IMPORT_SPECIFIER_SET,
+                tree.second,
+                'Invalid import clause');
   }
 
   /**

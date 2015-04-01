@@ -654,6 +654,17 @@
       "ParseTree"
     ]
   },
+  "ImportClausePair": {
+    "location": [
+      "SourceRange"
+    ],
+    "first": [
+      "ParseTree"
+    ],
+    "second": [
+      "ParseTree"
+    ]
+  },
   "ImportDeclaration": {
     "location": [
       "SourceRange"

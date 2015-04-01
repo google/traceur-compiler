@@ -23,6 +23,7 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import {DestructuringTransformer} from './DestructuringTransformer.js';
 import {DirectExportVisitor} from './module/DirectExportVisitor.js';
+import {ImportSimplifyingTransformer} from './ImportSimplifyingTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   CLASS_DECLARATION,
@@ -66,6 +67,7 @@ export class ModuleTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.options_ = options;
     this.exportVisitor_ = new DirectExportVisitor();
+    this.importSimplifier_ = new ImportSimplifyingTransformer();
     this.moduleName = null;
   }
 
@@ -90,6 +92,8 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformModule(tree) {
+    tree = this.importSimplifier_.transformModule(tree);
+
     this.moduleName = this.getModuleName(tree);
 
     this.pushTempScope();
@@ -192,7 +196,8 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   getExportObject() {
-    let exportObject = createObjectLiteralExpression(this.getExportProperties());
+    let exportObject =
+        createObjectLiteralExpression(this.getExportProperties());
     if (this.exportVisitor_.starExports.length) {
       let starExports = this.exportVisitor_.starExports;
       let starIdents = starExports.map((moduleSpecifier) => {
@@ -268,23 +273,12 @@ export class ModuleTransformer extends TempVarTransformer {
     return parseExpression `System.get(${normalizedName})`;
   }
 
-  transformImportedBinding(tree) {
-    let bindingElement = new BindingElement(tree.location, tree.binding, null);
-    let name = new LiteralPropertyName(null, createIdentifierToken('default'));
-    return new ObjectPattern(null,
-        [new ObjectPatternField(null, name, bindingElement)]);
-  }
-
   transformImportDeclaration(tree) {
     // import {id} from 'module'
     //  =>
     // const {id} = moduleInstance
     //
-    // import id from 'module'
-    //  =>
-    // const {default: id} = moduleInstance
-    //
-    // import 'module'
+    // import {} from 'module'
     //  =>
     // moduleInstance;
     //
@@ -294,9 +288,8 @@ export class ModuleTransformer extends TempVarTransformer {
 
     // import 'module'
     // import {} from 'module'
-    if (!tree.importClause ||
-        (tree.importClause.type === IMPORT_SPECIFIER_SET &&
-         tree.importClause.specifiers.length === 0)) {
+    if (tree.importClause.type === IMPORT_SPECIFIER_SET &&
+        tree.importClause.specifiers.length === 0) {
       return createExpressionStatement(this.transformAny(tree.moduleSpecifier));
     }
 
