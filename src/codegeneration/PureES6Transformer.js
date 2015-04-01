@@ -33,14 +33,16 @@ export class PureES6Transformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
    * @param {Options} options
+   * @param {Object} metadata Implementation defined loader data.
    */
-  constructor(reporter, options) {
+  constructor(reporter, options, metadata) {
     super(reporter, options.validate);
     let idGenerator = new UniqueIdentifierGenerator();
 
     let append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter, options).transformAny(tree);
+        return new transformer(idGenerator, reporter, options, metadata).
+            transformAny(tree);
       });
     };
 

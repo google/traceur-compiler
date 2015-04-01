@@ -71,7 +71,7 @@ export class LoaderCompiler {
   transform(codeUnit) {
     var metadata = codeUnit.metadata;
     metadata.transformedTree =
-        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName);
+        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName, metadata);
   }
 
   write(codeUnit) {

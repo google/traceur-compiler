@@ -190,7 +190,7 @@ export class Compiler {
    *    moduleName option is set true
    * @return {ParseTree}
    */
-  transform(tree, candidateModuleName = undefined) {
+  transform(tree, candidateModuleName = undefined, metadata = undefined) {
 
     let transformer;
     if (candidateModuleName) {
@@ -201,7 +201,7 @@ export class Compiler {
     let errorReporter = new CollectingErrorReporter();
 
     if (this.options_.outputLanguage.toLowerCase() === 'es6') {
-      transformer = new PureES6Transformer(errorReporter, this.options_);
+      transformer = new PureES6Transformer(errorReporter, this.options_, metadata);
     } else {
       transformer = new FromOptionsTransformer(errorReporter, this.options_);
     }
