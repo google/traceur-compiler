@@ -272,6 +272,9 @@ suite('context test', function() {
   });
 
   test('sourceMappingURL from --source-maps=true and deep directories', function(done){
+    // FIXME: exec fails to execute traceur on windows.
+    if (process.platform === 'win32') return done();
+
     var deepDirectory = 'test/wiki/CompilingOffline/deepDirectory/';
     var pwd = process.cwd();
     process.chdir(deepDirectory);
@@ -319,8 +322,9 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
     var cmd = executable + ' --source-maps=memory ' + inputFilename;
     exec(cmd, function(error, stdout, stderr) {
-      var fileLinePos = error.message.
-          indexOf('test/unit/runtime/resources/throwsErrorES6.js:3');
+      var message = error.message.replace(/\\/g, '/');
+      var fileLinePos = message.indexOf(
+          'test/unit/runtime/resources/throwsErrorES6.js:3');
       assert.notEqual(fileLinePos, -1);
       done();
     });
@@ -428,6 +432,9 @@ suite('context test', function() {
   });
 
   test('./traceur can mix require() and import', function(done) {
+    // FIXME: exec fails to execute traceur on windows.
+    if (process.platform === 'win32') return done();
+
     var cmd = './traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -437,6 +444,9 @@ suite('context test', function() {
   });
 
   test('./traceur warns if the runtime is missing', function(done) {
+    // FIXME: exec fails to execute traceur on windows.
+    if (process.platform === 'win32') return done();
+
     tempFileName = resolve(uuid.v4() + '.js');
     var cmd = './traceur --modules=commonjs --out ' + tempFileName +
         ' ./src/runtime/generators.js';
@@ -455,6 +465,9 @@ suite('context test', function() {
   });
 
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
+    // FIXME: exec fails to execute traceur on windows.
+    if (process.platform === 'win32') return done();
+
     var cmd = './traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
     exec(cmd, function(error, stdout, stderr) {
       var m = /Test error on line ([0-9]*)/.exec(error);
@@ -578,6 +591,9 @@ suite('context test', function() {
   });
 
   test('tval uses argv', function(done) {
+    // FIXME: exec fails to execute tval on windows.
+    if (process.platform === 'win32') return done();
+
     var cmd = './tval test/unit/node/resources/test_tval.js --arg1 --arg2 arg3';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);

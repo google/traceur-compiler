@@ -43,7 +43,7 @@ export class Mocha6 extends Mocha {
 
   importFiles() {
     var promiseImports = this.files.map((file) => {
-      file = path.resolve(file);
+      file = path.resolve(file).replace(/\\/g, '/');
       this.suite.emit('pre-require', global, file, this);
       return System.import(file, {metadata: this.options.importMetadata}).
           then(() => {
