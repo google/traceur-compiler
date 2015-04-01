@@ -237,6 +237,9 @@ export class TraceurLoader extends Loader {
    */
   semverMap(normalizedName) {
     var slash = normalizedName.indexOf('/');
+    if (slash < 0) {
+      slash = normalizedName.length;
+    }
     var version = normalizedName.slice(0, slash);
     var at = version.indexOf('@');
     if (at !== -1) {
