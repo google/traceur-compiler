@@ -22,7 +22,6 @@
 
 var fs = require('fs');
 var util = require('./util.js');
-var Getopt = require('../src/node/getopt.js').Getopt;
 var path = require('path');
 var format = require('util').format;
 var print = console.log.bind(console);
@@ -89,33 +88,6 @@ function expandFile(file, outDir, outStream, options, includeStack) {
 
 var cmdName = path.basename(process.argv[1]);
 var options, errors = 0;
-
-var g = new Getopt(['deps']);
-var optcur;
-
-loop:
-while (optcur = g.optind, g.getopt(process.argv)) {
-  switch (g.opt) {
-    case 'deps':
-      if (errors)
-        break;
-      options = {
-        pre: nop,
-        visit: function(file, outDir, outStream, includeFile) {
-          process.stdout.write(format('%s: %s\n', file, includeFile));
-        },
-        post: nop
-      };
-      expandFile(process.argv[g.optind], '.', {write: nop}, options);
-      process.exit(0);
-    case ':':
-    case '?':
-    case '!':
-      console.error('%s: %s', cmdName, g.message());
-      errors++;
-      break;
-  }
-}
 
 if (errors)
   process.exit(1);
