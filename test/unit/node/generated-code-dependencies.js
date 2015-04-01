@@ -272,13 +272,10 @@ suite('context test', function() {
   });
 
   test('sourceMappingURL from --source-maps=true and deep directories', function(done){
-    // FIXME: exec fails to execute traceur on windows.
-    if (process.platform === 'win32') return done();
-
     var deepDirectory = 'test/wiki/CompilingOffline/deepDirectory/';
     var pwd = process.cwd();
     process.chdir(deepDirectory);
-    var executable = '../../../../traceur';
+    var executable = 'node ../../../../traceur';
     var inputFilename = './src/js/app.js';
     var cmd = executable + ' --source-maps ' +
         '--source-root=false --out ./dist/js/bundle.js ' + inputFilename;
@@ -303,7 +300,7 @@ suite('context test', function() {
       assert.equal(undefined, actualSourceRoot, 'has undefined sourceroot');
       var absoluteInputFilename = path.resolve(deepDirectory, inputFilename);
       var inputRelativeToOutput =
-          path.relative(path.dirname(tempFileName), absoluteInputFilename);
+          path.relative(path.dirname(tempFileName), absoluteInputFilename).replace(/\\/g, '/');
       var foundInput = map.sources.some(function(name) {
         if (inputRelativeToOutput === name) {
           // The 'sources' entry is relative
@@ -432,10 +429,7 @@ suite('context test', function() {
   });
 
   test('./traceur can mix require() and import', function(done) {
-    // FIXME: exec fails to execute traceur on windows.
-    if (process.platform === 'win32') return done();
-
-    var cmd = './traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
+    var cmd = 'node ./traceur --require -- ./test/unit/node/resources/testForRequireAndImport.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       assert.equal('we have path and x=x and aNodeExport=intoTraceur\n', stdout);
@@ -444,11 +438,8 @@ suite('context test', function() {
   });
 
   test('./traceur warns if the runtime is missing', function(done) {
-    // FIXME: exec fails to execute traceur on windows.
-    if (process.platform === 'win32') return done();
-
     tempFileName = resolve(uuid.v4() + '.js');
-    var cmd = './traceur --modules=commonjs --out ' + tempFileName +
+    var cmd = 'node ./traceur --modules=commonjs --out ' + tempFileName +
         ' ./src/runtime/generators.js';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
@@ -465,10 +456,7 @@ suite('context test', function() {
   });
 
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
-    // FIXME: exec fails to execute traceur on windows.
-    if (process.platform === 'win32') return done();
-
-    var cmd = './traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
+    var cmd = 'node ./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
     exec(cmd, function(error, stdout, stderr) {
       var m = /Test error on line ([0-9]*)/.exec(error);
       assert(m && m[1], 'The evaluation should fail with the thrown error');
@@ -581,20 +569,17 @@ suite('context test', function() {
     var executable = 'node ' + resolve('src/node/command.js');
 
     exec(executable + ' --out ' + tempFileName + ' --modules=instantiate ' + inputFilename,
-        function (error, stdout, stderr) {
-      if (error) return done(error);
-      var fileContents = fs.readFileSync(tempFileName).toString();
-      assert.isNull(fileContents.match(/^\s*"use strict"/));
-      assert.notEqual(fileContents.indexOf('"use strict"'), -1);
-      done();
-    });
+      function (error, stdout, stderr) {
+        if (error) return done(error);
+        var fileContents = fs.readFileSync(tempFileName).toString();
+        assert.isNull(fileContents.match(/^\s*"use strict"/));
+        assert.notEqual(fileContents.indexOf('"use strict"'), -1);
+        done();
+      });
   });
 
   test('tval uses argv', function(done) {
-    // FIXME: exec fails to execute tval on windows.
-    if (process.platform === 'win32') return done();
-
-    var cmd = './tval test/unit/node/resources/test_tval.js --arg1 --arg2 arg3';
+    var cmd = 'node tval test/unit/node/resources/test_tval.js --arg1 --arg2 arg3';
     exec(cmd, function(error, stdout, stderr) {
       assert.isNull(error);
       assert.equal(stdout, 'args--arg1--arg2arg3\n');
