@@ -734,9 +734,9 @@ export class Parser {
         if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
           let asyncToken = this.eatId_();
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
-          break;
+        } else if (this.options_.exportFromExtended) {
+          exportTree = this.parseNamedExport_();
         }
-        exportTree = this.parseNamedExport_();
         break;
       default:
         return this.parseUnexpectedToken_(this.peekToken_());
@@ -746,9 +746,19 @@ export class Parser {
   }
 
   parseExportDefault_() {
+    // export default [lookahead ∉ {function, class, from}] AssignmentExpression[In] ;
     // export default AssignmentExpression ;
     let start = this.getTreeStartLocation_();
-    this.eat_(DEFAULT);
+    let defaultToken = this.eat_(DEFAULT);
+    if (this.options_.exportFromExtended && this.peekPredefinedString_(FROM)) {
+      let idName = new IdentifierToken(defaultToken.location, DEFAULT);
+      let namedExport = new ForwardDefaultExport(this.getTreeLocation_(start), idName);
+      this.eatId_(FROM);
+      let moduleSpecifier = this.parseModuleSpecifier_();
+
+      return new NamedExport(this.getTreeLocation_(start), namedExport, moduleSpecifier);
+    }
+
     let exportValue;
     switch (this.peekType_()) {
       case FUNCTION: {
