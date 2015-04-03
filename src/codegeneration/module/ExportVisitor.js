@@ -96,6 +96,16 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitVariableDeclaration(tree) {
-    this.addExport_(tree.lvalue.getStringValue(), tree);
+    this.visitAny(tree.lvalue);
+    // Don't visit the initializer.
+  }
+
+  visitBindingIdentifier(tree) {
+    this.addExport_(tree.getStringValue(), tree);
+  }
+
+  visitBindingElement(tree) {
+    this.visitAny(tree.binding);
+    // Don't visit the initializer.
   }
 }
