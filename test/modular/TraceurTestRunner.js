@@ -40,26 +40,21 @@ export class TraceurTestRunner extends Mocha6 {
     this.patterns_ = patterns;
   }
 
-  reportTestsEnd(failed) {
-    throw new Error('override this function');
-  }
-
-  reportSetupFailed(msg) {
-    throw new Error('override this function');
-  }
-
   run() {
     let failed = 0;
     return this.expandPatterns().then(() => {
       return super.run().then((runner) => {
-        runner.on('fail', (err) => {
-          failed++;
+        return new Promise((resolve, reject) => {
+          runner.on('fail', (err) => {
+            failed++;
+          });
+          runner.on('end', () => {
+            resolve(failed);
+          });
+          runner.on('error', (ex) => {
+            reject(ex);
+          });
         });
-        runner.on('end', () => {
-          this.reportTestsEnd(failed);
-        });
-      }, (ex) => {
-        this.reportSetupFailed(ex.stack || ex);
       });
     });
   }

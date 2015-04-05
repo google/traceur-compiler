@@ -47,12 +47,4 @@ export class BrowserTraceurTestRunner extends TraceurTestRunner {
     return this.defaultOptions();
   }
 
-  reportTestsEnd(failed) {
-    document.title = failed + 'Tests failed';
-  }
-
-  reportSetupFailed(msg) {
-    throw new Error('Test Setup failed ' + msg);
-  }
-
 };

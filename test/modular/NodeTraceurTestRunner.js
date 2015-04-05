@@ -93,12 +93,4 @@ export class NodeTraceurTestRunner extends TraceurTestRunner {
     });
   }
 
-  reportTestsEnd(failed) {
-    process.exit(failed);
-  }
-
-  reportSetupFailed(msg) {
-    throw new Error('override this function');
-  }
-
 };
