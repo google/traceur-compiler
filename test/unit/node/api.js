@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('node-only: api.js', function() {
+suite('api.js', function() {
 
   var api = require('../../../src/node/api');
 

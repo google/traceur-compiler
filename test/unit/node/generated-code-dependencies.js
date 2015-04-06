@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('node-only: context test', function() {
+suite('context test', function() {
 
   var vm = require('vm');
   var fs = require('fs');

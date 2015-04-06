@@ -14,12 +14,18 @@ function servePathAtPort(path, port) {
   app.get('/traceurService/testGlobs', function(req, res) {
     let patterns = JSON.parse(req.query.patterns);
     return globPatterns(patterns).then((files) => {
-      return res.send(files);
+      let nodeless = [];
+      files.forEach((file) => {
+        if (file.indexOf('/node/') === -1) {
+          nodeless.push(file);
+        }
+      });
+      return res.send(nodeless);
     });
   });
   let server = http.createServer(app);
   server.on('error', function(e) {
-    console.log('Port ' + port + ' did not work out');
+    console.error('Port ' + port + ' did not work out');
   });
   server.listen.apply(server, [port]);
   console.log('serving ' + path + ' at ' + port);

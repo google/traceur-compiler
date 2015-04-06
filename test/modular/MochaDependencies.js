@@ -14,9 +14,9 @@
 
 /** @fileoverview Mocha dependencies from Node */
 
-  export var Mocha;
-  export var Runner;
-  export var reporters;
+  export let Mocha;
+  export let Runner;
+  export let reporters;
 
   if (typeof window === 'undefined') {
     Mocha = require('mocha');

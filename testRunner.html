@@ -13,17 +13,16 @@ System.map = System.semverMap(System.version);
 <div id="mocha"></div>
 
 <script>
-<!-- Unit tests -->
+// Unit tests
 System.import('./test/unit/unitTestRunner.js').then(function(module) {
-	return module.unitTestRunner.run().then(function() {
-		console.log('unitTestRunner success');
-	}, function(ex) {
-		document.getElementById('mocha').innerText = ex.stack || ex;
-		console.error('unitTestRunner.run FAILED', ex.stack || ex);
-	});
+  return module.unitTestRunner.run().then(function() {
+    console.log('unitTestRunner success');
+  }, function(ex) {
+    document.getElementById('mocha').textContent = ex.stack || ex;
+    console.error('unitTestRunner.run FAILED', ex.stack || ex);
+  });
 }).then(function() {
-  'use strict';
-	<!-- Feature tests -->
+  // Feature tests.
   return System.import('./src/runtime/webLoader.js', {}).then(function(module) {
     featureSuite(testList, module.webLoader);
     new traceur.WebPageTranscoder(document.location.href).run(function() {
@@ -31,7 +30,7 @@ System.import('./test/unit/unitTestRunner.js').then(function(module) {
     });
   });
 }).catch(function(ex) {
-	document.getElementById('mocha').innerText = ex.stack || ex;
-	console.error('import FAILED', ex.stack || ex);
+  document.getElementById('mocha').textContent = ex.stack || ex;
+  console.error('import FAILED', ex.stack || ex);
 });
 </script>

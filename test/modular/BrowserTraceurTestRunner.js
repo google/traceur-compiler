@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* @fileoverview Configure mocha for Traceur testing. */
+/** @fileoverview Configure mocha for Traceur testing.in browsers */
 
 import {TraceurTestRunner} from './TraceurTestRunner.js';
 import {webLoader} from '../../src/runtime/webLoader.js';

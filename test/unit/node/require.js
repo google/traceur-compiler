@@ -14,7 +14,7 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('node-only: require.js', function() {
+suite('require.js', function() {
 
   var path = require('path');
   var traceurRequire = require('../../../src/node/require');

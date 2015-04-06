@@ -17,7 +17,7 @@
 import {TraceurTestRunner} from './TraceurTestRunner.js';
 
 export function globPatterns(patterns) {
-  // This require will cause a compile error if at file scope.
+  // This require will cause a compile error if at module scope.
   // TOOD async load the class.
   let glob = require('glob');
   return Promise.all(
@@ -61,7 +61,7 @@ export class NodeTraceurTestRunner extends TraceurTestRunner {
     let commandLine =
         new Command(process.argv[0] + ' ' + process.argv[1]);
 
-    Object.getOwnPropertyNames(testOptions).forEach((prop) => {
+    Object.keys(testOptions).forEach((prop) => {
       commandLine[prop] = testOptions[prop];
     });
 
