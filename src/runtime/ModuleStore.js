@@ -136,7 +136,7 @@
         var lines = this.func.toString().split('\n')
 
         var evaled = [];
-        ex.stack.split('\n').some(function(frame, index) {
+        ex.stack.split('\n').some((frame, index) => {
           // End when we find ourselves on the stack.
           if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
             return true;
@@ -157,7 +157,7 @@
           } else {
             evaled.push(frame);
           }
-        }.bind(this));
+        });
         ex.stack = evaled.join('\n');
       }
 

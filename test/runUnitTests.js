@@ -16,10 +16,11 @@
 
 import {unitTestRunner} from './unit/unitTestRunner.js';
 
-unitTestRunner.run().catch((ex) => {
-  if (typeof ex === 'number') {
-    process.exit(ex);
-  }
-  console.log('unitTestRunner FAILED', ex.stack || ex);
-  process.exit(-1);
-});
+unitTestRunner.run().then(
+  (failures) => {
+      process.exit(failures);
+  },
+  (ex) => {
+    console.log('unitTestRunner FAILED', ex.stack || ex);
+    process.exit(-1);
+  });

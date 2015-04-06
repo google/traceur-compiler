@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* @fileoverview Configure mocha for Traceur testing. */
+/** @fileoverview Configure mocha for Traceur testing on node. */
 
 import {TraceurTestRunner} from './TraceurTestRunner.js';
 
@@ -34,10 +34,10 @@ export function globPatterns(patterns) {
     })).then((arrayOfFiles) => {
       let allFiles = [];
       arrayOfFiles.forEach((files) => {
-        allFiles = allFiles.concat(files);
+        allFiles.push(...files);
       });
       return allFiles;
-    });;
+    });
 }
 
 export class NodeTraceurTestRunner extends TraceurTestRunner {

@@ -123,13 +123,13 @@ test-list: test/test-list.js
 test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
-test-interpret: test/unit/runtime/traceur-interpreter.js
+test-interpret: test/unit/node/traceur-interpreter.js
 	./traceur $^
 
 test-interpret-throw: test/unit/runtime/resources/throwsError.js
 	./traceur $^ 2>&1 | grep 'ModuleEvaluationError' | wc -l | grep '1'
 
-test-interpret-absolute: $(CURDIR)/test/unit/runtime/traceur-interpreter.js
+test-interpret-absolute: $(CURDIR)/test/unit/node/traceur-interpreter.js
 	./traceur $^
 
 test-inline-module-error:

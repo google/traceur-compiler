@@ -25,21 +25,16 @@ if (typeof window !== 'undefined') {
   chai = require('chai');
 }
 
-var context = unitTestRunner.getContext();
+let context = unitTestRunner.getContext();
 
-export var suite = function(title, tests) {
-  if (typeof window !== 'undefined' && title.startsWith('node-only:')) {
-    return;
-  }
-  return context.suite(title, tests);
-};
+export let suite = context.suite;
 
-export var test = context.test;
-export var setup = context.setup;
-export var teardown = context.teardown;
+export let test = context.test;
+export let setup = context.setup;
+export let teardown = context.teardown;
 
-export var assert = chai.assert;
-export var AssertionError = chai.AssertionError;
+export let assert = chai.assert;
+export let AssertionError = chai.AssertionError;
 
 export function assertArrayEquals(expected, actual) {
   assert.equal(JSON.stringify(actual, null, 2),
@@ -47,13 +42,13 @@ export function assertArrayEquals(expected, actual) {
 }
 
 unitTestRunner.applyOptions([
-    'test/unit/util/*.js',
-    'test/unit/syntax/*.js',
-    'test/unit/codegeneration/*.js',
-    'test/unit/semantics/*.js',
-    'test/unit/tools/*.js',
-    'test/unit/runtime/*.js',
-    'test/unit/system/*.js',
-    'test/unit/node/*.js',
-    'test/unit/*.js'
+  'test/unit/util/*.js',
+  'test/unit/syntax/*.js',
+  'test/unit/codegeneration/*.js',
+  'test/unit/semantics/*.js',
+  'test/unit/tools/*.js',
+  'test/unit/runtime/*.js',
+  'test/unit/system/*.js',
+  'test/unit/node/*.js',
+  'test/unit/*.js'
 ]);
