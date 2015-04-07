@@ -309,9 +309,7 @@
 
   };
 
-  // TODO(arv): Remove the non .js version after a npm push
-  var moduleStoreModule = new Module({ModuleStore: ModuleStore});
-  ModuleStore.set('@traceur/src/runtime/ModuleStore', moduleStoreModule);
+  var moduleStoreModule = new Module({ModuleStore});
   ModuleStore.set('@traceur/src/runtime/ModuleStore.js', moduleStoreModule);
 
   // Override setupGlobals so that System is added to future globals.
@@ -327,12 +325,6 @@
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
-  };
-
-  // TODO(jjb): remove after next npm release
-  $traceurRuntime.getModuleImpl = function(name) {
-    var instantiator = getUncoatedModuleInstantiator(name);
-    return instantiator && instantiator.getUncoatedModule();
   };
 
 })(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);
