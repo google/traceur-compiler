@@ -14,15 +14,11 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {AmdTransformer} from '../../../src/codegeneration/AmdTransformer.js';
+import * as ParseTreeFactory from '../../../src/codegeneration/ParseTreeFactory.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+
 suite('AmdTransformer.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var AmdTransformer = get('src/codegeneration/AmdTransformer.js').AmdTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
-  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var transformer = null
 

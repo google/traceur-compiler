@@ -284,29 +284,6 @@
     getAnonymousModule(func) {
       return new Module(func.call(global), liveModuleSentinel);
     },
-
-    /**
-     *  A 'backdoor' access function for traceur's own modules. Our
-     * modules are stored under names like 'traceur@0.0.n/<path>',
-     * where n varies with every commit to master. Rather than send
-     * the verion number to every test, we allow tests to call this
-     * function with just th <path> part of the name.
-    **/
-    getForTesting(name) {
-      if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).some( (key) => {
-          // Extract the version-dependent prefix from the first traceur
-          // module matching our naming convention.
-          var m = /(traceur@[^\/]*\/)/.exec(key);
-          if (m) {
-            this.testingPrefix_ = m[1];
-            return true;
-          }
-        });
-      }
-      return this.get(this.testingPrefix_ + name);
-    }
-
   };
 
   var moduleStoreModule = new Module({ModuleStore});

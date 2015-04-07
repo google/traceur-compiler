@@ -13,19 +13,17 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {variablesInBlock, variablesInFunction} from '../../../src/semantics/VariableBinder.js';
+import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {Options} from '../../../src/Options.js';
 
 suite('VariableBinder.js', function() {
 
-  var ErrorReporter = traceur.util.ErrorReporter;
-  var Parser = traceur.syntax.Parser;
-  var SourceFile = traceur.syntax.SourceFile;
-  var b = $traceurRuntime.ModuleStore.getForTesting('src/semantics/VariableBinder.js');
-  var variablesInBlock = b.variablesInBlock;
-  var variablesInFunction = b.variablesInFunction;
-
   function parse(code) {
     var errors = new ErrorReporter();
-    var options = new traceur.util.Options();
+    var options = new Options();
     var tree = new Parser(new SourceFile('inline', code), errors, options).
         parseScript();
     assert.isFalse(errors.hadError());

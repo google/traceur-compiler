@@ -14,20 +14,14 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('HoistVariablesTransformer.js', function() {
+import HoistVariablesTransformer from '../../../src/codegeneration/HoistVariablesTransformer.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
+import {Options} from '../../../src/Options.js';
 
-  var HoistVariablesTransformer = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/HoistVariablesTransformer.js').default;
-  var Parser = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/Parser.js').Parser;
-  var SourceFile = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/SourceFile.js').SourceFile;
-  var write = $traceurRuntime.ModuleStore.
-      getForTesting('src/outputgeneration/TreeWriter.js').write;
-  var ParseTreeValidator = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var Options = $traceurRuntime.ModuleStore.
-      getForTesting('src/Options.js').Options;
+suite('HoistVariablesTransformer.js', function() {
 
   var options = new Options();
   setup(function() {

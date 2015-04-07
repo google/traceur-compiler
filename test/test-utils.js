@@ -123,6 +123,7 @@
     });
   }
 
+  // TODO(arv): Fix this to not depend on traceur.get.
   var Options = traceur.get('./Options.js').Options;
   $traceurRuntime.options = new Options();
 

@@ -14,23 +14,16 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {BlockBindingTransformer} from '../../../src/codegeneration/BlockBindingTransformer.js';
+import {UniqueIdentifierGenerator} from '../../../src/codegeneration/UniqueIdentifierGenerator.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
+import {Options} from '../../../src/Options.js';
+import {CollectingErrorReporter as ErrorReporter} from '../../../src/util/CollectingErrorReporter.js';
+
 suite('BlockBindingTransformer.js', function() {
-  var BlockBindingTransformer = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/BlockBindingTransformer.js').BlockBindingTransformer;
-  var UniqueIdentifierGenerator = $traceurRuntime.ModuleStore.
-    getForTesting('src/codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
-  var Parser = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/Parser.js').Parser;
-  var SourceFile = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/SourceFile.js').SourceFile;
-  var write = $traceurRuntime.ModuleStore.
-    getForTesting('src/outputgeneration/TreeWriter.js').write;
-  var ParseTreeValidator = $traceurRuntime.ModuleStore.
-    getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var Options = $traceurRuntime.ModuleStore.
-    getForTesting('src/Options.js').Options;
-  var ErrorReporter = $traceurRuntime.ModuleStore.
-      getForTesting('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
 
   var options = new Options();
   var currentOption;

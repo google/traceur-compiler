@@ -13,13 +13,9 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {Compiler} from '../../../src/Compiler.js';
 
 suite('TemplateLiteralTransformer', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-  var Compiler = get('src/Compiler.js').Compiler;
 
   function testResult(name, content, expectedResult) {
     test(name, function() {

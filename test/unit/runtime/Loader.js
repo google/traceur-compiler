@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
+import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
+import {Options} from '../../../src/Options.js';
 
 function getTestLoader() {
   return new System.constructor();
@@ -20,17 +23,11 @@ function getTestLoader() {
 
 suite('Loader.js', function() {
 
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var MutedErrorReporter = get('src/util/MutedErrorReporter.js').MutedErrorReporter;
-
   var reporter, baseURL;
   var saveMap;
 
   setup(function() {
-    reporter = new traceur.util.ErrorReporter();
+    reporter = new ErrorReporter();
     baseURL = System.baseURL;
     saveMap = System.map;
   });
@@ -60,8 +57,7 @@ suite('Loader.js', function() {
   });
 
   test('traceur@', function() {
-    var traceur = System.get('traceur@');
-    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/Options.js');
+    var optionsModule = System.get(System.version + '/src/Options.js');
     assert.equal(traceur.util.Options, optionsModule.Options);
   });
 

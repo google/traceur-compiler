@@ -14,22 +14,18 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
-suite('PlaceholderParser', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var ParseTreeType = get('src/syntax/trees/ParseTreeType.js');
-  var {
+  import * as ParseTreeType from '../../../src/syntax/trees/ParseTreeType.js';
+  import {
     parseExpression,
     parseModule,
     parseScript,
     parseStatement,
     parseStatements
-  } = get('src/codegeneration/PlaceholderParser.js');
-  var {write} = get('src/outputgeneration/TreeWriter.js');
-  var {IdentifierToken} = get('src/syntax/IdentifierToken.js');
+  } from '../../../src/codegeneration/PlaceholderParser.js';
+  import {write} from '../../../src/outputgeneration/TreeWriter.js';
+  import {IdentifierToken} from '../../../src/syntax/IdentifierToken.js';
+
+suite('PlaceholderParser', function() {
 
   test('ParseExpressionIdentifierExpression', function() {
     var id = new IdentifierToken(null, 'x');

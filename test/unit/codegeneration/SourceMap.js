@@ -19,17 +19,14 @@ import {
   assertArrayEquals
 } from '../../unit/unitTestRunner.js';
 
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {SourceMapConsumer} from '../../../src/outputgeneration/SourceMapIntegration.js';
+import {SourceMapGenerator} from '../../../src/outputgeneration/SourceMapIntegration.js';
+import {Compiler} from '../../../src/Compiler.js';
+import {relativePath} from '../../../src/outputgeneration/ParseTreeMapWriter.js';
+
 suite('SourceMap.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var Parser = get('src/syntax/Parser.js').Parser;
-  var SourceFile = get('src/syntax/SourceFile.js').SourceFile;
-  var SourceMapConsumer = get('src/outputgeneration/SourceMapIntegration.js').SourceMapConsumer;
-  var SourceMapGenerator = get('src/outputgeneration/SourceMapIntegration.js').SourceMapGenerator;
-  var Compiler = get('src/Compiler.js').Compiler;
 
   var moduleCompiler = new Compiler({sourceMaps: 'file'});
   var scriptCompiler = new Compiler({sourceMaps: 'file', script: true});
@@ -37,8 +34,7 @@ suite('SourceMap.js', function() {
                                            lowResolutionSourceMap: true});
 
   test('relativeToSource', function() {
-    var relativePath =
-        get('src/outputgeneration/ParseTreeMapWriter.js').relativePath;
+
     assert.equal(relativePath('@foo', '/w/t/out/'), '@foo',
         '@ names are unchanged');
 

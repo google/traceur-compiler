@@ -14,16 +14,12 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {ModuleTransformer} from '../../../src/codegeneration/ModuleTransformer.js';
+import {Options} from '../../../src/Options.js';
+import {Compiler} from '../../../src/Compiler.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+
 suite('ModuleTransformer', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var ModuleTransformer = get('src/codegeneration/ModuleTransformer.js').ModuleTransformer;
-  var Options = get('src/Options.js').Options;
-  var Compiler = get('src/Compiler.js').Compiler;
-  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   function makeTest(name, content, included, testOptions) {
     test(name, function() {
