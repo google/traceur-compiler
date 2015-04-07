@@ -14,10 +14,7 @@
 
 /** @fileoverview Wrap Mocha in es6 layer */
 
-var Mocha = require('mocha');
-var path = require('path');
-var Runner = require('mocha/lib/runner');
-var reporters = require('mocha/lib/reporters');
+import {Mocha, Runner, reporters} from './MochaDependencies.js';
 
 export class Mocha6 extends Mocha {
 
@@ -43,7 +40,7 @@ export class Mocha6 extends Mocha {
 
   importFiles() {
     var promiseImports = this.files.map((file) => {
-      file = path.resolve(file).replace(/\\/g, '/');
+      file = './' + file.replace(/\\/g, '/');;
       this.suite.emit('pre-require', global, file, this);
       return System.import(file, {metadata: this.options.importMetadata}).
           then(() => {

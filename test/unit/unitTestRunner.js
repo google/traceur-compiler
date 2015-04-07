@@ -12,34 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TraceurTestRunner} from '../modular/TraceurTestRunner.js';
+import {NodeTraceurTestRunner} from '../modular/NodeTraceurTestRunner.js';
+import {BrowserTraceurTestRunner} from '../modular/BrowserTraceurTestRunner.js';
 
-export var unitTestRunner = new TraceurTestRunner({
-  patterns: [
-    'test/unit/util/*.js',
-    'test/unit/syntax/*.js',
-    'test/unit/codegeneration/*.js',
-    'test/unit/semantics/*.js',
-    'test/unit/tools/*.js',
-    'test/unit/runtime/*.js',
-    'test/unit/system/*.js',
-    'test/unit/node/*.js',
-    'test/unit/*.js'
-  ]
-});
+export let unitTestRunner;
+let chai;
+if (typeof window !== 'undefined') {
+  unitTestRunner = new BrowserTraceurTestRunner();
+  chai = window.chai;
+} else {
+  unitTestRunner = new NodeTraceurTestRunner();
+  chai = require('chai');
+}
 
-var context = unitTestRunner.getContext();
+let context = unitTestRunner.getContext();
 
-export var suite = context.suite;
-export var test = context.test;
-export var setup = context.setup;
-export var teardown = context.teardown;
+export let suite = context.suite;
 
-var chai = require('chai');
-export var assert = chai.assert;
-export var AssertionError = chai.AssertionError;
+export let test = context.test;
+export let setup = context.setup;
+export let teardown = context.teardown;
+
+export let assert = chai.assert;
+export let AssertionError = chai.AssertionError;
 
 export function assertArrayEquals(expected, actual) {
   assert.equal(JSON.stringify(actual, null, 2),
                JSON.stringify(expected, null, 2));
 }
+
+unitTestRunner.applyOptions([
+  'test/unit/util/*.js',
+  'test/unit/syntax/*.js',
+  'test/unit/codegeneration/*.js',
+  'test/unit/semantics/*.js',
+  'test/unit/tools/*.js',
+  'test/unit/runtime/*.js',
+  'test/unit/system/*.js',
+  'test/unit/node/*.js',
+  'test/unit/*.js'
+]);
