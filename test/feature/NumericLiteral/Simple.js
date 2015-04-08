@@ -83,6 +83,19 @@
     static get 0O12() {}
     static set 0O13(v) {}
   }
-  assertArrayEquals(['0', '1', '2', '6', '7', '8'], Object.keys(C.prototype));
-  assertArrayEquals(['3', '4', '5', '9', '10', '11'], Object.keys(C));
+
+  assert.isTrue(C.prototype.hasOwnProperty('0'));
+  assert.isTrue(C.prototype.hasOwnProperty('1'));
+  assert.isTrue(C.prototype.hasOwnProperty('2'));
+  assert.isTrue(C.prototype.hasOwnProperty('6'));
+  assert.isTrue(C.prototype.hasOwnProperty('7'));
+  assert.isTrue(C.prototype.hasOwnProperty('8'));
+
+  assert.isTrue(C.hasOwnProperty('3'));
+  assert.isTrue(C.hasOwnProperty('4'));
+  assert.isTrue(C.hasOwnProperty('5'));
+  assert.isTrue(C.hasOwnProperty('9'));
+  assert.isTrue(C.hasOwnProperty('10'));
+  assert.isTrue(C.hasOwnProperty('11'));
+
 })();
