@@ -29,7 +29,7 @@ module.exports = {
   get require() {
     return require('./require.js');
   },
-  get binFilename() {
-  	return filename;
+  get compiledOutputFilename() {
+    return filename;
   }
 };

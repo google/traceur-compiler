@@ -24,9 +24,9 @@ var traceurMap;
 require('source-map-support').install({
   retrieveSourceMap: function(filename) {
     var map = System.getSourceMap(filename);
-    if (!map && filename === traceur.binFilename) {
+    if (!map && filename === traceur.compiledOutputFilename) {
       if (!traceurMap) {
-        traceurMap = fs.readFileSync(traceur.binFilename + '.map', 'utf8');
+        traceurMap = fs.readFileSync(traceur.compiledOutputFilename + '.map', 'utf8');
       }
       map = traceurMap;
     }
