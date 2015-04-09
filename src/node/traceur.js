@@ -29,7 +29,7 @@ module.exports = {
   get require() {
     return require('./require.js');
   },
-  get compiledOutputFilename() {
+  get selfCompiledFilename() {
     return filename;
   }
 };
