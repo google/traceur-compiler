@@ -267,6 +267,13 @@ interface ForOfStatement {
   body: Block | ParseTree;
 }
 
+interface ForOnStatement {
+  location: SourceRange;
+  initializer: ParseTree;
+  observable: ParseTree;
+  body: Block | ParseTree;
+}
+
 interface ForStatement {
   location: SourceRange;
   initializer: ParseTree;

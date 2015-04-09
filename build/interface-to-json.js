@@ -28,6 +28,7 @@ import {write} from '../src/outputgeneration/TreeWriter.js';
 
 class Visitor extends ParseTreeVisitor {
   constructor() {
+    super();
     this.trees = {};
     this.current = null;
   }
