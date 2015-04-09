@@ -315,6 +315,7 @@ suite('context test', function() {
   });
 
   test('compiled modules sourcemaps=memory', function(done) {
+    this.timeout(4000);  // On travis this test takes more than 2s
     var inputFilename = resolve('test/unit/runtime/resources/CallsThrowsError.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var cmd = executable + ' --source-maps=memory ' + inputFilename;
@@ -470,6 +471,7 @@ suite('context test', function() {
   });
 
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
+    this.timeout(4000);  // On travis this test takes more than 2s
     var cmd = 'node ./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';
     exec(cmd, function(error, stdout, stderr) {
       var m = /Test error on line ([0-9]*)/.exec(error);
