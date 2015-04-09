@@ -136,7 +136,7 @@ suite('System.js', function() {
     var versionSegment = remapped.split('/')[0];
     assert.equal(version, versionSegment);
     var alsoByVersion = System.semverMap('traceur@0.0.13');
-    assertEqual(alsoByVersion['traceur'], System.map['traceur']);
+    assert.equal(alsoByVersion['traceur'], System.map['traceur']);
   });
 
   test('System.applyMap', function() {
