@@ -129,6 +129,7 @@ interface ClassDeclaration {
   superClass: ParseTree;
   elements: Array<ParseTree>;
   annotations: Array<ParseTree>;
+  typeParameters: TypeParameters;
 }
 
 interface ClassExpression {
@@ -137,6 +138,7 @@ interface ClassExpression {
   superClass: ParseTree;
   elements: Array<ParseTree>;
   annotations: Array<ParseTree>;
+  typeParameters: TypeParameters;
 }
 
 interface CommaExpression {
@@ -294,6 +296,11 @@ interface FormalParameterList {
   parameters: Array<FormalParameter>;
 }
 
+interface ForwardDefaultExport {
+  location: SourceRange;
+  name: IdentifierToken;
+}
+
 interface FunctionBody {
   location: SourceRange;
   statements: Array<ParseTree>;
@@ -433,21 +440,25 @@ interface Module {
   moduleName: string;
 }
 
-interface ModuleDeclaration {
-  location: SourceRange;
-  binding: ImportedBinding;
-  expression: ParseTree;
-}
-
 interface ModuleSpecifier {
   location: SourceRange;
   token: Token;
 }
 
+interface NameSpaceExport {
+  location: SourceRange;
+  name: IdentifierToken;
+}
+
+interface NameSpaceImport {
+  location: SourceRange;
+  binding: ImportedBinding;
+}
+
 interface NamedExport {
   location: SourceRange;
+  exportClause: ParseTree;
   moduleSpecifier: ParseTree;
-  specifierSet: ParseTree;
 }
 
 interface NewExpression {
@@ -508,6 +519,7 @@ interface PropertyMethodAssignment {
   typeAnnotation: ParseTree;
   annotations: Array<ParseTree>;
   body: FunctionBody;
+  debugName: ParseTree;
 }
 
 interface PropertyNameAssignment {
@@ -527,6 +539,7 @@ interface PropertyVariableDeclaration {
   name: ParseTree;
   typeAnnotation: ParseTree;
   annotations: Array<ParseTree>;
+  initializer: ParseTree;
 }
 
 interface PropertySignature {
