@@ -14,7 +14,8 @@ System.map = System.semverMap(System.version);
 
 <script>
 // Unit tests
-System.import('./test/unit/unitTestRunner.js').then(function(module) {
+var metadata = {traceurOptions: {sourceMaps: true}};
+System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
   return module.unitTestRunner.run().then(function() {
     console.log('unitTestRunner success');
   }, function(ex) {
@@ -23,12 +24,13 @@ System.import('./test/unit/unitTestRunner.js').then(function(module) {
   });
 }).then(function() {
   // Feature tests.
-  return System.import('./src/runtime/webLoader.js', {}).then(function(module) {
-    featureSuite(testList, module.webLoader);
-    new traceur.WebPageTranscoder(document.location.href).run(function() {
-      mocha.run();
-    });
-  });
+  return System.import('./src/runtime/webLoader.js', metadata).
+      then(function(module) {
+        featureSuite(testList, module.webLoader);
+        new traceur.WebPageTranscoder(document.location.href).run(function() {
+          mocha.run();
+        });
+      });
 }).catch(function(ex) {
   document.getElementById('mocha').textContent = ex.stack || ex;
   console.error('import FAILED', ex.stack || ex);

@@ -8,6 +8,7 @@
 .svn
 bin/traceur-runtime.js
 bin/traceur.js
+bin/traceur.js.map
 build/compiled-by-previous-traceur.js
 build/currentSemVer.mk
 build/local.mk

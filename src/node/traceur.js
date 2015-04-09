@@ -28,5 +28,8 @@ module.exports = {
   __proto__: traceur,
   get require() {
     return require('./require.js');
+  },
+  get selfCompiledFilename() {
+    return filename;
   }
 };
