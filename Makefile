@@ -69,7 +69,7 @@ TESTS = \
 	# End Node tests.
 
 MOCHA_OPTIONS = \
-	--ignore-leaks --ui tdd --require test/node-env.js
+	--ignore-leaks --ui tdd --reporter dot --require test/node-env.js
 
 ifdef ONLY
 	MOCHA_OPTIONS := $(MOCHA_OPTIONS) --grep $(ONLY)

@@ -45,6 +45,7 @@ export class NodeTraceurTestRunner extends TraceurTestRunner {
     super({
       ui: 'tdd',
       ignoreLeaks: true,
+      reporter: 'dot',
       importMetadata: {
         traceurOptions: {
           sourceMaps: 'memory',
