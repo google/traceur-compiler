@@ -13,14 +13,15 @@
 // limitations under the License.
 
 'use strict';
+'use strong';
 
 /**
  * @fileoverview This file generates the code for ParseTreeVisitor.js based on
  * a JSON file, which gets passed in on the command line.
  */
 
-var fs = require('fs');
-var util = require('./util.js');
+let fs = require('fs');
+let util = require('./util.js');
 
 printHeader();
 printTrees(readTrees());
@@ -35,12 +36,12 @@ function printHeader() {
 }
 
 function readTrees() {
-  var data = fs.readFileSync(process.argv[2], 'utf-8');
+  let data = fs.readFileSync(process.argv[2], 'utf-8');
   return util.parseJSON(data);
 }
 
 function printTrees(trees) {
-  var names = Object.keys(trees);
+  let names = Object.keys(trees);
   names.forEach(function(name) {
     printVisitTree(name, trees[name], trees);
   });
@@ -55,10 +56,10 @@ function printVisitTree(name, tree, trees) {
 function printVisitBody(name, tree, trees) {
   Object.keys(tree).forEach(
     function(fieldName) {
-      if (fieldName == 'location') {
+      if (fieldName === 'location') {
         return;
       }
-      var fieldType = tree[fieldName][0];
+      let fieldType = tree[fieldName][0];
       if (util.isParseTreeType(fieldType, trees)) {
         util.print('    this.visitAny(tree.' + fieldName + ');');
       } else if (util.isParseTreeListType(fieldType, trees)) {
