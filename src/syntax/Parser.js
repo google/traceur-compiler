@@ -2715,7 +2715,7 @@ export class Parser {
    *
    * @return {ParseTree}
    */
-  parseExpression_(expressionIn = Expression.IN) {
+  parseExpression_(expressionIn = Expression.NORMAL) {
     let coverInitializedNameCount = this.coverInitializedNameCount_;
     let expression = this.parseExpressionAllowPattern_(expressionIn);
     this.ensureNoCoverInitializedNames_(expression, coverInitializedNameCount);
@@ -2866,7 +2866,7 @@ export class Parser {
    */
   parseConditional_(expressionIn) {
     let start = this.getTreeStartLocation_();
-    let condition = this.parseLogicalOR_(expressionIn);
+    let condition = this.parseBinaryExpression_(expressionIn);
     if (this.eatIf_(QUESTION)) {
       condition = this.toPrimaryExpression_(condition);
       let left = this.parseAssignmentExpression_();
@@ -2878,271 +2878,81 @@ export class Parser {
     return condition;
   }
 
-  newBinaryExpression_(start, left, operator, right) {
-    left = this.toPrimaryExpression_(left);
-    right = this.toPrimaryExpression_(right);
-    return new BinaryExpression(this.getTreeLocation_(start), left, operator, right);
-  }
-
-  // 11.11 Logical OR
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseLogicalOR_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseLogicalAND_(expressionIn);
-    let operator;
-    while (operator = this.eatOpt_(OR)) {
-      let right = this.parseLogicalAND_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  // 11.11 Logical AND
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseLogicalAND_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseBitwiseOR_(expressionIn);
-    let operator;
-    while (operator = this.eatOpt_(AND)) {
-      let right = this.parseBitwiseOR_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  // 11.10 Bitwise OR
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseBitwiseOR_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseBitwiseXOR_(expressionIn);
-    let operator;
-    while (operator = this.eatOpt_(BAR)) {
-      let right = this.parseBitwiseXOR_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  // 11.10 Bitwise XOR
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseBitwiseXOR_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseBitwiseAND_(expressionIn);
-    let operator;
-    while (operator = this.eatOpt_(CARET)) {
-      let right = this.parseBitwiseAND_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  // 11.10 Bitwise AND
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseBitwiseAND_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseEquality_(expressionIn);
-    let operator;
-    while (operator = this.eatOpt_(AMPERSAND)) {
-      let right = this.parseEquality_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  // 11.9 Equality Expression
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseEquality_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseRelational_(expressionIn);
-    while (this.peekEqualityOperator_(this.peekType_())) {
-      let operator = this.nextToken_();
-      let right = this.parseRelational_(expressionIn);
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekEqualityOperator_(type) {
+  getPrecedence_(type, expressionIn) {
     switch (type) {
+      case OR:
+        return 1;
+      case AND:
+        return 2;
+      case BAR:
+        return 3;
+      case CARET:
+        return 4;
+      case AMPERSAND:
+        return 5;
       case EQUAL_EQUAL:
-      case NOT_EQUAL:
       case EQUAL_EQUAL_EQUAL:
+      case NOT_EQUAL:
       case NOT_EQUAL_EQUAL:
-        return true;
-    }
-    return false;
-  }
-
-  // 11.8 Relational
-  /**
-   * @param {Expression} expressionIn
-   * @return {ParseTree}
-   * @private
-   */
-  parseRelational_(expressionIn) {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseShiftExpression_();
-    while (this.peekRelationalOperator_(expressionIn)) {
-      let operator = this.nextToken_();
-      let right = this.parseShiftExpression_();
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  /**
-   * @param {Expression} expressionIn
-   * @return {boolean}
-   * @private
-   */
-  peekRelationalOperator_(expressionIn) {
-    switch (this.peekType_()) {
-      case OPEN_ANGLE:
+        return 6;
       case CLOSE_ANGLE:
       case GREATER_EQUAL:
-      case LESS_EQUAL:
       case INSTANCEOF:
-        return true;
+      case LESS_EQUAL:
+      case OPEN_ANGLE:
+        return 7;
       case IN:
-        return expressionIn === Expression.NORMAL;
-      default:
-        return false;
-    }
-  }
-
-  // 11.7 Shift Expression
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseShiftExpression_() {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseAdditiveExpression_();
-    while (this.peekShiftOperator_(this.peekType_())) {
-      let operator = this.nextToken_();
-      let right = this.parseAdditiveExpression_();
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekShiftOperator_(type) {
-    switch (type) {
+        return expressionIn === Expression.NO_IN ? 0 : 7;
       case LEFT_SHIFT:
       case RIGHT_SHIFT:
       case UNSIGNED_RIGHT_SHIFT:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  // 11.6 Additive Expression
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseAdditiveExpression_() {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseMultiplicativeExpression_();
-    while (this.peekAdditiveOperator_(this.peekType_())) {
-      let operator = this.nextToken_();
-      let right = this.parseMultiplicativeExpression_();
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekAdditiveOperator_(type) {
-    switch (type) {
-      case PLUS:
+        return 8;
       case MINUS:
-        return true;
+      case PLUS:
+        return 9;
+      case SLASH:
+      case STAR:
+      case PERCENT:
+        return 10;
+      case STAR_STAR:
+        return this.options_.exponentiation ? 11 : 0;
       default:
-        return false;
+        return 0;
     }
   }
 
-  // 11.5 Multiplicative Expression
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseMultiplicativeExpression_() {
-    let start = this.getTreeStartLocation_();
-    let left = this.parseExponentiationExpression_();
-    while (this.peekMultiplicativeOperator_(this.peekType_())) {
-      let operator = this.nextToken_();
-      let right = this.parseExponentiationExpression_();
-      left = this.newBinaryExpression_(start, left, operator, right);
-    }
-    return left;
-  }
-
-  parseExponentiationExpression_() {
+  parseBinaryExpression_(expressionIn) {
     let start = this.getTreeStartLocation_();
     let left = this.parseUnaryExpression_();
-    while (this.peekExponentiationExpression_(this.peekType_())) {
-      let operator = this.nextToken_();
-      let right = this.parseExponentiationExpression_();
-      left = this.newBinaryExpression_(start, left, operator, right);
+    return this.parseBinaryExpressionHelper_(start, left, -1, expressionIn);
+  }
+
+  parseBinaryExpressionHelper_(start, left, minPrec, expressionIn) {
+    let type = this.peekType_();
+    let prec = this.getPrecedence_(type, expressionIn);
+    if (prec === 0) {
+      return left;
+    }
+
+    // Only ** is right to left.
+    let leftToRight = type !== STAR_STAR;
+
+    if (leftToRight ? prec > minPrec : prec >= minPrec) {
+      let token = this.nextToken_();  // Consumes the token.
+      let rightStart = this.getTreeStartLocation_();
+      let rightUnary = this.parseUnaryExpression_();
+      let right = this.parseBinaryExpressionHelper_(rightStart, rightUnary,
+                                                    prec, expressionIn);
+
+      left = this.toPrimaryExpression_(left);
+      right = this.toPrimaryExpression_(right);
+      let node = new BinaryExpression(this.getTreeLocation_(start), left, token,
+                                      right);
+
+      return this.parseBinaryExpressionHelper_(start, node, minPrec,
+                                               expressionIn);
     }
     return left;
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekMultiplicativeOperator_(type) {
-    switch (type) {
-      case STAR:
-      case SLASH:
-      case PERCENT:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  peekExponentiationExpression_(type) {
-    return type === STAR_STAR;
   }
 
   // 11.4 Unary Operator
