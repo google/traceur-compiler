@@ -41,12 +41,12 @@ export class Mocha6 extends Mocha {
   importFiles() {
     var promiseImports = this.files.map((file) => {
       file = './' + file.replace(/\\/g, '/');
-      // TODO(arv): Why do we need to use global here?
-      this.suite.emit('pre-require', Reflect.global, file, this);
+      var ctx = {};
+      this.suite.emit('pre-require', ctx, file, this);
       return System.import(file, {metadata: this.options.importMetadata}).
           then(() => {
-            this.suite.emit('require', Reflect.global, file, this);
-            this.suite.emit('post-require', Reflect.global, file, this);
+            this.suite.emit('require', ctx, file, this);
+            this.suite.emit('post-require', ctx, file, this);
           });
     });
     return Promise.all(promiseImports);
