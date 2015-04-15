@@ -62,7 +62,7 @@ export class LoaderCompiler {
 
     metadata.compiler = new Compiler(options);
 
-    // The name used in sourceMaps
+    // The name used in sourceMaps and error messages
     var sourceName = codeUnit.metadata.sourceName = codeUnit.address ||
         codeUnit.normalizedName || '(unnamed)#' + String(++anonymousSourcesSeen);
     metadata.tree = metadata.compiler.parse(codeUnit.source, sourceName);

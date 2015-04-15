@@ -1,4 +1,5 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert.js
+import {AssertionError} from '../../asserts.js';
 
 function foo(a: string): boolean {
   var x: number = 1;
@@ -15,6 +16,6 @@ function failVariable() {
 
 
 foo('bar');
-assert.throw(() => { foo(123) }, chai.AssertionError);
-assert.throw(() => { failReturn() }, chai.AssertionError);
-assert.throw(() => { failVariable() }, chai.AssertionError);
+assert.throw(() => { foo(123) }, AssertionError);
+assert.throw(() => { failReturn() }, AssertionError);
+assert.throw(() => { failVariable() }, AssertionError);

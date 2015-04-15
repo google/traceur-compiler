@@ -59,17 +59,19 @@ UNIT_TESTS = \
 	test/unit/runtime \
 	#END UNIT_TESTS
 
+FEATURE_TESTS = \
+	test/feature/*/*.js
+
 TESTS = \
 	test/node-commonjs-test.js \
 	test/node-amd-test.js \
 	test/node-closure-test.js \
 	test/node-instantiate-test.js \
-	test/node-feature-test.js \
 	test/node-api-test.js \
 	# End Node tests.
 
 MOCHA_OPTIONS = \
-	--ignore-leaks --ui tdd --reporter dot --require test/node-env.js
+	--ignore-leaks --ui tdd --reporter dot
 
 ifdef ONLY
 	MOCHA_OPTIONS := $(MOCHA_OPTIONS) --grep $(ONLY)
@@ -96,12 +98,16 @@ test: test/test-list.js bin/traceur.js \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version \
+	  test/features \
 	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
 test/unit: bin/traceur.js bin/traceur-runtime.js $(UNIT_TESTS)
 	./tval test/runUnitTests.js
+
+test/features: bin/traceur.js bin/traceur-runtime.js $(FEATURE_TESTS)
+	./tval test/runFeatureTests.js
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
@@ -114,9 +120,6 @@ test/amd: test/amd-compiled
 
 test/closure:
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-closure-test.js
-
-test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
-	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(MOCHAX) test/node-feature-test.js
 
 test-list: test/test-list.js
 

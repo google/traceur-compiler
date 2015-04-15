@@ -1,5 +1,6 @@
 // Options: --member-variables --types --type-assertions --type-assertion-module=../TypeAssertions/resources/assert.js
 
+import {AssertionError} from '../../asserts.js';
 import '../TypeAssertions/resources/assert.js';
 
 class C {
@@ -14,4 +15,4 @@ class C {
 
 var d = new C().d();
 
-assert.throw(() => { d.x = 'string'}, chai.AssertionError);
+assert.throw(() => { d.x = 'string'}, AssertionError);

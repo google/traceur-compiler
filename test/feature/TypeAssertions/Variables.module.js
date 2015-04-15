@@ -1,4 +1,6 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert.js
+import {AssertionError} from '../../asserts.js';
+
 var globalVar: number = 1;
 var globalUninitializedVar: number;
 
@@ -13,4 +15,4 @@ function throwsAssertion(value) {
   var x: number = value;
 }
 
-assert.throw(() => { throwsAssertion('test'); }, chai.AssertionError);
+assert.throw(() => { throwsAssertion('test'); }, AssertionError);
