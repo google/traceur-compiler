@@ -17,7 +17,6 @@ System.map = System.semverMap(System.version);
 var metadata = {traceurOptions: {sourceMaps: true}};
 System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
   var unitTestRunner = module.unitTestRunner;
-  // TODO(jjb): remove when feature tests are es6
   window.suite = module.suite;
   window.test = module.test;
   window.setup = module.setup;
