@@ -99,18 +99,16 @@ function sequencePromises(list, f) {
  * Compiles the files in "fileNamesAndTypes" along with any associated modules,
  * into a single js file, in module dependency order.
  *
- * @param {Array.<Object>} fileNamesAndTypes The list of {name, type}
+ * @param {Array<Object>} fileNamesAndTypes The list of {name, type}
  *     to compile and concat; type is 'module' or 'script'
- * @param {Object} options A container for misc options. 'depTarget' is the
- *     only currently available option, which results in the dependencies for
- *     'fileNamesAndTypes' being printed to stdout, with 'depTarget' as the target.
+ * @param {Object} options A container for misc options. 'referrer' is the
+ *     only currently available option.
  * @param {Function} callback Callback used to return the result. A null result
  *     indicates that recursiveModuleCompile has returned successfully from a
  *     non-compile request.
  * @param {Function} errback Callback used to return errors.
  */
 function recursiveModuleCompile(fileNamesAndTypes, options) {
-  var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
 
   var basePath = path.resolve('./') + '/';
@@ -159,11 +157,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options) {
   }
 
   return sequencePromises(fileNamesAndTypes, loadInput).then(function() {
-    if (depTarget) {
-      return null;
-    } else {
-      return loaderCompiler.toTree();
-    }
+    return loaderCompiler.toTree();
   });
 }
 
