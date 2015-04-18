@@ -210,8 +210,8 @@ build/compiled-by-previous-traceur.js: \
 		$(SRC) \
 	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
-	node_modules/traceur/traceur --out $@  --referrer='traceur@0.0.0/build/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS)  $(SRC)
+	node_modules/traceur/traceur --out $@ --referrer='traceur@0.0.0/build/' \
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
