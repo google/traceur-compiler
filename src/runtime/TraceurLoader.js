@@ -15,7 +15,6 @@
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Loader} from './Loader.js';
 import {LoaderCompiler} from './LoaderCompiler.js';
-import {NodeLoaderCompiler} from '../node/NodeLoaderCompiler.js';
 import {systemjs} from './system-map.js';
 import {webLoader} from './webLoader.js';
 
@@ -310,14 +309,5 @@ export class TraceurLoader extends Loader {
 export class BrowserTraceurLoader extends TraceurLoader {
   constructor() {
     super(webLoader, window.location.href, new LoaderCompiler());
-  }
-}
-
-export class NodeTraceurLoader extends TraceurLoader {
-  constructor() {
-    let path = require('path');
-    let fileloader = require('../node/nodeLoader.js');
-    let url = (path.resolve('./') + '/').replace(/\\/g, '/');
-    super(fileloader, url, new NodeLoaderCompiler());
   }
 }
