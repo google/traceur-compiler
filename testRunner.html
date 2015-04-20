@@ -16,7 +16,12 @@ System.map = System.semverMap(System.version);
 // Unit tests
 var metadata = {traceurOptions: {sourceMaps: true}};
 System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
-  return module.unitTestRunner.run().then(function() {
+  var unitTestRunner = module.unitTestRunner;
+  window.suite = module.suite;
+  window.test = module.test;
+  window.setup = module.setup;
+  window.teardown = module.teardown;
+  return unitTestRunner.run().then(function() {
     console.log('unitTestRunner success');
   }, function(ex) {
     document.getElementById('mocha').textContent = ex.stack || ex;
