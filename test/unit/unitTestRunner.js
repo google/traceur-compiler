@@ -15,14 +15,13 @@
 import {NodeTraceurTestRunner} from '../modular/NodeTraceurTestRunner.js';
 import {BrowserTraceurTestRunner} from '../modular/BrowserTraceurTestRunner.js';
 
+export * from '../asserts.js';
+
 export let unitTestRunner;
-let chai;
 if (typeof window !== 'undefined') {
   unitTestRunner = new BrowserTraceurTestRunner();
-  chai = window.chai;
 } else {
   unitTestRunner = new NodeTraceurTestRunner();
-  chai = require('chai');
 }
 
 let context = unitTestRunner.getContext();
@@ -32,14 +31,6 @@ export let suite = context.suite;
 export let test = context.test;
 export let setup = context.setup;
 export let teardown = context.teardown;
-
-export let assert = chai.assert;
-export let AssertionError = chai.AssertionError;
-
-export function assertArrayEquals(expected, actual) {
-  assert.equal(JSON.stringify(actual, null, 2),
-               JSON.stringify(expected, null, 2));
-}
 
 unitTestRunner.applyOptions([
   'test/unit/util/*.js',
