@@ -15,21 +15,21 @@
 import {TraceurLoader} from './TraceurLoader.js';
 import {NodeLoaderCompiler} from '../node/NodeLoaderCompiler.js';
 
-let fs = require('fs');
-let path = require('path');
-let fileloader = require('../node/nodeLoader.js');
-
 export class NodeTraceurLoader extends TraceurLoader {
   constructor() {
+    let path = require('path');
+    let fileloader = require('../node/nodeLoader.js');
+
     let url = (path.resolve('./') + '/').replace(/\\/g, '/');
     super(fileloader, url, new NodeLoaderCompiler());
     this.traceurMap_ = null;  // optional cache for sourcemap
   }
 
   getSourceMap(filename) {
-    var map = super.getSourceMap(filename);
+    let map = super.getSourceMap(filename);
     if (!map && filename.replace(/\\/g, '/').endsWith('/bin/traceur.js')) {
       if (!this.traceurMap_) {
+        let fs = require('fs');
         this.traceurMap_ =
             fs.readFileSync(filename + '.map', 'utf8');
       }
