@@ -24,8 +24,8 @@ if (typeof window !== 'undefined') {
   chai = require('chai');
 }
 
-export var assert = chai.assert;
-export var AssertionError = chai.AssertionError;
+export let assert = chai.assert;
+export let AssertionError = chai.AssertionError;
 
 export function assertArrayEquals(expected, actual) {
   assert.equal(JSON.stringify(actual, null, 2),
