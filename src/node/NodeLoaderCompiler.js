@@ -15,6 +15,11 @@
 import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
 
 export class NodeLoaderCompiler extends LoaderCompiler {
+  constructor() {
+    super();
+    this.sourceMapsInMemory_ = false;
+  }
+
   evaluateCodeUnit(codeUnit) {
     // We cannot move these to file scope since this file is included in
     // bin/traceur.js which needs to work in a browser.
@@ -26,6 +31,9 @@ export class NodeLoaderCompiler extends LoaderCompiler {
     // Node eval does not support //# sourceURL yet.
     // In node we use a low level evaluator so that the
     // sourcemap=memory mechanism can help us debug.
+    if (codeUnit.metadata.traceurOptions.sourceMaps === 'memory') {
+      this.enableMemorySourceMaps_();
+    }
 
     // Node 0.10 uses a string as the filename.
     // Node 0.12 >= uses an option object
@@ -38,5 +46,25 @@ export class NodeLoaderCompiler extends LoaderCompiler {
     let result = runInThisContext(content, options);
     codeUnit.metadata.transformedTree = null;
     return result;
+  }
+
+  enableMemorySourceMaps_() {
+    if (this.sourceMapsInMemory_) {
+      return;
+    }
+    require('source-map-support').install({
+      retrieveSourceMap: function(url) {
+        try {
+          let map = System.getSourceMap(url);
+          if (map) {
+            return {url, map};
+          }
+        } catch (ex) {
+          // Failure in this function results in no error output.
+          console.error('retrieveSourceMap FAILED ', ex);
+        }
+      }
+    });
+    this.sourceMapsInMemory_ = true;
   }
 }
