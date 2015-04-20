@@ -53,16 +53,13 @@ export class NodeLoaderCompiler extends LoaderCompiler {
       return;
     }
     require('source-map-support').install({
-      retrieveSourceMap: function(filename) {
+      retrieveSourceMap: function(url) {
         try {
-          var map = System.getSourceMap(filename);
+          let map = System.getSourceMap(url);
           if (map) {
-            return {
-              url: filename,
-              map: map
-            };
+            return {url, map};
           }
-        } catch(ex) {
+        } catch (ex) {
           // Failure in this function results in no error output.
           console.error('retrieveSourceMap FAILED ', ex);
         }

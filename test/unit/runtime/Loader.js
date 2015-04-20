@@ -230,6 +230,10 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport.Fail.deperror', function(done) {
+    // This tests in-memory source maps which cause V8 to take an
+    // extraordinaril long time to produce e.stack values.  We have to
+    // give mocha more time on the Travis machines.
+    this.timeout(4000);
     var reporter = new MutedErrorReporter();
     var metadata = {traceurOptions: {sourceMaps: 'memory'}};
     getTestLoader(reporter).import('test/unit/runtime/loads/main.js', {metadata: metadata}).then(

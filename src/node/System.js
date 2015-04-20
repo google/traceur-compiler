@@ -21,23 +21,6 @@ var System = new traceur.runtime.NodeTraceurLoader();
 
 var traceurMap;
 
-require('source-map-support').install({
-  retrieveSourceMap: function(filename) {
-    try {
-      var map = System.getSourceMap(filename);
-      if (map) {
-        return {
-          url: filename,
-          map: map
-        };
-      }
-    } catch(ex) {
-      // Failure in this function results in no error output.
-      console.error('retrieveSourceMap FAILED ', ex);
-    }
-  }
-});
-
 Reflect.global.System = System;
 System.map = System.semverMap(System.version);
 
