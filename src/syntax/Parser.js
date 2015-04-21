@@ -1254,7 +1254,7 @@ export class Parser {
 
     let result = this.parseStatementList_(!strictMode);
 
-    if (!strictMode && this.strictMode_ && params)
+    if (!strictMode && this.strictMode_)
       StrictParams.visit(params, this.errorReporter_);
 
     this.strictMode_ = strictMode;
@@ -3265,7 +3265,7 @@ export class Parser {
     }
 
     this.eat_(ARROW);
-    let body = this.parseConciseBody_();
+    let body = this.parseConciseBody_(formals);
     this.popFunctionState_(fs);
     return new ArrowFunctionExpression(this.getTreeLocation_(start),
         asyncToken, formals, body);
@@ -3383,13 +3383,14 @@ export class Parser {
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
+   * @param {ParseTree} params
    * @return {ParseTree}
    */
-  parseConciseBody_() {
+  parseConciseBody_(params) {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
     if (this.peek_(OPEN_CURLY))
-      return this.parseFunctionBody_(null);
+      return this.parseFunctionBody_(params);
 
     return this.parseAssignmentExpression_(ALLOW_IN);
   }
