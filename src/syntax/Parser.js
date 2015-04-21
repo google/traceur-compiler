@@ -49,12 +49,15 @@ import {
   GET,
   OF,
   ON,
-  SET
+  SET,
+  UNDEFINED
 } from './PredefinedName.js';
 import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
 import {Scanner} from './Scanner.js';
 import {SourceRange} from '../util/SourceRange.js';
 import {StrictParams} from '../staticsemantics/StrictParams.js';
+import {StrongParams} from '../staticsemantics/StrongParams.js';
+
 import {
   Token,
   isAssignmentOperator
@@ -708,6 +711,7 @@ export class Parser {
       this.eatId_(AS);
       binding = this.parseImportedBinding_();
     } else {
+      this.checkForStrongUndefinedBinding_(name);
       binding = new ImportedBinding(name.location,
           new BindingIdentifier(name.location, name));
       name = null;
@@ -1304,8 +1308,13 @@ export class Parser {
     let languageMode = this.languageMode_;
     let result = this.parseStatementList_(languageMode < STRONG_MODE);
 
-    if (!languageMode && this.isStrictMode_())
-      StrictParams.visit(params, this.errorReporter_);
+    if (!languageMode) {
+      if (this.isStrongMode_()) {
+        StrongParams.visit(params, this.errorReporter_);
+      } else if (this.isStrictMode_()) {
+        StrictParams.visit(params, this.errorReporter_);
+      }
+    }
 
     this.languageMode_ = languageMode;
 
@@ -2228,7 +2237,16 @@ export class Parser {
   parseBindingIdentifier_() {
     let start = this.getTreeStartLocation_();
     let identifier = this.eatId_();
+    this.checkForStrongUndefinedBinding_(identifier);
     return new BindingIdentifier(this.getTreeLocation_(start), identifier);
+  }
+
+  checkForStrongUndefinedBinding_(identifier) {
+    if (this.isStrongMode_() && identifier.value === UNDEFINED) {
+      this.reportError_(
+          identifier.location,
+          'In strong mode, binding or assigning to undefined is deprecated');
+    }
   }
 
   /**
@@ -2898,11 +2916,16 @@ export class Parser {
     left = this.coverFormalsToParenExpression_(left);
 
     if (this.peekAssignmentOperator_(type)) {
-      if (type === EQUAL)
+      if (type === EQUAL) {
         left = this.transformLeftHandSideExpression_(left);
+      }
 
       if (!left.isLeftHandSideExpression() && !left.isPattern()) {
         this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
+      }
+
+      if (left.type === IDENTIFIER_EXPRESSION) {
+        this.checkForStrongUndefinedBinding_(left.identifierToken);
       }
 
       let operator = this.nextToken_();
@@ -3073,6 +3096,7 @@ export class Parser {
       }
       let operand = this.parseUnaryExpression_();
       operand = this.toPrimaryExpression_(operand);
+      this.checkForStrongUndefinedPostPrefix_(type, operand);
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
     }
     return this.parsePostfixExpression_();
@@ -3107,12 +3131,21 @@ export class Parser {
   parsePostfixExpression_() {
     let start = this.getTreeStartLocation_();
     let operand = this.parseLeftHandSideExpression_();
-    while (this.peekPostfixOperator_(this.peekType_())) {
+    let type;
+    while (this.peekPostfixOperator_(type = this.peekType_())) {
       operand = this.toPrimaryExpression_(operand);
+      this.checkForStrongUndefinedPostPrefix_(type, operand);
       let operator = this.nextToken_();
       operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
     }
     return operand;
+  }
+
+  checkForStrongUndefinedPostPrefix_(type, tree) {
+    if ((type === PLUS_PLUS || type === MINUS_MINUS) &&
+        tree.type === IDENTIFIER_EXPRESSION) {
+      this.checkForStrongUndefinedBinding_(tree.identifierToken);
+    }
   }
 
   /**
@@ -3366,6 +3399,7 @@ export class Parser {
     };
     switch (tree.type) {
       case IDENTIFIER_EXPRESSION:
+        this.checkForStrongUndefinedBinding_(tree.identifierToken);
         formals = makeFormals(
               new BindingIdentifier(tree.location, tree.identifierToken));
         break;
@@ -3752,8 +3786,11 @@ export class Parser {
     }
 
     let token = name.literalToken;
-    if (this.isStrictMode_() && token.isStrictKeyword())
+    if (this.isStrictMode_() && token.isStrictKeyword()) {
       this.reportReservedIdentifier_(token);
+    } else if (this.isStrongMode_()) {
+      this.checkForStrongUndefinedBinding_(token);
+    }
 
     if (useBinding) {
       let binding = new BindingIdentifier(name.location, token);
@@ -3815,7 +3852,11 @@ export class Parser {
         return this.parseObjectAssignmentPattern_();
     }
     let expression = this.parseLeftHandSideExpression_();
-    return this.coverFormalsToParenExpression_(expression)
+    expression = this.coverFormalsToParenExpression_(expression);
+    if (expression.type === IDENTIFIER_EXPRESSION) {
+      this.checkForStrongUndefinedBinding_(expression.identifierToken);
+    }
+    return expression;
   }
 
   parseAssignmentRestElement_() {

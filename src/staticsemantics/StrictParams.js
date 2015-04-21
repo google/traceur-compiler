@@ -39,7 +39,7 @@ export class StrictParams extends ParseTreeVisitor {
   }
 
   static visit(tree, errorReporter) {
-    new StrictParams(errorReporter).visitAny(tree);
+    new this(errorReporter).visitAny(tree);
   }
 }
 
