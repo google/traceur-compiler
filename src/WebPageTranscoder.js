@@ -22,7 +22,7 @@ export const scriptSelector = 'script[type="module"],script[type="text/traceur"]
 
 export class WebPageTranscoder {
   constructor(url = document.location.href,
-      traceurOptions = $traceurRuntime.options) {
+      traceurOptions = new Options()) {
     this.url = url;
     this.numPending_ = 0;
     this.numberInlined_ = 0;
@@ -73,7 +73,8 @@ export class WebPageTranscoder {
       segments.pop();
       this.inlineScriptNameBase_ = segments.join('.');
     }
-    return this.inlineScriptNameBase_ + '_' + this.numberInlined_ + '.js';
+    return this.inlineScriptNameBase_ + '_inline_script_' +
+        this.numberInlined_ + '.js';
   }
 
   addFilesFromScriptElements(scriptElements, onScriptsReady) {

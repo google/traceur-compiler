@@ -1,21 +1,18 @@
+<!doctype html>
 <script src="../../bin/traceur.js"></script>
-<script src="../../src/bootstrap.js"></script>
 <script>
   new traceur.WebPageTranscoder(document.location.href, {
     asyncFunctions: true
   }).run();
 </script>
 <script type="module">
-var async;
-async
-function f() {
-  return async + async;
-}
-async = 1;
-if (f() === 2) {
-  document.body.textContent = 'PASS';
-} else {
-  window.alert('FAIL');
-}
+document.body.textContent = 'FAIL';
 
+var f = async x => x;
+
+f(1).then((result) => {
+  if (result === 1) {
+    document.body.textContent = 'PASS';
+  }
+});
 </script>
