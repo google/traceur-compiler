@@ -534,10 +534,32 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {NameSpaceExport} tree
+   */
+  visitNameSpaceExport(tree) {
+    this.write_(STAR);
+    this.writeSpace_();
+    this.write_(AS);
+    this.writeSpace_();
+    this.write_(tree.name);
+  }
+
+  /**
+   * @param {NameSpaceImport} tree
+   */
+  visitNameSpaceImport(tree) {
+    this.write_(STAR);
+    this.writeSpace_();
+    this.write_(AS);
+    this.writeSpace_();
+    this.visitAny(tree.binding);
+  }
+
+  /**
    * @param {NamedExport} tree
    */
   visitNamedExport(tree) {
-    this.visitAny(tree.specifierSet);
+    this.visitAny(tree.exportClause);
     if (tree.moduleSpecifier) {
       this.writeSpace_();
       this.write_(FROM);
@@ -687,6 +709,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.currentParameterTypeAnnotation_ = tree.typeAnnotation;
     this.visitAny(tree.parameter);
     this.currentParameterTypeAnnotation_ = null;
+  }
+
+  /**
+   * @param {ForwardDefaultExport} tree
+   */
+  visitForwardDefaultExport(tree) {
+    this.write_(tree.name);
   }
 
   /**
@@ -867,6 +896,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {ImportClausePair} tree
+   */
+  visitImportClausePair(tree) {
+    this.visitAny(tree.first);
+    this.write_(COMMA);
+    this.writeSpace_();
+    this.visitAny(tree.second);
+  }
+
+  /**
    * @param {ImportDeclaration} tree
    */
   visitImportDeclaration(tree) {
@@ -985,23 +1024,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleSpecifier(tree) {
     this.write_(tree.token);
-  }
-
-  /**
-   * @param {ModuleDeclaration} tree
-   */
-  visitModuleDeclaration(tree) {
-    this.write_(IMPORT);
-    this.writeSpace_();
-    this.write_(STAR);
-    this.writeSpace_();
-    this.write_(AS);
-    this.visitAny(tree.binding);
-    this.writeSpace_();
-    this.write_(FROM);
-    this.writeSpace_();
-    this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
   }
 
   /**

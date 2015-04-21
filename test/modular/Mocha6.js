@@ -14,10 +14,7 @@
 
 /** @fileoverview Wrap Mocha in es6 layer */
 
-var Mocha = require('mocha');
-var path = require('path');
-var Runner = require('mocha/lib/runner');
-var reporters = require('mocha/lib/reporters');
+import {Mocha, Runner, reporters} from './MochaDependencies.js';
 
 export class Mocha6 extends Mocha {
 
@@ -31,8 +28,8 @@ export class Mocha6 extends Mocha {
    * @return {Object} A mocha thing with suite() and test() properties.
    */
   getContext() {
-    var context = this.suite.ctx;
-    var file = '';
+    let context = this.suite.ctx;
+    let file = '';
     this.suite.emit('pre-require', context, file, this);
     return context;
   }
@@ -42,13 +39,14 @@ export class Mocha6 extends Mocha {
   }
 
   importFiles() {
-    var promiseImports = this.files.map((file) => {
-      file = path.resolve(file);
-      this.suite.emit('pre-require', global, file, this);
+    let promiseImports = this.files.map((file) => {
+      file = './' + file.replace(/\\/g, '/');
+      let ctx = {};
+      this.suite.emit('pre-require', ctx, file, this);
       return System.import(file, {metadata: this.options.importMetadata}).
           then(() => {
-            this.suite.emit('require', global, file, this);
-            this.suite.emit('post-require', global, file, this);
+            this.suite.emit('require', ctx, file, this);
+            this.suite.emit('post-require', ctx, file, this);
           });
     });
     return Promise.all(promiseImports);

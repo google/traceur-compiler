@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {isAbsolute, resolveUrl} from '../util/url.js';
-import {Loader} from '../runtime/Loader.js';
-import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
-import {systemjs} from '../runtime/system-map.js';
+import {Loader} from './Loader.js';
+import {LoaderCompiler} from './LoaderCompiler.js';
+import {systemjs} from './system-map.js';
+import {webLoader} from './webLoader.js';
 
 var version = __moduleName.slice(0, __moduleName.indexOf('/'));
 var uniqueNameCount = 0;
@@ -235,6 +236,9 @@ export class TraceurLoader extends Loader {
    */
   semverMap(normalizedName) {
     var slash = normalizedName.indexOf('/');
+    if (slash < 0) {
+      slash = normalizedName.length;
+    }
     var version = normalizedName.slice(0, slash);
     var at = version.indexOf('@');
     if (at !== -1) {
@@ -300,4 +304,10 @@ export class TraceurLoader extends Loader {
     return filename.slice(0, lastSlash);
   }
 
+}
+
+export class BrowserTraceurLoader extends TraceurLoader {
+  constructor() {
+    super(webLoader, window.location.href, new LoaderCompiler());
+  }
 }

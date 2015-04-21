@@ -17,7 +17,6 @@
 import {ExportsList} from './ModuleSymbol.js';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {
-  MODULE_DECLARATION,
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType.js';
@@ -57,7 +56,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleElement_(element) {
     switch (element.type) {
-      case MODULE_DECLARATION:
       case EXPORT_DECLARATION:
       case IMPORT_DECLARATION:
         this.visitAny(element);

@@ -4,46 +4,40 @@
 <script src="node_modules/mocha/mocha.js"></script>
 <script src="node_modules/chai/chai.js"></script>
 <script src="bin/traceur.js"></script>
+<script>
+window.System = new traceur.runtime.BrowserTraceurLoader();
+System.map = System.semverMap(System.version);
+</script>
 <script src="test/test-utils.js"></script>
 <script src="test/test-list.js"></script>
-<script>
-
-mocha.setup({ui: 'tdd'});
-
-</script>
-<!-- Unit tests -->
-<script src="test/unit/codegeneration/ExplodeExpressionTransformer.js"></script>
-<script src="test/unit/codegeneration/PlaceholderParser.generated.js" type="module"></script>
-<script src="test/unit/codegeneration/SourceMap.js"></script>
-<script src="test/unit/codegeneration/low_level_tests.js"></script>
-<script src="test/unit/codegeneration/writer.js"></script>
-<script src="test/unit/runtime/Loader.js"></script>
-<script src="test/unit/runtime/type-assertions.js"></script>
-<script src="test/unit/semantics/FreeVariableChecker.js"></script>
-<script src="test/unit/semantics/VariableBinder.js"></script>
-<script src="test/unit/syntax/LineNumbers.js"></script>
-<script src="test/unit/syntax/ParseTreeValidator.js"></script>
-<script src="test/unit/syntax/Token.js"></script>
-<script src="test/unit/syntax/parser.js"></script>
-<script src="test/unit/system/Hello.js"></script>
-<script src="test/unit/system/ScriptTypeTextTraceur.js"></script>
-<script src="test/unit/tools/HTMLImportTranscoder/HTMLImportScriptTraceur.js"></script>
-<script src="test/unit/util/ErrorReporter.js"></script>
-<script src="test/unit/util/url.js"></script>
 <div id="mocha"></div>
 
-<!-- Feature tests -->
 <script>
-(function() {
-  'use strict';
-  System.import('./src/runtime/webLoader.js', {}).then(function(module) {
-    featureSuite(testList, module.webLoader);
-    new traceur.WebPageTranscoder(document.location.href).run(function() {
-      mocha.run();
-    });
-  }, function(error) {
-    console.error(error);
+// Unit tests
+var metadata = {traceurOptions: {sourceMaps: true}};
+System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
+  var unitTestRunner = module.unitTestRunner;
+  window.suite = module.suite;
+  window.test = module.test;
+  window.setup = module.setup;
+  window.teardown = module.teardown;
+  return unitTestRunner.run().then(function() {
+    console.log('unitTestRunner success');
+  }, function(ex) {
+    document.getElementById('mocha').textContent = ex.stack || ex;
+    console.error('unitTestRunner.run FAILED', ex.stack || ex);
   });
-
-})();
+}).then(function() {
+  // Feature tests.
+  return System.import('./src/runtime/webLoader.js', metadata).
+      then(function(module) {
+        featureSuite(testList, module.webLoader);
+        new traceur.WebPageTranscoder(document.location.href).run(function() {
+          mocha.run();
+        });
+      });
+}).catch(function(ex) {
+  document.getElementById('mocha').textContent = ex.stack || ex;
+  console.error('import FAILED', ex.stack || ex);
+});
 </script>

@@ -16,27 +16,10 @@
 
 var fs = require('fs');
 var traceur = require('./traceur.js');
-var path = require('path');
 
-var nodeLoader = require('./nodeLoader.js');
-var url = (path.resolve('./') + '/').replace(/\\/g, '/');
+var System = new traceur.runtime.NodeTraceurLoader();
 
-var NodeLoaderCompiler = traceur.runtime.NodeLoaderCompiler;
-
-var System = new traceur.runtime.TraceurLoader(nodeLoader, url,
-    new NodeLoaderCompiler());
-
-require('source-map-support').install({
-  retrieveSourceMap: function(filename) {
-    var map = System.getSourceMap(filename);
-    if (map) {
-      return {
-        url: filename,
-        map: map
-      };
-    }
-  }
-});
+var traceurMap;
 
 Reflect.global.System = System;
 System.map = System.semverMap(System.version);

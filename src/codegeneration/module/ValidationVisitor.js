@@ -65,7 +65,7 @@ export class ValidationVisitor extends ModuleVisitor {
       let name = tree.moduleSpecifier.token.processedValue;
       let moduleDescription =
           this.getExportsListForModuleSpecifier(name);
-      this.visitAndValidate_(moduleDescription, tree.specifierSet);
+      this.visitAndValidate_(moduleDescription, tree.exportClause);
     }
     // The else case is checked else where and duplicate exports are caught
     // as well as undefined variables.
@@ -74,6 +74,13 @@ export class ValidationVisitor extends ModuleVisitor {
   visitExportSpecifier(tree) {
     // export {a as b} from 'm'
     this.checkExport_(tree, tree.lhs.value);
+  }
+
+  visitForwardDefaultExport(tree) {
+    // export name from 'module'
+    // same as
+    // export {default as name} from 'module'
+    this.checkExport_(tree, 'default');
   }
 
   visitImportDeclaration(tree) {
@@ -94,5 +101,10 @@ export class ValidationVisitor extends ModuleVisitor {
     let importName = tree.binding.getStringValue();
     this.checkImport_(tree, importName);
     this.checkExport_(tree, 'default');
+  }
+
+  visitNameSpaceImport(tree) {
+    let importName = tree.binding.binding.getStringValue();
+    this.checkImport_(tree, importName);
   }
 }

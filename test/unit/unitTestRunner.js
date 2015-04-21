@@ -12,34 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TraceurTestRunner} from '../modular/TraceurTestRunner.js';
+import {NodeTraceurTestRunner} from '../modular/NodeTraceurTestRunner.js';
+import {BrowserTraceurTestRunner} from '../modular/BrowserTraceurTestRunner.js';
 
-export var unitTestRunner = new TraceurTestRunner({
-  patterns: [
-    'test/unit/util/*.js',
-    'test/unit/syntax/*.js',
-    'test/unit/codegeneration/*.js',
-    'test/unit/semantics/*.js',
-    'test/unit/tools/*.js',
-    'test/unit/runtime/*.js',
-    'test/unit/system/*.js',
-    'test/unit/node/*.js',
-    'test/unit/*.js'
-  ]
-});
+export * from '../asserts.js';
 
-var context = unitTestRunner.getContext();
-
-export var suite = context.suite;
-export var test = context.test;
-export var setup = context.setup;
-export var teardown = context.teardown;
-
-var chai = require('chai');
-export var assert = chai.assert;
-export var AssertionError = chai.AssertionError;
-
-export function assertArrayEquals(expected, actual) {
-  assert.equal(JSON.stringify(actual, null, 2),
-               JSON.stringify(expected, null, 2));
+export let unitTestRunner;
+if (typeof window !== 'undefined') {
+  unitTestRunner = new BrowserTraceurTestRunner();
+} else {
+  unitTestRunner = new NodeTraceurTestRunner();
 }
+
+let context = unitTestRunner.getContext();
+
+export let suite = context.suite;
+
+export let test = context.test;
+export let setup = context.setup;
+export let teardown = context.teardown;
+
+unitTestRunner.applyOptions([
+  'test/unit/util/*.js',
+  'test/unit/syntax/*.js',
+  'test/unit/codegeneration/*.js',
+  'test/unit/semantics/*.js',
+  'test/unit/tools/*.js',
+  'test/unit/runtime/*.js',
+  'test/unit/system/*.js',
+  'test/unit/node/*.js',
+  'test/unit/*.js'
+]);

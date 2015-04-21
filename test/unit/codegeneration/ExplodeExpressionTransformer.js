@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
+
+import {ExplodeExpressionTransformer} from '../../../src/codegeneration/ExplodeExpressionTransformer.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {createIdentifierExpression as id} from '../../../src/codegeneration/ParseTreeFactory.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
 suite('ExplodeExpressionTransformer.js', function() {
-
-  var ExplodeExpressionTransformer = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/ExplodeExpressionTransformer.js').
-          ExplodeExpressionTransformer;
-  var Parser = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/Parser.js').Parser;
-  var SourceFile = $traceurRuntime.ModuleStore.
-      getForTesting('src/syntax/SourceFile.js').SourceFile;
-  var id = $traceurRuntime.ModuleStore.
-      getForTesting('src/codegeneration/ParseTreeFactory.js').
-          createIdentifierExpression;
-  var write = $traceurRuntime.ModuleStore.
-      getForTesting('src/outputgeneration/TreeWriter.js').write;
 
   var counter = 0;
   var transformer;

@@ -63,20 +63,26 @@ function superSet(self, homeObject, name, value) {
   throw $TypeError(`super has no setter '${name}'.`);
 }
 
+function forEachPropertyKey(object, f) {
+  getOwnPropertyNames(object).forEach(f);
+  getOwnPropertySymbols(object).forEach(f);
+}
+
 function getDescriptors(object) {
   var descriptors = {};
-  var names = getOwnPropertyNames(object);
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i];
-    descriptors[name] = $getOwnPropertyDescriptor(object, name);
-  }
-  var symbols = getOwnPropertySymbols(object);
-  for (var i = 0; i < symbols.length; i++) {
-    var symbol = symbols[i];
-    descriptors[$traceurRuntime.toProperty(symbol)] =
-        $getOwnPropertyDescriptor(object, $traceurRuntime.toProperty(symbol));
-  }
+  forEachPropertyKey(object, (key) => {
+    descriptors[key] = $getOwnPropertyDescriptor(object, key);
+    descriptors[key].enumerable = false;
+  });
   return descriptors;
+}
+
+var nonEnum = {enumerable: false};
+
+function makePropertiesNonEnumerable(object) {
+  forEachPropertyKey(object, (key) => {
+    $defineProperty(object, key, nonEnum);
+  });
 }
 
 // The next three functions are more or less identical to
@@ -85,9 +91,9 @@ function getDescriptors(object) {
 function createClass(ctor, object, staticObject, superClass) {
   $defineProperty(object, 'constructor', {
     value: ctor,
-     configurable: true,
-     enumerable: false,
-     writable: true
+    configurable: true,
+    enumerable: false,
+    writable: true
   });
 
   if (arguments.length > 3) {
@@ -96,6 +102,7 @@ function createClass(ctor, object, staticObject, superClass) {
     ctor.prototype = $create(getProtoParent(superClass),
                              getDescriptors(object));
   } else {
+    makePropertiesNonEnumerable(object)
     ctor.prototype = object;
   }
   $defineProperty(ctor, 'prototype', {configurable: false, writable: false});

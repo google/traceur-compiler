@@ -14,7 +14,7 @@
 
 import {InternalLoader} from './InternalLoader.js';
 
-function throwAbstractMethod() {
+export function throwAbstractMethod() {
   throw new Error('Unimplemented Loader function, see extended class');
 }
 

@@ -262,7 +262,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
           this.transformIdentifierExpression(tree.expression);
       if (transformedExpression === tree.expression)
         return tree;
-      if (transformedExpression.isStatement())
+      if (transformedExpression.isStatementListItem())
         return transformedExpression;
       return createExpressionStatement(transformedExpression);
     }

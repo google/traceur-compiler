@@ -14,19 +14,16 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {IdentifierToken} from '../../../src/syntax/IdentifierToken.js';
+import {LiteralToken} from '../../../src/syntax/LiteralToken.js';
+import * as TokenType from '../../../src/syntax/TokenType.js';
+import {Token} from '../../../src/syntax/Token.js';
+
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+import * as trees from '../../../src/syntax/trees/ParseTrees.js';
+
+
 suite('writer.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var IdentifierToken = get('src/syntax/IdentifierToken.js').IdentifierToken;
-  var LiteralToken = get('src/syntax/LiteralToken.js').LiteralToken;
-  var TokenType = get('src/syntax/TokenType.js');
-  var Token = get('src/syntax/Token.js').Token;
-
-  var write = get('src/outputgeneration/TreeWriter.js').write;
-  var trees = get('src/syntax/trees/ParseTrees.js');
 
   test('WriteStatement', function() {
     var tree = new trees.Script(

@@ -61,7 +61,7 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitNamedExport(tree) {
     this.moduleSpecifier = tree.moduleSpecifier;
-    this.visitAny(tree.specifierSet);
+    this.visitAny(tree.exportClause);
     this.moduleSpecifier = null;
   }
 
@@ -82,16 +82,32 @@ export class ExportVisitor extends ModuleVisitor {
     }  // Else: we already reported an error.
   }
 
+  visitNameSpaceExport(tree) {
+    this.addExport_(tree.name.value, tree);
+  }
+
+  visitForwardDefaultExport(tree) {
+    // export name from 'module'
+    // same as
+    // export {default as name} from 'module'
+    this.addExport_(tree.name.value, tree);
+  }
+
   visitFunctionDeclaration(tree) {
     this.addExport_(tree.name.getStringValue(), tree);
   }
 
-  visitModuleDeclaration(tree) {
-    let name = tree.binding.getStringValue();
-    this.addExport_(name, tree);
+  visitVariableDeclaration(tree) {
+    this.visitAny(tree.lvalue);
+    // Don't visit the initializer.
   }
 
-  visitVariableDeclaration(tree) {
-    this.addExport_(tree.lvalue.getStringValue(), tree);
+  visitBindingIdentifier(tree) {
+    this.addExport_(tree.getStringValue(), tree);
+  }
+
+  visitBindingElement(tree) {
+    this.visitAny(tree.binding);
+    // Don't visit the initializer.
   }
 }

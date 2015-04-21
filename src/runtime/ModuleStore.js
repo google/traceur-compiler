@@ -136,7 +136,7 @@
         var lines = this.func.toString().split('\n')
 
         var evaled = [];
-        ex.stack.split('\n').some(function(frame) {
+        ex.stack.split('\n').some((frame, index) => {
           // End when we find ourselves on the stack.
           if (frame.indexOf('UncoatedModuleInstantiator.getUncoatedModule') > 0)
             return true;
@@ -146,7 +146,12 @@
           if (m) {
             var line = parseInt(m[2], 10);
             evaled = evaled.concat(beforeLines(lines, line));
-            evaled.push(columnSpacing(m[3]) + '^');
+            // The first evaled frame should be the one from 'this.func'
+            if (index === 1) {
+              evaled.push(columnSpacing(m[3]) + '^ ' + this.url);
+            } else {
+              evaled.push(columnSpacing(m[3]) + '^');
+            }
             evaled = evaled.concat(afterLines(lines, line));
             evaled.push('= = = = = = = = =');
           } else {
@@ -279,34 +284,9 @@
     getAnonymousModule(func) {
       return new Module(func.call(global), liveModuleSentinel);
     },
-
-    /**
-     *  A 'backdoor' access function for traceur's own modules. Our
-     * modules are stored under names like 'traceur@0.0.n/<path>',
-     * where n varies with every commit to master. Rather than send
-     * the verion number to every test, we allow tests to call this
-     * function with just th <path> part of the name.
-    **/
-    getForTesting(name) {
-      if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).some( (key) => {
-          // Extract the version-dependent prefix from the first traceur
-          // module matching our naming convention.
-          var m = /(traceur@[^\/]*\/)/.exec(key);
-          if (m) {
-            this.testingPrefix_ = m[1];
-            return true;
-          }
-        });
-      }
-      return this.get(this.testingPrefix_ + name);
-    }
-
   };
 
-  // TODO(arv): Remove the non .js version after a npm push
-  var moduleStoreModule = new Module({ModuleStore: ModuleStore});
-  ModuleStore.set('@traceur/src/runtime/ModuleStore', moduleStoreModule);
+  var moduleStoreModule = new Module({ModuleStore});
   ModuleStore.set('@traceur/src/runtime/ModuleStore.js', moduleStoreModule);
 
   // Override setupGlobals so that System is added to future globals.
@@ -322,12 +302,6 @@
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
-  };
-
-  // TODO(jjb): remove after next npm release
-  $traceurRuntime.getModuleImpl = function(name) {
-    var instantiator = getUncoatedModuleInstantiator(name);
-    return instantiator && instantiator.getUncoatedModule();
   };
 
 })(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);

@@ -13,14 +13,9 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../unit/unitTestRunner.js';
+import {CommandOptions, Options} from '../../src/Options.js';
 
 suite('options', function() {
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var Options = get('src/Options.js').Options;
-  var CommandOptions = get('src/Options.js').CommandOptions;
 
   test('Options instance', function() {
     var options = new Options();

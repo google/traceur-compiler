@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {
+  suite,
+  test,
+  assert,
+  setup,
+  teardown
+} from '../../unit/unitTestRunner.js';
 
 suite('System.js', function() {
 
@@ -83,7 +89,7 @@ suite('System.js', function() {
 
   test('System.set', function() {
     var store = $traceurRuntime.ModuleStore;
-    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills.js');
+    var polyfills = store.get(System.version + '/src/runtime/polyfills/polyfills.js');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
@@ -135,6 +141,8 @@ suite('System.js', function() {
     var remapped = System.normalize('traceur@0.0/src/runtime/System.js');
     var versionSegment = remapped.split('/')[0];
     assert.equal(version, versionSegment);
+    var alsoByVersion = System.semverMap('traceur@0.0.13');
+    assert.equal(alsoByVersion['traceur'], System.map['traceur']);
   });
 
   test('System.applyMap', function() {

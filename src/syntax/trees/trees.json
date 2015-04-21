@@ -514,6 +514,14 @@
       "Array<FormalParameter>"
     ]
   },
+  "ForwardDefaultExport": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
   "FunctionBody": {
     "location": [
       "SourceRange"
@@ -643,6 +651,17 @@
       "SourceRange"
     ],
     "binding": [
+      "ParseTree"
+    ]
+  },
+  "ImportClausePair": {
+    "location": [
+      "SourceRange"
+    ],
+    "first": [
+      "ParseTree"
+    ],
+    "second": [
       "ParseTree"
     ]
   },
@@ -781,17 +800,6 @@
       "string"
     ]
   },
-  "ModuleDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "binding": [
-      "ImportedBinding"
-    ],
-    "expression": [
-      "ParseTree"
-    ]
-  },
   "ModuleSpecifier": {
     "location": [
       "SourceRange"
@@ -800,14 +808,30 @@
       "Token"
     ]
   },
+  "NameSpaceExport": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
+  "NameSpaceImport": {
+    "location": [
+      "SourceRange"
+    ],
+    "binding": [
+      "ImportedBinding"
+    ]
+  },
   "NamedExport": {
     "location": [
       "SourceRange"
     ],
-    "moduleSpecifier": [
+    "exportClause": [
       "ParseTree"
     ],
-    "specifierSet": [
+    "moduleSpecifier": [
       "ParseTree"
     ]
   },

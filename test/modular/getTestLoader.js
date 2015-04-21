@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function get(name) {
-  return $traceurRuntime.ModuleStore.getForTesting(name);
-}
-
-var resolveUrl = get('src/util/url.js').resolveUrl;
+import {resolveUrl} from '../../src/util/url.js';
 
 var url;
 var fileLoader;

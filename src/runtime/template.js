@@ -12,26 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+let {defineProperty, freeze} = Object;
+let {slice} = Array.prototype;
+let map = Object.create(null);
 
-suite('interpreter', function(){
+function getTemplateObject(raw, cooked = undefined) {
+  var key = raw.join('${}');
+  var templateObject = map[key];
+  if (templateObject) return templateObject;
+  if (!cooked) {
+    cooked = slice.call(raw);
+  }
+  return map[key] = freeze(defineProperty(cooked, 'raw', {value: freeze(raw)}));
+}
 
-  var exec = require('child_process').exec;
-  var debug = false;
-
-	function log(stdout, stderr) {
-		console.log('stdout:\n', stdout, '\n---');
-		if (stderr)
-			console.log('stderr:\n', stderr, '\n---');
-	}
-
-	test('calls System', function() {
-		var cmd = './traceur ./test/unit/runtime/resources/call_loader.js';
-		exec(cmd, function(error, stdout, stderr) {
-			if (debug)
-				log(stdout, stderr);
-			// The assserts are in the code we exed here.
-		});
-	});
-
-});
+$traceurRuntime.getTemplateObject = getTemplateObject;

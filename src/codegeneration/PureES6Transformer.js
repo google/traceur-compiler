@@ -16,6 +16,7 @@
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
+import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
@@ -35,14 +36,16 @@ export class PureES6Transformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
    * @param {Options} options
+   * @param {Object} metadata Implementation defined loader data.
    */
-  constructor(reporter, options) {
+  constructor(reporter, options, metadata) {
     super(reporter, options.validate);
     let idGenerator = new UniqueIdentifierGenerator();
 
     let append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter, options).transformAny(tree);
+        return new transformer(idGenerator, reporter, options, metadata).
+            transformAny(tree);
       });
     };
 
@@ -65,5 +68,9 @@ export class PureES6Transformer extends MultiTransformer {
     }
     append(AnnotationsTransformer);
     append(TypeTransformer);
+
+    if (options.modules === 'inline') {
+      append(InlineES6ModuleTransformer);
+    }
   }
 }

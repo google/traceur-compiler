@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, setup, teardown, assert} from '../../unit/unitTestRunner.js';
+import {
+  suite,
+  test,
+  assert,
+  setup,
+  teardown
+} from '../../unit/unitTestRunner.js';
+
+import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
+import {SyntaxErrorReporter} from '../../../src/util/SyntaxErrorReporter.js';
+import {SourcePosition} from '../../../src/util/SourcePosition.js';
+import {MultipleErrors} from '../../../src/util/CollectingErrorReporter.js';
 
 suite('ErrorReporter.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var MutedErrorReporter = get('src/util/MutedErrorReporter.js').MutedErrorReporter;
-  var SyntaxErrorReporter = get('src/util/SyntaxErrorReporter.js').SyntaxErrorReporter;
-  var SourcePosition = get('src/util/SourcePosition.js').SourcePosition;
-  var MultipleErrors = get('src/util/CollectingErrorReporter.js').MultipleErrors;
 
   var originalConsoleError = console.error;
   var args;

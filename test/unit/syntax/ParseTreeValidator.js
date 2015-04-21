@@ -13,11 +13,8 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
-
+import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
 suite('ParseTreeValidator.js', function() {
-
-  var ParseTreeValidator =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
 
   test('Validate null', function() {
     ParseTreeValidator.validate(null);

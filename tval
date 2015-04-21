@@ -37,7 +37,7 @@ if (!filename || helps.indexOf(filename) !== -1) {
   process.exit(0);
 }
 
-var moduleName = path.resolve(filename.replace(/\\/g, '/'));
+var moduleName = path.resolve(filename).replace(/\\/g, '/');
 
 // Simulate a future where it looks like node is executing our program
 process.argv = [process.mainModule.filename].concat(process.argv.slice(2));
@@ -48,6 +48,6 @@ var metadata = {
 
 // The module will evaluate and have process.argv ['node', filename, ...]
 System.import(moduleName, {metadata: metadata}).catch(function(err) {
-  console.error(err.stack || err + '');
+  console.error('tval fails:',  err.stack || err + '');
   process.exit(1);
 });

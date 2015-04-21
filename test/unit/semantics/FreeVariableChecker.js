@@ -14,17 +14,13 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {CollectingErrorReporter as ErrorReporter} from '../../../src/util/CollectingErrorReporter.js';
+import {validate as validateFreeVars} from '../../../src/semantics/FreeVariableChecker.js';
+import {Options} from '../../../src/Options.js';
+
 suite('FreeVariableChecker.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var Parser = traceur.syntax.Parser;
-  var SourceFile = traceur.syntax.SourceFile;
-  var ErrorReporter = get('src/util/CollectingErrorReporter.js').CollectingErrorReporter;
-  var validateFreeVars = get('src/semantics/FreeVariableChecker.js').validate;
-  var Options = get('src/Options.js').Options;
 
   function makeTest(name, code, expectedErrors, global, mode) {
     test(name, function() {

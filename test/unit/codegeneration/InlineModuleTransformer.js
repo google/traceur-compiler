@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
+
+import {InlineModuleTransformer} from '../../../src/codegeneration/InlineModuleTransformer.js';
+import * as ParseTreeFactory from '../../../src/codegeneration/ParseTreeFactory.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
 suite('InlineModuleTransformer.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer.js').InlineModuleTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
-  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var transformer = null
 

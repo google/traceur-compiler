@@ -14,19 +14,15 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {InlineModuleTransformer} from '../../../src/codegeneration/InlineModuleTransformer.js';
+import * as ParseTreeFactory from '../../../src/codegeneration/ParseTreeFactory.js';
+import {ParseTreeTransformer} from '../../../src/codegeneration/ParseTreeTransformer.js';
+import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
+import {Parser} from '../../../src/syntax/Parser.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js';
+import {write} from '../../../src/outputgeneration/TreeWriter.js';
+
 suite('low_level_tests.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var InlineModuleTransformer = get('src/codegeneration/InlineModuleTransformer.js').InlineModuleTransformer;
-  var ParseTreeFactory = get('src/codegeneration/ParseTreeFactory.js');
-  var ParseTreeTransformer = get('src/codegeneration/ParseTreeTransformer.js').ParseTreeTransformer;
-  var ParseTreeValidator = get('src/syntax/ParseTreeValidator.js').ParseTreeValidator;
-  var Parser = get('src/syntax/Parser.js').Parser;
-  var SourceFile = get('src/syntax/SourceFile.js').SourceFile;
-  var write = get('src/outputgeneration/TreeWriter.js').write;
 
   var createBreakStatement = ParseTreeFactory.createBreakStatement;
   var createContinueStatement = ParseTreeFactory.createContinueStatement;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
 
 import {Options} from '../../../src/Options.js';
 import {Parser} from '../../../src/syntax/Parser.js';

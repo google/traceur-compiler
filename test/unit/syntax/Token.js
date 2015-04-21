@@ -14,16 +14,12 @@
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
+import {IdentifierToken} from '../../../src/syntax/IdentifierToken.js';
+import {LiteralToken} from '../../../src/syntax/LiteralToken.js';
+import {Token} from '../../../src/syntax/Token.js';
+import * as TokenType from '../../../src/syntax/TokenType.js';
+
 suite('Token.js', function() {
-
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var IdentifierToken = get('src/syntax/IdentifierToken.js').IdentifierToken;
-  var LiteralToken = get('src/syntax/LiteralToken.js').LiteralToken;
-  var Token = get('src/syntax/Token.js').Token;
-  var TokenType = get('src/syntax/TokenType.js');
 
   test('Token', function() {
     var token = new Token('type', 'location');

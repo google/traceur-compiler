@@ -64,14 +64,14 @@ export class LoaderCompiler {
 
     // The name used in sourceMaps
     var sourceName = codeUnit.metadata.sourceName = codeUnit.address ||
-        codeUnit.normalizedName || String(++anonymousSourcesSeen);
+        codeUnit.normalizedName || '(unnamed)#' + String(++anonymousSourcesSeen);
     metadata.tree = metadata.compiler.parse(codeUnit.source, sourceName);
   }
 
   transform(codeUnit) {
     var metadata = codeUnit.metadata;
     metadata.transformedTree =
-        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName);
+        metadata.compiler.transform(metadata.tree, codeUnit.normalizedName, metadata);
   }
 
   write(codeUnit) {

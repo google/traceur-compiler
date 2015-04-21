@@ -38,6 +38,7 @@ export const optionsV01 = enumerableOnlyObject({
   defaultParameters: true,
   destructuring: true,
   exponentiation: false,
+  exportFromExtended: false,
   forOf: true,
   forOn: false,
   freeVariableChecker: false,
@@ -149,6 +150,7 @@ addFeatureOption('arrayComprehension', EXPERIMENTAL); // 11.4.1.2
 addFeatureOption('asyncFunctions', EXPERIMENTAL);
 addFeatureOption('asyncGenerators', EXPERIMENTAL);
 addFeatureOption('exponentiation', EXPERIMENTAL);
+addFeatureOption('exportFromExtended', EXPERIMENTAL);
 addFeatureOption('forOn', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);

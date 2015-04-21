@@ -155,4 +155,28 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('Export star as', function(done) {
+    System.import('./export-star-as.js').then(function(m) {
+      assert.equal(2, m.a.b);
+      done();
+    }).catch(done);
+  });
+
+  test('Export name from', function(done) {
+    System.import('./export-forward-default.js').then(function(m) {
+      assert.equal(42, m.a);
+      done();
+    }).catch(done);
+  });
+
+  test('Export destructuring', function(done) {
+    System.import('./export-destructuring.js').then(function(m) {
+      assert.equal(1, m.x);
+      assert.equal(2, m.y);
+      m.f();
+      assert.equal(3, m.x);
+      done();
+    }).catch(done);
+  });
+
 });

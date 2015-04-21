@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.88",
+  "version": "0.0.89",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -49,12 +49,12 @@
     "source-map": "0.1.43",
     "express": "4.x",
     "serve-index": "1.x",
-    "mocha": "1.20.x",
-    "chai": "1.x",
+    "mocha": "2.2.x",
+    "chai": "2.2.x",
     "node-uuid": "1.x",
     "regexpu": "1.1.0",
     "requirejs": "2.x",
-    "traceur": "0.0.87",
+    "traceur": "0.0.88",
     "promises-aplus-tests": "2.x",
     "webcomponents.js": "^0.5.4-1"
   },

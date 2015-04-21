@@ -16,4 +16,10 @@
 
 import {unitTestRunner} from './unit/unitTestRunner.js';
 
-unitTestRunner.parseOptionsAndRun();
+unitTestRunner.run().then((failures) => {
+    process.exit(failures);
+  },(ex) => {
+    console.log('unitTestRunner FAILED', ex.stack || ex);
+    process.exit(-1);
+  }
+);

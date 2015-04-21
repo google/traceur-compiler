@@ -13,14 +13,10 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../../unit/unitTestRunner.js';
+import * as TokenType from '../../../src/syntax/TokenType.js';
+import {LiteralToken} from '../../../src/syntax/LiteralToken.js';
 
 suite('LiteralToken.js', function() {
-
-  var LiteralToken =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/LiteralToken.js').LiteralToken;
-
-  var TokenType =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/TokenType.js');
 
   test('Decode newline', function() {
     var token = new LiteralToken(TokenType.STRING, '"hello\nworld"');

@@ -46,6 +46,10 @@ if (location.host === 'traceur-compiler.googlecode.com') {
 <script src="../third_party/CodeMirror-4.0.3/keymap/sublime.js"></script>
 
 <script src="../bin/traceur.js"></script>
+<script>
+window.System = new traceur.runtime.BrowserTraceurLoader();
+System.map = System.semverMap(System.version);
+</script>
 
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans">
 

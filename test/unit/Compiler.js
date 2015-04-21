@@ -13,18 +13,10 @@
 // limitations under the License.
 
 import {suite, test, assert} from '../unit/unitTestRunner.js';
+import {Compiler} from '../../src/Compiler.js';
+import {Options, versionLockedOptions} from '../../src/Options.js';
 
 suite('Compiler', function() {
-  function get(name) {
-    return $traceurRuntime.ModuleStore.getForTesting(name);
-  }
-
-  var Compiler;
-  var versionLockedOptions;
-  setup(function() {
-    Compiler = get('src/Compiler.js').Compiler;
-    versionLockedOptions = get('src/Options.js').versionLockedOptions;
-  });
 
   test('Compiler synchronous', function() {
     var compiler = new Compiler();
@@ -47,8 +39,6 @@ suite('Compiler', function() {
   });
 
   test('Compiler options locked', function() {
-    var Options = get('src/Options.js').Options;
-
     var options = new Options();
     var mismatches = options.diff(versionLockedOptions);
     if (mismatches.length)
