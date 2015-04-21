@@ -1,9 +1,9 @@
 <script src="../../bin/traceur.js"></script>
 <script src="../../src/bootstrap.js"></script>
 <script>
-	new traceur.WebPageTranscoder(document.location.href, {
-		asyncFunctions: true
-	}).run();
+  new traceur.WebPageTranscoder(document.location.href, {
+    asyncFunctions: true
+  }).run();
 </script>
 <script type="module">
 var async;
@@ -13,9 +13,9 @@ function f() {
 }
 async = 1;
 if (f() === 2) {
-	document.body.textContent = 'PASS';
+  document.body.textContent = 'PASS';
 } else {
-	window.alert('FAIL');
+  window.alert('FAIL');
 }
 
 </script>
