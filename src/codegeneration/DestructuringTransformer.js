@@ -164,8 +164,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
-    this.options_ = options;
+    super(identifierGenerator, reporter, options);
     this.parameterDeclarations = null;
   }
 
@@ -417,7 +416,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     let body = this.transformAny(tree.catchBody);
     let statements = [];
-    let kind = this.options_.blockBinding ? LET : VAR;
+    let kind = this.options.blockBinding ? LET : VAR;
     let binding = this.desugarBinding_(tree.binding, statements, kind);
     statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));

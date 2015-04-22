@@ -19,7 +19,7 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {StringSet} from '../util/StringSet.js';
-import {VAR} from '../syntax/TokenType.js';
+import {LET, VAR} from '../syntax/TokenType.js';
 import {
   createFunctionBody,
   createThisExpression,
@@ -58,10 +58,13 @@ class TempScope {
 }
 
 class VarScope {
-  constructor() {
+  constructor(options) {
     this.thisName = null;
     this.argumentName = null;
     this.tempVarStatements = [];
+    this.declarationType_ =
+        options.blockBinding && !options.transformOptions.blockBinding ?
+            LET : VAR;
   }
 
   push(tempVarStatement) {
@@ -97,7 +100,7 @@ class VarScope {
     }
 
     return createVariableStatement(
-        createVariableDeclarationList(VAR, declarations));
+        createVariableDeclarationList(this.declarationType_, declarations));
   }
 }
 
@@ -108,13 +111,17 @@ class VarScope {
 export class TempVarTransformer extends ParseTreeTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   * @param {Options} options
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter, options) {
     super();
     this.identifierGenerator = identifierGenerator;
+    this.reporter = reporter;
+    this.options = options;
 
     // Stack used for variable declarations.
-    this.tempVarStack_ = [new VarScope()];
+    this.tempVarStack_ = [new VarScope(this.options)];
 
     // Stack used for the temp scopes. Temp scopes can be used to allow
     // temporary names to used sooner than after leaving the currently function
@@ -132,7 +139,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
    * @private
    */
   transformStatements_(statements) {
-    this.tempVarStack_.push(new VarScope());
+    this.tempVarStack_.push(new VarScope(this.options));
 
     let transformedStatements = this.transformList(statements);
 

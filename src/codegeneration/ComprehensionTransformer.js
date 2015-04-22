@@ -42,10 +42,6 @@ import {
  * See subclasses for details on desugaring.
  */
 export class ComprehensionTransformer extends TempVarTransformer {
-  constructor(idGenerator, reporter, options) {
-    super(idGenerator);
-    this.options_ = options;
-  }
   /**
    * transformArrayComprehension and transformGeneratorComprehension calls
    * this
@@ -62,7 +58,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-    let bindingKind = isGenerator || !this.options_.blockBinding ? VAR : LET;
+    let bindingKind = isGenerator || !this.options.blockBinding ? VAR : LET;
 
     let statements = prefix ? [prefix] : [];
 

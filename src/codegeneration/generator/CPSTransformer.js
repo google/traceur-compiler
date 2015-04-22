@@ -161,9 +161,8 @@ export class CPSTransformer extends TempVarTransformer {
   /**
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter) {
-    super(identifierGenerator);
-    this.reporter = reporter;
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator,reporter, options);
     this.stateAllocator_ = new StateAllocator();
 
     // This is currently a Map<string, LabelState> where the key is the

@@ -53,9 +53,8 @@ export class ProperTailCallTransformer extends TempVarTransformer {
   // TODO(mnieper): This transformer currently expects that classes and template
   // literals have already been desugared. Otherwise they are not guaranteed
   // to have proper tail calls.
-
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
     this.inBlock_ = false;
   }
 

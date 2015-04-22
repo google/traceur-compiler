@@ -64,8 +64,7 @@ export class ModuleTransformer extends TempVarTransformer {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
-    this.options_ = options;
+    super(identifierGenerator, reporter, options);
     this.exportVisitor_ = new DirectExportVisitor();
     this.importSimplifier_ = new ImportSimplifyingTransformer();
     this.moduleName = null;
@@ -119,7 +118,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     let functionExpression;
-    if (this.options_.transformOptions.require) {
+    if (this.options.transformOptions.require) {
       functionExpression = parseExpression `function(require) {
         ${statements}
       }`;
@@ -300,10 +299,11 @@ export class ModuleTransformer extends TempVarTransformer {
 
     // If destructuring patterns are kept in the output code, keep this as is,
     // otherwise transform it here.
-    if (this.options_.transformOptions.destructuring ||
-        !this.options_.parseOptions.destructuring) {
+    if (this.options.transformOptions.destructuring ||
+        !this.options.parseOptions.destructuring) {
       let destructuringTransformer =
-          new DestructImportVarStatement(this.identifierGenerator);
+          new DestructImportVarStatement(this.identifierGenerator,
+                                         this.reporter, this.options);
       varStatement = varStatement.transform(destructuringTransformer);
     }
 

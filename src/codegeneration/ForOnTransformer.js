@@ -89,4 +89,3 @@ export class ForOnTransformer extends TempVarTransformer {
     return this.transformForOnStatement_(statement, labelSet);
   }
 }
-

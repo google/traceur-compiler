@@ -36,7 +36,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
   // itself produces async functions so GeneratorTransformPass may then
   // have to run twice.
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
+    super(identifierGenerator, reporter, options);
     this.transformOptions_ = options.transformOptions;
     this.inBlock_ = false;
   }
@@ -74,7 +74,7 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
     if (!this.needsTransform_(tree)) {
       return super.transformFunctionExpression(tree);
     }
-    
+
     let name;
     if (!tree.name) {
       // We need a name to be able to reference the function object.
@@ -96,7 +96,8 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
   transformFunction_(tree, constructor, nameExpression) {
     let body = super.transformAny(tree.body);
     body = AsyncGeneratorTransformer.transformAsyncGeneratorBody(
-          this.identifierGenerator, this.reporter_, body, nameExpression);
+        this.identifierGenerator, this.reporter, this.options, body,
+        nameExpression);
 
     // The async generator has been transformed away.
     let functionKind = null;

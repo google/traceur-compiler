@@ -58,7 +58,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
+    super(identifierGenerator, reporter, options);
     this.options_ = options;
     this.returnTypeStack_ = [];
     this.parametersStack_ = [];

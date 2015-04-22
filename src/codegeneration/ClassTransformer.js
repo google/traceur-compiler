@@ -156,11 +156,9 @@ export class ClassTransformer extends TempVarTransformer {
    * @param {Options} options
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
+    super(identifierGenerator, reporter, options);
     this.strictCount_ = 0;
     this.state_ = null;
-    this.reporter_ = reporter;
-    this.options_ = options;
   }
 
   // Override to handle AnonBlock
@@ -217,8 +215,8 @@ export class ClassTransformer extends TempVarTransformer {
     let classExpression = new ClassExpression(tree.location, tree.name,
         tree.superClass, tree.elements, tree.annotations, tree.typeParameters);
     let transformed = this.transformClassExpression(classExpression);
-    let useLet = !this.options_.transformOptions.blockBinding &&
-                 this.options_.parseOptions.blockBinding;
+    let useLet = !this.options.transformOptions.blockBinding &&
+                 this.options.parseOptions.blockBinding;
     return createVariableStatement(useLet ? LET : VAR, tree.name, transformed);
   }
 
@@ -317,8 +315,8 @@ export class ClassTransformer extends TempVarTransformer {
 
       let functionStatement;
       if (tree.name &&
-          !this.options_.transformOptions.blockBinding &&
-          this.options_.parseOptions.blockBinding) {
+          !this.options.transformOptions.blockBinding &&
+          this.options.parseOptions.blockBinding) {
         functionStatement = createVariableStatement(CONST, tree.name, func);
       } else {
         functionStatement = functionExpressionToDeclaration(func, name);
@@ -351,7 +349,7 @@ export class ClassTransformer extends TempVarTransformer {
     let body = this.transformSuperInFunctionBody_(
         tree.body, homeObject, internalName);
 
-    if (this.options_.showDebugNames_) {
+    if (this.options.showDebugNames_) {
       tree.debugName = classMethodDebugName(originalName, methodNameFromTree(tree.name), isStatic);
     }
 
