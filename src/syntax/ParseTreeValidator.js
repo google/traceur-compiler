@@ -57,7 +57,8 @@ import {
   STAR_STAR_EQUAL,
   STRING,
   UNSIGNED_RIGHT_SHIFT,
-  UNSIGNED_RIGHT_SHIFT_EQUAL
+  UNSIGNED_RIGHT_SHIFT_EQUAL,
+  YIELD
 } from './TokenType.js';
 import {
   ARRAY_PATTERN,
@@ -896,8 +897,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {PropertyNameShorthand} tree
    */
   visitPropertyNameShorthand(tree) {
-    this.check_(tree.name.type === IDENTIFIER, tree,
-        'identifier token expected');
+    this.check_(tree.name.type === IDENTIFIER ||
+                tree.name.type === YIELD ||
+                tree.name.isStrictKeyword(),
+                tree,
+                'identifier token expected');
   }
 
   /**

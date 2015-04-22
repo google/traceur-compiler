@@ -1304,7 +1304,7 @@ export class Parser {
     let languageMode = this.languageMode_;
     let result = this.parseStatementList_(languageMode < STRONG_MODE);
 
-    if (!languageMode && this.isStrictMode_() && params)
+    if (!languageMode && this.isStrictMode_())
       StrictParams.visit(params, this.errorReporter_);
 
     this.languageMode_ = languageMode;
@@ -2331,10 +2331,10 @@ export class Parser {
         expression = null;
       } else if (this.peekSpread_(type)) {
         expression = this.parseSpreadExpression_();
-      } else if (this.peekAssignmentExpression_(type)) {
-        expression = this.parseAssignmentExpression_(ALLOW_IN);
-      } else {
+      } else if (type === CLOSE_SQUARE || type === END_OF_FILE) {
         break;
+      } else {
+        expression = this.parseAssignmentExpression_(ALLOW_IN);
       }
 
       elements.push(expression);
@@ -2508,8 +2508,9 @@ export class Parser {
       }
 
       if (this.options_.propertyNameShorthand &&
-          nameLiteral.type === IDENTIFIER ||
-          !this.isStrictMode_() && nameLiteral.type === YIELD) {
+          (nameLiteral.type === IDENTIFIER ||
+           nameLiteral.isStrictKeyword() && !this.isStrictMode_() ||
+           nameLiteral.type === YIELD && this.allowYield_)) {
 
         if (this.peek_(EQUAL)) {
           token = this.nextToken_();
@@ -2521,9 +2522,6 @@ export class Parser {
           return new CoverInitializedName(this.getTreeLocation_(start),
                                           nameLiteral, token, expr);
         }
-
-        if (nameLiteral.type === YIELD)
-          nameLiteral = new IdentifierToken(nameLiteral.location, YIELD);
 
         return new PropertyNameShorthand(this.getTreeLocation_(start),
                                          nameLiteral);
@@ -2798,47 +2796,6 @@ export class Parser {
   // 11.14 Expressions
 
   /**
-   * @return {boolean}
-   * @private
-   */
-  peekExpression_(type) {
-    switch (type) {
-      case NO_SUBSTITUTION_TEMPLATE:
-      case TEMPLATE_HEAD:
-        return this.options_.templateLiterals;
-      case BANG:
-      case CLASS:
-      case DELETE:
-      case FALSE:
-      case FUNCTION:
-      case IDENTIFIER:
-      case MINUS:
-      case MINUS_MINUS:
-      case NEW:
-      case NULL:
-      case NUMBER:
-      case OPEN_CURLY:
-      case OPEN_PAREN:
-      case OPEN_SQUARE:
-      case PLUS:
-      case PLUS_PLUS:
-      case SLASH: // regular expression literal
-      case SLASH_EQUAL:
-      case STRING:
-      case SUPER:
-      case THIS:
-      case TILDE:
-      case TRUE:
-      case TYPEOF:
-      case VOID:
-      case YIELD:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
    * Expression :
    *   AssignmentExpression
    *   Expression , AssignmentExpression
@@ -2878,14 +2835,6 @@ export class Parser {
   }
 
   // 11.13 Assignment expressions
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekAssignmentExpression_(type) {
-    return this.peekExpression_(type);
-  }
 
   /**
    * AssignmentExpression :
@@ -3431,7 +3380,7 @@ export class Parser {
     }
 
     this.eat_(ARROW);
-    let body = this.parseConciseBody_();
+    let body = this.parseConciseBody_(formals);
     this.popFunctionState_(fs);
     return new ArrowFunctionExpression(this.getTreeLocation_(start),
         asyncToken, formals, body);
@@ -3549,13 +3498,14 @@ export class Parser {
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
+   * @param {ParseTree} params
    * @return {ParseTree}
    */
-  parseConciseBody_() {
+  parseConciseBody_(params) {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
     if (this.peek_(OPEN_CURLY))
-      return this.parseFunctionBody_(null);
+      return this.parseFunctionBody_(params);
 
     return this.parseAssignmentExpression_(ALLOW_IN);
   }
