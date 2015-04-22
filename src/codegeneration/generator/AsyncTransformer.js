@@ -225,8 +225,8 @@ export class AsyncTransformer extends CPSTransformer {
    * @param {Block} body
    * @return {Block}
    */
-  static transformAsyncBody(identifierGenerator, reporter, body) {
-    return new AsyncTransformer(identifierGenerator, reporter).
+  static transformAsyncBody(identifierGenerator, reporter, options, body) {
+    return new AsyncTransformer(identifierGenerator, reporter, options).
         transformAsyncBody(body);
   }
 };

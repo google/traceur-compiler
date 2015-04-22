@@ -48,12 +48,11 @@ function convertConciseBody(tree) {
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
  */
 export class ArrowFunctionTransformer extends TempVarTransformer {
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
     this.inDerivedClass_ = false;
     this.inConstructor_ = false;
   }
-
 
   /**
    * Transforms an arrow function expression into a function declaration.

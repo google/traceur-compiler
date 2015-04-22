@@ -15,6 +15,7 @@
 import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
 
 import {InlineModuleTransformer} from '../../../src/codegeneration/InlineModuleTransformer.js';
+import {Options} from '../../../src/Options.js';
 import * as ParseTreeFactory from '../../../src/codegeneration/ParseTreeFactory.js';
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
@@ -23,7 +24,7 @@ suite('InlineModuleTransformer.js', function() {
   var transformer = null
 
   setup(function() {
-    transformer = new InlineModuleTransformer();
+    transformer = new InlineModuleTransformer(null, null, new Options());
   });
 
   function str(s) {

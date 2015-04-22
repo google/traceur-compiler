@@ -38,8 +38,8 @@ import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
 
 export class AsyncGeneratorTransformer extends TempVarTransformer {
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
     this.variableDeclarations_ = [];
     this.ctx_ = id(this.getTempIdentifier());
   }
@@ -113,12 +113,15 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
    /**
     * @param {UniqueIdentifierGenerator} identifierGenerator
     * @param {ErrorReporter} reporter
+    * @param {Options} options
     * @param {Block} body
     * @param {IdentifierExpression} name
     * @return {Block}
     */
-  static transformAsyncGeneratorBody(identifierGenerator, reporter, body, name) {
-    return new AsyncGeneratorTransformer(identifierGenerator, reporter).
+  static transformAsyncGeneratorBody(identifierGenerator, reporter, options,
+                                     body, name) {
+    return new AsyncGeneratorTransformer(identifierGenerator, reporter,
+                                         options).
         transformAsyncGeneratorBody_(body, name);
   }
 }

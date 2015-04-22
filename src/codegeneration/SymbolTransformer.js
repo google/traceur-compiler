@@ -102,7 +102,6 @@ let runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
  *   operand[$traceurRuntime.toProperty(memberExpression)] = value
  */
 export class SymbolTransformer extends TempVarTransformer {
-
   transformModule(tree) {
     return new Module(tree.location,
         prependStatements(this.transformList(tree.scriptItemList),

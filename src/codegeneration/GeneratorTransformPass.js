@@ -56,8 +56,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @param {ErrorReporter} reporter
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
-    this.reporter_ = reporter;
+    super(identifierGenerator, reporter, options);
     this.tranformOptions_ = options.transformOptions;
     this.inBlock_ = false;
   }
@@ -139,17 +138,18 @@ export class GeneratorTransformPass extends TempVarTransformer {
     let finder = new ForInFinder();
     finder.visitAny(body);
     if (finder.found) {
-      body = new ForInTransformPass(this.identifierGenerator).
-          transformAny(body);
+      body = new ForInTransformPass(this.identifierGenerator, this.reporter,
+                                    this.options).transformAny(body);
     }
 
     if (this.tranformOptions_.generators && tree.isGenerator()) {
       body = GeneratorTransformer.transformGeneratorBody(
-          this.identifierGenerator, this.reporter_, body, nameExpression);
+          this.identifierGenerator, this.reporter, this.options, body,
+          nameExpression);
 
     } else if (this.tranformOptions_.asyncFunctions && tree.isAsyncFunction()) {
       body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator, this.reporter_, body);
+          this.identifierGenerator, this.reporter, this.options, body);
     }
 
     // The generator has been transformed away.

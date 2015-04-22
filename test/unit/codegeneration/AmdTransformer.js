@@ -15,6 +15,7 @@
 import {suite, test, assert, setup} from '../../unit/unitTestRunner.js';
 
 import {AmdTransformer} from '../../../src/codegeneration/AmdTransformer.js';
+import {Options} from '../../../src/Options.js';
 import * as ParseTreeFactory from '../../../src/codegeneration/ParseTreeFactory.js';
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
@@ -23,7 +24,7 @@ suite('AmdTransformer.js', function() {
   var transformer = null
 
   setup(function() {
-    transformer = new AmdTransformer();
+    transformer = new AmdTransformer(null, null, new Options());
   });
 
   function str(s) {

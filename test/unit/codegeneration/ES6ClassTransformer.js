@@ -23,35 +23,33 @@ import {UniqueIdentifierGenerator} from '../../../src/codegeneration/UniqueIdent
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
 suite('ES6ClassTransformer.js', function() {
-  var transformer;
 
-  setup(function() {
-    transformer = new ES6ClassTransformer(new UniqueIdentifierGenerator());
-  });
-
-  function parseScript(content, memberVariables = true) {
+  function parseScript(content, options) {
     var file = new SourceFile('test', content);
-    var options = new Options({
-      memberVariables: memberVariables,
-      annotations: true,
-      validate: true,
-    });
     var parser = new Parser(file, null, options);
     var tree = parser.parseScript();
     ParseTreeValidator.validate(tree);
     return tree;
   }
 
-  function normalizeScript(content) {
-    var tree = parseScript(content, false);
+  function normalizeScript(content, options) {
+    options.memberVariables = false;
+    var tree = parseScript(content, options);
     return write(tree);
   }
 
   function testTransform(name, content, expected) {
     test(name, function() {
-      var tree = parseScript(content);
+      var options = new Options({
+        memberVariables: true,
+        annotations: true,
+        validate: true,
+      });
+      var tree = parseScript(content, options);
+      var transformer = new ES6ClassTransformer(new UniqueIdentifierGenerator(),
+                                                null, options);
       var transformed = transformer.transformAny(tree);
-      assert.equal(normalizeScript(expected), write(transformed));
+      assert.equal(normalizeScript(expected, options), write(transformed));
     });
   }
 

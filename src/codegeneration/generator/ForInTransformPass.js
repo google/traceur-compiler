@@ -58,7 +58,6 @@ import {
  * Desugars for-in loops to be compatible with generators.
  */
 export class ForInTransformPass extends TempVarTransformer {
-
   // for ( var key in object ) statement
   //
   // var $keys = [];

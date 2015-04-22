@@ -109,9 +109,11 @@ function isProtoName(tree) {
 export class ObjectLiteralTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   * @param {Options} options
    */
   constructor(identifierGenerator, reporter, options) {
-    super(identifierGenerator);
+    super(identifierGenerator, reporter, options);
     this.transformOptions_ = options.transformOptions;
     this.protoExpression = null;
     this.needsAdvancedTransform = false;

@@ -73,8 +73,8 @@ function scopeContainsYield(tree) {
  */
 export class GeneratorTransformer extends CPSTransformer {
 
-  constructor(identifierGenerator, reporter) {
-    super(identifierGenerator, reporter);
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
     this.shouldAppendThrowCloseState_ = true;
   }
 
@@ -311,8 +311,9 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {IdentifierExpression} name
    * @return {Block}
    */
-  static transformGeneratorBody(identifierGenerator, reporter, body, name) {
-    return new GeneratorTransformer(identifierGenerator, reporter).
+  static transformGeneratorBody(identifierGenerator, reporter, options, body,
+                                name) {
+    return new GeneratorTransformer(identifierGenerator, reporter, options).
         transformGeneratorBody(body, name);
   }
 };

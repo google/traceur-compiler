@@ -169,6 +169,7 @@ export class Compiler {
   /**
    * @param {string} content to be compiled.
    * @param {string} sourceName inserted into sourceMaps
+   * @return {ParseTree}
    */
   parse(content, sourceName = '<compiler-parse-input>') {
     sourceName = this.normalize(sourceName);
