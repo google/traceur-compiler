@@ -26,21 +26,19 @@ import {
 import {
   VOID
 } from '../syntax/TokenType.js';
+import {
+  SLOPPY_MODE,
+  STRONG_MODE,
+  findLanguageMode,
+} from '../staticsemantics/LanguageMode.js';
 
 /**
  * @param {Array<ParseTree>} list
  * @return {boolean}
  */
 export function hasUseStrict(list) {
-  for (let i = 0; i < list.length; i++) {
-    if (!list[i].isDirectivePrologue()) {
-      return false;
-    }
-    if (list[i].isUseStrongDirective() || list[i].isUseStrictDirective()) {
-      return true;
-    }
-  }
-  return false;
+  let newMode = findLanguageMode(list, SLOPPY_MODE);
+  return newMode !== SLOPPY_MODE;
 }
 
 /**
@@ -48,15 +46,8 @@ export function hasUseStrict(list) {
  * @return {boolean}
  */
 export function hasUseStrong(list) {
-  for (let i = 0; i < list.length; i++) {
-    if (!list[i].isDirectivePrologue()) {
-      return false;
-    }
-    if (list[i].isUseStrongDirective()) {
-      return true;
-    }
-  }
-  return false;
+  let newMode = findLanguageMode(list, SLOPPY_MODE);
+  return newMode === STRONG_MODE;
 }
 
 /**

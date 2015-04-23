@@ -69,7 +69,6 @@ function createDefaultAssignment(index, binding, initializer) {
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values">harmony:parameter_default_values</a>
  */
 export class DefaultParametersTransformer extends ParameterTransformer {
-
   transformFormalParameterList(tree) {
     let parameters = [];
     let changed = false;

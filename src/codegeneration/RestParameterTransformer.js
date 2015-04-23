@@ -36,7 +36,6 @@ function getRestParameterLiteralToken(parameterList) {
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">harmony:rest_parameters</a>
  */
 export class RestParameterTransformer extends ParameterTransformer {
-
   transformFormalParameterList(tree) {
     let transformed = super.transformFormalParameterList(tree);
     if (hasRestParameter(transformed)) {

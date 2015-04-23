@@ -279,6 +279,7 @@ import {
   WithStatement,
   YieldExpression
 }  from './trees/ParseTrees.js';
+import {SLOPPY_MODE, STRICT_MODE, STRONG_MODE} from '../staticsemantics/LanguageMode.js';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'
@@ -293,11 +294,6 @@ const NO_IN = false;
  */
 const INITIALIZER_REQUIRED = true;
 const INITIALIZER_OPTIONAL = false;
-
-// Enums for language mode. Strong mode implies strict mode.
-const SLOPPY_MODE = 0;
-const STRICT_MODE = 1;
-const STRONG_MODE = 2;
 
 /**
  * Used to find invalid CoverInitializedName trees. This is used when we know

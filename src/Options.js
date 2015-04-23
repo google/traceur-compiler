@@ -58,6 +58,7 @@ export const optionsV01 = enumerableOnlyObject({
   require: false,
   restParameters: true,
   strongMode: false,
+  strongModeAsserts: false,
   script: false,
   sourceMaps: false,
   sourceRoot: false,
@@ -156,6 +157,7 @@ addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('strongMode', EXPERIMENTAL);
+addFeatureOption('strongModeAsserts', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 let transformOptionsPrototype = {};
