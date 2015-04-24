@@ -34,9 +34,11 @@ body {
 <div id="box">Traceur<br>Rocks!</div>
 
 <script>
-$traceurRuntime.options.asyncFunctions = true;
-$traceurRuntime.options.asyncGenerators = true;
-$traceurRuntime.options.forOn = true;
+new traceur.WebPageTranscoder(document.location.href, {
+  asyncFunctions: true,
+  asyncGenerators: true,
+  forOn: true
+}).run();
 </script>
 <script type="module">
 
