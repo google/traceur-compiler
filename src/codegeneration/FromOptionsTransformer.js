@@ -47,7 +47,7 @@ import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
-import {StrongModeTransformer} from './StrongModeTransformer.js';
+import {StrongModeTransformer} from './strong/StrongModeTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';

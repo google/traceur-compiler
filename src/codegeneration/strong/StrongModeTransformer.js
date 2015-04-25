@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 import {
   FunctionBody,
   Script
-} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {createUseStrictDirective} from './ParseTreeFactory.js';
-import {hasUseStrong} from '../semantics/util.js';
+} from '../../syntax/trees/ParseTrees.js';
+import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
+import {createUseStrictDirective} from '../ParseTreeFactory.js';
+import {hasUseStrong} from '../../semantics/util.js';
 
 function prepend(statements) {
   return [
@@ -31,17 +31,15 @@ function prepend(statements) {
 
 export class StrongModeTransformer extends ParseTreeTransformer {
   transformScript(tree) {
-    if (!hasUseStrong(tree.scriptItemList))
-      return tree;
+    if (!hasUseStrong(tree.scriptItemList)) {
+      return super.transformScript(tree);
+    }
     return new Script(tree.location, prepend(tree.scriptItemList));
   }
   transformFunctionBody(tree) {
-    if (!hasUseStrong(tree.statements))
-      return tree;
+    if (!hasUseStrong(tree.statements)) {
+      return super.transformFunctionBody(tree);
+    }
     return new FunctionBody(tree.location, prepend(tree.statements));
-  }
-
-  static transformTree(tree) {
-    return new MakeStrongTransformer().transformAny(tree);
   }
 }
