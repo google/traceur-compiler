@@ -80,4 +80,12 @@ export class ParameterTransformer extends TempVarTransformer {
   get parameterStatements() {
     return stack[stack.length - 1];
   }
+
+  transformConstructorType(tree) {
+    return tree;
+  }
+
+  transformFunctionType(tree) {
+    return tree;
+  }
 }
