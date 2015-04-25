@@ -35,5 +35,8 @@ export function prependStatements(statements, ...statementsToPrepend) {
     }
     transformed.push(statement);
   });
+  if (inProlog) {
+    transformed.push(...statementsToPrepend);
+  }
   return transformed;
 }
