@@ -20,14 +20,15 @@
 
 </style>
 <script src="../bin/traceur.js"></script>
-<script src="../src/bootstrap.js"></script>
 </head>
 <body>
 
 <div id="box">Traceur<br>Rocks!</div>
 
 <script>
-$traceurRuntime.options.asyncFunctions = true;
+new traceur.WebPageTranscoder(document.location.href,{
+  asyncFunctions: true
+}).run();
 </script>
 <script type="module">
 

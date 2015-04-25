@@ -19,6 +19,7 @@
 import {Loader} from './runtime/Loader.js';
 import {BrowserTraceurLoader} from './runtime/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
+import {Options} from './Options.js';
 
 export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
 
