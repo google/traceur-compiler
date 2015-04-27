@@ -104,14 +104,14 @@ export class SymbolTransformer extends TempVarTransformer {
     return new Module(tree.location,
         prependStatements(this.transformList(tree.scriptItemList),
             runtimeOption),
-        this.moduleName_);
+        tree.moduleName);
   }
 
   transformScript(tree) {
     return new Script(tree.location,
         prependStatements(this.transformList(tree.scriptItemList),
             runtimeOption),
-        this.moduleName_);
+        tree.moduleName);
   }
 
   /**

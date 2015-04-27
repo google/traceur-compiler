@@ -48,7 +48,7 @@ export function transformConstructor(constructor, initExpression, superClass) {
   return new PropertyMethodAssignment(constructor.location, false,
       constructor.functionKind, constructor.name, constructor.parameterList,
       constructor.typeAnnotation, constructor.annotations,
-      createFunctionBody(statements));
+      createFunctionBody(statements), constructor.debugName);
 }
 
 // TODO(vicb): Does not handle computed properties
