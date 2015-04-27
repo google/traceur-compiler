@@ -519,7 +519,7 @@ export function createNumberLiteral(value) {
  * @param {...string|IdentifierToken} memberNames
  * @return {MemberExpression|MemberLookupExpression}
  */
-export function createMemberExpression(operand, memberName, memberNames) {
+export function createMemberExpression(operand, memberName, ...memberNames) {
   if (typeof operand === 'string' || operand instanceof IdentifierToken)
     operand = createIdentifierExpression(operand);
   if (typeof memberName === 'string')
@@ -530,8 +530,8 @@ export function createMemberExpression(operand, memberName, memberNames) {
   let tree = memberName instanceof LiteralExpression ?
       new MemberLookupExpression(null, operand, memberName) :
       new MemberExpression(null, operand, memberName);
-  for (let i = 2; i < arguments.length; i++) {
-    tree = createMemberExpression(tree, arguments[i]);
+  for (let i = 0; i < memberNames.length; i++) {
+    tree = createMemberExpression(tree, memberNames[i]);
   }
   return tree;
 }
@@ -576,7 +576,7 @@ export function createObjectFreeze(value) {
  * @param {ObjectLiteralExpression=} descriptors
  * @return {ParseTree}
  */
-export function createObjectCreate(protoExpression, descriptors) {
+export function createObjectCreate(protoExpression, descriptors = undefined) {
   let argumentList = [protoExpression];
   if (descriptors)
     argumentList.push(descriptors);
@@ -655,7 +655,7 @@ export function createPostfixExpression(operand, operator) {
  * @return {Script}
  */
 export function createScript(scriptItemList) {
-  return new Script(null, scriptItemList);
+  return new Script(null, scriptItemList, null);
 }
 
 /**
@@ -759,7 +759,7 @@ export function createUseStrongDirective() {
  */
 export function createVariableDeclarationList(binding,
                                               identifierOrDeclarations,
-                                              initializer) {
+                                              initializer = undefined) {
   if (identifierOrDeclarations instanceof Array) {
     let declarations = identifierOrDeclarations;
     return new VariableDeclarationList(null, binding, declarations);
@@ -793,8 +793,8 @@ export function createVariableDeclaration(identifier, initializer) {
  * @return {VariableStatement}
  */
 export function createVariableStatement(listOrBinding,
-                                        identifier,
-                                        initializer) {
+                                        identifier = undefined,
+                                        initializer = undefined) {
   if (listOrBinding instanceof VariableDeclarationList)
     return new VariableStatement(null, listOrBinding);
   let binding = listOrBinding;

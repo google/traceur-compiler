@@ -275,9 +275,12 @@ export class Scanner {
   /**
    * @return {Token}
    */
-  peekToken(opt_index) {
-    // Too hot for default parameters.
-    return opt_index ? peekTokenLookahead() : peekToken();
+  peekToken() {
+    return peekToken();
+  }
+
+  peekTokenLookahead() {
+    return peekTokenLookahead();
   }
 
   peekTokenNoLineTerminator() {

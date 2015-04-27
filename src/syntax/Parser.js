@@ -474,7 +474,7 @@ export class Parser {
     let scriptItemList = this.parseStatementList_(true);
     this.eat_(END_OF_FILE);
     this.popFunctionState_(fs);
-    return new Script(this.getTreeLocation_(start), scriptItemList);
+    return new Script(this.getTreeLocation_(start), scriptItemList, null);
   }
 
   pushFunctionState_(kind) {
@@ -809,7 +809,7 @@ export class Parser {
         if (tree.name) {
           tree = new ClassDeclaration(tree.location, tree.name,
                                       tree.superClass, tree.elements,
-                                      tree.annotations);
+                                      tree.annotations, tree.typeParameters);
         }
         exportValue = tree;
         break;
@@ -1478,7 +1478,7 @@ export class Parser {
       case CLASS:
         return this.parseUnexpectedReservedWord_(this.peekToken_());
       case LET:
-        if (this.peek_(OPEN_SQUARE, 1)) {
+        if (this.peekLookahead_(OPEN_SQUARE)) {
           return this.parseSyntaxError_(
               `A statement cannot start with 'let ['`);
         }
@@ -1486,7 +1486,7 @@ export class Parser {
 
     // async [no line terminator] function ...
     if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
-        this.peek_(FUNCTION, 1)) {
+        this.peekLookahead_(FUNCTION)) {
       // TODO(arv): This look ahead should not be needed.
       let asyncToken = this.eatId_();
       let functionToken = this.peekTokenNoLineTerminator_();
@@ -2880,7 +2880,7 @@ export class Parser {
 
     if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
       let asyncToken = this.peekToken_();
-      let maybeOpenParenToken = this.peekToken_(1);
+      let maybeOpenParenToken = this.peekTokenLookahead_();
       validAsyncParen = maybeOpenParenToken.type === OPEN_PAREN &&
           asyncToken.location.end.line ===
               maybeOpenParenToken.location.start.line;
@@ -3648,7 +3648,7 @@ export class Parser {
         elements.push(this.parsePatternElement_(useBinding));
         // Trailing commas are not allowed in patterns.
         if (this.peek_(COMMA) &&
-            !this.peek_(CLOSE_SQUARE, 1)) {
+            !this.peekLookahead_(CLOSE_SQUARE)) {
           this.nextToken_();
         }
       }
@@ -3716,7 +3716,7 @@ export class Parser {
 
   parseBindingElementInitializer_(initializerRequired) {
     if (this.peek_(EQUAL) || initializerRequired) {
-      return this.parseInitializer_();
+      return this.parseInitializer_(ALLOW_IN);
     }
 
     return null;
@@ -4664,20 +4664,23 @@ export class Parser {
   }
 
   /**
-   * Returns true if the index-th next token is of the expected type. Does not consume any tokens.
+   * Returns true if the next token is of the expected type. Does not Consume
+   * any tokens.
    *
    * @param {TokenType} expectedType
-   * @param {number=} opt_index
    * @return {boolean}
    * @private
    */
-  peek_(expectedType, opt_index) {
-    // Too hot for default parameters.
-    return this.peekToken_(opt_index).type === expectedType;
+  peek_(expectedType) {
+    return this.peekToken_().type === expectedType;
+  }
+
+  peekLookahead_(expectedType) {
+    return this.peekTokenLookahead_().type === expectedType;
   }
 
   /**
-   * Returns the TokenType of the index-th next token. Does not consume any tokens.
+   * Returns the TokenType of the next token. Does not consume any tokens.
    *
    * @return {TokenType}
    * @private
@@ -4687,18 +4690,21 @@ export class Parser {
   }
 
   /**
-   * Returns the index-th next token. Does not consume any tokens.
+   * Returns the next token. Does not consume any tokens.
    *
    * @return {Token}
    * @private
    */
-  peekToken_(opt_index) {
-    // Too hot for default parameters.
-    return this.scanner_.peekToken(opt_index);
+  peekToken_() {
+    return this.scanner_.peekToken();
+  }
+
+  peekTokenLookahead_() {
+    return this.scanner_.peekTokenLookahead();
   }
 
   /**
-   * Returns the index-th next token. Does not allow any line terminator
+   * Returns the next token. Does not allow any line terminator
    * before the next token. Does not consume any tokens. This returns null if
    * no token was found before the next line terminator.
    *

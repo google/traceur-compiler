@@ -34,7 +34,8 @@ export class StrongModeTransformer extends ParseTreeTransformer {
     if (!hasUseStrong(tree.scriptItemList)) {
       return super.transformScript(tree);
     }
-    return new Script(tree.location, prepend(tree.scriptItemList));
+    return new Script(tree.location, prepend(tree.scriptItemList),
+                      tree.moduelName);
   }
   transformFunctionBody(tree) {
     if (!hasUseStrong(tree.statements)) {

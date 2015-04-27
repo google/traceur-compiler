@@ -200,6 +200,7 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
 STRONG_OPTIONS = --strong-mode \
+	--strong-mode-asserts \
 	--block-binding=parse \
 	--for-of=parse \
 	--generators=parse \
