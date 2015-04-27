@@ -107,7 +107,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
     statements = this.wrapModule(this.moduleProlog().concat(statements));
 
-    return new Script(tree.location, statements, tree.moduleName);
+    return new Script(tree.location, statements, null);
   }
 
   moduleProlog() {
