@@ -34,7 +34,6 @@ export class InlineLoaderCompiler extends LoaderCompiler {
   }
 
   toTree() {
-    return new Script(null, this.elements);
+    return new Script(null, this.elements, null);
   }
 }
-

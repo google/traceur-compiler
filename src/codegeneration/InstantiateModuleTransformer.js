@@ -19,7 +19,8 @@ import {
   ArrayLiteralExpression,
   ClassExpression,
   CommaExpression,
-  ExpressionStatement
+  ExpressionStatement,
+  VariableDeclaration
 } from '../syntax/trees/ParseTrees.js';
 import {
   CLASS_DECLARATION,
@@ -36,7 +37,6 @@ import {
   createFunctionExpression,
   createIdentifierExpression as id,
   createObjectLiteral,
-  createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -699,8 +699,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     let localBinding = tree.binding.binding;
     let localBindingToken = localBinding.identifierToken;
     let importName = (tree.name || localBindingToken).value;
-    this.addImportBinding(this.curDepIndex_, localBindingToken.value, importName);
-    return createVariableDeclaration(localBinding);
+    this.addImportBinding(this.curDepIndex_, localBindingToken.value,
+                          importName);
+    return new VariableDeclaration(tree.location, localBinding, null, null);
   }
 
   transformModuleSpecifier(tree) {

@@ -255,11 +255,13 @@ export class ClassTransformer extends TempVarTransformer {
 
       switch (tree.type) {
         case GET_ACCESSOR:
-          elements.push(this.transformGetAccessor_(tree, homeObject));
+          elements.push(
+              this.transformGetAccessor_(tree, homeObject, internalName));
           break;
 
         case SET_ACCESSOR:
-          elements.push(this.transformSetAccessor_(tree, homeObject));
+          elements.push(
+              this.transformSetAccessor_(tree, homeObject, internalName));
           break;
 
         case PROPERTY_METHOD_ASSIGNMENT:
@@ -298,7 +300,7 @@ export class ClassTransformer extends TempVarTransformer {
       }
       let homeObject = createMemberExpression(internalName, 'prototype');
       let transformedCtor = this.transformPropertyMethodAssignment_(
-          constructor, homeObject, internalName);
+          constructor, homeObject, internalName, CONSTRUCTOR);
       func = new FunctionExpression(tree.location, tree.name, false,
           transformedCtor.parameterList, null, [], transformedCtor.body);
     }
@@ -346,14 +348,11 @@ export class ClassTransformer extends TempVarTransformer {
     return createParenExpression(this.makeStrict_(expression));
   }
 
-  transformPropertyMethodAssignment_(tree, homeObject, internalName, originalName) {
+  transformPropertyMethodAssignment_(tree, homeObject, internalName,
+                                     originalName) {
     let parameterList = this.transformAny(tree.parameterList);
     let body = this.transformSuperInFunctionBody_(
         tree.body, homeObject, internalName);
-
-    if (this.options.showDebugNames_) {
-      tree.debugName = classMethodDebugName(originalName, methodNameFromTree(tree.name), isStatic);
-    }
 
     if (!tree.isStatic &&
         parameterList === tree.parameterList &&
@@ -361,14 +360,21 @@ export class ClassTransformer extends TempVarTransformer {
       return tree;
     }
 
+    let debugName = tree.debugName;
+    if (this.options.showDebugNames_) {
+      debugName = classMethodDebugName(originalName,
+                                       methodNameFromTree(tree.name), isStatic);
+    }
+
     let isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
-        tree.annotations, body, tree.debugName);
+        tree.annotations, body, debugName);
   }
 
-  transformGetAccessor_(tree, homeObject) {
-    let body = this.transformSuperInFunctionBody_(tree.body, homeObject);
+  transformGetAccessor_(tree, homeObject, internalName) {
+    let body =
+        this.transformSuperInFunctionBody_(tree.body, homeObject, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
@@ -376,9 +382,10 @@ export class ClassTransformer extends TempVarTransformer {
                            tree.annotations, body);
   }
 
-  transformSetAccessor_(tree, homeObject) {
+  transformSetAccessor_(tree, homeObject, internalName) {
     let parameterList = this.transformAny(tree.parameterList);
-    let body = this.transformSuperInFunctionBody_(tree.body, homeObject);
+    let body =
+        this.transformSuperInFunctionBody_(tree.body, homeObject, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     return new SetAccessor(tree.location, false, tree.name, parameterList,

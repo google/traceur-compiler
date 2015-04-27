@@ -284,7 +284,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitBlock(tree) {
     this.writeOpenCurly_();
-    this.writelnList_(tree.statements);
+    this.writelnList_(tree.statements, null);
     this.writeCloseCurly_();
   }
 
@@ -330,7 +330,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.expression);
     this.write_(COLON);
     this.indentDepth_++;
-    this.writelnList_(tree.statements);
+    this.writelnList_(tree.statements, null);
     this.indentDepth_--;
   }
 
@@ -363,7 +363,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
     this.writeSpace_();
     this.writeOpenCurly_();
-    this.writelnList_(tree.elements);
+    this.writelnList_(tree.elements, null);
     this.writeCloseCurly_();
   }
 
@@ -484,7 +484,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(DEFAULT);
     this.write_(COLON);
     this.indentDepth_++;
-    this.writelnList_(tree.statements);
+    this.writelnList_(tree.statements, null);
     this.indentDepth_--;
   }
 
@@ -723,7 +723,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitFunctionBody(tree) {
     this.writeOpenCurly_();
-    this.writelnList_(tree.statements);
+    this.writelnList_(tree.statements, null);
     this.writeCloseCurly_();
   }
 
@@ -1075,7 +1075,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitObjectType(tree) {
     this.writeOpenCurly_();
-    this.writelnList_(tree.typeMembers);
+    this.writelnList_(tree.typeMembers, null);
     this.writeCloseCurly_();
   }
 
@@ -1299,7 +1299,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_PAREN);
     this.writeSpace_();
     this.writeOpenCurly_();
-    this.writelnList_(tree.caseClauses);
+    this.writelnList_(tree.caseClauses, null);
     this.writeCloseCurly_();
   }
 
@@ -1501,7 +1501,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   writelnList_(list, delimiter) {
-    if (delimiter) {
+    if (delimiter !== null) {
       this.writeList_(list, delimiter, true);
     } else {
       if (list.length > 0)

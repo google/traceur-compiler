@@ -19,11 +19,12 @@ import {
   assertArrayEquals
 } from '../../unit/unitTestRunner.js';
 
+import {Compiler} from '../../../src/Compiler.js';
 import {Parser} from '../../../src/syntax/Parser.js';
+import {Script} from '../../../src/syntax/trees/ParseTrees.js';
 import {SourceFile} from '../../../src/syntax/SourceFile.js';
 import {SourceMapConsumer} from '../../../src/outputgeneration/SourceMapIntegration.js';
 import {SourceMapGenerator} from '../../../src/outputgeneration/SourceMapIntegration.js';
-import {Compiler} from '../../../src/Compiler.js';
 import {relativePath} from '../../../src/outputgeneration/ParseTreeMapWriter.js';
 
 suite('SourceMap.js', function() {
@@ -203,7 +204,7 @@ suite('SourceMap.js', function() {
     push(newProgramElements, treeA.scriptItemList);
     push(newProgramElements, treeB.scriptItemList);
     push(newProgramElements, treeC.scriptItemList);
-    var tree = new traceur.syntax.trees.Script(null, newProgramElements);
+    var tree = new Script(null, newProgramElements, null);
 
     var outFilename = 'out.js';
     var outFileContents = scriptCompiler.write(tree, outFilename);
