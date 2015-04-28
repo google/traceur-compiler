@@ -41,7 +41,23 @@ import {
   SET
 } from './PredefinedName.js';
 import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
-import {Scanner} from './Scanner.js';
+import {
+  getLastToken,
+  getPosition,
+  init as initScanner,
+  isAtEnd,
+  nextCloseAngle,
+  nextRegularExpressionLiteralToken,
+  nextTemplateLiteralToken,
+  nextToken,
+  peek,
+  peekLookahead,
+  peekToken,
+  peekTokenLookahead,
+  peekTokenNoLineTerminator,
+  peekType,
+  setIndex as resetScanner,
+} from './Scanner.js';
 import {SourceRange} from '../util/SourceRange.js';
 import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
@@ -376,8 +392,8 @@ class FunctionState {
  *
  * Many this.parseX_() methods are matched by a 'boolean this.peekX_()' method
  * which will return true if the beginning of an X appears at the current
- * location. There are also this.peek_() methods which examine the next token.
- * this.peek_() methods must not consume any tokens.
+ * location. There are also peek() methods which examine the next token.
+ * peek() methods must not consume any tokens.
  *
  * The this.eat_() method consumes a token and reports an error if the consumed
  * token is not of the expected type. The this.eatOpt_() methods consume the
@@ -404,7 +420,7 @@ export class Parser {
   constructor(file, errorReporter = new SyntaxErrorReporter(),
       options = new Options()) {
     this.errorReporter_ = errorReporter;
-    this.scanner_ = new Scanner(errorReporter, file, this, options);
+    initScanner(errorReporter, file, this, options);
     this.options_ = options;
 
     // This is used in conjunction with ensureNoCoverInitializedNames_ to
@@ -474,7 +490,7 @@ export class Parser {
 
     // We do a lot of type assignment in loops like these for performance
     // reasons.
-    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
+    while ((type = peekType()) !== CLOSE_CURLY && type !== END_OF_FILE) {
       let statement = this.parseStatementListItem_(type);
       if (checkUseStrictDirective) {
         if (!statement.isDirectivePrologue()) {
@@ -536,7 +552,7 @@ export class Parser {
     let result = [];
     let type;
 
-    while ((type = this.peekType_()) !== END_OF_FILE) {
+    while ((type = peekType()) !== END_OF_FILE) {
       let statement = this.parseModuleItem_(type);
       result.push(statement);
     }
@@ -593,7 +609,7 @@ export class Parser {
     this.eat_(IMPORT);
 
     let importClause = null;
-    if (!this.peek_(STRING)) {
+    if (!peek(STRING)) {
       importClause = this.parseImportClause_(true);
       this.eatId_(FROM);
     }
@@ -604,7 +620,7 @@ export class Parser {
   }
 
   parseImportClause_(allowImportedDefaultBinding) {
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case STAR:
         return this.parseNameSpaceImport_();
       case OPEN_CURLY:
@@ -622,7 +638,7 @@ export class Parser {
         }
         break;
     }
-    return this.parseUnexpectedToken_(this.peekToken_());
+    return this.parseUnexpectedToken_(peekToken());
   }
 
   // https://bugs.ecmascript.org/show_bug.cgi?id=2287
@@ -634,7 +650,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let specifiers = [];
     this.eat_(OPEN_CURLY);
-    while (!this.peek_(CLOSE_CURLY) && !this.isAtEnd()) {
+    while (!peek(CLOSE_CURLY) && !isAtEnd()) {
       specifiers.push(this.parseImportSpecifier_());
       if (!this.eatIf_(COMMA))
         break;
@@ -658,7 +674,7 @@ export class Parser {
    */
   parseImportSpecifier_() {
     let start = this.getTreeStartLocation_();
-    let token = this.peekToken_();
+    let token = peekToken();
     let isKeyword = token.isKeyword();
     let binding;
     let name = this.eatIdName_();
@@ -687,7 +703,7 @@ export class Parser {
     this.eat_(EXPORT);
     let exportTree;
     let annotations = this.popAnnotations_();
-    let type = this.peekType_();
+    let type = peekType();
     switch (type) {
       case CONST:
       case LET:
@@ -695,7 +711,7 @@ export class Parser {
           exportTree = this.parseVariableStatement_();
           break;
         }
-        return this.parseUnexpectedToken_(this.peekToken_());
+        return this.parseUnexpectedToken_(peekToken());
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -721,7 +737,7 @@ export class Parser {
         }
         break;
       default:
-        return this.parseUnexpectedToken_(this.peekToken_());
+        return this.parseUnexpectedToken_(peekToken());
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
                                  annotations);
@@ -742,7 +758,7 @@ export class Parser {
     }
 
     let exportValue;
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case FUNCTION: {
         // Use FunctionExpression as a cover grammar. If it has a name it is
         // treated as a declaration.
@@ -790,7 +806,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let exportClause, moduleSpecifier = null;
 
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case OPEN_CURLY:
         exportClause = this.parseExportSpecifierSet_();
         if (this.peekPredefinedString_(FROM)) {
@@ -846,7 +862,7 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     let specifiers = [this.parseExportSpecifier_()];
     while (this.eatIf_(COMMA)) {
-      if (this.peek_(CLOSE_CURLY))
+      if (peek(CLOSE_CURLY))
         break;
       specifiers.push(this.parseExportSpecifier_());
     }
@@ -895,7 +911,7 @@ export class Parser {
       return true;
     if (this.strictMode_)
       return false;
-    return this.peekToken_().isStrictKeyword();
+    return peekToken().isStrictKeyword();
   }
 
   peekIdName_(token) {
@@ -912,7 +928,7 @@ export class Parser {
     let annotations = [];
     // Name is optional for ClassExpression
     if (constr === ClassDeclaration ||
-        !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
+        !peek(EXTENDS) && !peek(OPEN_CURLY)) {
       name = this.parseBindingIdentifier_();
       if (this.options_.types) {
         typeParameters = this.parseTypeParametersOpt_();
@@ -956,10 +972,10 @@ export class Parser {
     let result = [];
 
     while (true) {
-      let type = this.peekType_();
+      let type = peekType();
       if (type === SEMI_COLON) {
-        this.nextToken_();
-      } else if (this.peekClassElement_(this.peekType_())) {
+        nextToken();
+      } else if (this.peekClassElement_(peekType())) {
         result.push(this.parseClassElement_(derivedClass));
       } else {
         break;
@@ -980,14 +996,14 @@ export class Parser {
   //   LiteralPropertyName
   //   ComputedPropertyName
   parsePropertyName_() {
-    if (this.peek_(OPEN_SQUARE))
+    if (peek(OPEN_SQUARE))
       return this.parseComputedPropertyName_()
     return this.parseLiteralPropertyName_();
   }
 
   parseLiteralPropertyName_() {
     let start = this.getTreeStartLocation_();
-    let token = this.nextToken_();
+    let token = nextToken();
     return new LiteralPropertyName(this.getTreeLocation_(start), token);
   }
 
@@ -1011,7 +1027,7 @@ export class Parser {
   parseStatement() {
     // Allow return, yield and await.
     let fs = this.pushFunctionState_(FUNCTION_STATE_LENIENT);
-    let result = this.parseModuleItem_(this.peekType_());
+    let result = this.parseModuleItem_(peekType());
     this.popFunctionState_(fs);
     return result;
   }
@@ -1031,7 +1047,7 @@ export class Parser {
   }
 
   parseStatement_() {
-    return this.parseStatementWithType_(this.peekType_());
+    return this.parseStatementWithType_(peekType());
   }
 
   /**
@@ -1115,7 +1131,7 @@ export class Parser {
     let start = asyncToken.location.start;
     this.eat_(FUNCTION);
     let kind = FUNCTION_STATE_FUNCTION | FUNCTION_STATE_ASYNC;
-    if (this.options_.asyncGenerators && this.peek_(STAR)) {
+    if (this.options_.asyncGenerators && peek(STAR)) {
       kind |= FUNCTION_STATE_GENERATOR;
       this.eat_(STAR);
       asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
@@ -1131,7 +1147,7 @@ export class Parser {
     this.eat_(FUNCTION);
     let functionKind = null;
     let kind = FUNCTION_STATE_FUNCTION;
-    if (this.options_.generators && this.peek_(STAR)) {
+    if (this.options_.generators && peek(STAR)) {
       functionKind = this.eat_(STAR);
       kind |= FUNCTION_STATE_GENERATOR;
     }
@@ -1145,7 +1161,7 @@ export class Parser {
     let name = null;
     let annotations = [];
     if (ctor === FunctionDeclaration ||
-        this.peekBindingIdentifier_(this.peekType_())) {
+        this.peekBindingIdentifier_(peekType())) {
       name = this.parseBindingIdentifier_();
       annotations = this.popAnnotations_();
     }
@@ -1191,16 +1207,16 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let formals = [];
     this.pushAnnotations_();
-    let type = this.peekType_();
+    let type = peekType();
     if (this.peekRest_(type)) {
       formals.push(this.parseFormalRestParameter_());
     } else {
-      if (this.peekFormalParameter_(this.peekType_()))
+      if (this.peekFormalParameter_(peekType()))
         formals.push(this.parseFormalParameter_(INITIALIZER_OPTIONAL));
 
       while (this.eatIf_(COMMA)) {
         this.pushAnnotations_();
-        if (this.peekRest_(this.peekType_())) {
+        if (this.peekRest_(peekType())) {
           formals.push(this.parseFormalRestParameter_());
           break;
         }
@@ -1309,13 +1325,13 @@ export class Parser {
    * @private
    */
   parseVariableDeclarationList_(allowIn, initializerRequired) {
-    let type = this.peekType_();
+    let type = peekType();
 
     switch (type) {
       case CONST:
       case LET:
       case VAR:
-        this.nextToken_();
+        nextToken();
         break;
       default:
         throw Error('unreachable');
@@ -1355,7 +1371,7 @@ export class Parser {
 
     let lvalue;
     let typeAnnotation;
-    if (this.peekPattern_(this.peekType_())) {
+    if (this.peekPattern_(peekType())) {
       lvalue = this.parseBindingPattern_();
       typeAnnotation = null;
     } else {
@@ -1364,7 +1380,7 @@ export class Parser {
     }
 
     let init = null;
-    if (this.peek_(EQUAL))
+    if (peek(EQUAL))
       init = this.parseInitializer_(noIn);
     else if (lvalue.isPattern() && initRequired)
       this.reportError_('destructuring must have an initializer');
@@ -1411,14 +1427,14 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let expression;
 
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case OPEN_CURLY:
-        return this.parseUnexpectedToken_(this.peekToken_());
+        return this.parseUnexpectedToken_(peekToken());
       case FUNCTION:
       case CLASS:
-        return this.parseUnexpectedReservedWord_(this.peekToken_());
+        return this.parseUnexpectedReservedWord_(peekToken());
       case LET:
-        if (this.peekLookahead_(OPEN_SQUARE)) {
+        if (peekLookahead(OPEN_SQUARE)) {
           return this.parseSyntaxError_(
               `A statement cannot start with 'let ['`);
         }
@@ -1426,10 +1442,10 @@ export class Parser {
 
     // async [no line terminator] function ...
     if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC) &&
-        this.peekLookahead_(FUNCTION)) {
+        peekLookahead(FUNCTION)) {
       // TODO(arv): This look ahead should not be needed.
       let asyncToken = this.eatId_();
-      let functionToken = this.peekTokenNoLineTerminator_();
+      let functionToken = peekTokenNoLineTerminator();
       if (functionToken !== null)
         return this.parseAsyncFunctionDeclaration_(asyncToken);
 
@@ -1518,7 +1534,7 @@ export class Parser {
     this.eat_(FOR);
     this.eat_(OPEN_PAREN);
 
-    let type = this.peekType_();
+    let type = peekType();
     if (this.peekVariableDeclarationList_(type)) {
       let variables = this.parseVariableDeclarationList_(NO_IN,
                                                          INITIALIZER_OPTIONAL);
@@ -1528,7 +1544,7 @@ export class Parser {
         return this.parseForStatement2_(start, variables);
       }
 
-      type = this.peekType_();
+      type = peekType();
       if (type === IN) {
         return this.parseForInStatement_(start, variables);
       } else if (this.peekOf_()) {
@@ -1548,7 +1564,7 @@ export class Parser {
 
     let coverInitializedNameCount = this.coverInitializedNameCount_;
     let initializer = this.parseExpressionAllowPattern_(NO_IN);
-    type = this.peekType_();
+    type = peekType();
     if (initializer.isLeftHandSideExpression() &&
         (type === IN || this.peekOf_() ||
          this.allowForOn_ && this.peekOn_())) {
@@ -1671,13 +1687,13 @@ export class Parser {
     this.eat_(SEMI_COLON);
 
     let condition = null;
-    if (!this.peek_(SEMI_COLON)) {
+    if (!peek(SEMI_COLON)) {
       condition = this.parseExpression_(ALLOW_IN);
     }
     this.eat_(SEMI_COLON);
 
     let increment = null;
-    if (!this.peek_(CLOSE_PAREN)) {
+    if (!peek(CLOSE_PAREN)) {
       increment = this.parseExpression_(ALLOW_IN);
     }
     this.eat_(CLOSE_PAREN);
@@ -1711,7 +1727,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(CONTINUE);
     let name = null;
-    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+    if (!this.peekImplicitSemiColon_(peekType())) {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1727,7 +1743,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(BREAK);
     let name = null;
-    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+    if (!this.peekImplicitSemiColon_(peekType())) {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1746,7 +1762,7 @@ export class Parser {
     }
     this.eat_(RETURN);
     let expression = null;
-    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+    if (!this.peekImplicitSemiColon_(peekType())) {
       expression = this.parseExpression_(ALLOW_IN);
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1764,7 +1780,7 @@ export class Parser {
     this.eat_(YIELD);
     let expression = null;
     let isYieldFor = false;
-    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+    if (!this.peekImplicitSemiColon_(peekType())) {
       isYieldFor = this.eatIf_(STAR);
       expression = this.parseAssignmentExpression_(ALLOW_IN);
     }
@@ -1818,9 +1834,9 @@ export class Parser {
 
     while (true) {
       let start = this.getTreeStartLocation_();
-      switch (this.peekType_()) {
+      switch (peekType()) {
         case CASE:
-          this.nextToken_();
+          nextToken();
           let expression = this.parseExpression_(ALLOW_IN);
           this.eat_(COLON);
           let statements = this.parseCaseStatementsOpt_();
@@ -1832,7 +1848,7 @@ export class Parser {
           } else {
             foundDefaultClause = true;
           }
-          this.nextToken_();
+          nextToken();
           this.eat_(COLON);
           result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
           break;
@@ -1852,7 +1868,7 @@ export class Parser {
     let result = [];
     let type;
     while (true) {
-      switch (type = this.peekType_()) {
+      switch (type = peekType()) {
         case CASE:
         case DEFAULT:
         case CLOSE_CURLY:
@@ -1872,7 +1888,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(THROW);
     let value = null;
-    if (!this.peekImplicitSemiColon_(this.peekType_())) {
+    if (!this.peekImplicitSemiColon_(peekType())) {
       value = this.parseExpression_(ALLOW_IN);
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1889,11 +1905,11 @@ export class Parser {
     this.eat_(TRY);
     let body = this.parseBlock_();
     let catchBlock = null;
-    if (this.peek_(CATCH)) {
+    if (peek(CATCH)) {
       catchBlock = this.parseCatch_();
     }
     let finallyBlock = null;
-    if (this.peek_(FINALLY)) {
+    if (peek(FINALLY)) {
       finallyBlock = this.parseFinallyBlock_();
     }
     if (catchBlock === null && finallyBlock === null) {
@@ -1919,7 +1935,7 @@ export class Parser {
     this.eat_(CATCH);
     this.eat_(OPEN_PAREN);
     let binding;
-    if (this.peekPattern_(this.peekType_()))
+    if (this.peekPattern_(peekType()))
       binding = this.parseBindingPattern_();
     else
       binding = this.parseBindingIdentifier_();
@@ -1960,18 +1976,18 @@ export class Parser {
    * @private
    */
   parsePrimaryExpression_() {
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case CLASS:
         return this.options_.classes ?
             this.parseClassExpression_() :
-            this.parseUnexpectedReservedWord_(this.peekToken_());
+            this.parseUnexpectedReservedWord_(peekToken());
       case THIS:
         return this.parseThisExpression_();
       case IDENTIFIER:
         let identifier = this.parseIdentifierExpression_();
         if (this.options_.asyncFunctions &&
             identifier.identifierToken.value === ASYNC) {
-          let token = this.peekTokenNoLineTerminator_();
+          let token = peekTokenNoLineTerminator();
           if (token && token.type === FUNCTION) {
             let asyncToken = identifier.identifierToken;
             return this.parseAsyncFunctionExpression_(asyncToken);
@@ -2009,7 +2025,7 @@ export class Parser {
       case STATIC:
       case YIELD:
         if (this.strictMode_) {
-          this.reportReservedIdentifier_(this.nextToken_());
+          this.reportReservedIdentifier_(nextToken());
         }
         return this.parseIdentifierExpression_();
 
@@ -2017,7 +2033,7 @@ export class Parser {
         return this.parseSyntaxError_('Unexpected end of input');
     }
 
-    let token = this.peekToken_();
+    let token = peekToken();
     if (token.isKeyword()) {
       return this.parseUnexpectedReservedWord_(token);
     }
@@ -2041,7 +2057,7 @@ export class Parser {
 
     this.eat_(SUPER);
     let operand = new SuperExpression(this.getTreeLocation_(start));
-    let type = this.peekType_();
+    let type = peekType();
     if (isNew) {
       // new super() is not allowed so we require a PERIOD or an OPEN_SQUARE.
       if (type === OPEN_SQUARE) {
@@ -2064,7 +2080,7 @@ export class Parser {
         return superCall;
     }
 
-    return this.parseUnexpectedToken_(this.peekToken_());
+    return this.parseUnexpectedToken_(peekToken());
   }
 
   /**
@@ -2123,7 +2139,7 @@ export class Parser {
    * @private
    */
   nextLiteralToken_() {
-    return this.nextToken_();
+    return nextToken();
   }
 
   /**
@@ -2132,7 +2148,7 @@ export class Parser {
    */
   parseRegularExpressionLiteral_() {
     let start = this.getTreeStartLocation_();
-    let literal = this.nextRegularExpressionLiteralToken_();
+    let literal = nextRegularExpressionLiteralToken();
     return new LiteralExpression(this.getTreeLocation_(start), literal);
   }
 
@@ -2173,12 +2189,12 @@ export class Parser {
 
     this.eat_(OPEN_SQUARE);
 
-    let type = this.peekType_();
+    let type = peekType();
     if (type === FOR && this.options_.arrayComprehension)
       return this.parseArrayComprehension_(start);
 
     while (true) {
-      type = this.peekType_();
+      type = peekType();
       if (type === COMMA) {
         expression = null;
       } else if (this.peekSpread_(type)) {
@@ -2191,7 +2207,7 @@ export class Parser {
 
       elements.push(expression);
 
-      type = this.peekType_();
+      type = peekType();
       if (type !== CLOSE_SQUARE)
         this.eat_(COMMA);
     }
@@ -2237,7 +2253,7 @@ export class Parser {
     // Must start with for (...)
     let list = [this.parseComprehensionFor_()];
     while (true) {
-      let type = this.peekType_();
+      let type = peekType();
       switch (type) {
         case FOR:
           list.push(this.parseComprehensionFor_());
@@ -2281,7 +2297,7 @@ export class Parser {
     let result = [];
 
     this.eat_(OPEN_CURLY);
-    while (this.peekPropertyDefinition_(this.peekType_())) {
+    while (this.peekPropertyDefinition_(peekType())) {
       let propertyDefinition = this.parsePropertyDefinition_();
       result.push(propertyDefinition);
       if (!this.eatIf_(COMMA))
@@ -2311,7 +2327,7 @@ export class Parser {
     let isStatic = false;
 
     if (this.options_.generators && this.options_.propertyMethods &&
-        this.peek_(STAR)) {
+        peek(STAR)) {
       let fs = this.pushFunctionState_(
           FUNCTION_STATE_METHOD | FUNCTION_STATE_GENERATOR);
       let m = this.parseGeneratorMethod_(start, isStatic, []);
@@ -2319,10 +2335,10 @@ export class Parser {
       return m;
     }
 
-    let token = this.peekToken_();
+    let token = peekToken();
     let name = this.parsePropertyName_();
 
-    if (this.options_.propertyMethods && this.peek_(OPEN_PAREN)) {
+    if (this.options_.propertyMethods && peek(OPEN_PAREN)) {
       let fs = this.pushFunctionState_(FUNCTION_STATE_METHOD);
       let m = this.parseMethod_(start, isStatic, functionKind, name, []);
       this.popFunctionState_(fs);
@@ -2335,7 +2351,7 @@ export class Parser {
                                         value);
     }
 
-    let type = this.peekType_();
+    let type = peekType();
     if (name.type === LITERAL_PROPERTY_NAME) {
       let nameLiteral = name.literalToken;
       if (nameLiteral.value === GET &&
@@ -2364,8 +2380,8 @@ export class Parser {
            nameLiteral.isStrictKeyword() && !this.strictMode_ ||
            nameLiteral.type === YIELD && this.allowYield_)) {
 
-        if (this.peek_(EQUAL)) {
-          token = this.nextToken_();
+        if (peek(EQUAL)) {
+          token = nextToken();
           let coverInitializedNameCount = this.coverInitializedNameCount_;
           let expr = this.parseAssignmentExpression_(ALLOW_IN);
           this.ensureNoCoverInitializedNames_(expr, coverInitializedNameCount);
@@ -2384,7 +2400,7 @@ export class Parser {
     }
 
     if (name.type === COMPUTED_PROPERTY_NAME)
-      token = this.peekToken_();
+      token = peekToken();
 
     return this.parseUnexpectedToken_(token);
   }
@@ -2404,12 +2420,12 @@ export class Parser {
     let start = this.getTreeStartLocation_();
 
     let annotations = this.parseAnnotations_();
-    let type = this.peekType_();
+    let type = peekType();
     let isStatic = false, functionKind = null;
     switch (type) {
       case STATIC:
-        let staticToken = this.nextToken_();
-        type = this.peekType_();
+        let staticToken = nextToken();
+        type = peekType();
         switch (type) {
           case OPEN_PAREN:
             let location = this.getTreeLocation_(start);
@@ -2470,7 +2486,7 @@ export class Parser {
   parseClassElement2_(start, isStatic, annotations, derivedClass) {
     let functionKind = null;
     let name = this.parsePropertyName_();
-    let type = this.peekType_();
+    let type = peekType();
 
     // TODO(arv): Can we unify this with parsePropertyDefinition_?
 
@@ -2566,7 +2582,7 @@ export class Parser {
       case OPEN_SQUARE:
         return this.options_.computedPropertyNames;
       default:
-        return this.peekToken_().isKeyword();
+        return peekToken().isKeyword();
     }
   }
 
@@ -2575,7 +2591,7 @@ export class Parser {
    * @private
    */
   peekPredefinedString_(string) {
-    let token = this.peekToken_();
+    let token = peekToken();
     return token.type === IDENTIFIER && token.value === string;
   }
 
@@ -2589,7 +2605,7 @@ export class Parser {
 
     let binding;
     this.pushAnnotations_();
-    if (this.peekPattern_(this.peekType_()))
+    if (this.peekPattern_(peekType()))
       binding = this.parseBindingPattern_();
     else
       binding = this.parseBindingIdentifier_();
@@ -2611,7 +2627,7 @@ export class Parser {
 
     this.eat_(OPEN_PAREN);
 
-    if (this.peek_(FOR) && this.options_.generatorComprehension)
+    if (peek(FOR) && this.options_.generatorComprehension)
       return this.parseGeneratorComprehension_(start);
 
     return this.parseCoverFormals_(start);
@@ -2620,7 +2636,7 @@ export class Parser {
   parseSyntaxError_(message) {
     let start = this.getTreeStartLocation_();
     this.reportError_(message);
-    let token = this.nextToken_();
+    let token = nextToken();
     return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
   }
 
@@ -2673,7 +2689,7 @@ export class Parser {
   parseExpressionAllowPattern_(allowIn) {
     let start = this.getTreeStartLocation_();
     let expression = this.parseAssignmentExpression_(allowIn);
-    if (this.peek_(COMMA)) {
+    if (peek(COMMA)) {
       let expressions = [expression];
       while (this.eatIf_(COMMA)) {
         expressions.push(this.parseAssignmentExpression_(allowIn));
@@ -2707,7 +2723,7 @@ export class Parser {
    * @return {ParseTree}
    */
   parseAssignmentExpression_(allowIn) {
-    if (this.allowYield_ && this.peek_(YIELD))
+    if (this.allowYield_ && peek(YIELD))
       return this.parseYieldExpression_();
 
     let start = this.getTreeStartLocation_();
@@ -2715,19 +2731,19 @@ export class Parser {
     let validAsyncParen = false;
 
     if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
-      let asyncToken = this.peekToken_();
-      let maybeOpenParenToken = this.peekTokenLookahead_();
+      let asyncToken = peekToken();
+      let maybeOpenParenToken = peekTokenLookahead();
       validAsyncParen = maybeOpenParenToken.type === OPEN_PAREN &&
           asyncToken.location.end.line ===
               maybeOpenParenToken.location.start.line;
     }
 
     let left = this.parseConditional_(allowIn);
-    let type = this.peekType_();
+    let type = peekType();
 
     if (this.options_.asyncFunctions && left.type === IDENTIFIER_EXPRESSION &&
         left.identifierToken.value === ASYNC && type === IDENTIFIER) {
-      if (this.peekTokenNoLineTerminator_() !== null) {
+      if (peekTokenNoLineTerminator() !== null) {
         let bindingIdentifier = this.parseBindingIdentifier_();
         let asyncToken = left.identifierToken;
         return this.parseArrowFunction_(start, bindingIdentifier,
@@ -2735,7 +2751,7 @@ export class Parser {
       }
     }
 
-    if (type === ARROW && this.peekTokenNoLineTerminator_() !== null) {
+    if (type === ARROW && peekTokenNoLineTerminator() !== null) {
       if (left.type === COVER_FORMALS || left.type === IDENTIFIER_EXPRESSION)
         return this.parseArrowFunction_(start, left, null);
 
@@ -2755,7 +2771,7 @@ export class Parser {
         this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
       }
 
-      let operator = this.nextToken_();
+      let operator = nextToken();
       let right = this.parseAssignmentExpression_(allowIn);
 
       return new BinaryExpression(this.getTreeLocation_(start), left, operator, right);
@@ -2775,7 +2791,7 @@ export class Parser {
     switch (tree.type) {
       case ARRAY_LITERAL_EXPRESSION:
       case OBJECT_LITERAL_EXPRESSION:
-        this.scanner_.index = tree.location.start.offset;
+        resetScanner(tree.location.start.offset);
         // If we fail to parse as an AssignmentPattern then
         // parseAssignmentPattern_ will take care reporting errors.
         return this.parseAssignmentPattern_();
@@ -2861,7 +2877,7 @@ export class Parser {
   }
 
   parseBinaryExpressionHelper_(start, left, minPrec, allowIn) {
-    let type = this.peekType_();
+    let type = peekType();
     let prec = this.getPrecedence_(type, allowIn);
     if (prec === 0) {
       return left;
@@ -2871,7 +2887,7 @@ export class Parser {
     let leftToRight = type !== STAR_STAR;
 
     if (leftToRight ? prec > minPrec : prec >= minPrec) {
-      let token = this.nextToken_();  // Consumes the token.
+      let token = nextToken();  // Consumes the token.
       let rightStart = this.getTreeStartLocation_();
       let rightUnary = this.parseUnaryExpression_();
       let right = this.parseBinaryExpressionHelper_(rightStart, rightUnary,
@@ -2901,7 +2917,7 @@ export class Parser {
       // no newline?
 
       let operand;
-      if (this.allowYield_ && this.peek_(YIELD)) {
+      if (this.allowYield_ && peek(YIELD)) {
         operand = this.parseYieldExpression_();
       } else {
         operand = this.parseUnaryExpression_();
@@ -2910,8 +2926,8 @@ export class Parser {
       return new AwaitExpression(this.getTreeLocation_(start), operand);
     }
 
-    if (this.peekUnaryOperator_(this.peekType_())) {
-      let operator = this.nextToken_();
+    if (this.peekUnaryOperator_(peekType())) {
+      let operator = nextToken();
       let operand = this.parseUnaryExpression_();
       operand = this.toPrimaryExpression_(operand);
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
@@ -2948,9 +2964,9 @@ export class Parser {
   parsePostfixExpression_() {
     let start = this.getTreeStartLocation_();
     let operand = this.parseLeftHandSideExpression_();
-    while (this.peekPostfixOperator_(this.peekType_())) {
+    while (this.peekPostfixOperator_(peekType())) {
       operand = this.toPrimaryExpression_(operand);
-      let operator = this.nextToken_();
+      let operator = nextToken();
       operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
     }
     return operand;
@@ -2964,7 +2980,7 @@ export class Parser {
     switch (type) {
       case PLUS_PLUS:
       case MINUS_MINUS:
-        let token = this.peekTokenNoLineTerminator_();
+        let token = peekTokenNoLineTerminator();
         return token !== null;
     }
     return false;
@@ -2991,7 +3007,7 @@ export class Parser {
 
       // The Call expression productions
       loop: while (true) {
-        switch (this.peekType_()) {
+        switch (peekType()) {
           case OPEN_PAREN:
             operand = this.toPrimaryExpression_(operand);
             operand = this.parseCallExpression_(start, operand);
@@ -3033,14 +3049,14 @@ export class Parser {
   parseMemberExpressionNoNew_() {
     let start = this.getTreeStartLocation_();
     let operand;
-    if (this.peekType_() === FUNCTION) {
+    if (peekType() === FUNCTION) {
       operand = this.parseFunctionExpression_();
     } else {
       operand = this.parsePrimaryExpression_();
     }
 
     loop: while (true) {
-      switch (this.peekType_()) {
+      switch (peekType()) {
         case OPEN_SQUARE:
           operand = this.toPrimaryExpression_(operand);
           operand = this.parseMemberLookupExpression_(start, operand);
@@ -3092,17 +3108,17 @@ export class Parser {
    */
   parseNewExpression_() {
     let operand, start;
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case NEW:
         start = this.getTreeStartLocation_();
         this.eat_(NEW);
-        if (this.peek_(SUPER)) {
+        if (peek(SUPER)) {
           operand = this.parseSuperExpression_(true);
         } else {
           operand = this.toPrimaryExpression_(this.parseNewExpression_());
         }
         let args = null;
-        if (this.peek_(OPEN_PAREN)) {
+        if (peek(OPEN_PAREN)) {
           args = this.parseArguments_();
         }
         return new NewExpression(this.getTreeLocation_(start), operand, args);
@@ -3133,7 +3149,7 @@ export class Parser {
 
     this.eat_(OPEN_PAREN);
 
-    if (!this.peek_(CLOSE_PAREN)) {
+    if (!peek(CLOSE_PAREN)) {
       args.push(this.parseArgument_());
 
       while (this.eatIf_(COMMA)) {
@@ -3146,7 +3162,7 @@ export class Parser {
   }
 
   parseArgument_() {
-    if (this.peekSpread_(this.peekType_()))
+    if (this.peekSpread_(peekType()))
       return this.parseSpreadExpression_();
     return this.parseAssignmentExpression_(ALLOW_IN);
   }
@@ -3230,9 +3246,9 @@ export class Parser {
     //   The leading OPEN_PAREN has already been consumed.
 
     let expressions = [];
-    if (!this.peek_(CLOSE_PAREN)) {
+    if (!peek(CLOSE_PAREN)) {
       do {
-        let type = this.peekType_();
+        let type = peekType();
         if (this.peekRest_(type)) {
           expressions.push(this.parseRestParameter_());
           break;
@@ -3243,7 +3259,7 @@ export class Parser {
         if (this.eatIf_(COMMA))
           continue;
 
-      } while (!this.peek_(CLOSE_PAREN) && !this.isAtEnd())
+      } while (!peek(CLOSE_PAREN) && !isAtEnd())
     }
 
     this.eat_(CLOSE_PAREN);
@@ -3305,7 +3321,7 @@ export class Parser {
   }
 
   toFormalParameters_(start, tree, asyncToken) {
-    this.scanner_.index = start.offset;
+    resetScanner(start.offset);
     return this.parseArrowFormalParameters_(asyncToken);
   }
 
@@ -3338,7 +3354,7 @@ export class Parser {
   parseConciseBody_(params) {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
-    if (this.peek_(OPEN_CURLY))
+    if (peek(OPEN_CURLY))
       return this.parseFunctionBody_(params);
 
     return this.parseAssignmentExpression_(ALLOW_IN);
@@ -3368,7 +3384,7 @@ export class Parser {
    *   BindingPattern
    */
   parseForBinding_() {
-    if (this.peekPattern_(this.peekType_()))
+    if (this.peekPattern_(peekType()))
       return this.parseBindingPattern_();
     return this.parseBindingIdentifier_();
   }
@@ -3405,7 +3421,7 @@ export class Parser {
   }
 
   parsePattern_(useBinding) {
-    if (this.peekArrayPattern_(this.peekType_()))
+    if (this.peekArrayPattern_(peekType()))
       return this.parseArrayPattern_(useBinding);
     return this.parseObjectPattern_(useBinding);
   }
@@ -3443,17 +3459,17 @@ export class Parser {
     let elements = [];
     this.eat_(OPEN_SQUARE);
     let type;
-    while ((type = this.peekType_()) !== CLOSE_SQUARE && type !== END_OF_FILE) {
+    while ((type = peekType()) !== CLOSE_SQUARE && type !== END_OF_FILE) {
       this.parseElisionOpt_(elements);
-      if (this.peekRest_(this.peekType_())) {
+      if (this.peekRest_(peekType())) {
         elements.push(this.parsePatternRestElement_(useBinding));
         break;
       } else {
         elements.push(this.parsePatternElement_(useBinding));
         // Trailing commas are not allowed in patterns.
-        if (this.peek_(COMMA) &&
-            !this.peekLookahead_(CLOSE_SQUARE)) {
-          this.nextToken_();
+        if (peek(COMMA) &&
+            !peekLookahead(CLOSE_SQUARE)) {
+          nextToken();
         }
       }
     }
@@ -3513,13 +3529,13 @@ export class Parser {
   }
 
   parseBindingElementBinding_() {
-    if (this.peekPattern_(this.peekType_()))
+    if (this.peekPattern_(peekType()))
       return this.parseBindingPattern_();
     return this.parseBindingIdentifier_();
   }
 
   parseBindingElementInitializer_(initializerRequired) {
-    if (this.peek_(EQUAL) || initializerRequired) {
+    if (peek(EQUAL) || initializerRequired) {
       return this.parseInitializer_(ALLOW_IN);
     }
 
@@ -3552,7 +3568,7 @@ export class Parser {
     let elements = [];
     this.eat_(OPEN_CURLY);
     let type;
-    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
+    while ((type = peekType()) !== CLOSE_CURLY && type !== END_OF_FILE) {
       elements.push(this.parsePatternProperty_(useBinding));
       if (!this.eatIf_(COMMA))
         break;
@@ -3577,7 +3593,7 @@ export class Parser {
     let requireColon = name.type !== LITERAL_PROPERTY_NAME ||
         !name.literalToken.isStrictKeyword() &&
         name.literalToken.type !== IDENTIFIER;
-    if (requireColon || this.peek_(COLON)) {
+    if (requireColon || peek(COLON)) {
       this.eat_(COLON);
       let element = this.parsePatternElement_(useBinding);
       // TODO(arv): Rename ObjectPatternField to BindingProperty
@@ -3642,7 +3658,7 @@ export class Parser {
   }
 
   parseDestructuringAssignmentTarget_() {
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case OPEN_SQUARE:
         return this.parseArrayAssignmentPattern_();
       case OPEN_CURLY:
@@ -3721,7 +3737,7 @@ export class Parser {
     let start = operand ?
         operand.location.start : this.getTreeStartLocation_();
 
-    let token = this.nextToken_();
+    let token = nextToken();
     let elements = [new TemplateLiteralPortion(token.location, token)];
 
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
@@ -3734,7 +3750,7 @@ export class Parser {
     elements.push(new TemplateSubstitution(expression.location, expression));
 
     while (expression.type !== SYNTAX_ERROR_TREE) {
-      token = this.nextTemplateLiteralToken_();
+      token = nextTemplateLiteralToken();
       if (token.type === ERROR || token.type === END_OF_FILE)
         break;
 
@@ -3785,7 +3801,7 @@ export class Parser {
    * @private
    */
   parseType_() {
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case NEW:
         return this.parseConstructorType_();
 
@@ -3802,20 +3818,20 @@ export class Parser {
   parsePrimaryType_() {
     let start = this.getTreeStartLocation_();
     let elementType, token;
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case VOID:
-        token = this.nextToken_();
+        token = nextToken();
         elementType = new PredefinedType(this.getTreeLocation_(start), token);
         break;
 
       case IDENTIFIER:
-        switch (this.peekToken_().value) {
+        switch (peekToken().value) {
           case 'any':
           case 'boolean':
           case 'number':
           case 'string':
           case 'symbol':
-            token = this.nextToken_();
+            token = nextToken();
             elementType =
                 new PredefinedType(this.getTreeLocation_(start), token);
             break;
@@ -3837,7 +3853,7 @@ export class Parser {
 
 
       default:
-        return this.parseUnexpectedToken_(this.peekToken_());
+        return this.parseUnexpectedToken_(peekToken());
     }
 
     return this.parseArrayTypeSuffix_(start, elementType);
@@ -3847,7 +3863,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let typeName = this.parseTypeName_();
     let args = null;
-    if (this.peek_(OPEN_ANGLE)) {
+    if (peek(OPEN_ANGLE)) {
       let args = this.parseTypeArguments_();
       return new TypeReference(this.getTreeLocation_(start), typeName, args);
     }
@@ -3855,7 +3871,7 @@ export class Parser {
   }
 
   parseUnionTypeSuffix_(start, elementType) {
-    if (this.peek_(BAR)) {
+    if (peek(BAR)) {
       let types = [elementType];
       this.eat_(BAR);
       while (true) {
@@ -3870,7 +3886,7 @@ export class Parser {
   }
 
   parseArrayTypeSuffix_(start, elementType) {
-    let token = this.peekTokenNoLineTerminator_();
+    let token = peekTokenNoLineTerminator();
     if (token && token.type === OPEN_SQUARE) {
       this.eat_(OPEN_SQUARE);
       this.eat_(CLOSE_SQUARE);
@@ -3885,12 +3901,12 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(OPEN_ANGLE);
     let args = [this.parseType_()];
-    while (this.peek_(COMMA)) {
+    while (peek(COMMA)) {
       this.eat_(COMMA);
       args.push(this.parseType_());
     }
 
-    let token = this.nextCloseAngle_();
+    let token = nextCloseAngle();
     if (token.type !== CLOSE_ANGLE) {
       return this.parseUnexpectedToken_(token);
     }
@@ -3925,7 +3941,7 @@ export class Parser {
     let typeMembers = [];
     this.eat_(OPEN_CURLY);
     let type;
-    while (this.peekTypeMember_(type = this.peekType_())) {
+    while (this.peekTypeMember_(type = peekType())) {
       typeMembers.push(this.parseTypeMember_(type));
       if (!this.eatIf_(SEMI_COLON)) {
         break;
@@ -3947,7 +3963,7 @@ export class Parser {
       case NUMBER:
         return true;
       default:
-        return this.peekToken_().isKeyword();
+        return peekToken().isKeyword();
     }
   }
 
@@ -3971,7 +3987,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let propertyName = this.parseLiteralPropertyName_();
     let isOpt = this.eatIf_(QUESTION);
-    type = this.peekType_();
+    type = peekType();
     if (type === OPEN_ANGLE || type === OPEN_PAREN) {
       let callSignature = this.parseCallSignature_();
       return new MethodSignature(this.getTreeLocation_(start), propertyName,
@@ -4057,11 +4073,11 @@ export class Parser {
   //   extends Type
 
   peekTypeParameters_() {
-    return this.peek_(OPEN_ANGLE);
+    return peek(OPEN_ANGLE);
   }
 
   parseTypeParametersOpt_() {
-    if (this.peek_(OPEN_ANGLE)) {
+    if (peek(OPEN_ANGLE)) {
       return this.parseTypeParameters_();
     }
     return null;
@@ -4071,7 +4087,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(OPEN_ANGLE);
     let parameters = [this.parseTypeParameter_()];
-    while (this.peek_(COMMA)) {
+    while (peek(COMMA)) {
       this.eat_(COMMA);
       parameters.push(this.parseTypeParameter_());
     }
@@ -4101,13 +4117,13 @@ export class Parser {
   parseNamedOrPredefinedType_() {
     let start = this.getTreeStartLocation_();
 
-    switch (this.peekToken_().value) {
+    switch (peekToken().value) {
       case 'any':
       case 'number':
       case 'boolean':
       case 'string':
       // void is handled in parseTye
-        let token = this.nextToken_();
+        let token = nextToken();
         return new PredefinedType(this.getTreeLocation_(start), token);
       default:
         return this.parseTypeName_();
@@ -4188,7 +4204,7 @@ export class Parser {
     this.pushAnnotations_();
 
     let declaration;
-    let type = this.peekType_();
+    let type = peekType();
     if (parsingModuleItem) {
       declaration = this.parseModuleItem_(type);
     } else {
@@ -4223,7 +4239,7 @@ export class Parser {
     let expression = this.parseMemberExpressionNoNew_();
     let args = null;
 
-    if (this.peek_(OPEN_PAREN))
+    if (peek(OPEN_PAREN))
       args = this.parseArguments_();
 
     return new Annotation(this.getTreeLocation_(start), expression, args);
@@ -4237,13 +4253,13 @@ export class Parser {
    * @private
    */
   eatPossibleImplicitSemiColon_() {
-    let token = this.peekTokenNoLineTerminator_();
+    let token = peekTokenNoLineTerminator();
     if (!token)
       return;
 
     switch (token.type) {
       case SEMI_COLON:
-        this.nextToken_();
+        nextToken();
         return;
       case END_OF_FILE:
       case CLOSE_CURLY:
@@ -4260,13 +4276,13 @@ export class Parser {
    * @private
    */
   peekImplicitSemiColon_() {
-    switch (this.peekType_()) {
+    switch (peekType()) {
       case SEMI_COLON:
       case CLOSE_CURLY:
       case END_OF_FILE:
         return true;
     }
-    let token = this.peekTokenNoLineTerminator_();
+    let token = peekTokenNoLineTerminator();
     return token === null;
   }
 
@@ -4279,8 +4295,8 @@ export class Parser {
    * @private
    */
   eatOpt_(expectedTokenType) {
-    if (this.peek_(expectedTokenType))
-      return this.nextToken_();
+    if (peek(expectedTokenType))
+      return nextToken();
     return null;
   }
 
@@ -4291,7 +4307,7 @@ export class Parser {
    * @private
    */
   eatIdOpt_() {
-    return this.peek_(IDENTIFIER) ? this.eatId_() : null;
+    return peek(IDENTIFIER) ? this.eatId_() : null;
   }
 
   /**
@@ -4301,10 +4317,10 @@ export class Parser {
    * @private
    */
   eatId_(expected = undefined) {
-    let token = this.nextToken_();
+    let token = nextToken();
     if (!token) {
       if (expected)
-        this.reportError_(this.peekToken_(), `expected '${expected}'`);
+        this.reportError_(peekToken(), `expected '${expected}'`);
       return null;
     }
 
@@ -4337,7 +4353,7 @@ export class Parser {
    * @private
    */
   eatIdName_() {
-    let t = this.nextToken_();
+    let t = nextToken();
     if (t.type !== IDENTIFIER) {
       if (!t.isKeyword()) {
         this.reportExpectedError_(t, 'identifier');
@@ -4358,7 +4374,7 @@ export class Parser {
    * @private
    */
   eat_(expectedTokenType) {
-    let token = this.nextToken_();
+    let token = nextToken();
     if (token.type !== expectedTokenType) {
       this.reportExpectedError_(token, expectedTokenType);
       return null;
@@ -4371,8 +4387,8 @@ export class Parser {
    * and returns true.
    */
   eatIf_(expectedTokenType) {
-    if (this.peek_(expectedTokenType)) {
-      this.nextToken_();
+    if (peek(expectedTokenType)) {
+      nextToken();
       return true;
     }
     return false;
@@ -4397,7 +4413,7 @@ export class Parser {
    * @private
    */
   getTreeStartLocation_() {
-    return this.peekToken_().location.start;
+    return peekToken().location.start;
   }
 
   /**
@@ -4407,7 +4423,7 @@ export class Parser {
    * @private
    */
   getTreeEndLocation_() {
-    return this.scanner_.lastToken.location.end;
+    return getLastToken().location.end;
   }
 
   /**
@@ -4424,91 +4440,8 @@ export class Parser {
     // TODO(arv): Attach to tree nodes.
   }
 
-  /**
-   * Consumes the next token and returns it. Will return a never ending stream of
-   * END_OF_FILE at the end of the file so callers don't have to check for EOF explicitly.
-   *
-   * Tokenizing is contextual. this.nextToken_() will never return a regular expression literal.
-   *
-   * @return {Token}
-   * @private
-   */
-  nextToken_() {
-    return this.scanner_.nextToken();
-  }
-
-  /**
-   * Consumes a regular expression literal token and returns it.
-   *
-   * @return {LiteralToken}
-   * @private
-   */
-  nextRegularExpressionLiteralToken_() {
-    return this.scanner_.nextRegularExpressionLiteralToken();
-  }
-
-  nextTemplateLiteralToken_() {
-    return this.scanner_.nextTemplateLiteralToken();
-  }
-
-  nextCloseAngle_() {
-    return this.scanner_.nextCloseAngle();
-  }
-
   isAtEnd() {
-    return this.scanner_.isAtEnd();
-  }
-
-  /**
-   * Returns true if the next token is of the expected type. Does not Consume
-   * any tokens.
-   *
-   * @param {TokenType} expectedType
-   * @return {boolean}
-   * @private
-   */
-  peek_(expectedType) {
-    return this.peekToken_().type === expectedType;
-  }
-
-  peekLookahead_(expectedType) {
-    return this.peekTokenLookahead_().type === expectedType;
-  }
-
-  /**
-   * Returns the TokenType of the next token. Does not consume any tokens.
-   *
-   * @return {TokenType}
-   * @private
-   */
-  peekType_() {
-    return this.peekToken_().type;
-  }
-
-  /**
-   * Returns the next token. Does not consume any tokens.
-   *
-   * @return {Token}
-   * @private
-   */
-  peekToken_() {
-    return this.scanner_.peekToken();
-  }
-
-  peekTokenLookahead_() {
-    return this.scanner_.peekTokenLookahead();
-  }
-
-  /**
-   * Returns the next token. Does not allow any line terminator
-   * before the next token. Does not consume any tokens. This returns null if
-   * no token was found before the next line terminator.
-   *
-   * @return {Token}
-   * @private
-   */
-  peekTokenNoLineTerminator_() {
-    return this.scanner_.peekTokenNoLineTerminator();
+    return isAtEnd();
   }
 
   /**
@@ -4522,7 +4455,7 @@ export class Parser {
    */
   reportError_(...args) {
     if (args.length === 1) {
-      this.errorReporter_.reportError(this.scanner_.getPosition(), args[0]);
+      this.errorReporter_.reportError(getPosition(), args[0]);
     } else {
       // TODO(arv): Only allow a SourcePosition here.
       let location = args[0];

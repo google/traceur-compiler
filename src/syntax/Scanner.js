@@ -206,108 +206,88 @@ let index, input, length, token, lastToken, lookaheadToken, currentCharCode,
  *
  * TODO: 7.1 Unicode Format-Control Characters
  */
-export class Scanner {
-  /**
-   * @param {ErrorReport} reporter
-   * @param {SourceFile} file
-   * @param {Parser} parser
-   * @param {Options} traceurOptions
-   */
-  constructor(reporter, file, parser, traceurOptions) {
-    // These are not instance fields and this class should probably be refactor
-    // to not give a false impression that multiple instances can be created.
-    errorReporter = reporter;
-    lineNumberTable = file.lineNumberTable;
-    input = file.contents;
-    length = file.contents.length;
-    this.index = 0;
-    currentParser = parser;
-    options = traceurOptions;
-  }
 
-  get lastToken() {
-    return lastToken;
-  }
+/**
+ * @param {ErrorReport} reporter
+ * @param {SourceFile} file
+ * @param {Parser} parser
+ * @param {Options} traceurOptions
+ */
+export function init(reporter, file, parser, traceurOptions) {
+  // These are all module local variables. It is up to the  caller to ensure
+  // that there is only one user of that scanner at the same time.
+  errorReporter = reporter;
+  lineNumberTable = file.lineNumberTable;
+  input = file.contents;
+  length = file.contents.length;
+  setIndex(0);
+  currentParser = parser;
+  options = traceurOptions;
+}
 
-  /** @return {SourcePosition} */
-  getPosition() {
-    return getPosition(getOffset());
-  }
+export function getLastToken() {
+  return lastToken;
+}
 
-  nextRegularExpressionLiteralToken() {
-    lastToken = nextRegularExpressionLiteralToken();
-    token = scanToken();
-    return lastToken;
-  }
+/**
+ * Consumes a regular expression literal token and returns it.
+ *
+ * @return {LiteralToken}
+ */
+export function nextRegularExpressionLiteralToken() {
+  lastToken = nextRegularExpressionLiteralToken2();
+  token = scanToken();
+  return lastToken;
+}
 
-  nextTemplateLiteralToken() {
-    let t = nextTemplateLiteralToken();
-    token = scanToken();
-    return t;
-  }
+export function nextTemplateLiteralToken() {
+  let t = nextTemplateLiteralToken2();
+  token = scanToken();
+  return t;
+}
 
-  /**
-   * Called for the close angle for type generics. This allows type expressions
-   * like `Array<Array<number>>` to be parsed as `Array<Array<number> >`.
-   */
-  nextCloseAngle() {
-    switch (token.type) {
-      case GREATER_EQUAL:
-      case RIGHT_SHIFT:
-      case RIGHT_SHIFT_EQUAL:
-      case UNSIGNED_RIGHT_SHIFT:
-      case UNSIGNED_RIGHT_SHIFT_EQUAL:
-        this.index -= token.type.length - 1;
-        lastToken = createToken(CLOSE_ANGLE, index);
-        token = scanToken();
-        return lastToken;
-    }
-    return nextToken();
-  }
-
-  /** @return {Token} */
-  nextToken() {
-    return nextToken();
-  }
-
-  /**
-   * @return {Token}
-   */
-  peekToken() {
-    return peekToken();
-  }
-
-  peekTokenLookahead() {
-    return peekTokenLookahead();
-  }
-
-  peekTokenNoLineTerminator() {
-    return peekTokenNoLineTerminator();
-  }
-
-  isAtEnd() {
-    return isAtEnd();
-  }
-
-  set index(i) {
-    index = i;
-    lastToken = null;
-    token = null;
-    lookaheadToken = null;
-    updateCurrentCharCode();
-  }
-
-  get index() {
-    return index;
-  }
+export function setIndex(i) {
+  index = i;
+  lastToken = null;
+  token = null;
+  lookaheadToken = null;
+  updateCurrentCharCode();
 }
 
 /**
  * @return {SourcePosition}
  */
-function getPosition(offset) {
+export function getPosition() {
+  return getPositionByOffset(getOffset());
+}
+
+/**
+ * @return {SourcePosition}
+ */
+function getPositionByOffset(offset) {
   return lineNumberTable.getSourcePosition(offset);
 }
+
+/**
+ * Called for the close angle for type generics. This allows type expressions
+ * like `Array<Array<number>>` to be parsed as `Array<Array<number> >`.
+ */
+export function nextCloseAngle() {
+  switch (token.type) {
+    case GREATER_EQUAL:
+    case RIGHT_SHIFT:
+    case RIGHT_SHIFT_EQUAL:
+    case UNSIGNED_RIGHT_SHIFT:
+    case UNSIGNED_RIGHT_SHIFT_EQUAL:
+      setIndex(index - token.type.length + 1);
+      lastToken = createToken(CLOSE_ANGLE, index);
+      token = scanToken();
+      return lastToken;
+  }
+  return nextToken();
+}
+
+
 
 function getTokenRange(startOffset) {
   return lineNumberTable.getSourceRange(startOffset, index);
@@ -319,7 +299,7 @@ function getOffset() {
 }
 
 /** @return {LiteralToken} */
-function nextRegularExpressionLiteralToken() {
+function nextRegularExpressionLiteralToken2() {
   // We already passed the leading / or /= so subtract the length of the last
   // token.
   let beginIndex = index - token.toString().length;
@@ -469,7 +449,7 @@ function scanTemplateStart(beginIndex) {
 /**
  * Either returns a TEMPLATE_TAIL or TEMPLATE_MIDDLE token.
  */
-function nextTemplateLiteralToken() {
+function nextTemplateLiteralToken2() {
   if (isAtEnd()) {
     reportError('Expected \'}\' after expression in template literal');
     return createToken(END_OF_FILE, index);
@@ -510,8 +490,14 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
   }
 }
 
-/** @return {Token} */
-function nextToken() {
+/**
+ * Consumes the next token and returns it. Will return a never ending stream of
+ * END_OF_FILE at the end of the file so callers don't have to check for EOF
+ * explicitly.
+ *
+ * @return {Token}
+ */
+export function nextToken() {
   let t = peekToken();
   token = lookaheadToken || scanToken();
   lookaheadToken = null;
@@ -525,7 +511,7 @@ function nextToken() {
  * @return {Token} This returns null if no token is found before the next
  *     line terminator.
  */
-function peekTokenNoLineTerminator() {
+export function peekTokenNoLineTerminator() {
   // Search the text between lastToken and next token.
   let t = peekToken();
   let start = lastToken.location.end.offset;
@@ -540,12 +526,41 @@ function peekTokenNoLineTerminator() {
   return t;
 }
 
-function peekToken() {
+/**
+ * Returns true if the next token is of the expected type. Does not consume
+ * any tokens.
+ *
+ * @param {TokenType} expectedType
+ * @return {boolean}
+ */
+export function peek(expectedType) {
+  return peekToken().type === expectedType;
+}
+
+export function peekLookahead(expectedType) {
+  return peekTokenLookahead().type === expectedType;
+}
+
+/**
+ * Returns the next token. Does not consume any tokens.
+ *
+ * @return {Token}
+ */
+export function peekToken() {
   return token || (token = scanToken());
 }
 
+/**
+ * Returns the TokenType of the next token. Does not consume any tokens.
+ *
+ * @return {TokenType}
+ */
+export function peekType() {
+  return peekToken().type;
+}
+
 // This is optimized to do one lookahead vs current in |peekTooken_|.
-function peekTokenLookahead() {
+export function peekTokenLookahead() {
   if (!token)
     token = scanToken();
   if (!lookaheadToken)
@@ -1169,7 +1184,7 @@ function skipOctalDigits() {
   }
 }
 
-function isAtEnd() {
+export function isAtEnd() {
   return index === length;
 }
 
@@ -1183,6 +1198,6 @@ function updateCurrentCharCode() {
 }
 
 function reportError(message, indexArg = index) {
-  let position = getPosition(indexArg);
+  let position = getPositionByOffset(indexArg);
   errorReporter.reportError(position, message);
 }

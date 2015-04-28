@@ -40,13 +40,11 @@ export let util = {
 };
 
 import {Parser} from './syntax/Parser.js';
-import {Scanner} from './syntax/Scanner.js';
 import {Script} from './syntax/trees/ParseTrees.js';
 import {SourceFile} from './syntax/SourceFile.js';
 
 export let syntax = {
   Parser,
-  Scanner,
   SourceFile,
   trees: {
     Script
