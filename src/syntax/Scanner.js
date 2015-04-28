@@ -194,7 +194,7 @@ function isRegularExpressionFirstChar(code) {
   return isRegularExpressionChar(code) && code !== 42;  // *
 }
 
-let index, input, length, token, lastToken, lookaheadToken, currentCharCode,
+let index, input, length, token, lastToken, lookaheadToken, currentCodePoint,
     lineNumberTable, errorReporter, currentParser, options;
 
 /**
@@ -294,7 +294,7 @@ export class Scanner {
     lastToken = null;
     token = null;
     lookaheadToken = null;
-    updateCurrentCharCode();
+    updateCurrentCodePoint();
   }
 
   get index() {
@@ -326,7 +326,7 @@ function nextRegularExpressionLiteralToken() {
 
   // body
   // Also, check if we are done with the body in case we had /=/
-  if (!(token.type === SLASH_EQUAL && currentCharCode === 47) &&
+  if (!(token.type === SLASH_EQUAL && currentCodePoint === 47) &&
       !skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
@@ -334,7 +334,7 @@ function nextRegularExpressionLiteralToken() {
   }
 
   // separating /
-  if (currentCharCode !== 47) {  // /
+  if (currentCodePoint !== 47) {  // /
     reportError('Expected \'/\' in regular expression literal');
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
@@ -343,7 +343,7 @@ function nextRegularExpressionLiteralToken() {
   next();
 
   // flags (note: this supports future regular expression flags)
-  while (isIdentifierPart(currentCharCode)) {
+  while (isIdentifierPart(currentCodePoint)) {
     next();
   }
 
@@ -353,12 +353,12 @@ function nextRegularExpressionLiteralToken() {
 }
 
 function skipRegularExpressionBody() {
-  if (!isRegularExpressionFirstChar(currentCharCode)) {
+  if (!isRegularExpressionFirstChar(currentCodePoint)) {
     reportError('Expected regular expression first char');
     return false;
   }
 
-  while (!isAtEnd() && isRegularExpressionChar(currentCharCode)) {
+  while (!isAtEnd() && isRegularExpressionChar(currentCodePoint)) {
     if (!skipRegularExpressionChar())
       return false;
   }
@@ -367,7 +367,7 @@ function skipRegularExpressionBody() {
 }
 
 function skipRegularExpressionChar() {
-  switch (currentCharCode) {
+  switch (currentCodePoint) {
     case 92:  // \
       return skipRegularExpressionBackslashSequence();
     case 91:  // [
@@ -380,7 +380,7 @@ function skipRegularExpressionChar() {
 
 function skipRegularExpressionBackslashSequence() {
   next();
-  if (isLineTerminator(currentCharCode) || isAtEnd()) {
+  if (isLineTerminator(currentCodePoint) || isAtEnd()) {
     reportError('New line not allowed in regular expression literal');
     return false;
   }
@@ -395,7 +395,7 @@ function skipRegularExpressionClass() {
       return false;
     }
   }
-  if (currentCharCode !== 93) {  // ]
+  if (currentCodePoint !== 93) {  // ]
     reportError('\']\' expected');
     return false;
   }
@@ -404,12 +404,12 @@ function skipRegularExpressionClass() {
 }
 
 function peekRegularExpressionClassChar() {
-  return currentCharCode !== 93 &&  // ]
-      !isLineTerminator(currentCharCode);
+  return currentCodePoint !== 93 &&  // ]
+      !isLineTerminator(currentCodePoint);
 }
 
 function skipRegularExpressionClassChar() {
-  if (currentCharCode === 92) {  // \
+  if (currentCodePoint === 92) {  // \
     return skipRegularExpressionBackslashSequence();
   }
   next();
@@ -435,7 +435,7 @@ function skipRegularExpressionClassChar() {
 //
 function skipTemplateCharacter() {
   while (!isAtEnd()) {
-    switch (currentCharCode) {
+    switch (currentCodePoint) {
       case 96:  // `
         return;
       case 92:  // \
@@ -495,7 +495,7 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
 
   let value = getTokenString(beginIndex);
 
-  switch (currentCharCode) {
+  switch (currentCodePoint) {
     case  96:  // `
       next();
       return lastToken = new LiteralToken(endType,
@@ -561,7 +561,7 @@ function skipWhitespace() {
 }
 
 function peekWhitespace() {
-  return isWhitespace(currentCharCode);
+  return isWhitespace(currentCodePoint);
 }
 
 // 7.4 Comments
@@ -571,7 +571,7 @@ function skipComments() {
 
 function skipComment() {
   skipWhitespace();
-  let code = currentCharCode;
+  let code = currentCodePoint;
   if (code === 47) {  // /
     code = input.charCodeAt(index + 1);
     switch (code) {
@@ -596,7 +596,7 @@ function skipSingleLineComment() {
   // skip '//'
   index += 2;
   while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
-  updateCurrentCharCode();
+  updateCurrentCodePoint();
   commentCallback(start, index);
 }
 
@@ -607,7 +607,7 @@ function skipMultiLineComment() {
     index = i + 2;
   else
     index = length;
-  updateCurrentCharCode();
+  updateCurrentCodePoint();
   commentCallback(start, index);
 }
 
@@ -620,7 +620,7 @@ function scanToken() {
   if (isAtEnd())
     return createToken(END_OF_FILE, beginIndex);
 
-  let code = currentCharCode;
+  let code = currentCodePoint;
   next();
 
   switch (code) {
@@ -637,7 +637,7 @@ function scanToken() {
     case 93:  // ]
       return createToken(CLOSE_SQUARE, beginIndex);
     case 46:  // .
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 46:  // .
           // Harmony spread operator
           if (input.charCodeAt(index + 1) === 46) {
@@ -647,7 +647,7 @@ function scanToken() {
           }
           break;
         default:
-          if (isDecimalDigit(currentCharCode))
+          if (isDecimalDigit(currentCodePoint))
             return scanNumberPostPeriod(beginIndex);
       }
 
@@ -663,10 +663,10 @@ function scanToken() {
     case 58:  // :
       return createToken(COLON, beginIndex);
     case 60:  // <
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 60:  // <
           next();
-          if (currentCharCode === 61) {  // =
+          if (currentCodePoint === 61) {  // =
             next();
             return createToken(LEFT_SHIFT_EQUAL, beginIndex);
           }
@@ -678,16 +678,16 @@ function scanToken() {
           return createToken(OPEN_ANGLE, beginIndex);
       }
     case 62:  // >
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 62:  // >
           next();
-          switch (currentCharCode) {
+          switch (currentCodePoint) {
             case 61:  // =
               next();
               return createToken(RIGHT_SHIFT_EQUAL, beginIndex);
             case 62:  // >
               next();
-              if (currentCharCode === 61) { // =
+              if (currentCodePoint === 61) { // =
                 next();
                 return createToken(
                     UNSIGNED_RIGHT_SHIFT_EQUAL, beginIndex);
@@ -703,23 +703,23 @@ function scanToken() {
           return createToken(CLOSE_ANGLE, beginIndex);
       }
     case 61:  // =
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
-        if (currentCharCode === 61) {  // =
+        if (currentCodePoint === 61) {  // =
           next();
           return createToken(EQUAL_EQUAL_EQUAL, beginIndex);
         }
         return createToken(EQUAL_EQUAL, beginIndex);
       }
-      if (currentCharCode === 62 && options.arrowFunctions) {  // >
+      if (currentCodePoint === 62 && options.arrowFunctions) {  // >
         next();
         return createToken(ARROW, beginIndex);
       }
       return createToken(EQUAL, beginIndex);
     case 33:  // !
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
-        if (currentCharCode === 61) {  // =
+        if (currentCodePoint === 61) {  // =
           next();
           return createToken(NOT_EQUAL_EQUAL, beginIndex);
         }
@@ -727,13 +727,13 @@ function scanToken() {
       }
       return createToken(BANG, beginIndex);
     case 42:  // *
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
         return createToken(STAR_EQUAL, beginIndex);
       }
-      if (currentCharCode === 42 && options.exponentiation) {
+      if (currentCodePoint === 42 && options.exponentiation) {
         next();
-        if (currentCharCode === 61) {  // =
+        if (currentCodePoint === 61) {  // =
           next();
           return createToken(STAR_STAR_EQUAL, beginIndex);
         }
@@ -741,25 +741,25 @@ function scanToken() {
       }
       return createToken(STAR, beginIndex);
     case 37:  // %
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
         return createToken(PERCENT_EQUAL, beginIndex);
       }
       return createToken(PERCENT, beginIndex);
     case 94:  // ^
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
         return createToken(CARET_EQUAL, beginIndex);
       }
       return createToken(CARET, beginIndex);
     case 47:  // /
-      if (currentCharCode === 61) {  // =
+      if (currentCodePoint === 61) {  // =
         next();
         return createToken(SLASH_EQUAL, beginIndex);
       }
       return createToken(SLASH, beginIndex);
     case 43:  // +
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 43:  // +
           next();
           return createToken(PLUS_PLUS, beginIndex);
@@ -770,7 +770,7 @@ function scanToken() {
           return createToken(PLUS, beginIndex);
       }
     case 45:  // -
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 45: // -
           next();
           return createToken(MINUS_MINUS, beginIndex);
@@ -781,7 +781,7 @@ function scanToken() {
           return createToken(MINUS, beginIndex);
       }
     case 38:  // &
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 38:  // &
           next();
           return createToken(AND, beginIndex);
@@ -792,7 +792,7 @@ function scanToken() {
           return createToken(AMPERSAND, beginIndex);
       }
     case 124:  // |
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 124:  // |
           next();
           return createToken(OR, beginIndex);
@@ -850,14 +850,14 @@ function scanPostDigit(beginIndex) {
  * @return {Token}
  */
 function scanPostZero(beginIndex) {
-  switch (currentCharCode) {
+  switch (currentCodePoint) {
     case 46:  // .
       return scanFractionalNumericLiteral(beginIndex);
 
     case 88:  // X
     case 120:  // x
       next();
-      if (!isHexDigit(currentCharCode)) {
+      if (!isHexDigit(currentCodePoint)) {
         reportError('Hex Integer Literal must contain at least one digit');
       }
       skipHexDigits();
@@ -871,7 +871,7 @@ function scanPostZero(beginIndex) {
         break;
 
       next();
-      if (!isBinaryDigit(currentCharCode)) {
+      if (!isBinaryDigit(currentCodePoint)) {
         reportError('Binary Integer Literal must contain at least one digit');
       }
       skipBinaryDigits();
@@ -885,7 +885,7 @@ function scanPostZero(beginIndex) {
         break;
 
       next();
-      if (!isOctalDigit(currentCharCode)) {
+      if (!isOctalDigit(currentCodePoint)) {
         reportError('Octal Integer Literal must contain at least one digit');
       }
       skipOctalDigits();
@@ -922,7 +922,7 @@ function createToken(type, beginIndex) {
 
 function readUnicodeEscapeSequence() {
   let beginIndex = index;
-  if (currentCharCode === 117) {  // u
+  if (currentCodePoint === 117) {  // u
     next();
     if (skipHexDigit() && skipHexDigit() &&
         skipHexDigit() && skipHexDigit()) {
@@ -956,7 +956,7 @@ function scanIdentifierOrKeyword(beginIndex, code) {
   }
 
   for (;;) {
-    code = currentCharCode;
+    code = currentCodePoint;
     if (isIdentifierPart(code)) {
       next();
     } else if (code === 92) {  // \
@@ -998,7 +998,7 @@ function scanStringLiteral(beginIndex, terminator) {
                               getTokenRange(beginIndex));
     }
   }
-  if (currentCharCode !== terminator) {
+  if (currentCodePoint !== terminator) {
     reportError('Unterminated String Literal', beginIndex);
   } else {
     next();
@@ -1013,12 +1013,12 @@ function getTokenString(beginIndex) {
 }
 
 function peekStringLiteralChar(terminator) {
-  return !isAtEnd() && currentCharCode !== terminator &&
-      !isLineTerminator(currentCharCode);
+  return !isAtEnd() && currentCodePoint !== terminator &&
+      !isLineTerminator(currentCodePoint);
 }
 
 function skipStringLiteralChar() {
-  if (currentCharCode === 92) {
+  if (currentCodePoint === 92) {
     return skipStringLiteralEscapeSequence();
   }
   next();
@@ -1032,12 +1032,12 @@ function skipStringLiteralEscapeSequence() {
     return false;
   }
 
-  if (isLineTerminator(currentCharCode)) {
+  if (isLineTerminator(currentCodePoint)) {
     skipLineTerminator();
     return true;
   }
 
-  let code = currentCharCode;
+  let code = currentCodePoint;
   next();
   switch (code) {
     case 39:  // '
@@ -1061,18 +1061,18 @@ function skipStringLiteralEscapeSequence() {
 }
 
 function skipUnicodeEscapeSequence() {
-  if (currentCharCode === 123 && options.unicodeEscapeSequences) {  // {
+  if (currentCodePoint === 123 && options.unicodeEscapeSequences) {  // {
     next();
     let beginIndex = index;
 
-    if (!isHexDigit(currentCharCode)) {
+    if (!isHexDigit(currentCodePoint)) {
       reportError('Hex digit expected');
       return false;
     }
 
     skipHexDigits();
 
-    if (currentCharCode !== 125) {  // }
+    if (currentCodePoint !== 125) {  // }
       reportError('Hex digit expected');
       return false;
     }
@@ -1091,7 +1091,7 @@ function skipUnicodeEscapeSequence() {
 }
 
 function skipHexDigit() {
-  if (!isHexDigit(currentCharCode)) {
+  if (!isHexDigit(currentCodePoint)) {
     reportError('Hex digit expected');
     return false;
   }
@@ -1100,9 +1100,9 @@ function skipHexDigit() {
 }
 
 function skipLineTerminator() {
-  let first = currentCharCode;
+  let first = currentCodePoint;
   next();
-  if (first === 13 && currentCharCode === 10) {  // \r and \n
+  if (first === 13 && currentCodePoint === 10) {  // \r and \n
     next();
   }
 }
@@ -1111,7 +1111,7 @@ function skipLineTerminator() {
  * @return {LiteralToken}
  */
 function scanFractionalNumericLiteral(beginIndex) {
-  if (currentCharCode === 46) {  // .
+  if (currentCodePoint === 46) {  // .
     next();
     skipDecimalDigits();
   }
@@ -1122,17 +1122,17 @@ function scanFractionalNumericLiteral(beginIndex) {
  * @return {LiteralToken}
  */
 function scanExponentOfNumericLiteral(beginIndex) {
-  switch (currentCharCode) {
+  switch (currentCodePoint) {
     case 101:  // e
     case 69:  // E
       next();
-      switch (currentCharCode) {
+      switch (currentCodePoint) {
         case 43:  // +
         case 45:  // -
           next();
           break;
       }
-      if (!isDecimalDigit(currentCharCode)) {
+      if (!isDecimalDigit(currentCodePoint)) {
         reportError('Exponent part must contain at least one digit');
       }
       skipDecimalDigits();
@@ -1146,25 +1146,25 @@ function scanExponentOfNumericLiteral(beginIndex) {
 }
 
 function skipDecimalDigits() {
-  while (isDecimalDigit(currentCharCode)) {
+  while (isDecimalDigit(currentCodePoint)) {
     next();
   }
 }
 
 function skipHexDigits() {
-  while (isHexDigit(currentCharCode)) {
+  while (isHexDigit(currentCodePoint)) {
     next();
   }
 }
 
 function skipBinaryDigits() {
-  while (isBinaryDigit(currentCharCode)) {
+  while (isBinaryDigit(currentCodePoint)) {
     next();
   }
 }
 
 function skipOctalDigits() {
-  while (isOctalDigit(currentCharCode)) {
+  while (isOctalDigit(currentCodePoint)) {
     next();
   }
 }
@@ -1175,11 +1175,33 @@ function isAtEnd() {
 
 function next() {
   index++;
-  updateCurrentCharCode();
+  if (currentCodePoint >= 0x10000) {
+    // If code point is higher than Plane 0, move past trail surrogate
+    index++;
+  }
+  updateCurrentCodePoint();
 }
 
-function updateCurrentCharCode() {
-  currentCharCode = input.charCodeAt(index);
+function updateCurrentCodePoint() {
+  currentCodePoint = input.charCodeAt(index);
+  // Return if code point is in Plane 0
+  if (currentCodePoint < 0xD800 || !isLeadSurrogate(currentCodePoint)) return;
+  let nextCharCode = input.charCodeAt(index + 1) | 0;
+  // ASSERT: isTrailSurrogate(nextCharCode)
+  // Should report an error if it's not?
+  currentCodePoint = getSupplementaryCode(currentCodePoint, nextCharCode);
+}
+
+function isLeadSurrogate(code) {
+  return (code & 0xFFFFFC00) === 0xD800;
+}
+
+function isTrailSurrogate(code) {
+  return (code & 0xFFFFFC00) === 0xDC00;
+}
+
+function getSupplementaryCode(lead, trail) {
+  return (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
 }
 
 function reportError(message, indexArg = index) {
