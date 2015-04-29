@@ -1223,8 +1223,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitReturnStatement(tree) {
     this.write_(RETURN);
-    this.writeSpace_(tree.expression);
-    this.visitAny(tree.expression);
+    if (tree.expression) {
+      this.writeSpace_(tree.expression);
+      this.visitAny(tree.expression);
+    }
     this.write_(SEMI_COLON);
   }
 

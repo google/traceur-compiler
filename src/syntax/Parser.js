@@ -1727,7 +1727,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(CONTINUE);
     let name = null;
-    if (!this.peekImplicitSemiColon_(peekType())) {
+    if (!this.peekImplicitSemiColon_()) {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1743,7 +1743,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(BREAK);
     let name = null;
-    if (!this.peekImplicitSemiColon_(peekType())) {
+    if (!this.peekImplicitSemiColon_()) {
       name = this.eatIdOpt_();
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1762,27 +1762,47 @@ export class Parser {
     }
     this.eat_(RETURN);
     let expression = null;
-    if (!this.peekImplicitSemiColon_(peekType())) {
+    if (!this.peekImplicitSemiColon_()) {
       expression = this.parseExpression_(ALLOW_IN);
     }
     this.eatPossibleImplicitSemiColon_();
     return new ReturnStatement(this.getTreeLocation_(start), expression);
   }
 
-  // Harmony: The yield Statement
-  //  yield  [expression];
   /**
+   * YieldExpression[In] :
+   *   yield
+   *   yield [no LineTerminator here] AssignmentExpression[?In, Yield]
+   *   yield [no LineTerminator here] * AssignmentExpression[?In, Yield]
+   *
+   * @param {boolean} allowIn
    * @return {ParseTree}
    * @private
    */
-  parseYieldExpression_() {
+  parseYieldExpression_(allowIn) {
     let start = this.getTreeStartLocation_();
     this.eat_(YIELD);
     let expression = null;
     let isYieldFor = false;
-    if (!this.peekImplicitSemiColon_(peekType())) {
-      isYieldFor = this.eatIf_(STAR);
-      expression = this.parseAssignmentExpression_(ALLOW_IN);
+
+    let token = peekTokenNoLineTerminator();
+    if (token !== null) {  // Not a new line.
+      switch (token.type) {
+        case CLOSE_CURLY:
+        case CLOSE_PAREN:
+        case CLOSE_SQUARE:
+        case COLON:
+        case COMMA:
+        case END_OF_FILE:
+        case SEMI_COLON:
+          // The above set of tokens is the complete set of tokens that can
+          // appear after an AssignmentExpression, and none of them can start an
+          // AssignmentExpression.
+          break;
+        default:
+          isYieldFor = this.eatIf_(STAR);
+          expression = this.parseAssignmentExpression_(allowIn);
+      }
     }
 
     return new YieldExpression(
@@ -1888,7 +1908,7 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     this.eat_(THROW);
     let value = null;
-    if (!this.peekImplicitSemiColon_(peekType())) {
+    if (!this.peekImplicitSemiColon_()) {
       value = this.parseExpression_(ALLOW_IN);
     }
     this.eatPossibleImplicitSemiColon_();
@@ -2724,7 +2744,7 @@ export class Parser {
    */
   parseAssignmentExpression_(allowIn) {
     if (this.allowYield_ && peek(YIELD))
-      return this.parseYieldExpression_();
+      return this.parseYieldExpression_(allowIn);
 
     let start = this.getTreeStartLocation_();
 
@@ -2918,7 +2938,7 @@ export class Parser {
 
       let operand;
       if (this.allowYield_ && peek(YIELD)) {
-        operand = this.parseYieldExpression_();
+        operand = this.parseYieldExpression_(ALLOW_IN);
       } else {
         operand = this.parseUnaryExpression_();
         operand = this.toPrimaryExpression_(operand);

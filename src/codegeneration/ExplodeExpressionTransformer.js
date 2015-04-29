@@ -79,7 +79,7 @@ import assignmentOperatorToBinaryOperator from
  * expressions such as `a || b` gets transformed into a conditional.
  *
  * The normalized comma form is used by the CPS transformer when there is a
- * yield expression. It can also byt the SuperTransformer.
+ * yield expression. It is also used by the SuperTransformer.
  */
 
 class CommaExpressionBuilder {
@@ -130,10 +130,10 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
   transformUnaryExpression(tree) {
     if (tree.operator.type === PLUS_PLUS)
-      return this.transformUnaryNumeric(tree, PLUS_EQUAL);
+      return this.transformUnaryNumeric_(tree, PLUS_EQUAL);
 
     if (tree.operator.type === MINUS_MINUS)
-      return this.transformUnaryNumeric(tree, MINUS_EQUAL);
+      return this.transformUnaryNumeric_(tree, MINUS_EQUAL);
 
     // typeof a
     // =>
@@ -149,7 +149,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformUnaryNumeric(tree, operator) {
+  transformUnaryNumeric_(tree, operator) {
     // This is slightly different than the usual transform methods. It
     // transforms the expression accordingly:
     //
@@ -167,9 +167,9 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
   transformPostfixExpression(tree) {
     if (tree.operand.type === MEMBER_EXPRESSION)
-      return this.transformPostfixMemberExpression(tree);
+      return this.transformPostfixMemberExpression_(tree);
     if (tree.operand.type === MEMBER_LOOKUP_EXPRESSION)
-      return this.transformPostfixMemberLookupExpression(tree);
+      return this.transformPostfixMemberLookupExpression_(tree);
 
     // What else do we need to support?
     assert(tree.operand.type === IDENTIFIER_EXPRESSION);
@@ -192,7 +192,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformPostfixMemberExpression(tree) {
+  transformPostfixMemberExpression_(tree) {
     // a.b++
     // =>
     // $0 = a, $1 = $0.b, $0.b = $1 + 1, $1
@@ -216,7 +216,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformPostfixMemberLookupExpression(tree) {
+  transformPostfixMemberLookupExpression_(tree) {
     // a[b]++
     // =>
     // $0 = a, $1 = b, $2 = $0[$1], $0[$1] = $2 + 1, $2
@@ -241,15 +241,19 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
   }
 
   transformYieldExpression(tree) {
+    if (tree.expression === null) {
+      return this.createCommaExpressionBuilder_().build(
+          new YieldExpression(tree.location, null, false));
+    }
     let expression = this.transformAny(tree.expression);
-    return this.createCommaExpressionBuilder().add(expression).build(
+    return this.createCommaExpressionBuilder_().add(expression).build(
         new YieldExpression(tree.location, getResult(expression),
                             tree.isYieldFor));
   }
 
   transformAwaitExpression(tree) {
     let expression = this.transformAny(tree.expression);
-    return this.createCommaExpressionBuilder().add(expression).build(
+    return this.createCommaExpressionBuilder_().add(expression).build(
         new AwaitExpression(tree.location, getResult(expression)));
   }
 
@@ -264,7 +268,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     // We do not need to wrap the result in parens since the assignment
     // expression will take care of the grouping.
-    return this.createCommaExpressionBuilder().add(expression).build(result);
+    return this.createCommaExpressionBuilder_().add(expression).build(result);
   }
 
   transformCommaExpression(tree) {
@@ -290,7 +294,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     // $0 = a, $1 = $0.b, $1
 
     let operand = this.transformAny(tree.operand);
-    return this.createCommaExpressionBuilder().add(operand).build(
+    return this.createCommaExpressionBuilder_().add(operand).build(
         new MemberExpression(
             tree.location, getResult(operand), tree.memberName));
   }
@@ -302,7 +306,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     let operand = this.transformAny(tree.operand);
     let memberExpression = this.transformAny(tree.memberExpression);
-    return this.createCommaExpressionBuilder().add(operand).
+    return this.createCommaExpressionBuilder_().add(operand).
         add(memberExpression).
         build(new MemberLookupExpression(
             tree.location, getResult(operand), getResult(memberExpression)));
@@ -310,7 +314,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
   transformBinaryExpression(tree) {
     if (tree.operator.isAssignmentOperator())
-      return this.transformAssignmentExpression(tree);
+      return this.transformAssignmentExpression_(tree);
 
     let left = this.transformAny(tree.left);
     let right = this.transformAny(tree.right);
@@ -319,10 +323,10 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       return tree;
 
     if (tree.operator.type === OR)
-      return this.transformOr(left, right);
+      return this.transformOr_(left, right);
 
     if (tree.operator.type === AND)
-      return this.transformAnd(left, right);
+      return this.transformAnd_(left, right);
 
     // a op b
     // =>
@@ -338,13 +342,13 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformAssignmentExpression(tree) {
+  transformAssignmentExpression_(tree) {
     let left = tree.left;
 
     if (left.type === MEMBER_EXPRESSION)
-      return this.transformAssignMemberExpression(tree);
+      return this.transformAssignMemberExpression_(tree);
     if (left.type === MEMBER_LOOKUP_EXPRESSION)
-        return this.transformAssignMemberLookupExpression(tree);
+        return this.transformAssignMemberLookupExpression_(tree);
 
     // What else do we need to support?
     assert(tree.left.type === IDENTIFIER_EXPRESSION);
@@ -384,7 +388,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformAssignMemberExpression(tree) {
+  transformAssignMemberExpression_(tree) {
     let left = tree.left;
 
     if (tree.operator.type === EQUAL) {
@@ -432,7 +436,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformAssignMemberLookupExpression(tree) {
+  transformAssignMemberLookupExpression_(tree) {
     let left = tree.left;
 
     if (tree.operator.type === EQUAL) {
@@ -490,7 +494,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     if (elements === tree.elements)
       return tree;
 
-    let builder = this.createCommaExpressionBuilder();
+    let builder = this.createCommaExpressionBuilder_();
     let results = [];
     for (let i = 0; i < elements.length; i++) {
       builder.add(elements[i]);
@@ -504,7 +508,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     if (propertyNameAndValues === tree.propertyNameAndValues)
       return tree;
 
-    let builder = this.createCommaExpressionBuilder();
+    let builder = this.createCommaExpressionBuilder_();
     let results = [];
     for (let i = 0; i < propertyNameAndValues.length; i++) {
       if (propertyNameAndValues[i].type === PROPERTY_NAME_ASSIGNMENT) {
@@ -527,7 +531,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     if (!operand && operand === tree.operand && elements === tree.elements)
       return tree;
 
-    let builder = this.createCommaExpressionBuilder();
+    let builder = this.createCommaExpressionBuilder_();
     if (operand)
       builder.add(operand);
 
@@ -549,9 +553,9 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
   transformCallExpression(tree) {
     if (tree.operand.type === MEMBER_EXPRESSION)
-      return this.transformCallMemberExpression(tree);
+      return this.transformCallMemberExpression_(tree);
     if (tree.operand.type === MEMBER_LOOKUP_EXPRESSION)
-      return this.transformCallMemberLookupExpression(tree);
+      return this.transformCallMemberLookupExpression_(tree);
     return this.transformCallAndNew_(tree, CallExpression);
   }
 
@@ -565,7 +569,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
 
     // Call expression have side effects so don't short circuit.
 
-    let builder = this.createCommaExpressionBuilder().add(operand);
+    let builder = this.createCommaExpressionBuilder_().add(operand);
     let argResults = [];
     args.args.forEach((arg) => {
       builder.add(arg);
@@ -576,7 +580,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
             new ArgumentList(args.location, argResults)));
   }
 
-  transformCallMemberExpression(tree) {
+  transformCallMemberExpression_(tree) {
     // a.b(c)
     // =>
     // $0 = a, $1 = $0.b, $2 = c, $3 = $1.call($0, $2), $3
@@ -611,7 +615,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformCallMemberLookupExpression(tree) {
+  transformCallMemberLookupExpression_(tree) {
     // a[b](c)
     // =>
     // $0 = a, $1 = b, $2 = $0[$1], $3 = c, $4 = $2.call($0, $3), $4
@@ -680,7 +684,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformOr(left, right) {
+  transformOr_(left, right) {
     // a || b
     // =>
     // ($0 = a) ? $0 : b
@@ -705,7 +709,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformAnd(left, right) {
+  transformAnd_(left, right) {
     // a && b
     // =>
     // ($0 = a) ? b : $0
@@ -746,7 +750,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  createCommaExpressionBuilder() {
+  createCommaExpressionBuilder_() {
     return new CommaExpressionBuilder(this.addTempVar());
   }
 }

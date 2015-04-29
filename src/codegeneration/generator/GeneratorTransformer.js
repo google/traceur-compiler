@@ -96,8 +96,6 @@ export class GeneratorTransformer extends CPSTransformer {
       ({expression, machine} = this.expressionToStateMachine(tree.expression));
     } else {
       expression = this.transformAny(tree.expression);
-      if (!expression)
-        expression = createUndefinedExpression();
     }
 
     if (tree.isYieldFor)
