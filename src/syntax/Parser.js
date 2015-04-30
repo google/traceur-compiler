@@ -59,13 +59,13 @@ import {
   setIndex as resetScanner,
 } from './Scanner.js';
 import {SourceRange} from '../util/SourceRange.js';
-import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
   Token,
   isAssignmentOperator
 } from './Token.js';
 import {getKeywordType} from './Keywords.js';
 import {validateConstructor} from '../semantics/ConstructorValidator.js';
+import validateParameters from '../staticsemantics/validateParameters.js';
 
 import {
   AMPERSAND,
@@ -1267,12 +1267,8 @@ export class Parser {
     this.eat_(OPEN_CURLY);
 
     let strictMode = this.strictMode_;
-
     let result = this.parseStatementList_(!strictMode);
-
-    if (!strictMode && this.strictMode_)
-      StrictParams.visit(params, this.errorReporter_);
-
+    validateParameters(params, this.strictMode_, this.errorReporter_);
     this.strictMode_ = strictMode;
 
     this.eat_(CLOSE_CURLY);
@@ -3377,6 +3373,7 @@ export class Parser {
     if (peek(OPEN_CURLY))
       return this.parseFunctionBody_(params);
 
+    validateParameters(params, this.strictMode_, this.errorReporter_);
     return this.parseAssignmentExpression_(ALLOW_IN);
   }
 
