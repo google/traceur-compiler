@@ -48,6 +48,7 @@ import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
 import {StrongArityTransformer} from './strong/StrongArityTransformer.js';
+import {StrongCoercionTransformer} from './strong/StrongCoercionTransformer.js';
 import {StrongModeTransformer} from './strong/StrongModeTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
@@ -80,6 +81,7 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.strongMode) {
       if (transformOptions.strongModeAsserts) {
         append(StrongArityTransformer);
+        append(StrongCoercionTransformer);
       }
 
       append(StrongModeTransformer);
