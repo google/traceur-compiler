@@ -61,7 +61,7 @@ export class Loader {
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
    * @return {Promise} fulfilled with undefined.
    */
-  define(normalizedName, source, {address, metadata, metadata} = {}) {
+  define(normalizedName, source, {address, metadata} = {}) {
     return this.internalLoader_.define(normalizedName, source, address,
                                        metadata);
   }
@@ -96,4 +96,3 @@ export class Loader {
 }
 
 export {LoaderCompiler};
-

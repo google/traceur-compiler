@@ -15,7 +15,7 @@
 'use strong';
 
 import {State} from './State.js';
-import {parseStatement} from '../PlaceholderParser.js';
+import {createReturnStatement} from '../ParseTreeFactory.js';
 
 /**
  * Represents a simple yield expression that has been added to a StateMachine.
@@ -58,8 +58,7 @@ export class YieldState extends State {
       //      $ctx.state = enclosingFinally.finallyState;
       //      $fallThrough = this.fallThroughState;
       ...State.generateAssignState(enclosingFinally, this.fallThroughState),
-
-      parseStatement `return ${this.expression}`,
+      createReturnStatement(this.expression)
     ];
   }
 }

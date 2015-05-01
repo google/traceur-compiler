@@ -104,6 +104,18 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('YieldExpression', 'yield (yield a.b)',
       '$0 = a.b, $1 = yield $0, $2 = yield $1, $2');
 
+  testExplode('YieldExpression', 'yield', '$0 = yield, $0');
+  testExplode('YieldExpression', '(yield, yield)', '$0 = yield, $1 = yield, $1');
+  testExplode('YieldExpression', '[yield, yield]',
+      '$0 = yield, $1 = yield, $2 = [$0, $1], $2');
+  testExplode('YieldExpression', 'fun(yield, yield)',
+      '$0 = yield, $1 = yield, $2 = fun($0, $1), $2');
+  testExplode('YieldExpression', '{x: yield}', '$0 = yield, $1 = {x: $0}, $1');
+  testExplode('YieldExpression', '{x: yield, y: yield}',
+      '$0 = yield, $1 = yield, $2 = {\n  x: $0,\n  y: $1\n}, $2');
+  testExplode('YieldExpression', 'true ? yield : yield',
+      'true ? ($0 = yield, $2 = $0) : ($1 = yield, $2 = $1), $2');
+
   testExplode('CommaExpression', '1, 2', '1, 2');
   testExplode('CommaExpression', 'a.b, c.d', '$0 = a.b, $1 = c.d, $1');
 
