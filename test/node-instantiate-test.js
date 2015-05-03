@@ -129,6 +129,7 @@ suite('instantiate', function() {
         ma.reassign(); // updates the a export variable to 10, which should push the change out
         assert.equal(mb.a, 10);
         assert.equal(mb.b, 'localvalue');
+        assert.equal(mb.default, undefined);
         done();
       });
     }).catch(done);

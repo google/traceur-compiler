@@ -369,7 +369,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
           Object.keys($__m).forEach(function(p) {
-            if (!$__exportNames[p])
+            if (p !== 'default' && !$__exportNames[p])
               $__export(p, $__m[p]);
           });
         `);
