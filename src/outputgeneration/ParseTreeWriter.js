@@ -1207,7 +1207,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {TemplateLiteralPortion} tree
    */
   visitTemplateLiteralPortion(tree) {
-    this.writeRaw_('' + tree.value);
+    this.write_(tree.value);
   }
 
   /**
@@ -1571,7 +1571,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (this.needsSpace_(value)) {
       this.writeRaw_(' ');
     }
-    this.writeRaw_('' + value);
+    this.writeRaw_(String(value));
   }
 
   writeCloseCurly_() {

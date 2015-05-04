@@ -134,7 +134,7 @@ const PREFIX = '$__placeholder__';
 function insertPlaceholderIdentifiers(sourceLiterals) {
   let source = sourceLiterals[0];
   for (let i = 1; i < sourceLiterals.length; i++) {
-    source += PREFIX + (i - 1) + sourceLiterals[i];
+    source += PREFIX + String(i - 1) + sourceLiterals[i];
   }
   return source;
 }
