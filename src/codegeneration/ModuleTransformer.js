@@ -72,7 +72,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   getTempVarNameForModuleName(moduleName) {
     return '$__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
-      return '_' + c.charCodeAt(0) + '_';
+      return '_' + String(c.charCodeAt(0)) + '_';
     }) + '__';
   }
 

@@ -184,12 +184,12 @@ export class ClassTransformer extends TempVarTransformer {
   }
 
   transformScript(tree) {
-    this.strictCount_ = +hasUseStrict(tree.scriptItemList);
+    this.strictCount_ = hasUseStrict(tree.scriptItemList) ? 1 : 0;
     return super.transformScript(tree);
   }
 
   transformFunctionBody(tree) {
-    let useStrict = +hasUseStrict(tree.statements);
+    let useStrict = hasUseStrict(tree.statements) ? 1 : 0;
     this.strictCount_ += useStrict;
     let result = super.transformFunctionBody(tree);
     this.strictCount_ -= useStrict;
