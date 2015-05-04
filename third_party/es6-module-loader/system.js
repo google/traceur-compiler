@@ -264,7 +264,7 @@
     });
       // --- <Specific Traceur Parsing Code> ---
 
-    // System.traceurOptions = {modules: 'instantiate'};
+    // System.traceurOptions = {modules: 'system'};
 
     // parse function is used to parse a load record
     // Returns an array of ModuleSpecifiers
@@ -286,7 +286,7 @@
           load.kind = 'declarative';
 
           var options = load.metadata.traceurOptions || {};
-          options.modules = 'instantiate';
+          options.modules = 'system';
 
           var compiler = new traceur.Compiler(options);
           var tree = compiler.parse(load.source, load.address);

@@ -40,7 +40,7 @@ import {NumericLiteralTransformer} from './NumericLiteralTransformer.js';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer.js';
-import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
+import {SystemModuleTransformer} from './SystemModuleTransformer.js';
 import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
@@ -120,7 +120,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // PropertyNameShorthandTransformer needs to come before
     // module transformers. See #1120 or
-    // test/node-instantiate-test.js test "Shorthand syntax with import"
+    // test/node-system-test.js test "Shorthand syntax with import"
     // for detailed info.
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
@@ -139,8 +139,8 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'inline':
           append(InlineModuleTransformer);
           break;
-        case 'instantiate':
-          append(InstantiateModuleTransformer);
+        case 'system':
+          append(SystemModuleTransformer);
           break;
         case 'register':
           append(ModuleTransformer);

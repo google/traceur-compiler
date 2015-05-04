@@ -186,12 +186,12 @@ class InsertBindingAssignmentTransformer extends ScopeTransformer {
 }
 
 /**
- * Transform a module to a 'instantiate' format:
+ * Transform a module to a 'System.register' format:
  * System.register(localName, [deps], function($__export) {});
  * where [deps] are unnormalized (module-specifier-like) names
  * and $__export is the dynamic export binding setter function.
  */
-export class InstantiateModuleTransformer extends ModuleTransformer {
+export class SystemModuleTransformer extends ModuleTransformer {
 
   constructor(identifierGenerator, reporter, options = undefined) {
     super(identifierGenerator, reporter, options);

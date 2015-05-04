@@ -166,10 +166,10 @@ suite('node public api', function() {
     assert.equal(gotName, 'test-module');
   });
 
-  test('instantiate anonymous', function() {
+  test('system anonymous', function() {
     var contents = "export var p = 5;";
     var compiled = traceurAPI.compile(contents, {
-      module: 'instantiate',
+      module: 'system',
       moduleName: false
     }, 'test-module');
 
@@ -187,10 +187,10 @@ suite('node public api', function() {
     assert.equal(gotName, undefined);
   });
 
-  test('instantiate named', function() {
+  test('system named', function() {
     var contents = "export var p = 5;";
     var compiled = traceurAPI.compile(contents, {
-      modules: 'instantiate',
+      modules: 'system',
       moduleName: true
     }, 'test-module');
 

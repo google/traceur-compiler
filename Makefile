@@ -63,7 +63,7 @@ TESTS = \
 	test/node-commonjs-test.js \
 	test/node-amd-test.js \
 	test/node-closure-test.js \
-	test/node-instantiate-test.js \
+	test/node-system-test.js \
 	test/node-feature-test.js \
 	test/node-api-test.js \
 	# End Node tests.

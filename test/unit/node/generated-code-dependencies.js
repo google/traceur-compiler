@@ -584,7 +584,7 @@ suite('context test', function() {
     var inputFilename = './test/unit/node/resources/class.js';
     var executable = 'node ' + resolve('src/node/command.js');
 
-    exec(executable + ' --out ' + tempFileName + ' --modules=instantiate ' + inputFilename,
+    exec(executable + ' --out ' + tempFileName + ' --modules=system ' + inputFilename,
       function (error, stdout, stderr) {
         if (error) return done(error);
         var fileContents = fs.readFileSync(tempFileName).toString();
