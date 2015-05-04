@@ -210,11 +210,11 @@ suite('Loader.js', function() {
     }).catch(done);
   });
 
-  // TODO: Update Traceur loader implementation to support new instantiate output
+  // TODO: Update Traceur loader implementation to support new system output
   /* test('LoaderDefine.Instantiate', function(done) {
     var loader = getTestLoader();
-    $traceurRuntime.options.modules = 'instantiate';
-    var name = './test_instantiate.js';
+    $traceurRuntime.options.modules = 'system';
+    var name = './test_system.js';
     var src = 'export {name as a} from \'./test_a.js\';\n' +
     'export var dd = 8;\n';
     loader.define(name, src).then(function() {

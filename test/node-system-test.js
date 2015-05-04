@@ -3,7 +3,7 @@ var traceurSystem = global.System;
 var System = require('../third_party/es6-module-loader/index').System;
 global.System = traceurSystem;
 
-System.baseURL = __dirname + '/instantiate/';
+System.baseURL = __dirname + '/system/';
 
 
 // Parse Traceur options from prolog (comment at the top of a source file).
@@ -14,7 +14,7 @@ System.translate = function(load) {
 };
 
 
-suite('instantiate', function() {
+suite('system', function() {
   test('Inheritance', function(done) {
     System.import('./inheritance.js').then(function(m) {
       assert.instanceOf(m.test, m.Bar);

@@ -92,7 +92,7 @@ let defaultValues = Object.create(null);
 let featureOptions = Object.create(null);
 let experimentalOptions = Object.create(null);
 let moduleOptions =
-    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
+    ['amd', 'commonjs', 'closure', 'system', 'inline', 'register'];
 
 const EXPERIMENTAL = 0;
 const ON_BY_DEFAULT = 1;

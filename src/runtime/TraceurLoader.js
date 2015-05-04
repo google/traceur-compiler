@@ -270,7 +270,7 @@ export class TraceurLoader extends Loader {
   }
 
   /**
-   * Used for 'instantiate' module format.
+   * Used for 'system' module format.
    * @param {string} normalized name of module
    * @param {Array<string>} unnormalized dependency names.
    * @param {Function<Array<string>>} factory takes array of normalized names.

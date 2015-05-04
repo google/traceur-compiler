@@ -263,7 +263,7 @@
         // Traceur System.register
         this.registerModule(name, deps, func);
       } else {
-        // System.register instantiate form
+        // System format System.register
         this.bundleStore[name] = {
           deps: deps,
           execute: function() {
