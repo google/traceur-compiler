@@ -142,7 +142,7 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        case 'register':
+        case 'bootstrap':
           append(ModuleTransformer);
           break;
         default:
