@@ -311,6 +311,11 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyMethodAssignment(tree) {
+    if (!this.needsAdvancedTransform &&
+        !this.transformOptions_.propertyMethods) {
+      return super.transformPropertyMethodAssignment(tree);
+    }
+
     let func = new FunctionExpression(tree.location, tree.debugName, tree.functionKind,
         this.transformAny(tree.parameterList), tree.typeAnnotation, [],
         this.transformAny(tree.body));
@@ -332,8 +337,10 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyNameShorthand(tree) {
-    if (!this.needsAdvancedTransform)
+    if (!this.needsAdvancedTransform &&
+        !this.transformOptions_.propertyNameShorthand) {
       return super.transformPropertyNameShorthand(tree);
+    }
 
     let expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,

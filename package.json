@@ -16,7 +16,7 @@
   "author": "Traceur Authors",
   "license": "Apache License 2.0",
   "engines": {
-    "iojs": ">=1.5"
+    "iojs": ">=2.0"
   },
   "main": "./src/node/api.js",
   "bin": {

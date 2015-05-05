@@ -46,10 +46,6 @@ class StringParser {
     this.index = 0;  // value is wrapped in " or '
   }
 
-  [Symbol.iterator]() {
-    return this;
-  }
-
   next() {
     if (++this.index >= this.value.length - 1)
       return {value: undefined, done: true};
@@ -122,6 +118,11 @@ class StringParser {
           throw new Error('Octal literals are not supported');
         return ch;
     }
+  }
+
+  [Symbol.iterator]() {
+    // Keep computed properties last.
+    return this;
   }
 }
 
