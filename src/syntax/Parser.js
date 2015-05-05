@@ -3475,19 +3475,22 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let elements = [];
     this.eat_(OPEN_SQUARE);
-    let type;
-    while ((type = peekType()) !== CLOSE_SQUARE && type !== END_OF_FILE) {
-      this.parseElisionOpt_(elements);
-      if (this.peekRest_(peekType())) {
+    while (true) {
+      let type = peekType();
+      if (type === COMMA) {
+        elements.push(null);
+      } else if (this.peekSpread_(type)) {
         elements.push(this.parsePatternRestElement_(useBinding));
+        break;
+      } else if (type === CLOSE_SQUARE || type === END_OF_FILE) {
         break;
       } else {
         elements.push(this.parsePatternElement_(useBinding));
-        // Trailing commas are not allowed in patterns.
-        if (peek(COMMA) &&
-            !peekLookahead(CLOSE_SQUARE)) {
-          nextToken();
-        }
+      }
+
+      type = peekType();
+      if (type !== CLOSE_SQUARE) {
+        this.eat_(COMMA);
       }
     }
     this.eat_(CLOSE_SQUARE);

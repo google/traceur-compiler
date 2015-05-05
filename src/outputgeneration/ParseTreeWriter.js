@@ -168,6 +168,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitArrayLiteralExpression(tree) {
     this.write_(OPEN_SQUARE);
     this.writeList_(tree.elements, COMMA, false);
+    if (tree.elements[tree.elements.length - 1] === null) {
+      this.write_(COMMA);
+      this.writeSpace_();
+    }
     this.write_(CLOSE_SQUARE);
   }
 
@@ -177,6 +181,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitArrayPattern(tree) {
     this.write_(OPEN_SQUARE);
     this.writeList_(tree.elements, COMMA, false);
+    if (tree.elements[tree.elements.length - 1] === null) {
+      this.write_(COMMA);
+      this.writeSpace_();
+    }
     this.write_(CLOSE_SQUARE);
   }
 
