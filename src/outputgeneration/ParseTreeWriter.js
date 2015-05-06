@@ -1122,11 +1122,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeSpace_();
     }
 
-    if (tree.isGenerator())
+    if (tree.isAsyncFunction() || tree.isAsyncGenerator())
+      this.write_(ASYNC);
+
+    if (tree.isGenerator() || tree.isAsyncGenerator())
       this.write_(STAR);
 
-    if (tree.isAsyncFunction())
-      this.write_(ASYNC);
+    if (tree.isAsyncGenerator())
+      this.writeSpace_();
 
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
