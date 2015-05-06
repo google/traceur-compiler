@@ -369,7 +369,7 @@ class FunctionState {
   }
 
   isAsyncGenerator() {
-    return this.kind & (FUNCTION_STATE_ASYNC | FUNCTION_STATE_GENERATOR);
+    return this.isGenerator() && this.isAsyncFunction();
   }
 }
 
@@ -448,7 +448,7 @@ export class Parser {
   }
 
   get allowForOn_() {
-    return this.functionState_.isAsyncGenerator();
+    return this.functionState_.isAsyncFunction();
   }
 
   // 14 Script
@@ -1127,11 +1127,19 @@ export class Parser {
     return this.parseAsyncFunction_(asyncToken, FunctionExpression);
   }
 
+  /**
+   * @return {boolean}
+   * @private
+   */
+  peekAsyncStar_() {
+    return this.options_.asyncGenerators && peek(STAR);
+  }
+
   parseAsyncFunction_(asyncToken, ctor) {
     let start = asyncToken.location.start;
     this.eat_(FUNCTION);
     let kind = FUNCTION_STATE_FUNCTION | FUNCTION_STATE_ASYNC;
-    if (this.options_.asyncGenerators && peek(STAR)) {
+    if (this.peekAsyncStar_()) {
       kind |= FUNCTION_STATE_GENERATOR;
       this.eat_(STAR);
       asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
@@ -2381,11 +2389,16 @@ export class Parser {
       }
 
       if (this.options_.asyncFunctions && nameLiteral.value === ASYNC &&
-          this.peekPropertyName_(type)) {
+          (this.peekPropertyName_(type) || this.peekAsyncStar_())) {
         let async = nameLiteral;
+        let kind = FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC;
+        if (this.peekAsyncStar_()) {
+          kind |= FUNCTION_STATE_GENERATOR;
+          this.eat_(STAR);
+          async = new IdentifierToken(async.location, ASYNC_STAR);
+        }
         let name = this.parsePropertyName_();
-        let fs = this.pushFunctionState_(
-            FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+        let fs = this.pushFunctionState_(kind);
         let m = this.parseMethod_(start, isStatic, async, name, []);
         this.popFunctionState_(fs);
         return m;
@@ -2521,11 +2534,16 @@ export class Parser {
     if (this.options_.asyncFunctions &&
         name.type === LITERAL_PROPERTY_NAME &&
         name.literalToken.value === ASYNC &&
-        this.peekPropertyName_(type)) {
+        (this.peekPropertyName_(type) || this.peekAsyncStar_())) {
       let async = name.literalToken;
+      let kind = FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC;
+      if (this.peekAsyncStar_()) {
+        kind |= FUNCTION_STATE_GENERATOR;
+        this.eat_(STAR);
+        async = new IdentifierToken(async.location, ASYNC_STAR);
+      }
       name = this.parsePropertyName_();
-      let fs = this.pushFunctionState_(
-          FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+      let fs = this.pushFunctionState_(kind);
       let m = this.parseMethod_(start, isStatic, async, name, annotations);
       this.popFunctionState_(fs);
       return m;
