@@ -29,7 +29,7 @@ suite('node public api', function() {
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // single file compile defaults to moduleName false
       moduleName: true,
@@ -54,7 +54,7 @@ suite('node public api', function() {
   test('sourceRoot with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // ensure the source map works
       sourceMaps: true
@@ -80,7 +80,7 @@ suite('node public api', function() {
   test('sourceRoot with full windows path and backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // ensure the source map works
       sourceMaps: true
@@ -105,7 +105,7 @@ suite('node public api', function() {
     var compiler = new traceurAPI.NodeCompiler({
 
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // single file compile defaults to moduleName false
       moduleName: true,

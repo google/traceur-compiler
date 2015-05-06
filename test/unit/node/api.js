@@ -36,7 +36,7 @@ suite('api.js', function() {
   });
 
   test('api compile filename', function() {
-    var options = {modules: 'register', moduleName: true};
+    var options = {modules: 'bootstrap', moduleName: true};
     var result = api.compile('var a = 1;', options, 'a.js');
     assert.equal(
         result.indexOf('System.registerModule("a.js", [], function() {'),
@@ -46,7 +46,7 @@ suite('api.js', function() {
 
   test('api compile require', function() {
     var options = {
-      modules: 'register',
+      modules: 'bootstrap',
       moduleName: true,
       require: true
     };
