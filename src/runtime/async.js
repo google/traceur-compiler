@@ -185,6 +185,23 @@ function createDecoratedGenerator(generator, onDone) {
   return new DecoratedGenerator(generator, onDone);
 }
 
+Array.prototype[
+    $traceurRuntime.toProperty(Symbol.observer)] = function(observer) {
+  let done = false;
+  let decoratedObserver = createDecoratedGenerator(observer, () => done = true);
+  for (var value of this) {
+    decoratedObserver.next(value);
+    if (done) {
+      return;
+    }
+  }
+  decoratedObserver.return();
+  return decoratedObserver;
+};
+
+$defineProperty(Array.prototype, $traceurRuntime.toProperty(Symbol.observer),
+    {enumerable: false});
+
 $traceurRuntime.initAsyncGeneratorFunction = initAsyncGeneratorFunction;
 $traceurRuntime.createAsyncGeneratorInstance = createAsyncGeneratorInstance;
 $traceurRuntime.observeForEach = observeForEach;
