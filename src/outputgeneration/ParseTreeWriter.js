@@ -143,7 +143,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     if (tree.args !== null) {
       this.write_(OPEN_PAREN);
-      this.writeList_(tree.args, COMMA, false);
+      this.writeList_(tree.args.args, COMMA, false);
       this.write_(CLOSE_PAREN);
     }
   }
