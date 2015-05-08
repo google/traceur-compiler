@@ -19,10 +19,18 @@ const $pow = Math.pow;
 
 const message = 'In strong mode, implicit conversions are deprecated';
 
-function checkTypes(x, y) {
+function checkBothNumbers(x, y) {
   if ((typeof x !== 'number') || (typeof y !== 'number')) {
     throw new $TypeError(message);
   }
+}
+
+function checkBothStringsOrBothNumbers(x, y) {
+  if (typeof x === 'string' && typeof y === 'string' ||
+      typeof x === 'number' && typeof y === 'number') {
+    return;
+  }
+  throw new $TypeError(message);
 }
 
 function assertNumber(x) {
@@ -33,66 +41,83 @@ function assertNumber(x) {
 }
 
 function strongBitAnd(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x & y;
 }
 
 function strongBitOr(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x | y;
 }
 
 function strongBitXor(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x ^ y;
 }
 
 function strongLeftShift(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x << y;
 }
 
 function strongMinus(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x - y;
 }
 
 function strongMod(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x % y;
 }
 
-function strongPlus(x, y) {
-  if (typeof x === 'string' && typeof y === 'string' ||
-      typeof x === 'number' && typeof y === 'number') {
-    return x + y;
-  }
-  throw new $TypeError(message);
-}
-
 function strongRightShift(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x >> y;
 }
 
 function strongDiv(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x / y;
 }
 
 function strongMul(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x * y;
 }
 
 function strongPow(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return $pow(x, y);
 }
 
 function strongUnsignedRightShift(x, y) {
-  checkTypes(x, y);
+  checkBothNumbers(x, y);
   return x >>> y;
+}
+
+function strongPlus(x, y) {
+  checkBothStringsOrBothNumbers(x, y);
+  return x + y;
+}
+
+function strongLessThan(x, y) {
+  checkBothStringsOrBothNumbers(x, y);
+  return x < y;
+}
+
+function strongLessThanEqual(x, y) {
+  checkBothStringsOrBothNumbers(x, y);
+  return x <= y;
+}
+
+function strongGreaterThan(x, y) {
+  checkBothStringsOrBothNumbers(x, y);
+  return x > y;
+}
+
+function strongGreaterThanEqual(x, y) {
+  checkBothStringsOrBothNumbers(x, y);
+  return x >= y;
 }
 
 $traceurRuntime.strongBitAnd = strongBitAnd;
@@ -101,11 +126,16 @@ $traceurRuntime.strongBitXor = strongBitXor;
 $traceurRuntime.strongLeftShift = strongLeftShift;
 $traceurRuntime.strongMinus = strongMinus;
 $traceurRuntime.strongMod = strongMod;
-$traceurRuntime.strongPlus = strongPlus;
 $traceurRuntime.strongRightShift = strongRightShift;
 $traceurRuntime.strongDiv = strongDiv;
 $traceurRuntime.strongMul = strongMul;
 $traceurRuntime.strongPow = strongPow;
 $traceurRuntime.strongUnsignedRightShift = strongUnsignedRightShift;
+
+$traceurRuntime.strongPlus = strongPlus;
+$traceurRuntime.strongLessThan = strongLessThan;
+$traceurRuntime.strongLessThanEqual = strongLessThanEqual;
+$traceurRuntime.strongGreaterThan = strongGreaterThan;
+$traceurRuntime.strongGreaterThanEqual = strongGreaterThanEqual;
 
 $traceurRuntime.assertNumber = assertNumber;

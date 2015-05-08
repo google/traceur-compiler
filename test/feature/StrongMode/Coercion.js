@@ -105,12 +105,32 @@ let postfixFunctions = [
   (x) => x--,
 ];
 
-for (let x of nonNumbers) {
   for (let f of postfixFunctions) {
+for (let x of nonNumbers) {
     assert.throws(() => f(x));
   }
 }
 
 for (let f of postfixFunctions) {
   f(1);
+}
+
+let stringOrNumberFunctions = [
+  (x, y) => x + y,
+  (x, y) => x < y,
+  (x, y) => x > y,
+  (x, y) => x <= y,
+  (x, y) => x >= y,
+];
+
+for (let x of nonNumbers) {
+  for (let f of stringOrNumberFunctions) {
+    assert.throws(() => f(x, 1));
+    assert.throws(() => f(1, x));
+  }
+}
+
+for (let f of stringOrNumberFunctions) {
+  f(1, 2);
+  f('abc', 'def');
 }

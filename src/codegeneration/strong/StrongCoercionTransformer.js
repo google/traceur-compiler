@@ -29,11 +29,15 @@ import {
   BAR,
   CARET_EQUAL,
   CARET,
+  CLOSE_ANGLE,
+  GREATER_EQUAL,
   LEFT_SHIFT_EQUAL,
   LEFT_SHIFT,
+  LESS_EQUAL,
   MINUS_EQUAL,
   MINUS_MINUS,
   MINUS,
+  OPEN_ANGLE,
   PERCENT_EQUAL,
   PERCENT,
   PLUS_PLUS,
@@ -56,14 +60,18 @@ function getRuntimeName(type) {
     case AMPERSAND: return 'strongBitAnd';
     case BAR: return 'strongBitOr';
     case CARET: return 'strongBitXor';
+    case CLOSE_ANGLE: return 'strongGreaterThan';
+    case GREATER_EQUAL: return 'strongGreaterThanEqual';
     case LEFT_SHIFT: return 'strongLeftShift';
+    case LESS_EQUAL: return 'strongLessThanEqual';
     case MINUS: return 'strongMinus';
+    case OPEN_ANGLE: return 'strongLessThan';
     case PERCENT: return 'strongMod';
     case PLUS: return 'strongPlus';
     case RIGHT_SHIFT: return 'strongRightShift';
     case SLASH: return 'strongDiv';
-    case STAR: return 'strongMul';
     case STAR_STAR: return 'strongPow';
+    case STAR: return 'strongMul';
     case UNSIGNED_RIGHT_SHIFT: return 'strongUnsignedRightShift';
     default: return '';
   }
