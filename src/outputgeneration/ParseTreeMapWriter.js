@@ -31,6 +31,10 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     this.outputLineCount_ = 1;
     this.isFirstMapping_ = true;
     this.sourcesInMap_ = new StringSet();
+    this.relativeSourceName_ = '';
+    this.generated_ = null;
+    this.original_ = null;
+    this.previousMapping_ = null;
   }
 
   //
@@ -48,16 +52,16 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   // each line to start at the first column so no record spans lines.
 
   visitAny(tree) {
-    if (!tree) {
+    if (tree === null) {
       return;
     }
 
-    if (tree.location)
+    if (tree.location !== null)
       this.enterBranch(tree.location);
 
     super.visitAny(tree);
 
-    if (tree.location)
+    if (tree.location !== null)
       this.exitBranch(tree.location);
   }
 
@@ -81,7 +85,8 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   generate() {
-    let column = this.currentLine_.length ? this.currentLine_.length - 1 : 0;
+    let length = this.currentLine_.length
+    let column = length ? length - 1 : 0;
     this.generated_ = {
       line: this.outputLineCount_,
       column: column
@@ -90,39 +95,34 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   }
 
   enterBranch(location) {
-    this.originate(location.start);
+    let {line, column, source} = location.start;
+    this.originate(line, column, source);
   }
 
   exitBranch(location) {
-    let position = location.end;
-    let endOfPreviousToken = {
-      line: position.line,
-      column: position.column ? position.column - 1 : 0,
-      source : position.source,
-    }
-    this.originate(endOfPreviousToken);
+    let {line, column, source} = location.end;
+    this.originate(line, column ? column - 1 : 0, source);
   }
 
   /**
   * Set the original coordinates for the generated position.
-  * @param {Object} position Traceur SourcePosition, line and col zero based.
+  * @param {number} line
+  * @param {number} column
+  * @param {SourceFile} source
   */
-  originate(position) {
-    let line = position.line + 1;  // source map lib uses one-based lines.
+  originate(line, column, source) {
+    line++;  // source map lib uses one-based lines.
     // Try to get a mapping for every input line.
     if (this.original_ && this.original_.line !== line)
       this.flushMappings();
     // The first mapping on each output line must cover beginning columns.
-    this.original_ = {
-      line: line,
-      column: position.column || 0  // source map uses zero based columns
-    };
-    if (position.source.name && !this.sourcesInMap_.has(position.source.name)) {
-      this.sourcesInMap_.add(position.source.name);
-      this.relativeSourceName_ = relativePath(position.source.name,
-              this.basepath_);
+    this.original_ = {line, column};
+    let {name} = source;
+    if (name && !this.sourcesInMap_.has(name)) {
+      this.sourcesInMap_.add(name);
+      this.relativeSourceName_ = relativePath(name, this.basepath_);
       this.sourceMapGenerator_.setSourceContent(this.relativeSourceName_,
-          position.source.contents);
+          source.contents);
     }
     this.flushMappings();
   }

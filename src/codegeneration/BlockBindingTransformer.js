@@ -621,15 +621,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       let iifeInfo = FnExtractAbruptCompletions.createIIFE(
           this.idGenerator_, tree.body, iifeParameterList, iifeArgumentList,
           () => {
-            return loopLabel = loopLabel ||
-                this.idGenerator_.generateUniqueIdentifier()
+            return loopLabel = loopLabel || createIdentifierToken(
+                this.idGenerator_.generateUniqueIdentifier());
           }, this.scope_.inGenerator);
 
       tree = loopFactory(initializer, renames, iifeInfo.loopBody);
 
       if (loopLabel) {
-        tree = new LabelledStatement(tree.location,
-            createIdentifierToken(loopLabel), tree);
+        tree = new LabelledStatement(tree.location, loopLabel, tree);
       }
 
       tree = new AnonBlock(tree.location, [iifeInfo.variableStatements, tree]);

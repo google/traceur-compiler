@@ -14,6 +14,7 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {LiteralExpression} from '../syntax/trees/ParseTrees.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
 import {STRING} from '../syntax/TokenType.js';
 
 let re = /(\\*)\\u{([0-9a-fA-F]+)}/g;
@@ -51,8 +52,11 @@ function transformToken(token) {
 export class UnicodeEscapeSequenceTransformer extends ParseTreeTransformer {
   transformLiteralExpression(tree) {
     let token = tree.literalToken;
-    if (needsTransform(token))
-      return new LiteralExpression(tree.location, transformToken(token));
+    if (needsTransform(token)) {
+      let value = transformToken(token);
+      return new LiteralExpression(tree.location,
+          new LiteralToken(STRING, value, token.location));
+    }
     return tree;
   }
 }

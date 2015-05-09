@@ -17,10 +17,12 @@ import {
 } from '../syntax/PredefinedName.js';
 import {
   AnonBlock,
-  ClassExpression,
   ClassDeclaration,
+  ClassExpression,
   FormalParameterList,
+  IdentifierExpression,
   PropertyMethodAssignment,
+  ReturnStatement,
 } from '../syntax/trees/ParseTrees.js';
 import {
   GET_ACCESSOR,
@@ -30,7 +32,6 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
-  createBindingIdentifier,
   createFunctionBody,
   createIdentifierToken,
   createImmediatelyInvokedFunctionExpression,
@@ -138,7 +139,9 @@ export class ES6ClassTransformer extends TempVarTransformer {
       return classDecl;
     }
 
-    let statements = createStaticInitializerStatements(tree.name, initStaticVars);
+    let statements =
+        createStaticInitializerStatements(tree.name.identifierToken,
+                                          initStaticVars);
     statements = prependStatements(statements, classDecl);
 
     return new AnonBlock(null, statements);
@@ -166,11 +169,12 @@ export class ES6ClassTransformer extends TempVarTransformer {
 
     this.pushTempScope();
     let id = this.getTempIdentifier();
-    let className = createBindingIdentifier(id);
+    let idToken = createIdentifierToken(id);
+    let idExpression = new IdentifierExpression(idToken.location, idToken);
     let statements = [
       parseStatement `let ${id} = ${classExpression}`,
-      ...createStaticInitializerStatements(className, initStaticVars),
-      parseStatement `return ${className}`
+      ...createStaticInitializerStatements(idToken, initStaticVars),
+      new ReturnStatement(null, idExpression)
     ];
     let body = createFunctionBody(statements);
     this.popTempScope();
@@ -185,7 +189,7 @@ export class ES6ClassTransformer extends TempVarTransformer {
       let body = createFunctionBody([parseStatement `super(...args)`]);
       let name = createLiteralPropertyName(CONSTRUCTOR);
       return new PropertyMethodAssignment(tree.location, false, null, name,
-          paramList, null, [], body);
+          paramList, null, [], body, null);
     }
 
     return parsePropertyDefinition `constructor() {}`;
@@ -193,7 +197,8 @@ export class ES6ClassTransformer extends TempVarTransformer {
 }
 
 // TODO(vicb): Does not handle computed properties
-function createStaticInitializerStatements(className, initStaticMemberVars) {
+function createStaticInitializerStatements(idToken, initStaticMemberVars) {
+  let className = new IdentifierExpression(idToken.location, idToken);
   return initStaticMemberVars.map((mv) => {
     let propName = mv.name.literalToken.value;
     return parseStatement
