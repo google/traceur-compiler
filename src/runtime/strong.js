@@ -26,8 +26,8 @@ function checkBothNumbers(x, y) {
 }
 
 function checkBothStringsOrBothNumbers(x, y) {
-  if (typeof x === 'string' && typeof y === 'string' ||
-      typeof x === 'number' && typeof y === 'number') {
+  if (typeof x === 'number' && typeof y === 'number' ||
+      typeof x === 'string' && typeof y === 'string') {
     return;
   }
   throw new $TypeError(message);

@@ -40,6 +40,7 @@ import {
   OPEN_ANGLE,
   PERCENT_EQUAL,
   PERCENT,
+  PLUS_EQUAL,
   PLUS_PLUS,
   PLUS,
   RIGHT_SHIFT_EQUAL,
@@ -88,6 +89,7 @@ function needsExpansion(operator) {
     case LEFT_SHIFT_EQUAL:
     case MINUS_EQUAL:
     case PERCENT_EQUAL:
+    case PLUS_EQUAL:
     case RIGHT_SHIFT_EQUAL:
     case SLASH_EQUAL:
     case STAR_EQUAL:

@@ -2,12 +2,11 @@
 
 'use strong'
 
-let nonNumbers = [
+let nonNumbersOrStrings = [
   true,
   false,
   null,
   undefined,
-  'abc',
   Symbol(),
   {},
   new Number(555),
@@ -15,6 +14,9 @@ let nonNumbers = [
   {valueOf() { return 42}},
   {toString() { return 'def'}},
 ];
+
+let nonNumbers = nonNumbersOrStrings.concat('abc');
+let nonStrings = nonNumbersOrStrings.concat(42);
 
 let binaryFunctions = [
   (x, y) => x & y,
@@ -121,12 +123,20 @@ let stringOrNumberFunctions = [
   (x, y) => x > y,
   (x, y) => x <= y,
   (x, y) => x >= y,
+  (x, y) => x += y,
 ];
 
 for (let x of nonNumbers) {
   for (let f of stringOrNumberFunctions) {
     assert.throws(() => f(x, 1));
     assert.throws(() => f(1, x));
+  }
+}
+
+for (let x of nonStrings) {
+  for (let f of stringOrNumberFunctions) {
+    assert.throws(() => f(x, 'a'));
+    assert.throws(() => f('a', x));
   }
 }
 
