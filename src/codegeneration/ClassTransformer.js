@@ -45,6 +45,7 @@ import {
   STRING
 } from '../syntax/TokenType.js';
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
+import {ParenTrait} from './ParenTrait.js';
 import {
   createEmptyParameterList,
   createExpressionStatement,
@@ -52,7 +53,6 @@ import {
   createIdentifierExpression as id,
   createMemberExpression,
   createObjectLiteralExpression,
-  createParenExpression,
   createPropertyNameAssignment,
   createThisExpression,
   createVariableStatement
@@ -68,6 +68,7 @@ import {
   transformConstructor,
   getInstanceInitExpression,
 } from './MemberVariableConstructorTransformer.js';
+
 
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on
@@ -149,7 +150,7 @@ function functionExpressionToDeclaration(tree, name) {
       tree.parameterList, tree.typeAnnotation, tree.annotations, tree.body);
 }
 
-export class ClassTransformer extends TempVarTransformer {
+export class ClassTransformer extends ParenTrait(TempVarTransformer) {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
@@ -343,7 +344,7 @@ export class ClassTransformer extends TempVarTransformer {
 
     this.popTempScope();
 
-    return createParenExpression(this.makeStrict_(expression));
+    return this.makeStrict_(expression);
   }
 
   transformPropertyMethodAssignment_(tree, homeObject, internalName,

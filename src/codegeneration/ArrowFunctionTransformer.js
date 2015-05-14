@@ -16,6 +16,7 @@ import {ARGUMENTS, CONSTRUCTOR, THIS} from '../syntax/PredefinedName.js';
 import {AlphaRenamer} from './AlphaRenamer.js';
 import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
+import {ParenTrait} from './ParenTrait.js';
 import alphaRenameThisAndArguments from './alphaRenameThisAndArguments.js';
 import {FUNCTION_BODY, LITERAL_PROPERTY_NAME} from '../syntax/trees/ParseTreeType.js';
 import {FindThisOrArguments} from './FindThisOrArguments.js';
@@ -24,7 +25,6 @@ import {
   createCommaExpression,
   createFunctionBody,
   createIdentifierExpression,
-  createParenExpression,
   createReturnStatement,
   createThisExpression,
 } from './ParseTreeFactory.js';
@@ -45,7 +45,7 @@ function convertConciseBody(tree) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
  */
-export class ArrowFunctionTransformer extends TempVarTransformer {
+export class ArrowFunctionTransformer extends ParenTrait(TempVarTransformer) {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.inDerivedClass_ = false;
@@ -101,11 +101,11 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     }
 
     if (expressions.length === 0) {
-      return createParenExpression(functionExpression);
+      return functionExpression;
     }
 
     expressions.push(functionExpression);
-    return createParenExpression(createCommaExpression(expressions));
+    return createCommaExpression(expressions);
   }
 
   // This transforms the arrow function into:
@@ -128,7 +128,7 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     let functionExpression = new FunctionExpression(tree.location, null,
         tree.functionKind, parameterList, null, [], body);
 
-    return createParenExpression(functionExpression);
+    return functionExpression;
   }
 
   transformClassExpression(tree) {

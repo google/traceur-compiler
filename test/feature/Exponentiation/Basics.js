@@ -22,4 +22,21 @@
 
   assert.equal(512, 2 ** (3 ** 2));
   assert.equal(512, 2 ** 3 ** 2);
+
+  var y = 4;
+  var z = y **= 2;
+  assert.equal(16, z);
+
+  function f(x) {
+    assert.equal(1, arguments.length);
+    return x;
+  }
+  var a = 2;
+  var b = [a **= 2];
+  assert.equal(4, a);
+  assert.equal(1, b.length);
+  assert.equal(4, b[0]);
+
+  assert.equal(64, f(a **= 3));
+  assert.equal(64, a);
 })();
