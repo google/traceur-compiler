@@ -232,4 +232,14 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('AwaitExpression', 'await (await a.b)',
       '$0 = a.b, $1 = await $0, $2 = await $1, $2');
 
+  testExplode('FunctionExpression', 'a.b = function() { c.d }',
+      '$0 = function() {\n  c.d;\n}, a.b = $0, $0');
+  testExplode('Arrow', 'a.b = () => { c.d }',
+      '$0 = () => {\n  c.d;\n}, a.b = $0, $0');
+  testExplode('Arrow', 'a.b = () => c.d', '$0 = () => c.d, a.b = $0, $0');
+  testExplode('ClassExpression', 'a.b = class { m() { c.d } }',
+      '$0 = class {\n  m() {\n    c.d;\n  }\n}, a.b = $0, $0');
+  testExplode('ClassExpression', 'a.b = class extends c.d { m() { e.f } }',
+      '$0 = c.d, $1 = class extends $0 {\n  m() {\n    e.f;\n  }\n}, ' +
+      'a.b = $1, $1');
 });

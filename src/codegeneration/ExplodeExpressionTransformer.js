@@ -48,6 +48,7 @@ import {
   AwaitExpression,
   BinaryExpression,
   CallExpression,
+  ClassExpression,
   ConditionalExpression,
   MemberExpression,
   MemberLookupExpression,
@@ -504,6 +505,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
   }
 
   transformObjectLiteralExpression(tree) {
+    // TODO(arv): Computed property names.
     let propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
     if (propertyNameAndValues === tree.propertyNameAndValues)
       return tree;
@@ -748,6 +750,43 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       result
     ];
     return createCommaExpression(expressions);
+  }
+
+  transformFunctionExpression(tree) {
+    // function () {}
+    // =>
+    // $0 = function () {}, $0
+    return this.createCommaExpressionBuilder_().build(tree);
+  }
+
+  transformArrowFunctionExpression(tree) {
+    // () => {}
+    // =>
+    // $0 = () => {}, $0
+    return this.createCommaExpressionBuilder_().build(tree);
+  }
+
+  transformClassExpression(tree) {
+    // TODO(arv): Computed property names.
+
+    // class extends a {}
+    // =>
+    // $0 = a, $1 = class extends $0 {}, $1
+
+    let superClass = this.transformAny(tree.superClass);
+    if (superClass === tree.superClass) {
+      return this.createCommaExpressionBuilder_().build(tree);
+    }
+
+    let builder = this.createCommaExpressionBuilder_();
+    builder.add(superClass);
+    return builder.build(new ClassExpression(tree.location, tree.name,
+        getResult(superClass), tree.elements, tree.annotations,
+        tree.typeParameters));
+  }
+
+  transformFunctionBody(tree) {
+    return tree;
   }
 
   createCommaExpressionBuilder_() {
