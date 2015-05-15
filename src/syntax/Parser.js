@@ -66,6 +66,7 @@ import {
 import {getKeywordType} from './Keywords.js';
 import {validateConstructor} from '../semantics/ConstructorValidator.js';
 import validateParameters from '../staticsemantics/validateParameters.js';
+import isValidSimpleAssignmentTarget from '../staticsemantics/isValidSimpleAssignmentTarget.js';
 
 import {
   AMPERSAND,
@@ -1569,10 +1570,10 @@ export class Parser {
     let coverInitializedNameCount = this.coverInitializedNameCount_;
     let initializer = this.parseExpressionAllowPattern_(NO_IN);
     type = peekType();
-    if (initializer.isLeftHandSideExpression() &&
-        (type === IN || this.peekOf_() ||
+    if ((type === IN || this.peekOf_() ||
          this.allowForOn_ && this.peekOn_())) {
       initializer = this.transformLeftHandSideExpression_(initializer);
+      this.validateAssignmentTarget_(initializer, 'assignment');
       if (this.peekOf_()) {
         return this.parseForOfStatement_(start, initializer);
       } else if (this.allowForOn_ && this.peekOn_()) {
@@ -2801,9 +2802,7 @@ export class Parser {
       if (type === EQUAL)
         left = this.transformLeftHandSideExpression_(left);
 
-      if (!left.isLeftHandSideExpression() && !left.isPattern()) {
-        this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
-      }
+      this.validateAssignmentTarget_(left, 'assignment');
 
       let operator = nextToken();
       let right = this.parseAssignmentExpression_(allowIn);
@@ -2964,6 +2963,13 @@ export class Parser {
       let operator = nextToken();
       let operand = this.parseUnaryExpression_();
       operand = this.toPrimaryExpression_(operand);
+      if (operand.type !== SYNTAX_ERROR_TREE) {
+        switch (operator.type) {
+          case PLUS_PLUS:
+          case MINUS_MINUS:
+            this.validateAssignmentTarget_(operand, 'prefix operation');
+        }
+      }
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
     }
     return this.parsePostfixExpression_();
@@ -3001,6 +3007,7 @@ export class Parser {
     while (this.peekPostfixOperator_(peekType())) {
       operand = this.toPrimaryExpression_(operand);
       let operator = nextToken();
+      this.validateAssignmentTarget_(operand, 'postfix operation');
       operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
     }
     return operand;
@@ -3703,7 +3710,9 @@ export class Parser {
         return this.parseObjectAssignmentPattern_();
     }
     let expression = this.parseLeftHandSideExpression_();
-    return this.coverFormalsToParenExpression_(expression)
+    expression = this.coverFormalsToParenExpression_(expression)
+    this.validateAssignmentTarget_(expression, 'assignment');
+    return expression;
   }
 
   parseAssignmentRestElement_() {
@@ -4505,6 +4514,14 @@ export class Parser {
   }
 
   reportReservedIdentifier_(token) {
-    this.reportError_(token, `${token.type} is a reserved identifier`);
+    this.reportError_(token.location, `${token.type} is a reserved identifier`);
+  }
+
+  validateAssignmentTarget_(tree, operation) {
+    if (!tree.isPattern() &&
+        !isValidSimpleAssignmentTarget(tree, this.strictMode_)) {
+      this.reportError_(tree.location,
+                        `Invalid left-hand side expression in ${operation}`);
+    }
   }
 }

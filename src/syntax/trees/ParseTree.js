@@ -131,19 +131,11 @@ export class ParseTree {
   /** @return {boolean} */
   isLeftHandSideExpression() {
     switch (this.type) {
-      case THIS_EXPRESSION:
-      case CLASS_EXPRESSION:
-      case SUPER_EXPRESSION:
-      case IDENTIFIER_EXPRESSION:
-      case LITERAL_EXPRESSION:
-      case ARRAY_LITERAL_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
-      case NEW_EXPRESSION:
+      case ARRAY_PATTERN:
+      case IDENTIFIER_EXPRESSION:  // This does not handle strict mode.
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
-      case CALL_EXPRESSION:
-      case FUNCTION_EXPRESSION:
-      case TEMPLATE_LITERAL_EXPRESSION:
+      case OBJECT_PATTERN:
         return true;
       case PAREN_EXPRESSION:
         return this.expression.isLeftHandSideExpression();
