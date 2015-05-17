@@ -14,7 +14,6 @@
 
 import {
   isObject,
-  maybeAddIterator,
   registerPolyfill
 } from './utils.js';
 import {Map} from './Map.js'
@@ -93,15 +92,22 @@ Object.defineProperty(Set.prototype, 'keys', {
   value: Set.prototype.values
 });
 
+function needsPolyfill(global) {
+  var {Set, Symbol} = global;
+  if (!Set || !$traceurRuntime.hasNativeSymbol() ||
+      !Set.prototype[Symbol.iterator] || !Set.prototype.values) {
+    return true;
+  }
+  try {
+    return new Set([1]).size !== 1;
+  } catch (e) {
+    return false;
+  }
+}
+
 export function polyfillSet(global) {
-  var {Object, Symbol} = global;
-  if (!global.Set)
+  if (needsPolyfill(global)) {
     global.Set = Set;
-  var setPrototype = global.Set.prototype;
-  if (setPrototype.values) {
-    maybeAddIterator(setPrototype, setPrototype.values, Symbol);
-    maybeAddIterator(Object.getPrototypeOf(new global.Set().values()),
-        function() { return this; }, Symbol);
   }
 }
 

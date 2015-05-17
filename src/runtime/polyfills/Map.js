@@ -14,12 +14,12 @@
 
 import {
   isObject,
-  maybeAddIterator,
   registerPolyfill
 } from './utils.js'
 
-var getOwnHashObject = $traceurRuntime.getOwnHashObject;
+var {getOwnHashObject, hasNativeSymbol} = $traceurRuntime;
 var $hasOwnProperty = Object.prototype.hasOwnProperty;
+
 var deletedSentinel = {};
 
 function lookupIndex(map, key) {
@@ -192,19 +192,22 @@ Object.defineProperty(Map.prototype, Symbol.iterator, {
   value: Map.prototype.entries
 });
 
+function needsPolyfill(global) {
+  var {Map, Symbol} = global;
+  if (!Map || !$traceurRuntime.hasNativeSymbol() ||
+      !Map.prototype[Symbol.iterator] || !Map.prototype.entries) {
+    return true;
+  }
+  try {
+    return new Map([[]]).size !== 1;
+  } catch (e) {
+    return false;
+  }
+}
+
 export function polyfillMap(global) {
-  var {Object, Symbol} = global;
-  if (!global.Map)
+  if (needsPolyfill(global)) {
     global.Map = Map;
-
-  var mapPrototype = global.Map.prototype;
-  if (mapPrototype.entries === undefined)
-    global.Map = Map;
-
-  if (mapPrototype.entries) {
-    maybeAddIterator(mapPrototype, mapPrototype.entries, Symbol);
-    maybeAddIterator(Object.getPrototypeOf(new global.Map().entries()),
-        function() { return this; }, Symbol);
   }
 }
 
