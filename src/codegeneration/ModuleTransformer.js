@@ -237,13 +237,14 @@ export class ModuleTransformer extends TempVarTransformer {
   transformExportDefault(tree) {
     switch (tree.expression.type) {
       case CLASS_DECLARATION:
-      case FUNCTION_DECLARATION:
+      case FUNCTION_DECLARATION: {
         let nameBinding = tree.expression.name;
         let name = createIdentifierExpression(nameBinding.identifierToken);
         return new AnonBlock(null, [
           tree.expression,
           parseStatement `var $__default = ${name}`
         ]);
+      }
     }
     return parseStatement `var $__default = ${tree.expression}`;
   }

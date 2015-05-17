@@ -421,12 +421,13 @@ function skipTemplateCharacter() {
       case 92:  // \
         skipStringLiteralEscapeSequence();
         break;
-      case 36:  // $
+      case 36: {  // $
         let code = input.charCodeAt(index + 1);
         if (code === 123)  // {
           return;
         next();
         break;
+      }
       default:
         next();
     }

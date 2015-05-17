@@ -529,7 +529,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     let initializerFound = false;
     let pattern;
     switch (tree.type) {
-      case ARRAY_PATTERN:
+      case ARRAY_PATTERN: {
         pattern = tree;
         this.pushTempScope();
         let iterId = createIdentifierExpression(this.addTempVar());
@@ -559,8 +559,9 @@ export class DestructuringTransformer extends TempVarTransformer {
         }
         this.popTempScope();
         break;
+      }
 
-      case OBJECT_PATTERN:
+      case OBJECT_PATTERN: {
         pattern = tree;
 
         let elementHelper = (lvalue, initializer) => {
@@ -582,7 +583,7 @@ export class DestructuringTransformer extends TempVarTransformer {
               elementHelper(field.binding, field.initializer);
               break;
 
-            case OBJECT_PATTERN_FIELD:
+            case OBJECT_PATTERN_FIELD: {
               if (field.element.initializer)
                 initializerFound = true;
               let name = field.name;
@@ -590,12 +591,14 @@ export class DestructuringTransformer extends TempVarTransformer {
                   name, field.element.initializer);
               desugaring.assign(field.element, lookup);
               break;
+            }
 
             default:
               throw Error('unreachable');
           }
         });
         break;
+      }
 
       case PAREN_EXPRESSION:
         return this.desugarPattern_(desugaring, tree.expression);

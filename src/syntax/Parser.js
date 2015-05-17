@@ -1860,13 +1860,14 @@ export class Parser {
     while (true) {
       let start = this.getTreeStartLocation_();
       switch (peekType()) {
-        case CASE:
+        case CASE: {
           nextToken();
           let expression = this.parseExpression_(ALLOW_IN);
           this.eat_(COLON);
           let statements = this.parseCaseStatementsOpt_();
           result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
           break;
+        }
         case DEFAULT:
           if (foundDefaultClause) {
             this.reportError_('Switch statements may have at most one default clause');
@@ -2008,7 +2009,7 @@ export class Parser {
             this.parseUnexpectedReservedWord_(peekToken());
       case THIS:
         return this.parseThisExpression_();
-      case IDENTIFIER:
+      case IDENTIFIER: {
         let identifier = this.parseIdentifierExpression_();
         if (this.options_.asyncFunctions &&
             identifier.identifierToken.value === ASYNC) {
@@ -2019,6 +2020,7 @@ export class Parser {
           }
         }
         return identifier;
+      }
       case NUMBER:
       case STRING:
       case TRUE:
@@ -2096,13 +2098,14 @@ export class Parser {
         return this.parseMemberLookupExpression_(start, operand);
       case PERIOD:
         return this.parseMemberExpression_(start, operand);
-      case OPEN_PAREN:
+      case OPEN_PAREN: {
         let superCall = this.parseCallExpression_(start, operand);
         if (!fs.isDerivedConstructor()) {
           this.errorReporter_.reportError(start,
             'super call is only allowed in derived constructor');
         }
         return superCall;
+      }
     }
 
     return this.parseUnexpectedToken_(peekToken());
@@ -2453,11 +2456,11 @@ export class Parser {
     let type = peekType();
     let isStatic = false, functionKind = null;
     switch (type) {
-      case STATIC:
+      case STATIC: {
         let staticToken = nextToken();
         type = peekType();
         switch (type) {
-          case OPEN_PAREN:
+          case OPEN_PAREN: {
             let location = this.getTreeLocation_(start);
             let name = new LiteralPropertyName(location, staticToken);
             let fs = this.pushFunctionState_(FUNCTION_STATE_METHOD);
@@ -2465,6 +2468,7 @@ export class Parser {
                                       annotations);
             this.popFunctionState_(fs);
             return m;
+          }
           default:
             isStatic = true;
             if (type === STAR && this.options_.generators)
@@ -2474,6 +2478,7 @@ export class Parser {
                                             derivedClass);
         }
         break;
+      }
 
       case STAR:
         return this.parseGeneratorMethod_(start, isStatic, annotations);
@@ -3020,9 +3025,10 @@ export class Parser {
   peekPostfixOperator_(type) {
     switch (type) {
       case PLUS_PLUS:
-      case MINUS_MINUS:
+      case MINUS_MINUS: {
         let token = peekTokenNoLineTerminator();
         return token !== null;
+      }
     }
     return false;
   }
@@ -3150,7 +3156,7 @@ export class Parser {
   parseNewExpression_() {
     let operand, start;
     switch (peekType()) {
-      case NEW:
+      case NEW: {
         start = this.getTreeStartLocation_();
         this.eat_(NEW);
         if (peek(SUPER)) {
@@ -3163,7 +3169,7 @@ export class Parser {
           args = this.parseArguments_();
         }
         return new NewExpression(this.getTreeLocation_(start), operand, args);
-
+      }
       case SUPER:
         return this.parseSuperExpression_(false);
 
@@ -4168,10 +4174,11 @@ export class Parser {
       case 'any':
       case 'number':
       case 'boolean':
-      case 'string':
+      case 'string': {
       // void is handled in parseTye
         let token = nextToken();
         return new PredefinedType(this.getTreeLocation_(start), token);
+      }
       default:
         return this.parseTypeName_();
     }

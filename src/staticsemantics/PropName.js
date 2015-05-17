@@ -30,11 +30,12 @@ import {IDENTIFIER} from '../syntax/TokenType.js';
  */
 export function propName(tree) {
   switch (tree.type) {
-    case LITERAL_PROPERTY_NAME:
+    case LITERAL_PROPERTY_NAME: {
       let token = tree.literalToken;
       if (token.isKeyword() || token.type === IDENTIFIER)
         return token.toString();
       return String(tree.literalToken.processedValue);
+    }
     case COMPUTED_PROPERTY_NAME:
       return '';
     case PROPERTY_NAME_SHORTHAND:

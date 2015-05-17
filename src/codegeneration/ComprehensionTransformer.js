@@ -65,17 +65,19 @@ export class ComprehensionTransformer extends TempVarTransformer {
     for (let i = tree.comprehensionList.length - 1; i >= 0; i--) {
       let item = tree.comprehensionList[i];
       switch (item.type) {
-        case COMPREHENSION_IF:
+        case COMPREHENSION_IF: {
           let expression = this.transformAny(item.expression);
           statement = createIfStatement(expression, statement);
           break;
-        case COMPREHENSION_FOR:
+        }
+        case COMPREHENSION_FOR: {
           let left = this.transformAny(item.left);
           let iterator = this.transformAny(item.iterator);
           let initializer = createVariableDeclarationList(bindingKind,
                                                           left, null);
           statement = createForOfStatement(initializer, iterator, statement);
           break;
+        }
         default:
           throw new Error('Unreachable.');
       }

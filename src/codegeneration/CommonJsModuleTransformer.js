@@ -129,10 +129,11 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
       let descriptor;
 
       switch (exp.type) {
-        case GET_ACCESSOR:
+        case GET_ACCESSOR: {
           let getterFunction = createFunctionExpression(createEmptyParameterList(), exp.body);
           descriptor = parseExpression `{get: ${getterFunction}}`;
           break;
+        }
 
         case PROPERTY_NAME_ASSIGNMENT:
           descriptor = parseExpression `{value: ${exp.value}}`;

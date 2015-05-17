@@ -644,7 +644,7 @@ export class CPSTransformer extends TempVarTransformer {
       }
     }
     // Fix up dangling state transitions.
-    for (i = 0; i < newStates.length; i++) {
+    for (let i = 0; i < newStates.length; i++) {
       newStates[i] = emptyStates.reduce((state, {id, fallThroughState}) => {
         return state.replaceState(id, fallThroughState);
       }, newStates[i]);
