@@ -30,9 +30,7 @@ export class CollectingErrorReporter extends ErrorReporter {
     this.errors = [];
   }
   reportMessageInternal(location, message) {
-    if (location)
-      message = `${location}: ${message}`;
-    this.errors.push(message);
+    this.errors.push(`${location.start}: ${message}`);
   }
   errorsAsString() {
     return this.toError().message;

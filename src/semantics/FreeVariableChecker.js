@@ -26,7 +26,7 @@ class FreeVariableChecker extends ScopeChainBuilderWithReferences {
   referenceFound(tree, name) {
     if (this.scope.getBinding(tree)) return;
     if (!(name in this.global_)) {
-      this.reporter.reportError(tree.location.start, `${name} is not defined`);
+      this.reporter.reportError(tree.location, `${name} is not defined`);
     }
   }
 

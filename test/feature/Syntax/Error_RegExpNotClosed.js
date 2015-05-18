@@ -1,3 +1,3 @@
-// Error: :3:2: Expected '/' in regular expression literal
+// Error: :3:1: Expected '/' in regular expression literal
 
 /

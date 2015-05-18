@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {SourceRange} from './SourceRange.js';
+
 /**
  * A conduit for reporting errors and warnings to the user using the Firebug
  * console API.
@@ -26,17 +28,18 @@ export class ErrorReporter {
    * @param {string} message
    */
   reportError(location, message) {
+    console.assert(location === null || (location instanceof SourceRange));
     this.hadError_ = true;
     this.reportMessageInternal(location, message);
   }
 
   /**
-   * @param {SourcePosition} location
+   * @param {SourceRange} location
    * @param {string} message
    */
   reportMessageInternal(location, message) {
     if (location)
-      message = `${location}: ${message}`;
+      message = `${location.start}: ${message}`;
     console.error(message);
   }
 

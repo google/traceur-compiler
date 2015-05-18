@@ -74,6 +74,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {void}
    */
   reportError(tree, message) {
-    this.reporter.reportError(tree.location.start, message);
+    this.reporter.reportError(tree.location, message);
   }
 }

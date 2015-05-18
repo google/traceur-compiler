@@ -51,6 +51,7 @@ import {
   nextTemplateLiteralToken,
   nextToken,
   peek,
+  peekLocation,
   peekLookahead,
   peekToken,
   peekTokenLookahead,
@@ -1385,10 +1386,12 @@ export class Parser {
     }
 
     let init = null;
-    if (peek(EQUAL))
+    if (peek(EQUAL)) {
       init = this.parseInitializer_(noIn);
-    else if (lvalue.isPattern() && initRequired)
-      this.reportError_('destructuring must have an initializer');
+    } else if (lvalue.isPattern() && initRequired) {
+      this.reportError_(lvalue.location,
+                        'destructuring must have an initializer');
+    }
 
     return new VariableDeclaration(this.getTreeLocation_(start), lvalue,
         typeAnnotation, init);
@@ -1438,11 +1441,13 @@ export class Parser {
       case FUNCTION:
       case CLASS:
         return this.parseUnexpectedReservedWord_(peekToken());
-      case LET:
-        if (peekLookahead(OPEN_SQUARE)) {
+      case LET: {
+        let token = peekLookahead(OPEN_SQUARE);
+        if (token) {
           return this.parseSyntaxError_(
               `A statement cannot start with 'let ['`);
         }
+      }
     }
 
     // async [no line terminator] function ...
@@ -1659,7 +1664,8 @@ export class Parser {
   checkInitializer_(type, declaration) {
     if (this.options_.blockBinding && type === CONST &&
         declaration.initializer === null) {
-      this.reportError_('const variables must have an initializer');
+      this.reportError_(declaration.location,
+                        'const variables must have an initializer');
       return false;
     }
     return true;
@@ -1762,10 +1768,10 @@ export class Parser {
    */
   parseReturnStatement_() {
     let start = this.getTreeStartLocation_();
+    let returnToken = this.eat_(RETURN);
     if (this.functionState_.isTopMost()) {
-      this.reportError_('Illegal return statement');
+      this.reportError_(returnToken.location, 'Illegal return statement');
     }
-    this.eat_(RETURN);
     let expression = null;
     if (!this.peekImplicitSemiColon_()) {
       expression = this.parseExpression_(ALLOW_IN);
@@ -1820,11 +1826,12 @@ export class Parser {
    * @private
    */
   parseWithStatement_() {
-    if (this.strictMode_)
-      this.reportError_('Strict mode code may not include a with statement');
-
     let start = this.getTreeStartLocation_();
-    this.eat_(WITH);
+    let withToken = this.eat_(WITH);
+    if (this.strictMode_) {
+      this.reportError_(withToken.location,
+                        'Strict mode code may not include a with statement');
+    }
     this.eat_(OPEN_PAREN);
     let expression = this.parseExpression_(ALLOW_IN);
     this.eat_(CLOSE_PAREN);
@@ -1868,16 +1875,18 @@ export class Parser {
           result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
           break;
         }
-        case DEFAULT:
+        case DEFAULT: {
+          let defaultToken = nextToken();
           if (foundDefaultClause) {
-            this.reportError_('Switch statements may have at most one default clause');
+            this.reportError_(defaultToken.location,
+                'Switch statements may have at most one \'default\' clause');
           } else {
             foundDefaultClause = true;
           }
-          nextToken();
           this.eat_(COLON);
           result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
           break;
+        }
         default:
           return result;
       }
@@ -1939,7 +1948,8 @@ export class Parser {
       finallyBlock = this.parseFinallyBlock_();
     }
     if (catchBlock === null && finallyBlock === null) {
-      this.reportError_("'catch' or 'finally' expected.");
+      let token = peekToken();
+      this.reportError_(token.location, "'catch' or 'finally' expected.");
     }
     return new TryStatement(this.getTreeLocation_(start), body, catchBlock, finallyBlock);
   }
@@ -2078,11 +2088,14 @@ export class Parser {
     while (fs && fs.isArrowFunction()) {
       fs = fs.outer;
     }
+
+    let superToken = this.eat_(SUPER);
+
     if (!fs || !fs.isMethod()) {
-      return this.parseSyntaxError_('super is only allowed in methods');
+      this.reportError_(superToken.location,
+                        'super is only allowed in methods');
     }
 
-    this.eat_(SUPER);
     let operand = new SuperExpression(this.getTreeLocation_(start));
     let type = peekType();
     if (isNew) {
@@ -2101,7 +2114,7 @@ export class Parser {
       case OPEN_PAREN: {
         let superCall = this.parseCallExpression_(start, operand);
         if (!fs.isDerivedConstructor()) {
-          this.errorReporter_.reportError(start,
+          this.reportError_(superToken.location,
             'super call is only allowed in derived constructor');
         }
         return superCall;
@@ -2674,10 +2687,9 @@ export class Parser {
   }
 
   parseSyntaxError_(message) {
-    let start = this.getTreeStartLocation_();
-    this.reportError_(message);
     let token = nextToken();
-    return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
+    this.reportError_(token.location, message);
+    return new SyntaxErrorTree(token.location, token, message);
   }
 
   /**
@@ -2686,7 +2698,7 @@ export class Parser {
    */
   parseUnexpectedToken_(token) {
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
-        return this.parseSyntaxError_('Unexpected token `');
+      return this.parseSyntaxError_('Unexpected token `');
     }
     return this.parseSyntaxError_(`Unexpected token ${token}`);
   }
@@ -4265,7 +4277,8 @@ export class Parser {
       declaration = this.parseStatementListItem_(type);
     }
     if (this.annotations_.length > 0) {
-      return this.parseSyntaxError_('Unsupported annotated expression');
+      this.reportError_(this.annotations_[0].location,
+                        'Unsupported annotated expression');
     }
     return declaration;
   }
@@ -4320,7 +4333,7 @@ export class Parser {
         return;
     }
 
-    this.reportError_('Semi-colon expected');
+    this.reportError_(token.location, 'Semi-colon expected');
   }
 
   /**
@@ -4373,8 +4386,9 @@ export class Parser {
   eatId_(expected = undefined) {
     let token = nextToken();
     if (!token) {
-      if (expected)
-        this.reportError_(peekToken(), `expected '${expected}'`);
+      if (expected) {
+        this.reportError_(peekLocation(), `expected '${expected}'`);
+      }
       return null;
     }
 
@@ -4457,7 +4471,7 @@ export class Parser {
    * @private
    */
   reportExpectedError_(token, expected) {
-    this.reportError_(token, `Unexpected token ${token}`);
+    this.reportError_(token.location, `Unexpected token ${token}`);
   }
 
   /**
@@ -4467,7 +4481,7 @@ export class Parser {
    * @private
    */
   getTreeStartLocation_() {
-    return peekToken().location.start;
+    return peekLocation().start;
   }
 
   /**
@@ -4499,25 +4513,13 @@ export class Parser {
   }
 
   /**
-   * Reports an error message at a given token.
-   * @param {traceur.util.SourcePostion|Token} token The location to report
-   *     the message at.
+   * Reports an error message.
+   * @param {SourceRange} location
    * @param {string} message The message to report in String.format style.
-   *
-   * @return {void}
    * @private
    */
-  reportError_(...args) {
-    if (args.length === 1) {
-      this.errorReporter_.reportError(getPosition(), args[0]);
-    } else {
-      // TODO(arv): Only allow a SourcePosition here.
-      let location = args[0];
-      if (location instanceof Token) {
-        location = location.location;
-      }
-      this.errorReporter_.reportError(location.start, args[1]);
-    }
+  reportError_(location, message) {
+    this.errorReporter_.reportError(location, message);
   }
 
   reportReservedIdentifier_(token) {

@@ -45,11 +45,11 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
     let name = tree.identifierToken.toString();
     if (this.reportStrictKeywords_ &&
         (isStrictKeyword(name) || name === 'eval' || name === 'arguments')) {
-      this.reporter_.reportError(tree.location.start,
+      this.reporter_.reportError(tree.location,
                                  `${name} is a reserved identifier`);
     }
     if (this.names_.has(name)) {
-      this.maybeReportDuplicateError_(name, tree.location.start);
+      this.maybeReportDuplicateError_(name, tree.location);
     }
     this.names_.add(name);
   }
@@ -83,15 +83,15 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
     super.visitObjectPattern(tree);
   }
 
-  reportDuplicateError_(name, pos) {
-    this.reporter_.reportError(pos, `Duplicate parameter name ${name}`);
+  reportDuplicateError_(name, location) {
+    this.reporter_.reportError(location, `Duplicate parameter name ${name}`);
   }
 
-  maybeReportDuplicateError_(name, pos) {
+  maybeReportDuplicateError_(name, location) {
     if (this.reportDuplicates_) {
-      this.reportDuplicateError_(name, pos);
+      this.reportDuplicateError_(name, location);
     } else {
-      this.errors_.push(name, pos);
+      this.errors_.push(name, location);
     }
   }
 
@@ -100,8 +100,8 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
       this.reportDuplicates_ = true;
       for (let i = 0; i < this.errors_.length; i += 2) {
         let name = this.errors_[i];
-        let pos = this.errors_[i + 1];
-        this.reportDuplicateError_(name, pos);
+        let location = this.errors_[i + 1];
+        this.reportDuplicateError_(name, location);
       }
     }
   }

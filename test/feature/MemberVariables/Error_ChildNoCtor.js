@@ -1,5 +1,5 @@
 // Options: --member-variables --types
-// Error: :10:4: Derived constructor must call super()
+// Error: :8:3: Derived constructor must call super()
 
 class A {
 }

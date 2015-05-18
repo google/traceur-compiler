@@ -1287,7 +1287,7 @@ export class CPSTransformer extends TempVarTransformer {
   transformVariableDeclarationList(tree) {
     // The only declarations left are const/let.
     this.reporter.reportError(
-        tree.location && tree.location.start,
+        tree.location,
         'Traceur: const/let declarations in a block containing a yield are ' +
         'not yet implemented');
     return tree;
