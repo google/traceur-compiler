@@ -40,6 +40,7 @@ import {PropertyNameShorthandTransformer} from './PropertyNameShorthandTransform
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
+import {SuperTransformer} from './SuperTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
@@ -151,16 +152,24 @@ export class FromOptionsTransformer extends MultiTransformer {
       }
     }
 
-    if (transformOptions.arrowFunctions)
-      append(ArrowFunctionTransformer);
-
+    // MemberVariableTransformer needs to be done before SuperTransformer.
     if (transformOptions.memberVariables) {
       append(MemberVariableTransformer);
     }
 
+    if (transformOptions.classes) {
+      append(SuperTransformer);
+    }
+
+    // ArrowFunctionTransformer needs to be done after SuperTransformer.
+    if (transformOptions.arrowFunctions) {
+      append(ArrowFunctionTransformer);
+    }
+
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    if (transformOptions.classes)
+    if (transformOptions.classes) {
       append(ClassTransformer);
+    }
 
     if (transformOptions.propertyMethods ||
         transformOptions.computedPropertyNames ||

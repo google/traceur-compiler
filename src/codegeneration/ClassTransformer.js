@@ -25,17 +25,14 @@ import {
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
-import {
-  createBindingIdentifier,
-  createIdentifierToken
-} from '../codegeneration/ParseTreeFactory.js';
+import {createBindingIdentifier} from '../codegeneration/ParseTreeFactory.js';
 import {
   COMPUTED_PROPERTY_NAME,
   GET_ACCESSOR,
+  LITERAL_PROPERTY_NAME,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR,
 } from '../syntax/trees/ParseTreeType.js';
-import {SuperTransformer} from './SuperTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   CONST,
@@ -46,32 +43,15 @@ import {
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
 import {
-  createEmptyParameterList,
-  createFunctionBody,
   createIdentifierExpression as id,
-  createMemberExpression,
   createObjectLiteralExpression,
-  createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
 import {
   parseExpression,
-  parseStatements
+  parsePropertyDefinition,
 } from './PlaceholderParser.js';
-import {propName} from '../staticsemantics/PropName.js';
-
-
-// Interaction between ClassTransformer and SuperTransformer:
-// - The initial call to SuperTransformer will always be a transformBlock on
-//   the body of a function -- method, getter, setter, or constructor.
-// - SuperTransformer will never see anything that has not been touched first
-//   by ClassTransformer and (if applicable) a previous invocation of
-//   SuperTransformer on the functions of any inner classes. [see ref_1]
-// - This means that SuperTransformer should only ever see desugared class
-//   declarations, and should never see any super expressions that refer to
-//   any inner (or outer) classes.
-
 
 // Maximally minimal classes
 //
@@ -99,6 +79,7 @@ import {propName} from '../staticsemantics/PropName.js';
 //     }
 //   }, {}, B);
 //
+// The super property and super calls are transformed in the SuperTransformer.
 
 function classCall(func, object, staticObject, superClass) {
   if (superClass) {
@@ -140,6 +121,33 @@ function functionExpressionToDeclaration(tree, name) {
   }
   return new FunctionDeclaration(tree.location, name, tree.functionKind,
       tree.parameterList, tree.typeAnnotation, tree.annotations, tree.body);
+}
+
+function removeStaticModifier(tree) {
+  switch (tree.type) {
+    case GET_ACCESSOR:
+      return new GetAccessor(tree.location, false, tree.name,
+          tree.typeAnnotation, tree.annotations, tree.body);
+    case SET_ACCESSOR:
+      return new SetAccessor(tree.location, false, tree.name,
+          tree.parameterList, tree.annotations, tree.body);
+    case PROPERTY_METHOD_ASSIGNMENT:
+      return new PropertyMethodAssignment(tree.location, false,
+          tree.functionKind, tree.name, tree.parameterList, tree.typeAnnotation,
+          tree.annotations, tree.body, tree.debugName);
+    default:
+      throw new Error('unreachable');
+  }
+}
+
+export default function isConstructor(tree) {
+  if (tree.type !== PROPERTY_METHOD_ASSIGNMENT || tree.isStatic ||
+      tree.functionKind !== null) {
+    return false;
+  }
+  let {name} = tree;
+  return name.type === LITERAL_PROPERTY_NAME &&
+      name.literalToken.value === CONSTRUCTOR;
 }
 
 export class ClassTransformer extends ParenTrait(TempVarTransformer) {
@@ -196,12 +204,6 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     return MakeStrictTransformer.transformTree(tree);
   }
 
-  /**
-   * Transforms a single class declaration
-   *
-   * @param {ClassDeclaration} tree
-   * @return {ParseTree}
-   */
   transformClassDeclaration(tree) {
     // `class C {}` is equivalent to `let C = class C {};`
     // Convert to class expression and transform that instead.
@@ -214,86 +216,40 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
   }
 
   transformClassExpression(tree) {
-    this.pushTempScope();
-
-    let name;
-    if (tree.name)
-      name = tree.name.identifierToken;
-    else
-      name = createIdentifierToken(this.getTempIdentifier());
-
-    let internalName = id(`${name}`);
-
-    let oldState = this.state_;
-    this.state_ = {hasSuper: false};
     let superClass = this.transformAny(tree.superClass);
+    let elements = this.transformList(tree.elements);
+    let annotations = this.transformList(tree.annotations);
 
-    let protoElements = [], staticElements = [];
-    let constructor;
-
-    tree.elements.forEach((tree) => {
-      let elements, homeObject, initVars;
-      if (tree.isStatic) {
-        elements = staticElements;
-        homeObject = internalName;
-      } else {
-        elements = protoElements;
-        homeObject = createMemberExpression(internalName, 'prototype');
+    let constructor = null;
+    let protoElements = elements.filter((tree) => {
+      if (tree.isStatic) return false;
+      if (isConstructor(tree)) {
+        constructor = tree;
+        return false;
       }
-
-      switch (tree.type) {
-        case GET_ACCESSOR:
-          elements.push(
-              this.transformGetAccessor_(tree, homeObject, internalName));
-          break;
-
-        case SET_ACCESSOR:
-          elements.push(
-              this.transformSetAccessor_(tree, homeObject, internalName));
-          break;
-
-        case PROPERTY_METHOD_ASSIGNMENT:
-          if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
-            constructor = tree;
-          } else {
-            let transformed = this.transformPropertyMethodAssignment_(
-                tree, homeObject, internalName, name);
-            elements.push(transformed);
-          }
-          break;
-
-        default:
-          throw new Error(`Unexpected class element: ${tree.type}`);
-      }
+      return true;
     });
+    let staticElements =
+        elements.filter((tree) => tree.isStatic).map(removeStaticModifier);
 
-    let object = createObjectLiteralExpression(protoElements);
+    let protoObject = createObjectLiteralExpression(protoElements);
     let staticObject = createObjectLiteralExpression(staticElements);
-    let func;
 
     if (!constructor) {
-      func = this.getDefaultConstructor_(tree, internalName);
-    } else {
-      let homeObject = createMemberExpression(internalName, 'prototype');
-      let transformedCtor = this.transformPropertyMethodAssignment_(
-          constructor, homeObject, internalName, CONSTRUCTOR);
-      func = new FunctionExpression(tree.location, tree.name, false,
-          transformedCtor.parameterList, null, [], transformedCtor.body);
+      constructor = this.getDefaultConstructor_(tree);
     }
+    let func = new FunctionExpression(tree.location, tree.name, null,
+                                      constructor.parameterList, null,
+                                      annotations,
+                                      constructor.body);
 
-    let state = this.state_;
-    this.state_ = oldState;
-
-    let hasSuper = state.hasSuper;
     let expression;
-
-    if (hasSuper || tree.name) {
-      // We need a binding name that can be referenced in the super calls and
-      // we hide this name in an IIFE.
-
+    if (tree.name) {
       let functionStatement;
-      if (tree.name &&
-          !this.options.transformOptions.blockBinding &&
+      let name = tree.name.identifierToken;
+      let nameId = id(`${name}`);
+
+      if (!this.options.transformOptions.blockBinding &&
           this.options.parseOptions.blockBinding) {
         functionStatement = createVariableStatement(CONST, tree.name, func);
       } else {
@@ -303,104 +259,30 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
       if (superClass) {
         expression = parseExpression `function($__super) {
           ${functionStatement};
-          return ($traceurRuntime.createClass)(${internalName}, ${object},
+          return ($traceurRuntime.createClass)(${nameId}, ${protoObject},
                                                ${staticObject}, $__super);
         }(${superClass})`;
       } else {
         expression = parseExpression `function() {
           ${functionStatement};
-          return ($traceurRuntime.createClass)(${internalName}, ${object},
+          return ($traceurRuntime.createClass)(${nameId}, ${protoObject},
                                                ${staticObject});
         }()`;
       }
     } else {
-      expression = classCall(func, object, staticObject, superClass);
+      expression = classCall(func, protoObject, staticObject, superClass);
     }
-
-    this.popTempScope();
 
     return this.makeStrict_(expression);
   }
 
-  transformPropertyMethodAssignment_(tree, homeObject, internalName,
-                                     originalName) {
-    let parameterList = this.transformAny(tree.parameterList);
-    let body = this.transformSuperInFunctionBody_(
-        tree.body, homeObject, internalName);
-
-    if (!tree.isStatic &&
-        parameterList === tree.parameterList &&
-        body === tree.body) {
-      return tree;
-    }
-
-    let debugName = tree.debugName;
-    if (this.options.showDebugNames_) {
-      debugName = classMethodDebugName(originalName,
-                                       methodNameFromTree(tree.name), isStatic);
-    }
-
-    let isStatic = false;
-    return new PropertyMethodAssignment(tree.location, isStatic,
-        tree.functionKind, tree.name, parameterList, tree.typeAnnotation,
-        tree.annotations, body, debugName);
-  }
-
-  transformGetAccessor_(tree, homeObject, internalName) {
-    let body =
-        this.transformSuperInFunctionBody_(tree.body, homeObject, internalName);
-    if (!tree.isStatic && body === tree.body)
-      return tree;
-    // not static
-    return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation,
-                           tree.annotations, body);
-  }
-
-  transformSetAccessor_(tree, homeObject, internalName) {
-    let parameterList = this.transformAny(tree.parameterList);
-    let body =
-        this.transformSuperInFunctionBody_(tree.body, homeObject, internalName);
-    if (!tree.isStatic && body === tree.body)
-      return tree;
-    return new SetAccessor(tree.location, false, tree.name, parameterList,
-                           tree.annotations, body);
-  }
-
-  transformSuperInFunctionBody_(tree, homeObject, internalName) {
-    this.pushTempScope();
-    let thisName = this.getTempIdentifier();
-    let thisDecl = createVariableStatement(VAR, thisName,
-                                           createThisExpression());
-    let superTransformer = new SuperTransformer(this, homeObject,
-                                                thisName, internalName);
-    // ref_1: the inner transformFunctionBody call is key to proper super nesting.
-    let transformedTree =
-        superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
-
-    if (superTransformer.hasSuper)
-      this.state_.hasSuper = true;
-
-    this.popTempScope();
-
-    if (superTransformer.nestedSuper)
-      return createFunctionBody([thisDecl].concat(transformedTree.statements));
-    return transformedTree;
-  }
-
-  getDefaultConstructor_(tree, internalName) {
-    let constructorParams = createEmptyParameterList();
-    let statements;
+  getDefaultConstructor_(tree) {
     if (tree.superClass) {
-      statements = parseStatements `$traceurRuntime.superConstructor(
-          ${internalName}).apply(this, arguments)`;
-      constructorBody = createFunctionBody(statements);
-      this.state_.hasSuper = true;
-    } else {
-      statements = [];
+      let name = id(tree.name.identifierToken);
+      return parsePropertyDefinition `constructor() {
+        $traceurRuntime.superConstructor(${name}).apply(this, arguments)
+      }`;
     }
-    let constructorBody = createFunctionBody(statements);
-
-    return new FunctionExpression(tree.location, tree.name, false,
-                                  constructorParams, null, [], constructorBody);
+    return parsePropertyDefinition `constructor() {}`;
   }
 }

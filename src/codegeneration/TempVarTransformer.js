@@ -52,7 +52,7 @@ class TempScope {
 
   release(obj) {
     for (let i = this.identifiers.length - 1; i >= 0; i--) {
-      obj.release_(this.identifiers[i]);
+      obj.releaseTempName(this.identifiers[i]);
     }
   }
 }
@@ -77,7 +77,7 @@ class VarScope {
 
   release(obj) {
     for (let i = this.tempVarStatements.length - 1; i >= 0; i--) {
-      obj.release_(this.tempVarStatements[i].name);
+      obj.releaseTempName(this.tempVarStatements[i].name);
     }
   }
 
@@ -183,6 +183,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
    *     current temp scope has been exited.
    */
   getTempIdentifier() {
+    // TODO(arv): Rename to getTempName
     let name = this.getName_();
     this.tempScopeStack_[this.tempScopeStack_.length - 1].push(name);
     return name;
@@ -204,6 +205,27 @@ export class TempVarTransformer extends ParseTreeTransformer {
     let name = this.getName_();
     vars.push(new TempVarStatement(name, initializer));
     return name;
+  }
+
+  /**
+   * Allows you to create a temp var after you have created a temp identifier.
+   * This is useful if you do not know ahead of time if you need to create the
+   * temp var but you want to pass in a temp name to some function.
+   *
+   * Example:
+   *   let name = transformer.getTempIdentifier();
+   *   ...
+   *   if (needed) {
+   *     transformer.registerTempVarName(name);
+   *   } else {
+   *     transformer.releaseTempName(name);
+   *   }
+   *
+   * @param {string} name
+   */
+  registerTempVarName(name) {
+    let vars = this.tempVarStack_[this.tempVarStack_.length - 1];
+    vars.push(new TempVarStatement(name, null));
   }
 
   addTempVarForThis() {
@@ -234,9 +256,8 @@ export class TempVarTransformer extends ParseTreeTransformer {
   /**
    * Put back the |name| into the pool of reusable temporary varible names.
    * @param {string} name
-   * @private
    */
-  release_(name) {
+  releaseTempName(name) {
     this.namePool_.push(name);
   }
 }
