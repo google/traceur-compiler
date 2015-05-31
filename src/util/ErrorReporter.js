@@ -28,7 +28,6 @@ export class ErrorReporter {
    * @param {string} message
    */
   reportError(location, message) {
-    console.assert(location === null || (location instanceof SourceRange));
     this.hadError_ = true;
     this.reportMessageInternal(location, message);
   }
