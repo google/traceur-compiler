@@ -1,3 +1,3 @@
-export function square(x){
+export function square(x) {
   return x*x;
 }
