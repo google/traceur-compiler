@@ -33,7 +33,6 @@ import {
   COMPUTED_PROPERTY_NAME,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
-  PROPERTY_VARIABLE_DECLARATION,
   SET_ACCESSOR,
 } from '../syntax/trees/ParseTreeType.js';
 import {SuperTransformer} from './SuperTransformer.js';
@@ -48,26 +47,19 @@ import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
 import {
   createEmptyParameterList,
-  createExpressionStatement,
   createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
   createObjectLiteralExpression,
-  createPropertyNameAssignment,
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
 import {
   parseExpression,
-  parseStatement
+  parseStatements
 } from './PlaceholderParser.js';
 import {propName} from '../staticsemantics/PropName.js';
-import {prependStatements} from './PrependStatements.js';
-import {
-  transformConstructor,
-  getInstanceInitExpression,
-} from './MemberVariableConstructorTransformer.js';
 
 
 // Interaction between ClassTransformer and SuperTransformer:
@@ -237,7 +229,6 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     let superClass = this.transformAny(tree.superClass);
 
     let protoElements = [], staticElements = [];
-    let initInstanceVars = [], initStaticVars = [];
     let constructor;
 
     tree.elements.forEach((tree) => {
@@ -245,11 +236,9 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
       if (tree.isStatic) {
         elements = staticElements;
         homeObject = internalName;
-        initVars = initStaticVars;
       } else {
         elements = protoElements;
         homeObject = createMemberExpression(internalName, 'prototype');
-        initVars = initInstanceVars;
       }
 
       switch (tree.type) {
@@ -273,13 +262,6 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
           }
           break;
 
-        case PROPERTY_VARIABLE_DECLARATION:
-          tree = this.transformAny(tree);
-          if (tree.initializer !== null) {
-            initVars.push(tree);
-          }
-          break;
-
         default:
           throw new Error(`Unexpected class element: ${tree.type}`);
       }
@@ -287,16 +269,11 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
 
     let object = createObjectLiteralExpression(protoElements);
     let staticObject = createObjectLiteralExpression(staticElements);
-    let initExpression = getInstanceInitExpression(initInstanceVars);
     let func;
 
     if (!constructor) {
-      func = this.getDefaultConstructor_(tree, internalName, initExpression);
+      func = this.getDefaultConstructor_(tree, internalName);
     } else {
-      if (initInstanceVars.length > 0) {
-        constructor = transformConstructor(constructor, initExpression,
-            tree.superClass);
-      }
       let homeObject = createMemberExpression(internalName, 'prototype');
       let transformedCtor = this.transformPropertyMethodAssignment_(
           constructor, homeObject, internalName, CONSTRUCTOR);
@@ -309,8 +286,6 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
 
     let hasSuper = state.hasSuper;
     let expression;
-
-    staticObject = appendStaticInitializers(staticObject, initStaticVars);
 
     if (hasSuper || tree.name) {
       // We need a binding name that can be referenced in the super calls and
@@ -412,52 +387,20 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     return transformedTree;
   }
 
-  getDefaultConstructor_(tree, internalName, initExpression) {
+  getDefaultConstructor_(tree, internalName) {
     let constructorParams = createEmptyParameterList();
-    let constructorBody;
-    let initStatement = createExpressionStatement(initExpression);
-    let statements = [];
-    if (initExpression.expressions.length) {
-      statements.push(initStatement);
-    }
+    let statements;
     if (tree.superClass) {
-      let statement = parseStatement `$traceurRuntime.superConstructor(
+      statements = parseStatements `$traceurRuntime.superConstructor(
           ${internalName}).apply(this, arguments)`;
-      statements.unshift(statement);
       constructorBody = createFunctionBody(statements);
       this.state_.hasSuper = true;
     } else {
-      constructorBody = createFunctionBody(statements);
+      statements = [];
     }
+    let constructorBody = createFunctionBody(statements);
 
     return new FunctionExpression(tree.location, tree.name, false,
                                   constructorParams, null, [], constructorBody);
   }
-
-  transformConstructorWithInitializer_(constructor, initExpression, superClass) {
-    if (superClass) {
-      let transformer = new SuperExpressionTransformer(initExpression);
-      return transformer.transformAny(constructor);
-    }
-
-    let statements = constructor.body.statements;
-    let initStatement = createExpressionStatement(initExpression);
-    statements = prependStatements(statements, initStatement);
-
-    return new PropertyMethodAssignment(constructor.location, false,
-        constructor.functionKind, constructor.name, constructor.parameterList,
-        constructor.typeAnnotation, constructor.annotations,
-        createFunctionBody(statements));
-  }
-}
-
-// TODO(vicb): Does not handle computed properties
-function appendStaticInitializers(staticObject, initStaticMemberVars) {
-  if (initStaticMemberVars.length === 0) return staticObject;
-
-  let properties = initStaticMemberVars.map(
-      (mv) => createPropertyNameAssignment(mv.name, mv.initializer));
-
-  return createObjectLiteralExpression(
-      staticObject.propertyNameAndValues.concat(properties));
 }

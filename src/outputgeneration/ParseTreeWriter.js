@@ -1246,8 +1246,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitRestParameter(tree) {
     this.write_(DOT_DOT_DOT);
-    this.writeToken_(tree.identifier.identifierToken);
-    this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.visitAny(tree.identifier);
   }
 
   /**

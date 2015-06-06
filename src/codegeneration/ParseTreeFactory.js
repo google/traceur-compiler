@@ -60,6 +60,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionExpression,
@@ -680,7 +681,8 @@ export function createLiteralPropertyName(name) {
  * @return {RestParameter}
  */
 export function createRestParameter(identifier) {
-  return new RestParameter(null, createBindingIdentifier(identifier), null);
+  let rest = new RestParameter(null, createBindingIdentifier(identifier));
+  return new FormalParameter(null, rest, null, []);
 }
 
 /**

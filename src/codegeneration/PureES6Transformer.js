@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
-import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
+import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
-import {ES6ClassTransformer} from './ES6ClassTransformer.js';
+import {TypedMemberVariableTransformer} from './TypedMemberVariableTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker.js';
@@ -58,11 +58,11 @@ export class PureES6Transformer extends MultiTransformer {
     if (options.typeAssertions) {
       // Transforming member variables to getters/setters only make
       // sense when the type assertions are enabled.
-      if (options.memberVariables) append(MemberVariableTransformer);
+      if (options.memberVariables) append(TypedMemberVariableTransformer);
       append(TypeAssertionTransformer);
     }
     if (options.memberVariables) {
-      append(ES6ClassTransformer);
+      append(MemberVariableTransformer);
     }
     append(AnnotationsTransformer);
     append(TypeTransformer);

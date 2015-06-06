@@ -1007,9 +1007,6 @@
     ],
     "identifier": [
       "BindingIdentifier"
-    ],
-    "typeAnnotation": [
-      "ParseTree"
     ]
   },
   "ReturnStatement": {

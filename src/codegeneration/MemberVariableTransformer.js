@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -13,84 +13,216 @@
 // limitations under the License.
 
 import {
+  CONSTRUCTOR
+} from '../syntax/PredefinedName.js';
+import {
   AnonBlock,
   ClassDeclaration,
-  ClassExpression
+  ClassExpression,
+  FormalParameterList,
+  IdentifierExpression,
+  PropertyMethodAssignment,
+  ReturnStatement,
 } from '../syntax/trees/ParseTrees.js';
-import {PROPERTY_VARIABLE_DECLARATION} from '../syntax/trees/ParseTreeType.js';
-import {parsePropertyDefinition} from './PlaceholderParser.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {
+  GET_ACCESSOR,
+  PROPERTY_METHOD_ASSIGNMENT,
+  PROPERTY_VARIABLE_DECLARATION,
+  SET_ACCESSOR,
+} from '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {
+  createCommaExpression,
+  createFunctionBody,
+  createIdentifierToken,
+  createImmediatelyInvokedFunctionExpression,
+  createLiteralPropertyName,
+  createRestParameter,
+} from './ParseTreeFactory.js';
+import {
+  parsePropertyDefinition,
+  parseStatement,
+} from './PlaceholderParser.js';
+import {parseExpression} from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js';
+import {propName} from '../staticsemantics/PropName.js';
+import {transformConstructor} from './MemberVariableConstructorTransformer.js';
 
 /**
- * Transform member variable declarations from:
+ * Transforms post ES6 member variable declarations to valid ES6 classes.
  *
- * class Test {
- *   a:string;
- *   static b:number;
- *   c;
- * }
+ * - instance variables are initialized in the constructor,
+ * - static variables are initialized after the class definition,
+ *   through `Object.defineProperty(...)`
  *
- * to:
- *
- * class Test {
- *   get a() {
- *     return this.$__0;
+ *   class C {
+ *     x = 42;
  *   }
  *
- *   set a(value:string) {
- *     this.$__0 = value;
- *   }
+ * To:
  *
- *   static get b() {
- *     return this.$__1;
+ *   class C {
+ *     constructor() {
+ *       this.x = 42;
+ *     }
  *   }
- *
- *   static set b(value: number) {
- *     this.$__1 = value;
- *   }
- *
- *   get c() {
- *     return this.$__2;
- *   }
- *
- *   set c(value) {
- *     this.$__2 = value;
- *   }
- * }
  */
-export class MemberVariableTransformer extends ParseTreeTransformer{
+export class MemberVariableTransformer extends TempVarTransformer {
+  transformClassElements_(tree) {
+    let elements = [];
+    let initInstanceVars = [], initStaticVars = [];
+    let constructor;
+    let constructorIndex = 0;
+
+    tree.elements.forEach((tree) => {
+      let initVars;
+      if (tree.isStatic) {
+        initVars = initStaticVars;
+      } else {
+        initVars = initInstanceVars;
+      }
+
+      switch (tree.type) {
+        case GET_ACCESSOR:
+        case SET_ACCESSOR:
+          elements.push(this.transformAny(tree));
+          break;
+
+        case PROPERTY_METHOD_ASSIGNMENT:
+          if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
+            constructor = tree;
+            constructorIndex = elements.length;
+          } else {
+            elements.push(this.transformAny(tree));
+          }
+          break;
+
+        case PROPERTY_VARIABLE_DECLARATION:
+          tree = this.transformAny(tree);
+          if (tree.initializer !== null) {
+            initVars.push(tree);
+          }
+          break;
+
+        default:
+          throw new Error(`Unexpected class element: ${tree.type}`);
+      }
+    });
+
+    if (initInstanceVars.length > 0) {
+      let initExpression = getInstanceInitExpression(initInstanceVars);
+
+      if (!constructor) {
+        constructor = this.getDefaultConstructor_(tree);
+      }
+
+      constructor = transformConstructor(constructor, initExpression,
+          tree.superClass);
+    }
+
+    if (constructor) {
+      elements.splice(constructorIndex, 0, constructor);
+    }
+
+    return {
+      elements,
+      initStaticVars,
+    };
+  }
+
   /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * Transforms a single class declaration
+   *
+   * @param {ClassDeclaration} tree
+   * @return {ParseTree}
    */
-  constructor(identifierGenerator) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
+  transformClassDeclaration(tree) {
+    let {
+      elements,
+      initStaticVars,
+    } = this.transformClassElements_(tree);
+
+    let superClass = this.transformAny(tree.superClass);
+    let classDecl = new ClassDeclaration(tree.location, tree.name, superClass,
+        elements, tree.annotations, tree.typeParameters);
+
+    if (initStaticVars.length === 0) {
+      return classDecl;
+    }
+
+    let statements =
+        createStaticInitializerStatements(tree.name.identifierToken,
+                                          initStaticVars);
+    statements = prependStatements(statements, classDecl);
+
+    return new AnonBlock(null, statements);
   }
 
-  transformPropertyVariableDeclaration(tree) {
-    let identifier = this.identifierGenerator_.generateUniqueIdentifier();
-    let getter = this.createGetAccessor_(identifier, tree);
-    let setter = this.createSetAccessor_(identifier, tree);
-    return new AnonBlock(tree.location, [getter, setter, tree]);
+  /**
+   * Transforms a single class expression
+   *
+   * @param {ClassExpression} tree
+   * @return {ParseTree}
+   */
+  transformClassExpression(tree) {
+    let {
+      elements,
+      initStaticVars,
+    } = this.transformClassElements_(tree);
+
+    let superClass = this.transformAny(tree.superClass);
+    let classExpression = new ClassExpression(tree.location, tree.name,
+        superClass, elements, tree.annotations, tree.typeParameters);
+
+    if (initStaticVars.length === 0) {
+      return classExpression;
+    }
+
+    this.pushTempScope();
+    let id = this.getTempIdentifier();
+    let idToken = createIdentifierToken(id);
+    let idExpression = new IdentifierExpression(idToken.location, idToken);
+    let statements = [
+      parseStatement `let ${id} = ${classExpression}`,
+      ...createStaticInitializerStatements(idToken, initStaticVars),
+      new ReturnStatement(null, idExpression)
+    ];
+    let body = createFunctionBody(statements);
+    this.popTempScope();
+
+    return createImmediatelyInvokedFunctionExpression(body);
   }
 
-  createGetAccessor_(identifier, tree) {
-    let name = tree.name.literalToken;
-    let type = tree.typeAnnotation;
-    let def = parsePropertyDefinition `get ${name}():${type}
-      { return this.${identifier}; }`;
-    // Ok to mutate the tree before it's being published
-    def.isStatic = tree.isStatic;
-    return def;
-  }
+  getDefaultConstructor_(tree) {
+    if (tree.superClass) {
+      let param = createRestParameter(createIdentifierToken('args'));
+      let paramList = new FormalParameterList(null, [param]);
+      let body = createFunctionBody([parseStatement `super(...args)`]);
+      let name = createLiteralPropertyName(CONSTRUCTOR);
+      return new PropertyMethodAssignment(tree.location, false, null, name,
+          paramList, null, [], body, null);
+    }
 
-  createSetAccessor_(identifier, tree) {
-    let name = tree.name.literalToken;
-    let type = tree.typeAnnotation;
-    let def = parsePropertyDefinition `set ${name}(value:${type})
-      { this.${identifier} = value; }`;
-    // Ok to mutate the tree before it's being published
-    def.isStatic = tree.isStatic;
-    return def;
+    return parsePropertyDefinition `constructor() {}`;
   }
+}
+
+// TODO(vicb): Does not handle computed properties
+function createStaticInitializerStatements(idToken, initStaticMemberVars) {
+  let className = new IdentifierExpression(idToken.location, idToken);
+  return initStaticMemberVars.map((mv) => {
+    let propName = mv.name.literalToken.value;
+    return parseStatement
+        `Object.defineProperty(${className}, ${propName}, {enumerable: true,
+        configurable: true, value: ${mv.initializer}, writable: true})`;
+  });
+}
+
+// TODO(vicb): Does not handle computed properties
+function getInstanceInitExpression(initInstanceVars) {
+  let expressions = initInstanceVars.map((mv) => {
+    let name = mv.name.literalToken;
+    return parseExpression `this.${name} = ${mv.initializer}`;
+  });
+  return createCommaExpression(expressions);
 }
