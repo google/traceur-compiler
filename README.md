@@ -3,6 +3,11 @@
 
 <img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px">
 
+## Typed Mode Branch
+
+This branch is for experimenting with [typed mode](https://developers.google.com/v8/experiments#soundscript).
+This branch is relative to the strong-mode branch.
+
 ## Strong Mode Branch
 
 This branch is for experimenting with strong mode. See https://developers.google.com/v8/experiments for more details.
