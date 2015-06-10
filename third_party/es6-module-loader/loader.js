@@ -687,7 +687,16 @@ function logloads(loads) {
         // NB This should be an Object.defineProperty, but that is very slow.
         //    By disaling this module write-protection we gain performance.
         //    It could be useful to allow an option to enable or disable this.
-        moduleObj[name] = value;
+
+        // bulk export object
+        if (typeof name == 'object') {
+          for (var p in name)
+            moduleObj[p] = name[p];
+        }
+        // single export name / value pair
+        else {
+          moduleObj[name] = value;
+        }
 
         for (var i = 0, l = module.importers.length; i < l; i++) {
           var importerModule = module.importers[i];
