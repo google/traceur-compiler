@@ -349,28 +349,26 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
       // then do export bindings of re-exported dependencies
       if (externalExportBindings) {
-        let reexports = {};
+        let reexports = Object.create(null);
         externalExportBindings.forEach(({exportName, importName}) => {
           reexports[exportName] = importName === null ?
               parseExpression `$__m` : parseExpression `$__m.${importName}`;
         });
         setterStatements.push(
-          parseStatement `$__export(${createObjectLiteral(reexports)})`
-        );
+            parseStatement `$__export(${createObjectLiteral(reexports)})`);
       }
 
       // create local module bindings
       if (moduleBinding) {
         setterStatements.push(
-          parseStatement `${id(moduleBinding)} = $__m;`
-        );
+            parseStatement `${id(moduleBinding)} = $__m;`);
       }
 
       // finally run export * if applying to this dependency, for not-already
       // exported dependencies
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
-          var exportObj = {};
+          var exportObj = Object.create(null);
           Object.keys($__m).forEach(function(p) {
             if (p !== 'default' && !$__exportNames[p])
               exportObj[p] = $__m[p];
