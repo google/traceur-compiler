@@ -39,6 +39,7 @@ import {
   createVariableDeclarationList,
   createVoid0
 } from './ParseTreeFactory.js';
+import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
@@ -46,7 +47,8 @@ import {
   BLOCK
 } from '../syntax/trees/ParseTreeType.js';
 
-export class InnerForOnTransformer extends ParseTreeTransformer {
+export class InnerForOnTransformer extends
+    SkipFunctionsTransformerTrait(ParseTreeTransformer) {
   // TODO: This class has considerable overlap with
   // FnExtractAbruptCompletions. The common code should really be refactored
   // into an abstract base class.
@@ -230,14 +232,6 @@ export class InnerForOnTransformer extends ParseTreeTransformer {
 
     return super.transformVariableStatement(tree);
   }
-
-  // don't transform children functions
-  transformFunctionDeclaration(tree) {return tree;}
-  transformFunctionExpression(tree) {return tree;}
-  transformSetAccessor(tree) {return tree;}
-  transformGetAccessor(tree) {return tree;}
-  transformPropertyMethodAssignment(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
 
   static transform(tempIdGenerator, tree, labelSet) {
     return new InnerForOnTransformer(tempIdGenerator, labelSet).transform(tree);
