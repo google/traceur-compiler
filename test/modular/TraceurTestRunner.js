@@ -43,12 +43,7 @@ export class TraceurTestRunner extends Mocha6 {
   run() {
     let numberOfFailures = 0;
     return this.expandPatterns().then(() => {
-      // Convert from callback to promise
-      return new Promise((resolve, reject) => {
-        super.run((numberOfFailures) => {
-          resolve(numberOfFailures);
-        });
-      });
+      return super.run()
     });
   }
 };

@@ -16,6 +16,6 @@
 
 import {featureTestRunner} from './featureTestRunner.js';
 
-featureTestRunner.run().catch(function(ex) {
+featureTestRunner.run().catch((ex) => {
 	console.error('featureTestRunner FAILED ' + ex, ex.stack);
-})
+});

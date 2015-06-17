@@ -13,6 +13,7 @@
 // limitations under the License.
 
 
+import {StringMap} from '../src/util/StringMap.js';
 import {NodeTraceurTestRunner} from './modular/NodeTraceurTestRunner.js';
 import {BrowserTraceurTestRunner} from './modular/BrowserTraceurTestRunner.js';
 
@@ -45,7 +46,7 @@ export function parseProlog(source) {
     expectedErrors: [],
     async: false
   };
-  forEachPrologLine(source, function(line) {
+  forEachPrologLine(source, (line) => {
     let m;
     if (line.indexOf('// Only in browser.') === 0) {
       returnValue.onlyInBrowser = true;
@@ -120,7 +121,7 @@ function setOptions(load, prologOptions) {
 }
 
 function featureTest(name, url) {
-  test(name, function(done) {
+  test(name, (done) => {
     let baseURL = './';
 
     let prologOptions;
@@ -134,7 +135,7 @@ function featureTest(name, url) {
         return '';
 
       if (prologOptions.async) {
-        global.done = function(ex) {
+        global.done = (ex) => {
           handleExpectedErrors(ex);
           done(ex);
         };
@@ -145,8 +146,8 @@ function featureTest(name, url) {
 
     let moduleLoader = new System.constructor();
 
-    moduleLoader.translate = function(load) {
-      return new Promise(function(resolve, reject){
+    moduleLoader.translate = (load) => {
+      return new Promise((resolve, reject) => {
         resolve(translateSynchronous(load));
       });
     }
@@ -161,7 +162,7 @@ function featureTest(name, url) {
 
         actualErrors = actualErrors.map(
             (error) => normalizeErrorPaths(error + ''));
-        prologOptions.expectedErrors.forEach(function(expected, index) {
+        prologOptions.expectedErrors.forEach((expected, index) => {
           assert.isTrue(
               actualErrors.some(
                   (actualError) => actualError.indexOf(expected) !== -1),
@@ -253,17 +254,17 @@ function cloneTest(name, url) {
 
   let moduleLoader = new System.constructor();
 
-  test(name, function(done) {
+  test(name, (done) => {
     let load = {
       metadata: {},
       normalizedName:
           System.normalize(url)
     };
     load.address = System.locate(load);
-    moduleLoader.fetch({address: url}).then(function(data) {
+    moduleLoader.fetch({address: url}).then((data) => {
       doTest(data);
       done();
-    }, function(ex) {
+    }, (ex) => {
       fail('Load error for ' + url + ': ' + ex);
       done();
     });
@@ -280,36 +281,37 @@ Reflect.global.fail = fail;
 function importFeatureFiles(files) {
   return new Promise((resolve) => {
     // Bucket tests.
-    let tree = {};
-    files.forEach(function(path) {
+    let testBucket = new StringMap();
+    files.forEach((path) => {
       let parts = path.split('/');
       parts = parts.slice(3);
       path = parts.join('/');
-      let suiteName = parts.slice(0, -1).join(' ');
-      let testName = parts[parts.length - 1];
-      if (!tree[suiteName])
-        tree[suiteName] = [];
-      tree[suiteName].push({name: testName, path: path});
+      let suiteName = parts.slice(0, -1).join(' ') || '(root)';
+      let name = parts[parts.length - 1];
+      if (!testBucket.has(suiteName)) {
+        testBucket.set(suiteName, []);
+      }
+      testBucket.get(suiteName).push({name, path});
     });
 
-    suite('Feature Tests', function() {
-      for (let suiteName in tree) {
-        suite(suiteName, function() {
-          tree[suiteName].forEach(function(tuple) {
+    suite('Feature Tests', () => {
+      testBucket.keysAsArray().forEach((suiteName) => {
+        suite(suiteName, () => {
+          testBucket.get(suiteName).forEach((tuple) => {
             featureTest(tuple.name, './test/feature/' + tuple.path);
           });
         });
-      }
+      });
     });
 
-    suite('Clone Tree Tests', function() {
-      for (let suiteName in tree) {
-        suite(suiteName, function() {
-          tree[suiteName].forEach(function(tuple) {
+    suite('Clone Tree Tests', () => {
+      testBucket.keysAsArray().forEach((suiteName) => {
+        suite(suiteName, () => {
+          testBucket.get(suiteName).forEach((tuple) => {
             cloneTest(tuple.name, './test/feature/' + tuple.path);
           });
         });
-      }
+      });
     });
     resolve();
   });
