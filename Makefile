@@ -92,7 +92,7 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: test/test-list.js bin/traceur.js \
+test: bin/traceur.js \
 		test/unit \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
@@ -120,11 +120,6 @@ test/amd: test/amd-compiled
 
 test/closure:
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-closure-test.js
-
-test-list: test/test-list.js
-
-test/test-list.js: force
-	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 test-interpret: test/unit/node/traceur-interpreter.js
 	./traceur $^
