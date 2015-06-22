@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var traceur = global.traceur = require('../src/node/traceur.js');
-global.chai = require('chai');
-var testUtil = require('./test-utils.js');
+/* @fileoverview Configure mocha and run the test list */
+
+import {featureTestRunner} from './featureTestRunner.js';
+
+featureTestRunner.run().catch((ex) => {
+	console.error('featureTestRunner FAILED ' + ex, ex.stack);
+});

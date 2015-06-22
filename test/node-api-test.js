@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var assert = global.assert = require('chai').assert;
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
   var sourceMapUtil = require('source-map/lib/source-map/util.js');

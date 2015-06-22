@@ -1,20 +1,24 @@
 
+var assert = require('chai').assert;
 var traceurSystem = global.System;
 var System = require('../third_party/es6-module-loader/index').System;
 global.System = traceurSystem;
+var Options = global.traceur.util.Options;
 
 System.baseURL = __dirname + '/instantiate/';
 
-
-// Parse Traceur options from prolog (comment at the top of a source file).
-var parseProlog = require('./test-utils').parseProlog;
-System.translate = function(load) {
-  load.metadata.traceurOptions = parseProlog(load.source).traceurOptions;
-  return load.source;
-};
-
+var traceurOptions;
 
 suite('instantiate', function() {
+
+  beforeEach(function() {
+    traceurOptions = null;
+    System.translate = function(load) {
+      load.metadata.traceurOptions = traceurOptions;
+      return load.source;
+    };
+  });
+
   test('Inheritance', function(done) {
     System.import('./inheritance.js').then(function(m) {
       assert.instanceOf(m.test, m.Bar);
@@ -41,6 +45,9 @@ suite('instantiate', function() {
   });
 
   test('Circular annotations', function(done) {
+    traceurOptions = new Options();
+    traceurOptions.types = true;
+    traceurOptions.annotations = true;
     System.import('./circular_annotation1.js').then(function(m1) {
       System.import('./circular_annotation2.js').then(function(m2) {
         assert.instanceOf(m1.BarAnnotation.annotations[0], m2.FooAnnotation);
@@ -164,6 +171,8 @@ suite('instantiate', function() {
   });
 
   test('Export name from', function(done) {
+    traceurOptions = new Options();
+    traceurOptions.exportFromExtended = true;
     System.import('./export-forward-default.js').then(function(m) {
       assert.equal(42, m.a);
       done();

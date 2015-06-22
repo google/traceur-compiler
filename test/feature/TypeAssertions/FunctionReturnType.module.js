@@ -1,4 +1,7 @@
 // Options: --types --type-assertions --type-assertion-module=./resources/assert.js
+
+import {AssertionError} from '../../asserts.js';
+
 function returnType(): number { return 1; }
 
 function multipleReturnPaths(value): number {
@@ -74,4 +77,4 @@ assert.isFalse(returnWithinDoWhileLoop(20));
 assert.equal(0, returnExpression(0));
 assert.equal(2, returnExpression(4));
 assert.equal(undefined, returnVoid());
-assert.throw(throwsAssertion, chai.AssertionError);
+assert.throw(throwsAssertion, AssertionError);

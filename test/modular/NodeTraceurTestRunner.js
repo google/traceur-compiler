@@ -36,7 +36,7 @@ export function globPatterns(patterns) {
       arrayOfFiles.forEach((files) => {
         allFiles.push(...files);
       });
-      return allFiles;
+      return allFiles.map((file) => file.replace(/\\/g, '/'));
     });
 }
 

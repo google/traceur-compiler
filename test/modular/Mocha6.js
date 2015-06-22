@@ -53,16 +53,19 @@ export class Mocha6 extends Mocha {
   }
 
   /**
-   * Run tests and invoke `fn()` when complete.
-   *
+   * Run tests
    * @return {Runner}
    * @api public
    */
 
-  run(fn) {
+  run() {
     // The base mocha.run will not load files, see loadFiles() override.
     return this.importFiles().then(() => {
-      return super.run(fn);
+      return new Promise((resolve, reject) => {
+        super.run((numberOfFailures) => {
+          numberOfFailures ? reject(numberOfFailures) : resolve();
+        })
+      });
     });
   }
 }

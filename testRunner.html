@@ -1,6 +1,12 @@
 <!DOCTYPE html>
+<title>Traceur Tests</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./node_modules/mocha/mocha.css">
+<style>
+#mocha-stats.unitTestProgress {
+  top: 60px;
+}
+</style>
 <script src="node_modules/mocha/mocha.js"></script>
 <script src="node_modules/chai/chai.js"></script>
 <script src="bin/traceur.js"></script>
@@ -8,11 +14,12 @@
 window.System = new traceur.runtime.BrowserTraceurLoader();
 System.map = System.semverMap(System.version);
 </script>
-<script src="test/test-utils.js"></script>
-<script src="test/test-list.js"></script>
 <div id="mocha"></div>
 
 <script>
+function fixupMocha(mochaClass) {
+  document.getElementById('mocha-stats').classList.add(mochaClass);
+}
 // Unit tests
 var metadata = {traceurOptions: {sourceMaps: true}};
 System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
@@ -23,17 +30,20 @@ System.import('./test/unit/unitTestRunner.js', metadata).then(function(module) {
   window.teardown = module.teardown;
   return unitTestRunner.run().then(function() {
     console.log('unitTestRunner success');
+    fixupMocha('unitTestProgress');
   }, function(ex) {
     document.getElementById('mocha').textContent = ex.stack || ex;
     console.error('unitTestRunner.run FAILED', ex.stack || ex);
   });
 }).then(function() {
   // Feature tests.
-  return System.import('./src/runtime/webLoader.js', metadata).
+  return System.import('./test/featureTestRunner.js ', metadata).
       then(function(module) {
-        featureSuite(testList, module.webLoader);
-        new traceur.WebPageTranscoder(document.location.href).run(function() {
-          mocha.run();
+      	module.featureTestRunner.run().then(function() {
+          console.log('featureTestRunner success');
+        }, function(ex) {
+          document.getElementById('mocha').textContent = ex.stack || ex;
+          console.error('featureTestRunner.run FAILED', ex.stack || ex);
         });
       });
 }).catch(function(ex) {
