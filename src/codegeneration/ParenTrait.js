@@ -18,6 +18,7 @@ import {
   ExpressionStatement,
   NewExpression,
   ParenExpression,
+  PropertyNameAssignment,
   VariableDeclaration,
 } from '../syntax/trees/ParseTrees.js';
 import {
@@ -128,6 +129,17 @@ export function ParenTrait(ParseTreeTransformerClass) {
         return tree;
       }
       return new ArrayLiteralExpression(tree.location, elements);
+    }
+
+    transformPropertyNameAssignment(tree) {
+      let name = this.transformAny(tree.name);
+      let value = this.transformAny(tree.value);
+      if (value.type === COMMA_EXPRESSION) {
+        value = wrap(value);
+      } else if (name === tree.name && value === tree.value) {
+        return tree;
+      }
+      return new PropertyNameAssignment(tree.location, name, value);
     }
   };
 }
