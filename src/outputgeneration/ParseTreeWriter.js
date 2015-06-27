@@ -1043,9 +1043,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ObjectLiteralExpression} tree
+   * @param {ObjectLiteral} tree
    */
-  visitObjectLiteralExpression(tree) {
+  visitObjectLiteral(tree) {
     this.writeOpenCurly_();
     if (tree.propertyNameAndValues.length > 1)
       this.writeln_();

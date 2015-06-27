@@ -161,11 +161,11 @@ export class SuperTransformer extends TempVarTransformer {
     return this.stateStack_[this.stateStack_.length - 1];
   }
 
-  transformObjectLiteralExpression(tree) {
+  transformObjectLiteral(tree) {
     let state = new State(this, null);
     this.pushState(state);
     this.pushState(state);
-    let result = super.transformObjectLiteralExpression(tree);
+    let result = super.transformObjectLiteral(tree);
     this.popState();
     this.popState();
     if (state.hasSuper) {

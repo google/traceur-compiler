@@ -156,7 +156,7 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   transformMemberExpression(tree) {return tree;}
   transformMemberLookupExpression(tree) {return tree;}
   transformPostfixExpression(tree) {return tree;}
-  transformObjectLiteralExpression(tree) {return tree;}
+  transformObjectLiteral(tree) {return tree;}
   transformUnaryExpression(tree) {return tree;}
 
   static transform(bodyTransformer,  tree) {

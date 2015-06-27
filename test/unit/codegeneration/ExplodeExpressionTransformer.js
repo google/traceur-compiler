@@ -132,9 +132,9 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('ArrayLiteral', '[a.b, ...x]',
       '$0 = a.b, $1 = [$0, ...x], $1');
 
-  testExplode('ObjectLiteralExpression', '{a: 1, b: 2}',
+  testExplode('ObjectLiteral', '{a: 1, b: 2}',
       '{\n  a: 1,\n  b: 2\n}');
-  testExplode('ObjectLiteralExpression', '{a: b.c, d: e.f}',
+  testExplode('ObjectLiteral', '{a: b.c, d: e.f}',
       '$0 = b.c, $1 = e.f, $2 = {\n  a: $0,\n  d: $1\n}, $2');
 
   testExplode('TemplateLiteralExpression', '`a${1}b${2}c`', '`a${1}b${2}c`');

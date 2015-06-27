@@ -16,7 +16,7 @@ import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   CALL_EXPRESSION,
   GET_ACCESSOR,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   PROPERTY_NAME_ASSIGNMENT,
   RETURN_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
@@ -37,7 +37,7 @@ import {
   createEmptyParameterList,
   createFunctionExpression,
   createIdentifierExpression,
-  createObjectLiteralExpression,
+  createObjectLiteral,
   createPropertyNameAssignment,
   createVariableStatement,
   createVariableDeclaration,
@@ -123,7 +123,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   transformObjectLiteralToDescriptors(literalTree) {
-    assert(literalTree.type === OBJECT_LITERAL_EXPRESSION);
+    assert(literalTree.type === OBJECT_LITERAL);
 
     let props = literalTree.propertyNameAndValues.map((exp) => {
       let descriptor;
@@ -146,7 +146,7 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
       return createPropertyNameAssignment(exp.name, descriptor);
     });
 
-    return createObjectLiteralExpression(props);
+    return createObjectLiteral(props);
   }
 
   transformModuleSpecifier(tree) {

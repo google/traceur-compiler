@@ -25,7 +25,7 @@ import {
   CALL_EXPRESSION,
   COMMA_EXPRESSION,
   FUNCTION_EXPRESSION,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   OBJECT_PATTERN,
   TEMPLATE_LITERAL_EXPRESSION,
 } from '../syntax/trees/ParseTreeType.js';
@@ -68,7 +68,7 @@ export function ParenTrait(ParseTreeTransformerClass) {
     transformExpressionStatement(tree) {
       let expression = this.transformAny(tree.expression);
       switch (expression.type) {
-        case OBJECT_LITERAL_EXPRESSION:
+        case OBJECT_LITERAL:
         case OBJECT_PATTERN:
         case FUNCTION_EXPRESSION:
           expression = wrap(expression);

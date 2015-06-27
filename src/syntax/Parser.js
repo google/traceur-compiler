@@ -23,7 +23,7 @@ import {
   FORMAL_PARAMETER_LIST,
   IDENTIFIER_EXPRESSION,
   LITERAL_PROPERTY_NAME,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
 } from './trees/ParseTreeType.js';
@@ -243,7 +243,7 @@ import {
   NameSpaceImport,
   NamedExport,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   ObjectPattern,
   ObjectPatternField,
   ObjectType,
@@ -2345,7 +2345,7 @@ export class Parser {
         break;
     }
     this.eat_(CLOSE_CURLY);
-    return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
+    return new ObjectLiteral(this.getTreeLocation_(start), result);
   }
 
   /**
@@ -2840,7 +2840,7 @@ export class Parser {
   transformLeftHandSideExpression_(tree) {
     switch (tree.type) {
       case ARRAY_LITERAL:
-      case OBJECT_LITERAL_EXPRESSION:
+      case OBJECT_LITERAL:
         resetScanner(tree.location.start.offset);
         // If we fail to parse as an AssignmentPattern then
         // parseAssignmentPattern_ will take care reporting errors.

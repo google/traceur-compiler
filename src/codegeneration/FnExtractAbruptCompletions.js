@@ -37,7 +37,7 @@ import {
   createFunctionExpression,
   createIdentifierExpression,
   createNumberLiteral,
-  createObjectLiteral,
+  createObjectLiteralForDescriptor,
   createSwitchStatement,
   createThisExpression,
   createVariableDeclaration,
@@ -183,7 +183,7 @@ export class FnExtractAbruptCompletions extends
 
   transformReturnStatement(tree) {
     this.hasReturns = true;
-    return new ReturnStatement(tree.location, createObjectLiteral({
+    return new ReturnStatement(tree.location, createObjectLiteralForDescriptor({
       v: tree.expression || createVoid0()
     }));
   }

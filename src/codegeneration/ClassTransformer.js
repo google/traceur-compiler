@@ -44,7 +44,7 @@ import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
 import {
   createIdentifierExpression as id,
-  createObjectLiteralExpression,
+  createObjectLiteral,
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
@@ -232,8 +232,8 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     let staticElements =
         elements.filter((tree) => tree.isStatic).map(removeStaticModifier);
 
-    let protoObject = createObjectLiteralExpression(protoElements);
-    let staticObject = createObjectLiteralExpression(staticElements);
+    let protoObject = createObjectLiteral(protoElements);
+    let staticObject = createObjectLiteral(staticElements);
 
     if (!constructor) {
       constructor = this.getDefaultConstructor_(tree);

@@ -72,7 +72,7 @@ import {
   MemberExpression,
   MemberLookupExpression,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   ParenExpression,
   PostfixExpression,
   Script,
@@ -572,7 +572,7 @@ export function createObjectFreeze(value) {
 
 /**
  * @param {ParseTree} protoExpression
- * @param {ObjectLiteralExpression=} descriptors
+ * @param {ObjectLiteral=} descriptors
  * @return {ParseTree}
  */
 export function createObjectCreate(protoExpression, descriptors = undefined) {
@@ -590,16 +590,16 @@ export function createObjectCreate(protoExpression, descriptors = undefined) {
  * Creates an object literal tree representing a property descriptor.
  * @param {Object} descr This is a normal js object. The values in the descr
  *     may be true, false or a ParseTree.
- * @return {ObjectLiteralExpression}
+ * @return {ObjectLiteral}
  */
-export function createObjectLiteral(descr) {
+export function createObjectLiteralForDescriptor(descr) {
   let propertyNameAndValues = Object.keys(descr).map(function(name) {
     let value = descr[name];
     if (!(value instanceof ParseTree))
       value = createBooleanLiteral(!!value);
     return createPropertyNameAssignment(name, value);
   });
-  return createObjectLiteralExpression(propertyNameAndValues);
+  return createObjectLiteral(propertyNameAndValues);
 }
 
 /**
@@ -620,16 +620,16 @@ export function createDefineProperty(tree, name, descr) {
       createArgumentList([
         tree,
         name,
-        createObjectLiteral(descr)
+        createObjectLiteralForDescriptor(descr)
       ]));
 }
 
 /**
  * @param {Array.<ParseTree>} propertyNameAndValues
- * @return {ObjectLiteralExpression}
+ * @return {ObjectLiteral}
  */
-export function createObjectLiteralExpression(propertyNameAndValues) {
-  return new ObjectLiteralExpression(null, propertyNameAndValues);
+export function createObjectLiteral(propertyNameAndValues) {
+  return new ObjectLiteral(null, propertyNameAndValues);
 }
 
 /**

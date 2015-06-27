@@ -25,7 +25,7 @@ import {
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
@@ -494,7 +494,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       case LITERAL_EXPRESSION:
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
+      case OBJECT_LITERAL:
       case PAREN_EXPRESSION:
         initializer = tree.initializer;
     }

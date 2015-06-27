@@ -875,7 +875,7 @@
       "ArgumentList"
     ]
   },
-  "ObjectLiteralExpression": {
+  "ObjectLiteral": {
     "location": [
       "SourceRange"
     ],

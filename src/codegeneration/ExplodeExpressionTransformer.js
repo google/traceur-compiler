@@ -53,7 +53,7 @@ import {
   MemberExpression,
   MemberLookupExpression,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   PropertyNameAssignment,
   SpreadExpression,
   TemplateLiteralExpression,
@@ -504,7 +504,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return builder.build(new ArrayLiteral(tree.location, results));
   }
 
-  transformObjectLiteralExpression(tree) {
+  transformObjectLiteral(tree) {
     // TODO(arv): Computed property names.
     let propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
     if (propertyNameAndValues === tree.propertyNameAndValues)
@@ -523,7 +523,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
         results.push(propertyNameAndValues[i]);
       }
     }
-    return builder.build(new ObjectLiteralExpression(tree.location, results));
+    return builder.build(new ObjectLiteral(tree.location, results));
   }
 
   transformTemplateLiteralExpression(tree) {

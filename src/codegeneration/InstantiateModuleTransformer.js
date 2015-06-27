@@ -34,7 +34,7 @@ import {
   createFunctionBody,
   createFunctionExpression,
   createIdentifierExpression as id,
-  createObjectLiteral,
+  createObjectLiteralForDescriptor,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -355,7 +355,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
               parseExpression `$__m` : parseExpression `$__m.${importName}`;
         });
         setterStatements.push(
-            parseStatement `$__export(${createObjectLiteral(reexports)})`);
+            parseStatement `$__export(${createObjectLiteralForDescriptor(reexports)})`);
       }
 
       // create local module bindings
@@ -383,7 +383,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
             });
 
         declarationStatements.push(parseStatement `
-          var $__exportNames = ${createObjectLiteral(exportNames)};
+          var $__exportNames = ${createObjectLiteralForDescriptor(exportNames)};
         `);
       }
 

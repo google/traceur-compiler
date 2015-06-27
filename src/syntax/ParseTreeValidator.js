@@ -784,9 +784,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ObjectLiteralExpression} tree
+   * @param {ObjectLiteral} tree
    */
-  visitObjectLiteralExpression(tree) {
+  visitObjectLiteral(tree) {
     for (let i = 0; i < tree.propertyNameAndValues.length; i++) {
       let propertyNameAndValue = tree.propertyNameAndValues[i];
       switch (propertyNameAndValue.type) {
