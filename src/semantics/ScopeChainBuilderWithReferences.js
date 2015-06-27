@@ -19,8 +19,8 @@ import {
   FUNCTION_EXPRESSION,
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
+  METHOD,
   MODULE,
-  PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType.js';
 import {TYPEOF} from '../syntax/TokenType.js';
@@ -31,7 +31,7 @@ function hasArgumentsInScope(scope) {
       case FUNCTION_DECLARATION:
       case FUNCTION_EXPRESSION:
       case GET_ACCESSOR:
-      case PROPERTY_METHOD_ASSIGNMENT:
+      case METHOD:
       case SET_ACCESSOR:
         return true;
     }

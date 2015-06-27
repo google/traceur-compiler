@@ -19,7 +19,7 @@ import {
   ClassExpression,
   GetAccessor,
   MemberExpression,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor,
 } from '../syntax/trees/ParseTrees.js';
 import {
@@ -224,7 +224,7 @@ export class SuperTransformer extends TempVarTransformer {
                                 tree.annotations, tree.typeParameters);
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     let name = this.transformAny(tree.name);
     let prototypeState;
     if (tree.isStatic) {
@@ -243,7 +243,7 @@ export class SuperTransformer extends TempVarTransformer {
       return tree;
     }
 
-    return new PropertyMethodAssignment(tree.location, tree.isStatic,
+    return new Method(tree.location, tree.isStatic,
         tree.functionKind, name, parameterList, tree.typeAnnotation,
         tree.annotations, body, tree.debugName);
   }

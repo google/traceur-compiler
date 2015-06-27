@@ -59,7 +59,7 @@ class FindAdvancedProperty extends FindVisitor {
       // We do not want to visit object literals in the property's value.
   }
 
-  visitPropertyMethodAssignment(tree) {
+  visitMethod(tree) {
     this.visitAny(tree.name);
     // We do not want to visit object literals in the method's body.
   }
@@ -308,7 +308,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
         });
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     let func = new FunctionExpression(tree.location, tree.debugName, tree.functionKind,
         this.transformAny(tree.parameterList), tree.typeAnnotation, [],
         this.transformAny(tree.body));

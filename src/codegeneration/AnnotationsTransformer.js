@@ -25,7 +25,7 @@ import {
   FunctionDeclaration,
   GetAccessor,
   LiteralExpression,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {propName} from '../staticsemantics/PropName.js';
@@ -204,9 +204,9 @@ class AnnotationsScope {
     return super.transformSetAccessor(tree);
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     if (!this.scope.inClassScope)
-      return super.transformPropertyMethodAssignment(tree);
+      return super.transformMethod(tree);
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
@@ -221,11 +221,11 @@ class AnnotationsScope {
     let parameterList = this.transformAny(tree.parameterList);
     if (parameterList !== tree.parameterList ||
         tree.annotations.length > 0) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+      tree = new Method(tree.location, tree.isStatic,
           tree.functionKind, tree.name, parameterList,
           tree.typeAnnotation, [], tree.body, tree.debugName);
     }
-    return super.transformPropertyMethodAssignment(tree);
+    return super.transformMethod(tree);
   }
 
   appendMetadata_(tree) {

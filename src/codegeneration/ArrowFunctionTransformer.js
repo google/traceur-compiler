@@ -148,12 +148,12 @@ export class ArrowFunctionTransformer extends ParenTrait(TempVarTransformer) {
     return result;
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     let inConstructor = this.inConstructor_;
     this.inConstructor_ = !tree.isStatic && tree.functionKind === null &&
         tree.name.type === LITERAL_PROPERTY_NAME &&
         tree.name.literalToken.value === CONSTRUCTOR;
-    let result = super.transformPropertyMethodAssignment(tree);
+    let result = super.transformMethod(tree);
     this.inConstructor_ = inConstructor;
     return result;
 

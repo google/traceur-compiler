@@ -235,6 +235,7 @@ import {
   LiteralPropertyName,
   MemberExpression,
   MemberLookupExpression,
+  Method,
   MethodSignature,
   Module,
   ModuleSpecifier,
@@ -249,7 +250,6 @@ import {
   ParenExpression,
   PostfixExpression,
   PredefinedType,
-  PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand,
   PropertySignature,
@@ -2518,7 +2518,7 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
     let typeAnnotation = this.parseTypeAnnotationOpt_();
     let body = this.parseFunctionBody_(parameterList);
-    return new PropertyMethodAssignment(this.getTreeLocation_(start),
+    return new Method(this.getTreeLocation_(start),
         isStatic, functionKind, name, parameterList, typeAnnotation,
         annotations, body, null);
   }

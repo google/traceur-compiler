@@ -22,7 +22,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {createBindingIdentifier} from '../codegeneration/ParseTreeFactory.js';
@@ -30,7 +30,7 @@ import {
   COMPUTED_PROPERTY_NAME,
   GET_ACCESSOR,
   LITERAL_PROPERTY_NAME,
-  PROPERTY_METHOD_ASSIGNMENT,
+  METHOD,
   SET_ACCESSOR,
 } from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
@@ -131,8 +131,8 @@ function removeStaticModifier(tree) {
     case SET_ACCESSOR:
       return new SetAccessor(tree.location, false, tree.name,
           tree.parameterList, tree.annotations, tree.body);
-    case PROPERTY_METHOD_ASSIGNMENT:
-      return new PropertyMethodAssignment(tree.location, false,
+    case METHOD:
+      return new Method(tree.location, false,
           tree.functionKind, tree.name, tree.parameterList, tree.typeAnnotation,
           tree.annotations, tree.body, tree.debugName);
     default:
@@ -141,7 +141,7 @@ function removeStaticModifier(tree) {
 }
 
 export default function isConstructor(tree) {
-  if (tree.type !== PROPERTY_METHOD_ASSIGNMENT || tree.isStatic ||
+  if (tree.type !== METHOD || tree.isStatic ||
       tree.functionKind !== null) {
     return false;
   }

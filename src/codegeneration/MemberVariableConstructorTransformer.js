@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PropertyMethodAssignment} from '../syntax/trees/ParseTrees.js';
+import {Method} from '../syntax/trees/ParseTrees.js';
 import {SUPER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
@@ -44,7 +44,7 @@ export function transformConstructor(constructor, initExpression, superClass) {
   let initStatement = createExpressionStatement(initExpression);
   statements = prependStatements(statements, initStatement);
 
-  return new PropertyMethodAssignment(constructor.location, false,
+  return new Method(constructor.location, false,
       constructor.functionKind, constructor.name, constructor.parameterList,
       constructor.typeAnnotation, constructor.annotations,
       createFunctionBody(statements), constructor.debugName);

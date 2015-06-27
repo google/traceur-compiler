@@ -775,6 +775,35 @@
       "ParseTree"
     ]
   },
+  "Method": {
+    "location": [
+      "SourceRange"
+    ],
+    "isStatic": [
+      "boolean"
+    ],
+    "functionKind": [
+      "Token"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
+    "annotations": [
+      "Array<ParseTree>"
+    ],
+    "body": [
+      "FunctionBody"
+    ],
+    "debugName": [
+      "ParseTree"
+    ]
+  },
   "MethodSignature": {
     "location": [
       "SourceRange"
@@ -917,35 +946,6 @@
     ],
     "moduleName": [
       "string"
-    ]
-  },
-  "PropertyMethodAssignment": {
-    "location": [
-      "SourceRange"
-    ],
-    "isStatic": [
-      "boolean"
-    ],
-    "functionKind": [
-      "Token"
-    ],
-    "name": [
-      "ParseTree"
-    ],
-    "parameterList": [
-      "FormalParameterList"
-    ],
-    "typeAnnotation": [
-      "ParseTree"
-    ],
-    "annotations": [
-      "Array<ParseTree>"
-    ],
-    "body": [
-      "FunctionBody"
-    ],
-    "debugName": [
-      "ParseTree"
     ]
   },
   "PropertyNameAssignment": {

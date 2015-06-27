@@ -22,7 +22,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor,
 } from '../syntax/trees/ParseTrees.js';
 import {StringSet} from '../util/StringSet.js';
@@ -188,10 +188,10 @@ export class ScopeTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {PropertyMethodAssignment} tree
+   * @param {Method} tree
    * @return {ParseTree}
    */
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     let name = this.transformAny(tree.name);
     let typeAnnotation = this.transformAny(tree.typeAnnotation);
     let annotations = this.transformList(tree.annotations);
@@ -201,7 +201,7 @@ export class ScopeTransformer extends ParseTreeTransformer {
         parameterList === tree.parameterList && body === tree.body) {
       return tree;
     }
-    return new PropertyMethodAssignment(tree.location, tree.isStatic,
+    return new Method(tree.location, tree.isStatic,
                                         tree.functionKind, name,
                                         parameterList, typeAnnotation,
                                         annotations, body, tree.debugName);

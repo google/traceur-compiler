@@ -21,12 +21,12 @@ import {
   ClassExpression,
   FormalParameterList,
   IdentifierExpression,
-  PropertyMethodAssignment,
+  Method,
   ReturnStatement,
 } from '../syntax/trees/ParseTrees.js';
 import {
   GET_ACCESSOR,
-  PROPERTY_METHOD_ASSIGNMENT,
+  METHOD,
   PROPERTY_VARIABLE_DECLARATION,
   SET_ACCESSOR,
 } from '../syntax/trees/ParseTreeType.js';
@@ -88,7 +88,7 @@ export class MemberVariableTransformer extends TempVarTransformer {
           elements.push(this.transformAny(tree));
           break;
 
-        case PROPERTY_METHOD_ASSIGNMENT:
+        case METHOD:
           if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             constructor = tree;
             constructorIndex = elements.length;
@@ -199,7 +199,7 @@ export class MemberVariableTransformer extends TempVarTransformer {
       let paramList = new FormalParameterList(null, [param]);
       let body = createFunctionBody([parseStatement `super(...args)`]);
       let name = createLiteralPropertyName(CONSTRUCTOR);
-      return new PropertyMethodAssignment(tree.location, false, null, name,
+      return new Method(tree.location, false, null, name,
           paramList, null, [], body, null);
     }
 

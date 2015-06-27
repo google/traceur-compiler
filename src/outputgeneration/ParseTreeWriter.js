@@ -1121,9 +1121,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {PropertyMethodAssignment} tree
+   * @param {Method} tree
    */
-  visitPropertyMethodAssignment(tree) {
+  visitMethod(tree) {
     this.writeAnnotations_(tree.annotations);
     if (tree.isStatic) {
       this.write_(STATIC);

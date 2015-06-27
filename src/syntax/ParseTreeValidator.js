@@ -81,17 +81,17 @@ import {
   FUNCTION_DECLARATION,
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
+  IMPORTED_BINDING,
   IMPORT_CLAUSE_PAIR,
   IMPORT_SPECIFIER_SET,
-  IMPORTED_BINDING,
   LITERAL_PROPERTY_NAME,
+  METHOD,
   MODULE_SPECIFIER,
   NAMED_EXPORT,
   NAME_SPACE_EXPORT,
   NAME_SPACE_IMPORT,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
-  PROPERTY_METHOD_ASSIGNMENT,
   PROPERTY_NAME_ASSIGNMENT,
   PROPERTY_NAME_SHORTHAND,
   PROPERTY_VARIABLE_DECLARATION,
@@ -404,7 +404,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       switch (element.type) {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
-        case PROPERTY_METHOD_ASSIGNMENT:
+        case METHOD:
         case PROPERTY_VARIABLE_DECLARATION:
           break;
         default:
@@ -792,7 +792,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       switch (propertyNameAndValue.type) {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
-        case PROPERTY_METHOD_ASSIGNMENT:
+        case METHOD:
           this.check_(!propertyNameAndValue.isStatic, propertyNameAndValue,
                       'static is not allowed in object literal expression');
           break;

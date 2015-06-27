@@ -17,7 +17,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor,
 } from '../syntax/trees/ParseTrees.js';
 
@@ -65,13 +65,13 @@ export default function SkipFunctionsTransformerTrait(ParseTreeTransformer) {
                              tree.body);
     }
 
-    transformPropertyMethodAssignment(tree) {
+    transformMethod(tree) {
       let name = this.transformAny(tree.name);
       let annotations = this.transformList(tree.annotations);
       if (name === tree.name && annotations === tree.annotations) {
         return tree;
       }
-      return new PropertyMethodAssignment(tree.location, tree.isStatic,
+      return new Method(tree.location, tree.isStatic,
                                           tree.functionKind, name,
                                           tree.parameterList,
                                           tree.typeAnnotation, annotations,

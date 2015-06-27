@@ -38,7 +38,7 @@ export class FindInFunctionScope extends FindVisitor {
     this.visitAny(tree.name);
     this.visitList(tree.annotations);
   }
-  visitPropertyMethodAssignment(tree) {
+  visitMethod(tree) {
     this.visitAny(tree.name);
     this.visitList(tree.annotations);
   }

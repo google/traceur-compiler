@@ -52,10 +52,10 @@ export class ParameterTransformer extends TempVarTransformer {
     return super.transformSetAccessor(tree);
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformPropertyMethodAssignment(tree);
+    return super.transformMethod(tree);
   }
 
   transformFunctionBody(tree) {
@@ -64,7 +64,7 @@ export class ParameterTransformer extends TempVarTransformer {
     // The stack is pushed onto further up in the call chain
     // (transformFunctionDeclaration, transformFunctionExpression,
     // transformGetAccessor, transformSetAccessor,
-    // transformPropertyMethodAssignment)
+    // transformMethod)
     let statements = stack.pop();
     if (!statements.length)
       return transformedTree;
