@@ -22,10 +22,10 @@ let stack = [];
  * Base class for rest, default and destructuring parameters.
  */
 export class ParameterTransformer extends TempVarTransformer {
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformArrowFunctionExpression(tree);
+    return super.transformArrowFunction(tree);
   }
 
   transformFunctionDeclaration(tree) {

@@ -45,7 +45,7 @@ import {prependStatements} from './PrependStatements.js';
 
 
 class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     return tree;
   }
   transformClassExpression(tree) {

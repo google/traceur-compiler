@@ -149,7 +149,7 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformArrayLiteralExpression(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
+  transformArrowFunction(tree) {return tree;}
   transformFunctionExpression(tree) {return tree;}
   transformIdentifierExpression(tree) {return tree;}
   transformLiteralExpression(tree) {return tree;}

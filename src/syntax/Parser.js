@@ -172,7 +172,7 @@ import {
   ArrayLiteralExpression,
   ArrayPattern,
   ArrayType,
-  ArrowFunctionExpression,
+  ArrowFunction,
   AssignmentElement,
   AwaitExpression,
   BinaryExpression,
@@ -3291,7 +3291,7 @@ export class Parser {
     this.eat_(ARROW);
     let body = this.parseConciseBody_(formals);
     this.popFunctionState_(fs);
-    return new ArrowFunctionExpression(this.getTreeLocation_(start),
+    return new ArrowFunction(this.getTreeLocation_(start),
         asyncToken, formals, body);
   }
 

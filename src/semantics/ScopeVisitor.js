@@ -103,7 +103,7 @@ export class ScopeVisitor extends ParseTreeVisitor {
     this.visitFunctionBodyForScope(tree);
   }
 
-  visitArrowFunctionExpression(tree) {
+  visitArrowFunction(tree) {
     this.visitFunctionBodyForScope(tree);
   }
 

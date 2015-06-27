@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {
-  ARROW_FUNCTION_EXPRESSION,
+  ARROW_FUNCTION,
   CLASS_DECLARATION,
   CLASS_EXPRESSION,
   FUNCTION_BODY,
@@ -42,7 +42,7 @@ export function isTreeStrict(tree) {
     case METHOD:
       return isTreeStrict(tree.body);
 
-    case ARROW_FUNCTION_EXPRESSION:
+    case ARROW_FUNCTION:
       if (tree.body.type === FUNCTION_BODY) {
         return isTreeStrict(tree.body);
       }

@@ -1113,7 +1113,7 @@ export class CPSTransformer extends TempVarTransformer {
     return tree;
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     return tree;
   }
 

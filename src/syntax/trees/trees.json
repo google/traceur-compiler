@@ -61,7 +61,7 @@
       "ParseTree"
     ]
   },
-  "ArrowFunctionExpression": {
+  "ArrowFunction": {
     "location": [
       "SourceRange"
     ],

@@ -759,7 +759,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return this.createCommaExpressionBuilder_().build(tree);
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     // () => {}
     // =>
     // $0 = () => {}, $0

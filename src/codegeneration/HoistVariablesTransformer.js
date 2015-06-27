@@ -311,7 +311,7 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     return tree;
   }
 

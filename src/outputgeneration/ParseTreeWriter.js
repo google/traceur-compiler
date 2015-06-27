@@ -198,9 +198,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ArrowFunctionExpression} tree
+   * @param {ArrowFunction} tree
    */
-  visitArrowFunctionExpression(tree) {
+  visitArrowFunction(tree) {
     if (tree.functionKind) {
       this.writeToken_(tree.functionKind);
       // TODO(arv): write space no allowed new line.

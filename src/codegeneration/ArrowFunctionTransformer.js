@@ -57,7 +57,7 @@ export class ArrowFunctionTransformer extends ParenTrait(TempVarTransformer) {
    * The main things we need to deal with are the 'this' binding, and adding a
    * function body and return statement if needed.
    */
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     if (this.inDerivedClass_ && this.inConstructor_) {
       return this.transformUsingCommaExpression_(tree);
     }
@@ -163,7 +163,7 @@ export class ArrowFunctionTransformer extends ParenTrait(TempVarTransformer) {
    * Shallowly transforms |tree| into a FunctionExpression and adds the needed
    * temp variables to the |tempVarTransformer|.
    * @param {TempVarTransformer} tempVarTransformer
-   * @param {ArrowFunctionExpression} tree
+   * @param {ArrowFunction} tree
    * @return {FunctionExpression}
    */
   static transform(tempVarTransformer, tree) {

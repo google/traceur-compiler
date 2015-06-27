@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {
-  ArrowFunctionExpression,
+  ArrowFunction,
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
@@ -78,7 +78,7 @@ export default function SkipFunctionsTransformerTrait(ParseTreeTransformer) {
                                           tree.body, tree.debugName);
     }
 
-    transformArrowFunctionExpression(tree) {
+    transformArrowFunction(tree) {
       return tree;
     }
   };

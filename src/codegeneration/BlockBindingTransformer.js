@@ -758,7 +758,7 @@ class FindBlockBindingInLoop extends FindVisitor {
     func();
   }
 
-  visitArrowFunctionExpression(tree) {this.visitFunction_(tree);}
+  visitArrowFunction(tree) {this.visitFunction_(tree);}
   visitFunctionDeclaration(tree) {this.visitFunction_(tree);}
   visitFunctionExpression(tree) {this.visitFunction_(tree);}
   visitGetAccessor(tree) {this.visitFunction_(tree);}
