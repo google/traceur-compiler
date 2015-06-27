@@ -27,7 +27,7 @@ import {
 
 import {
   ARRAY_COMPREHENSION,
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   ARRAY_PATTERN,
   ARROW_FUNCTION,
   AWAIT_EXPRESSION,
@@ -148,7 +148,7 @@ export class ParseTree {
   isAssignmentExpression() {
     switch (this.type) {
       case ARRAY_COMPREHENSION:
-      case ARRAY_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
       case ARROW_FUNCTION:
       case AWAIT_EXPRESSION:
       case BINARY_EXPRESSION:
@@ -192,7 +192,7 @@ export class ParseTree {
       case SUPER_EXPRESSION:
       case IDENTIFIER_EXPRESSION:
       case LITERAL_EXPRESSION:
-      case ARRAY_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:
       case TEMPLATE_LITERAL_EXPRESSION:

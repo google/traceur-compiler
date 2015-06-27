@@ -82,7 +82,7 @@ checkA();
 [a] = null || [1];
 checkA();
 
-// ParseTreeType.ARRAY_LITERAL_EXPRESSION
+// ParseTreeType.ARRAY_LITERAL
 var [a] = [1, 2, 3];
 checkA();
 [a] = [1, 2, 3];

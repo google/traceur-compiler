@@ -35,7 +35,7 @@ import {
 } from '../syntax/TokenType.js';
 import {
   createArgumentList,
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createBinaryExpression,
   createCallExpression,
   createMemberExpression,
@@ -84,11 +84,11 @@ function createGetTemplateObject(elements) {
   }
 
   maybeAddEmptyStringAtEnd(elements, cooked);
-  let cookedLiteral = createArrayLiteralExpression(cooked);
+  let cookedLiteral = createArrayLiteral(cooked);
   let args = [cookedLiteral];
   if (!same) {
     maybeAddEmptyStringAtEnd(elements, raw);
-    let rawLiteral = createArrayLiteralExpression(raw);
+    let rawLiteral = createArrayLiteral(raw);
     args.unshift(rawLiteral);
   }
 

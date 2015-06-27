@@ -15,7 +15,7 @@
 import {FindVisitor} from '../codegeneration/FindVisitor.js';
 import {IdentifierToken} from './IdentifierToken.js';
 import {
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   BINDING_IDENTIFIER,
   CALL_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
@@ -169,7 +169,7 @@ import {
 import {
   ArgumentList,
   ArrayComprehension,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   ArrayPattern,
   ArrayType,
   ArrowFunction,
@@ -2253,7 +2253,7 @@ export class Parser {
         this.eat_(COMMA);
     }
     this.eat_(CLOSE_SQUARE);
-    return new ArrayLiteralExpression(this.getTreeLocation_(start), elements);
+    return new ArrayLiteral(this.getTreeLocation_(start), elements);
   }
 
   /**
@@ -2839,7 +2839,7 @@ export class Parser {
    */
   transformLeftHandSideExpression_(tree) {
     switch (tree.type) {
-      case ARRAY_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
       case OBJECT_LITERAL_EXPRESSION:
         resetScanner(tree.location.start.offset);
         // If we fail to parse as an AssignmentPattern then

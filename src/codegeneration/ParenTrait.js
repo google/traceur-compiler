@@ -14,7 +14,7 @@
 
 import {
   ArgumentList,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   ExpressionStatement,
   NewExpression,
   ParenExpression,
@@ -123,12 +123,12 @@ export function ParenTrait(ParseTreeTransformerClass) {
       return new ArgumentList(tree.location, args);
     }
 
-    transformArrayLiteralExpression(tree) {
+    transformArrayLiteral(tree) {
       let elements = this.transformExpressionList_(tree.elements);
       if (tree.elements === elements) {
         return tree;
       }
-      return new ArrayLiteralExpression(tree.location, elements);
+      return new ArrayLiteral(tree.location, elements);
     }
 
     transformPropertyNameAssignment(tree) {

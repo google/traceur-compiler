@@ -36,7 +36,7 @@ import {
   createBlock,
   createCallStatement,
   createContinueStatement,
-  createEmptyArrayLiteralExpression,
+  createEmptyArrayLiteral,
   createForInStatement,
   createForStatement,
   createIdentifierExpression,
@@ -88,7 +88,7 @@ export class ForInTransformPass extends TempVarTransformer {
     let keys = this.getTempIdentifier();
     elements.push(
         createVariableStatement(VAR, keys,
-        createEmptyArrayLiteralExpression()));
+        createEmptyArrayLiteral()));
 
     // var $collection = object;
     let collection = this.getTempIdentifier();

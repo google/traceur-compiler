@@ -163,9 +163,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ArrayLiteralExpression} tree
+   * @param {ArrayLiteral} tree
    */
-  visitArrayLiteralExpression(tree) {
+  visitArrayLiteral(tree) {
     this.write_(OPEN_SQUARE);
     this.writeList_(tree.elements, COMMA, false);
     if (tree.elements[tree.elements.length - 1] === null) {

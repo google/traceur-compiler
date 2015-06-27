@@ -40,7 +40,7 @@ import {assert} from '../util/assert.js';
 
 import {
   ArgumentList,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   BinaryExpression,
   BindingIdentifier,
   Block,
@@ -156,17 +156,17 @@ export function createEmptyArgumentList() {
 
 /**
  * @param {Array.<ParseTree>} list
- * @return {ArrayLiteralExpression}
+ * @return {ArrayLiteral}
  */
-export function createArrayLiteralExpression(list) {
-  return new ArrayLiteralExpression(null, list);
+export function createArrayLiteral(list) {
+  return new ArrayLiteral(null, list);
 }
 
 /**
- * @return {ArrayLiteralExpression}
+ * @return {ArrayLiteral}
  */
-export function createEmptyArrayLiteralExpression() {
-  return createArrayLiteralExpression([]);
+export function createEmptyArrayLiteral() {
+  return createArrayLiteral([]);
 }
 
 /**

@@ -31,7 +31,7 @@ import {
 import {propName} from '../staticsemantics/PropName.js';
 import {
   createArgumentList,
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createAssignmentStatement,
   createIdentifierExpression,
   createMemberExpression,
@@ -273,9 +273,9 @@ class AnnotationsScope {
         metadata.push(...this.transformAnnotations_(param.annotations));
       if (metadata.length > 0) {
         hasParameterMetadata = true;
-        return createArrayLiteralExpression(metadata);
+        return createArrayLiteral(metadata);
       }
-      return createArrayLiteralExpression([]);
+      return createArrayLiteral([]);
     });
 
     return hasParameterMetadata ? parameters : [];
@@ -294,7 +294,7 @@ class AnnotationsScope {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
         metadataStatements.push(this.createDefinePropertyStatement_(target,
-            'annotations', createArrayLiteralExpression(annotations)));
+            'annotations', createArrayLiteral(annotations)));
       }
     }
 
@@ -302,7 +302,7 @@ class AnnotationsScope {
       parameters = this.transformParameters_(parameters);
       if (parameters.length > 0) {
         metadataStatements.push(this.createDefinePropertyStatement_(target,
-            'parameters', createArrayLiteralExpression(parameters)));
+            'parameters', createArrayLiteral(parameters)));
       }
     }
     return metadataStatements;

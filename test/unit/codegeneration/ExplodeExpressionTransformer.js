@@ -119,17 +119,17 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('CommaExpression', '1, 2', '1, 2');
   testExplode('CommaExpression', 'a.b, c.d', '$0 = a.b, $1 = c.d, $1');
 
-  testExplode('ArrayLiteralExpression', '[1, 2]', '[1, 2]');
-  testExplode('ArrayLiteralExpression', '[a.b, c.d]',
+  testExplode('ArrayLiteral', '[1, 2]', '[1, 2]');
+  testExplode('ArrayLiteral', '[a.b, c.d]',
       '$0 = a.b, $1 = c.d, $2 = [$0, $1], $2');
-  testExplode('ArrayLiteralExpression', '[...x]', '[...x]');
-  testExplode('ArrayLiteralExpression', '[...a.b]',
+  testExplode('ArrayLiteral', '[...x]', '[...x]');
+  testExplode('ArrayLiteral', '[...a.b]',
       '$0 = a.b, $1 = [...$0], $1');
-  testExplode('ArrayLiteralExpression', '[...a.b.c]',
+  testExplode('ArrayLiteral', '[...a.b.c]',
       '$0 = a.b, $1 = $0.c, $2 = [...$1], $2');
-  testExplode('ArrayLiteralExpression', '[a.b, ...c.d, e.f]',
+  testExplode('ArrayLiteral', '[a.b, ...c.d, e.f]',
       '$0 = a.b, $1 = c.d, $2 = e.f, $3 = [$0, ...$1, $2], $3');
-  testExplode('ArrayLiteralExpression', '[a.b, ...x]',
+  testExplode('ArrayLiteral', '[a.b, ...x]',
       '$0 = a.b, $1 = [$0, ...x], $1');
 
   testExplode('ObjectLiteralExpression', '{a: 1, b: 2}',

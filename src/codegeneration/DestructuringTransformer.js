@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   ARRAY_PATTERN,
   ASSIGNMENT_ELEMENT,
   BINDING_ELEMENT,
@@ -488,7 +488,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     // - there is only one value to assign (and no initializer).
     switch (tree.initializer.type) {
       // Paren not necessary.
-      case ARRAY_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
       case CALL_EXPRESSION:
       case IDENTIFIER_EXPRESSION:
       case LITERAL_EXPRESSION:

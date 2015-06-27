@@ -44,7 +44,7 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {
   ArgumentList,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   AwaitExpression,
   BinaryExpression,
   CallExpression,
@@ -490,7 +490,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformArrayLiteralExpression(tree) {
+  transformArrayLiteral(tree) {
     let elements = this.transformList(tree.elements);
     if (elements === tree.elements)
       return tree;
@@ -501,7 +501,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       builder.add(elements[i]);
       results.push(getResult(elements[i]));
     }
-    return builder.build(new ArrayLiteralExpression(tree.location, results));
+    return builder.build(new ArrayLiteral(tree.location, results));
   }
 
   transformObjectLiteralExpression(tree) {

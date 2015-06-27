@@ -14,7 +14,7 @@
 
 import {
   AnonBlock,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   ClassExpression,
   CommaExpression,
   ExpressionStatement,
@@ -404,7 +404,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         }));
 
     declarationStatements.push(parseStatement `return {
-      setters: ${new ArrayLiteralExpression(null, setterFunctions)},
+      setters: ${new ArrayLiteral(null, setterFunctions)},
       execute: ${executionFunction}
     }`);
 

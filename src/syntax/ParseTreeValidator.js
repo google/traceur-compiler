@@ -190,9 +190,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ArrayLiteralExpression} tree
+   * @param {ArrayLiteral} tree
    */
-  visitArrayLiteralExpression(tree) {
+  visitArrayLiteral(tree) {
     for (let i = 0; i < tree.elements.length; i++) {
       let element = tree.elements[i];
       this.checkVisit_(element === null || element.isAssignmentOrSpread(),
