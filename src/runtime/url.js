@@ -74,7 +74,7 @@
     }
 
     return out.join('');
-  };
+  }
 
   /**
    * A regular expression for breaking a URI into its component parts.

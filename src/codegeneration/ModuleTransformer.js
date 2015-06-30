@@ -44,7 +44,7 @@ import {
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
-  createObjectLiteralExpression,
+  createObjectLiteral,
   createUseStrictDirective,
   createVariableStatement,
 } from './ParseTreeFactory.js';
@@ -198,7 +198,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   getExportObject() {
     let exportObject =
-        createObjectLiteralExpression(this.getExportProperties());
+        createObjectLiteral(this.getExportProperties());
     if (this.exportVisitor_.starExports.length) {
       let starExports = this.exportVisitor_.starExports;
       let starIdents = starExports.map((moduleSpecifier) => {

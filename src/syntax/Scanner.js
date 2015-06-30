@@ -17,6 +17,7 @@
 import {IdentifierToken} from './IdentifierToken.js';
 import {KeywordToken} from './KeywordToken.js';
 import {LiteralToken} from './LiteralToken.js';
+import {SourceRange} from '../util/SourceRange.js';
 import {Token} from './Token.js';
 import {getKeywordType} from './Keywords.js';
 import {
@@ -309,7 +310,7 @@ function nextRegularExpressionLiteralToken2() {
   // body
   // Also, check if we are done with the body in case we had /=/
   if (!(token.type === SLASH_EQUAL && currentCharCode === 47) &&
-      !skipRegularExpressionBody()) {
+      !skipRegularExpressionBody(beginIndex)) {
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
                             getTokenRange(beginIndex));
@@ -317,7 +318,7 @@ function nextRegularExpressionLiteralToken2() {
 
   // separating /
   if (currentCharCode !== 47) {  // /
-    reportError('Expected \'/\' in regular expression literal');
+    reportError('Expected \'/\' in regular expression literal', beginIndex);
     return new LiteralToken(REGULAR_EXPRESSION,
                             getTokenString(beginIndex),
                             getTokenRange(beginIndex));
@@ -334,9 +335,9 @@ function nextRegularExpressionLiteralToken2() {
                           getTokenRange(beginIndex));
 }
 
-function skipRegularExpressionBody() {
+function skipRegularExpressionBody(beginIndex) {
   if (!isRegularExpressionFirstChar(currentCharCode)) {
-    reportError('Expected regular expression first char');
+    reportError('Expected regular expression first char', beginIndex);
     return false;
   }
 
@@ -361,9 +362,11 @@ function skipRegularExpressionChar() {
 }
 
 function skipRegularExpressionBackslashSequence() {
+  let beginIndex = index;
   next();
   if (isLineTerminator(currentCharCode) || isAtEnd()) {
-    reportError('New line not allowed in regular expression literal');
+    reportError('New line not allowed in regular expression literal',
+                beginIndex, index);
     return false;
   }
   next();
@@ -371,6 +374,7 @@ function skipRegularExpressionBackslashSequence() {
 }
 
 function skipRegularExpressionClass() {
+  let beginIndex = index;
   next();
   while (!isAtEnd() && peekRegularExpressionClassChar()) {
     if (!skipRegularExpressionClassChar()) {
@@ -378,7 +382,7 @@ function skipRegularExpressionClass() {
     }
   }
   if (currentCharCode !== 93) {  // ]
-    reportError('\']\' expected');
+    reportError('\']\' expected', beginIndex, index);
     return false;
   }
   next();
@@ -441,7 +445,7 @@ function skipTemplateCharacter() {
  */
 function scanTemplateStart(beginIndex) {
   if (isAtEnd()) {
-    reportError('Unterminated template literal');
+    reportError('Unterminated template literal', beginIndex, index);
     return lastToken = createToken(END_OF_FILE, beginIndex);
   }
 
@@ -454,12 +458,14 @@ function scanTemplateStart(beginIndex) {
  */
 function nextTemplateLiteralToken2() {
   if (isAtEnd()) {
-    reportError('Expected \'}\' after expression in template literal');
+    reportError('Expected \'}\' after expression in template literal',
+                index, index);
     return createToken(END_OF_FILE, index);
   }
 
   if (token.type !== CLOSE_CURLY) {
-    reportError('Expected \'}\' after expression in template literal');
+    reportError('Expected \'}\' after expression in template literal',
+                index, index);
     return createToken(ERROR, index);
   }
 
@@ -562,7 +568,16 @@ export function peekType() {
   return peekToken().type;
 }
 
-// This is optimized to do one lookahead vs current in |peekTooken_|.
+/**
+ * Returns the SourceRange of the next token. Does not consume any tokens.
+ *
+ * @return {SourceRange}
+ */
+export function peekLocation() {
+  return peekToken().location;
+}
+
+// This is optimized to do one lookahead vs current in |peekToken_|.
 export function peekTokenLookahead() {
   if (!token)
     token = scanToken();
@@ -876,7 +891,8 @@ function scanPostZero(beginIndex) {
     case 120:  // x
       next();
       if (!isHexDigit(currentCharCode)) {
-        reportError('Hex Integer Literal must contain at least one digit');
+        reportError('Hex Integer Literal must contain at least one digit',
+                    beginIndex);
       }
       skipHexDigits();
       return new LiteralToken(NUMBER,
@@ -890,7 +906,8 @@ function scanPostZero(beginIndex) {
 
       next();
       if (!isBinaryDigit(currentCharCode)) {
-        reportError('Binary Integer Literal must contain at least one digit');
+        reportError('Binary Integer Literal must contain at least one digit',
+                    beginIndex);
       }
       skipBinaryDigits();
       return new LiteralToken(NUMBER,
@@ -904,7 +921,8 @@ function scanPostZero(beginIndex) {
 
       next();
       if (!isOctalDigit(currentCharCode)) {
-        reportError('Octal Integer Literal must contain at least one digit');
+        reportError('Octal Integer Literal must contain at least one digit',
+                    beginIndex);
       }
       skipOctalDigits();
       return new LiteralToken(NUMBER,
@@ -1084,20 +1102,22 @@ function skipUnicodeEscapeSequence() {
     let beginIndex = index;
 
     if (!isHexDigit(currentCharCode)) {
-      reportError('Hex digit expected');
+      reportError('Hex digit expected', beginIndex);
       return false;
     }
 
     skipHexDigits();
 
     if (currentCharCode !== 125) {  // }
-      reportError('Hex digit expected');
+      reportError('Hex digit expected', beginIndex);
       return false;
     }
 
     let codePoint = getTokenString(beginIndex, index);
     if (parseInt(codePoint, 16) > 0x10FFFF) { // 11.8.4.1
-      reportError('The code point in a Unicode escape sequence cannot exceed 10FFFF');
+      reportError(
+          'The code point in a Unicode escape sequence cannot exceed 10FFFF',
+          beginIndex);
       return false;
     }
 
@@ -1151,7 +1171,8 @@ function scanExponentOfNumericLiteral(beginIndex) {
           break;
       }
       if (!isDecimalDigit(currentCharCode)) {
-        reportError('Exponent part must contain at least one digit');
+        reportError('Exponent part must contain at least one digit',
+                    beginIndex);
       }
       skipDecimalDigits();
       break;
@@ -1200,7 +1221,9 @@ function updateCurrentCharCode() {
   currentCharCode = input.charCodeAt(index);
 }
 
-function reportError(message, indexArg = index) {
-  let position = getPositionByOffset(indexArg);
-  errorReporter.reportError(position, message);
+function reportError(message, startIndex = index, endIndex = index) {
+  let start = getPositionByOffset(startIndex);
+  let end = getPositionByOffset(endIndex);
+  let location = new SourceRange(start, end);
+  errorReporter.reportError(location, message);
 }

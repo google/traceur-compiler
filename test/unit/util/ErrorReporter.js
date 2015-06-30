@@ -20,10 +20,13 @@ import {
   teardown
 } from '../../unit/unitTestRunner.js';
 
-import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
-import {SyntaxErrorReporter} from '../../../src/util/SyntaxErrorReporter.js';
-import {SourcePosition} from '../../../src/util/SourcePosition.js';
+import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
 import {MultipleErrors} from '../../../src/util/CollectingErrorReporter.js';
+import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
+import {SourceFile} from '../../../src/syntax/SourceFile.js'
+import {SourcePosition} from '../../../src/util/SourcePosition.js';
+import {SourceRange} from '../../../src/util/SourceRange.js';
+import {SyntaxErrorReporter} from '../../../src/util/SyntaxErrorReporter.js';
 
 suite('ErrorReporter.js', function() {
 
@@ -43,7 +46,7 @@ suite('ErrorReporter.js', function() {
   });
 
   test('ErrorReporter', function() {
-    var r = new traceur.util.ErrorReporter();
+    var r = new ErrorReporter();
 
     r.reportError(null, 'abcde');
 
@@ -52,12 +55,16 @@ suite('ErrorReporter.js', function() {
   });
 
   test('ErrorReporterWithLocation', function() {
-    var r = new traceur.util.ErrorReporter();
-    var file = new traceur.syntax.SourceFile('test.js', '');
-    var location = new SourcePosition(file, 1);
-    location.line_ = 2;
-    location.column_ = 3;
+    var r = new ErrorReporter();
+    var file = new SourceFile('test.js', '');
+    var start = new SourcePosition(file, 1);
+    start.line_ = 2;
+    start.column_ = 3;
+    var end = new SourcePosition(file, 1);
+    end.line_ = 2;
+    end.column_ = 4;
 
+    var location = new SourceRange(start, end);
     r.reportError(location, 'abcde');
 
     assert.equal(args.length, 1);
@@ -111,7 +118,7 @@ suite('ErrorReporter.js', function() {
   });
 
   test('Format', function() {
-    var  format = traceur.util.ErrorReporter.format;
+    var  format = ErrorReporter.format;
     assert.equal('loc: msg', format('loc', 'msg'));
     assert.equal('msg', format(null, 'msg'));
 
@@ -130,7 +137,7 @@ suite('ErrorReporter.js', function() {
     if (typeof window === 'undefined')
       return;
 
-    var file = new traceur.syntax.SourceFile('error_reporter_test.html', '');
+    var file = new SourceFile('error_reporter_test.html', '');
     var location = new SourcePosition(file, 1);
     location.line_ = 108;
     location.column_ = 3;

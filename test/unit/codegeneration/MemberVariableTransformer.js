@@ -18,11 +18,11 @@ import {Options} from '../../../src/Options.js';
 import {Parser} from '../../../src/syntax/Parser.js';
 import {ParseTreeValidator} from '../../../src/syntax/ParseTreeValidator.js';
 import {SourceFile} from '../../../src/syntax/SourceFile.js';
-import {ES6ClassTransformer} from '../../../src/codegeneration/ES6ClassTransformer.js';
+import {MemberVariableTransformer} from '../../../src/codegeneration/MemberVariableTransformer.js';
 import {UniqueIdentifierGenerator} from '../../../src/codegeneration/UniqueIdentifierGenerator.js';
 import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
-suite('ES6ClassTransformer.js', function() {
+suite('MemberVariableTransformer.js', function() {
 
   function parseScript(content, options) {
     var file = new SourceFile('test', content);
@@ -46,8 +46,8 @@ suite('ES6ClassTransformer.js', function() {
         validate: true,
       });
       var tree = parseScript(content, options);
-      var transformer = new ES6ClassTransformer(new UniqueIdentifierGenerator(),
-                                                null, options);
+      var transformer = new MemberVariableTransformer(
+          new UniqueIdentifierGenerator(), null, options);
       var transformed = transformer.transformAny(tree);
       assert.equal(normalizeScript(expected, options), write(transformed));
     });

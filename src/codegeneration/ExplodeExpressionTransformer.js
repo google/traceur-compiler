@@ -46,15 +46,16 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {
   ArgumentList,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   AwaitExpression,
   BinaryExpression,
   CallExpression,
+  ClassExpression,
   ConditionalExpression,
   MemberExpression,
   MemberLookupExpression,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   PropertyNameAssignment,
   SpreadExpression,
   TemplateLiteralExpression,
@@ -491,7 +492,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
     return createCommaExpression(expressions);
   }
 
-  transformArrayLiteralExpression(tree) {
+  transformArrayLiteral(tree) {
     let elements = this.transformList(tree.elements);
     if (elements === tree.elements)
       return tree;
@@ -502,10 +503,11 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       builder.add(elements[i]);
       results.push(getResult(elements[i]));
     }
-    return builder.build(new ArrayLiteralExpression(tree.location, results));
+    return builder.build(new ArrayLiteral(tree.location, results));
   }
 
-  transformObjectLiteralExpression(tree) {
+  transformObjectLiteral(tree) {
+    // TODO(arv): Computed property names.
     let propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
     if (propertyNameAndValues === tree.propertyNameAndValues)
       return tree;
@@ -523,7 +525,7 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
         results.push(propertyNameAndValues[i]);
       }
     }
-    return builder.build(new ObjectLiteralExpression(tree.location, results));
+    return builder.build(new ObjectLiteral(tree.location, results));
   }
 
   transformTemplateLiteralExpression(tree) {
@@ -750,6 +752,43 @@ export class ExplodeExpressionTransformer extends ParseTreeTransformer {
       result
     ];
     return createCommaExpression(expressions);
+  }
+
+  transformFunctionExpression(tree) {
+    // function () {}
+    // =>
+    // $0 = function () {}, $0
+    return this.createCommaExpressionBuilder_().build(tree);
+  }
+
+  transformArrowFunction(tree) {
+    // () => {}
+    // =>
+    // $0 = () => {}, $0
+    return this.createCommaExpressionBuilder_().build(tree);
+  }
+
+  transformClassExpression(tree) {
+    // TODO(arv): Computed property names.
+
+    // class extends a {}
+    // =>
+    // $0 = a, $1 = class extends $0 {}, $1
+
+    let superClass = this.transformAny(tree.superClass);
+    if (superClass === tree.superClass) {
+      return this.createCommaExpressionBuilder_().build(tree);
+    }
+
+    let builder = this.createCommaExpressionBuilder_();
+    builder.add(superClass);
+    return builder.build(new ClassExpression(tree.location, tree.name,
+        getResult(superClass), tree.elements, tree.annotations,
+        tree.typeParameters));
+  }
+
+  transformFunctionBody(tree) {
+    return tree;
   }
 
   createCommaExpressionBuilder_() {

@@ -19,8 +19,10 @@ import {
   ReturnStatement,
   TryStatement
 } from '../syntax/trees/ParseTrees.js';
+import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
 
-export class RewriteTailCallsTransformer extends ParseTreeTransformer {
+export class RewriteTailCallsTransformer extends
+    SkipFunctionsTransformerTrait(ParseTreeTransformer) {
   constructor(bodyTransformer) {
     super();
     this.bodyTransformer_ = bodyTransformer;
@@ -62,12 +64,6 @@ export class RewriteTailCallsTransformer extends ParseTreeTransformer {
   transformClassDeclaration(tree) {return tree;}
   transformClassExpression(tree) {return tree;}
   transformExpressionStatement(tree) {return tree;}
-  transformFunctionDeclaration(tree) {return tree;}
-  transformFunctionExpression(tree) {return tree;}
-  transformGetAccessor(tree) {return tree;}
-  transformSetAccessor(tree) {return tree;}
-  transformPropertyMethodAssignment(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
   transformComprehensionFor(tree) {return tree;}
   transformVariableStatement(tree) {return tree;}
 

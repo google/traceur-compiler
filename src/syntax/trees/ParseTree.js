@@ -29,9 +29,9 @@ import {
 
 import {
   ARRAY_COMPREHENSION,
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   ARRAY_PATTERN,
-  ARROW_FUNCTION_EXPRESSION,
+  ARROW_FUNCTION,
   AWAIT_EXPRESSION,
   BINARY_EXPRESSION,
   BINDING_IDENTIFIER,
@@ -67,7 +67,7 @@ import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   NEW_EXPRESSION,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   OBJECT_PATTERN,
   PAREN_EXPRESSION,
   POSTFIX_EXPRESSION,
@@ -133,19 +133,11 @@ export class ParseTree {
   /** @return {boolean} */
   isLeftHandSideExpression() {
     switch (this.type) {
-      case THIS_EXPRESSION:
-      case CLASS_EXPRESSION:
-      case SUPER_EXPRESSION:
-      case IDENTIFIER_EXPRESSION:
-      case LITERAL_EXPRESSION:
-      case ARRAY_LITERAL_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
-      case NEW_EXPRESSION:
+      case ARRAY_PATTERN:
+      case IDENTIFIER_EXPRESSION:  // This does not handle strict mode.
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
-      case CALL_EXPRESSION:
-      case FUNCTION_EXPRESSION:
-      case TEMPLATE_LITERAL_EXPRESSION:
+      case OBJECT_PATTERN:
         return true;
       case PAREN_EXPRESSION:
         return this.expression.isLeftHandSideExpression();
@@ -158,8 +150,8 @@ export class ParseTree {
   isAssignmentExpression() {
     switch (this.type) {
       case ARRAY_COMPREHENSION:
-      case ARRAY_LITERAL_EXPRESSION:
-      case ARROW_FUNCTION_EXPRESSION:
+      case ARRAY_LITERAL:
+      case ARROW_FUNCTION:
       case AWAIT_EXPRESSION:
       case BINARY_EXPRESSION:
       case CALL_EXPRESSION:
@@ -172,7 +164,7 @@ export class ParseTree {
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
       case NEW_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
+      case OBJECT_LITERAL:
       case PAREN_EXPRESSION:
       case POSTFIX_EXPRESSION:
       case TEMPLATE_LITERAL_EXPRESSION:
@@ -202,8 +194,8 @@ export class ParseTree {
       case SUPER_EXPRESSION:
       case IDENTIFIER_EXPRESSION:
       case LITERAL_EXPRESSION:
-      case ARRAY_LITERAL_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
+      case OBJECT_LITERAL:
       case PAREN_EXPRESSION:
       case TEMPLATE_LITERAL_EXPRESSION:
       case FUNCTION_EXPRESSION:

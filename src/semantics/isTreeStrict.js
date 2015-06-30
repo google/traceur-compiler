@@ -15,15 +15,15 @@
 'use strong';
 
 import {
-  ARROW_FUNCTION_EXPRESSION,
+  ARROW_FUNCTION,
   CLASS_DECLARATION,
   CLASS_EXPRESSION,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   GET_ACCESSOR,
+  METHOD,
   MODULE,
-  PROPERTY_METHOD_ASSIGNMENT,
   SCRIPT,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType.js';
@@ -41,10 +41,10 @@ export function isTreeStrict(tree) {
 
     case FUNCTION_EXPRESSION:
     case FUNCTION_DECLARATION:
-    case PROPERTY_METHOD_ASSIGNMENT:
+    case METHOD:
       return isTreeStrict(tree.body);
 
-    case ARROW_FUNCTION_EXPRESSION:
+    case ARROW_FUNCTION:
       if (tree.body.type === FUNCTION_BODY) {
         return isTreeStrict(tree.body);
       }

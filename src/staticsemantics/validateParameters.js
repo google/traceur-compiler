@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {isStrictKeyword} from '../syntax/Keywords.js';
+import {ARGUMENTS, EVAL, UNDEFINED} from '../syntax/PredefinedName.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {SLOPPY_MODE, STRONG_MODE} from './LanguageMode.js';
 import {StringSet} from '../util/StringSet.js';
-import {ARGUMENTS, EVAL, UNDEFINED} from '../syntax/PredefinedName.js';
+import {isStrictKeyword} from '../syntax/Keywords.js';
 
 /**
  * This visitor is used to find strict keywords (and eval/arguments) for
@@ -29,7 +29,7 @@ import {ARGUMENTS, EVAL, UNDEFINED} from '../syntax/PredefinedName.js';
  */
 class ParameterValidationVisitor extends ParseTreeVisitor {
   /**
-   * @param {boolean} languageMode
+   * @param {Number} languageMode
    * @param {ErrorReporter} reporter
    */
   constructor(languageMode, reporter) {
@@ -48,18 +48,18 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
     let name = tree.identifierToken.toString();
     if (this.reportStrictKeywords_ &&
         (isStrictKeyword(name) || name === EVAL || name === ARGUMENTS)) {
-      this.reporter_.reportError(tree.location.start,
+      this.reporter_.reportError(tree.location,
                                  `${name} is a reserved identifier`);
     }
 
     if (this.reportUndefined_ && name === UNDEFINED) {
       this.reporter_.reportError(
-          tree.location.start,
+          tree.location,
           'In strong mode, binding or assigning to undefined is deprecated');
     }
 
     if (this.names_.has(name)) {
-      this.maybeReportDuplicateError_(name, tree.location.start);
+      this.maybeReportDuplicateError_(name, tree.location);
     }
     this.names_.add(name);
   }
@@ -93,15 +93,15 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
     super.visitObjectPattern(tree);
   }
 
-  reportDuplicateError_(name, pos) {
-    this.reporter_.reportError(pos, `Duplicate parameter name ${name}`);
+  reportDuplicateError_(name, location) {
+    this.reporter_.reportError(location, `Duplicate parameter name ${name}`);
   }
 
-  maybeReportDuplicateError_(name, pos) {
+  maybeReportDuplicateError_(name, location) {
     if (this.reportDuplicates_) {
-      this.reportDuplicateError_(name, pos);
+      this.reportDuplicateError_(name, location);
     } else {
-      this.errors_.push(name, pos);
+      this.errors_.push(name, location);
     }
   }
 
@@ -110,8 +110,8 @@ class ParameterValidationVisitor extends ParseTreeVisitor {
       this.reportDuplicates_ = true;
       for (let i = 0; i < this.errors_.length; i += 2) {
         let name = this.errors_[i];
-        let pos = this.errors_[i + 1];
-        this.reportDuplicateError_(name, pos);
+        let location = this.errors_[i + 1];
+        this.reportDuplicateError_(name, location);
       }
     }
   }

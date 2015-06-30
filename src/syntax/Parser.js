@@ -17,7 +17,7 @@
 import {FindVisitor} from '../codegeneration/FindVisitor.js';
 import {IdentifierToken} from './IdentifierToken.js';
 import {
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   BINDING_IDENTIFIER,
   BLOCK,
   BREAK_STATEMENT,
@@ -30,7 +30,7 @@ import {
   IDENTIFIER_EXPRESSION,
   IF_STATEMENT,
   LITERAL_PROPERTY_NAME,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   REST_PARAMETER,
   RETURN_STATEMENT,
   SWITCH_STATEMENT,
@@ -63,6 +63,7 @@ import {
   nextTemplateLiteralToken,
   nextToken,
   peek,
+  peekLocation,
   peekLookahead,
   peekToken,
   peekTokenLookahead,
@@ -78,6 +79,7 @@ import {
 import {getKeywordType} from './Keywords.js';
 import {validateConstructor} from '../semantics/ConstructorValidator.js';
 import validateParameters from '../staticsemantics/validateParameters.js';
+import isValidSimpleAssignmentTarget from '../staticsemantics/isValidSimpleAssignmentTarget.js';
 
 import {
   AMPERSAND,
@@ -179,10 +181,10 @@ import {
 import {
   ArgumentList,
   ArrayComprehension,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   ArrayPattern,
   ArrayType,
-  ArrowFunctionExpression,
+  ArrowFunction,
   AssignmentElement,
   AwaitExpression,
   BinaryExpression,
@@ -245,6 +247,7 @@ import {
   LiteralPropertyName,
   MemberExpression,
   MemberLookupExpression,
+  Method,
   MethodSignature,
   Module,
   ModuleSpecifier,
@@ -252,14 +255,13 @@ import {
   NameSpaceImport,
   NamedExport,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   ObjectPattern,
   ObjectPatternField,
   ObjectType,
   ParenExpression,
   PostfixExpression,
   PredefinedType,
-  PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand,
   PropertySignature,
@@ -382,7 +384,7 @@ class FunctionState {
   }
 
   isAsyncGenerator() {
-    return this.kind & (FUNCTION_STATE_ASYNC | FUNCTION_STATE_GENERATOR);
+    return this.isGenerator() && this.isAsyncFunction();
   }
 }
 
@@ -457,7 +459,7 @@ export class Parser {
   }
 
   get allowForOn_() {
-    return this.functionState_.isAsyncGenerator();
+    return this.functionState_.isAsyncFunction();
   }
 
   /**
@@ -1093,8 +1095,9 @@ export class Parser {
   parseSubStatement_() {
     let type = peekType();
     if (type === SEMI_COLON && this.isStrongMode_()) {
-      this.reportError_('Empty sub statements are not allowed in strong mode.' +
-                        ' Please use {} instead.');
+      this.reportError_(peekLocation(),
+          'Empty sub statements are not allowed in strong mode.' +
+          ' Please use {} instead.');
     }
     return this.parseStatementWithType_(type);
   }
@@ -1176,11 +1179,19 @@ export class Parser {
     return this.parseAsyncFunction_(asyncToken, FunctionExpression);
   }
 
+  /**
+   * @return {boolean}
+   * @private
+   */
+  peekAsyncStar_() {
+    return this.options_.asyncGenerators && peek(STAR);
+  }
+
   parseAsyncFunction_(asyncToken, ctor) {
     let start = asyncToken.location.start;
     this.eat_(FUNCTION);
     let kind = FUNCTION_STATE_FUNCTION | FUNCTION_STATE_ASYNC;
-    if (this.options_.asyncGenerators && peek(STAR)) {
+    if (this.peekAsyncStar_()) {
       kind |= FUNCTION_STATE_GENERATOR;
       this.eat_(STAR);
       asyncToken = new IdentifierToken(asyncToken.location, ASYNC_STAR);
@@ -1369,7 +1380,8 @@ export class Parser {
    * @private
    */
   parseVariableDeclarationList_(allowIn, initializerRequired) {
-    let type = peekType();
+    let token = peekToken();
+    let {type} = token;
 
     switch (type) {
       case CONST:
@@ -1382,8 +1394,8 @@ export class Parser {
     }
 
     if (this.isStrongMode_() && type === VAR) {
-      this.reportError_('var is not allowed in strong mode. ' +
-                        'Please use let or const instead.');
+      this.reportError_(token.location,
+          'var is not allowed in strong mode. Please use let or const instead.');
     }
 
     let start = this.getTreeStartLocation_();
@@ -1429,10 +1441,12 @@ export class Parser {
     }
 
     let init = null;
-    if (peek(EQUAL))
+    if (peek(EQUAL)) {
       init = this.parseInitializer_(noIn);
-    else if (lvalue.isPattern() && initRequired)
-      this.reportError_('destructuring must have an initializer');
+    } else if (lvalue.isPattern() && initRequired) {
+      this.reportError_(lvalue.location,
+                        'destructuring must have an initializer');
+    }
 
     return new VariableDeclaration(this.getTreeLocation_(start), lvalue,
         typeAnnotation, init);
@@ -1482,11 +1496,13 @@ export class Parser {
       case FUNCTION:
       case CLASS:
         return this.parseUnexpectedReservedWord_(peekToken());
-      case LET:
-        if (peekLookahead(OPEN_SQUARE)) {
+      case LET: {
+        let token = peekLookahead(OPEN_SQUARE);
+        if (token) {
           return this.parseSyntaxError_(
               `A statement cannot start with 'let ['`);
         }
+      }
     }
 
     // async [no line terminator] function ...
@@ -1614,10 +1630,10 @@ export class Parser {
     let coverInitializedNameCount = this.coverInitializedNameCount_;
     let initializer = this.parseExpressionAllowPattern_(NO_IN);
     type = peekType();
-    if (initializer.isLeftHandSideExpression() &&
-        (type === IN || this.peekOf_() ||
+    if ((type === IN || this.peekOf_() ||
          this.allowForOn_ && this.peekOn_())) {
       initializer = this.transformLeftHandSideExpression_(initializer);
+      this.validateAssignmentTarget_(initializer, 'assignment');
       if (this.peekOf_()) {
         return this.parseForOfStatement_(start, initializer);
       } else if (this.allowForOn_ && this.peekOn_()) {
@@ -1703,7 +1719,8 @@ export class Parser {
   checkInitializer_(type, declaration) {
     if (this.options_.blockBinding && type === CONST &&
         declaration.initializer === null) {
-      this.reportError_('const variables must have an initializer');
+      this.reportError_(declaration.location,
+                        'const variables must have an initializer');
       return false;
     }
     return true;
@@ -1759,10 +1776,12 @@ export class Parser {
    * @private
    */
   parseForInStatement_(start, initializer) {
+    let token = this.eat_(IN);
     if (this.isStrongMode_()) {
-      this.reportError_('for in loops are not allowed in strong mode');
+      this.reportError_(token.location,
+                        'for in loops are not allowed in strong mode');
     }
-    this.eat_(IN);
+
     let collection = this.parseExpression_(ALLOW_IN);
     this.eat_(CLOSE_PAREN);
     let body = this.parseSubStatement_();
@@ -1809,10 +1828,10 @@ export class Parser {
    */
   parseReturnStatement_() {
     let start = this.getTreeStartLocation_();
+    let returnToken = this.eat_(RETURN);
     if (this.functionState_.isTopMost()) {
-      this.reportError_('Illegal return statement');
+      this.reportError_(returnToken.location, 'Illegal return statement');
     }
-    this.eat_(RETURN);
     let expression = null;
     if (!this.peekImplicitSemiColon_()) {
       expression = this.parseExpression_(ALLOW_IN);
@@ -1867,11 +1886,12 @@ export class Parser {
    * @private
    */
   parseWithStatement_() {
-    if (this.isStrictMode_())
-      this.reportError_('Strict mode code may not include a with statement');
-
     let start = this.getTreeStartLocation_();
-    this.eat_(WITH);
+    let withToken = this.eat_(WITH);
+    if (this.isStrictMode_()) {
+      this.reportError_(withToken.location,
+                        'Strict mode code may not include a with statement');
+    }
     this.eat_(OPEN_PAREN);
     let expression = this.parseExpression_(ALLOW_IN);
     this.eat_(CLOSE_PAREN);
@@ -1918,13 +1938,13 @@ export class Parser {
           break;
         }
         case DEFAULT: {
+          let defaultToken = nextToken();
           if (foundDefaultClause) {
-            this.reportError_(
-                'Switch statements may have at most one default clause');
+            this.reportError_(defaultToken.location,
+                'Switch statements may have at most one \'default\' clause');
           } else {
             foundDefaultClause = true;
           }
-          nextToken();
           this.eat_(COLON);
           let statements = this.parseCaseStatementsOpt_();
           clauses.push(
@@ -2069,7 +2089,8 @@ export class Parser {
       finallyBlock = this.parseFinallyBlock_();
     }
     if (catchBlock === null && finallyBlock === null) {
-      this.reportError_("'catch' or 'finally' expected.");
+      let token = peekToken();
+      this.reportError_(token.location, "'catch' or 'finally' expected.");
     }
     return new TryStatement(this.getTreeLocation_(start), body, catchBlock, finallyBlock);
   }
@@ -2208,11 +2229,14 @@ export class Parser {
     while (fs && fs.isArrowFunction()) {
       fs = fs.outer;
     }
+
+    let superToken = this.eat_(SUPER);
+
     if (!fs || !fs.isMethod()) {
-      return this.parseSyntaxError_('super is only allowed in methods');
+      this.reportError_(superToken.location,
+                        'super is only allowed in methods');
     }
 
-    this.eat_(SUPER);
     let operand = new SuperExpression(this.getTreeLocation_(start));
     let type = peekType();
     if (isNew) {
@@ -2231,7 +2255,7 @@ export class Parser {
       case OPEN_PAREN: {
         let superCall = this.parseCallExpression_(start, operand);
         if (!fs.isDerivedConstructor()) {
-          this.errorReporter_.reportError(start,
+          this.reportError_(superToken.location,
             'super call is only allowed in derived constructor');
         }
         return superCall;
@@ -2364,8 +2388,9 @@ export class Parser {
       type = peekType();
       if (type === COMMA) {
         if (this.isStrongMode_()) {
-          this.reportError_('Arrays with holes are not supported in strong ' +
-                            'mode. Please use a Map instead.');
+          this.reportError_(peekLocation(),
+              'Arrays with holes are not supported in strong mode. ' +
+              'Please use a Map instead.');
         }
         expression = null;
       } else if (this.peekSpread_(type)) {
@@ -2383,7 +2408,7 @@ export class Parser {
         this.eat_(COMMA);
     }
     this.eat_(CLOSE_SQUARE);
-    return new ArrayLiteralExpression(this.getTreeLocation_(start), elements);
+    return new ArrayLiteral(this.getTreeLocation_(start), elements);
   }
 
   /**
@@ -2475,7 +2500,7 @@ export class Parser {
         break;
     }
     this.eat_(CLOSE_CURLY);
-    return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
+    return new ObjectLiteral(this.getTreeLocation_(start), result);
   }
 
   /**
@@ -2536,11 +2561,16 @@ export class Parser {
       }
 
       if (this.options_.asyncFunctions && nameLiteral.value === ASYNC &&
-          this.peekPropertyName_(type)) {
+          (this.peekPropertyName_(type) || this.peekAsyncStar_())) {
         let async = nameLiteral;
+        let kind = FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC;
+        if (this.peekAsyncStar_()) {
+          kind |= FUNCTION_STATE_GENERATOR;
+          this.eat_(STAR);
+          async = new IdentifierToken(async.location, ASYNC_STAR);
+        }
         let name = this.parsePropertyName_();
-        let fs = this.pushFunctionState_(
-            FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+        let fs = this.pushFunctionState_(kind);
         let m = this.parseMethod_(start, isStatic, async, name, []);
         this.popFunctionState_(fs);
         return m;
@@ -2643,7 +2673,7 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
     let typeAnnotation = this.parseTypeAnnotationOpt_();
     let body = this.parseFunctionBody_(parameterList);
-    return new PropertyMethodAssignment(this.getTreeLocation_(start),
+    return new Method(this.getTreeLocation_(start),
         isStatic, functionKind, name, parameterList, typeAnnotation,
         annotations, body, null);
   }
@@ -2678,11 +2708,16 @@ export class Parser {
     if (this.options_.asyncFunctions &&
         name.type === LITERAL_PROPERTY_NAME &&
         name.literalToken.value === ASYNC &&
-        this.peekPropertyName_(type)) {
+        (this.peekPropertyName_(type) || this.peekAsyncStar_())) {
       let async = name.literalToken;
+      let kind = FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC;
+      if (this.peekAsyncStar_()) {
+        kind |= FUNCTION_STATE_GENERATOR;
+        this.eat_(STAR);
+        async = new IdentifierToken(async.location, ASYNC_STAR);
+      }
       name = this.parsePropertyName_();
-      let fs = this.pushFunctionState_(
-          FUNCTION_STATE_METHOD | FUNCTION_STATE_ASYNC);
+      let fs = this.pushFunctionState_(kind);
       let m = this.parseMethod_(start, isStatic, async, name, annotations);
       this.popFunctionState_(fs);
       return m;
@@ -2807,10 +2842,9 @@ export class Parser {
   }
 
   parseSyntaxError_(message) {
-    let start = this.getTreeStartLocation_();
-    this.reportError_(message);
     let token = nextToken();
-    return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
+    this.reportError_(token.location, message);
+    return new SyntaxErrorTree(token.location, token, message);
   }
 
   /**
@@ -2819,7 +2853,7 @@ export class Parser {
    */
   parseUnexpectedToken_(token) {
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
-        return this.parseSyntaxError_('Unexpected token `');
+      return this.parseSyntaxError_('Unexpected token `');
     }
     return this.parseSyntaxError_(`Unexpected token ${token}`);
   }
@@ -2941,9 +2975,7 @@ export class Parser {
         left = this.transformLeftHandSideExpression_(left);
       }
 
-      if (!left.isLeftHandSideExpression() && !left.isPattern()) {
-        this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
-      }
+      this.validateAssignmentTarget_(left, 'assignment');
 
       if (left.type === IDENTIFIER_EXPRESSION) {
         this.checkForStrongUndefinedBinding_(left.identifierToken);
@@ -2967,8 +2999,8 @@ export class Parser {
    */
   transformLeftHandSideExpression_(tree) {
     switch (tree.type) {
-      case ARRAY_LITERAL_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
+      case OBJECT_LITERAL:
         resetScanner(tree.location.start.offset);
         // If we fail to parse as an AssignmentPattern then
         // parseAssignmentPattern_ will take care reporting errors.
@@ -3020,7 +3052,7 @@ export class Parser {
       case EQUAL_EQUAL:
       case NOT_EQUAL:
         if (this.isStrongMode_()) {
-        this.reportError_(peekToken().location,
+        this.reportError_(peekLocation(),
                           `${type} is not allowed in strong mode`);
         }
         return 6;
@@ -3113,10 +3145,17 @@ export class Parser {
     if (this.peekUnaryOperator_(type)) {
       let operator = nextToken();
       if (type === DELETE && this.isStrongMode_()) {
-        this.reportError_(operator, 'delete is not allowed in strong mode');
+        this.reportError_(operator.location, 'delete is not allowed in strong mode');
       }
       let operand = this.parseUnaryExpression_();
       operand = this.toPrimaryExpression_(operand);
+      if (operand.type !== SYNTAX_ERROR_TREE) {
+        switch (operator.type) {
+          case PLUS_PLUS:
+          case MINUS_MINUS:
+            this.validateAssignmentTarget_(operand, 'prefix operation');
+        }
+      }
       this.checkForStrongUndefinedPostPrefix_(type, operand);
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
     }
@@ -3157,6 +3196,7 @@ export class Parser {
       operand = this.toPrimaryExpression_(operand);
       this.checkForStrongUndefinedPostPrefix_(type, operand);
       let operator = nextToken();
+      this.validateAssignmentTarget_(operand, 'postfix operation');
       operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
     }
     return operand;
@@ -3326,7 +3366,6 @@ export class Parser {
         }
         return new NewExpression(this.getTreeLocation_(start), operand, args);
       }
-
       case SUPER:
         return this.parseSuperExpression_(false);
 
@@ -3437,7 +3476,7 @@ export class Parser {
     this.eat_(ARROW);
     let body = this.parseConciseBody_(formals);
     this.popFunctionState_(fs);
-    return new ArrowFunctionExpression(this.getTreeLocation_(start),
+    return new ArrowFunction(this.getTreeLocation_(start),
         asyncToken, formals, body);
   }
 
@@ -3664,19 +3703,22 @@ export class Parser {
     let start = this.getTreeStartLocation_();
     let elements = [];
     this.eat_(OPEN_SQUARE);
-    let type;
-    while ((type = peekType()) !== CLOSE_SQUARE && type !== END_OF_FILE) {
-      this.parseElisionOpt_(elements);
-      if (this.peekRest_(peekType())) {
+    while (true) {
+      let type = peekType();
+      if (type === COMMA) {
+        elements.push(null);
+      } else if (this.peekSpread_(type)) {
         elements.push(this.parsePatternRestElement_(useBinding));
+        break;
+      } else if (type === CLOSE_SQUARE || type === END_OF_FILE) {
         break;
       } else {
         elements.push(this.parsePatternElement_(useBinding));
-        // Trailing commas are not allowed in patterns.
-        if (peek(COMMA) &&
-            !peekLookahead(CLOSE_SQUARE)) {
-          nextToken();
-        }
+      }
+
+      type = peekType();
+      if (type !== CLOSE_SQUARE) {
+        this.eat_(COMMA);
       }
     }
     this.eat_(CLOSE_SQUARE);
@@ -3875,6 +3917,7 @@ export class Parser {
     }
     let expression = this.parseLeftHandSideExpression_();
     expression = this.coverFormalsToParenExpression_(expression);
+    this.validateAssignmentTarget_(expression, 'assignment');
     if (expression.type === IDENTIFIER_EXPRESSION) {
       this.checkForStrongUndefinedBinding_(expression.identifierToken);
     }
@@ -4425,7 +4468,8 @@ export class Parser {
       declaration = this.parseStatementListItem_(type);
     }
     if (this.annotations_.length > 0) {
-      return this.parseSyntaxError_('Unsupported annotated expression');
+      this.reportError_(this.annotations_[0].location,
+                        'Unsupported annotated expression');
     }
     return declaration;
   }
@@ -4480,7 +4524,7 @@ export class Parser {
         return;
     }
 
-    this.reportError_('Semi-colon expected');
+    this.reportError_(token.location, 'Semi-colon expected');
   }
 
   /**
@@ -4533,8 +4577,9 @@ export class Parser {
   eatId_(expected = undefined) {
     let token = nextToken();
     if (!token) {
-      if (expected)
-        this.reportError_(peekToken(), `expected '${expected}'`);
+      if (expected) {
+        this.reportError_(peekLocation(), `expected '${expected}'`);
+      }
       return null;
     }
 
@@ -4617,7 +4662,7 @@ export class Parser {
    * @private
    */
   reportExpectedError_(token, expected) {
-    this.reportError_(token, `Unexpected token ${token}`);
+    this.reportError_(token.location, `Unexpected token ${token}`);
   }
 
   /**
@@ -4627,7 +4672,7 @@ export class Parser {
    * @private
    */
   getTreeStartLocation_() {
-    return peekToken().location.start;
+    return peekLocation().start;
   }
 
   /**
@@ -4659,28 +4704,24 @@ export class Parser {
   }
 
   /**
-   * Reports an error message at a given token.
-   * @param {traceur.util.SourcePostion|Token} token The location to report
-   *     the message at.
+   * Reports an error message.
+   * @param {SourceRange} location
    * @param {string} message The message to report in String.format style.
-   *
-   * @return {void}
    * @private
    */
-  reportError_(...args) {
-    if (args.length === 1) {
-      this.errorReporter_.reportError(getPosition(), args[0]);
-    } else {
-      // TODO(arv): Only allow a SourcePosition here.
-      let location = args[0];
-      if (location instanceof Token) {
-        location = location.location;
-      }
-      this.errorReporter_.reportError(location.start, args[1]);
-    }
+  reportError_(location, message) {
+    this.errorReporter_.reportError(location, message);
   }
 
   reportReservedIdentifier_(token) {
-    this.reportError_(token, `${token.type} is a reserved identifier`);
+    this.reportError_(token.location, `${token.type} is a reserved identifier`);
+  }
+
+  validateAssignmentTarget_(tree, operation) {
+    if (!tree.isPattern() &&
+        !isValidSimpleAssignmentTarget(tree, this.isStrictMode_())) {
+      this.reportError_(tree.location,
+                        `Invalid left-hand side expression in ${operation}`);
+    }
   }
 }

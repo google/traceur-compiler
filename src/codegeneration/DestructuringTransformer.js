@@ -15,7 +15,7 @@
 'use strong';
 
 import {
-  ARRAY_LITERAL_EXPRESSION,
+  ARRAY_LITERAL,
   ARRAY_PATTERN,
   ASSIGNMENT_ELEMENT,
   BINDING_ELEMENT,
@@ -27,7 +27,7 @@ import {
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
-  OBJECT_LITERAL_EXPRESSION,
+  OBJECT_LITERAL,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
@@ -490,13 +490,13 @@ export class DestructuringTransformer extends TempVarTransformer {
     // - there is only one value to assign (and no initializer).
     switch (tree.initializer.type) {
       // Paren not necessary.
-      case ARRAY_LITERAL_EXPRESSION:
+      case ARRAY_LITERAL:
       case CALL_EXPRESSION:
       case IDENTIFIER_EXPRESSION:
       case LITERAL_EXPRESSION:
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
-      case OBJECT_LITERAL_EXPRESSION:
+      case OBJECT_LITERAL:
       case PAREN_EXPRESSION:
         initializer = tree.initializer;
     }

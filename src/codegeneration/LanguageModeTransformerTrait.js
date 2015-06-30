@@ -91,19 +91,19 @@ export function LanguageModeTransformerTrait(ParseTreeTransformerClass) {
           () => super.transformFunctionExpression(tree));
     }
 
-    transformPropertyMethodAssignment(tree) {
+    transformMethod(tree) {
       return this.transformAndUpdateLanguageMode_(
           tree.body.statements,
-          () => super.transformPropertyMethodAssignment(tree));
+          () => super.transformMethod(tree));
     }
 
-    transformArrowFunctionExpression(tree) {
+    transformArrowFunction(tree) {
       if (tree.body.type === FUNCTION_BODY) {
         return this.transformAndUpdateLanguageMode_(
             tree.body.statements,
-            () => super.transformArrowFunctionExpression(tree));
+            () => super.transformArrowFunction(tree));
       }
-      return super.transformArrowFunctionExpression(tree);
+      return super.transformArrowFunction(tree);
     }
 
     transformGetAccessor(tree) {

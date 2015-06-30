@@ -1,12 +1,12 @@
 // Options: --strong-mode
-// Error: :13:5: var is not allowed in strong mode. Please use let or const instead.
-// Error: :14:10: var is not allowed in strong mode. Please use let or const instead.
-// Error: :15:10: var is not allowed in strong mode. Please use let or const instead.
-// Error: :16:10: var is not allowed in strong mode. Please use let or const instead.
-// Error: :17:10: var is not allowed in strong mode. Please use let or const instead.
-// Error: :19:5: var is not allowed in strong mode. Please use let or const instead.
-// Error: :20:5: var is not allowed in strong mode. Please use let or const instead.
-// Error: :21:5: var is not allowed in strong mode. Please use let or const instead.
+// Error: :13:1: var is not allowed in strong mode. Please use let or const instead.
+// Error: :14:6: var is not allowed in strong mode. Please use let or const instead.
+// Error: :15:6: var is not allowed in strong mode. Please use let or const instead.
+// Error: :16:6: var is not allowed in strong mode. Please use let or const instead.
+// Error: :17:6: var is not allowed in strong mode. Please use let or const instead.
+// Error: :19:1: var is not allowed in strong mode. Please use let or const instead.
+// Error: :20:1: var is not allowed in strong mode. Please use let or const instead.
+// Error: :21:1: var is not allowed in strong mode. Please use let or const instead.
 
 'use strong'
 

@@ -16,7 +16,7 @@
 
 import {
   AnonBlock,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   ClassExpression,
   CommaExpression,
   ExpressionStatement,
@@ -36,7 +36,7 @@ import {
   createFunctionBody,
   createFunctionExpression,
   createIdentifierExpression as id,
-  createObjectLiteral,
+  createObjectLiteralForDescriptor,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -351,29 +351,31 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
       // then do export bindings of re-exported dependencies
       if (externalExportBindings) {
+        let reexports = Object.create(null);
         externalExportBindings.forEach(({exportName, importName}) => {
-          let statement = importName === null ?
-              parseStatement `$__export(${exportName}, $__m);` :
-              parseStatement `$__export(${exportName}, $__m.${importName});`;
-          setterStatements.push(statement);
+          reexports[exportName] = importName === null ?
+              parseExpression `$__m` : parseExpression `$__m.${importName}`;
         });
+        setterStatements.push(
+            parseStatement `$__export(${createObjectLiteralForDescriptor(reexports)})`);
       }
 
       // create local module bindings
       if (moduleBinding) {
         setterStatements.push(
-          parseStatement `${id(moduleBinding)} = $__m;`
-        );
+            parseStatement `${id(moduleBinding)} = $__m;`);
       }
 
       // finally run export * if applying to this dependency, for not-already
       // exported dependencies
       if (exportStarBinding) {
         setterStatements = setterStatements.concat(parseStatements `
+          var exportObj = Object.create(null);
           Object.keys($__m).forEach(function(p) {
-            if (!$__exportNames[p])
-              $__export(p, $__m[p]);
+            if (p !== 'default' && !$__exportNames[p])
+              exportObj[p] = $__m[p];
           });
+          $__export(exportObj);
         `);
 
         let exportNames = {};
@@ -383,7 +385,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
             });
 
         declarationStatements.push(parseStatement `
-          var $__exportNames = ${createObjectLiteral(exportNames)};
+          var $__exportNames = ${createObjectLiteralForDescriptor(exportNames)};
         `);
       }
 
@@ -404,7 +406,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
         }));
 
     declarationStatements.push(parseStatement `return {
-      setters: ${new ArrayLiteralExpression(null, setterFunctions)},
+      setters: ${new ArrayLiteral(null, setterFunctions)},
       execute: ${executionFunction}
     }`);
 

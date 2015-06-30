@@ -22,7 +22,7 @@ import {
   MemberLookupExpression
 } from '../syntax/trees/ParseTrees.js';
 import {
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createAssignmentExpression,
   createCommaExpression,
   createMemberExpression,
@@ -55,7 +55,7 @@ function createCall(tree, operand, thisArg) {
   return new CallExpression(tree.location,
       createMemberExpression('$traceurRuntime', 'continuation'),
       new ArgumentList(argList ? argList.location : null, [operand, thisArg,
-          createArrayLiteralExpression(argArray)]));
+          createArrayLiteral(argArray)]));
 }
 
 export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
@@ -148,15 +148,15 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
         tree.operand);
   }
 
-  transformArrayLiteralExpression(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
+  transformArrayLiteral(tree) {return tree;}
+  transformArrowFunction(tree) {return tree;}
   transformFunctionExpression(tree) {return tree;}
   transformIdentifierExpression(tree) {return tree;}
   transformLiteralExpression(tree) {return tree;}
   transformMemberExpression(tree) {return tree;}
   transformMemberLookupExpression(tree) {return tree;}
   transformPostfixExpression(tree) {return tree;}
-  transformObjectLiteralExpression(tree) {return tree;}
+  transformObjectLiteral(tree) {return tree;}
   transformUnaryExpression(tree) {return tree;}
 
   static transform(bodyTransformer,  tree) {

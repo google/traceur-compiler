@@ -1,6 +1,6 @@
 export class ParseTreeTransformer {
   transformAny(tree) {
-    return tree && tree.transform(this);
+    return tree === null ? null : tree.transform(this);
   }
   transformList(list) {
     let builder = null;
@@ -8,7 +8,7 @@ export class ParseTreeTransformer {
       let element = list[index];
       let transformed = this.transformAny(element);
       if (builder != null || element != transformed) {
-        if (builder == null) {
+        if (builder === null) {
           builder = list.slice(0, index);
         }
         if (transformed instanceof AnonBlock)

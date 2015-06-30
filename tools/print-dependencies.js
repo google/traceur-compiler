@@ -1,4 +1,4 @@
-// Copyright 2013 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var traceur = global.traceur = require('../src/node/traceur.js');
-global.chai = require('chai');
-var testUtil = require('./test-utils.js');
+import getDependencies from '../src/node/get-dependencies.js';
+
+function main() {
+  if (process.argv.length < 3) {
+    console.error('Usage: ./tval print-deps.js paths...')
+    return;
+  }
+
+  let deps = getDependencies(...process.argv.slice(2));
+  for (let name of deps) {
+    console.log(name);
+  }
+}
+
+main();

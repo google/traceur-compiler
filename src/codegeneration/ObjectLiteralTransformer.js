@@ -35,7 +35,7 @@ import {
   createFunctionExpression,
   createIdentifierExpression,
   createObjectCreate,
-  createObjectLiteralExpression,
+  createObjectLiteral,
   createParenExpression,
   createPropertyNameAssignment,
   createStringLiteral
@@ -61,7 +61,7 @@ class FindAdvancedProperty extends FindVisitor {
       // We do not want to visit object literals in the property's value.
   }
 
-  visitPropertyMethodAssignment(tree) {
+  visitMethod(tree) {
     this.visitAny(tree.name);
     // We do not want to visit object literals in the method's body.
   }
@@ -143,7 +143,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
 
   /**
    * Creates an intermediate data structure (Array) which is later used to
-   * assemble the properties in the transformObjectLiteralExpression.
+   * assemble the properties in the transformObjectLiteral.
    *
    * @private
    * @param {ParseTree} name
@@ -205,7 +205,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   transformClassDeclaration(tree) { return tree; }
   transformClassExpression(tree) { return tree; }
 
-  transformObjectLiteralExpression(tree) {
+  transformObjectLiteral(tree) {
     // If the object literal needs to be transformed this calls the
     // transformation of the individual transformations of the property names
     // and values and then assembles the result of those into either a call
@@ -215,7 +215,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     let oldNeedsTransform = this.needsAdvancedTransform;
     let oldSeenAccessors = this.seenAccessors;
 
-    let transformed = this.transformObjectLiteralExpressionInner_(tree);
+    let transformed = this.transformObjectLiteralInner_(tree);
 
     this.needsAdvancedTransform = oldNeedsTransform;
     this.seenAccessors = oldSeenAccessors;
@@ -223,12 +223,12 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     return transformed;
   }
 
-  transformObjectLiteralExpressionInner_(tree) {
+  transformObjectLiteralInner_(tree) {
     let finder = new FindAdvancedProperty(this.transformOptions_);
     finder.visitAny(tree);
     if (!finder.found) {
       this.needsAdvancedTransform = false;
-      return super.transformObjectLiteralExpression(tree);
+      return super.transformObjectLiteral(tree);
     }
 
     this.needsAdvancedTransform = true;
@@ -256,7 +256,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     if (protoExpression)
       objectExpression = createObjectCreate(protoExpression);
     else
-      objectExpression = createObjectLiteralExpression([]);
+      objectExpression = createObjectLiteral([]);
 
     expressions.unshift(
         createAssignmentExpression(
@@ -310,10 +310,10 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
         });
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     if (!this.needsAdvancedTransform &&
         !this.transformOptions_.propertyMethods) {
-      return super.transformPropertyMethodAssignment(tree);
+      return super.transformMethod(tree);
     }
 
     let func = new FunctionExpression(tree.location, tree.debugName, tree.functionKind,

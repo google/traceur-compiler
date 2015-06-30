@@ -23,8 +23,7 @@ import {VAR} from '../syntax/TokenType.js';
 import {isTreeStrict} from './isTreeStrict.js';
 
 function reportDuplicateVar(reporter, tree, name) {
-  reporter.reportError(tree.location && tree.location.start,
-      `Duplicate declaration, ${name}`);
+  reporter.reportError(tree.location, `Duplicate declaration, ${name}`);
 }
 
 /**

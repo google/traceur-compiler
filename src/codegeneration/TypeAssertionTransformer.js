@@ -155,9 +155,9 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    * @param {PropertyMethodAssignemnt} tree
    * @return {ParseTree}
    */
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     this.pushReturnType_(tree.typeAnnotation);
-    tree = super.transformPropertyMethodAssignment(tree);
+    tree = super.transformMethod(tree);
     this.popReturnType_();
     return tree;
   }
@@ -185,12 +185,12 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   }
 
   /**
-   * @param {ArrowFunctionExpression} tree
-   * @return {ArrowFunctionExpression}
+   * @param {ArrowFunction} tree
+   * @return {ArrowFunction}
    */
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     this.pushReturnType_(null);
-    tree = super.transformArrowFunctionExpression(tree);
+    tree = super.transformArrowFunction(tree);
     this.popReturnType_();
     return tree;
   }

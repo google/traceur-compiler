@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var assert = global.assert = require('chai').assert;
 suite('node public api', function() {
   var traceurAPI = require('../src/node/api.js');
   var sourceMapUtil = require('source-map/lib/source-map/util.js');
@@ -29,7 +30,7 @@ suite('node public api', function() {
   test('moduleName from filename with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // single file compile defaults to moduleName false
       moduleName: true,
@@ -54,7 +55,7 @@ suite('node public api', function() {
   test('sourceRoot with backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // ensure the source map works
       sourceMaps: true
@@ -80,7 +81,7 @@ suite('node public api', function() {
   test('sourceRoot with full windows path and backslashes', function() {
     var compiler = new traceurAPI.NodeCompiler({
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // ensure the source map works
       sourceMaps: true
@@ -105,7 +106,7 @@ suite('node public api', function() {
     var compiler = new traceurAPI.NodeCompiler({
 
       // build ES6 style modules rather then cjs
-      modules: 'register',
+      modules: 'bootstrap',
 
       // single file compile defaults to moduleName false
       moduleName: true,

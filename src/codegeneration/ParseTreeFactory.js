@@ -42,7 +42,7 @@ import {assert} from '../util/assert.js';
 
 import {
   ArgumentList,
-  ArrayLiteralExpression,
+  ArrayLiteral,
   BinaryExpression,
   BindingIdentifier,
   Block,
@@ -62,6 +62,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionExpression,
@@ -73,7 +74,7 @@ import {
   MemberExpression,
   MemberLookupExpression,
   NewExpression,
-  ObjectLiteralExpression,
+  ObjectLiteral,
   ParenExpression,
   PostfixExpression,
   Script,
@@ -157,17 +158,17 @@ export function createEmptyArgumentList() {
 
 /**
  * @param {Array.<ParseTree>} list
- * @return {ArrayLiteralExpression}
+ * @return {ArrayLiteral}
  */
-export function createArrayLiteralExpression(list) {
-  return new ArrayLiteralExpression(null, list);
+export function createArrayLiteral(list) {
+  return new ArrayLiteral(null, list);
 }
 
 /**
- * @return {ArrayLiteralExpression}
+ * @return {ArrayLiteral}
  */
-export function createEmptyArrayLiteralExpression() {
-  return createArrayLiteralExpression([]);
+export function createEmptyArrayLiteral() {
+  return createArrayLiteral([]);
 }
 
 /**
@@ -573,7 +574,7 @@ export function createObjectFreeze(value) {
 
 /**
  * @param {ParseTree} protoExpression
- * @param {ObjectLiteralExpression=} descriptors
+ * @param {ObjectLiteral=} descriptors
  * @return {ParseTree}
  */
 export function createObjectCreate(protoExpression, descriptors = undefined) {
@@ -591,16 +592,16 @@ export function createObjectCreate(protoExpression, descriptors = undefined) {
  * Creates an object literal tree representing a property descriptor.
  * @param {Object} descr This is a normal js object. The values in the descr
  *     may be true, false or a ParseTree.
- * @return {ObjectLiteralExpression}
+ * @return {ObjectLiteral}
  */
-export function createObjectLiteral(descr) {
+export function createObjectLiteralForDescriptor(descr) {
   let propertyNameAndValues = Object.keys(descr).map(function(name) {
     let value = descr[name];
     if (!(value instanceof ParseTree))
       value = createBooleanLiteral(!!value);
     return createPropertyNameAssignment(name, value);
   });
-  return createObjectLiteralExpression(propertyNameAndValues);
+  return createObjectLiteral(propertyNameAndValues);
 }
 
 /**
@@ -621,16 +622,16 @@ export function createDefineProperty(tree, name, descr) {
       createArgumentList([
         tree,
         name,
-        createObjectLiteral(descr)
+        createObjectLiteralForDescriptor(descr)
       ]));
 }
 
 /**
  * @param {Array.<ParseTree>} propertyNameAndValues
- * @return {ObjectLiteralExpression}
+ * @return {ObjectLiteral}
  */
-export function createObjectLiteralExpression(propertyNameAndValues) {
-  return new ObjectLiteralExpression(null, propertyNameAndValues);
+export function createObjectLiteral(propertyNameAndValues) {
+  return new ObjectLiteral(null, propertyNameAndValues);
 }
 
 /**
@@ -682,7 +683,8 @@ export function createLiteralPropertyName(name) {
  * @return {RestParameter}
  */
 export function createRestParameter(identifier) {
-  return new RestParameter(null, createBindingIdentifier(identifier), null);
+  let rest = new RestParameter(null, createBindingIdentifier(identifier));
+  return new FormalParameter(null, rest, null, []);
 }
 
 /**

@@ -81,7 +81,7 @@ export class ConstChecker extends ScopeVisitor {
   }
 
   reportError_(location, message) {
-    this.reporter_.reportError(location.start, message);
+    this.reporter_.reportError(location, message);
   }
 }
 

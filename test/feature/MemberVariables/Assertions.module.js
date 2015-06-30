@@ -1,5 +1,5 @@
 // Options: --member-variables --types --type-assertions --type-assertion-module=../TypeAssertions/resources/assert.js
-
+import {AssertionError} from '../../asserts.js';
 import '../TypeAssertions/resources/assert.js';
 
 class Test {
@@ -20,6 +20,6 @@ assert.equal(test.a, 'a');
 Test.b = 'b';
 assert.equal(Test.b, 'b');
 
-assert.throw(() => { test.uninitialized; }, chai.AssertionError);
-assert.throw(() => { test.a = 0; }, chai.AssertionError);
-assert.throw(() => { Test.b = 0; }, chai.AssertionError);
+assert.throw(() => { test.uninitialized; }, AssertionError);
+assert.throw(() => { test.a = 0; }, AssertionError);
+assert.throw(() => { Test.b = 0; }, AssertionError);

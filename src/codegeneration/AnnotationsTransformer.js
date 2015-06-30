@@ -27,13 +27,13 @@ import {
   FunctionDeclaration,
   GetAccessor,
   LiteralExpression,
-  PropertyMethodAssignment,
+  Method,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {propName} from '../staticsemantics/PropName.js';
 import {
   createArgumentList,
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createAssignmentStatement,
   createIdentifierExpression,
   createMemberExpression,
@@ -206,9 +206,9 @@ class AnnotationsScope {
     return super.transformSetAccessor(tree);
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     if (!this.scope.inClassScope)
-      return super.transformPropertyMethodAssignment(tree);
+      return super.transformMethod(tree);
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
@@ -223,11 +223,11 @@ class AnnotationsScope {
     let parameterList = this.transformAny(tree.parameterList);
     if (parameterList !== tree.parameterList ||
         tree.annotations.length > 0) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+      tree = new Method(tree.location, tree.isStatic,
           tree.functionKind, tree.name, parameterList,
           tree.typeAnnotation, [], tree.body, tree.debugName);
     }
-    return super.transformPropertyMethodAssignment(tree);
+    return super.transformMethod(tree);
   }
 
   appendMetadata_(tree) {
@@ -275,9 +275,9 @@ class AnnotationsScope {
         metadata.push(...this.transformAnnotations_(param.annotations));
       if (metadata.length > 0) {
         hasParameterMetadata = true;
-        return createArrayLiteralExpression(metadata);
+        return createArrayLiteral(metadata);
       }
-      return createArrayLiteralExpression([]);
+      return createArrayLiteral([]);
     });
 
     return hasParameterMetadata ? parameters : [];
@@ -296,7 +296,7 @@ class AnnotationsScope {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
         metadataStatements.push(this.createDefinePropertyStatement_(target,
-            'annotations', createArrayLiteralExpression(annotations)));
+            'annotations', createArrayLiteral(annotations)));
       }
     }
 
@@ -304,7 +304,7 @@ class AnnotationsScope {
       parameters = this.transformParameters_(parameters);
       if (parameters.length > 0) {
         metadataStatements.push(this.createDefinePropertyStatement_(target,
-            'parameters', createArrayLiteralExpression(parameters)));
+            'parameters', createArrayLiteral(parameters)));
       }
     }
     return metadataStatements;

@@ -28,7 +28,7 @@ import {
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   createArgumentList,
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createAssignmentExpression,
   createCallExpression,
   createEmptyArgumentList,
@@ -79,7 +79,7 @@ export class SpreadTransformer extends TempVarTransformer {
       // Arrays can contain holes which are represented by null.
       if (elements[i] && elements[i].type === SPREAD_EXPRESSION) {
         if (lastArray) {
-          args.push(createArrayLiteralExpression(lastArray));
+          args.push(createArrayLiteral(lastArray));
           lastArray = null;
         }
         args.push(
@@ -91,7 +91,7 @@ export class SpreadTransformer extends TempVarTransformer {
       }
     }
     if (lastArray)
-      args.push(createArrayLiteralExpression(lastArray));
+      args.push(createArrayLiteral(lastArray));
 
     return parseExpression
         `$traceurRuntime.spread(${createArgumentList(args)})`;
@@ -167,11 +167,11 @@ export class SpreadTransformer extends TempVarTransformer {
         createEmptyArgumentList());
   }
 
-  transformArrayLiteralExpression(tree) {
+  transformArrayLiteral(tree) {
     if (hasSpreadMember(tree.elements)) {
       return this.createArrayFromElements_(tree.elements);
     }
-    return super.transformArrayLiteralExpression(tree);
+    return super.transformArrayLiteral(tree);
   }
 
   transformCallExpression(tree) {

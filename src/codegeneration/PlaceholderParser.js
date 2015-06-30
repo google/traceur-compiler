@@ -35,7 +35,7 @@ import {
 import {SourceFile} from '../syntax/SourceFile.js';
 import {IDENTIFIER} from '../syntax/TokenType.js';
 import {
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createBindingIdentifier,
   createBlock,
   createBooleanLiteral,
@@ -169,7 +169,7 @@ function convertValueToExpression(value) {
       else
         return createParenExpression(createCommaExpression(value));
     }
-    return createArrayLiteralExpression(value.map(convertValueToExpression));
+    return createArrayLiteral(value.map(convertValueToExpression));
   }
   if (value === null)
     return createNullLiteral();

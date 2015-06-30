@@ -39,7 +39,7 @@ import {
   createFunctionExpression,
   createIdentifierExpression,
   createNumberLiteral,
-  createObjectLiteral,
+  createObjectLiteralForDescriptor,
   createSwitchStatement,
   createThisExpression,
   createVariableDeclaration,
@@ -48,6 +48,7 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
 import {StringSet} from '../util/StringSet.js';
 import {Token} from '../syntax/Token.js';
 import {
@@ -65,7 +66,8 @@ import {
  * - loopBody: Might contain a call to the function defined above, and also
  *    a switch statement for the abrupt completions
  */
-export class FnExtractAbruptCompletions extends ParseTreeTransformer {
+export class FnExtractAbruptCompletions extends
+    SkipFunctionsTransformerTrait(ParseTreeTransformer) {
 
   constructor(idGenerator, requestParentLabel) {
     super();
@@ -183,7 +185,7 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
   transformReturnStatement(tree) {
     this.hasReturns = true;
-    return new ReturnStatement(tree.location, createObjectLiteral({
+    return new ReturnStatement(tree.location, createObjectLiteralForDescriptor({
       v: tree.expression || createVoid0()
     }));
   }
@@ -248,16 +250,6 @@ export class FnExtractAbruptCompletions extends ParseTreeTransformer {
 
     return super.transformVariableStatement(tree);
   }
-
-
-  // don't transform children functions
-  transformFunctionDeclaration(tree) {return tree;}
-  transformFunctionExpression(tree) {return tree;}
-  transformSetAccessor(tree) {return tree;}
-  transformGetAccessor(tree) {return tree;}
-  transformPropertyMethodAssignment(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
-
 
   static createIIFE(idGenerator, body, paramList, argsList, requestParentLabel,
       inGenerator) {

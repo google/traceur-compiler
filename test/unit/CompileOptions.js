@@ -25,7 +25,7 @@ suite('options', function() {
     assert.isTrue(options.experimental);
 
     options.modules = false;
-    assert.equal(options.modules, 'register');
+    assert.equal(options.modules, 'bootstrap');
     options.modules = 'inline';
     assert.equal(options.modules, 'inline');
     assert.throws(function() {
@@ -70,7 +70,7 @@ suite('options', function() {
       blockBinding);
     assert.isFalse(CommandOptions.fromString('--classes=false').classes);
     assert.equal(CommandOptions.fromString('--modules=amd').modules,'amd');
-    assert.equal(CommandOptions.fromString('--modules=false').modules, 'register');
+    assert.equal(CommandOptions.fromString('--modules=false').modules, 'bootstrap');
     assert.equal(CommandOptions.fromString('--referrer=traceur@0.0.1').
       referrer,'traceur@0.0.1');
 

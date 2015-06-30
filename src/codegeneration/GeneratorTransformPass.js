@@ -160,9 +160,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
                            tree.annotations || null, body);
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     if (!tree.isAsyncFunction())
-      return super.transformArrowFunctionExpression(tree);
+      return super.transformArrowFunction(tree);
 
     return this.transformAny(ArrowFunctionTransformer.transform(this, tree));
   }

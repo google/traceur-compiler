@@ -53,7 +53,6 @@ class ConstructorValidator extends FindVisitor {
   }
 
   reportError_(location, kind) {
-    var location = location && location.start;
     this.reporter_.reportError(location,
         `'${kind}' is not allowed before super()`);
     this.hasError = true;
@@ -67,7 +66,7 @@ export function validateConstructor(tree, reporter) {
   if (visitor.hasError) return false;
   if (visitor.found) return true;
 
-  reporter.reportError(tree.location.end,
+  reporter.reportError(tree.location,
                        'Derived constructor must call super()');
   return false;
 }
