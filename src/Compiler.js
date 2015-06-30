@@ -82,7 +82,7 @@ export class Compiler {
     return new Compiler(options).compile(content);
   }
   /**
-   * Use Traceur to compile ES6 module source code to 'register' module format.
+   * Use Traceur to compile ES6 module source code to 'bootstrap' module format.
    *
    * @param  {string} content ES6 source code.
    * @param  {Object=} options Traceur options to override defaults.
@@ -90,7 +90,7 @@ export class Compiler {
    */
   static module(content, options = {}) {
     options = new Options(options);  // fresh copy, don't write on argument.
-    options.modules = 'register';
+    options.modules = 'bootstrap';
     return new Compiler(options).compile(content);
   }
   /**

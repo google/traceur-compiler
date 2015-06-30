@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PropertyMethodAssignment} from '../syntax/trees/ParseTrees.js';
+import {Method} from '../syntax/trees/ParseTrees.js';
 import {SUPER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
@@ -23,7 +23,6 @@ import {
   createThisExpression,
 } from './ParseTreeFactory.js';
 import {prependStatements} from './PrependStatements.js';
-import {parseExpression} from './PlaceholderParser.js';
 
 /**
  * Transforms class constructors when classes have initialized instance
@@ -45,19 +44,10 @@ export function transformConstructor(constructor, initExpression, superClass) {
   let initStatement = createExpressionStatement(initExpression);
   statements = prependStatements(statements, initStatement);
 
-  return new PropertyMethodAssignment(constructor.location, false,
+  return new Method(constructor.location, false,
       constructor.functionKind, constructor.name, constructor.parameterList,
       constructor.typeAnnotation, constructor.annotations,
       createFunctionBody(statements), constructor.debugName);
-}
-
-// TODO(vicb): Does not handle computed properties
-export function getInstanceInitExpression(initInstanceVars) {
-  let expressions = initInstanceVars.map((mv) => {
-    let name = mv.name.literalToken;
-    return parseExpression `this.${name} = ${mv.initializer}`;
-  });
-  return createCommaExpression(expressions);
 }
 
 class SuperCallTransformer extends ParseTreeTransformer {

@@ -17,18 +17,28 @@
 import {TraceurTestRunner} from './TraceurTestRunner.js';
 import {webLoader} from '../../src/runtime/webLoader.js';
 
+function optionsOnURL() {
+  let params = window.location.search.substring(1);
+  let nameValuePairs = params.split('&');
+  let options = {};
+  nameValuePairs.forEach(function(pair){
+    let segments = pair.split('=');
+    options[segments[0]] = decodeURIComponent(segments[1]);
+  });
+  return options;
+}
+
 export class BrowserTraceurTestRunner extends TraceurTestRunner {
 
-  constructor(traceurTestOptions) {
-    super({
-      reporter: 'html',
-      ui: 'tdd',
-      importMetadata: {
-        traceurOptions: {
-          sourceMaps: 'inline'
-        }
+  constructor(mochaOptions = optionsOnURL(), traceurTestOptions) {
+    mochaOptions.reporter = mochaOptions.reporter || 'html';
+    mochaOptions.ui = mochaOptions.ui || 'tdd';
+    mochaOptions.importMetadata = mochaOptions.importMetadata || {
+      traceurOptions: {
+        sourceMaps: 'inline'
       }
-    }, traceurTestOptions);
+    }
+    super(mochaOptions, traceurTestOptions);
   }
 
   expandPatterns() {

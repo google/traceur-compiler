@@ -7,6 +7,7 @@
 'use strict';
 
 var a, b, c, x, y, z;
+a = b = c = x = y = z = undefined;
 
 // ----------------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ checkA();
 [a] = null || [1];
 checkA();
 
-// ParseTreeType.ARRAY_LITERAL_EXPRESSION
+// ParseTreeType.ARRAY_LITERAL
 var [a] = [1, 2, 3];
 checkA();
 [a] = [1, 2, 3];
@@ -91,7 +92,7 @@ checkA();
 [[a]] = [[1], 2, 3];
 checkA();
 
-// ParseTreeType.OBJECT_LITERAL_EXPRESSION
+// ParseTreeType.OBJECT_LITERAL
 var {a} = {a: 1, b: 2, c: 3};
 checkA();
 var {x: {a}} = {x: {a: 1, b: 2}, c: 3};

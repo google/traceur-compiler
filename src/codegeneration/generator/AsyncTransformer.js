@@ -157,7 +157,7 @@ export class AsyncTransformer extends CPSTransformer {
       return result;
     }
     // TODO: is this a reasonable restriction?
-    this.reporter.reportError(tree.location.start,
+    this.reporter.reportError(tree.location,
         'await not permitted within a finally block.');
     return result;
   }

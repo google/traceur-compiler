@@ -1,4 +1,4 @@
-// Error: :8:25: implements is a reserved identifier,
+// Error: :8:25: implements is a reserved identifier
 // Error :8:25: implements is a reserved identifier
 // Error :10:1: implements is a reserved identifier
 // Error :11:2: implements is a reserved identifier

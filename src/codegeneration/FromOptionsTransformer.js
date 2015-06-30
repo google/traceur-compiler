@@ -21,42 +21,41 @@ import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
 import {AsyncGeneratorTransformPass} from './AsyncGeneratorTransformPass.js';
 import {BlockBindingTransformer} from './BlockBindingTransformer.js';
 import {ClassTransformer} from './ClassTransformer.js';
-import {CommonJsModuleTransformer} from './CommonJsModuleTransformer.js';
 import {ClosureModuleTransformer} from './ClosureModuleTransformer.js';
-import {ExponentiationTransformer} from './ExponentiationTransformer.js';
-import {validate as validateConst} from '../semantics/ConstChecker.js';
+import {CommonJsModuleTransformer} from './CommonJsModuleTransformer.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer.js';
 import {DestructuringTransformer} from './DestructuringTransformer.js';
+import {ExponentiationTransformer} from './ExponentiationTransformer.js';
 import {ForOfTransformer} from './ForOfTransformer.js';
 import {ForOnTransformer} from './ForOnTransformer.js';
-import {validate as validateFreeVariables} from
-    '../semantics/FreeVariableChecker.js';
-import {GeneratorComprehensionTransformer} from
-    './GeneratorComprehensionTransformer.js';
+import {GeneratorComprehensionTransformer} from './GeneratorComprehensionTransformer.js';
 import {GeneratorTransformPass} from './GeneratorTransformPass.js';
 import {InlineModuleTransformer} from './InlineModuleTransformer.js';
+import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer.js';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
-import {PropertyNameShorthandTransformer} from
-    './PropertyNameShorthandTransformer.js';
-import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
 import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
+import {PropertyNameShorthandTransformer} from './PropertyNameShorthandTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
 import {StrongArityTransformer} from './strong/StrongArityTransformer.js';
 import {StrongCoercionTransformer} from './strong/StrongCoercionTransformer.js';
 import {StrongModeTransformer} from './strong/StrongModeTransformer.js';
+import {SuperTransformer} from './SuperTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
-import {TypeTransformer} from './TypeTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
+import {TypedMemberVariableTransformer} from './TypedMemberVariableTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
+import {TypeTransformer} from './TypeTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
+import {validate as validateConst} from '../semantics/ConstChecker.js';
+import {validate as validateFreeVariables} from '../semantics/FreeVariableChecker.js';
 
 /**
  * MultiTransformer built from global options settings
@@ -129,7 +128,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (options.typeAssertions) {
       // Transforming member variables to getters/setters only make
       // sense when the type assertions are enabled.
-      if (transformOptions.memberVariables) append(MemberVariableTransformer);
+      if (options.typeAssertions) {
+        append(TypedMemberVariableTransformer);
+      }
       append(TypeAssertionTransformer);
     }
 
@@ -157,7 +158,7 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'instantiate':
           append(InstantiateModuleTransformer);
           break;
-        case 'register':
+        case 'bootstrap':
           append(ModuleTransformer);
           break;
         default:
@@ -166,12 +167,24 @@ export class FromOptionsTransformer extends MultiTransformer {
       }
     }
 
-    if (transformOptions.arrowFunctions)
+    // MemberVariableTransformer needs to be done before SuperTransformer.
+    if (transformOptions.memberVariables) {
+      append(MemberVariableTransformer);
+    }
+
+    if (transformOptions.classes) {
+      append(SuperTransformer);
+    }
+
+    // ArrowFunctionTransformer needs to be done after SuperTransformer.
+    if (transformOptions.arrowFunctions) {
       append(ArrowFunctionTransformer);
+    }
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    if (transformOptions.classes)
+    if (transformOptions.classes) {
       append(ClassTransformer);
+    }
 
     if (transformOptions.propertyMethods ||
         transformOptions.computedPropertyNames ||

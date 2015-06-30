@@ -1,5 +1,7 @@
 'use strict';
 
+(function() {
+
 // test MemberLookupExpression
 function f(a) {
   var b = [42];
@@ -23,3 +25,5 @@ assert.equal((a||b)(), 42);
 
 a = function() { return 43; }
 assert.equal((a||b)(), 43);
+
+})();

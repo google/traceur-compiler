@@ -48,7 +48,7 @@ export const optionsV01 = enumerableOnlyObject({
   lowResolutionSourceMap: false,
   memberVariables: false,
   moduleName: 'default',
-  modules: 'register',
+  modules: 'bootstrap',
   numericLiterals: true,
   outputLanguage: 'es5',
   properTailCalls: false,
@@ -95,7 +95,7 @@ let defaultValues = Object.create(null);
 let featureOptions = Object.create(null);
 let experimentalOptions = Object.create(null);
 let moduleOptions =
-    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'register'];
+    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'bootstrap'];
 
 const EXPERIMENTAL = 0;
 const ON_BY_DEFAULT = 1;
@@ -297,7 +297,7 @@ export class Options {
 
   set modules(value) {
     if (typeof value === 'boolean' && !value)
-      value = 'register';
+      value = 'bootstrap';
     if (moduleOptions.indexOf(value) === -1) {
       throw new Error('Invalid \'modules\' option \'' + value + '\', not in ' +
         moduleOptions.join(', '));
@@ -339,7 +339,7 @@ export class Options {
    * boolean values.
    */
   setDefaults() {
-    this.modules = 'register';
+    this.modules = 'bootstrap';
     this.moduleName = 'default';
     this.outputLanguage = 'es5';
     this.referrer = '';

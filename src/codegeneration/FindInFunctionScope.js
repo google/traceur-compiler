@@ -26,9 +26,22 @@ import {FindVisitor} from './FindVisitor.js';
  */
 export class FindInFunctionScope extends FindVisitor {
   // don't visit function children or bodies
-  visitFunctionDeclaration(tree) {}
-  visitFunctionExpression(tree) {}
-  visitSetAccessor(tree) {}
-  visitGetAccessor(tree) {}
-  visitPropertyMethodAssignment(tree) {}
+  visitFunctionDeclaration(tree) {
+    this.visitList(tree.annotations);
+  }
+  visitFunctionExpression(tree) {
+    this.visitList(tree.annotations);
+  }
+  visitSetAccessor(tree) {
+    this.visitAny(tree.name);
+    this.visitList(tree.annotations);
+  }
+  visitGetAccessor(tree) {
+    this.visitAny(tree.name);
+    this.visitList(tree.annotations);
+  }
+  visitMethod(tree) {
+    this.visitAny(tree.name);
+    this.visitList(tree.annotations);
+  }
 }

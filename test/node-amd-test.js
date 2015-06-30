@@ -1,6 +1,7 @@
 var requirejs = require('requirejs');
 var fs = require('fs');
 var path = require('path');
+var assert = require('chai').assert;
 
 var COMPILED_DIR = __dirname + '/amd-compiled';
 var INPUT_DIR = __dirname + '/amd';

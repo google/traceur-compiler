@@ -16,13 +16,14 @@
 
 import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
+import {ParenTrait} from './ParenTrait.js';
 import {
   STAR_STAR,
   STAR_STAR_EQUAL
 } from '../syntax/TokenType.js';
 import {parseExpression} from './PlaceholderParser.js';
 
-export class ExponentiationTransformer extends TempVarTransformer {
+export class ExponentiationTransformer extends ParenTrait(TempVarTransformer) {
   transformBinaryExpression(tree) {
     switch (tree.operator.type) {
       case STAR_STAR: {

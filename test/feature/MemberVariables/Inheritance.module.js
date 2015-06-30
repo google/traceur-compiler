@@ -1,5 +1,6 @@
 // Options: --member-variables --types --type-assertions --type-assertion-module=../TypeAssertions/resources/assert.js
 
+import {AssertionError} from '../../asserts.js';
 import '../TypeAssertions/resources/assert.js';
 
 class Parent {
@@ -18,7 +19,7 @@ child.b = 'defined in Child';
 Child.staticA = 'static in Parent';
 Child.staticB = 'static in Child';
 
-assert.throw(() => { child.a = 0; }, chai.AssertionError);
-assert.throw(() => { child.b = 0; }, chai.AssertionError);
-assert.throw(() => { Child.staticA = 0; }, chai.AssertionError);
-assert.throw(() => { Child.staticB = 0; }, chai.AssertionError);
+assert.throw(() => { child.a = 0; }, AssertionError);
+assert.throw(() => { child.b = 0; }, AssertionError);
+assert.throw(() => { Child.staticA = 0; }, AssertionError);
+assert.throw(() => { Child.staticB = 0; }, AssertionError);

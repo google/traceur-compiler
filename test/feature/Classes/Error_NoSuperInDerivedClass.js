@@ -1,4 +1,4 @@
-// Error: :8:4: Derived constructor must call super()
+// Error: :6:3: Derived constructor must call super()
 
 class B {}
 

@@ -47,8 +47,9 @@ function superConstructor(ctor) {
 function superGet(self, homeObject, name) {
   var descriptor = superDescriptor(homeObject, name);
   if (descriptor) {
-    if (!descriptor.get)
-      return descriptor.value;
+    let value = descriptor.value;
+    if (value) return value;
+    if (!descriptor.get) return value;
     return descriptor.get.call(self);
   }
   return undefined;
@@ -127,4 +128,3 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superConstructor = superConstructor;
 $traceurRuntime.superGet = superGet;
 $traceurRuntime.superSet = superSet;
-

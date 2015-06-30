@@ -37,7 +37,7 @@
       "ParseTree"
     ]
   },
-  "ArrayLiteralExpression": {
+  "ArrayLiteral": {
     "location": [
       "SourceRange"
     ],
@@ -61,7 +61,7 @@
       "ParseTree"
     ]
   },
-  "ArrowFunctionExpression": {
+  "ArrowFunction": {
     "location": [
       "SourceRange"
     ],
@@ -775,6 +775,35 @@
       "ParseTree"
     ]
   },
+  "Method": {
+    "location": [
+      "SourceRange"
+    ],
+    "isStatic": [
+      "boolean"
+    ],
+    "functionKind": [
+      "Token"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "parameterList": [
+      "FormalParameterList"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
+    "annotations": [
+      "Array<ParseTree>"
+    ],
+    "body": [
+      "FunctionBody"
+    ],
+    "debugName": [
+      "ParseTree"
+    ]
+  },
   "MethodSignature": {
     "location": [
       "SourceRange"
@@ -846,7 +875,7 @@
       "ArgumentList"
     ]
   },
-  "ObjectLiteralExpression": {
+  "ObjectLiteral": {
     "location": [
       "SourceRange"
     ],
@@ -919,35 +948,6 @@
       "string"
     ]
   },
-  "PropertyMethodAssignment": {
-    "location": [
-      "SourceRange"
-    ],
-    "isStatic": [
-      "boolean"
-    ],
-    "functionKind": [
-      "Token"
-    ],
-    "name": [
-      "ParseTree"
-    ],
-    "parameterList": [
-      "FormalParameterList"
-    ],
-    "typeAnnotation": [
-      "ParseTree"
-    ],
-    "annotations": [
-      "Array<ParseTree>"
-    ],
-    "body": [
-      "FunctionBody"
-    ],
-    "debugName": [
-      "ParseTree"
-    ]
-  },
   "PropertyNameAssignment": {
     "location": [
       "SourceRange"
@@ -1007,9 +1007,6 @@
     ],
     "identifier": [
       "BindingIdentifier"
-    ],
-    "typeAnnotation": [
-      "ParseTree"
     ]
   },
   "ReturnStatement": {

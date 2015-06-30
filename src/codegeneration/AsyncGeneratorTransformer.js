@@ -34,10 +34,12 @@ import {
   CallExpression,
   Catch
 } from '../syntax/trees/ParseTrees.js';
+import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
 import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
 
-export class AsyncGeneratorTransformer extends TempVarTransformer {
+export class AsyncGeneratorTransformer extends
+    SkipFunctionsTransformerTrait(TempVarTransformer) {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.variableDeclarations_ = [];
@@ -63,14 +65,6 @@ export class AsyncGeneratorTransformer extends TempVarTransformer {
         }`, ...body.statements]);
     return new Catch(tree.location, tree.binding, body);
   }
-
-  // don't transform children functions
-  transformFunctionDeclaration(tree) {return tree;}
-  transformFunctionExpression(tree) {return tree;}
-  transformSetAccessor(tree) {return tree;}
-  transformGetAccessor(tree) {return tree;}
-  transformPropertyMethodAssignment(tree) {return tree;}
-  transformArrowFunctionExpression(tree) {return tree;}
 
   /**
    * @param {FunctionBody} tree

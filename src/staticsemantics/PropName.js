@@ -18,7 +18,7 @@ import {
   COMPUTED_PROPERTY_NAME,
   GET_ACCESSOR,
   LITERAL_PROPERTY_NAME,
-  PROPERTY_METHOD_ASSIGNMENT,
+  METHOD,
   PROPERTY_NAME_ASSIGNMENT,
   PROPERTY_NAME_SHORTHAND,
   SET_ACCESSOR
@@ -42,7 +42,7 @@ export function propName(tree) {
       return '';
     case PROPERTY_NAME_SHORTHAND:
       return tree.name.toString();
-    case PROPERTY_METHOD_ASSIGNMENT:
+    case METHOD:
     case PROPERTY_NAME_ASSIGNMENT:
     case GET_ACCESSOR:
     case SET_ACCESSOR:

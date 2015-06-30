@@ -623,15 +623,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       let iifeInfo = FnExtractAbruptCompletions.createIIFE(
           this.idGenerator_, tree.body, iifeParameterList, iifeArgumentList,
           () => {
-            return loopLabel = loopLabel ||
-                this.idGenerator_.generateUniqueIdentifier()
+            return loopLabel = loopLabel || createIdentifierToken(
+                this.idGenerator_.generateUniqueIdentifier());
           }, this.scope_.inGenerator);
 
       tree = loopFactory(initializer, renames, iifeInfo.loopBody);
 
       if (loopLabel) {
-        tree = new LabelledStatement(tree.location,
-            createIdentifierToken(loopLabel), tree);
+        tree = new LabelledStatement(tree.location, loopLabel, tree);
       }
 
       tree = new AnonBlock(tree.location, [iifeInfo.variableStatements, tree]);
@@ -761,12 +760,12 @@ class FindBlockBindingInLoop extends FindVisitor {
     func();
   }
 
+  visitArrowFunction(tree) {this.visitFunction_(tree);}
   visitFunctionDeclaration(tree) {this.visitFunction_(tree);}
   visitFunctionExpression(tree) {this.visitFunction_(tree);}
-  visitSetAccessor(tree) {this.visitFunction_(tree);}
   visitGetAccessor(tree) {this.visitFunction_(tree);}
-  visitPropertyMethodAssignment(tree) {this.visitFunction_(tree);}
-  visitArrowFunctionExpression(tree) {this.visitFunction_(tree);}
+  visitMethod(tree) {this.visitFunction_(tree);}
+  visitSetAccessor(tree) {this.visitFunction_(tree);}
   visitFunction_(tree) {
     this.found = new FindIdentifiers(tree,
         (identifierToken, identScope) => {

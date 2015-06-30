@@ -20,6 +20,13 @@ import {
 } from '../syntax/PredefinedName.js';
 import {FindInFunctionScope} from './FindInFunctionScope.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {
+  FunctionDeclaration,
+  FunctionExpression,
+  GetAccessor,
+  Method,
+  SetAccessor,
+} from '../syntax/trees/ParseTrees.js';
 import {StringSet} from '../util/StringSet.js';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js'
 import {VAR} from '../syntax/TokenType.js'
@@ -134,14 +141,32 @@ export class ScopeTransformer extends ParseTreeTransformer {
     return super.transformThisExpression(tree);
   }
 
+  transformParameterListAndBody_(tree) {
+    if (this.getDoNotRecurse(tree)) return tree;
+    return {
+      parameterList: this.transformAny(tree.parameterList),
+      body: this.transformAny(tree.body)
+    };
+  }
+
   /**
    * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    if (this.getDoNotRecurse(tree))
+    let name = this.transformAny(tree.name);
+    let typeAnnotation = this.transformAny(tree.typeAnnotation);
+    let annotations = this.transformList(tree.annotations);
+    let {parameterList, body} = this.transformParameterListAndBody_(tree);
+    if (name === tree.name && parameterList === tree.parameterList &&
+        typeAnnotation === tree.typeAnnotation &&
+        annotations === tree.annotations && body === tree.body) {
       return tree;
-    return super.transformFunctionDeclaration(tree);
+    }
+
+    return new FunctionDeclaration(tree.location, name, tree.functionKind,
+                                   parameterList, typeAnnotation, annotations,
+                                   body);
   }
 
   /**
@@ -149,19 +174,73 @@ export class ScopeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
-    if (this.getDoNotRecurse(tree))
+    let name = this.transformAny(tree.name);
+    let typeAnnotation = this.transformAny(tree.typeAnnotation);
+    let annotations = this.transformList(tree.annotations);
+    let {parameterList, body} = this.transformParameterListAndBody_(tree);
+    if (name === tree.name && parameterList === tree.parameterList &&
+        typeAnnotation === tree.typeAnnotation &&
+        annotations === tree.annotations && body === tree.body) {
       return tree;
-    return super.transformFunctionExpression(tree);
+    }
+
+    return new FunctionExpression(tree.location, name, tree.functionKind,
+                                  parameterList, typeAnnotation, annotations,
+                                  body);
   }
 
   /**
-   * @param {PropertyMethodAssignment} tree
+   * @param {Method} tree
    * @return {ParseTree}
    */
-  transformPropertyMethodAssignment(tree) {
-    if (this.getDoNotRecurse(tree))
+  transformMethod(tree) {
+    let name = this.transformAny(tree.name);
+    let typeAnnotation = this.transformAny(tree.typeAnnotation);
+    let annotations = this.transformList(tree.annotations);
+    let {parameterList, body} = this.transformParameterListAndBody_(tree);
+    if (name === tree.name && typeAnnotation === tree.typeAnnotation &&
+        annotations === tree.annotations &&
+        parameterList === tree.parameterList && body === tree.body) {
       return tree;
-    return super.transformPropertyMethodAssignment(tree);
+    }
+    return new Method(tree.location, tree.isStatic,
+                                        tree.functionKind, name,
+                                        parameterList, typeAnnotation,
+                                        annotations, body, tree.debugName);
+  }
+
+  /**
+   * @param {GetAccessor} tree
+   * @return {ParseTree}
+   */
+  transformGetAccessor(tree) {
+    let name = this.transformAny(tree.name);
+    let typeAnnotation = this.transformAny(tree.typeAnnotation);
+    let annotations = this.transformList(tree.annotations);
+    let body = this.getDoNotRecurse(tree) ? tree.body :
+        this.transformAny(tree.body);
+    if (name === tree.name && typeAnnotation === tree.typeAnnotation &&
+        annotations === tree.annotations && body === tree.body) {
+      return tree;
+    }
+    return new GetAccessor(tree.location, tree.isStatic, name, typeAnnotation,
+                           annotations, body);
+  }
+
+  /**
+   * @param {SetAccessor} tree
+   * @return {ParseTree}
+   */
+  transformSetAccessor(tree) {
+    let name = this.transformAny(tree.name);
+    let annotations = this.transformList(tree.annotations);
+    let {parameterList, body} = this.transformParameterListAndBody_(tree);
+    if (name === tree.name && annotations === tree.annotations &&
+        parameterList === tree.parameterList && body === tree.body) {
+      return tree;
+    }
+    return new SetAccessor(tree.location, tree.isStatic, name, parameterList,
+                           annotations, body);
   }
 
   // Do not recurse into functions if:

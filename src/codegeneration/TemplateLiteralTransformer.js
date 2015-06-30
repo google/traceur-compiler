@@ -26,6 +26,7 @@ import {
   NewExpression
 } from '../syntax/trees/ParseTrees.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
+import {ParenTrait} from './ParenTrait.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   PERCENT,
@@ -36,7 +37,7 @@ import {
 } from '../syntax/TokenType.js';
 import {
   createArgumentList,
-  createArrayLiteralExpression,
+  createArrayLiteral,
   createBinaryExpression,
   createCallExpression,
   createMemberExpression,
@@ -85,11 +86,11 @@ function createGetTemplateObject(elements) {
   }
 
   maybeAddEmptyStringAtEnd(elements, cooked);
-  let cookedLiteral = createArrayLiteralExpression(cooked);
+  let cookedLiteral = createArrayLiteral(cooked);
   let args = [cookedLiteral];
   if (!same) {
     maybeAddEmptyStringAtEnd(elements, raw);
-    let rawLiteral = createArrayLiteralExpression(raw);
+    let rawLiteral = createArrayLiteral(raw);
     args.unshift(rawLiteral);
   }
 
@@ -203,25 +204,8 @@ function toCookedString(s) {
   return sb.join('');
 }
 
-export class TemplateLiteralTransformer extends ParseTreeTransformer {
-  transformNewExpression(tree) {
-    if (tree.operand) {
-      let operand = tree.operand;
-      do {
-        // If operand contains a tagged TemplateLiteral, parenthesize the entire
-        // operand.
-        if (operand.type === TEMPLATE_LITERAL_EXPRESSION &&
-            operand.operand !== null) {
-          tree = new NewExpression(tree.location,
-                                   createParenExpression(tree.operand),
-                                   tree.args);
-          break;
-        }
-      } while (operand = operand.operand);
-    }
-    return super.transformNewExpression(tree);
-  }
-
+export class TemplateLiteralTransformer extends
+    ParenTrait(ParseTreeTransformer) {
   transformTemplateLiteralExpression(tree) {
     if (!tree.operand) {
       return this.createDefaultTemplateLiteral(tree);

@@ -56,9 +56,9 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
     return super.visitGetAccessor(tree);
   }
 
-  visitPropertyMethodAssignment(tree) {
+  visitMethod(tree) {
     this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitPropertyMethodAssignment(tree);
+    return super.visitMethod(tree);
   }
 
   visitFunctionDeclaration(tree) {

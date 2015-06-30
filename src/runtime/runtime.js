@@ -429,7 +429,7 @@
         var names = $getOwnPropertyNames(arguments[i]);
         for (var j = 0; j < names.length; j++) {
           var name = names[j];
-          if (name === '__esModule' || isSymbolString(name)) continue;
+          if (name === '__esModule' || name === 'default' || isSymbolString(name)) continue;
           (function(mod, name) {
             $defineProperty(object, name, {
               get: function() { return mod[name]; },
@@ -459,10 +459,15 @@
       return argument;
     }
 
+    var hasNativeSymbol;
+
     function polyfillSymbol(global, Symbol) {
       if (!global.Symbol) {
         global.Symbol = Symbol;
         Object.getOwnPropertySymbols = getOwnPropertySymbols;
+        hasNativeSymbol = false;
+      } else {
+        hasNativeSymbol = true;
       }
       if (!global.Symbol.iterator) {
         global.Symbol.iterator = Symbol('Symbol.iterator');
@@ -470,6 +475,10 @@
       if (!global.Symbol.observer) {
         global.Symbol.observer = Symbol('Symbol.observer');
       }
+    }
+
+    function hasNativeSymbolFunc() {
+      return hasNativeSymbol;
     }
 
     function setupGlobals(global) {
@@ -494,6 +503,7 @@
       getOwnHashObject: getOwnHashObject,
       getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
       getOwnPropertyNames: $getOwnPropertyNames,
+      hasNativeSymbol: hasNativeSymbolFunc,
       initTailRecursiveFunction: initTailRecursiveFunction,
       isObject: isObject,
       isPrivateName: isPrivateName,

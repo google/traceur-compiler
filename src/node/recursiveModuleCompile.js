@@ -137,7 +137,7 @@ function recursiveModuleCompile(fileNamesAndTypes, options) {
 
     if (input.type === 'script') {
       loadFunction = loader.loadAsScript;
-    } else if (optionsCopy.modules === 'register') {
+    } else if (optionsCopy.modules === 'bootstrap') {
       doEvaluateModule = true;
     }
 

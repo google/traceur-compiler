@@ -309,11 +309,11 @@ class HoistVariablesTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     return tree;
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     return tree;
   }
 

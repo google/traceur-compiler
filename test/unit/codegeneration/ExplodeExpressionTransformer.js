@@ -119,22 +119,22 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('CommaExpression', '1, 2', '1, 2');
   testExplode('CommaExpression', 'a.b, c.d', '$0 = a.b, $1 = c.d, $1');
 
-  testExplode('ArrayLiteralExpression', '[1, 2]', '[1, 2]');
-  testExplode('ArrayLiteralExpression', '[a.b, c.d]',
+  testExplode('ArrayLiteral', '[1, 2]', '[1, 2]');
+  testExplode('ArrayLiteral', '[a.b, c.d]',
       '$0 = a.b, $1 = c.d, $2 = [$0, $1], $2');
-  testExplode('ArrayLiteralExpression', '[...x]', '[...x]');
-  testExplode('ArrayLiteralExpression', '[...a.b]',
+  testExplode('ArrayLiteral', '[...x]', '[...x]');
+  testExplode('ArrayLiteral', '[...a.b]',
       '$0 = a.b, $1 = [...$0], $1');
-  testExplode('ArrayLiteralExpression', '[...a.b.c]',
+  testExplode('ArrayLiteral', '[...a.b.c]',
       '$0 = a.b, $1 = $0.c, $2 = [...$1], $2');
-  testExplode('ArrayLiteralExpression', '[a.b, ...c.d, e.f]',
+  testExplode('ArrayLiteral', '[a.b, ...c.d, e.f]',
       '$0 = a.b, $1 = c.d, $2 = e.f, $3 = [$0, ...$1, $2], $3');
-  testExplode('ArrayLiteralExpression', '[a.b, ...x]',
+  testExplode('ArrayLiteral', '[a.b, ...x]',
       '$0 = a.b, $1 = [$0, ...x], $1');
 
-  testExplode('ObjectLiteralExpression', '{a: 1, b: 2}',
+  testExplode('ObjectLiteral', '{a: 1, b: 2}',
       '{\n  a: 1,\n  b: 2\n}');
-  testExplode('ObjectLiteralExpression', '{a: b.c, d: e.f}',
+  testExplode('ObjectLiteral', '{a: b.c, d: e.f}',
       '$0 = b.c, $1 = e.f, $2 = {\n  a: $0,\n  d: $1\n}, $2');
 
   testExplode('TemplateLiteralExpression', '`a${1}b${2}c`', '`a${1}b${2}c`');
@@ -232,4 +232,14 @@ suite('ExplodeExpressionTransformer.js', function() {
   testExplode('AwaitExpression', 'await (await a.b)',
       '$0 = a.b, $1 = await $0, $2 = await $1, $2');
 
+  testExplode('FunctionExpression', 'a.b = function() { c.d }',
+      '$0 = function() {\n  c.d;\n}, a.b = $0, $0');
+  testExplode('Arrow', 'a.b = () => { c.d }',
+      '$0 = () => {\n  c.d;\n}, a.b = $0, $0');
+  testExplode('Arrow', 'a.b = () => c.d', '$0 = () => c.d, a.b = $0, $0');
+  testExplode('ClassExpression', 'a.b = class { m() { c.d } }',
+      '$0 = class {\n  m() {\n    c.d;\n  }\n}, a.b = $0, $0');
+  testExplode('ClassExpression', 'a.b = class extends c.d { m() { e.f } }',
+      '$0 = c.d, $1 = class extends $0 {\n  m() {\n    e.f;\n  }\n}, ' +
+      'a.b = $1, $1');
 });

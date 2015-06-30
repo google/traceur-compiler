@@ -14,7 +14,6 @@
 
 'use strong';
 
-import {ArrowFunctionExpression} from '../../syntax/trees/ParseTrees.js';
 import {LanguageModeTransformerTrait} from '../LanguageModeTransformerTrait.js';
 import {ParameterTransformer} from '../ParameterTransformer.js';
 import {parseStatement} from '../PlaceholderParser.js';
@@ -58,9 +57,9 @@ export class StrongArityTransformer extends
     return super.transformFormalParameterList(tree);
   }
 
-  transformArrowFunctionExpression(tree) {
+  transformArrowFunction(tree) {
     // Arrow functions do not have arguments so we cannot check them.
     this.currentArrowFormals_ = tree.parameterList;
-    return super.transformArrowFunctionExpression(tree);
+    return super.transformArrowFunction(tree);
   }
 }

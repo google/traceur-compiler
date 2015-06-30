@@ -20,7 +20,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
-  PropertyMethodAssignment,
+  Method,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
@@ -82,14 +82,14 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @param {PropertyMethodAssignemnt} tree
    * @return {ParseTree}
    */
-  transformPropertyMethodAssignment(tree) {
+  transformMethod(tree) {
     if (tree.typeAnnotation) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+      tree = new Method(tree.location, tree.isStatic,
           tree.functionKind, tree.name, tree.parameterList, null,
           tree.annotations, tree.body, tree.debugName);
     }
 
-    return super.transformPropertyMethodAssignment(tree);
+    return super.transformMethod(tree);
   }
 
   /**
