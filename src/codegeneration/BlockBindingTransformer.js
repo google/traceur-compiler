@@ -590,29 +590,30 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       let initializer = null;
       // switch to var and rename variables, holding them in potential
       // iife argument/parameter list
-      if (tree.initializer &&
-          tree.initializer.type === VARIABLE_DECLARATION_LIST &&
-          tree.initializer.declarationType !== VAR) {
-        initializer = new VariableDeclarationList(null, VAR,
-            tree.initializer.declarations.map((declaration) => {
-              let origName = this.getVariableName_(declaration);
-              let newName = this.newNameFromOrig(origName, renames);
+      if (tree.initializer) {
+        if (tree.initializer.type === VARIABLE_DECLARATION_LIST &&
+            tree.initializer.declarationType !== VAR) {
+          initializer = new VariableDeclarationList(null, VAR,
+              tree.initializer.declarations.map((declaration) => {
+                let origName = this.getVariableName_(declaration);
+                let newName = this.newNameFromOrig(origName, renames);
 
-              iifeArgumentList.push(createIdentifierExpression(newName));
-              iifeParameterList.push(new FormalParameter(null,
-                  new BindingElement(null,
-                      createBindingIdentifier(origName), null), null, []));
+                iifeArgumentList.push(createIdentifierExpression(newName));
+                iifeParameterList.push(new FormalParameter(null,
+                    new BindingElement(null,
+                        createBindingIdentifier(origName), null), null, []));
 
-              let bindingIdentifier = createBindingIdentifier(newName);
-              this.scope_.renameBinding(origName, bindingIdentifier,
-                  VAR, this.reporter_);
-              return new VariableDeclaration(null,
-                  bindingIdentifier, null, declaration.initializer);
-            }));
+                let bindingIdentifier = createBindingIdentifier(newName);
+                this.scope_.renameBinding(origName, bindingIdentifier,
+                    VAR, this.reporter_);
+                return new VariableDeclaration(null,
+                    bindingIdentifier, null, declaration.initializer);
+              }));
 
-        initializer = renameAll(renames, initializer);
-      } else {
-        initializer = this.transformAny(tree.initializer);
+          initializer = renameAll(renames, initializer);
+        } else  {
+          initializer = this.transformAny(tree.initializer);
+        }
       }
 
       // the loop might already have a label, let's keep it with us
