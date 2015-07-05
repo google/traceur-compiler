@@ -21,6 +21,7 @@ import {
   VariableDeclaration
 } from '../syntax/trees/ParseTrees.js';
 import {
+  ANON_BLOCK,
   CLASS_DECLARATION,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
@@ -50,6 +51,19 @@ import {
   parseStatements
 } from './PlaceholderParser.js';
 import HoistVariablesTransformer from './HoistVariablesTransformer.js';
+
+function flattenAnonBlocks(statements) {
+  let result = [];
+  for (let i = 0; i < statements.length; i++) {
+    let statement = statements[i];
+    if (statement.type === ANON_BLOCK) {
+      result.push(...statement.statements);
+    } else {
+      result.push(statement);
+    }
+  }
+  return result;
+}
 
 /**
  * Used to find the bindings in a variable declaration traversing into
@@ -82,7 +96,8 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
     this.declarations_ = [];
   }
   getDeclarationStatements() {
-    return [this.getVariableStatement(), ...this.declarations_];
+    return flattenAnonBlocks(
+        [this.getVariableStatement(), ...this.declarations_]);
   }
   addDeclaration(tree) {
     this.declarations_.push(tree);
@@ -317,9 +332,8 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     // Transform statements into execution statements only, with declarations
     // removed.
-    let executionStatements = statements.map(
-      (statement) => declarationExtractionTransformer.transformAny(statement)
-    );
+    let executionStatements =
+        declarationExtractionTransformer.transformList(statements);
 
     let executionFunction = createFunctionExpression(
         createEmptyParameterList(),

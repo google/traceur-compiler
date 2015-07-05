@@ -48,6 +48,7 @@ suite('instantiate', function() {
     traceurOptions = new Options();
     traceurOptions.types = true;
     traceurOptions.annotations = true;
+    traceurOptions.validate = true;
     System.import('./circular_annotation1.js').then(function(m1) {
       System.import('./circular_annotation2.js').then(function(m2) {
         assert.instanceOf(m1.BarAnnotation.annotations[0], m2.FooAnnotation);
@@ -173,6 +174,7 @@ suite('instantiate', function() {
   test('Export name from', function(done) {
     traceurOptions = new Options();
     traceurOptions.exportFromExtended = true;
+    traceurOptions.validate = true;
     System.import('./export-forward-default.js').then(function(m) {
       assert.equal(42, m.a);
       done();

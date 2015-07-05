@@ -15,6 +15,7 @@
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {
   createIdentifierExpression,
+  createFormalParameter,
   createStringLiteralToken
 } from './ParseTreeFactory.js';
 import globalThis from './globalThis.js';
@@ -24,10 +25,14 @@ import {
   parseStatements,
   parsePropertyDefinition
 } from './PlaceholderParser.js';
+import {
+  FormalParameterList,
+  FunctionBody,
+  FunctionExpression,
+} from '../syntax/trees/ParseTrees.js'
 import scopeContainsThis from './scopeContainsThis.js';
 
 export class AmdTransformer extends ModuleTransformer {
-
   constructor(identifierGenerator, reporter, options = undefined) {
     super(identifierGenerator, reporter, options);
     this.dependencies = [];
@@ -62,13 +67,15 @@ export class AmdTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     let depPaths = this.dependencies.map((dep) => dep.path);
-    let depLocals = this.dependencies.map((dep) => dep.local);
+    let formals =
+        this.dependencies.map((dep) => createFormalParameter(dep.local));
 
     let hasTopLevelThis = statements.some(scopeContainsThis);
 
-    let func = parseExpression `function(${depLocals}) {
-      ${statements}
-    }`;
+    let parameterList = new FormalParameterList(null, formals);
+    let body = new FunctionBody(null, statements);
+    let func = new FunctionExpression(null, null, null,
+                                      parameterList, null, [], body);
 
     if (hasTopLevelThis)
       func = parseExpression `${func}.bind(${globalThis()})`;

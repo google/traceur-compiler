@@ -41,6 +41,7 @@ import {assert} from '../util/assert.js';
 import {
   ArgumentList,
   ArrayLiteral,
+  BindingElement,
   BinaryExpression,
   BindingIdentifier,
   Block,
@@ -137,6 +138,15 @@ export function createNumberLiteralToken(value) {
  */
 export function createEmptyParameterList() {
   return new FormalParameterList(null, []);
+}
+
+export function createFormalParameter(name) {
+  let bindingIdentifier = createBindingIdentifier(name);
+  return new FormalParameter(
+      null,
+      new BindingElement(null, bindingIdentifier, null),
+      null,
+      []);
 }
 
 /**
