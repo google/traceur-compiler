@@ -17,6 +17,7 @@ import {
   BindingElement,
   EmptyStatement,
   LiteralPropertyName,
+  Module,
   ObjectPattern,
   ObjectPatternField,
   Script
@@ -52,6 +53,11 @@ import {
   parseStatement,
   parseStatements
 } from './PlaceholderParser.js';
+
+function removeUseStrictDirectives(tree) {
+  let result = tree.scriptItemList.filter(tree => !tree.isUseStrictDirective());
+  return new Module(tree.location, result, tree.moduleName);
+}
 
 class DestructImportVarStatement extends DestructuringTransformer {
   createGuardedExpression(tree) {
@@ -91,6 +97,7 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformModule(tree) {
+    tree = removeUseStrictDirectives(tree);
     tree = this.importSimplifier_.transformModule(tree);
 
     this.moduleName = this.getModuleName(tree);

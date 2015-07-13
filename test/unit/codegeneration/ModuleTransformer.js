@@ -21,6 +21,19 @@ import {write} from '../../../src/outputgeneration/TreeWriter.js';
 
 suite('ModuleTransformer', function() {
 
+  test('Remove extra use strict', () => {
+    let compiler = new Compiler({});
+    let content = `
+        'use strict';
+        export var x = 1;
+    `;
+    let tree = compiler.parse(content, 'ModuleTransformerTest.js');
+    let tranformed = compiler.transform(tree);
+    let output = write(tranformed);
+    assert.equal(output.indexOf("'use strict'"), -1);
+    assert.notEqual(output.indexOf('"use strict"'), -1);
+  });
+
   function makeTest(name, content, included, testOptions) {
     test(name, function() {
       var options = new Options(testOptions);
