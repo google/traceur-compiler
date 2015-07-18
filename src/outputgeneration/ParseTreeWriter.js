@@ -83,6 +83,7 @@ import {
   QUESTION,
   RETURN,
   SEMI_COLON,
+  SLASH,
   STAR,
   STATIC,
   SUPER,
@@ -949,6 +950,58 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writelnList_(tree.specifiers, COMMA);
       this.writeCloseCurly_();
     }
+  }
+
+  visitJsxAttribute(tree) {
+    this.writeToken_(tree.name);
+    this.write_(EQUAL);
+    this.visitAny(tree.value);
+  }
+
+  visitJsxElement(tree) {
+    this.write_(OPEN_ANGLE);
+    this.visitAny(tree.name);
+    for (let i = 0; i < tree.attributes.length; i++) {
+      if (i > 0) {
+        this.writeRequiredSpace_();
+      }
+      this.visitAny(tree.attributes[i]);
+    }
+    if (tree.children.length === 0) {
+      this.write_(SLASH);
+      this.write_(CLOSE_ANGLE);
+    } else {
+      this.write_(CLOSE_ANGLE);
+      this.visitList(tree.children);
+      this.write_(OPEN_ANGLE);
+      this.write_(SLASH);
+      // Normally a whitespace is added before the identifier after a slash.
+      // Resetting the lastCode_ prevents that.
+      this.lastCode_ = -1;
+      this.visitAny(tree.name);
+      this.write_(CLOSE_ANGLE);
+    }
+  }
+
+  visitJsxElementName(tree) {
+    for (let i = 0; i < tree.names.length; i++) {
+      if (i > 0) {
+        this.write_(PERIOD);
+      }
+      this.writeToken_(tree.names[i]);
+    }
+  }
+
+  visitJsxPlaceholder(tree) {
+    this.write_(OPEN_CURLY)
+    if (tree.expression !== null) {
+      this.visitAny(tree.expression);
+    }
+    this.write_(CLOSE_CURLY)
+  }
+
+  visitJsxText(tree) {
+    this.writeToken_(tree.value);
   }
 
   /**

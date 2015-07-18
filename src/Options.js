@@ -44,6 +44,7 @@ export const optionsV01 = enumerableOnlyObject({
   generatorComprehension: false,
   generators: true,
   inputSourceMap: false,
+  jsx: false,
   lowResolutionSourceMap: false,
   memberVariables: false,
   moduleName: 'default',
@@ -151,6 +152,7 @@ addFeatureOption('exponentiation', EXPERIMENTAL);
 addFeatureOption('exportFromExtended', EXPERIMENTAL);
 addFeatureOption('forOn', EXPERIMENTAL);
 addFeatureOption('generatorComprehension', EXPERIMENTAL);
+addFeatureOption('jsx', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);

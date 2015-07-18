@@ -62,6 +62,7 @@ export const IMPORT = 'import';
 export const IN = 'in';
 export const INSTANCEOF = 'instanceof';
 export const INTERFACE = 'interface';
+export const JSX_IDENTIFIER = 'jsx identifier';
 export const LEFT_SHIFT = '<<';
 export const LEFT_SHIFT_EQUAL = '<<=';
 export const LESS_EQUAL = '<=';

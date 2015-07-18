@@ -726,6 +726,55 @@
       "ObjectType"
     ]
   },
+  "JsxAttribute": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "value": [
+      "ParseTree"
+    ]
+  },
+  "JsxElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "attributes": [
+      "Array<ParseTree>"
+    ],
+    "children": [
+      "Array<ParseTree>"
+    ]
+  },
+  "JsxElementName": {
+    "location": [
+      "SourceRange"
+    ],
+    "names": [
+      "Token"
+    ]
+  },
+  "JsxPlaceholder": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "JsxText": {
+    "location": [
+      "SourceRange"
+    ],
+    "value": [
+      "LiteralToken"
+    ]
+  },
   "LabelledStatement": {
     "location": [
       "SourceRange"

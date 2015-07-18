@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {IdentifierToken} from './IdentifierToken.js';
+import {JsxIdentifierToken} from './JsxIdentifierToken.js';
 import {KeywordToken} from './KeywordToken.js';
 import {LiteralToken} from './LiteralToken.js';
 import {SourceRange} from '../util/SourceRange.js';
@@ -495,6 +496,119 @@ function nextTemplateLiteralTokenShared(endType, middleType) {
                                           getTokenRange(beginIndex - 1));
   }
 }
+
+
+/**
+ * Returns the next JSX token. Does not consume any tokens.
+ *
+ * @return {Token}
+ */
+export function peekJsxToken() {
+  return token || (token = scanJsxToken());
+}
+
+export function nextJsxToken() {
+  lastToken = peekJsxToken();
+  token = null;
+  return lastToken;
+
+}
+
+/**
+ * Used to scan for a JSXIdentifier.
+ */
+function scanJsxToken() {
+  skipComments();
+  let beginIndex = index;
+  switch (currentCharCode) {
+    case 34:  // "
+    case 39:  // '
+      return scanJsxStringLiteral(beginIndex, currentCharCode);
+    case 62:  // >
+      next();
+      return createToken(CLOSE_ANGLE, beginIndex);
+    // case 123:  // {
+    // case 125:  // }
+  }
+
+  if (!isIdentifierStart(currentCharCode)) {
+    return scanToken();
+  }
+  next();
+  while (isIdentifierPart(currentCharCode) || currentCharCode === 45) {  // '-'
+    next();
+  }
+  let value = input.slice(beginIndex, index);
+  return new JsxIdentifierToken(getTokenRange(beginIndex), value);
+}
+
+function scanJsxStringLiteral(beginIndex, terminator) {
+  next();
+  while (!isAtEnd() && currentCharCode !== terminator) {
+    next();
+  }
+  if (currentCharCode !== terminator) {
+    reportError('Unterminated String Literal', beginIndex);
+  } else {
+    next();
+  }
+  return new LiteralToken(STRING,
+                          getTokenString(beginIndex),
+                          getTokenRange(beginIndex));
+}
+
+export function nextJsxTextToken() {
+  lastToken = token || scanJsxTextToken();
+  token = null;
+  return lastToken;
+}
+
+function skipJsxText() {
+  while (!isAtEnd() && peekJsxText()) {
+    next();
+  }
+}
+
+function isJsxTextChar(code) {
+  switch (code) {
+    case 60:  // <
+    case 123:  // {
+      return false;
+  }
+  return true;
+}
+
+function skipJsxText() {
+  while (!isAtEnd() && isJsxTextChar(currentCharCode)) {
+    next();
+  }
+}
+
+function scanJsxTextToken() {
+  let beginIndex = index;
+
+  if (isAtEnd()) {
+    return createToken(END_OF_FILE, beginIndex);
+  }
+
+  skipJsxText();
+
+  if (beginIndex === index) {
+    switch (currentCharCode) {
+      case 60:  // <
+        next();
+        return createToken(OPEN_ANGLE, beginIndex);
+      case 123:  // {
+        next();
+        return createToken(OPEN_CURLY, beginIndex);
+    }
+  }
+
+  return new LiteralToken(STRING,
+                          getTokenString(beginIndex),
+                          getTokenRange(beginIndex));
+}
+
 
 /**
  * Consumes the next token and returns it. Will return a never ending stream of

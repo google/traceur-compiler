@@ -84,6 +84,11 @@ import {
   IMPORTED_BINDING,
   IMPORT_CLAUSE_PAIR,
   IMPORT_SPECIFIER_SET,
+  JSX_ATTRIBUTE,
+  JSX_ELEMENT_NAME,
+  JSX_ELEMENT,
+  JSX_PLACEHOLDER,
+  JSX_TEXT,  
   LITERAL_PROPERTY_NAME,
   METHOD,
   MODULE_SPECIFIER,
@@ -723,6 +728,23 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                 tree.second.type === IMPORT_SPECIFIER_SET,
                 tree.second,
                 'Invalid import clause');
+  }
+
+  visitJsxElement(tree) {
+    this.checkType_(JSX_ELEMENT_NAME, tree.name, 'JSX Element Name expected');
+    for (let i = 0; i < tree.attributes.length; i++) {
+      let attr = tree.attributes[i];
+      this.checkVisit_(attr.type === JSX_ATTRIBUTE, attr,
+                       'JSX Attribute expected');
+    }
+    for (let i = 0; i < tree.children.length; i++) {
+      let child = tree.children[i];
+      this.checkVisit_(child.type === JSX_ELEMENT ||
+                       child.type === JSX_PLACEHOLDER ||
+                       child.type === JSX_TEXT, child,
+                       'JSX child expected');
+    }
+
   }
 
   /**

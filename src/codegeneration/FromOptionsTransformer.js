@@ -30,6 +30,7 @@ import {GeneratorComprehensionTransformer} from './GeneratorComprehensionTransfo
 import {GeneratorTransformPass} from './GeneratorTransformPass.js';
 import {InlineModuleTransformer} from './InlineModuleTransformer.js';
 import {InstantiateModuleTransformer} from './InstantiateModuleTransformer.js';
+import {JsxTransformer} from './JsxTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
@@ -97,6 +98,10 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.unicodeExpressions)
       append(RegularExpressionTransformer);
+
+    if (transformOptions.jsx) {
+      append(JsxTransformer);
+    }
 
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);

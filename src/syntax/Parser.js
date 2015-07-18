@@ -48,10 +48,13 @@ import {
   init as initScanner,
   isAtEnd,
   nextCloseAngle,
+  nextJsxTextToken,
+  nextJsxToken,
   nextRegularExpressionLiteralToken,
   nextTemplateLiteralToken,
   nextToken,
   peek,
+  peekJsxToken,
   peekLocation,
   peekLookahead,
   peekToken,
@@ -115,6 +118,7 @@ import {
   IN,
   INSTANCEOF,
   INTERFACE,
+  JSX_IDENTIFIER,
   LEFT_SHIFT,
   LESS_EQUAL,
   LET,
@@ -231,6 +235,11 @@ import {
   ImportedBinding,
   IndexSignature,
   InterfaceDeclaration,
+  JsxAttribute,
+  JsxElement,
+  JsxElementName,
+  JsxPlaceholder,
+  JsxText,
   LabelledStatement,
   LiteralExpression,
   LiteralPropertyName,
@@ -2077,6 +2086,12 @@ export class Parser {
           this.reportReservedIdentifier_(nextToken());
         }
         return this.parseIdentifierExpression_();
+
+      case OPEN_ANGLE:
+        if (this.options_.jsx) {
+          return this.parseJsxElement_();
+        }
+        break;
 
       case END_OF_FILE:
         return this.parseSyntaxError_('Unexpected end of input');
@@ -4336,6 +4351,134 @@ export class Parser {
     return new TypeAliasDeclaration(this.getTreeLocation_(start), name, type);
   }
 
+  parseJsxElement_() {
+    let token = this.eatJsx_(OPEN_ANGLE);
+    return this.parseJsxElementContinuation_(token.location.start);
+  }
+
+  parseJsxElementContinuation_(start) {
+    let name = this.parseJsxElementName_();
+    let attrs = this.parseJsxAttributes_();
+    let children = [];
+
+    switch (peekJsxToken().type) {
+      case SLASH:
+        nextJsxToken();
+        this.eat_(CLOSE_ANGLE);
+        break;
+
+      case CLOSE_ANGLE: {
+        nextJsxTextToken();
+
+        loop: while (true) {
+          let token = nextJsxTextToken();
+
+          switch (token.type) {
+            case STRING: {
+              children.push(new JsxText(token.location, token))
+              continue;
+            }
+
+            case OPEN_CURLY: {
+              let start = token.location.start;
+              let expression = null;
+              if (peekJsxToken().type !== CLOSE_CURLY) {
+                expression = this.parseAssignmentExpression_(ALLOW_IN);
+              }
+              this.eatJsx_(CLOSE_CURLY);
+              let placeHolder =
+                  new JsxPlaceholder(this.getTreeLocation_(start), expression);
+              children.push(placeHolder);
+              continue;
+            }
+
+            case OPEN_ANGLE: {
+              let start = token.location.start;
+              if (peekJsxToken().type === SLASH) {
+                nextJsxToken();
+                break loop;
+              }
+
+              let subElement = this.parseJsxElementContinuation_(start)
+              children.push(subElement);
+              // Make sure we get possible whitespace after the element.
+              resetScanner(subElement.location.end.offset);
+              continue;
+            }
+
+            default:
+              return this.parseSyntaxError_('Unexpected token');
+          }
+        }
+
+        let closeName = this.parseJsxElementName_();
+        if (!jsxNamesEqual(name, closeName)) {
+          this.reportError_(closeName.location,
+              `Non matching JSX closing tag. Expected ${jsxNameToString(name)
+              }, found ${jsxNameToString(closeName)}`);
+        }
+        this.eat_(CLOSE_ANGLE);
+        break;
+      }
+
+      default:
+        return this.parseSyntaxError_('Unexpected token');
+    }
+    let element =
+        new JsxElement(this.getTreeLocation_(start), name, attrs, children);
+    // resetScanner(element.location.end.offset);
+    return element;
+
+  }
+
+  parseJsxElementName_() {
+    let tokens = [];
+    let id = this.eatJsx_(JSX_IDENTIFIER);
+    let start = id.location.start;
+    tokens.push(id);
+    while (peekJsxToken().type === PERIOD) {
+      nextJsxToken();
+      let id = this.eatJsx_(JSX_IDENTIFIER);
+      tokens.push(id);
+    }
+    return new JsxElementName(this.getTreeLocation_(start), tokens);
+  }
+
+  parseJsxAttributes_() {
+    let attributes = [];
+    while (peekJsxToken().type === JSX_IDENTIFIER) {
+      attributes.push(this.parseJsxAttribute_());
+    }
+    return attributes;
+  }
+
+  parseJsxAttribute_() {
+    let name = this.eatJsx_(JSX_IDENTIFIER);
+    let start = name.location.start;
+    this.eatJsx_(EQUAL);
+    let value = this.parseJsxAttributeValue_();
+    return new JsxAttribute(this.getTreeLocation_(start), name, value);
+  }
+
+  parseJsxAttributeValue_() {
+    let token = peekJsxToken();
+    let start = token.location.start;
+    switch (token.type) {
+      case STRING:
+        nextJsxToken()
+        return new LiteralExpression(this.getTreeLocation_(start), token);
+      case OPEN_CURLY: {
+        nextJsxToken()
+        let expr = this.parseAssignmentExpression_(ALLOW_IN);
+        this.eatJsx_(CLOSE_CURLY);
+        return new JsxPlaceholder(this.getTreeLocation_(start), expr);
+      }
+      case OPEN_ANGLE:
+        return this.parseJsxElement_();
+    }
+    return this.parseSyntaxError_('Unexpected token');
+  }
+
   /**
    * Consume a (possibly implicit) semi-colon. Reports an error if a semi-colon
    * is not present.
@@ -4409,12 +4552,6 @@ export class Parser {
    */
   eatId_(expected = undefined) {
     let token = nextToken();
-    if (!token) {
-      if (expected) {
-        this.reportError_(peekLocation(), `expected '${expected}'`);
-      }
-      return null;
-    }
 
     if (token.type === IDENTIFIER) {
       if (expected && token.value !== expected)
@@ -4466,12 +4603,7 @@ export class Parser {
    * @private
    */
   eat_(expectedTokenType) {
-    let token = nextToken();
-    if (token.type !== expectedTokenType) {
-      this.reportExpectedError_(token, expectedTokenType);
-      return null;
-    }
-    return token;
+    return this.isExpectedToken_(nextToken(), expectedTokenType);
   }
 
   /**
@@ -4484,6 +4616,17 @@ export class Parser {
       return true;
     }
     return false;
+  }
+
+  eatJsx_(expectedTokenType) {
+    return this.isExpectedToken_(nextJsxToken(), expectedTokenType);
+  }
+
+  isExpectedToken_(token, expectedTokenType) {
+    if (token.type !== expectedTokenType) {
+      this.reportExpectedError_(token, expectedTokenType);
+    }
+    return token;
   }
 
   /**
@@ -4557,4 +4700,20 @@ export class Parser {
                         `Invalid left-hand side expression in ${operation}`);
     }
   }
+}
+
+function jsxNamesEqual(name, other) {
+  if (name.names.length !== other.names.length) {
+    return false;
+  }
+  for (let i = 0; i < name.names.length; i++) {
+    if (name.names[i].value !== other.names[i].value) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function jsxNameToString(name) {
+  return name.names.join('.');
 }

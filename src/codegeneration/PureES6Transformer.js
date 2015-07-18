@@ -14,6 +14,7 @@
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
 import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
+import {JsxTransformer} from './JsxTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
 import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
@@ -53,6 +54,10 @@ export class PureES6Transformer extends MultiTransformer {
         validateFreeVariables(tree, reporter);
         return tree;
       });
+    }
+
+    if (options.jsx) {
+      append(JsxTransformer);
     }
 
     if (options.typeAssertions) {
