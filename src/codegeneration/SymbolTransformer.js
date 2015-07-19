@@ -22,6 +22,7 @@ import {
   UNARY_EXPRESSION,
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
@@ -63,7 +64,20 @@ function isSafeTypeofString(tree) {
  * This transformer transforms typeof expressions to return 'symbol' when
  * symbols have been shimmed.
  */
-export class SymbolTransformer extends ParseTreeTransformer {
+export class SymbolTransformer extends
+    ImportRuntimeTrait(ParseTreeTransformer) {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   * @param {Options} options
+   */
+  constructor(identifierGenerator, reporter, options) {
+    super();
+    this.identifierGenerator = identifierGenerator;
+    this.reporter = reporter;
+    this.options = options;
+  }
+
   /**
    * Helper for the case where we only want to transform the operand of
    * the typeof expression.
@@ -114,6 +128,7 @@ export class SymbolTransformer extends ParseTreeTransformer {
   }
 
   getRuntimeTypeof(operand) {
-    return parseExpression `$traceurRuntime.typeof(${operand})`;
+    let typeOf = this.getRuntimeExpression('typeof');
+    return parseExpression `${typeOf}(${operand})`;
   }
 }

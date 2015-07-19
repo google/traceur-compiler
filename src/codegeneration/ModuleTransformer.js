@@ -24,6 +24,7 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import {DestructuringTransformer} from './DestructuringTransformer.js';
 import {DirectExportVisitor} from './module/DirectExportVisitor.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {ImportSimplifyingTransformer} from './ImportSimplifyingTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
@@ -62,6 +63,7 @@ import {
 } from './PlaceholderParser.js';
 import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {prependStatements} from './PrependStatements.js';
 
 function removeUseStrictDirectives(tree) {
   let result = tree.scriptItemList.filter(tree => !tree.isUseStrictDirective());
@@ -74,7 +76,7 @@ class DestructImportVarStatement extends DestructuringTransformer {
   }
 }
 
-export class ModuleTransformer extends TempVarTransformer {
+export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
@@ -121,8 +123,9 @@ export class ModuleTransformer extends TempVarTransformer {
     this.pushTempScope();
 
     let statements = this.transformList(tree.scriptItemList);
-
     statements = this.appendExportStatement(statements);
+    const runtimeImports = this.transformList(this.getRuntimeImports());
+    statements = prependStatements(statements, ...runtimeImports);
 
     this.popTempScope();
 
@@ -229,7 +232,8 @@ export class ModuleTransformer extends TempVarTransformer {
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
       });
       let args = createArgumentList([exportObject, ...starIdents]);
-      return parseExpression `$traceurRuntime.exportStar(${args})`;
+      const runtime = this.getRuntimeExpression('exportStar');
+      return parseExpression `${runtime}(${args})`;
     }
     return exportObject;
   }

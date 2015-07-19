@@ -15,6 +15,7 @@
 import {SPREAD_EXPRESSION} from  '../syntax/trees/ParseTreeType.js';
 import {createObjectLiteral, createArgumentList} from './ParseTreeFactory.js';
 import {parseExpression} from './PlaceholderParser.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 function hasSpread(trees) {
@@ -30,18 +31,24 @@ function hasSpread(trees) {
  * =>
  * $spreadProperties({a}, b, {c}, d)
  */
-export class SpreadPropertiesTransformer extends ParseTreeTransformer {
+export class SpreadPropertiesTransformer extends
+    ImportRuntimeTrait(ParseTreeTransformer) {
+  constructor(identifierGenerator, reporter, options) {
+    super(identifierGenerator, reporter, options);
+    this.options = options;
+  }
+
   transformObjectLiteral(tree) {
     if (!hasSpread(tree.propertyNameAndValues)) {
       return super.transformObjectLiteral(tree);
     }
 
     const properties = this.transformList(tree.propertyNameAndValues);
-    return spreadProperties(properties);
+    return spreadProperties(properties, this);
   }
 }
 
-export function spreadProperties(properties) {
+export function spreadProperties(properties, self) {
   // Accummulate consecutive properties into a single js property.
   let args = [];
   let accummulatedProps = null;
@@ -63,6 +70,6 @@ export function spreadProperties(properties) {
   if (accummulatedProps) {
     args.push(createObjectLiteral(accummulatedProps));
   }
-  return parseExpression `$traceurRuntime.spreadProperties(${
-      createArgumentList(args)})`;
+  const runtime = self.getRuntimeExpression('spreadProperties');
+  return parseExpression `${runtime}(${createArgumentList(args)})`;
 }

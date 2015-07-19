@@ -20,6 +20,7 @@ import {
 import {CPSTransformer} from './CPSTransformer.js';
 import {EndState} from './EndState.js';
 import {FallThroughState} from './FallThroughState.js';
+import ImportRuntimeTrait from '../ImportRuntimeTrait.js';
 import {
   AWAIT_EXPRESSION,
   BINARY_EXPRESSION,
@@ -67,7 +68,7 @@ function scopeContainsAwait(tree) {
  *   return $traceurRuntime.asyncWrap(machineFunction);
  * }
  */
-export class AsyncTransformer extends CPSTransformer {
+export class AsyncTransformer extends ImportRuntimeTrait(CPSTransformer) {
 
   expressionNeedsStateMachine(tree) {
     if (tree === null)
@@ -213,8 +214,8 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {FunctionBody}
    */
   transformAsyncBody(tree) {
-    let runtimeFunction = parseExpression `$traceurRuntime.asyncWrap`;
-    return this.transformCpsFunctionBody(tree, runtimeFunction);
+    let asyncWrap = this.getRuntimeExpression('asyncWrap');
+    return this.transformCpsFunctionBody(tree, asyncWrap);
   }
 
   /**

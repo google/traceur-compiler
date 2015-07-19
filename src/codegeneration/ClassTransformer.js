@@ -46,6 +46,7 @@ import {
 } from '../syntax/TokenType.js';
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {
   createBindingIdentifier,
   createIdentifierExpression as id,
@@ -87,16 +88,6 @@ import {
 //   }, {}, B);
 //
 // The super property and super calls are transformed in the SuperTransformer.
-
-function classCall(func, object, staticObject, superClass) {
-  if (superClass) {
-    return parseExpression
-        `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject},
-                                       ${superClass})`;
-  }
-  return parseExpression
-      `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
-}
 
 function methodNameFromTree(tree) {
   // COMPUTED_PROPERTY_NAME such as [Symbol.iterator]
@@ -147,7 +138,7 @@ function removeStaticModifier(tree) {
   }
 }
 
-export default function isConstructor(tree) {
+function isConstructor(tree) {
   if (tree.type !== METHOD || tree.isStatic ||
       tree.functionKind !== null) {
     return false;
@@ -157,7 +148,8 @@ export default function isConstructor(tree) {
       name.literalToken.value === CONSTRUCTOR;
 }
 
-export class ClassTransformer extends ParenTrait(TempVarTransformer) {
+export class ClassTransformer extends
+    ImportRuntimeTrait(ParenTrait(TempVarTransformer)) {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
@@ -234,6 +226,7 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
                                       constructor.body);
 
     let expression;
+    let createClass = this.getRuntimeExpression('createClass');
     if (tree.name) {
       let functionStatement;
       let name = tree.name.identifierToken;
@@ -249,18 +242,23 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
       if (superClass) {
         expression = parseExpression `function($__super) {
           ${functionStatement};
-          return ($traceurRuntime.createClass)(${nameId}, ${protoObject},
-                                               ${staticObject}, $__super);
+          return (${createClass})(${nameId}, ${protoObject},
+                                  ${staticObject}, $__super);
         }(${superClass})`;
       } else {
         expression = parseExpression `function() {
           ${functionStatement};
-          return ($traceurRuntime.createClass)(${nameId}, ${protoObject},
-                                               ${staticObject});
+          return (${createClass})(${nameId}, ${protoObject}, ${staticObject});
         }()`;
       }
     } else {
-      expression = classCall(func, protoObject, staticObject, superClass);
+      if (superClass) {
+        expression = parseExpression
+            `(${createClass})(${func}, ${protoObject}, ${staticObject}, ${superClass})`;
+      } else {
+        expression = parseExpression
+            `(${createClass})(${func}, ${protoObject}, ${staticObject})`;
+      }
     }
 
     return this.makeStrict_(expression);
@@ -290,10 +288,12 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
   }
 
   getDefaultConstructor_(tree) {
+    // TODO(arv): Move this to SuperTransformer.
     if (tree.superClass) {
       let name = id(tree.name.identifierToken);
+      let superConstructor = this.getRuntimeExpression('superConstructor');
       return parsePropertyDefinition `constructor() {
-        $traceurRuntime.superConstructor(${name}).apply(this, arguments)
+        ${superConstructor}(${name}).apply(this, arguments)
       }`;
     }
     return parsePropertyDefinition `constructor() {}`;

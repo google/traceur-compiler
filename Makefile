@@ -304,9 +304,9 @@ updateSemver: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
 dist/commonjs: bin/traceur.js
-	./traceur --dir src/ dist/commonjs/ --modules=commonjs
+	./traceur --dir src/ dist/commonjs/ --modules=commonjs --import-runtime
 
-prepublish: bin/traceur.js bin/traceur-runtime.js
+prepublish: bin/traceur.js bin/traceur-runtime.js dist/commonjs/
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
