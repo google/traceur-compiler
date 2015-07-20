@@ -16,14 +16,15 @@ if (typeof $traceurRuntime !== 'object') {
   throw new Error('traceur runtime not found.');
 }
 
-var $createPrivateName = $traceurRuntime.createPrivateName;
-var $defineProperty = $traceurRuntime.defineProperty;
-var $defineProperties = $traceurRuntime.defineProperties;
-var $create = Object.create;
+var {createPrivateName} = $traceurRuntime;
+var {
+  create,
+  defineProperty,
+} = Object;
 
-var thisName = $createPrivateName();
-var argsName = $createPrivateName();
-var observeName = $createPrivateName();
+var thisName = createPrivateName();
+var argsName = createPrivateName();
+var observeName = createPrivateName();
 
 function AsyncGeneratorFunction() {}
 
@@ -33,7 +34,7 @@ AsyncGeneratorFunction.prototype = AsyncGeneratorFunctionPrototype;
 
 AsyncGeneratorFunctionPrototype.constructor = AsyncGeneratorFunction;
 
-$defineProperty(AsyncGeneratorFunctionPrototype, 'constructor',
+defineProperty(AsyncGeneratorFunctionPrototype, 'constructor',
     {enumerable: false});
 
 class AsyncGeneratorContext {
@@ -74,8 +75,8 @@ class AsyncGeneratorContext {
   }
   yieldFor(observable) {
     var ctx = this;
-    return $traceurRuntime.observeForEach(observable[
-        $traceurRuntime.toProperty(Symbol.observer)].bind(observable),
+    return $traceurRuntime.observeForEach(
+        observable[Symbol.observer].bind(observable),
         function (value) {
           if (ctx.done) {
             this.return();
@@ -116,17 +117,17 @@ AsyncGeneratorFunctionPrototype.prototype[Symbol.observer] =
       return ctx.decoratedObserver;
     };
 
-$defineProperty(AsyncGeneratorFunctionPrototype.prototype, Symbol.observer,
+defineProperty(AsyncGeneratorFunctionPrototype.prototype, Symbol.observer,
     {enumerable: false});
 
 function initAsyncGeneratorFunction(functionObject) {
-  functionObject.prototype = $create(AsyncGeneratorFunctionPrototype.prototype);
+  functionObject.prototype = create(AsyncGeneratorFunctionPrototype.prototype);
   functionObject.__proto__ = AsyncGeneratorFunctionPrototype;
   return functionObject;
 }
 
 function createAsyncGeneratorInstance(observe, functionObject, ...args) {
-  var object = $create(functionObject.prototype);
+  var object = create(functionObject.prototype);
   object[thisName] = this;
   object[argsName] = args;
   object[observeName] = observe;
@@ -185,8 +186,7 @@ function createDecoratedGenerator(generator, onDone) {
   return new DecoratedGenerator(generator, onDone);
 }
 
-Array.prototype[
-    $traceurRuntime.toProperty(Symbol.observer)] = function(observer) {
+Array.prototype[Symbol.observer] = function(observer) {
   let done = false;
   let decoratedObserver = createDecoratedGenerator(observer, () => done = true);
   for (var value of this) {
@@ -199,12 +199,10 @@ Array.prototype[
   return decoratedObserver;
 };
 
-$defineProperty(Array.prototype, $traceurRuntime.toProperty(Symbol.observer),
-    {enumerable: false});
+defineProperty(Array.prototype, Symbol.observer, {enumerable: false});
 
 $traceurRuntime.initAsyncGeneratorFunction = initAsyncGeneratorFunction;
 $traceurRuntime.createAsyncGeneratorInstance = createAsyncGeneratorInstance;
 $traceurRuntime.observeForEach = observeForEach;
 $traceurRuntime.schedule = schedule;
 $traceurRuntime.createDecoratedGenerator = createDecoratedGenerator;
-

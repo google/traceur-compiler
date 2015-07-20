@@ -18,11 +18,11 @@ function spread() {
   for (var i = 0; i < arguments.length; i++) {
     var valueToSpread = $traceurRuntime.checkObjectCoercible(arguments[i]);
 
-    if (typeof valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)] !== 'function') {
+    if (typeof valueToSpread[Symbol.iterator] !== 'function') {
       throw new TypeError('Cannot spread non-iterable object.');
     }
 
-    var iter = valueToSpread[$traceurRuntime.toProperty(Symbol.iterator)]();
+    var iter = valueToSpread[Symbol.iterator]();
 
     while (!(iterResult = iter.next()).done) {
       rv[j++] = iterResult.value;

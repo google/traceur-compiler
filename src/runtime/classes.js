@@ -15,25 +15,24 @@
 
 var $Object = Object;
 var $TypeError = TypeError;
-var $create = $Object.create;
-var $defineProperties = $traceurRuntime.defineProperties;
-var $defineProperty = $traceurRuntime.defineProperty;
-var $getOwnPropertyDescriptor = $traceurRuntime.getOwnPropertyDescriptor;
-var $getOwnPropertyNames = $traceurRuntime.getOwnPropertyNames;
-var $getPrototypeOf = Object.getPrototypeOf;
 
 var {
+  create,
+  defineProperties,
+  defineProperty,
+  getOwnPropertyDescriptor,
   getOwnPropertyNames,
-  getOwnPropertySymbols
+  getOwnPropertySymbols,
+  getPrototypeOf,
 } = Object;
 
 function superDescriptor(homeObject, name) {
-  var proto = $getPrototypeOf(homeObject);
+  var proto = getPrototypeOf(homeObject);
   do {
-    var result = $getOwnPropertyDescriptor(proto, name);
+    var result = getOwnPropertyDescriptor(proto, name);
     if (result)
       return result;
-    proto = $getPrototypeOf(proto);
+    proto = getPrototypeOf(proto);
   } while (proto)
 
   return undefined;
@@ -72,7 +71,7 @@ function forEachPropertyKey(object, f) {
 function getDescriptors(object) {
   var descriptors = {};
   forEachPropertyKey(object, (key) => {
-    descriptors[key] = $getOwnPropertyDescriptor(object, key);
+    descriptors[key] = getOwnPropertyDescriptor(object, key);
     descriptors[key].enumerable = false;
   });
   return descriptors;
@@ -82,7 +81,7 @@ var nonEnum = {enumerable: false};
 
 function makePropertiesNonEnumerable(object) {
   forEachPropertyKey(object, (key) => {
-    $defineProperty(object, key, nonEnum);
+    defineProperty(object, key, nonEnum);
   });
 }
 
@@ -90,7 +89,7 @@ function makePropertiesNonEnumerable(object) {
 // ClassDefinitionEvaluation in the ES6 draft.
 
 function createClass(ctor, object, staticObject, superClass) {
-  $defineProperty(object, 'constructor', {
+  defineProperty(object, 'constructor', {
     value: ctor,
     configurable: true,
     enumerable: false,
@@ -100,14 +99,14 @@ function createClass(ctor, object, staticObject, superClass) {
   if (arguments.length > 3) {
     if (typeof superClass === 'function')
       ctor.__proto__ = superClass;
-    ctor.prototype = $create(getProtoParent(superClass),
-                             getDescriptors(object));
+    ctor.prototype = create(getProtoParent(superClass),
+                           getDescriptors(object));
   } else {
     makePropertiesNonEnumerable(object)
     ctor.prototype = object;
   }
-  $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
-  return $defineProperties(ctor, getDescriptors(staticObject));
+  defineProperty(ctor, 'prototype', {configurable: false, writable: false});
+  return defineProperties(ctor, getDescriptors(staticObject));
 }
 
 function getProtoParent(superClass) {

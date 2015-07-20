@@ -1,5 +1,3 @@
-// Options: --symbols
-
 // A binary tree class.
 class Tree {
   constructor(label, left, right) {

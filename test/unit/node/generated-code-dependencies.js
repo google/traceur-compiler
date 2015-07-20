@@ -99,7 +99,6 @@ suite('context test', function() {
     var fileName = path.resolve(theDirName, 'resources/generator.js');
     var options = {
       generatorComprehension: true,
-      symbols: true
     };
     executeFileWithRuntime(fileName, options).then(function(value) {
       assert.deepEqual(value, [1, 2, 9, 16]);

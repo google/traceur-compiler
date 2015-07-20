@@ -1,5 +1,5 @@
 // Async.
-// Options: --async-functions --for-on --symbols
+// Options: --async-functions --for-on
 
 import {AsyncGeneratorFunction} from './resources/observable.js';
 
@@ -73,4 +73,3 @@ var o1 = new AsyncGeneratorFunction(function* () {
 
   done();
 }()).catch(done);
-

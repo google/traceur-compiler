@@ -91,7 +91,6 @@ suite('options', function() {
     assert.equal(experimental.exponentiation, true);
     assert.equal(experimental.generatorComprehension, true);
     assert.equal(experimental.require, true);
-    assert.equal(experimental.symbols, true);
     assert.equal(experimental.types, true);
     assert.equal(experimental.memberVariables, true);
 

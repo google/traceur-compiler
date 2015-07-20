@@ -79,8 +79,7 @@ class Desugaring {
 
   createIterator(iterId) {
     this.pendingExpressions.push(parseExpression
-        `${iterId} =
-            ${this.rvalue}[$traceurRuntime.toProperty(Symbol.iterator)]()`);
+        `${iterId} = ${this.rvalue}[Symbol.iterator]()`);
   }
 
   createInitializer(expression) {
@@ -192,7 +191,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * From an assignment expression into:
    *
    *  ($__0 = x,
-   *   a = ($__1 = $__0[$traceurRuntime.toProperty(Symbol.iterator)](),
+   *   a = ($__1 = $__0[Symbol.iterator](),
    *       ($__2 = $__1.next()).done ? void 0 : $__2.value),
    *   b = $traceurRuntime.iteratorToArray($__1),
    *   $__0);

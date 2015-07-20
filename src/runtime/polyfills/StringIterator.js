@@ -3,7 +3,6 @@ import {
   isObject
 } from './utils.js';
 
-var {toProperty} = $traceurRuntime;
 var {hasOwnProperty} = Object.prototype;
 
 // 21.1.5.3 Properties of String Iterator Instances
@@ -25,16 +24,16 @@ class StringIterator {
       throw new TypeError('this must be a StringIterator object');
     }
 
-    var s = o[toProperty(iteratedString)];
+    var s = o[iteratedString];
     if (s === undefined) {
       return createIteratorResultObject(undefined, true);
     }
 
-    var position = o[toProperty(stringIteratorNextIndex)];
+    var position = o[stringIteratorNextIndex];
     var len = s.length;
 
     if (position >= len) {
-      o[toProperty(iteratedString)] = undefined;
+      o[iteratedString] = undefined;
       return createIteratorResultObject(undefined, true);
     }
 
@@ -52,7 +51,7 @@ class StringIterator {
       }
     }
 
-    o[toProperty(stringIteratorNextIndex)] = position + resultString.length;
+    o[stringIteratorNextIndex] = position + resultString.length;
     return createIteratorResultObject(resultString, false);
   }
 
@@ -66,7 +65,7 @@ class StringIterator {
 export function createStringIterator(string) {
   var s = String(string);
   var iterator = Object.create(StringIterator.prototype);
-  iterator[toProperty(iteratedString)] = s;
-  iterator[toProperty(stringIteratorNextIndex)] = 0;
+  iterator[iteratedString] = s;
+  iterator[stringIteratorNextIndex] = 0;
   return iterator;
 }

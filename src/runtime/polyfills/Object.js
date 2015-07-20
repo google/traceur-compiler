@@ -18,12 +18,15 @@ import {
 } from './utils.js';
 
 var {
-  defineProperty,
-  getOwnPropertyDescriptor,
   getOwnPropertyNames,
   isPrivateName,
-  keys
+  keys,
 } = $traceurRuntime;
+
+var {
+  defineProperty,
+  getOwnPropertyDescriptor,
+} = Object;
 
 // Object.is
 

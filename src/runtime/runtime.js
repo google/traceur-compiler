@@ -26,13 +26,10 @@
   var $Object = Object;
   var $TypeError = TypeError;
   var $create = $Object.create;
-  var $defineProperties = $Object.defineProperties;
   var $defineProperty = $Object.defineProperty;
   var $freeze = $Object.freeze;
-  var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $keys = $Object.keys;
-  var $hasOwnProperty = $Object.prototype.hasOwnProperty;
   var $toString = $Object.prototype.toString;
   var $preventExtensions = Object.preventExtensions;
   var $seal = Object.seal;
@@ -197,12 +194,8 @@
     // Symbols are emulated using an object which is an instance of SymbolValue.
     // Calling Symbol as a function returns a symbol value object.
     //
-    // If options.symbols is enabled then all property accesses are transformed
-    // into runtime calls which uses the internal string as the real property
-    // name.
-    //
-    // If options.symbols is disabled symbols just toString as their internal
-    // representation, making them work but leak as enumerable properties.
+    // Symbols just use toString as their internal representation, making them
+    // work but leak as enumerable properties.
 
     // The string used for the real property.
     var symbolInternalProperty = newUniqueString();
@@ -214,19 +207,6 @@
     // All symbol values are kept in this map. This is so that we can get back to
     // the symbol object if all we have is the string key representing the symbol.
     var symbolValues = $create(null);
-
-    /**
-     * Whether symbol is an emulated symbol.
-     */
-    function isShimSymbol(symbol) {
-      return typeof symbol === 'object' && symbol instanceof SymbolValue;
-    }
-
-    function typeOf(v) {
-      if (isShimSymbol(v))
-        return 'symbol';
-      return typeof v;
-    }
 
     /**
      * Creates a new unique symbol object.
@@ -266,9 +246,7 @@
       var symbolValue = this[symbolDataProperty];
       if (!symbolValue)
         throw TypeError('Conversion from symbol to string');
-      if (!getOption('symbols'))
-        return symbolValue[symbolInternalProperty];
-      return symbolValue;
+      return symbolValue[symbolInternalProperty];
     }));
 
     function SymbolValue(description) {
@@ -350,12 +328,6 @@
       return symbolValues[s] || privateNames[s];
     }
 
-    function toProperty(name) {
-      if (isShimSymbol(name))
-        return name[symbolInternalProperty];
-      return name;
-    }
-
     // Override getOwnPropertyNames to filter out symbols keys.
     function removeSymbolKeys(array) {
       var rv = [];
@@ -387,36 +359,9 @@
       return rv;
     }
 
-    function getOwnPropertyDescriptor(object, name) {
-      return $getOwnPropertyDescriptor(object, toProperty(name));
-    }
-
-    // Override Object.prototpe.hasOwnProperty to always return false for
-    // private names.
-    function hasOwnProperty(name) {
-      return $hasOwnProperty.call(this, toProperty(name));
-    }
-
-    function getOption(name) {
-      return global.$traceurRuntime.options[name];
-    }
-
-    function defineProperty(object, name, descriptor) {
-      if (isShimSymbol(name)) {
-        name = name[symbolInternalProperty];
-      }
-      $defineProperty(object, name, descriptor);
-      return object;
-    }
-
     function polyfillObject(Object) {
-      $defineProperty(Object, 'defineProperty', {value: defineProperty});
       $defineProperty(Object, 'getOwnPropertyNames',
                       {value: getOwnPropertyNames});
-      $defineProperty(Object, 'getOwnPropertyDescriptor',
-                      {value: getOwnPropertyDescriptor});
-      $defineProperty(Object.prototype, 'hasOwnProperty',
-                      {value: hasOwnProperty});
       $defineProperty(Object, 'freeze', {value: freeze});
       $defineProperty(Object, 'preventExtensions', {value: preventExtensions});
       $defineProperty(Object, 'seal', {value: seal});
@@ -491,17 +436,17 @@
 
     setupGlobals(global);
 
+    var typeOf = hasNativeSymbol ? x => typeof x :
+        x => x instanceof SymbolValue ? 'symbol' : typeof x;
+
     global.$traceurRuntime = {
       call: tailCall,
       checkObjectCoercible: checkObjectCoercible,
       construct: construct,
       continuation: createContinuation,
       createPrivateName: createPrivateName,
-      defineProperties: $defineProperties,
-      defineProperty: $defineProperty,
       exportStar: exportStar,
       getOwnHashObject: getOwnHashObject,
-      getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
       getOwnPropertyNames: $getOwnPropertyNames,
       hasNativeSymbol: hasNativeSymbolFunc,
       initTailRecursiveFunction: initTailRecursiveFunction,
@@ -512,7 +457,6 @@
       options: {},
       setupGlobals: setupGlobals,
       toObject: toObject,
-      toProperty: toProperty,
       typeof: typeOf,
     };
   })();

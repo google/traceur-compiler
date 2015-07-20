@@ -112,8 +112,7 @@ export class InnerForOnTransformer extends
           ${createVariableStatement(
             createVariableDeclarationList(VAR, this.variableDeclarations_))}
             await $traceurRuntime.observeForEach(
-              ${tree.observable}[$traceurRuntime.toProperty(Symbol.observer)].
-                  bind(${tree.observable}),
+              ${tree.observable}[Symbol.observer].bind(${tree.observable}),
               async function (${value}) {
                 var ${this.observer_} = this;
                 try {

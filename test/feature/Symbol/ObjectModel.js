@@ -1,5 +1,3 @@
-// Options: --symbols
-
 var s = Symbol('s');
 assert.equal(typeof s, 'symbol');
 assert.equal(s.constructor, Symbol);
@@ -10,6 +8,6 @@ assert.throws(() => {
 });
 
 // TODO(jjb): Our impl not to spec so generators can use Symbols without
-// requiring transcoding to use --symbols
+// requiring transcoding
 // assert.equal(s.toString(), 'Symbol(s)');
 assert.equal(s.valueOf(), s);

@@ -14,47 +14,22 @@
 
 import {
   BinaryExpression,
-  MemberLookupExpression,
-  Module,
-  ForInStatement,
-  Script,
   UnaryExpression
 } from '../syntax/trees/ParseTrees.js';
-import {ExplodeExpressionTransformer} from './ExplodeExpressionTransformer.js';
 import {
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
   UNARY_EXPRESSION,
-  VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
-  IN,
   NOT_EQUAL,
   NOT_EQUAL_EQUAL,
-  STRING,
   TYPEOF
 } from '../syntax/TokenType.js';
-import {
-  parseExpression,
-  parseStatement
-} from './PlaceholderParser.js';
-import {prependStatements} from './PrependStatements.js';
-
-
-class ExplodeSymbolExpression extends ExplodeExpressionTransformer {
-  transformArrowFunction(tree) {
-    return tree;
-  }
-  transformClassExpression(tree) {
-    return tree;
-  }
-  transformFunctionBody(tree) {
-    return tree;
-  }
-}
+import { parseExpression} from './PlaceholderParser.js';
 
 function isEqualityExpression(tree) {
   switch (tree.operator.type) {
@@ -83,37 +58,12 @@ function isSafeTypeofString(tree) {
   return true;
 }
 
-let runtimeOption = parseStatement `$traceurRuntime.options.symbols = true`;
 
 /**
- * This transformer is used with symbol values to ensure that symbols can be
- * used as member expressions.
- *
- * It does the following transformations:
- *
- *   operand[memberExpression]
- *   =>
- *   operand[$traceurRuntime.toProperty(memberExpression)]
- *
- *   operand[memberExpression] = value
- *   =>
- *   operand[$traceurRuntime.toProperty(memberExpression)] = value
+ * This transformer transforms typeof expressions to return 'symbol' when
+ * symbols have been shimmed.
  */
-export class SymbolTransformer extends TempVarTransformer {
-  transformModule(tree) {
-    return new Module(tree.location,
-        prependStatements(this.transformList(tree.scriptItemList),
-            runtimeOption),
-        tree.moduleName);
-  }
-
-  transformScript(tree) {
-    return new Script(tree.location,
-        prependStatements(this.transformList(tree.scriptItemList),
-            runtimeOption),
-        tree.moduleName);
-  }
-
+export class SymbolTransformer extends ParseTreeTransformer {
   /**
    * Helper for the case where we only want to transform the operand of
    * the typeof expression.
@@ -124,19 +74,6 @@ export class SymbolTransformer extends TempVarTransformer {
   }
 
   transformBinaryExpression(tree) {
-    if (tree.operator.type === IN) {
-      let name = this.transformAny(tree.left);
-      let object = this.transformAny(tree.right);
-
-      if (name.type === LITERAL_EXPRESSION)
-        return new BinaryExpression(tree.location, name, tree.operator, object);
-
-      // name in object
-      // =>
-      return parseExpression
-          `$traceurRuntime.toProperty(${name}) in ${object}`;
-    }
-
     // typeof expr === 'object'
     // Since symbols are implemented as objects typeof returns 'object'.
     // However, if the expression is comparing to 'undefined' etc we can just
@@ -156,23 +93,6 @@ export class SymbolTransformer extends TempVarTransformer {
     }
 
     return super.transformBinaryExpression(tree);
-  }
-
-  transformMemberLookupExpression(tree) {
-    let operand = this.transformAny(tree.operand);
-    let memberExpression = this.transformAny(tree.memberExpression);
-
-    // Only string literals can overlap with the symbol.
-    if (memberExpression.type === LITERAL_EXPRESSION &&
-        memberExpression.literalToken.type !== STRING) {
-      return new MemberLookupExpression(tree.location, operand,
-          memberExpression);
-    }
-
-    // operand[memberExpr]
-    // =>
-    return parseExpression
-        `${operand}[$traceurRuntime.toProperty(${memberExpression})]`;
   }
 
   transformUnaryExpression(tree) {
@@ -195,35 +115,5 @@ export class SymbolTransformer extends TempVarTransformer {
 
   getRuntimeTypeof(operand) {
     return parseExpression `$traceurRuntime.typeof(${operand})`;
-  }
-
-  /**
-   * Transform for-in to filter out shim symbols keys.
-   */
-  transformForInStatement(tree) {
-    // for (i in coll) ...
-    //
-    // =>
-    //
-    // for (i in coll) if (!isSymbol(i)) ...
-    let initializer = this.transformAny(tree.initializer);
-    let collection = this.transformAny(tree.collection);
-    let body = this.transformAny(tree.body);
-
-    let initIdentToken;
-    if (initializer.type === VARIABLE_DECLARATION_LIST) {
-      initIdentToken = initializer.declarations[0].lvalue.identifierToken;
-    } else {
-      initIdentToken = initializer.identifierToken;
-    }
-
-    if (!initIdentToken) {
-      // Destructuring is not yet supported here.
-      throw new Error('Not implemented');
-    }
-
-    body = parseStatement
-        `if (!$traceurRuntime.isSymbolString(${initIdentToken})) ${body}`;
-    return new ForInStatement(tree.location, initializer, collection, body);
   }
 }

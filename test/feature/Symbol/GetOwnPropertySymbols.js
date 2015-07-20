@@ -1,5 +1,3 @@
-// Options: --symbols
-
 var s1 = Symbol();
 var s2 = Symbol();
 var object = {a: 'a'};

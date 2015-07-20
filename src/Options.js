@@ -60,7 +60,7 @@ export const optionsV01 = enumerableOnlyObject({
   sourceMaps: false,
   sourceRoot: false,
   spread: true,
-  symbols: false,
+  symbols: true,
   templateLiterals: true,
   typeAssertionModule: null,
   typeAssertions: false,
@@ -134,13 +134,13 @@ addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
 addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
 addFeatureOption('sourceMaps', 'SPECIAL');
 addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
+addFeatureOption('symbols', ON_BY_DEFAULT);
 addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
 addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 
 // EXPERIMENTAL due to performance impact although properly part of ES6
 addFeatureOption('properTailCalls', EXPERIMENTAL);
-addFeatureOption('symbols', EXPERIMENTAL);
 
 // EXPERIMENTAL
 addFeatureOption('annotations', EXPERIMENTAL);
@@ -578,4 +578,3 @@ export function addOptions(flags, commandOptions) {
   // After we've processed the commandOptions, set defaults for commandOptions.
   commandOptions.setDefaults();
 }
-

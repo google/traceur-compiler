@@ -16,11 +16,13 @@ if (typeof $traceurRuntime !== 'object') {
   throw new Error('traceur runtime not found.');
 }
 
-var createPrivateName = $traceurRuntime.createPrivateName;
-var $defineProperties = $traceurRuntime.defineProperties;
-var $defineProperty = $traceurRuntime.defineProperty;
-var $create = Object.create;
 var $TypeError = TypeError;
+var {createPrivateName} = $traceurRuntime;
+var {
+  create,
+  defineProperties,
+  defineProperty,
+} = Object;
 
 function nonEnum(value) {
   return {
@@ -218,7 +220,7 @@ function GeneratorFunctionPrototype() {}
 
 GeneratorFunction.prototype = GeneratorFunctionPrototype;
 
-$defineProperty(GeneratorFunctionPrototype, 'constructor',
+defineProperty(GeneratorFunctionPrototype, 'constructor',
     nonEnum(GeneratorFunction));
 
 GeneratorFunctionPrototype.prototype = {
@@ -236,7 +238,7 @@ GeneratorFunctionPrototype.prototype = {
   }
 };
 
-$defineProperties(GeneratorFunctionPrototype.prototype, {
+defineProperties(GeneratorFunctionPrototype.prototype, {
   constructor: {enumerable: false},
   next: {enumerable: false},
   throw: {enumerable: false},
@@ -253,14 +255,14 @@ function createGeneratorInstance(innerFunction, functionObject, self) {
   var moveNext = getMoveNext(innerFunction, self);
   var ctx = new GeneratorContext();
 
-  var object = $create(functionObject.prototype);
+  var object = create(functionObject.prototype);
   object[ctxName] = ctx;
   object[moveNextName] = moveNext;
   return object;
 }
 
 function initGeneratorFunction(functionObject) {
-  functionObject.prototype = $create(GeneratorFunctionPrototype.prototype);
+  functionObject.prototype = create(GeneratorFunctionPrototype.prototype);
   functionObject.__proto__ = GeneratorFunctionPrototype;
   return functionObject;
 }
@@ -274,7 +276,7 @@ function AsyncFunctionContext() {
     ctx.reject = reject;
   });
 }
-AsyncFunctionContext.prototype = $create(GeneratorContext.prototype);
+AsyncFunctionContext.prototype = create(GeneratorContext.prototype);
 AsyncFunctionContext.prototype.end = function() {
   switch (this.state) {
     case END_STATE:
@@ -340,4 +342,3 @@ function handleCatch(ctx, ex) {
 $traceurRuntime.asyncWrap = asyncWrap;
 $traceurRuntime.initGeneratorFunction = initGeneratorFunction;
 $traceurRuntime.createGeneratorInstance = createGeneratorInstance;
-

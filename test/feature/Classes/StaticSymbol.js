@@ -1,4 +1,3 @@
-// Options: --symbols
 var sym = Symbol();
 class C {
   static [sym]() {

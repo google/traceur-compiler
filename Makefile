@@ -47,7 +47,7 @@ SRC_NODE = $(wildcard src/node/*.js)
 SRC_ALL = $(shell find src/ -type f -name "*.js")
 RUNTIME_SCRIPTS = $(foreach src, $(RUNTIME_SRC), --script $(src))
 
-TFLAGS = --
+TFLAGS = --symbols=false --
 
 UNIT_TESTS = \
 	test/unit/util/ \
