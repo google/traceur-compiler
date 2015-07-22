@@ -305,13 +305,10 @@ function nextRegularExpressionLiteralToken2() {
   // token.
   let beginIndex = index - token.toString().length;
 
-  // body
-  // Also, check if we are done with the body in case we had /=/
-  if (!(token.type === SLASH_EQUAL && currentCharCode === 47) &&
-      !skipRegularExpressionBody(beginIndex)) {
-    return new LiteralToken(REGULAR_EXPRESSION,
-                            getTokenString(beginIndex),
-                            getTokenRange(beginIndex));
+  if (token.type === SLASH_EQUAL) {
+    skipRegularExpressionBodyContinuation();
+  } else {
+    skipRegularExpressionBody(beginIndex);
   }
 
   // separating /
@@ -336,15 +333,17 @@ function nextRegularExpressionLiteralToken2() {
 function skipRegularExpressionBody(beginIndex) {
   if (!isRegularExpressionFirstChar(currentCharCode)) {
     reportError('Expected regular expression first char', beginIndex);
-    return false;
+    return;
   }
+  skipRegularExpressionBodyContinuation();
+}
 
+function skipRegularExpressionBodyContinuation() {
   while (!isAtEnd() && isRegularExpressionChar(currentCharCode)) {
-    if (!skipRegularExpressionChar())
-      return false;
+    if (!skipRegularExpressionChar()) {
+      return;
+    }
   }
-
-  return true;
 }
 
 function skipRegularExpressionChar() {
