@@ -13,6 +13,8 @@ POLYFILL_SRC = \
   src/runtime/polyfills/Object.js \
   src/runtime/polyfills/Number.js \
   src/runtime/polyfills/Math.js \
+  src/runtime/polyfills/WeakMap.js \
+  src/runtime/polyfills/WeakSet.js \
   src/runtime/polyfills/polyfills.js
 
 RUNTIME_MODULES = src/runtime/runtime-modules.js
