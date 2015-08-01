@@ -35,6 +35,7 @@
   var $seal = Object.seal;
   var $isExtensible = Object.isExtensible;
   var $apply = Function.prototype.call.bind(Function.prototype.apply)
+  var random = Math.random;
 
   function $bind(operand, thisArg, args) {
     // args may be an arguments-like object
@@ -56,14 +57,14 @@
   // This has to come before any function below that uses tail recursion.
   // Every call is the following functions is deliberately not in tail position.
 
-  var counter = 0;
+  var counter = Date.now() % 1e9;
 
   /**
    * Generates a new unique string.
    * @return {string}
    */
   function newUniqueString() {
-    return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
+    return '__$' + (random() * 1e9 >>> 1) + '$' + ++counter + '$__';
   }
 
   // Private names are a bit simpler than Symbol since it is not supposed to be
@@ -454,6 +455,7 @@
       isPrivateName: isPrivateName,
       isSymbolString: isSymbolString,
       keys: $keys,
+      newUniqueString: newUniqueString,
       options: {},
       setupGlobals: setupGlobals,
       toObject: toObject,
