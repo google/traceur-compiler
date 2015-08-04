@@ -12,21 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CONST} from '../syntax/TokenType.js';
+import {CONST, LET} from '../syntax/TokenType.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
 import {
+  createAssignmentStatement,
+  createArgumentList,
   createBindingIdentifier,
+  createCallExpression,
+  createExpressionStatement,
+  createForInStatement,
   createFunctionBody,
+  createIfStatement,
   createImmediatelyInvokedFunctionExpression,
+  createIdentifierExpression,
+  createMemberLookupExpression,
+  createMemberExpression,
+  createObjectLiteral,
   createScopedExpression,
-  createVariableStatement,
+  createReturnStatement,
   createUseStrictDirective,
-  createExpressionStatement
-  } from './ParseTreeFactory.js';
+  createVariableDeclarationList,
+  createVariableStatement
+} from './ParseTreeFactory.js';
 import globalThis from './globalThis.js';
 import scopeContainsThis from './scopeContainsThis.js';
 import {IMPORT_SPECIFIER_SET} from '../syntax/trees/ParseTreeType.js';
 import {AnonBlock} from '../syntax/trees/ParseTrees.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 let anonInlineModules = 0;
 
@@ -136,6 +148,69 @@ export class InlineES6ModuleTransformer extends ModuleTransformer {
 
   transformNamedExport(tree) {
     return new AnonBlock(null, []);
+  }
+
+  /**
+   * Handles importing modules that have `export * from './path/to/foo.js'` declarations.
+   * Generates the following output:
+   *
+   * forEach $starIdent
+   *  let ${exports} = {};
+   *  for (let ${key} in ${starIdent})
+   *    if (${starIdent}.hasOwnProperty(${key}))
+   *      $exports[${key}] = $starIdent[${key}];
+   *  return ${exports};
+   *
+   * @returns {Array} statements
+   */
+  appendExportStatement(statements) {
+    let exportProperties = this.getExportProperties();
+    let exportObject = createObjectLiteral(exportProperties);
+    if (this.exportVisitor_.starExports.length) {
+      let starExports = this.exportVisitor_.starExports;
+      let starIdents = starExports.map((moduleSpecifier) => {
+        return createIdentifierExpression(
+          this.getTempVarNameForModuleSpecifier(moduleSpecifier));
+      });
+
+      if (exportProperties.length)
+        starIdents.push(exportObject);
+
+      // let ${exports} = {};
+      let exports = this.getTempIdentifier();
+      statements.push(createVariableStatement(LET, exports, createObjectLiteral("")));
+
+      let key = this.getTempIdentifier();
+      starIdents.forEach((starIdent) => {
+        statements.push(
+          // for
+          createForInStatement(
+            // let ${key}
+            createVariableDeclarationList(LET, key, null),
+            // in ${starIdent}
+            starIdent,
+            // if
+            createIfStatement(
+              // (${starIdent}.hasOwnProperty(${key}))
+              createCallExpression(
+                createMemberExpression(starIdent, 'hasOwnProperty'),
+                createArgumentList([createIdentifierExpression(key)])),
+              // true part: $exports[${key}] = $starIdent[${key}]
+              createAssignmentStatement(
+                createMemberLookupExpression(
+                  createIdentifierExpression(exports),
+                  createIdentifierExpression(key)),
+                createMemberLookupExpression(
+                  starIdent,
+                  createIdentifierExpression(key)))))
+        );
+      });
+      // return ${exports}
+      statements.push(createReturnStatement(createIdentifierExpression(exports)));
+      return statements;
+    }
+    statements.push(parseStatement `return ${exportObject}`);
+    return statements;
   }
 
   /**
