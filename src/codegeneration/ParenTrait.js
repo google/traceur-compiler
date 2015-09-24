@@ -15,6 +15,7 @@
 import {
   ArgumentList,
   ArrayLiteral,
+  BinaryExpression,
   ExpressionStatement,
   NewExpression,
   ParenExpression,
@@ -140,6 +141,21 @@ export function ParenTrait(ParseTreeTransformerClass) {
         return tree;
       }
       return new PropertyNameAssignment(tree.location, name, value);
+    }
+
+    transformBinaryExpression(tree) {
+      let left = this.transformAny(tree.left);
+      let right = this.transformAny(tree.right);
+      if (left.type === COMMA_EXPRESSION) {
+        left = wrap(left);
+      }
+      if (right.type === COMMA_EXPRESSION) {
+        right = wrap(right);
+      }
+      if (left === tree.left && right === tree.right) {
+        return tree;
+      }
+      return new BinaryExpression(tree.location, left, tree.operator, right);
     }
   };
 }
