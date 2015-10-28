@@ -38,7 +38,8 @@ import {
   GET,
   OF,
   ON,
-  SET
+  SET,
+  TYPE,
 } from './PredefinedName.js';
 import {SyntaxErrorReporter} from '../util/SyntaxErrorReporter.js';
 import {
@@ -269,6 +270,7 @@ import {
   ThisExpression,
   ThrowStatement,
   TryStatement,
+  TypeAliasDeclaration,
   TypeArguments,
   TypeName,
   TypeParameter,
@@ -534,6 +536,13 @@ export class Parser {
 
       case FUNCTION:
         return this.parseFunctionDeclaration_();
+
+      case IDENTIFIER:
+        if (this.options_.types && this.peekPredefinedString_(TYPE) &&
+            peekLookahead(IDENTIFIER)) {
+          return this.parseTypeAliasDeclaration_();
+        }
+        break;
     }
 
     // Statement
@@ -734,6 +743,9 @@ export class Parser {
         if (this.options_.asyncFunctions && this.peekPredefinedString_(ASYNC)) {
           let asyncToken = this.eatId_();
           exportTree = this.parseAsyncFunctionDeclaration_(asyncToken);
+        } else if (this.options_.types &&  this.peekPredefinedString_(TYPE) &&
+            peekLookahead(IDENTIFIER)) {
+          exportTree = this.parseTypeAliasDeclaration_();
         } else if (this.options_.exportFromExtended) {
           exportTree = this.parseNamedExport_();
         }
@@ -4310,6 +4322,18 @@ export class Parser {
       args = this.parseArguments_();
 
     return new Annotation(this.getTreeLocation_(start), expression, args);
+  }
+
+  parseTypeAliasDeclaration_() {
+    // TypeAliasDeclaration:
+    //   type Identifier = Type ;
+    let start = this.getTreeStartLocation_();
+    this.eatId_(TYPE);
+    let name = this.eatId_();
+    this.eat_(EQUAL);
+    let type = this.parseType_();
+    this.eatPossibleImplicitSemiColon_();
+    return new TypeAliasDeclaration(this.getTreeLocation_(start), name, type);
   }
 
   /**

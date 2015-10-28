@@ -40,24 +40,26 @@ import {
   CLASS_EXPRESSION,
   COMMA_EXPRESSION,
   CONDITIONAL_EXPRESSION,
+  CONSTRUCTOR_TYPE,
   CONTINUE_STATEMENT,
   DEBUGGER_STATEMENT,
   DO_WHILE_STATEMENT,
   EMPTY_STATEMENT,
   EXPORT_DECLARATION,
   EXPRESSION_STATEMENT,
-  FORMAL_PARAMETER,
   FOR_IN_STATEMENT,
   FOR_OF_STATEMENT,
   FOR_ON_STATEMENT,
   FOR_STATEMENT,
+  FORMAL_PARAMETER,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
+  FUNCTION_TYPE,
   GENERATOR_COMPREHENSION,
   IDENTIFIER_EXPRESSION,
   IF_STATEMENT,
-  IMPORTED_BINDING,
   IMPORT_DECLARATION,
+  IMPORTED_BINDING,
   INTERFACE_DECLARATION,
   LABELLED_STATEMENT,
   LITERAL_EXPRESSION,
@@ -67,6 +69,7 @@ import {
   NEW_EXPRESSION,
   OBJECT_LITERAL,
   OBJECT_PATTERN,
+  OBJECT_TYPE,
   PAREN_EXPRESSION,
   POSTFIX_EXPRESSION,
   PREDEFINED_TYPE,
@@ -81,13 +84,15 @@ import {
   THIS_EXPRESSION,
   THROW_STATEMENT,
   TRY_STATEMENT,
+  TYPE_ALIAS_DECLARATION,
+  TYPE_NAME,
   TYPE_REFERENCE,
   UNARY_EXPRESSION,
   VARIABLE_DECLARATION,
   VARIABLE_STATEMENT,
   WHILE_STATEMENT,
   WITH_STATEMENT,
-  YIELD_EXPRESSION
+  YIELD_EXPRESSION,
 } from './ParseTreeType.js';
 
 export {ParseTreeType};
@@ -238,7 +243,13 @@ export class ParseTree {
   }
 
   isStatementListItem() {
-    return this.isStatement() || this.isDeclaration();
+    return this.isStatement() || this.isDeclaration() ||
+        // TODO(arv): When transforming modules we can get a type-alias. Once
+        // #1995 is fixed we can change the order of these transformers and the
+        // type-alias will get removed before it gets inserted into an invalid
+        // location.
+        // https://github.com/google/traceur-compiler/issues/1995
+        this.type === TYPE_ALIAS_DECLARATION;
   }
 
   isStatement() {
@@ -319,6 +330,7 @@ export class ParseTree {
       case IMPORT_DECLARATION:
       case INTERFACE_DECLARATION:
       case VARIABLE_DECLARATION:
+      case TYPE_ALIAS_DECLARATION:
         return true;
     }
     return this.isStatement();
@@ -342,13 +354,14 @@ export class ParseTree {
 
   isType() {
     switch (this.type) {
+      case CONSTRUCTOR_TYPE:
+      case FUNCTION_TYPE:
+      case OBJECT_TYPE:
       case PREDEFINED_TYPE:
+      case TYPE_NAME:
       case TYPE_REFERENCE:
       // TODO(arv): Implement the rest.
       // case TYPE_QUERY:
-      // case OBJECT_TYPE:
-      // case FUNCTION_TYPE:
-      // case CONSTRUCTOR_TYPE:
         return true;
     }
     return false;

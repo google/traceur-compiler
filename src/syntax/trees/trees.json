@@ -1134,6 +1134,17 @@
       "Finally"
     ]
   },
+  "TypeAliasDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "value": [
+      "ParseTree"
+    ]
+  },
   "TypeArguments": {
     "location": [
       "SourceRange"

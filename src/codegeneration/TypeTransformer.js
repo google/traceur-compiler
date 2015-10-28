@@ -106,4 +106,8 @@ export class TypeTransformer extends ParseTreeTransformer {
   transformInterfaceDeclaration(tree) {
     return new AnonBlock(null, []);
   }
+
+  transformTypeAliasDeclaration(tree) {
+    return new AnonBlock(null, []);
+  }
 }

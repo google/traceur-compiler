@@ -101,8 +101,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.types)
+    if (transformOptions.types && transformOptions.annotations) {
       append(TypeToExpressionTransformer);
+    }
 
     if (transformOptions.unicodeEscapeSequences)
       append(UnicodeEscapeSequenceTransformer);
@@ -111,11 +112,12 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(AnnotationsTransformer);
 
     if (options.typeAssertions) {
+      append(TypeToExpressionTransformer);
+
       // Transforming member variables to getters/setters only make
       // sense when the type assertions are enabled.
-      if (options.typeAssertions) {
-        append(TypedMemberVariableTransformer);
-      }
+      append(TypedMemberVariableTransformer);
+
       append(TypeAssertionTransformer);
     }
 

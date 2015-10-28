@@ -48,5 +48,6 @@ export const SET = 'set';
 export const SLICE = 'slice';
 export const THIS = 'this';
 export const TRACEUR_RUNTIME = '$traceurRuntime';
+export const TYPE = 'type';
 export const UNDEFINED = 'undefined';
 export const WRITABLE = 'writable';

@@ -99,6 +99,7 @@ import {
   SET_ACCESSOR,
   TEMPLATE_LITERAL_PORTION,
   TEMPLATE_SUBSTITUTION,
+  TYPE_ALIAS_DECLARATION,
   TYPE_ARGUMENTS,
   TYPE_NAME,
   TYPE_PARAMETER,
@@ -477,7 +478,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         declType === FUNCTION_DECLARATION ||
         declType === CLASS_DECLARATION ||
         declType === NAMED_EXPORT ||
-        declType === EXPORT_DEFAULT,
+        declType === EXPORT_DEFAULT ||
+        declType === TYPE_ALIAS_DECLARATION,
         tree.declaration,
         'expected valid export tree');
   }

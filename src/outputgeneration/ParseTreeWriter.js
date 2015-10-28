@@ -30,7 +30,8 @@ import {
   GET,
   OF,
   ON,
-  SET
+  SET,
+  TYPE,
 } from '../syntax/PredefinedName.js';
 import {
   isIdentifierPart,
@@ -1345,6 +1346,20 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.writeSpace_();
       this.visitAny(tree.finallyBlock);
     }
+  }
+
+  /**
+   * @param {TypeAliasDeclaration} tree
+   */
+  visitTypeAliasDeclaration(tree) {
+    this.write_(TYPE);
+    this.writeRequiredSpace_();
+    this.writeToken_(tree.name);
+    this.writeSpace_();
+    this.write_(EQUAL);
+    this.writeSpace_();
+    this.visitAny(tree.value);
+    this.write_(SEMI_COLON);
   }
 
   /**
