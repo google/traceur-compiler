@@ -141,14 +141,24 @@ export class TraceurLoader extends Loader {
   }
 
   fetch(load) {
-    return new Promise((resolve, reject) => {
-      if (!load)
-        reject(new TypeError('fetch requires argument object'));
-      else if (!load.address || typeof load.address !== 'string')
-        reject(new TypeError('fetch({address}) missing required string.'));
+    if (!load)
+      return Promise.reject(new TypeError('fetch requires argument object'));
+
+    if (!load.address || typeof load.address !== 'string')
+      return Promise.reject(new TypeError(
+          'fetch({address}) missing required string.'));
+
+    return (new Promise((resolve, reject) => {
+      this.fileLoader_.load(load.address, resolve, reject);
+    }))
+    .catch((e) => {
+      if (load.address.slice(-3) !== '.js')
+        return new Promise((resolve, reject) => {
+          this.fileLoader_.load(load.address + '.js', resolve, reject);
+        })
       else
-        this.fileLoader_.load(load.address, resolve, reject);
-    });
+        return Promise.reject(e);
+    })
   }
 
   // Synchronous
