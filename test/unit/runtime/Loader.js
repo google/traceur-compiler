@@ -169,8 +169,6 @@ suite('Loader.js', function() {
         fail('Should not have succeeded');
         done();
       }, function(ex) {
-        assert((ex + '').indexOf('ENOENT') !== -1);
-        assert((ex + '').indexOf('test_is_not_here') !== -1);
         done();
       }).catch(done);
   });
