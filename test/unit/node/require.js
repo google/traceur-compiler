@@ -31,8 +31,9 @@ suite('require.js', function() {
       traceurRequire(path.join(System.dirname(__moduleName), './' + filename));
       assert.notOk(true);
     } catch (ex) {
-      assert.equal(ex.length, 1, 'One error is reported');
-      assert.include(ex[0].replace(/\\/g, '/'), filename,
+      assert.equal('MultipleErrors', ex.name);
+      assert.equal(ex.errors.length, 1, 'One error is reported');
+      assert.include(ex.errors[0].replace(/\\/g, '/'), filename,
           'The error message should contain the filename');
     }
   });

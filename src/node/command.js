@@ -137,10 +137,13 @@ function compileAll(out, sources, options) {
     traceurAPI.recursiveModuleCompileToSingleFile(out, sources, options).then(function() {
       process.exit(0);
     }).catch(function(err) {
-      var errors = err.errors || [err];
-      errors.forEach(function(err) {
-        console.error(err.stack || err);
-      });
+      if (err.name === 'MultipleErrors') {
+        err.errors.forEach(function(err) {
+          console.error(err);
+        });
+      } else {
+        console.error(err);
+      }
       process.exit(1);
     });
   }

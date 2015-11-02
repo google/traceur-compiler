@@ -161,7 +161,7 @@ export class Compiler {
 
   throwIfErrors(errorReporter) {
     if (errorReporter.hadError())
-      throw errorReporter.errors;
+      throw errorReporter.toError();
   }
 
   /**

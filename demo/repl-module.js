@@ -181,7 +181,18 @@ function onFailure(error, metadata) {
     output.setValue(metadata.transcoded);
   hasError = true;
   errorElement.hidden = false;
-  errorElement.textContent = error.stack || error;
+
+  let s;
+  if (error) {
+    if (error.stack) {
+      s = error.stack;
+    } else if (error.name === 'MultipleErrors') {
+      s = error.errors.join('\n');
+    }
+  } else {
+    s = String(error);
+  }
+  errorElement.textContent = s;
 }
 
 function compileContents(contents) {

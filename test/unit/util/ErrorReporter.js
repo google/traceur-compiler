@@ -105,16 +105,17 @@ suite('ErrorReporter.js', function() {
     assert.throws(function() {
       throw error;
     }, MultipleErrors);
-    assert.equal(error + '', accumulated.join('\n'));
+    assert.equal(error + '', 'MultipleErrors: ' + accumulated.join('\n'));
+
   });
 
   test('No MultipleErrors', function() {
-    var accumulated = null;
+    var accumulated = [];
     var error = new MultipleErrors(accumulated);
     assert.throws(function() {
       throw error;
     }, MultipleErrors);
-    assert.equal(error + '', '');
+    assert.equal(error + '', 'MultipleErrors');
   });
 
   test('Format', function() {
