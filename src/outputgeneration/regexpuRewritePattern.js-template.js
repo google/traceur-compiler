@@ -22,15 +22,15 @@ var require = function(id) {
   return modules[id];
 };
 
-// #include ../../node_modules/regexpu/node_modules/regenerate/regenerate.js
+// #include ../../node_modules/regenerate/regenerate.js
 modules['regenerate'] = module.exports || window.regenerate;
 
-// #include ../../node_modules/regexpu/node_modules/regjsgen/regjsgen.js
+// #include ../../node_modules/regjsgen/regjsgen.js
 modules['regjsgen'] = {
   generate: exports.generate || window.regjsgen
 };
 
-// #include ../../node_modules/regexpu/node_modules/regjsparser/parser.js
+// #include ../../node_modules/regjsparser/parser.js
 modules['regjsparser'] = module.exports || window.regjsparser;
 
 modules['./data/iu-mappings.json'] = (
