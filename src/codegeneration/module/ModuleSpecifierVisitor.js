@@ -38,39 +38,4 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
   visitModuleSpecifier(tree) {
     this.moduleSpecifiers_.add(tree.token.processedValue);
   }
-
-  visitVariableDeclaration(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitVariableDeclaration(tree);
-  }
-
-  visitFormalParameter(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitFormalParameter(tree);
-  }
-
-  visitGetAccessor(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitGetAccessor(tree);
-  }
-
-  visitMethod(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitMethod(tree);
-  }
-
-  visitFunctionDeclaration(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitFunctionDeclaration(tree);
-  }
-
-  visitFunctionExpression(tree) {
-    this.addTypeAssertionDependency_(tree.typeAnnotation);
-    return super.visitFunctionExpression(tree);
-  }
-
-  addTypeAssertionDependency_(typeAnnotation) {
-    if (typeAnnotation !== null && this.options_.typeAssertionModule !== null)
-      this.moduleSpecifiers_.add(this.options_.typeAssertionModule);
-  }
 }

@@ -44,10 +44,8 @@ import {SpreadTransformer} from './SpreadTransformer.js';
 import {SuperTransformer} from './SuperTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
-import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeToExpressionTransformer} from './TypeToExpressionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
-import {TypedMemberVariableTransformer} from './TypedMemberVariableTransformer.js';
 import {UnicodeEscapeSequenceTransformer} from './UnicodeEscapeSequenceTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {validate as validateConst} from '../semantics/ConstChecker.js';
@@ -115,16 +113,6 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
-
-    if (options.typeAssertions) {
-      append(TypeToExpressionTransformer);
-
-      // Transforming member variables to getters/setters only make
-      // sense when the type assertions are enabled.
-      append(TypedMemberVariableTransformer);
-
-      append(TypeAssertionTransformer);
-    }
 
     // PropertyNameShorthandTransformer needs to come before
     // module transformers. See #1120 or

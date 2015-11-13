@@ -17,9 +17,7 @@ import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
 import {JsxTransformer} from './JsxTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
-import {TypeAssertionTransformer} from './TypeAssertionTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
-import {TypedMemberVariableTransformer} from './TypedMemberVariableTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {validate as validateFreeVariables} from
     '../semantics/FreeVariableChecker.js';
@@ -60,12 +58,6 @@ export class PureES6Transformer extends MultiTransformer {
       append(JsxTransformer);
     }
 
-    if (options.typeAssertions) {
-      // Transforming member variables to getters/setters only make
-      // sense when the type assertions are enabled.
-      if (options.memberVariables) append(TypedMemberVariableTransformer);
-      append(TypeAssertionTransformer);
-    }
     if (options.memberVariables) {
       append(MemberVariableTransformer);
     }

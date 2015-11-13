@@ -21,4 +21,3 @@ import './classes.js';
 import './async.js';
 import './generators.js';
 import './template.js';
-import './type-assertions.js';

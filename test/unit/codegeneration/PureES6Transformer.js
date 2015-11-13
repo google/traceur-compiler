@@ -29,26 +29,6 @@ suite('PureES6Transformer.js', function() {
     return parser.parseModule();
   }
 
-  // https://github.com/google/traceur-compiler/issues/1774
-  test('Basic', function() {
-    var options = new Options({
-      types: true,
-      typeAssertions: true,
-      typeAssertionModule: '/dummy.js'
-    });
-    var reporter = new ErrorReporter();
-
-    var code = 'let x : T = f();';
-    var expected = 'import {assert} from "/dummy.js";\n' +
-                   'let x = assert.type(f(), T);';
-
-    var tree = parse(code, reporter, options);
-    var expectedTree = parse(expected, reporter, options);
-    var transformer = new PureES6Transformer(reporter, options);
-    var transformed = transformer.transform(tree);
-    assert.equal(write(transformed), write(expectedTree));
-  });
-
   test('Inline', function() {
     var options = new Options({
       modules: 'inline'

@@ -63,8 +63,6 @@ export const optionsV01 = enumerableOnlyObject({
   spread: true,
   symbols: true,
   templateLiterals: true,
-  typeAssertionModule: null,
-  typeAssertions: false,
   types: false,
   unicodeEscapeSequences: true,
   unicodeExpressions: true,
@@ -188,7 +186,6 @@ addBoolOption('debug');
 addBoolOption('debugNames');
 addBoolOption('freeVariableChecker');
 addBoolOption('script');
-addBoolOption('typeAssertions');
 addBoolOption('validate');
 
 export class Options {
@@ -344,7 +341,6 @@ export class Options {
     this.sourceRoot = false;
     this.lowResolutionSourceMap = false;
     this.inputSourceMap = false;
-    this.typeAssertionModule = null;
   }
 
   static listUnknownOptions(obj) {
@@ -501,12 +497,6 @@ export function addOptions(flags, commandOptions) {
         commandOptions.setOption('referrer', name);
         System.map = System.semverMap(name);
         return name;
-      });
-  flags.option('--type-assertion-module <path>',
-      'Absolute path to the type assertion module.',
-      (path) => {
-        commandOptions.setOption('type-assertion-module', path);
-        return path;
       });
   flags.option('--modules <' + moduleOptions.join(', ') + '>',
       'select the output format for modules',
