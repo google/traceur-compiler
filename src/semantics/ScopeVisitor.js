@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Map} from '../runtime/polyfills/Map.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {VAR} from '../syntax/TokenType.js';
 import {Scope} from './Scope.js';
