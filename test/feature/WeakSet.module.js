@@ -11,6 +11,15 @@ function test(ctor) {
   assert.isFalse(ws.has(o1));
   assert.isFalse(ws.delete(o1));
 
+  var f1 = Object.freeze({});
+  var f2 = Object.freeze({});
+  ws.add(f1);
+  assert.isTrue(ws.has(f1));
+  assert.isFalse(ws.has(f2));
+  assert.isTrue(ws.delete(f1));
+  assert.isFalse(ws.has(f1));
+  assert.isFalse(ws.delete(f1));
+
   var nonObjects = ['a', true, false, 42, null, undefined];
 
   for (var x of nonObjects) {
@@ -18,13 +27,8 @@ function test(ctor) {
       ws.add(x)
     }, TypeError);
 
-    assert.throws(() => {
-      ws.has(x)
-    }, TypeError);
-
-    assert.throws(() => {
-      ws.delete(x)
-    }, TypeError);
+    assert.isFalse(ws.has(x));
+    assert.isFalse(ws.delete(x));
   }
 }
 
