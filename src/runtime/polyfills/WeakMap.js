@@ -13,11 +13,17 @@
 // limitations under the License.
 
 import {
+  deleteFrozen,
+  getFrozen,
+  hasFrozen,
+  setFrozen,
+} from '../frozen-data.js';
+import {
   isObject,
   registerPolyfill
 } from './utils.js'
 
-const {defineProperty, getOwnPropertyDescriptor} = Object;
+const {defineProperty, getOwnPropertyDescriptor, isExtensible} = Object;
 const {hasNativeSymbol, newUniqueString} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
@@ -27,31 +33,45 @@ const sentinel = {};
 export class WeakMap {
   constructor() {
     this.name_ = newUniqueString();
+    this.frozenData_ = [];
   }
 
   set(key, value) {
     if (!isObject(key)) throw new $TypeError('key must be an object');
-    defineProperty(key, this.name_, {
-      configurable: true,
-      value,
-      writable: true,
-    });
+    if (!isExtensible(key)) {
+      setFrozen(this.frozenData_, key, value);
+    } else {
+      defineProperty(key, this.name_, {
+        configurable: true,
+        value,
+        writable: true,
+      });
+    }
     return this;
   }
 
   get(key) {
-    if (!isObject(key)) throw new $TypeError('key must be an object');
+    if (!isObject(key)) return undefined;
+    if (!isExtensible(key)) {
+      return getFrozen(this.frozenData_, key);
+    }
     let desc = getOwnPropertyDescriptor(key, this.name_);
     return desc && desc.value;
   }
 
   delete(key) {
-    if (!isObject(key)) throw new $TypeError('key must be an object');
+    if (!isObject(key)) return false;
+    if (!isExtensible(key)) {
+      return deleteFrozen(this.frozenData_, key);
+    }
     return hasOwnProperty.call(key, this.name_) && delete key[this.name_];
   }
 
   has(key) {
-    if (!isObject(key)) throw new $TypeError('key must be an object');
+    if (!isObject(key)) return false;
+    if (!isExtensible(key)) {
+      return hasFrozen(this.frozenData_, key);
+    }
     return hasOwnProperty.call(key, this.name_);
   }
 }

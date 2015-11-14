@@ -13,11 +13,16 @@
 // limitations under the License.
 
 import {
+  deleteFrozen,
+  getFrozen,
+  setFrozen,
+} from '../frozen-data.js';
+import {
   isObject,
   registerPolyfill
 } from './utils.js'
 
-const {defineProperty} = Object;
+const {defineProperty, isExtensible} = Object;
 const {hasNativeSymbol, newUniqueString} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
@@ -25,26 +30,37 @@ const {hasOwnProperty} = Object.prototype;
 export class WeakSet {
   constructor() {
     this.name_ = newUniqueString();
+    this.frozenData_ = [];
   }
 
-  add(key) {
-    if (!isObject(key)) throw new $TypeError('value must be an object');
-    defineProperty(key, this.name_, {
-      configurable: true,
-      value: true,
-      writable: true,
-    });
+  add(value) {
+    if (!isObject(value)) throw new $TypeError('value must be an object');
+    if (!isExtensible(value)) {
+      setFrozen(this.frozenData_, value, value);
+    } else {
+      defineProperty(value, this.name_, {
+        configurable: true,
+        value: true,
+        writable: true,
+      });
+    }
     return this;
   }
 
-  delete(key) {
-    if (!isObject(key)) throw new $TypeError('value must be an object');
-    return hasOwnProperty.call(key, this.name_) && delete key[this.name_];
+  delete(value) {
+    if (!isObject(value)) return false;
+    if (!isExtensible(value)) {
+      return deleteFrozen(this.frozenData_, value);
+    }
+    return hasOwnProperty.call(value, this.name_) && delete value[this.name_];
   }
 
-  has(key) {
-    if (!isObject(key)) throw new $TypeError('value must be an object');
-    return hasOwnProperty.call(key, this.name_);
+  has(value) {
+    if (!isObject(value)) return false;
+    if (!isExtensible(value)) {
+      return getFrozen(this.frozenData_, value) === value;
+    }
+    return hasOwnProperty.call(value, this.name_);
   }
 }
 
