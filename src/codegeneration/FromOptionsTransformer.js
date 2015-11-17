@@ -141,6 +141,8 @@ export class FromOptionsTransformer extends MultiTransformer {
         case 'bootstrap':
           append(ModuleTransformer);
           break;
+        case 'parse':
+          break;
         default:
           // The options processing should prevent us from getting here.
           throw new Error('Invalid modules transform option');
