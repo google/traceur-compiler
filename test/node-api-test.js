@@ -208,4 +208,15 @@ suite('node public api', function() {
 
     assert.equal(gotName, 'test-module');
   });
+
+  test('modules parse option', function() {
+    var contents = "export var p = 5;";
+    var compiled = traceurAPI.compile(contents, {
+      modules: 'parse'
+    }, 'test-module');
+
+    assert.ok(compiled, 'can compile');
+
+    assert(compiled.match(/^export var p = 5;/));
+  });
 });

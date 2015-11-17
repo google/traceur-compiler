@@ -91,7 +91,7 @@ let defaultValues = Object.create(null);
 let featureOptions = Object.create(null);
 let experimentalOptions = Object.create(null);
 let moduleOptions =
-    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'bootstrap'];
+    ['amd', 'commonjs', 'closure', 'instantiate', 'inline', 'bootstrap', 'parse'];
 
 const EXPERIMENTAL = 0;
 const ON_BY_DEFAULT = 1;
