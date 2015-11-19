@@ -214,6 +214,10 @@ build/compiled-by-previous-traceur.js: \
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
+bin/traceur-no-modules.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
+	./traceur --out bin/traceur-no-modules.js $(RUNTIME_SCRIPTS) --modules=inline \
+	  --outputLanguage=es6 $(TFLAGS) src/traceur-import.js
+
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
