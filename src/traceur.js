@@ -20,7 +20,7 @@ export {WebPageTranscoder} from './WebPageTranscoder.js';
 export {HTMLImportTranscoder} from './HTMLImportTranscoder.js';
 import {addOptions, CommandOptions, Options} from './Options.js';
 
-import {ModuleStore} from '@traceur/src/runtime/ModuleStore.js';
+let ModuleStore = $traceurRuntime.ModuleStore;
 
 export function get(name) {
   return ModuleStore.get(ModuleStore.normalize('./' + name, __moduleName));
