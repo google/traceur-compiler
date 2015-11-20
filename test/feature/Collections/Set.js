@@ -8,6 +8,7 @@ var undefinedKey = undefined;
 var nullKey = null;
 var nanKey = NaN;
 var zeroKey = 0;
+var frozenKey = Object.freeze({});
 var addReturnValue;
 
 t.add(objectKey);
@@ -17,9 +18,10 @@ t.add(booleanKey);
 t.add(undefinedKey);
 t.add(nullKey);
 t.add(nanKey);
+t.add(frozenKey);
 addReturnValue = t.add(zeroKey);
 
-assert.equal(t.size, 8);
+assert.equal(t.size, 9);
 assert.equal(t, addReturnValue);
 
 assert.isTrue(!t.has({}));
@@ -32,6 +34,7 @@ assert.isTrue(t.has(undefinedKey));
 assert.isTrue(t.has(nullKey));
 assert.isTrue(t.has(nanKey));
 assert.isTrue(t.has(zeroKey));
+assert.isTrue(t.has(frozenKey));
 
 assert.isTrue(t.has('keykeykey'));
 assert.isTrue(t.has(42.24));
@@ -53,7 +56,8 @@ var expected = [
   booleanKey,
   objectKey,
   nanKey,
-  zeroKey
+  zeroKey,
+  frozenKey
 ];
 expected.sort();
 
@@ -75,7 +79,7 @@ t.forEach(function(val, val2, obj) {
   cnt++;
 }, context);
 
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 arr.sort();
 assertArrayEquals(arr, expected);
@@ -88,7 +92,7 @@ for (var setIterVal of t) {
   arr.push(setIterVal);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 
 arr.sort();
@@ -102,7 +106,7 @@ for (var setIterVal of t.values()) {
   arr.push(setIterVal);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 
 arr.sort();

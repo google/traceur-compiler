@@ -16,19 +16,30 @@ import {
   isObject,
   registerPolyfill
 } from './utils.js'
+import {deleteFrozen, getFrozen, setFrozen} from '../frozen-data.js';
 
-var {getOwnHashObject, hasNativeSymbol} = $traceurRuntime;
-var $hasOwnProperty = Object.prototype.hasOwnProperty;
+const {hasNativeSymbol, newUniqueString} = $traceurRuntime;
+const {hasOwnProperty, getOwnPropertyDescriptor, isExtensible} = Object;
 
-var deletedSentinel = {};
+const deletedSentinel = {};
+
+let counter = 0;
+const hashCodeName = newUniqueString();
 
 function lookupIndex(map, key) {
-  if (isObject(key)) {
-    var hashObject = getOwnHashObject(key);
-    return hashObject && map.objectIndex_[hashObject.hash];
-  }
-  if (typeof key === 'string')
+  if (typeof key === 'string') {
     return map.stringIndex_[key];
+  }
+  if (isObject(key)) {
+    if (!isExtensible(key)) {
+      return getFrozen(map.frozenData_, key);
+    }
+    let i = key[hashCodeName];
+    if (i === undefined) {
+      return undefined;
+    }
+    return hasOwnProperty.call(key, hashCodeName) ? i : undefined;
+  }
   return map.primitiveIndex_[key];
 }
 
@@ -37,6 +48,7 @@ function initMap(map) {
   map.objectIndex_ = Object.create(null); // avoid prototype's properties
   map.stringIndex_ = Object.create(null);
   map.primitiveIndex_ = Object.create(null);
+  map.frozenData_ = [];
   map.deletedCount_ = 0;
 }
 
@@ -45,7 +57,7 @@ export class Map {
     if (!isObject(this))
       throw new TypeError('Map called on incompatible type');
 
-    if ($hasOwnProperty.call(this, 'entries_')) {
+    if (hasOwnProperty.call(this, 'entries_')) {
       throw new TypeError('Map can not be reentrantly initialised');
     }
 
@@ -65,15 +77,13 @@ export class Map {
   get(key) {
     var index = lookupIndex(this, key);
 
-    if (index !== undefined)
+    if (index !== undefined) {
       return this.entries_[index + 1];
+    }
   }
 
   set(key, value) {
-    var objectMode = isObject(key);
-    var stringMode = typeof key === 'string';
-
-    var index = lookupIndex(this, key);
+    let index = lookupIndex(this, key);
 
     if (index !== undefined) {
       this.entries_[index + 1] = value;
@@ -82,11 +92,20 @@ export class Map {
       this.entries_[index] = key;
       this.entries_[index + 1] = value;
 
-      if (objectMode) {
-        var hashObject = getOwnHashObject(key);
-        var hash = hashObject.hash;
-        this.objectIndex_[hash] = index;
-      } else if (stringMode) {
+      if (isObject(key)) {
+        if (!isExtensible(key)) {
+          setFrozen(this.frozenData_, key, index);
+        } else {
+          let hash;
+          if (hasOwnProperty.call(key, hashCodeName)) {
+            hash = key[hashCodeName];
+          } else {
+            hash = counter++;
+            defineProperty(key, {value: hash});
+          }
+          this.objectIndex_[hash] = index;
+        }
+      } else if (typeof key === 'string') {
         this.stringIndex_[key] = index;
       } else {
         this.primitiveIndex_[key] = index;
@@ -100,37 +119,30 @@ export class Map {
   }
 
   delete(key) {
-    var objectMode = isObject(key);
-    var stringMode = typeof key === 'string';
+    let index = lookupIndex(this, key);
+    if (index === undefined) {
+      return false;
+    }
 
-    var index;
-    var hash;
+    this.entries_[index] = deletedSentinel;
+    // remove possible reference to value to avoid memory leaks
+    this.entries_[index + 1] = undefined;
+    this.deletedCount_++;
 
-    if (objectMode) {
-      var hashObject = getOwnHashObject(key);
-      if (hashObject) {
-        index = this.objectIndex_[hash = hashObject.hash];
+    if (isObject(key)) {
+      if (!isExtensible(key)) {
+        deleteFrozen(this.frozenData_, key);
+      } else {
+        let hash = key[hashCodeName];
         delete this.objectIndex_[hash];
       }
-    } else if (stringMode) {
-      index = this.stringIndex_[key];
+    } else if (typeof key === 'string') {
       delete this.stringIndex_[key];
     } else {
-      index = this.primitiveIndex_[key];
       delete this.primitiveIndex_[key]
     }
 
-    if (index !== undefined) {
-      this.entries_[index] = deletedSentinel;
-      // remove possible reference to value to avoid memory leaks
-      this.entries_[index + 1] = undefined;
-
-      this.deletedCount_++;
-
-      return true; // 23.1.3.3
-    }
-
-    return false; // 23.1.3.3
+    return true;
   }
 
   clear() {

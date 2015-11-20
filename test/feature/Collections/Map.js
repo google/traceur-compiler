@@ -8,7 +8,7 @@ var undefinedKey = undefined;
 var nullKey = null;
 var nanKey = NaN;
 var zeroKey = 0;
-
+var frozenKey = Object.freeze({});
 
 assert.equal(t.size, 0);
 
@@ -20,8 +20,9 @@ t.set(booleanKey, 'value7');
 t.set(objectKey, 'value1');
 t.set(nanKey, 'value10');
 t.set(zeroKey, 'value11');
+t.set(frozenKey, 'value12');
 
-assert.equal(t.size, 8);
+assert.equal(t.size, 9);
 
 assert.equal(t.get(objectKey), 'value1');
 assert.equal(t.get(stringKey), 'value5');
@@ -31,6 +32,7 @@ assert.equal(t.get(undefinedKey), 'value8');
 assert.equal(t.get(nullKey), 'value9');
 assert.equal(t.get(nanKey), 'value10');
 assert.equal(t.get(zeroKey), 'value11');
+assert.equal(t.get(frozenKey), 'value12');
 
 assert.equal(t.get({}), undefined);
 assert.equal(t.get('keykeykey'), 'value5');
@@ -41,6 +43,7 @@ assert.equal(t.get(null), 'value9');
 assert.equal(t.get(NaN), 'value10');
 assert.equal(t.get(0), 'value11');
 assert.equal(t.get(1 / Infinity), 'value11');
+assert.equal(t.get(Object.freeze({})), undefined);
 
 // V8 is broken for -0
 // https://code.google.com/p/v8/issues/detail?id=3906
@@ -56,6 +59,7 @@ assert.isTrue(t.has(undefinedKey));
 assert.isTrue(t.has(nullKey));
 assert.isTrue(t.has(nanKey));
 assert.isTrue(t.has(zeroKey));
+assert.isTrue(t.has(frozenKey));
 
 assert.isTrue(t.has('keykeykey'));
 assert.isTrue(t.has(42.24));
@@ -83,7 +87,7 @@ t.forEach(function (value, key, map) {
   arr.push(value);
   cnt++;
 });
-assert.equal(cnt, 9);
+assert.equal(cnt, 10);
 t.delete('foo');
 
 assertArrayEquals(arrKeys, [
@@ -95,6 +99,7 @@ assertArrayEquals(arrKeys, [
   objectKey,
   nanKey,
   zeroKey,
+  frozenKey,
   'foo'
 ]);
 assertArrayEquals(arr, [
@@ -106,8 +111,10 @@ assertArrayEquals(arr, [
   'value1',
   'value10',
   'value11',
+  'value12',
   42
 ]);
+
 
 // iterator
 arrKeys = [];
@@ -123,12 +130,12 @@ for (var mapIterItem of t) {
   arr.push(mapIterItemVal);
   cnt++;
 }
-assert.equal(cnt, 9);
+assert.equal(cnt, 10);
 t.delete('foo');
 
 assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
     numberKey, booleanKey, objectKey,
-    nanKey, zeroKey, 'foo' ]);
+    nanKey, zeroKey, frozenKey, 'foo' ]);
 assertArrayEquals(arr, [
   'value8',
   'value9',
@@ -138,6 +145,7 @@ assertArrayEquals(arr, [
   'value1',
   'value10',
   'value11',
+  'value12',
   42
 ]);
 
@@ -153,7 +161,7 @@ for (var mapIterItem of t.entries()) {
   arr.push(mapIterItemVal);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 assertArrayEquals(arrKeys, [
   undefinedKey,
@@ -163,7 +171,8 @@ assertArrayEquals(arrKeys, [
   booleanKey,
   objectKey,
   nanKey,
-  zeroKey
+  zeroKey,
+  frozenKey
 ]);
 assertArrayEquals(arr, [
   'value8',
@@ -173,7 +182,8 @@ assertArrayEquals(arr, [
   'value7',
   'value1',
   'value10',
-  'value11'
+  'value11',
+  'value12'
 ]);
 
 
@@ -185,7 +195,7 @@ for (var mapIterKey of t.keys()) {
   arrKeys.push(mapIterKey);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 assertArrayEquals(arrKeys, [
   undefinedKey,
@@ -195,7 +205,8 @@ assertArrayEquals(arrKeys, [
   booleanKey,
   objectKey,
   nanKey,
-  zeroKey
+  zeroKey,
+  frozenKey
 ]);
 
 
@@ -207,7 +218,7 @@ for (var mapIterVal of t.values()) {
   arr.push(mapIterVal);
   cnt++;
 }
-assert.equal(cnt, 8);
+assert.equal(cnt, 9);
 
 assertArrayEquals(arr, [
   'value8',
@@ -217,7 +228,8 @@ assertArrayEquals(arr, [
   'value7',
   'value1',
   'value10',
-  'value11'
+  'value11',
+  'value12'
 ]);
 
 
