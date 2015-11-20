@@ -759,8 +759,13 @@ export class Parser {
           exportTree = this.parseNamedExport_();
         }
         break;
-      default:
-        return this.parseUnexpectedToken_(peekToken());
+      default: {
+        let token = peekToken();
+        if (!token.isKeyword()) {
+          return this.parseUnexpectedToken_(peekToken());
+        }
+        exportTree = this.parseNamedExport_();
+      }
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
                                  annotations);
@@ -845,14 +850,14 @@ export class Parser {
         }
         break;
 
-      case IDENTIFIER:
-        exportClause = this.parseForwardDefaultExport_();
+      case STAR:
+        exportClause = this.parseExportStar_();
         this.eatId_(FROM);
         moduleSpecifier = this.parseModuleSpecifier_();
         break;
 
-      case STAR:
-        exportClause = this.parseExportStar_();
+      default:  // IDENTIFIER or isKeyword
+        exportClause = this.parseForwardDefaultExport_();
         this.eatId_(FROM);
         moduleSpecifier = this.parseModuleSpecifier_();
         break;
