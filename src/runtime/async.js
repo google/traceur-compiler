@@ -16,15 +16,15 @@ if (typeof $traceurRuntime !== 'object') {
   throw new Error('traceur runtime not found.');
 }
 
-var {createPrivateName} = $traceurRuntime;
+var {createPrivateSymbol} = $traceurRuntime;
 var {
   create,
   defineProperty,
 } = Object;
 
-var thisName = createPrivateName();
-var argsName = createPrivateName();
-var observeName = createPrivateName();
+var thisName = createPrivateSymbol();
+var argsName = createPrivateSymbol();
+var observeName = createPrivateSymbol();
 
 function AsyncGeneratorFunction() {}
 

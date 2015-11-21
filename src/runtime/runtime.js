@@ -77,7 +77,8 @@
     return privateNames[s];
   }
 
-  function createPrivateName() {
+  // This creates a Symbol that we filter out in getOwnPropertySymbols.
+  function createPrivateSymbol() {
     var s = hasNativeSymbol ? Symbol() : newUniqueString();
     privateNames[s] = true;
     return s;
@@ -96,7 +97,7 @@
   var isTailRecursiveName = null;
 
   function setupProperTailCalls() {
-    isTailRecursiveName = createPrivateName();
+    isTailRecursiveName = createPrivateSymbol();
 
     // By 19.2.3.1 and 19.2.3.3, Function.prototype.call and
     // Function.prototype.apply do proper tail calls.
@@ -401,7 +402,7 @@
       checkObjectCoercible: checkObjectCoercible,
       construct: construct,
       continuation: createContinuation,
-      createPrivateName: createPrivateName,
+      createPrivateSymbol: createPrivateSymbol,
       exportStar: exportStar,
       hasNativeSymbol: hasNativeSymbolFunc,
       initTailRecursiveFunction: initTailRecursiveFunction,
