@@ -253,6 +253,36 @@ suite('BlockBindingTransformer.js', function() {
         'for (var i = 0; i < 5; i++) {' +
         '  $__0();' +
         '}');
+
+    makeTest('Initialize binding',
+        `for (;;) {
+          let x;
+        }`,
+        `for (;;) {
+          var x = void 0;
+        }`);
+    makeTest('Initialize binding - var',
+        `for (var i = 0; ;) {
+          let x;
+        }`,
+        `for (var i = 0; ;) {
+          var x = void 0;
+        }`);
+    makeTest('Initialize binding - let',
+        `for (let i = 0; ;) {
+          let x;
+        }`,
+        `for (var i = 0; ;) {
+          var x = void 0;
+        }`);
+
+    makeTest('No initializer in for',
+        `for (;;) {
+          for (let n in {}) {}
+        }`,
+        `for (;;) {
+          for (var n in {}) {}
+        }`);
   });
 
   suite('Hoisting', function() {

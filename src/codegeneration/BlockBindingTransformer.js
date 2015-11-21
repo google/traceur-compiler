@@ -556,33 +556,38 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     let finder = new FindBlockBindingInLoop(tree, this.scopeBuilder_);
     finder.visitAny(tree);
     if (!finder.found) {
-      // just switch it to var
-      if (initializerIsBlockBinding) {
-        let renames = [];
-        let initializer = new VariableDeclarationList(null, VAR,
-            tree.initializer.declarations.map((declaration) => {
-                let origName = this.getVariableName_(declaration);
-                let newName = this.newNameFromOrig(origName, renames);
-
-                let bindingIdentifier = createBindingIdentifier(newName);
-                this.scope_.renameBinding(origName, bindingIdentifier,
-                    VAR, this.reporter_);
-                return new VariableDeclaration(null,
-                    bindingIdentifier, null, declaration.initializer);
-              }
-            ));
-        initializer = renameAll(renames, initializer);
-
-        tree = loopFactory(initializer, renames, renameAll(renames, tree.body));
-        this.revisitTreeForScopes(tree);
-        tree = func(tree);
-      } else {
+      let callFunc = () => {
         let currentLoopTree = this.currentLoopTree_;
         this.currentLoopTree_ = tree
         let rv = func(tree);
         this.currentLoopTree_ = currentLoopTree;
         return rv;
+      };
+
+      if (!initializerIsBlockBinding) {
+        return callFunc();
       }
+
+      // just switch it to var
+      let renames = [];
+      let initializer = new VariableDeclarationList(null, VAR,
+          tree.initializer.declarations.map((declaration) => {
+              let origName = this.getVariableName_(declaration);
+              let newName = this.newNameFromOrig(origName, renames);
+
+              let bindingIdentifier = createBindingIdentifier(newName);
+              this.scope_.renameBinding(origName, bindingIdentifier,
+                  VAR, this.reporter_);
+              return new VariableDeclaration(null,
+                  bindingIdentifier, null, declaration.initializer);
+            }
+          ));
+      initializer = renameAll(renames, initializer);
+
+      tree = loopFactory(initializer, renames, renameAll(renames, tree.body));
+      this.revisitTreeForScopes(tree);
+      tree = callFunc();
+
     } else {
       let iifeParameterList = [];
       let iifeArgumentList = [];
