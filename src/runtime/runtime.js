@@ -34,6 +34,7 @@
   var $isExtensible = Object.isExtensible;
   var $apply = Function.prototype.call.bind(Function.prototype.apply)
   var $random = Math.random;
+  var $getOwnPropertySymbols = $Object.getOwnPropertySymbols;
 
   function $bind(operand, thisArg, args) {
     // args may be an arguments-like object
@@ -49,6 +50,9 @@
     var object = new ($bind(func, null, argArray));
     return object; // prevent tail call
   }
+
+
+  var hasNativeSymbol = typeof global.Symbol === 'function';
 
   // ### Support for proper tail recursion
   //
@@ -74,7 +78,7 @@
   }
 
   function createPrivateName() {
-    var s = newUniqueString();
+    var s = hasNativeSymbol ? Symbol() : newUniqueString();
     privateNames[s] = true;
     return s;
   }
@@ -212,9 +216,9 @@
      * @param {string=} string Optional string used for toString.
      * @constructor
      */
-    function Symbol(description) {
+    let SymbolImpl = function Symbol(description) {
       var value = new SymbolValue(description);
-      if (!(this instanceof Symbol))
+      if (!(this instanceof SymbolImpl))
         return value;
 
       // new Symbol should throw.
@@ -224,10 +228,10 @@
       // this. To correctly handle these two would require a lot of work for very
       // little gain so we are not doing those at the moment.
       throw new TypeError('Symbol cannot be new\'ed');
-    }
+    };
 
-    $defineProperty(Symbol.prototype, 'constructor', nonEnum(Symbol));
-    $defineProperty(Symbol.prototype, 'toString', method(function() {
+    $defineProperty(SymbolImpl.prototype, 'constructor', nonEnum(SymbolImpl));
+    $defineProperty(SymbolImpl.prototype, 'toString', method(function() {
       var symbolValue = this[symbolDataProperty];
       return symbolValue[symbolInternalProperty];
       /* The implementation of toString below matches the spec, but prevents
@@ -241,7 +245,7 @@
       return 'Symbol(' + desc + ')';
       */
     }));
-    $defineProperty(Symbol.prototype, 'valueOf', method(function() {
+    $defineProperty(SymbolImpl.prototype, 'valueOf', method(function() {
       var symbolValue = this[symbolDataProperty];
       if (!symbolValue)
         throw TypeError('Conversion from symbol to string');
@@ -256,13 +260,13 @@
       $freeze(this);
       symbolValues[key] = this;
     }
-    $defineProperty(SymbolValue.prototype, 'constructor', nonEnum(Symbol));
+    $defineProperty(SymbolValue.prototype, 'constructor', nonEnum(SymbolImpl));
     $defineProperty(SymbolValue.prototype, 'toString', {
-      value: Symbol.prototype.toString,
+      value: SymbolImpl.prototype.toString,
       enumerable: false
     });
     $defineProperty(SymbolValue.prototype, 'valueOf', {
-      value: Symbol.prototype.valueOf,
+      value: SymbolImpl.prototype.valueOf,
       enumerable: false
     });
 
@@ -277,7 +281,6 @@
       return symbolValues[s] || privateNames[s];
     }
 
-    // Override getOwnPropertyNames to filter out symbols keys.
     function removeSymbolKeys(array) {
       var rv = [];
       for (var i = 0; i < array.length; i++) {
@@ -288,6 +291,7 @@
       return rv;
     }
 
+    // Override getOwnPropertyNames to filter out symbols keys.
     function getOwnPropertyNames(object) {
       return removeSymbolKeys($getOwnPropertyNames(object));
     }
@@ -296,23 +300,32 @@
       return removeSymbolKeys($keys(object));
     }
 
-    function getOwnPropertySymbols(object) {
+    var getOwnPropertySymbolsImpl = function getOwnPropertySymbols(object) {
       var rv = [];
-      var names = $getOwnPropertyNames(object);
-      for (var i = 0; i < names.length; i++) {
-        var symbol = symbolValues[names[i]];
-        if (symbol) {
-          rv.push(symbol);
+      if ($getOwnPropertySymbols) {
+        var symbols = $getOwnPropertySymbols(object);
+        for (var i = 0; i < symbols.length; i++) {
+          var symbol = symbols[i];
+          if (!isPrivateName(symbol)) {
+            rv.push(symbol);
+          }
+        }
+      } else {
+        var names = $getOwnPropertyNames(object);
+        for (var i = 0; i < names.length; i++) {
+          var symbol = symbolValues[names[i]];
+          if (symbol) {
+            rv.push(symbol);
+          }
         }
       }
       return rv;
-    }
+    };
 
     function polyfillObject(Object) {
-      $defineProperty(Object, 'getOwnPropertyNames',
-                      {value: getOwnPropertyNames});
-      $defineProperty(Object, 'keys', {value: keys});
-      // getOwnPropertySymbols is added in polyfillSymbol.
+      // Override/define to support private symbols
+      $defineProperty(Object, 'getOwnPropertySymbols',
+          nonEnum(getOwnPropertySymbolsImpl));
     }
 
     function exportStar(object) {
@@ -350,16 +363,15 @@
       return argument;
     }
 
-    var hasNativeSymbol;
-
-    function polyfillSymbol(global, Symbol) {
-      if (!global.Symbol) {
-        global.Symbol = Symbol;
-        Object.getOwnPropertySymbols = getOwnPropertySymbols;
-        hasNativeSymbol = false;
-      } else {
-        hasNativeSymbol = true;
+    function polyfillSymbol(global) {
+      if (!hasNativeSymbol) {
+        global.Symbol = SymbolImpl;
+        let {Object} = global;
+        Object.getOwnPropertyNames = getOwnPropertyNames;
+        Object.keys = keys;
+        // getOwnPropertySymbols is done in polyfillObject.
       }
+
       if (!global.Symbol.iterator) {
         global.Symbol.iterator = Symbol('Symbol.iterator');
       }
@@ -373,11 +385,10 @@
     }
 
     function setupGlobals(global) {
-      polyfillSymbol(global, Symbol)
+      polyfillObject(global.Object);
+      polyfillSymbol(global)
       global.Reflect = global.Reflect || {};
       global.Reflect.global = global.Reflect.global || global;
-
-      polyfillObject(global.Object);
     }
 
     setupGlobals(global);
@@ -392,14 +403,9 @@
       continuation: createContinuation,
       createPrivateName: createPrivateName,
       exportStar: exportStar,
-      getOwnPropertyNames: $getOwnPropertyNames,
       hasNativeSymbol: hasNativeSymbolFunc,
       initTailRecursiveFunction: initTailRecursiveFunction,
       isObject: isObject,
-      isPrivateName: isPrivateName,
-      isSymbolString: isSymbolString,
-      keys: $keys,
-      newUniqueString: newUniqueString,
       options: {},
       setupGlobals: setupGlobals,
       toObject: toObject,
