@@ -18,7 +18,7 @@ import {
 } from './utils.js'
 import {deleteFrozen, getFrozen, setFrozen} from '../frozen-data.js';
 
-const {hasNativeSymbol, createPrivateName} = $traceurRuntime;
+const {hasNativeSymbol, createPrivateSymbol} = $traceurRuntime;
 const {
   defineProperty,
   getOwnPropertyDescriptor,
@@ -29,7 +29,7 @@ const {
 const deletedSentinel = {};
 
 let counter = 0;
-const hashCodeName = createPrivateName();
+const hashCodeName = createPrivateSymbol();
 
 function getHashCodeForObject(obj) {
   let hc = obj[hashCodeName];

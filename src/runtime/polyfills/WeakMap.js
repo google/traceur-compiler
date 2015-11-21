@@ -24,7 +24,7 @@ import {
 } from './utils.js'
 
 const {defineProperty, getOwnPropertyDescriptor, isExtensible} = Object;
-const {hasNativeSymbol, createPrivateName} = $traceurRuntime;
+const {hasNativeSymbol, createPrivateSymbol} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
 
@@ -32,7 +32,7 @@ const sentinel = {};
 
 export class WeakMap {
   constructor() {
-    this.name_ = createPrivateName();
+    this.name_ = createPrivateSymbol();
     this.frozenData_ = [];
   }
 

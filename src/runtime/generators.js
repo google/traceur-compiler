@@ -17,7 +17,7 @@ if (typeof $traceurRuntime !== 'object') {
 }
 
 var $TypeError = TypeError;
-var {createPrivateName} = $traceurRuntime;
+var {createPrivateSymbol} = $traceurRuntime;
 var {
   create,
   defineProperties,
@@ -211,8 +211,8 @@ function nextOrThrow(ctx, moveNext, action, x) {
   }
 }
 
-var ctxName = createPrivateName();
-var moveNextName = createPrivateName();
+var ctxName = createPrivateSymbol();
+var moveNextName = createPrivateSymbol();
 
 function GeneratorFunction() {}
 
