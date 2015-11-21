@@ -84,6 +84,30 @@
     return s;
   }
 
+  // Provide abstraction so that we can replace the symbol with a WeakMap in
+  // the future.
+  function hasPrivate(obj, sym) {
+    return hasOwnProperty.call(obj, sym);
+  }
+
+  function deletePrivate(obj, sym) {
+    if (!hasPrivate(obj, sym)) {
+      return false;
+    }
+    delete obj[sym];
+    return true;
+  }
+
+  function setPrivate(obj, sym, val) {
+    obj[sym] = val;
+  }
+
+  function getPrivate(obj, sym) {
+    var val = obj[sym];
+    if (val === undefined) return undefined;
+    return hasOwnProperty.call(obj, sym) ? val : undefined;
+  }
+
   var CONTINUATION_TYPE = Object.create(null);
 
   function createContinuation(operand, thisArg, argsArray) {
@@ -129,12 +153,12 @@
     if (isTailRecursiveName === null) {
       setupProperTailCalls();
     }
-    func[isTailRecursiveName] = true;
+    setPrivate(func, isTailRecursiveName, true);
     return func;
   }
 
   function isTailRecursive(func) {
-    return !!func[isTailRecursiveName];
+    return !!getPrivate(func, isTailRecursiveName);
   }
 
   function tailCall(func, thisArg, argArray) {
@@ -403,11 +427,15 @@
       construct: construct,
       continuation: createContinuation,
       createPrivateSymbol: createPrivateSymbol,
+      deletePrivate: deletePrivate,
       exportStar: exportStar,
+      getPrivate: getPrivate,
       hasNativeSymbol: hasNativeSymbolFunc,
+      hasPrivate: hasPrivate,
       initTailRecursiveFunction: initTailRecursiveFunction,
       isObject: isObject,
       options: {},
+      setPrivate: setPrivate,
       setupGlobals: setupGlobals,
       toObject: toObject,
       typeof: typeOf,

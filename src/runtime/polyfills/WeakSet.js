@@ -23,7 +23,14 @@ import {
 } from './utils.js'
 
 const {defineProperty, isExtensible} = Object;
-const {hasNativeSymbol, createPrivateSymbol} = $traceurRuntime;
+const {
+  createPrivateSymbol,
+  deletePrivate,
+  getPrivate,
+  hasNativeSymbol,
+  hasPrivate,
+  setPrivate,
+} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
 
@@ -38,11 +45,7 @@ export class WeakSet {
     if (!isExtensible(value)) {
       setFrozen(this.frozenData_, value, value);
     } else {
-      defineProperty(value, this.name_, {
-        configurable: true,
-        value: true,
-        writable: true,
-      });
+      setPrivate(value, this.name_, true);
     }
     return this;
   }
@@ -52,7 +55,7 @@ export class WeakSet {
     if (!isExtensible(value)) {
       return deleteFrozen(this.frozenData_, value);
     }
-    return hasOwnProperty.call(value, this.name_) && delete value[this.name_];
+    return deletePrivate(value, this.name_);
   }
 
   has(value) {
@@ -60,7 +63,7 @@ export class WeakSet {
     if (!isExtensible(value)) {
       return getFrozen(this.frozenData_, value) === value;
     }
-    return hasOwnProperty.call(value, this.name_);
+    return hasPrivate(value, this.name_);
   }
 }
 
