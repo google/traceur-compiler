@@ -658,7 +658,7 @@ export class Parser {
         }
         break;
     }
-    return this.parseUnexpectedToken_(peekToken());
+    return this.parseUnexpectedToken_();
   }
 
   // https://bugs.ecmascript.org/show_bug.cgi?id=2287
@@ -731,7 +731,7 @@ export class Parser {
           exportTree = this.parseVariableStatement_();
           break;
         }
-        return this.parseUnexpectedToken_(peekToken());
+        return this.parseUnexpectedToken_();
       case VAR:
         exportTree = this.parseVariableStatement_();
         break;
@@ -757,12 +757,14 @@ export class Parser {
           exportTree = this.parseTypeAliasDeclaration_();
         } else if (this.options_.exportFromExtended) {
           exportTree = this.parseNamedExport_();
+        } else {
+          return this.parseUnexpectedToken_();
         }
         break;
       default: {
         let token = peekToken();
         if (!token.isKeyword()) {
-          return this.parseUnexpectedToken_(peekToken());
+          return this.parseUnexpectedToken_();
         }
         exportTree = this.parseNamedExport_();
       }
@@ -1463,7 +1465,7 @@ export class Parser {
 
     switch (peekType()) {
       case OPEN_CURLY:
-        return this.parseUnexpectedToken_(peekToken());
+        return this.parseUnexpectedToken_();
       case FUNCTION:
       case CLASS:
         return this.parseUnexpectedReservedWord_(peekToken());
@@ -2153,7 +2155,7 @@ export class Parser {
       }
     }
 
-    return this.parseUnexpectedToken_(peekToken());
+    return this.parseUnexpectedToken_();
   }
 
   /**
@@ -2728,7 +2730,7 @@ export class Parser {
    * @param {Token} token
    * @return {SyntaxErrorTree}
    */
-  parseUnexpectedToken_(token) {
+  parseUnexpectedToken_(token = peekToken()) {
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
       return this.parseSyntaxError_('Unexpected token `');
     }
@@ -3950,7 +3952,7 @@ export class Parser {
 
 
       default:
-        return this.parseUnexpectedToken_(peekToken());
+        return this.parseUnexpectedToken_();
     }
 
     return this.parseArrayTypeSuffix_(start, elementType);
