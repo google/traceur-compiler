@@ -24,7 +24,14 @@ import {
 } from './utils.js'
 
 const {defineProperty, getOwnPropertyDescriptor, isExtensible} = Object;
-const {hasNativeSymbol, createPrivateSymbol} = $traceurRuntime;
+const {
+  createPrivateSymbol,
+  deletePrivate,
+  getPrivate,
+  hasNativeSymbol,
+  hasPrivate,
+  setPrivate
+} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
 
@@ -41,11 +48,7 @@ export class WeakMap {
     if (!isExtensible(key)) {
       setFrozen(this.frozenData_, key, value);
     } else {
-      defineProperty(key, this.name_, {
-        configurable: true,
-        value,
-        writable: true,
-      });
+      setPrivate(key, this.name_, value);
     }
     return this;
   }
@@ -55,8 +58,7 @@ export class WeakMap {
     if (!isExtensible(key)) {
       return getFrozen(this.frozenData_, key);
     }
-    let desc = getOwnPropertyDescriptor(key, this.name_);
-    return desc && desc.value;
+    return getPrivate(key, this.name_);
   }
 
   delete(key) {
@@ -64,7 +66,7 @@ export class WeakMap {
     if (!isExtensible(key)) {
       return deleteFrozen(this.frozenData_, key);
     }
-    return hasOwnProperty.call(key, this.name_) && delete key[this.name_];
+    return deletePrivate(key, this.name_);
   }
 
   has(key) {
@@ -72,7 +74,7 @@ export class WeakMap {
     if (!isExtensible(key)) {
       return hasFrozen(this.frozenData_, key);
     }
-    return hasOwnProperty.call(key, this.name_);
+    return hasPrivate(key, this.name_);
   }
 }
 

@@ -16,14 +16,12 @@ if (typeof $traceurRuntime !== 'object') {
   throw new Error('traceur runtime not found.');
 }
 
-var {createPrivateSymbol} = $traceurRuntime;
+var {createPrivateSymbol, getPrivate, setPrivate} = $traceurRuntime;
 var {
   create,
   defineProperty,
 } = Object;
 
-var thisName = createPrivateSymbol();
-var argsName = createPrivateSymbol();
 var observeName = createPrivateSymbol();
 
 function AsyncGeneratorFunction() {}
@@ -102,7 +100,7 @@ class AsyncGeneratorContext {
 
 AsyncGeneratorFunctionPrototype.prototype[Symbol.observer] =
     function (observer) {
-      var observe = this[observeName];
+      var observe = getPrivate(this, observeName);
       var ctx = new AsyncGeneratorContext(observer);
       $traceurRuntime.schedule(() => observe(ctx)).then(value => {
         if (!ctx.done) {
@@ -128,9 +126,7 @@ function initAsyncGeneratorFunction(functionObject) {
 
 function createAsyncGeneratorInstance(observe, functionObject, ...args) {
   var object = create(functionObject.prototype);
-  object[thisName] = this;
-  object[argsName] = args;
-  object[observeName] = observe;
+  setPrivate(object, observeName, observe);
   return object;
 }
 

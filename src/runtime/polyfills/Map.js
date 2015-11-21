@@ -18,7 +18,12 @@ import {
 } from './utils.js'
 import {deleteFrozen, getFrozen, setFrozen} from '../frozen-data.js';
 
-const {hasNativeSymbol, createPrivateSymbol} = $traceurRuntime;
+const {
+  createPrivateSymbol,
+  getPrivate,
+  hasNativeSymbol,
+  setPrivate
+} = $traceurRuntime;
 const {
   defineProperty,
   getOwnPropertyDescriptor,
@@ -28,24 +33,20 @@ const {
 
 const deletedSentinel = {};
 
-let counter = 0;
+let counter = 1;
 const hashCodeName = createPrivateSymbol();
 
 function getHashCodeForObject(obj) {
-  let hc = obj[hashCodeName];
-  if (hc === undefined || !hasOwnProperty.call(obj, hashCodeName)) {
-    return undefined;
-  }
-  return hc;
+  return getPrivate(obj, hashCodeName);
 }
 
 function getOrSetHashCodeForObject(obj) {
-  if (hasOwnProperty.call(obj, hashCodeName)) {
-    return obj[hashCodeName];
+  let hash = getHashCodeForObject(obj);
+  if (!hash) {
+    hash = counter++;
+    setPrivate(obj, hashCodeName, hash);
   }
-  let hc = counter++;
-  defineProperty(obj, hashCodeName, {value: hc});
-  return hc;
+  return hash;
 }
 
 function lookupIndex(map, key) {
