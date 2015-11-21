@@ -19,12 +19,34 @@ import {
 import {deleteFrozen, getFrozen, setFrozen} from '../frozen-data.js';
 
 const {hasNativeSymbol, newUniqueString} = $traceurRuntime;
-const {hasOwnProperty, getOwnPropertyDescriptor, isExtensible} = Object;
+const {
+  defineProperty,
+  getOwnPropertyDescriptor,
+  hasOwnProperty,
+  isExtensible
+} = Object;
 
 const deletedSentinel = {};
 
 let counter = 0;
 const hashCodeName = newUniqueString();
+
+function getHashCodeForObject(obj) {
+  let hc = obj[hashCodeName];
+  if (hc === undefined || !hasOwnProperty.call(obj, hashCodeName)) {
+    return undefined;
+  }
+  return hc;
+}
+
+function getOrSetHashCodeForObject(obj) {
+  if (hasOwnProperty.call(obj, hashCodeName)) {
+    return obj[hashCodeName];
+  }
+  let hc = counter++;
+  defineProperty(obj, hashCodeName, {value: hc});
+  return hc;
+}
 
 function lookupIndex(map, key) {
   if (typeof key === 'string') {
@@ -34,11 +56,11 @@ function lookupIndex(map, key) {
     if (!isExtensible(key)) {
       return getFrozen(map.frozenData_, key);
     }
-    let i = key[hashCodeName];
-    if (i === undefined) {
+    let hc = getHashCodeForObject(key);
+    if (hc === undefined) {
       return undefined;
     }
-    return hasOwnProperty.call(key, hashCodeName) ? i : undefined;
+    return map.objectIndex_[hc];
   }
   return map.primitiveIndex_[key];
 }
@@ -99,13 +121,7 @@ export class Map {
         if (!isExtensible(key)) {
           setFrozen(this.frozenData_, key, index);
         } else {
-          let hash;
-          if (hasOwnProperty.call(key, hashCodeName)) {
-            hash = key[hashCodeName];
-          } else {
-            hash = counter++;
-            defineProperty(key, {value: hash});
-          }
+          let hash = getOrSetHashCodeForObject(key);
           this.objectIndex_[hash] = index;
         }
       } else if (typeof key === 'string') {
@@ -136,7 +152,7 @@ export class Map {
       if (!isExtensible(key)) {
         deleteFrozen(this.frozenData_, key);
       } else {
-        let hash = key[hashCodeName];
+        let hash = getHashCodeForObject(key);
         delete this.objectIndex_[hash];
       }
     } else if (typeof key === 'string') {
@@ -201,7 +217,7 @@ export class Map {
   }
 }
 
-Object.defineProperty(Map.prototype, Symbol.iterator, {
+defineProperty(Map.prototype, Symbol.iterator, {
   configurable: true,
   writable: true,
   value: Map.prototype.entries
