@@ -27,12 +27,10 @@
   var $TypeError = TypeError;
   var $create = $Object.create;
   var $defineProperty = $Object.defineProperty;
-  var $freeze = $Object.freeze;
+  var {freeze} = $Object;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $keys = $Object.keys;
   var $toString = $Object.prototype.toString;
-  var $preventExtensions = Object.preventExtensions;
-  var $seal = Object.seal;
   var $isExtensible = Object.isExtensible;
   var $apply = Function.prototype.call.bind(Function.prototype.apply)
   var random = Math.random;
@@ -268,56 +266,6 @@
       enumerable: false
     });
 
-    var hashProperty = createPrivateName();
-
-    // cached objects to avoid allocation of new object in defineHashObject
-    var hashPropertyDescriptor = {
-      value: undefined
-    };
-    var hashObjectProperties = {
-      hash: {
-        value: undefined
-      },
-      self: {
-        value: undefined
-      }
-    };
-
-    var hashCounter = 0;
-    function getOwnHashObject(object) {
-      var hashObject = object[hashProperty];
-      // Make sure we got the own property
-      if (hashObject && hashObject.self === object)
-        return hashObject;
-
-      if ($isExtensible(object)) {
-        hashObjectProperties.hash.value = hashCounter++;
-        hashObjectProperties.self.value = object;
-
-        hashPropertyDescriptor.value = $create(null, hashObjectProperties);
-
-        $defineProperty(object, hashProperty, hashPropertyDescriptor);
-        return hashPropertyDescriptor.value;
-      }
-
-      return undefined;
-    }
-
-    function freeze(object) {
-      getOwnHashObject(object);
-      return $freeze.apply(this, arguments);
-    }
-
-    function preventExtensions(object) {
-      getOwnHashObject(object);
-      return $preventExtensions.apply(this, arguments);
-    }
-
-    function seal(object) {
-      getOwnHashObject(object);
-      return $seal.apply(this, arguments);
-    }
-
     freeze(SymbolValue.prototype);
 
     /**
@@ -363,9 +311,6 @@
     function polyfillObject(Object) {
       $defineProperty(Object, 'getOwnPropertyNames',
                       {value: getOwnPropertyNames});
-      $defineProperty(Object, 'freeze', {value: freeze});
-      $defineProperty(Object, 'preventExtensions', {value: preventExtensions});
-      $defineProperty(Object, 'seal', {value: seal});
       $defineProperty(Object, 'keys', {value: keys});
       // getOwnPropertySymbols is added in polyfillSymbol.
     }
@@ -447,7 +392,6 @@
       continuation: createContinuation,
       createPrivateName: createPrivateName,
       exportStar: exportStar,
-      getOwnHashObject: getOwnHashObject,
       getOwnPropertyNames: $getOwnPropertyNames,
       hasNativeSymbol: hasNativeSymbolFunc,
       initTailRecursiveFunction: initTailRecursiveFunction,

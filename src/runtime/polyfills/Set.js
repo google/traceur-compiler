@@ -18,26 +18,21 @@ import {
 } from './utils.js';
 import {Map} from './Map.js'
 
-var getOwnHashObject = $traceurRuntime.getOwnHashObject;
-var $hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function initSet(set) {
-  set.map_ = new Map();
-}
+let {hasOwnProperty} = Object.prototype;
 
 export class Set {
   constructor(iterable = undefined) {
     if (!isObject(this))
       throw new TypeError('Set called on incompatible type');
 
-    if ($hasOwnProperty.call(this, 'map_')) {
+    if (hasOwnProperty.call(this, 'map_')) {
       throw new TypeError('Set can not be reentrantly initialised');
     }
 
-    initSet(this);
+    this.map_ = new Map();
 
     if (iterable !== null && iterable !== undefined) {
-      for (var item of iterable) {
+      for (let item of iterable) {
         this.add(item);
       }
     }
@@ -93,7 +88,7 @@ Object.defineProperty(Set.prototype, 'keys', {
 });
 
 function needsPolyfill(global) {
-  var {Set, Symbol} = global;
+  let {Set, Symbol} = global;
   if (!Set || !$traceurRuntime.hasNativeSymbol() ||
       !Set.prototype[Symbol.iterator] || !Set.prototype.values) {
     return true;
