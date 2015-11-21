@@ -12,6 +12,11 @@ var frozenKey = Object.freeze({});
 
 assert.equal(t.size, 0);
 
+assert.isUndefined(t.get(objectKey));
+assert.isUndefined(t.get(frozenKey));
+assert.isFalse(t.has(objectKey));
+assert.isFalse(t.has(frozenKey));
+
 t.set(undefinedKey, 'value8');
 t.set(nullKey, 'value9');
 t.set(stringKey, 'value5');

@@ -11,6 +11,9 @@ var zeroKey = 0;
 var frozenKey = Object.freeze({});
 var addReturnValue;
 
+assert.isFalse(t.has(objectKey));
+assert.isFalse(t.has(frozenKey));
+
 t.add(objectKey);
 t.add(stringKey);
 t.add(numberKey);
