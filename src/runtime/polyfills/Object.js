@@ -18,14 +18,10 @@ import {
 } from './utils.js';
 
 var {
-  getOwnPropertyNames,
-  isPrivateName,
-  keys,
-} = $traceurRuntime;
-
-var {
   defineProperty,
   getOwnPropertyDescriptor,
+  getOwnPropertyNames,
+  keys
 } = Object;
 
 // Object.is
@@ -45,7 +41,6 @@ export function assign(target) {
     var p, length = props.length;
     for (p = 0; p < length; p++) {
       var name = props[p];
-      if (isPrivateName(name)) continue;
       target[name] = source[name];
     }
   }
@@ -58,7 +53,6 @@ export function mixin(target, source) {
   var p, descriptor, length = props.length;
   for (p = 0; p < length; p++) {
     var name = props[p];
-    if (isPrivateName(name)) continue;
     descriptor = getOwnPropertyDescriptor(source, props[p]);
     defineProperty(target, props[p], descriptor);
   }

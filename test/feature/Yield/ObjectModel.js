@@ -18,6 +18,9 @@ assert.equal(g.__proto__, f.prototype);
 assert.deepEqual([], Object.getOwnPropertyNames(f.prototype));
 assert.deepEqual([], Object.getOwnPropertyNames(g));
 
+assert.deepEqual([], Object.getOwnPropertySymbols(f.prototype));
+assert.deepEqual([], Object.getOwnPropertySymbols(g));
+
 f.prototype.x = 42;
 
 var g2 = f();

@@ -23,13 +23,13 @@ import {
 } from './utils.js'
 
 const {defineProperty, isExtensible} = Object;
-const {hasNativeSymbol, newUniqueString} = $traceurRuntime;
+const {hasNativeSymbol, createPrivateName} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
 
 export class WeakSet {
   constructor() {
-    this.name_ = newUniqueString();
+    this.name_ = createPrivateName();
     this.frozenData_ = [];
   }
 
