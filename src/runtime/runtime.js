@@ -141,100 +141,6 @@
     };
   }
 
-  var CONTINUATION_TYPE = Object.create(null);
-
-  function createContinuation(operand, thisArg, argsArray) {
-    return [CONTINUATION_TYPE, operand, thisArg, argsArray];
-  }
-
-  function isContinuation(object) {
-    return object && object[0] === CONTINUATION_TYPE;
-  }
-
-  var isTailRecursiveName = null;
-
-  function setupProperTailCalls() {
-    isTailRecursiveName = createPrivateSymbol();
-
-    // By 19.2.3.1 and 19.2.3.3, Function.prototype.call and
-    // Function.prototype.apply do proper tail calls.
-
-    Function.prototype.call = initTailRecursiveFunction(
-        function call(thisArg) {
-          var result = tailCall(function (thisArg) {
-            var argArray = [];
-            for (var i = 1; i < arguments.length; ++i) {
-              argArray[i - 1] = arguments[i];
-            }
-            var continuation = createContinuation(this, thisArg, argArray);
-            return continuation; // prevent tail call
-          }, this, arguments);
-          return result; // prevent tail call
-        });
-
-    Function.prototype.apply = initTailRecursiveFunction(
-        function apply(thisArg, argArray) {
-          var result = tailCall(function (thisArg, argArray) {
-            var continuation = createContinuation(this, thisArg, argArray);
-            return continuation; // prevent tail call
-          }, this, arguments);
-          return result; // prevent tail call
-        });
-  }
-
-  function initTailRecursiveFunction(func) {
-    if (isTailRecursiveName === null) {
-      setupProperTailCalls();
-    }
-    setPrivate(func, isTailRecursiveName, true);
-    return func;
-  }
-
-  function isTailRecursive(func) {
-    return !!getPrivate(func, isTailRecursiveName);
-  }
-
-  function tailCall(func, thisArg, argArray) {
-    var continuation = argArray[0];
-    if (isContinuation(continuation)) {
-      continuation = $apply(func, thisArg, continuation[3]);
-      return continuation; // prevent tail call
-    }
-    continuation = createContinuation(func, thisArg, argArray);
-    while (true) {
-      if (isTailRecursive(func)) {
-        continuation = $apply(func, continuation[2], [continuation]);
-      } else {
-        continuation = $apply(func, continuation[2], continuation[3]);
-      }
-      if (!isContinuation(continuation)) {
-        return continuation;
-      }
-      func = continuation[1];
-    }
-  }
-
-  function construct() {
-    var object;
-    if (isTailRecursive(this)) {
-      object = $construct(this, [createContinuation(null, null, arguments)]);
-    } else  {
-      object = $construct(this, arguments);
-    }
-    return object; // prevent tail call
-  }
-
-  // This definition that follows is the last setup to support proper tail
-  // calls in subsequent code. At the end, the global $traceurRuntime object
-  // will be set up.
-
-  var $traceurRuntime = {
-    initTailRecursiveFunction: initTailRecursiveFunction,
-    call: tailCall,
-    continuation: createContinuation,
-    construct: construct
-  };
-
   (function () {
     // This has to be an IIFE as calls to initTailRecursiveFunction are hoisted
     // and should not appear before it is set above.
@@ -358,8 +264,6 @@
       return removeSymbolKeys($keys(object));
     }
 
-
-
     var getOwnPropertySymbolsEmulate = function getOwnPropertySymbols(object) {
       var rv = [];
       var names = $getOwnPropertyNames(object);
@@ -458,17 +362,13 @@
         x => x instanceof SymbolValue ? 'symbol' : typeof x;
 
     global.$traceurRuntime = {
-      call: tailCall,
       checkObjectCoercible: checkObjectCoercible,
-      construct: construct,
-      continuation: createContinuation,
       createPrivateSymbol: createPrivateSymbol,
       deletePrivate: deletePrivate,
       exportStar: exportStar,
       getPrivate: getPrivate,
       hasNativeSymbol: hasNativeSymbolFunc,
       hasPrivate: hasPrivate,
-      initTailRecursiveFunction: initTailRecursiveFunction,
       isObject: isObject,
       options: {},
       setPrivate: setPrivate,

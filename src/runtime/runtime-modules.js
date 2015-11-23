@@ -14,6 +14,7 @@
 
 /** @fileoverview import all runtime modules, eg for Traceur self-build. */
 
+import './proper-tail-calls.js';
 import './relativeRequire.js';
 import './spread.js';
 import './destructuring.js';

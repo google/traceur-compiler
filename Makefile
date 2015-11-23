@@ -20,6 +20,7 @@ POLYFILL_SRC = \
 RUNTIME_MODULES = src/runtime/runtime-modules.js
 
 INDIVIDUAL_RUNTIME_MODULES = \
+  src/runtime/proper-tail-calls.js \
   src/runtime/relativeRequire.js \
   src/runtime/spread.js \
   src/runtime/destructuring.js \
