@@ -30,11 +30,14 @@
   var $freeze = $Object.freeze;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $keys = $Object.keys;
-  var $toString = $Object.prototype.toString;
-  var $isExtensible = Object.isExtensible;
   var $apply = Function.prototype.call.bind(Function.prototype.apply)
   var $random = Math.random;
   var $getOwnPropertySymbols = $Object.getOwnPropertySymbols;
+  var $Symbol = global.Symbol;
+  var $WeakMap = global.WeakMap;
+
+  var hasNativeSymbol = $getOwnPropertySymbols && typeof $Symbol === 'function';
+  var hasNativeWeakMap = typeof $WeakMap === 'function';
 
   function $bind(operand, thisArg, args) {
     // args may be an arguments-like object
@@ -51,9 +54,6 @@
     return object; // prevent tail call
   }
 
-
-  var hasNativeSymbol = typeof global.Symbol === 'function';
-
   // ### Support for proper tail recursion
   //
   // This has to come before any function below that uses tail recursion.
@@ -69,43 +69,76 @@
     return '__$' + ($random() * 1e9 >>> 1) + '$' + ++counter + '$__';
   }
 
-  // Private names are a bit simpler than Symbol since it is not supposed to be
-  // exposed to user code.
-  var privateNames = $create(null);
+  var createPrivateSymbol, deletePrivate, getPrivate, hasPrivate,
+      isPrivateSymbol, setPrivate;
 
-  function isPrivateName(s) {
-    return privateNames[s];
-  }
-
-  // This creates a Symbol that we filter out in getOwnPropertySymbols.
-  function createPrivateSymbol() {
-    var s = hasNativeSymbol ? Symbol() : newUniqueString();
-    privateNames[s] = true;
-    return s;
-  }
-
-  // Provide abstraction so that we can replace the symbol with a WeakMap in
-  // the future.
-  function hasPrivate(obj, sym) {
-    return hasOwnProperty.call(obj, sym);
-  }
-
-  function deletePrivate(obj, sym) {
-    if (!hasPrivate(obj, sym)) {
+  if (hasNativeWeakMap) {
+    isPrivateSymbol = function(s) {
       return false;
-    }
-    delete obj[sym];
-    return true;
-  }
+    };
 
-  function setPrivate(obj, sym, val) {
-    obj[sym] = val;
-  }
+    // This creates a Symbol that we filter out in getOwnPropertySymbols.
+    createPrivateSymbol = function() {
+      return new $WeakMap();
+    };
 
-  function getPrivate(obj, sym) {
-    var val = obj[sym];
-    if (val === undefined) return undefined;
-    return hasOwnProperty.call(obj, sym) ? val : undefined;
+    // Provide abstraction so that we can replace the symbol with a WeakMap in
+    // the future.
+    hasPrivate = function(obj, sym) {
+      return sym.has(obj);
+    };
+
+    deletePrivate = function(obj, sym) {
+      return sym.delete(obj);
+    };
+
+    setPrivate = function(obj, sym, val) {
+      sym.set(obj, val);
+    };
+
+    getPrivate = function(obj, sym) {
+      return sym.get(obj);
+    };
+  } else {
+    // Uses Symbol or Symbol polyfill.
+    // We override getOwnPropertySymbols to filter out these private symbols.
+
+    var privateNames = $create(null);
+
+    isPrivateSymbol = function(s) {
+      return privateNames[s];
+    };
+
+    // This creates a Symbol that we filter out in getOwnPropertySymbols.
+    createPrivateSymbol = function() {
+      var s = hasNativeSymbol ? $Symbol() : newUniqueString();
+      privateNames[s] = true;
+      return s;
+    };
+
+    // Provide abstraction so that we can replace the symbol with a WeakMap in
+    // the future.
+    hasPrivate = function(obj, sym) {
+      return hasOwnProperty.call(obj, sym);
+    };
+
+    deletePrivate = function(obj, sym) {
+      if (!hasPrivate(obj, sym)) {
+        return false;
+      }
+      delete obj[sym];
+      return true;
+    };
+
+    setPrivate = function(obj, sym, val) {
+      obj[sym] = val;
+    };
+
+    getPrivate = function(obj, sym) {
+      var val = obj[sym];
+      if (val === undefined) return undefined;
+      return hasOwnProperty.call(obj, sym) ? val : undefined;
+    };
   }
 
   var CONTINUATION_TYPE = Object.create(null);
@@ -303,7 +336,7 @@
      * getOwnPropertyKeys and for-in loops.
      */
     function isSymbolString(s) {
-      return symbolValues[s] || privateNames[s];
+      return symbolValues[s] || isPrivateSymbol(s);
     }
 
     function removeSymbolKeys(array) {
@@ -325,33 +358,31 @@
       return removeSymbolKeys($keys(object));
     }
 
-    var getOwnPropertySymbolsImpl = function getOwnPropertySymbols(object) {
+
+
+    var getOwnPropertySymbolsEmulate = function getOwnPropertySymbols(object) {
       var rv = [];
-      if ($getOwnPropertySymbols) {
-        var symbols = $getOwnPropertySymbols(object);
-        for (var i = 0; i < symbols.length; i++) {
-          var symbol = symbols[i];
-          if (!isPrivateName(symbol)) {
-            rv.push(symbol);
-          }
-        }
-      } else {
-        var names = $getOwnPropertyNames(object);
-        for (var i = 0; i < names.length; i++) {
-          var symbol = symbolValues[names[i]];
-          if (symbol) {
-            rv.push(symbol);
-          }
+      var names = $getOwnPropertyNames(object);
+      for (var i = 0; i < names.length; i++) {
+        var symbol = symbolValues[names[i]];
+        if (symbol) {
+          rv.push(symbol);
         }
       }
       return rv;
     };
 
-    function polyfillObject(Object) {
-      // Override/define to support private symbols
-      $defineProperty(Object, 'getOwnPropertySymbols',
-          nonEnum(getOwnPropertySymbolsImpl));
-    }
+    var getOwnPropertySymbolsPrivate = function getOwnPropertySymbols(object) {
+      var rv = [];
+      var symbols = $getOwnPropertySymbols(object);
+      for (var i = 0; i < symbols.length; i++) {
+        var symbol = symbols[i];
+        if (!isPrivateSymbol(symbol)) {
+          rv.push(symbol);
+        }
+      }
+      return rv;
+    };
 
     function exportStar(object) {
       for (var i = 1; i < arguments.length; i++) {
@@ -394,7 +425,13 @@
         let {Object} = global;
         Object.getOwnPropertyNames = getOwnPropertyNames;
         Object.keys = keys;
-        // getOwnPropertySymbols is done in polyfillObject.
+        $defineProperty(Object, 'getOwnPropertySymbols',
+            nonEnum(getOwnPropertySymbolsEmulate));
+      } else if (!hasNativeWeakMap) {
+        // We have native symbols but we are overriding getOwnPropertySymbols
+        // to filter out the symbols we use for private state.
+        $defineProperty(Object, 'getOwnPropertySymbols',
+            nonEnum(getOwnPropertySymbolsPrivate));
       }
 
       if (!global.Symbol.iterator) {
@@ -410,7 +447,6 @@
     }
 
     function setupGlobals(global) {
-      polyfillObject(global.Object);
       polyfillSymbol(global)
       global.Reflect = global.Reflect || {};
       global.Reflect.global = global.Reflect.global || global;
