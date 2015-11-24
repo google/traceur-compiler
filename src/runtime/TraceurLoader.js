@@ -258,7 +258,8 @@ export class TraceurLoader extends Loader {
   }
 
   get version() {
-    return version;
+    // Fall back to deprecated __moduleName version for one release.
+    return $traceurRuntime.ModuleStore.getCompilerVersion() || version;
   }
 
   /**
