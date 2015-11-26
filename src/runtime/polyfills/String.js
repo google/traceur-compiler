@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import checkObjectCoercible from '../checkObjectCoercible.js';
 import {createStringIterator} from './StringIterator.js';
 import {
   maybeAddFunctions,
@@ -209,7 +210,7 @@ export function fromCodePoint(_) {  // length = 1
 
 // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype-@@iterator
 export function stringPrototypeIterator() {
-  var o = $traceurRuntime.checkObjectCoercible(this);
+  var o = checkObjectCoercible(this);
   var s = String(o);
   return createStringIterator(s);
 }
