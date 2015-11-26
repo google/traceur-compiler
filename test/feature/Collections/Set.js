@@ -52,17 +52,16 @@ assert.isTrue(t.has(0));
 // assert.isTrue(t.has(-0));
 
 var expected = [
-  undefinedKey,
-  nullKey,
+  objectKey,
   stringKey,
   numberKey,
   booleanKey,
-  objectKey,
+  undefinedKey,
+  nullKey,
   nanKey,
+  frozenKey,
   zeroKey,
-  frozenKey
 ];
-expected.sort();
 
 
 // forEach
@@ -83,8 +82,6 @@ t.forEach(function(val, val2, obj) {
 }, context);
 
 assert.equal(cnt, 9);
-
-arr.sort();
 assertArrayEquals(arr, expected);
 
 // iterator
@@ -96,9 +93,6 @@ for (var setIterVal of t) {
   cnt++;
 }
 assert.equal(cnt, 9);
-
-
-arr.sort();
 assertArrayEquals(arr, expected);
 
 // .values()
@@ -110,9 +104,6 @@ for (var setIterVal of t.values()) {
   cnt++;
 }
 assert.equal(cnt, 9);
-
-
-arr.sort();
 assertArrayEquals(arr, expected);
 
 var t3 = new Set([[], {}, NaN]);
@@ -125,6 +116,7 @@ assert.equal(t3.size, 2);
 t3.clear();
 assert.equal(t3.size, 0);
 
+
 // .keys()
 var t4 = new Set();
 var iter = t4.keys();
@@ -135,7 +127,6 @@ assert.deepEqual(iter.next(), {value: objectKey, done: false});
 assert.deepEqual(iter.next(), {value: stringKey, done: false});
 t4.delete(nanKey);
 assert.deepEqual(iter.next(), {value: undefined, done: true});
-
 assert.equal(Set.prototype.keys, Set.prototype.values);
 
 // .entries()
@@ -148,5 +139,4 @@ assert.deepEqual(iter.next(), {value: [objectKey, objectKey], done: false});
 assert.deepEqual(iter.next(), {value: [stringKey, stringKey], done: false});
 t5.delete(nanKey);
 assert.deepEqual(iter.next(), {value: undefined, done: true});
-
 assert.equal(Set.prototype[Symbol.iterator], Set.prototype.values);
