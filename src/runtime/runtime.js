@@ -305,10 +305,6 @@
       return object;
     }
 
-    function isObject(x) {
-      return x != null && (typeof x === 'object' || typeof x === 'function');
-    }
-
     function toObject(x) {
       if (x == null)
         throw $TypeError();
@@ -369,7 +365,6 @@
       getPrivate: getPrivate,
       hasNativeSymbol: hasNativeSymbolFunc,
       hasPrivate: hasPrivate,
-      isObject: isObject,
       options: {},
       setPrivate: setPrivate,
       setupGlobals: setupGlobals,
