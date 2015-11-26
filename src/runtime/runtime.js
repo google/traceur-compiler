@@ -288,23 +288,6 @@
       return rv;
     };
 
-    function exportStar(object) {
-      for (var i = 1; i < arguments.length; i++) {
-        var names = $getOwnPropertyNames(arguments[i]);
-        for (var j = 0; j < names.length; j++) {
-          var name = names[j];
-          if (name === '__esModule' || name === 'default' || isSymbolString(name)) continue;
-          (function(mod, name) {
-            $defineProperty(object, name, {
-              get: function() { return mod[name]; },
-              enumerable: true
-            });
-          })(arguments[i], names[j]);
-        }
-      }
-      return object;
-    }
-
     function toObject(x) {
       if (x == null)
         throw $TypeError();
@@ -361,10 +344,10 @@
       checkObjectCoercible: checkObjectCoercible,
       createPrivateSymbol: createPrivateSymbol,
       deletePrivate: deletePrivate,
-      exportStar: exportStar,
       getPrivate: getPrivate,
       hasNativeSymbol: hasNativeSymbolFunc,
       hasPrivate: hasPrivate,
+      isSymbolString: isSymbolString,
       options: {},
       setPrivate: setPrivate,
       setupGlobals: setupGlobals,
