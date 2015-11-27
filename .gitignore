@@ -9,6 +9,9 @@
 bin/traceur-runtime.js
 bin/traceur.js
 bin/traceur.js.map
+bin/traceur-from-no-modules.js
+bin/traceur-es6-no-modules.js
+build/es6-no-modules/
 build/compiled-by-previous-traceur.js
 build/node
 build/npm-version-number
