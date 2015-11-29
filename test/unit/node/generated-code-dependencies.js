@@ -60,8 +60,13 @@ suite('context test', function() {
       if (debug)
         context.debugGenerated = true;
 
-      vm.runInNewContext(runtime + output, context, fileName);
-
+      try {
+        vm.runInNewContext(runtime + output, context, fileName);
+      } catch (ex) {
+        console.error('Executing (bin/traceur-runtime.js + transcoded ' +
+            fileName + ') failed', ex);
+        return ex;
+      }
       return context.result;
     });
   }
