@@ -284,6 +284,14 @@
     getAnonymousModule(func) {
       return new Module(func.call(global), liveModuleSentinel);
     },
+
+    setCompilerVersion(version) {
+      ModuleStore.compilerVersion = version;
+    },
+
+    getCompilerVersion() {
+      return ModuleStore.compilerVersion;
+    }
   };
 
   var moduleStoreModule = new Module({ModuleStore});
@@ -302,6 +310,8 @@
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
+    setCompilerVersion: ModuleStore.setCompilerVersion,
+    getCompilerVersion: ModuleStore.getCompilerVersion,
   };
 
 })(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);

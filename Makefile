@@ -203,6 +203,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --source-maps=file --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+	echo "System.setCompilerVersion('traceur@$(PACKAGE_VERSION)');\n" >> $@
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
