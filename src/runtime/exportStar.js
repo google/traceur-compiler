@@ -12,14 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @fileoverview import all runtime modules, eg for Traceur self-build. */
+const {defineProperty, getOwnPropertyNames} = Object;
+const {isSymbolString} = $traceurRuntime;
 
-import './exportStar.js';
-import './properTailCalls.js';
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './classes.js';
-import './async.js';
-import './generators.js';
-import './template.js';
+function exportStar(object) {
+  for (let i = 1; i < arguments.length; i++) {
+    let mod = arguments[i];
+    let names = getOwnPropertyNames(mod);
+    for (let j = 0; j < names.length; j++) {
+      let name = names[j];
+      if (name === '__esModule' || name === 'default' || isSymbolString(name)) {
+        continue;
+      }
+      defineProperty(object, name, {
+        get: () => mod[name],
+        enumerable: true
+      });
+    }
+  }
+  return object;
+}
+
+$traceurRuntime.exportStar = exportStar;
