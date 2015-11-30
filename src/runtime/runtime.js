@@ -294,14 +294,6 @@
       return $Object(x);
     }
 
-    // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-checkobjectcoercible
-    function checkObjectCoercible(argument) {
-      if (argument == null) {
-        throw new TypeError('Value cannot be converted to an Object');
-      }
-      return argument;
-    }
-
     function polyfillSymbol(global) {
       if (!hasNativeSymbol) {
         global.Symbol = SymbolImpl;
@@ -341,7 +333,6 @@
         x => x instanceof SymbolValue ? 'symbol' : typeof x;
 
     global.$traceurRuntime = {
-      checkObjectCoercible: checkObjectCoercible,
       createPrivateSymbol: createPrivateSymbol,
       deletePrivate: deletePrivate,
       getPrivate: getPrivate,
