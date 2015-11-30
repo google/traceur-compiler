@@ -433,7 +433,7 @@ export class InternalLoader {
         this.abortAll(`No module specifiers in ${referrerName}`);
         return;
       }
-      codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
+      codeUnit.dependencies = moduleSpecifiers.map((name) => {
         return this.getOrCreateCodeUnit_(name, referrerName, null,
             this.defaultModuleMetadata_(codeUnit.metadata));
       });
