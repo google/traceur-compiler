@@ -30,7 +30,6 @@
   var $freeze = $Object.freeze;
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $keys = $Object.keys;
-  var $apply = Function.prototype.call.bind(Function.prototype.apply)
   var $random = Math.random;
   var $getOwnPropertySymbols = $Object.getOwnPropertySymbols;
   var $Symbol = global.Symbol;
@@ -38,26 +37,6 @@
 
   var hasNativeSymbol = $getOwnPropertySymbols && typeof $Symbol === 'function';
   var hasNativeWeakMap = typeof $WeakMap === 'function';
-
-  function $bind(operand, thisArg, args) {
-    // args may be an arguments-like object
-    var argArray = [thisArg];
-    for (var i = 0; i < args.length; i++) {
-      argArray[i + 1] = args[i];
-    }
-    var func = $apply(Function.prototype.bind, operand, argArray);
-    return func; // prevent tail call
-  }
-
-  function $construct(func, argArray) {
-    var object = new ($bind(func, null, argArray));
-    return object; // prevent tail call
-  }
-
-  // ### Support for proper tail recursion
-  //
-  // This has to come before any function below that uses tail recursion.
-  // Every call is the following functions is deliberately not in tail position.
 
   var counter = Date.now() % 1e9;
 
