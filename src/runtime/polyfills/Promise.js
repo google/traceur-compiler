@@ -18,7 +18,9 @@
 //   https://github.com/domenic/promises-unwrapping/blob/master/testable-implementation.js
 
 import async from '../../../node_modules/rsvp/lib/rsvp/asap.js';
-import {registerPolyfill} from './utils.js';
+import {isObject, registerPolyfill} from './utils.js';
+
+const {createPrivateSymbol, getPrivate, setPrivate} = $traceurRuntime;
 
 // Status values: 0 = pending, +1 = resolved, -1 = rejected
 
@@ -236,12 +238,7 @@ function promiseHandle(value, handler, deferred) {
   }
 }
 
-// This should really be a WeakMap.
-var thenableSymbol = '@@thenable';
-
-function isObject(x) {
-  return x && (typeof x === 'object' || typeof x === 'function');
-}
+const thenableSymbol = createPrivateSymbol();
 
 function promiseCoerce(constructor, x) {
   if (!isPromise(x) && isObject(x)) {
@@ -250,16 +247,16 @@ function promiseCoerce(constructor, x) {
       then = x.then;
     } catch (r) {
       var promise = $PromiseReject.call(constructor, r);
-      x[thenableSymbol] = promise;
+      setPrivate(x, thenableSymbol, promise);
       return promise;
     }
     if (typeof then === 'function') {
-      var p = x[thenableSymbol];
+      var p = getPrivate(x, thenableSymbol);
       if (p) {
         return p;
       } else {
         var deferred = getDeferred(constructor);
-        x[thenableSymbol] = deferred.promise;
+        setPrivate(x, thenableSymbol, deferred.promise);
         try {
           then.call(x, deferred.resolve, deferred.reject);
         } catch (r) {
