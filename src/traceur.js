@@ -19,6 +19,10 @@ export {WebPageTranscoder} from './WebPageTranscoder.js';
 export {HTMLImportTranscoder} from './HTMLImportTranscoder.js';
 import {addOptions, CommandOptions, Options} from './Options.js';
 
+// The ModuleStore has to be instantiated before we can register any modules.
+// That means our normal module registration, System.registerModule()
+// cannot be applied to ModuleStore. We can use System.set() to store the
+// ModuleStore module, but that function does not work for --modules=inline.
 let ModuleStore = $traceurRuntime.ModuleStore;
 
 export function get(name) {

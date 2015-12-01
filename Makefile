@@ -228,11 +228,12 @@ build/es6-no-modules/compiler.js: $(SRC_NODE) src/traceur-import.js
 	node_modules/traceur/traceur --out $@ --modules=inline  --referrer='traceur@0.0.0/build/es6-no-modules/' \
 	  --outputLanguage=es6 $(TFLAGS) src/traceur-import.js
 
-build/es6-no-modules/runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC) src/runtime/runtime-modules.js src/runtime/polyfills-modules.js
+build/es6-no-modules/global-imports.js: $(RUNTIME_MODULES) $(POLYFILL_SRC) src/runtime/runtime-modules.js src/runtime/polyfills-imports.js
+	./traceur --out build/es6-no-modules/global-imports.js --modules=inline --outputLanguage=es6 -- src/runtime/global-imports.js
+
+build/es6-no-modules/runtime.js: $(RUNTIME_SRC) build/es6-no-modules/global-imports.js
 	./traceur --out $@ $(RUNTIME_SCRIPTS) $(TFLAGS)
-	./traceur --out build/es6-no-modules/runtime-modules.js --modules=inline --outputLanguage=es6 -- src/runtime/runtime-modules.js
-	./traceur --out build/es6-no-modules/polyfills-modules.js --modules=inline --outputLanguage=es6 -- src/runtime/polyfills-modules.js
-	cat build/es6-no-modules/runtime-modules.js build/es6-no-modules/polyfills-modules.js >> $@
+	cat build/es6-no-modules/global-imports.js >> $@
 
 # The complete traceur compiler in es6 but with modules compiled away.
 bin/traceur-es6-no-modules.js: build/es6-no-modules/runtime.js build/es6-no-modules/compiler.js
@@ -240,7 +241,6 @@ bin/traceur-es6-no-modules.js: build/es6-no-modules/runtime.js build/es6-no-modu
 
 bin/traceur-from-no-modules.js: bin/traceur-es6-no-modules.js
 	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' --script bin/traceur-es6-no-modules.js $(TFLAGS)
-	echo "System.setCompilerVersion('traceur@$(PACKAGE_VERSION)');\n" >> $@
 
 test-no-modules: bin/traceur-from-no-modules.js bin/traceur-runtime.js bin/traceur.js
 	cp bin/traceur.js bin/gold-traceur.js  # bin/traceur.js is called by test rules, so temp override it.

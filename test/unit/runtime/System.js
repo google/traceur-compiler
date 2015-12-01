@@ -99,7 +99,7 @@ suite('System.js', function() {
   // This test won't pass for traceur-no-modules.js:
   // the modules are not stored in the inlined version.
   test('traceur@', function() {
-    var optionsModule = System.get(System.version + '/src/Options.js');
+    var optionsModule = System.get('traceur@' + System.version + '/src/Options.js');
     assert.equal(traceur.util.Options, optionsModule.Options);
   });
 
