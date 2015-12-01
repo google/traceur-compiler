@@ -14,12 +14,12 @@
 
 /** @fileoverview import all runtime modules, eg for Traceur self-build. */
 
+import './classes.js';
 import './exportStar.js';
 import './properTailCalls.js';
 import './relativeRequire.js';
 import './spread.js';
 import './destructuring.js';
-import './classes.js';
 import './async.js';
 import './generators.js';
 import './template.js';
