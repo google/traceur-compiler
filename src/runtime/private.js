@@ -12,24 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {defineProperty, getOwnPropertyNames} = Object;
+import * as sym from './private-symbol.js';
+import * as weak from './private-weak-map.js';
 
-function exportStar(object) {
-  for (let i = 1; i < arguments.length; i++) {
-    let mod = arguments[i];
-    let names = getOwnPropertyNames(mod);
-    for (let j = 0; j < names.length; j++) {
-      let name = names[j];
-      if (name === '__esModule' || name === 'default') {
-        continue;
-      }
-      defineProperty(object, name, {
-        get: () => mod[name],
-        enumerable: true
-      });
-    }
-  }
-  return object;
-}
+const hasWeakMap = typeof WeakMap === 'function';
+const m = hasWeakMap ? weak : sym;
 
-$traceurRuntime.exportStar = exportStar;
+export const isPrivateSymbol = m.isPrivateSymbol;
+export const createPrivateSymbol = m.createPrivateSymbol;
+export const hasPrivate = m.hasPrivate;
+export const deletePrivate = m.deletePrivate;
+export const setPrivate = m.setPrivate;
+export const getPrivate = m.getPrivate;
+
+m.init();

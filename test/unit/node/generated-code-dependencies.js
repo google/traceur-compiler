@@ -456,24 +456,6 @@ suite('context test', function() {
     });
   });
 
-  test('./traceur warns if the runtime is missing', function(done) {
-    tempFileName = resolve(uuid.v4() + '.js');
-    var cmd = 'node ./traceur --modules=commonjs --out ' + tempFileName +
-        ' ./src/runtime/generators.js';
-    exec(cmd, function(error, stdout, stderr) {
-      assert.isNull(error);
-      cmd = 'node ' + tempFileName;
-      exec(cmd, function(error, stdout, stderr) {
-        // FIXME: This test fails if traceur is compiled with proper tail calls
-        // as the code that shall display this message depends on the proper
-        // tail calls part of the runtime.
-        assert.notEqual(error.toString().indexOf('traceur runtime not found'),
-            -1, 'The runtime error message should be found');
-        done();
-      });
-    });
-  });
-
   test('./traceur --source-maps can report errors on the correct lines', function(done) {
     this.timeout(4000);  // On travis this test takes more than 2s
     var cmd = 'node ./traceur --source-maps=memory ./test/unit/node/resources/testErrorForSourceMaps.js';

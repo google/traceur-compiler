@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-if (typeof $traceurRuntime !== 'object') {
-  throw new Error('traceur runtime not found.');
-}
+import {getPrivate, setPrivate, createPrivateSymbol} from './private.js';
 
 var $apply = Function.prototype.call.bind(Function.prototype.apply)
-
-var {getPrivate, setPrivate, createPrivateSymbol} = $traceurRuntime;
 
 var CONTINUATION_TYPE = Object.create(null);
 

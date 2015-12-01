@@ -12,24 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {defineProperty, getOwnPropertyNames} = Object;
+const $WeakMap = typeof WeakMap === 'function' ? WeakMap : undefined;
 
-function exportStar(object) {
-  for (let i = 1; i < arguments.length; i++) {
-    let mod = arguments[i];
-    let names = getOwnPropertyNames(mod);
-    for (let j = 0; j < names.length; j++) {
-      let name = names[j];
-      if (name === '__esModule' || name === 'default') {
-        continue;
-      }
-      defineProperty(object, name, {
-        get: () => mod[name],
-        enumerable: true
-      });
-    }
-  }
-  return object;
+export function isPrivateSymbol(s) {
+  return false;
 }
 
-$traceurRuntime.exportStar = exportStar;
+export function createPrivateSymbol() {
+  return new $WeakMap();
+}
+
+export function hasPrivate(obj, sym) {
+  return sym.has(obj);
+}
+
+export function deletePrivate(obj, sym) {
+  return sym.delete(obj);
+}
+
+export function setPrivate(obj, sym, val) {
+  sym.set(obj, val);
+}
+
+export function getPrivate(obj, sym) {
+  return sym.get(obj);
+}
+
+export function init() {}

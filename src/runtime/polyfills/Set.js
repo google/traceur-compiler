@@ -17,6 +17,7 @@ import {
   registerPolyfill
 } from './utils.js';
 import {Map} from './Map.js'
+import hasNativeSymbol from '../has-native-symbols.js';
 
 let {hasOwnProperty} = Object.prototype;
 
@@ -89,7 +90,7 @@ Object.defineProperty(Set.prototype, 'keys', {
 
 function needsPolyfill(global) {
   let {Set, Symbol} = global;
-  if (!Set || !$traceurRuntime.hasNativeSymbol() ||
+  if (!Set || !hasNativeSymbol() ||
       !Set.prototype[Symbol.iterator] || !Set.prototype.values) {
     return true;
   }

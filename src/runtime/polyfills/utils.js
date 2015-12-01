@@ -12,14 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var $ceil = Math.ceil;
-var $floor = Math.floor;
-var $isFinite = isFinite;
-var $isNaN = isNaN;
-var $pow = Math.pow;
-var $min = Math.min;
+const $ceil = Math.ceil;
+const $floor = Math.floor;
+const $isFinite = isFinite;
+const $isNaN = isNaN;
+const $pow = Math.pow;
+const $min = Math.min;
+const $TypeError = TypeError;
+const $Object = Object;
 
-export var toObject = $traceurRuntime.toObject;
+export function toObject(x) {
+  if (x == null) {  // Needs to be ==
+    throw $TypeError();
+  }
+  return $Object(x);
+}
 
 export function toUint32(x) {
   return x >>> 0;

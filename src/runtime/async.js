@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-if (typeof $traceurRuntime !== 'object') {
-  throw new Error('traceur runtime not found.');
-}
+import {createPrivateSymbol, getPrivate, setPrivate} from './private.js';
 
-var {createPrivateSymbol, getPrivate, setPrivate} = $traceurRuntime;
 var {
   create,
   defineProperty,
