@@ -10,8 +10,6 @@ bin/traceur-runtime.js
 bin/traceur.js
 bin/traceur.js.map
 build/compiled-by-previous-traceur.js
-build/currentSemVer.mk
-build/local.mk
 build/node
 build/npm-version-number
 build/previous-commit-traceur.js
@@ -23,6 +21,7 @@ src/outputgeneration/SourceMapIntegration.js
 src/syntax/ParseTreeVisitor.js
 src/syntax/trees/ParseTreeType.js
 src/syntax/trees/ParseTrees.js
+src/runtime/version.js
 test/unit/node/out/compile-amd
 test/unit/node/out/compile-cjs
 test/unit/node/out/compile-cjs-maps

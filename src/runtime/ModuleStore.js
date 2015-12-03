@@ -285,10 +285,6 @@
       return new Module(func.call(global), liveModuleSentinel);
     },
 
-    setCompilerVersion(version) {
-      ModuleStore.compilerVersion = version;
-    },
-
     getCompilerVersion() {
       return ModuleStore.compilerVersion;
     }
@@ -310,7 +306,6 @@
     get: ModuleStore.get,
     set: ModuleStore.set,
     normalize: ModuleStore.normalize,
-    setCompilerVersion: ModuleStore.setCompilerVersion,
     getCompilerVersion: ModuleStore.getCompilerVersion,
   };
 

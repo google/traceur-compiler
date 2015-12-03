@@ -89,7 +89,7 @@ suite('System.js', function() {
 
   test('System.set', function() {
     var store = $traceurRuntime.ModuleStore;
-    var polyfills = store.get(System.version + '/src/runtime/polyfills/polyfills.js');
+    var polyfills = store.get('traceur@' + System.version + '/src/runtime/polyfills/polyfills.js');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
@@ -126,7 +126,6 @@ suite('System.js', function() {
     assert(!m);
     m = semVerRegExp.exec('Any');
     assert(!m);
-
     var version = System.map['traceur'];
     assert(version);
     // This test must be updated if the major or minor version number changes.

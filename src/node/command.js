@@ -84,7 +84,7 @@ function processExit() {
 
 commandLine.option('-v, --version', 'Show version and exit');
 commandLine.on('version', function() {
-  process.stdout.write(System.version.split('@')[1]);
+  process.stdout.write(System.version);
   processExit();
 });
 
