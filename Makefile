@@ -2,6 +2,7 @@ RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
   src/runtime/ModuleStore.js \
+  src/runtime/ModuleStoreSetVersion.js
   # end files that must be script.
 
 POLYFILL_SRC = \
@@ -42,7 +43,8 @@ GENSRC = \
   src/codegeneration/ParseTreeTransformer.js \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
-  src/syntax/ParseTreeVisitor.js
+  src/syntax/ParseTreeVisitor.js \
+  src/runtime/ModuleStoreSetVersion.js
 
 PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
@@ -202,9 +204,8 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --source-maps=file --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
+	./traceur --source-maps=file --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
-	echo "System.setCompilerVersion('traceur@$(PACKAGE_VERSION)');\n" >> $@
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
@@ -233,6 +234,9 @@ src/syntax/ParseTreeVisitor.js: \
 src/codegeneration/ParseTreeTransformer.js: \
   build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
+
+src/runtime/ModuleStoreSetVersion.js:
+	@ echo '$$traceurRuntime.ModuleStore.compilerVersion = "traceur@$(PACKAGE_VERSION)";\n' > $@
 
 unicode-tables: \
 	build/build-unicode-tables.js
@@ -317,4 +321,5 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 	./traceur --out $@ $^
 
 
-.PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
+.PHONY: build min test test-list force boot clean distclean unicode-tables \
+	prepublish src/runtime/ModuleStoreSetVersion.js
