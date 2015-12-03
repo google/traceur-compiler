@@ -169,6 +169,7 @@ boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
+	@rm -f src/runtime/version.js
 	@rm -rf build/currentSemVer.mk
 	@rm -f $(GENSRC)
 	@rm -f $(COMPILE_BEFORE_TEST)
@@ -204,10 +205,9 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --source-maps=file --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
-	echo "System.setCompilerVersion('traceur@$(PACKAGE_VERSION)');\n" >> $@
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: \
+build/compiled-by-previous-traceur.js: src/runtime/version.js \
 		$(PREV_NODE) \
 		$(SRC) \
 	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
@@ -233,6 +233,9 @@ src/syntax/ParseTreeVisitor.js: \
 src/codegeneration/ParseTreeTransformer.js: \
   build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
+
+src/runtime/version.js: package.json
+	echo "// generated in Makefile.\nexport let version = '$(PACKAGE_VERSION)';\n" > $@
 
 unicode-tables: \
 	build/build-unicode-tables.js

@@ -17,8 +17,8 @@ import {Loader} from './Loader.js';
 import {LoaderCompiler} from './LoaderCompiler.js';
 import {systemjs} from './system-map.js';
 import {webLoader} from './webLoader.js';
+import {version} from './version.js';
 
-var version = __moduleName.slice(0, __moduleName.indexOf('/'));
 var uniqueNameCount = 0;
 
 export class TraceurLoader extends Loader {
@@ -239,27 +239,28 @@ export class TraceurLoader extends Loader {
     if (slash < 0) {
       slash = normalizedName.length;
     }
-    var version = normalizedName.slice(0, slash);
-    var at = version.indexOf('@');
+    var versionPart = normalizedName.slice(0, slash);
+    var at = versionPart.indexOf('@');
     if (at !== -1) {
-      var semver = version.slice(at + 1);
+      var semver = versionPart.slice(at + 1);
       var m = this.semVerRegExp_().exec(semver);
       if (m) {
         var major = m[1];
         var minor = m[2];
-        var packageName = version.slice(0, at);
+        var packageName = versionPart.slice(0, at);
         var map = Object.create(null);
-        map[packageName] = version;
-        map[packageName + '@' + major] = version;
-        map[packageName + '@' + major + '.' + minor] = version;
+        map[packageName] = versionPart;
+        map[packageName + '@' + major] = versionPart;
+        map[packageName + '@' + major + '.' + minor] = versionPart;
+        return map;
       }
+      throw new Error('semverMap found no matching semver regexp in ' + semvar);
     }
-    return map;
+    throw new Error('semverMap expected name@semver, got ' + versionPart + ' ' + normalizedName);
   }
 
   get version() {
-    // Fall back to deprecated __moduleName version for one release.
-    return $traceurRuntime.ModuleStore.getCompilerVersion() || version;
+    return version;
   }
 
   /**

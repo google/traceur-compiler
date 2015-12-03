@@ -22,6 +22,6 @@ var System = new traceur.runtime.NodeTraceurLoader();
 var traceurMap;
 
 Reflect.global.System = System;
-System.map = System.semverMap(System.version);
+System.map = System.semverMap('traceur@' + System.version);
 
 module.exports = System;
