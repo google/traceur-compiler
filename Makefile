@@ -171,6 +171,7 @@ clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
 	@rm -f src/runtime/version.js
 	@rm -rf build/currentSemVer.mk
+	@rm -f build/es6-no-modules/*
 	@rm -f $(GENSRC)
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
@@ -191,7 +192,7 @@ bin/%.min.js: bin/%.js
 
 # Do not change the location of this file if at all possible, see
 # https://github.com/google/traceur-compiler/issues/828
-bin/traceur-runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC)
+bin/traceur-runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC) bin/traceur.js
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/bin/' \
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(RUNTIME_MODULES) $(POLYFILL_SRC)
 
@@ -217,6 +218,40 @@ build/compiled-by-previous-traceur.js: src/runtime/version.js \
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+
+#
+# Rules to test traceur.js compiled through path that first compiles out modules then es6.
+# The regular compiler must be built before running these rules.
+#
+
+build/es6-no-modules/compiler.js: $(SRC_NODE) src/traceur-import.js
+	node_modules/traceur/traceur --out $@ --modules=inline  --referrer='traceur@0.0.0/build/es6-no-modules/' \
+	  --outputLanguage=es6 $(TFLAGS) src/traceur-import.js
+
+build/es6-no-modules/global-imports.js: $(RUNTIME_MODULES) $(POLYFILL_SRC) src/runtime/runtime-modules.js src/runtime/polyfills-imports.js
+	./traceur --out build/es6-no-modules/global-imports.js --modules=inline --outputLanguage=es6 -- src/runtime/global-imports.js
+
+build/es6-no-modules/runtime.js: $(RUNTIME_SRC) build/es6-no-modules/global-imports.js
+	./traceur --out $@ $(RUNTIME_SCRIPTS) $(TFLAGS)
+	cat build/es6-no-modules/global-imports.js >> $@
+
+# The complete traceur compiler in es6 but with modules compiled away.
+bin/traceur-es6-no-modules.js: build/es6-no-modules/runtime.js build/es6-no-modules/compiler.js
+	cat $^ > $@
+
+bin/traceur-from-no-modules.js: bin/traceur-es6-no-modules.js
+	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' --script bin/traceur-es6-no-modules.js $(TFLAGS)
+
+test-no-modules: bin/traceur-from-no-modules.js bin/traceur-runtime.js bin/traceur.js
+	cp bin/traceur.js bin/gold-traceur.js  # bin/traceur.js is called by test rules, so temp override it.
+	cp bin/traceur-from-no-modules.js bin/traceur.js
+	touch bin/traceur-runtime.js # our temp bin/traceur.js has a new timestamp, don't trigger rebuild.
+	-$(MAKE)  -r test
+	cp -p bin/gold-traceur.js bin/traceur.js # preserve timestamp to avoid make triggers.
+	rm bin/gold-traceur.js
+
+#
+#
 
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
@@ -321,3 +356,5 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
+
+.SUFFIXES:

@@ -63,11 +63,6 @@ suite('Loader.js', function() {
     assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
   });
 
-  test('traceur@', function() {
-    var optionsModule = System.get('traceur@' + System.version + '/src/Options.js');
-    assert.equal(traceur.util.Options, optionsModule.Options);
-  });
-
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
     System.import('traceur@', {}).then(function(module) {

@@ -87,11 +87,20 @@ suite('System.js', function() {
       'http://example.org/b.html');
   });
 
+  // This test won't pass for traceur-no-modules.js:
+  // the modules are not stored in the inlined version.
   test('System.set', function() {
     var store = $traceurRuntime.ModuleStore;
     var polyfills = store.get('traceur@' + System.version + '/src/runtime/polyfills/polyfills.js');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
+  });
+
+  // This test won't pass for traceur-no-modules.js:
+  // the modules are not stored in the inlined version.
+  test('traceur@', function() {
+    var optionsModule = System.get('traceur@' + System.version + '/src/Options.js');
+    assert.equal(traceur.util.Options, optionsModule.Options);
   });
 
   test('ModuleStore.registerModule', function() {
