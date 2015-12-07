@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  isObject,
-  registerPolyfill
-} from './utils.js'
+import {createPrivateSymbol, getPrivate, setPrivate} from '../private.js';
 import {deleteFrozen, getFrozen, setFrozen} from '../frozen-data.js';
+import {isObject, registerPolyfill} from './utils.js'
+import hasNativeSymbol from '../has-native-symbols.js';
 
-const {
-  createPrivateSymbol,
-  getPrivate,
-  hasNativeSymbol,
-  setPrivate
-} = $traceurRuntime;
 const {
   defineProperty,
   getOwnPropertyDescriptor,
@@ -226,7 +219,7 @@ defineProperty(Map.prototype, Symbol.iterator, {
 
 function needsPolyfill(global) {
   var {Map, Symbol} = global;
-  if (!Map || !$traceurRuntime.hasNativeSymbol() ||
+  if (!Map || !hasNativeSymbol() ||
       !Map.prototype[Symbol.iterator] || !Map.prototype.entries) {
     return true;
   }

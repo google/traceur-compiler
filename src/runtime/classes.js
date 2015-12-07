@@ -65,7 +65,9 @@ function superSet(self, homeObject, name, value) {
 
 function forEachPropertyKey(object, f) {
   getOwnPropertyNames(object).forEach(f);
-  getOwnPropertySymbols(object).forEach(f);
+  if (getOwnPropertySymbols) {
+    getOwnPropertySymbols(object).forEach(f);
+  }
 }
 
 function getDescriptors(object) {

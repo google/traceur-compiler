@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @fileoverview import all runtime modules, eg for Traceur self-build. */
+/**
+ * @fileoverview import all runtime modules, eg for Traceur self-build.
+ */
 
+import './symbols.js';
 import './classes.js';
 import './exportStar.js';
 import './properTailCalls.js';

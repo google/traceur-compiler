@@ -12,24 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {defineProperty, getOwnPropertyNames} = Object;
+const {random} = Math;
 
-function exportStar(object) {
-  for (let i = 1; i < arguments.length; i++) {
-    let mod = arguments[i];
-    let names = getOwnPropertyNames(mod);
-    for (let j = 0; j < names.length; j++) {
-      let name = names[j];
-      if (name === '__esModule' || name === 'default') {
-        continue;
-      }
-      defineProperty(object, name, {
-        get: () => mod[name],
-        enumerable: true
-      });
-    }
-  }
-  return object;
+var counter = Date.now() % 1e9;
+
+/**
+ * Generates a new unique string.
+ * @return {string}
+ */
+export default function newUniqueString() {
+  return '__$' + (random() * 1e9 >>> 1) + '$' + ++counter + '$__';
 }
-
-$traceurRuntime.exportStar = exportStar;

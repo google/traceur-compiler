@@ -13,6 +13,13 @@
 // limitations under the License.
 
 import {
+  createPrivateSymbol,
+  deletePrivate,
+  getPrivate,
+  hasPrivate,
+  setPrivate
+} from '../private.js';
+import {
   deleteFrozen,
   getFrozen,
   hasFrozen,
@@ -22,16 +29,9 @@ import {
   isObject,
   registerPolyfill
 } from './utils.js'
+import hasNativeSymbol from '../has-native-symbols.js';
 
 const {defineProperty, getOwnPropertyDescriptor, isExtensible} = Object;
-const {
-  createPrivateSymbol,
-  deletePrivate,
-  getPrivate,
-  hasNativeSymbol,
-  hasPrivate,
-  setPrivate
-} = $traceurRuntime;
 const $TypeError = TypeError;
 const {hasOwnProperty} = Object.prototype;
 

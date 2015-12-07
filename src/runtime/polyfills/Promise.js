@@ -19,8 +19,7 @@
 
 import async from '../../../node_modules/rsvp/lib/rsvp/asap.js';
 import {isObject, registerPolyfill} from './utils.js';
-
-const {createPrivateSymbol, getPrivate, setPrivate} = $traceurRuntime;
+import {createPrivateSymbol, getPrivate, setPrivate} from '../private.js';
 
 // Status values: 0 = pending, +1 = resolved, -1 = rejected
 
