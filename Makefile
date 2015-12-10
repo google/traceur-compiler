@@ -270,8 +270,8 @@ src/codegeneration/ParseTreeTransformer.js: \
 	node $^ > $@
 
 src/runtime/version.js: package.json
-	echo "// generated in Makefile." > $@
-	echo "export let version = '$(PACKAGE_VERSION)';" >> $@
+	@echo "// generated in Makefile." > $@
+	@echo "export let version = '$(PACKAGE_VERSION)';" >> $@
 
 unicode-tables: \
 	build/build-unicode-tables.js
