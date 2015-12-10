@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './util-imports.js';
-export * from './compiler-imports.js';
-export * from './runtime/loader-imports.js';
+import {Loader} from './Loader.js';
+import {LoaderCompiler} from './LoaderCompiler.js';
+import {BrowserTraceurLoader} from './TraceurLoader.js';
+import {NodeLoaderCompiler} from '../node/NodeLoaderCompiler.js';
+import {InlineLoaderCompiler} from './InlineLoaderCompiler.js';
+import {NodeTraceurLoader} from './NodeTraceurLoader.js';
+import {TraceurLoader} from './TraceurLoader.js';
+
+export let runtime = {
+  BrowserTraceurLoader,
+  InlineLoaderCompiler,
+  Loader,
+  LoaderCompiler,
+  NodeLoaderCompiler,
+  NodeTraceurLoader,
+  TraceurLoader
+};
