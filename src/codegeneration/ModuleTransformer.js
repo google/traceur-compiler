@@ -33,7 +33,9 @@ import {
   FORWARD_DEFAULT_EXPORT,
   FUNCTION_DECLARATION,
   IMPORT_SPECIFIER_SET,
-  NAME_SPACE_EXPORT
+  IMPORT_TYPE_CLAUSE,
+  NAME_SPACE_EXPORT,
+  TYPE_ALIAS_DECLARATION
 } from '../syntax/trees/ParseTreeType.js';
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
@@ -187,7 +189,9 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   getExportProperties() {
-    return this.exportVisitor_.namedExports.map((exp) => {
+    return this.exportVisitor_.namedExports.filter((exp) => {
+      return exp.tree.type !== TYPE_ALIAS_DECLARATION;
+    }).map((exp) => {
       // export_name: {get: function() { return export_name },
       return this.getGetterExport(exp);
     }).concat(this.exportVisitor_.namedExports.map((exp) => {
@@ -292,6 +296,10 @@ export class ModuleTransformer extends TempVarTransformer {
     // import * as m from 'module'
     // =>
     // const m = moduleInstance
+
+    if (tree.importClause.type === IMPORT_TYPE_CLAUSE) {
+      return new AnonBlock(null, []);
+    }
 
     // import 'module'
     // import {} from 'module'

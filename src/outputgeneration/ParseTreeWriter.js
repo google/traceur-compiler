@@ -952,6 +952,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
   }
 
+  visitImportTypeClause(tree) {
+    this.write_(TYPE);
+    this.writeSpace_();
+    this.visitAny(tree.clause);
+  }
+
   visitJsxAttribute(tree) {
     this.writeToken_(tree.name);
     this.write_(EQUAL);

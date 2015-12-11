@@ -21,10 +21,14 @@ import {
   Method,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees.js';
+import {
+  IMPORT_TYPE_CLAUSE,
+  TYPE_ALIAS_DECLARATION
+} from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 /**
- * Desugars type annotations.
+ * Removes type annotations.
  */
 export class TypeTransformer extends ParseTreeTransformer {
 
@@ -107,7 +111,21 @@ export class TypeTransformer extends ParseTreeTransformer {
     return new AnonBlock(null, []);
   }
 
+  transformExportDeclaration(tree) {
+    if (tree.declaration.type === TYPE_ALIAS_DECLARATION) {
+      return new AnonBlock(null, []);
+    }
+    return super.transformExportDeclaration(tree);
+  }
+
   transformTypeAliasDeclaration(tree) {
     return new AnonBlock(null, []);
+  }
+
+  transformImportDeclaration(tree) {
+    if (tree.importClause.type === IMPORT_TYPE_CLAUSE) {
+      return new AnonBlock(null, []);
+    }
+    return super.transformImportDeclaration(tree);
   }
 }

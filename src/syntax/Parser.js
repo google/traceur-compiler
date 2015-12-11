@@ -233,6 +233,7 @@ import {
   ImportSpecifier,
   ImportSpecifierSet,
   ImportedBinding,
+  ImportTypeClause,
   IndexSignature,
   InterfaceDeclaration,
   JsxAttribute,
@@ -630,27 +631,39 @@ export class Parser {
 
     let importClause = null;
     if (!peek(STRING)) {
-      importClause = this.parseImportClause_(true);
+      importClause = this.parseImportClause_(true, this.options_.types);
       this.eatId_(FROM);
     }
+
     let moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
                                  importClause, moduleSpecifier);
   }
 
-  parseImportClause_(allowImportedDefaultBinding) {
+  parseImportClause_(allowImportedDefaultBinding, allowType) {
     switch (peekType()) {
       case STAR:
         return this.parseNameSpaceImport_();
       case OPEN_CURLY:
         return this.parseImportSpecifierSet_();
       case IDENTIFIER:
+        if (allowType &&  this.peekPredefinedString_(TYPE)) {
+          let start = this.getTreeStartLocation_();
+          let t = peekTokenLookahead();
+          if (t.type === OPEN_CURLY ||
+              t.type === IDENTIFIER && t.value !== FROM) {
+            this.eatId_(TYPE);
+            let clause =
+                this.parseImportClause_(allowImportedDefaultBinding, false);
+            return new ImportTypeClause(this.getTreeLocation_(start), clause);
+          }
+        }
         if (allowImportedDefaultBinding) {
           let start = this.getTreeStartLocation_();
           let importedBinding = this.parseImportedBinding_();
           if (this.eatIf_(COMMA)) {
-            let second = this.parseImportClause_(false);
+            let second = this.parseImportClause_(false, false);
             return new ImportClausePair(this.getTreeLocation_(start),
                                         importedBinding, second);
           }

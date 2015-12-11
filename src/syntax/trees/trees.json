@@ -695,6 +695,14 @@
       "Array<ImportSpecifier>"
     ]
   },
+  "ImportTypeClause": {
+    "location": [
+      "SourceRange"
+    ],
+    "clause": [
+      "ParseTree"
+    ]
+  },
   "IndexSignature": {
     "location": [
       "SourceRange"
