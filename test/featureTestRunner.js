@@ -17,6 +17,7 @@ import {StringMap} from '../src/util/StringMap.js';
 import {NodeTraceurTestRunner} from './modular/NodeTraceurTestRunner.js';
 import {BrowserTraceurTestRunner} from './modular/BrowserTraceurTestRunner.js';
 import {Options} from '../src/Options.js';
+import {ModuleStore} from '../src/runtime/ModuleStore.js';
 
 import {assert, assertArrayEquals} from './asserts.js';
 export * from './asserts.js';
@@ -258,7 +259,7 @@ function cloneTest(name, url) {
     let load = {
       metadata: {},
       normalizedName:
-          System.normalize(url)
+          ModuleStore.normalize(url)
     };
     load.address = System.locate(load);
     moduleLoader.fetch({address: url}).then((data) => {

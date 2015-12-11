@@ -55,39 +55,43 @@ suite('ModuleTransformer', function() {
     });
   }
 
-  makeTest('One', 'import {a} from "name"', 'var a = System.get("name").a;');
+  makeTest('One', 'import {a} from "name"',
+      'var a = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null)).a;');
   makeTest('Two', 'import {a, b} from "name"',
-      'var $0 = System.get("name"),\n' +
+      'var $0 = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null)),\n' +
       '    a = $0.a,\n' +
       '    b = $0.b;');
-  makeTest('Zero', 'import {} from "name"', '; System.get("name");');
-  makeTest('Zero', 'import "name"', '; System.get("name");');
+  makeTest('Zero', 'import {} from "name"',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));');
+  makeTest('Zero', 'import "name"',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));');
 
   makeTest('One, no destructuring', 'import {a} from "name"',
-      'var a = System.get("name").a;',
+      'var a = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null)).a;',
       {destructuring: false});
   makeTest('Two, no destructuring', 'import {a, b} from "name"',
-      'var $0 = System.get("name"),\n' +
+      'var $0 = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null)),\n' +
       '    a = $0.a,\n' +
       '    b = $0.b;',
           {destructuring: false});
   makeTest('Zero, no destructuring', 'import {} from "name"',
-      '; System.get("name");',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: false});
-  makeTest('Zero, no destructuring', 'import "name"', '; System.get("name");',
+  makeTest('Zero, no destructuring', 'import "name"',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: false});
 
   makeTest('One, keep destructuring', 'import {a} from "name"',
-      'var {a} = System.get("name");',
+      'var {a} = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: 'parse'});
   makeTest('Two, keep destructuring', 'import {a, b} from "name"',
-      'var {a, b} = System.get("name");',
+      'var {a, b} = $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: 'parse'});
   makeTest('Zero, keep destructuring', 'import {} from "name"',
-      '; System.get("name");',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: 'parse'});
   makeTest('Zero, keep destructuring', 'import "name"',
-      '; System.get("name");',
+      '; $traceurRuntime.getModule($traceurRuntime.normalizeModuleName("name", null));',
       {destructuring: 'parse'});
 
 });

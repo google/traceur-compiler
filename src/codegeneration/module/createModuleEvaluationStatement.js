@@ -15,5 +15,5 @@
 import {parseStatement} from '../PlaceholderParser.js';
 
 export function createModuleEvaluationStatement(normalizedName) {
-  return parseStatement `System.get(${normalizedName} +'')`;
+  return parseStatement `$traceurRuntime.getModule(${normalizedName} +'')`;
 }

@@ -1,7 +1,7 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/ModuleStore.js \
+  src/runtime/ModuleStoreImpl.js \
   # end files that must be script.
 
 POLYFILL_SRC = \
