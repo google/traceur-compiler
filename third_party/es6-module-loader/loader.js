@@ -709,7 +709,7 @@ function logloads(loads) {
           }
         }
         return value;
-      });
+      }, load.name);
 
       // setup our setters and execution function
       load.module.setters = registryEntry.setters;

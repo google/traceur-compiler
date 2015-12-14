@@ -191,4 +191,12 @@ suite('instantiate', function() {
     }).catch(done);
   });
 
+  test('__moduleName support', function(done) {
+    System.import('./module-name.js').then(function(m) {
+      // note that strictly module name should be a URL with the latest loader implementation
+      assert.equal('module-name.js', m.name);
+      done();
+    }).catch(done);
+  });
+
 });

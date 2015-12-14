@@ -268,12 +268,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     if (this.moduleName) {
       return parseStatements `System.register(${this.moduleName},
-          ${this.dependencies}, function($__export) {
+          ${this.dependencies}, function($__export, __moduleName) {
             ${statements}
           });`;
     } else {
       return parseStatements
-        `System.register(${this.dependencies}, function($__export) {
+        `System.register(${this.dependencies}, function($__export, __moduleName) {
           ${statements}
         });`;
     }
