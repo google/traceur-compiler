@@ -214,6 +214,9 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.anonymousModule =
         options && !options.bundle && options.moduleName !== true;
 
+    // does the module reference __moduleName
+    this.usesModuleName = false;
+
     this.inExport_ = false;
     this.curDepIndex_ = null;
 
@@ -250,6 +253,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.exportStarBindings = [];
   }
 
+  transformIdentifierExpression(tree) {
+    if (tree.identifierToken.value === '__moduleName')
+      this.usesModuleName = true;
+    return super.transformIdentifierExpression(tree);
+  }
+
   getModuleName(tree) {
     if (this.anonymousModule)
       return null;
@@ -266,17 +275,31 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
 
     statements = prolog.concat(statements);
 
+    if (this.usesModuleName) {
+      if (this.moduleName) {
+        return parseStatements `System.register(${this.moduleName},
+            ${this.dependencies}, function($__export, __moduleName) {
+              ${statements}
+            });`;
+      }
+
+      return parseStatements
+          `System.register(${this.dependencies}, function($__export, __moduleName) {
+            ${statements}
+          });`;
+    }
+
     if (this.moduleName) {
       return parseStatements `System.register(${this.moduleName},
           ${this.dependencies}, function($__export) {
             ${statements}
           });`;
-    } else {
-      return parseStatements
+    }
+
+    return parseStatements
         `System.register(${this.dependencies}, function($__export) {
           ${statements}
         });`;
-    }
   }
 
   /**
