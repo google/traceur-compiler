@@ -195,6 +195,7 @@ suite('instantiate', function() {
     System.import('./module-name.js').then(function(m) {
       // note that strictly module name should be a URL with the latest loader implementation
       assert.equal('module-name.js', m.name);
+      assert.equal(42, m.f(42));
       done();
     }).catch(done);
   });
