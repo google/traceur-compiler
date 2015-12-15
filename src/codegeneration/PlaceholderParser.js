@@ -16,6 +16,7 @@ import {
   ARGUMENT_LIST,
   BLOCK,
   EXPRESSION_STATEMENT,
+  FUNCTION_BODY,
   IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
@@ -260,8 +261,10 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
           this.transformIdentifierExpression(tree.expression);
       if (transformedExpression === tree.expression)
         return tree;
-      if (transformedExpression.isStatementListItem())
+      if (transformedExpression.isStatementListItem() ||
+          transformedExpression.type === FUNCTION_BODY) {
         return transformedExpression;
+      }
       return createExpressionStatement(transformedExpression);
     }
     return super.transformExpressionStatement(tree);
@@ -285,6 +288,8 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         tree.statements[0].type === EXPRESSION_STATEMENT) {
       let transformedStatement =
           this.transformExpressionStatement(tree.statements[0]);
+      if (transformedStatement.type === FUNCTION_BODY)
+        return transformedStatement;
       if (transformedStatement === tree.statements[0])
         return tree;
       if (transformedStatement.type === BLOCK)

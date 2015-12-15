@@ -1,4 +1,4 @@
-// Copyright 2015 Traceur Authors.
+// Copyright 2016 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @fileoverview import all runtime modules, eg for Traceur self-build.
- */
-
-import './symbols.js';
-import './classes.js';
-import './exportStar.js';
-import './properTailCalls.js';
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './async.js';
-import './generators.js';
-import './spawn.js';
-import './template.js';
-import './jsx.js';
+import spawn from './modules/spawn.js'
+$traceurRuntime.spawn = spawn;

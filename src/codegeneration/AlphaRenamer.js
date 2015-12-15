@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ScopeTransformer } from './ScopeTransformer.js';
+import {ScopeTransformer} from './ScopeTransformer.js';
 import {
   FunctionDeclaration,
   FunctionExpression
@@ -121,4 +121,3 @@ export class AlphaRenamer extends ScopeTransformer {
     return new AlphaRenamer(varName, newName).transformAny(tree);
   }
 }
-

@@ -16,6 +16,7 @@ import {
   ArgumentList,
   ArrayLiteral,
   BinaryExpression,
+  ConditionalExpression,
   ExpressionStatement,
   NewExpression,
   ParenExpression,
@@ -29,6 +30,7 @@ import {
   OBJECT_LITERAL,
   OBJECT_PATTERN,
   TEMPLATE_LITERAL_EXPRESSION,
+  YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 
 function wrap(tree) {
@@ -146,10 +148,10 @@ export function ParenTrait(ParseTreeTransformerClass) {
     transformBinaryExpression(tree) {
       let left = this.transformAny(tree.left);
       let right = this.transformAny(tree.right);
-      if (left.type === COMMA_EXPRESSION) {
+      if (commaOrYield(left.type)) {
         left = wrap(left);
       }
-      if (right.type === COMMA_EXPRESSION) {
+      if (commaOrYield(right.type)) {
         right = wrap(right);
       }
       if (left === tree.left && right === tree.right) {
@@ -157,5 +159,30 @@ export function ParenTrait(ParseTreeTransformerClass) {
       }
       return new BinaryExpression(tree.location, left, tree.operator, right);
     }
+
+    transformConditionalExpression(tree) {
+      let condition = this.transformAny(tree.condition);
+      let left = this.transformAny(tree.left);
+      let right = this.transformAny(tree.right);
+      if (commaOrYield(condition.type)) {
+        condition = wrap(condition);
+      }
+      if (left.type == COMMA_EXPRESSION) {
+        left = wrap(left);
+      }
+      if (right.type == COMMA_EXPRESSION) {
+        right = wrap(right);
+      }
+      if (condition === tree.condition &&
+          left === tree.left &&
+          right === tree.right) {
+        return tree;
+      }
+      return new ConditionalExpression(tree.location, condition, left, right);
+    }
   };
+}
+
+function commaOrYield(type) {
+  return type === COMMA_EXPRESSION || type == YIELD_EXPRESSION;
 }

@@ -52,8 +52,19 @@ export function parseProlog(source) {
     let m;
     if (line.indexOf('// Only in browser.') === 0) {
       returnValue.onlyInBrowser = true;
-    } else if (line.indexOf('// Skip.') === 0) {
-      returnValue.skip = true;
+    } else if (line.indexOf('// Skip') === 0) {
+      if (line.indexOf('// Skip.') === 0) {
+        returnValue.skip = true;
+      } else {
+        // eval remainder of line.
+        let skip = false;
+        try {
+            skip = eval(line.slice('// Skip'.length));
+        } catch (ex) {
+            skip = true;
+        }
+        returnValue.skip = !!skip;
+      }
     } else if (line.indexOf('// Async.') === 0) {
       returnValue.async = true;
     } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
@@ -128,12 +139,18 @@ function featureTest(name, url) {
     let prologOptions;
     function translateSynchronous(load) {
       let source = load.source;
-      // Only top level file can set prologOptions.
-      if (!prologOptions)
-        prologOptions = parseProlog(source);
 
-      if (prologOptions.skip)
+      // Only top level file can set prologOptions, but we can get here when we
+      // are translating imported dependencies.
+      if (prologOptions) {
+        return source;
+      }
+
+      prologOptions = parseProlog(source);
+
+      if (prologOptions.skip) {
         return '';
+      }
 
       if (prologOptions.async) {
         global.done = (ex) => {
@@ -147,11 +164,7 @@ function featureTest(name, url) {
 
     let moduleLoader = new System.constructor();
 
-    moduleLoader.translate = (load) => {
-      return new Promise((resolve, reject) => {
-        resolve(translateSynchronous(load));
-      });
-    }
+    moduleLoader.translate = translateSynchronous;
 
     function handleExpectedErrors(error) {
       if (prologOptions.shouldHaveErrors) {
@@ -200,7 +213,7 @@ function featureTest(name, url) {
           handleFailure).catch(done);
     } else {
       moduleLoader.loadAsScript(url, {}).then(handleSuccess,
-        handleFailure).catch(done);
+          handleFailure).catch(done);
     }
   });
 }
