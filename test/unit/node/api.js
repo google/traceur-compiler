@@ -39,7 +39,7 @@ suite('api.js', function() {
     var options = {modules: 'bootstrap', moduleName: true};
     var result = api.compile('var a = 1;', options, 'a.js');
     assert.equal(
-        result.indexOf('System.registerModule("a.js", [], function() {'),
+        result.indexOf('$traceurRuntime.registerModule("a.js", [], function() {'),
         0,
         'The module has register format and name "a.js"');
   });
@@ -52,7 +52,7 @@ suite('api.js', function() {
     };
     var result = api.compile('var a = 1;', options, 'a.js');
     assert.equal(
-        result.indexOf('System.registerModule("a.js", [], function(require) {'),
+        result.indexOf('$traceurRuntime.registerModule("a.js", [], function(require) {'),
         0,
         'The module factory passes require');
   });

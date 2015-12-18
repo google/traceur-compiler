@@ -17,6 +17,7 @@ import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
 import {ExportsList} from '../codegeneration/module/ModuleSymbol.js';
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Options} from '../Options.js';
+import {ModuleStore} from './ModuleStore.js';
 
 
 var NOT_STARTED = 0;
@@ -158,7 +159,7 @@ class BundledCodeUnit extends CodeUnit {
     var normalizedNames =
         this.deps.map((name) => this.loader_.normalize(name));
     var module = this.execute.apply(Reflect.global, normalizedNames);
-    System.set(this.normalizedName, module);
+    ModuleStore.setModule(this.normalizedName, module);
     return module;
   }
 }
@@ -326,7 +327,7 @@ export class InternalLoader {
    * @param {string=} address, URL
    */
   script(code, name, referrerName, address, metadata) {
-    var normalizedName = System.normalize(name || '', referrerName, address);
+    var normalizedName = ModuleStore.normalize(name || '', referrerName, address);
     var codeUnit = new EvalCodeUnit(this.loaderCompiler, code, 'script',
                                     normalizedName, referrerName, address);
     var key = {};
@@ -354,7 +355,7 @@ export class InternalLoader {
   }
 
   getOrCreateCodeUnit_(name, referrerName, address, metadata) {
-    var normalizedName = System.normalize(name, referrerName, address);
+    var normalizedName = ModuleStore.normalize(name, referrerName, address);
     // TODO(jjb): embed type in name per es-discuss Yehuda Katz,
     // eg import 'name,script';
     var type = 'module';

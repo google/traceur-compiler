@@ -23,6 +23,7 @@ import {
 import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
 import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
 import {Options} from '../../../src/Options.js';
+import {ModuleStore} from '../../../src/runtime/ModuleStore.js';
 
 function getTestLoader() {
   return new System.constructor();
@@ -64,7 +65,7 @@ suite('Loader.js', function() {
   });
 
   test('Loader.PreCompiledModule', function(done) {
-    var traceur = System.get('traceur@');
+    var traceur = ModuleStore.get('traceur@');
     System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.util.Options, module.util.Options);
       done();
@@ -87,7 +88,7 @@ suite('Loader.js', function() {
     loader.script(src, {name: name, metadata: metadata}).then(
       function(result) {
         $traceurRuntime.options.sourceMaps = false;
-        var normalizedName = System.normalize(name);
+        var normalizedName = ModuleStore.normalize(name);
         var sourceMap = loader.getSourceMap(normalizedName);
         assert(sourceMap, 'the sourceMap is defined');
         assert.equal(43, result);
@@ -251,7 +252,7 @@ suite('Loader.js', function() {
   });
 
   test('Loader.define', function(done) {
-    var name = System.normalize('./test_define.js');
+    var name = ModuleStore.normalize('./test_define.js');
     getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
       var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\n' +
@@ -261,7 +262,7 @@ suite('Loader.js', function() {
       });
     }).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // no change
-      var definedModule = System.get(name);
+      var definedModule = ModuleStore.get(name);
       assert.equal(7, mod.currentSideEffect());  // module body evaluated
       assert.equal(4, definedModule.d);  // define does exports
       assert.equal('A', definedModule.a);  // define does imports
@@ -270,7 +271,7 @@ suite('Loader.js', function() {
   });
 
   test('Loader.define.Fail', function(done) {
-    var name = System.normalize('./test_define.js');
+    var name = ModuleStore.normalize('./test_define.js');
     getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       var src = 'syntax error';
       getTestLoader().define(name, src, {}).then(function() {
@@ -284,7 +285,7 @@ suite('Loader.js', function() {
   });
 
   test('Loader.defineWithSourceMap', function(done) {
-    var normalizedName = System.normalize('./test_define_with_source_map.js');
+    var normalizedName = ModuleStore.normalize('./test_define_with_source_map.js');
     var loader = getTestLoader();
     var metadata = {traceurOptions: {sourceMaps: true}};
     var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\nexport var d = 4;\n';

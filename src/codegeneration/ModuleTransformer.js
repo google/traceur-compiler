@@ -38,6 +38,10 @@ import {
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
 import {
+  resolveUrl,
+  canonicalizeUrl
+} from '../../src/util/url.js';
+import {
   createArgumentList,
   createExpressionStatement,
   createIdentifierExpression,
@@ -87,8 +91,13 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
-    let normalizedName = System.normalize(moduleSpecifier.token.processedValue, this.moduleName);
-    return this.getTempVarNameForModuleName(normalizedName);
+    let name = moduleSpecifier.token.processedValue;
+    if (name[0] === '.' && this.moduleName) {
+      name = resolveUrl(this.moduleName, name);
+    } else {
+      name = canonicalizeUrl(name);
+    }
+    return this.getTempVarNameForModuleName(name);
   }
 
   transformScript(tree) {
@@ -141,7 +150,7 @@ export class ModuleTransformer extends TempVarTransformer {
               ${functionExpression});`;
     }
     return parseStatements
-        `System.registerModule(${this.moduleName}, [], ${functionExpression});`;
+        `$traceurRuntime.registerModule(${this.moduleName}, [], ${functionExpression});`;
   }
 
   /**
@@ -276,8 +285,8 @@ export class ModuleTransformer extends TempVarTransformer {
     assert(this.moduleName);
     let name = tree.token.processedValue;
     // import/module {x} from './name.js' is relative to the current file.
-    let normalizedName = System.normalize(name, this.moduleName);
-    return parseExpression `System.get(${normalizedName})`;
+    return parseExpression `$traceurRuntime.getModule(
+      $traceurRuntime.normalizeModuleName(${name}, ${this.moduleName}));`;
   }
 
   transformImportDeclaration(tree) {
