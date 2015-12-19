@@ -1,6 +1,6 @@
 
 var assert = require('chai').assert;
-var traceurSystem = global.System;
+var traceurSystem = require('../src/node/System.js');
 var System = require('../third_party/es6-module-loader/index').System;
 global.System = traceurSystem;
 var Options = global.traceur.util.Options;
