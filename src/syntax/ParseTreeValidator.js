@@ -84,11 +84,12 @@ import {
   IMPORTED_BINDING,
   IMPORT_CLAUSE_PAIR,
   IMPORT_SPECIFIER_SET,
+  IMPORT_TYPE_CLAUSE,
   JSX_ATTRIBUTE,
   JSX_ELEMENT_NAME,
   JSX_ELEMENT,
   JSX_PLACEHOLDER,
-  JSX_TEXT,  
+  JSX_TEXT,
   LITERAL_PROPERTY_NAME,
   METHOD,
   MODULE_SPECIFIER,
@@ -705,7 +706,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       this.check_(tree.importClause.type === NAME_SPACE_IMPORT ||
                   tree.importClause.type === IMPORTED_BINDING ||
                   tree.importClause.type === IMPORT_SPECIFIER_SET ||
-                  tree.importClause.type === IMPORT_CLAUSE_PAIR,
+                  tree.importClause.type === IMPORT_CLAUSE_PAIR ||
+                  tree.importClause.type === IMPORT_TYPE_CLAUSE,
                   tree.importClause,
                   'Invalid import clause');
     }

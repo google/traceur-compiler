@@ -209,8 +209,8 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.destructuring)
       append(DestructuringTransformer);
 
-    if (transformOptions.types)
-      append(TypeTransformer);
+      if (transformOptions.types)
+        append(TypeTransformer);
 
     if (transformOptions.spread)
       append(SpreadTransformer);

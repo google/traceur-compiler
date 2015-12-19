@@ -108,4 +108,8 @@ export class ExportVisitor extends ModuleVisitor {
     this.visitAny(tree.binding);
     // Don't visit the initializer.
   }
+
+  visitTypeAliasDeclaration(tree) {
+    this.addExport(tree.name.value, tree);
+  }
 }
