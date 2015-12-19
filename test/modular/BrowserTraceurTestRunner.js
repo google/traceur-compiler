@@ -15,7 +15,7 @@
 /** @fileoverview Configure mocha for Traceur testing.in browsers */
 
 import {TraceurTestRunner} from './TraceurTestRunner.js';
-import {webLoader} from '../../src/runtime/webLoader.js';
+import {webLoader} from '../../src/loader/webLoader.js';
 
 function optionsOnURL() {
   let params = window.location.search.substring(1);

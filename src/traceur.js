@@ -14,4 +14,4 @@
 
 export * from './util-imports.js';
 export * from './compiler-imports.js';
-export * from './runtime/loader-imports.js';
+export * from './loader/loader-imports.js';

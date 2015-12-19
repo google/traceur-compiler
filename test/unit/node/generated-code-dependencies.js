@@ -44,7 +44,7 @@ suite('context test', function() {
   }
 
   function executeFileWithRuntime(fileName, options, debug) {
-    var TraceurLoader = traceur.runtime.TraceurLoader;
+    var TraceurLoader = traceur.loader.TraceurLoader;
     var loader = new TraceurLoader(nodeLoader);
     var source = fs.readFileSync(fileName, 'utf-8');
     var metadata = {traceurOptions: options};

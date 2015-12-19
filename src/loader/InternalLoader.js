@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {assert} from '../util/assert.js';
-import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {LoaderCompiler} from './LoaderCompiler.js';
 import {ExportsList} from '../codegeneration/module/ModuleSymbol.js';
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Options} from '../Options.js';

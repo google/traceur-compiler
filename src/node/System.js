@@ -17,7 +17,7 @@
 var fs = require('fs');
 var traceur = require('./traceur.js');
 
-var System = new traceur.runtime.NodeTraceurLoader();
+var System = new traceur.loader.NodeTraceurLoader();
 
 var traceurMap;
 

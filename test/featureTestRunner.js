@@ -17,7 +17,7 @@ import {StringMap} from '../src/util/StringMap.js';
 import {NodeTraceurTestRunner} from './modular/NodeTraceurTestRunner.js';
 import {BrowserTraceurTestRunner} from './modular/BrowserTraceurTestRunner.js';
 import {Options} from '../src/Options.js';
-import {ModuleStore} from '../src/runtime/ModuleStore.js';
+import {ModuleStore} from '../src/loader/ModuleStore.js';
 
 import {assert, assertArrayEquals} from './asserts.js';
 export * from './asserts.js';
