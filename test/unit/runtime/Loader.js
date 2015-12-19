@@ -141,6 +141,34 @@ suite('Loader.js', function() {
       }).catch(done);
   });
 
+  test('LoaderModuleWithSubdirNoPostfix', function(done) {
+    var code =
+        'import * as d from "./test/unit/runtime/subdir/test_d";\n' +
+        '\n' +
+        'export var arr = [d.name, d.e.name];\n';
+
+    var result = getTestLoader().module(code, {}).then(
+      function(module) {
+        assert.equal('D', module.arr[0]);
+        assert.equal('E', module.arr[1]);
+        done();
+      }).catch(done);
+  });
+
+  test('LoaderModuleFailToFindFile', function(done) {
+    var code =
+        'import * as d from "./test/unit/runtime/subdir/test_is_not_here";\n' +
+        '\n' +
+        'export var arr = [d.name, d.e.name];\n';
+    var result = getTestLoader().module(code, {}).then(
+      function(value) {
+        fail('Should not have succeeded');
+        done();
+      }, function(ex) {
+        done();
+      }).catch(done);
+  });
+
   test('LoaderModuleFail', function(done) {
     var code = 'DeliboratelyUndefined; \n';
     var result = getTestLoader().module(code, {}).then(
