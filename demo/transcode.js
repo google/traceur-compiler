@@ -18,7 +18,7 @@ import {
   SourceMapGenerator,
   SourceMapConsumer
 } from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
-import {webLoader} from 'traceur@0.0/src/runtime/webLoader.js';
+import {webLoader} from 'traceur@0.0/src/loader/webLoader.js';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {

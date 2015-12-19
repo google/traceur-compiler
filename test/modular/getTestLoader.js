@@ -23,7 +23,7 @@ if (typeof window === 'undefined') {  // Node
   fileLoader = require('../../src/node/nodeLoader.js');
 } else {  // Browser
   url = resolveUrl(window.location.href, 'test/unit/runtime/modules.js');
-  fileLoader = get('src/runtime/webLoader.js').webLoader;
+  fileLoader = get('src/loader/webLoader.js').webLoader;
 }
 
 export function getTestLoader() {

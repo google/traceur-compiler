@@ -23,7 +23,7 @@ import {
 import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
 import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
 import {Options} from '../../../src/Options.js';
-import {ModuleStore} from '../../../src/runtime/ModuleStore.js';
+import {ModuleStore} from '../../../src/loader/ModuleStore.js';
 
 function getTestLoader() {
   return new System.constructor();

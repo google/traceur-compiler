@@ -14,11 +14,11 @@
 
 // Applies Traceur to all scripts in a Web page.
 
-import {Loader} from './runtime/Loader.js';
-import {BrowserTraceurLoader} from './runtime/TraceurLoader.js';
+import {Loader} from './loader/Loader.js';
+import {BrowserTraceurLoader} from './loader/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
 import {Options} from './Options.js';
-import {webLoader} from './runtime/webLoader.js';
+import {webLoader} from './loader/webLoader.js';
 
 export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
 

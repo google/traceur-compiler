@@ -20,7 +20,7 @@ import {InlineLoaderCompiler} from './InlineLoaderCompiler.js';
 import {NodeTraceurLoader} from './NodeTraceurLoader.js';
 import {TraceurLoader} from './TraceurLoader.js';
 
-export let runtime = {
+export let loader = {
   BrowserTraceurLoader,
   InlineLoaderCompiler,
   Loader,

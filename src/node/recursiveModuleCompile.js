@@ -72,8 +72,8 @@ function forEachRecursiveModuleCompile(outputDir, includes, options) {
   return Promise.all(includes.map(getPromise));
 }
 
-var TraceurLoader = traceur.runtime.TraceurLoader;
-var InlineLoaderCompiler = traceur.runtime.InlineLoaderCompiler;
+var TraceurLoader = traceur.loader.TraceurLoader;
+var InlineLoaderCompiler = traceur.loader.InlineLoaderCompiler;
 var Options = traceur.util.Options;
 
 /**

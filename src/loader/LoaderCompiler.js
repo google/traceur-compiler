@@ -20,7 +20,7 @@ import {ModuleSpecifierVisitor} from
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol.js';
 import {Parser} from '../syntax/Parser.js';
 import {SourceFile} from '../syntax/SourceFile.js';
-import {systemjs} from '../runtime/system-map.js';
+import {systemjs} from './system-map.js';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator.js';
 import {isAbsolute, resolveUrl} from '../util/url.js';

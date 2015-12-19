@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LoaderCompiler} from '../runtime/LoaderCompiler.js';
+import {LoaderCompiler} from '../loader/LoaderCompiler.js';
 
 export class NodeLoaderCompiler extends LoaderCompiler {
   constructor() {

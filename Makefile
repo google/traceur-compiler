@@ -1,7 +1,7 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/ModuleStoreImpl.js \
+  src/loader/ModuleStoreImpl.js \
   # end files that must be script.
 
 POLYFILL_SRC = \
@@ -169,7 +169,7 @@ boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
-	@rm -f src/runtime/version.js
+	@rm -f src/loader/version.js
 	@rm -rf build/currentSemVer.mk
 	@rm -f build/es6-no-modules/*
 	@rm -f $(GENSRC)
@@ -208,7 +208,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: src/runtime/version.js \
+build/compiled-by-previous-traceur.js: src/loader/version.js \
 		$(PREV_NODE) \
 		$(SRC) \
 	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
@@ -269,7 +269,7 @@ src/codegeneration/ParseTreeTransformer.js: \
   build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
 
-src/runtime/version.js: package.json
+src/loader/version.js: package.json
 	echo "// generated in Makefile.\nexport let version = '$(PACKAGE_VERSION)';\n" > $@
 
 unicode-tables: \
