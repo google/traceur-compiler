@@ -301,13 +301,4 @@
   $traceurRuntime.setModule = ModuleStore.set;
   $traceurRuntime.normalizeModuleName = ModuleStore.normalize;
 
-  // These can be removed after we publish again.
-  global.System = {
-    register: ModuleStore.register.bind(ModuleStore),
-    registerModule: ModuleStore.registerModule.bind(ModuleStore),
-    get: ModuleStore.get,
-    set: ModuleStore.set,
-    normalize: ModuleStore.normalize,
-  };
-
 })(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);
