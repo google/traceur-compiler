@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BrowserTraceurLoader} from '../runtime/TraceurLoader.js';
+import {BrowserTraceurLoader} from '../loader/TraceurLoader.js';
 
 let traceurLoader = new BrowserTraceurLoader();
 
@@ -20,4 +20,7 @@ Reflect.global.System = traceurLoader;
 
 export { traceurLoader as System }
 
-traceurLoader.map = traceurLoader.semverMap(__moduleName);
+traceurLoader.map = traceurLoader.semverMap('traceur@' + traceurLoader.version);
+
+$traceurRuntime.normalizeModuleName =
+		traceurLoader.normalize.bind(traceurLoader);

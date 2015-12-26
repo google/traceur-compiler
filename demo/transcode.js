@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BrowserTraceurLoader} from 'traceur@0.0/src/runtime/TraceurLoader.js';
+import {BrowserTraceurLoader} from 'traceur@0.0/src/loader/TraceurLoader.js';
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter.js';
 import {
   SourceMapGenerator,

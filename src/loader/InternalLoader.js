@@ -355,7 +355,7 @@ export class InternalLoader {
   }
 
   getOrCreateCodeUnit_(name, referrerName, address, metadata) {
-    var normalizedName = ModuleStore.normalize(name, referrerName, address);
+    var normalizedName = System.normalize(name, referrerName, address);
     // TODO(jjb): embed type in name per es-discuss Yehuda Katz,
     // eg import 'name,script';
     var type = 'module';

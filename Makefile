@@ -102,7 +102,8 @@ test: bin/traceur.js \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version \
 	  test/features \
-	  test-experimental
+	  test-experimental \
+	  bin/BrowserSystem.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -218,6 +219,9 @@ build/compiled-by-previous-traceur.js: src/loader/version.js \
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+
+bin/BrowserSystem.js: src/browser/System.js
+	./traceur --out $@ $(TFLAGS) $^
 
 #
 # Rules to test traceur.js compiled through path that first compiles out modules then es6.

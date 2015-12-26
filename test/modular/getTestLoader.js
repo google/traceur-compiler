@@ -27,6 +27,6 @@ if (typeof window === 'undefined') {  // Node
 }
 
 export function getTestLoader() {
-  var TraceurLoader = get('src/runtime/TraceurLoader.js').TraceurLoader;
+  var TraceurLoader = get('src/loader/TraceurLoader.js').TraceurLoader;
   return new TraceurLoader(fileLoader, url);
 }
