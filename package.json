@@ -34,8 +34,9 @@
     "precheckout-upstream": "git fetch upstream && git branch -D upstream_master || true",
     "checkout-upstream":  "git checkout -b upstream_master upstream/master",
     "rebuild": "make clean && make test",
-    "prepublish": "npm run checkout-upstream && npm run rebuild",
-    "postpublish": "npm run push-published && npm run push-gh-pages",
+    "prejust-publish": "npm run checkout-upstream && npm run rebuild",
+    "just-publish": "npm publish # workaround https://github.com/npm/npm/issues/10074 ",
+    "postjust-publish": "npm run push-published && npm run push-gh-pages",
 
     "/** Update Version Number **/": "After publishing version N, update the version number and commit the result",
     "store-semver": "node build/printSemver.js > build/npm-version-number",
