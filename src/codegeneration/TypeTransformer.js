@@ -123,7 +123,7 @@ export class TypeTransformer extends ParseTreeTransformer {
   }
 
   transformImportDeclaration(tree) {
-    if (tree.importClause.type === IMPORT_TYPE_CLAUSE) {
+    if (!tree.importClause || tree.importClause.type === IMPORT_TYPE_CLAUSE) {
       return new AnonBlock(null, []);
     }
     return super.transformImportDeclaration(tree);

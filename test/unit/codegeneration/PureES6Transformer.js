@@ -29,7 +29,7 @@ suite('PureES6Transformer.js', function() {
     return parser.parseModule();
   }
 
-  test('Inline', function() {
+  test('Inline', function(done) {
     var options = new Options({
       modules: 'inline'
     });
@@ -39,6 +39,7 @@ suite('PureES6Transformer.js', function() {
     var reporter = new ErrorReporter();
 
     var code = [
+      `import './resources/test_0.js';`,
       `import {TestA} from ${"'./resources/test_a.js'"};`,
       `import {TestB} from ${"'./resources/test_b.js'"};`,
       'export class App {',
@@ -69,5 +70,6 @@ suite('PureES6Transformer.js', function() {
     var transformer = new PureES6Transformer(reporter, options, metadata);
     var transformed = transformer.transform(tree);
     assert.equal(write(transformed), write(expectedTree));
+    done();
   });
 });
