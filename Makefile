@@ -96,14 +96,14 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: bin/traceur.js \
+	  bin/BrowserSystem.js \
 		test/unit \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version \
 	  test/features \
-	  test-experimental \
-	  bin/BrowserSystem.js
+	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 

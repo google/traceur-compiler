@@ -17,8 +17,6 @@ import {LoaderCompiler} from './LoaderCompiler.js';
 import {ExportsList} from '../codegeneration/module/ModuleSymbol.js';
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Options} from '../Options.js';
-import {ModuleStore} from './ModuleStore.js';
-
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -146,7 +144,7 @@ class PreCompiledCodeUnit extends CodeUnit {
  */
 class BundledCodeUnit extends CodeUnit {
   constructor(loaderCompiler, normalizedName, name, referrerName, address,
-      deps, execute) {
+      deps, execute, setModule) {
     super(loaderCompiler, normalizedName, 'module', TRANSFORMED,
         name, referrerName, address);
     this.deps = deps;
@@ -159,7 +157,7 @@ class BundledCodeUnit extends CodeUnit {
     var normalizedNames =
         this.deps.map((name) => this.loader_.normalize(name));
     var module = this.execute.apply(Reflect.global, normalizedNames);
-    ModuleStore.setModule(this.normalizedName, module);
+    setModule(this.normalizedName, module);
     return module;
   }
 }
@@ -327,7 +325,7 @@ export class InternalLoader {
    * @param {string=} address, URL
    */
   script(code, name, referrerName, address, metadata) {
-    var normalizedName = ModuleStore.normalize(name || '', referrerName, address);
+    var normalizedName = this.loader_.normalize(name || '', referrerName, address);
     var codeUnit = new EvalCodeUnit(this.loaderCompiler, code, 'script',
                                     normalizedName, referrerName, address);
     var key = {};
@@ -355,7 +353,7 @@ export class InternalLoader {
   }
 
   getOrCreateCodeUnit_(name, referrerName, address, metadata) {
-    var normalizedName = System.normalize(name, referrerName, address);
+    var normalizedName = this.loader_.normalize(name, referrerName, address);
     // TODO(jjb): embed type in name per es-discuss Yehuda Katz,
     // eg import 'name,script';
     var type = 'module';
@@ -376,7 +374,8 @@ export class InternalLoader {
         if (bundledModule) {
           codeUnit = new BundledCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address,
-              bundledModule.deps, bundledModule.execute);
+              bundledModule.deps, bundledModule.execute,
+              (key, module) => this.loader_set(key, module));
         } else {
           codeUnit = new LoadCodeUnit(this.loaderCompiler, normalizedName,
               name, referrerName, address);
