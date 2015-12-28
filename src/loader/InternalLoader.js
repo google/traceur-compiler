@@ -370,17 +370,9 @@ export class InternalLoader {
             name, referrerName, address, module);
         codeUnit.type = 'module';
       } else {
-        var bundledModule = this.loader_.bundledModule(name);
-        if (bundledModule) {
-          codeUnit = new BundledCodeUnit(this.loaderCompiler, normalizedName,
-              name, referrerName, address,
-              bundledModule.deps, bundledModule.execute,
-              (key, module) => this.loader_set(key, module));
-        } else {
-          codeUnit = new LoadCodeUnit(this.loaderCompiler, normalizedName,
-              name, referrerName, address);
-          codeUnit.type = type;
-        }
+        codeUnit = new LoadCodeUnit(this.loaderCompiler, normalizedName,
+            name, referrerName, address);
+        codeUnit.type = type;
       }
       // We copy the incoming metadata to pass values from the API and to
       // inherit value from the API call into modules imported by the root.
