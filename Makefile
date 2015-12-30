@@ -96,6 +96,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: bin/traceur.js \
+	  bin/BrowserSystem.js \
 		test/unit \
 	  test/unit/runtime/traceur-runtime \
 	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
@@ -218,6 +219,9 @@ build/compiled-by-previous-traceur.js: src/loader/version.js \
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+
+bin/BrowserSystem.js: src/browser/System.js
+	./traceur --out $@ $(TFLAGS) $^
 
 #
 # Rules to test traceur.js compiled through path that first compiles out modules then es6.
