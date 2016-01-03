@@ -36,6 +36,7 @@ import {
   createFunctionExpression,
   createIdentifierExpression as id,
   createObjectLiteralForDescriptor,
+  createUseStrictDirective,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -271,7 +272,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
   }
 
   wrapModule(statements) {
-    let prolog = super.moduleProlog();
+    let prolog = [createUseStrictDirective()];
 
     statements = prolog.concat(statements);
 
