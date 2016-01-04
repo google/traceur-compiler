@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -32,12 +32,11 @@
     "test": "make test",
     "start": "make && node ./demo/expressServer.js",
     "precheckout-upstream": "git fetch upstream && git branch -D upstream_master || true",
-    "checkout-upstream":  "git checkout -b upstream_master upstream/master",
+    "checkout-upstream": "git checkout -b upstream_master upstream/master",
     "rebuild": "make clean && make test",
     "prejust-publish": "npm run checkout-upstream && npm run rebuild",
     "just-publish": "npm publish # workaround https://github.com/npm/npm/issues/10074 ",
     "postjust-publish": "npm run push-published && npm run push-gh-pages",
-
     "/** Update Version Number **/": "After publishing version N, update the version number and commit the result",
     "store-semver": "node build/printSemver.js > build/npm-version-number",
     "update-semver": "npm run store-semver && git diff --quiet -- package.json && node build/incrementSemver.js",
@@ -47,7 +46,6 @@
     "pre-push-published": "npm run commit-published && npm run tag-published",
     "push-published": "git push --tags upstream upstream_master:master && git push upstream upstream_master:master  # Push source for version N+1",
     "postpush-published": "git checkout master && git branch -D upstream_master",
-
     "/** Update gh-pages branch **/": "Ater publishing version N, update the github docs and REPL",
     "precheckout-ghpages": "git branch -D upstream_gh_pages || true",
     "checkout-ghpages": "git checkout -b upstream_gh_pages upstream/master",
@@ -82,7 +80,7 @@
     "regjsgen": "0.2.0",
     "regjsparser": "0.1.5",
     "requirejs": "2.x",
-    "traceur": "0.0.94",
+    "traceur": "0.0.95",
     "promises-aplus-tests": "2.x",
     "webcomponents.js": "^0.5.4-1"
   },
