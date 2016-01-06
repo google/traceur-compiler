@@ -119,6 +119,30 @@ class DeclarationExtractionTransformer extends HoistVariablesTransformer {
 }
 
 /**
+ * Replaces __moduleName with $__moduleContext.id
+ *
+ * This allows code to use the __moduleName temporary syntax to reference 
+ * the current module name for relative importing via System.import('./x', __moduleName)
+ * In the future this will be deprecated and $__moduleContext extended in the implementation
+ * to support any contextual metadata and loading features determined in the spec.
+ */
+class ModuleNameIdentifierTransformer extends ScopeTransformer {
+  constructor() {
+    super('__moduleName');
+    this.usesModuleName = false;
+  }
+
+  transformIdentifierExpression(tree) {
+    if (tree.identifierToken.value === '__moduleName') {
+      this.usesModuleName = true;
+      return parseExpression `$__moduleContext.id`;
+    }
+    return super.transformIdentifierExpression(tree);
+  }
+
+}
+
+/**
  * Replaces assignments of an identifier with an update function to update
  * dependent modules
  *
@@ -254,12 +278,6 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     this.exportStarBindings = [];
   }
 
-  transformIdentifierExpression(tree) {
-    if (tree.identifierToken.value === '__moduleName')
-      this.usesModuleName = true;
-    return super.transformIdentifierExpression(tree);
-  }
-
   getModuleName(tree) {
     if (this.anonymousModule)
       return null;
@@ -279,13 +297,13 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
     if (this.usesModuleName) {
       if (this.moduleName) {
         return parseStatements `System.register(${this.moduleName},
-            ${this.dependencies}, function($__export, __moduleName) {
+            ${this.dependencies}, function($__export, $__moduleContext) {
               ${statements}
             });`;
       }
 
       return parseStatements
-          `System.register(${this.dependencies}, function($__export, __moduleName) {
+          `System.register(${this.dependencies}, function($__export, $__moduleContext) {
             ${statements}
           });`;
     }
@@ -346,6 +364,12 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    */
   appendExportStatement(statements) {
     let declarationExtractionTransformer = new DeclarationExtractionTransformer();
+
+    // convert __moduleName identifiers into $__moduleContext.id
+    let moduleNameIdentifierTransformer = new ModuleNameIdentifierTransformer();
+    statements = moduleNameIdentifierTransformer.transformList(statements);
+    if (moduleNameIdentifierTransformer.usesModuleName)
+      this.usesModuleName = true;
 
     // replace local export assignments with binding functions
     // using InsertBindingAssignmentTransformer
