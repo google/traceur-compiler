@@ -254,7 +254,7 @@ export class TraceurLoader extends Loader {
         map[packageName + '@' + major + '.' + minor] = versionPart;
         return map;
       }
-      throw new Error('semverMap found no matching semver regexp in ' + semvar);
+      throw new Error('semverMap found no matching semver regexp in ' + semver);
     }
     throw new Error('semverMap expected name@semver, got ' + versionPart + ' ' + normalizedName);
   }
