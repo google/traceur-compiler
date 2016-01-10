@@ -82,7 +82,7 @@ endif
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-PACKAGE_VERSION=$(shell node build/printSemver.js)
+PACKAGE_VERSION=$(shell node build/versionInfo.js -v)
 
 build: bin/traceur.js wiki
 
@@ -273,8 +273,8 @@ src/codegeneration/ParseTreeTransformer.js: \
   build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
 
-src/loader/version.js: package.json
-	echo "// generated in Makefile.\nexport let version = '$(PACKAGE_VERSION)';\n" > $@
+src/loader/version.js: package.json build/versionInfo.js
+	node ./build/versionInfo.js -m > $@
 
 unicode-tables: \
 	build/build-unicode-tables.js
@@ -296,7 +296,7 @@ bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
 updateSemver: # unless the package.json has been manually edited.
-	node build/printSemver.js > build/npm-version-number
+	node build/versionInfo.js -v > build/npm-version-number
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
 # --- Targets that push upstream.
