@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // incrementSemver:
-// update package.json to the semver number for the next PATCH level 
+// update package.json to the semver number for the next PATCH level
 // (Similar to npm version, but also changes devDependency)
 
 
@@ -33,19 +33,42 @@ function filename() {
 	return path.join(__dirname, '..', 'package.json');
 }
 
-function printSemver() {
+function checkedData() {
 	var data = require(filename());
-	console.log(data.version);	
+	if (!data) {
+		throw new Error('Unable to load ' + filename());
+	}
+	return data;
+}
+
+function getVersion() {
+	return checkedData().version;
+}
+
+function printSemver() {
+	console.log(getVersion());
 }
 
 function incrementSemver() {
-	var data = require(filename());
-	data = incrementPatchVersion(data);
+	data = incrementPatchVersion(checkedData());
 	fs.writeFileSync(filename(), JSON.stringify(data, null, 2) + '\n');
+}
+
+function printVersionModule() {
+	console.log('export let version = \'' + getVersion() + '\';' +
+			' // generated source, do not edit');
 }
 
 module.exports = {
 	printSemver: printSemver,
 	incrementSemver: incrementSemver
 };
-printSemver();
+
+if (process.argv[2] == '-v') {
+	printSemver();
+} else if (process.argv[2] == '-m') {
+	printVersionModule();
+} else {
+	console.log('Usage: ' + process.argv[1] + ' -v // print semver');
+	console.log('Usage: ' + process.argv[1] + ' -m // print version module');
+}
