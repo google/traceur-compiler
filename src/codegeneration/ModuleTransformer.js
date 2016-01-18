@@ -42,7 +42,7 @@ import {assert} from '../util/assert.js';
 import {
   resolveUrl,
   canonicalizeUrl
-} from '../../src/util/url.js';
+} from '../util/url.js';
 import {
   createArgumentList,
   createExpressionStatement,
