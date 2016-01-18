@@ -299,6 +299,9 @@ updateSemver: # unless the package.json has been manually edited.
 	node build/versionInfo.js -v > build/npm-version-number
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
+dist/commonjs:
+	./traceur --dir src/ dist/commonjs/ --modules=commonjs
+
 # --- Targets that push upstream.
 
 # We start with a clean repo and an 'upstream' remote like github sets up.
@@ -313,6 +316,7 @@ git-upstream-checkout: # make sure we are on up-to-date upstream repo
 npm-publish: git-upstream-checkout
 	$(MAKE) clean # sync to the npm version N-1
 	$(MAKE) test  # build version N
+	$(MAKE) dist/commonjs
 	npm publish   # Publish built version N
 
 update-version-number: npm-publish updateSemver
@@ -359,6 +363,6 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 	./traceur --out $@ $^
 
 
-.PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
+.PHONY: build min test test-list force boot clean distclean unicode-tables prepublish dist/commonjs
 
 .SUFFIXES:

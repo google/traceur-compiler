@@ -25,7 +25,8 @@
   "files": [
     "bin/traceur.js",
     "bin/traceur-runtime.js",
-    "src/node/*.js",
+    "src/",
+    "dist/",
     "traceur"
   ],
   "scripts": {
