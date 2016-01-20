@@ -97,7 +97,7 @@ const EXPERIMENTAL = 0;
 const ON_BY_DEFAULT = 1;
 
 /**
- * Adds a feature option.  Feature options can be tested with parseOptions
+ * Adds a feature option. Feature options can be tested with parseOptions
  * and transformOptions.
  */
 function addFeatureOption(name, kind) {
