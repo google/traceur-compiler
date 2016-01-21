@@ -280,7 +280,7 @@ unicode-tables: \
 	build/build-unicode-tables.js
 	node $^ > src/syntax/unicode-tables.js
 
-%.js: %.js-template.js
+%.js: %.js-template
 	node build/expand-js-template.js $< $@
 
 # set NO_PREPUBLISH=1 to prevent endless loop of makes and npm installs.
