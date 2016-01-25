@@ -71,7 +71,7 @@ export const optionsV01 = enumerableOnlyObject({
 
 export const versionLockedOptions = optionsV01;
 
-// Options are just a plain old object. There are two read only views on this
+// Options are just a plain old object. There are two read-only views on this
 // object, parseOptions and transformOptions.
 //
 // To set an option you do `options.classes = true`.
@@ -138,7 +138,7 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('unicodeEscapeSequences', ON_BY_DEFAULT);  // 11.8.4
 addFeatureOption('unicodeExpressions', ON_BY_DEFAULT);
 
-// EXPERIMENTAL due to performance impact although properly part of ES6
+// EXPERIMENTAL due to performance impact, although properly part of ES6.
 addFeatureOption('properTailCalls', EXPERIMENTAL);
 
 // EXPERIMENTAL
@@ -262,7 +262,7 @@ export class Options {
   }
 
   /**
-   * @return {Options} with every experimental option set true.
+   * @return {Options} with every experimental option set to true.
    */
   static experimental() {
     return new Options(experimentalOptions);
@@ -279,7 +279,7 @@ export class Options {
   }
 
   /**
-   * @return {Options} with every atScript option set true.
+   * @return {Options} with every atScript option set to true.
    */
   static atscript() {
     return new Options({types: true, annotations: true, memberVariables: true});
@@ -424,7 +424,7 @@ export class CommandOptions extends Options {
   }
   /**
    * Parses a part of a command line and sets the respective option.
-   * The following patterns are supported.
+   * The following patterns are supported:
    *
    *   --spread, --spread=true
    *   --spread=parse
@@ -441,7 +441,7 @@ export class CommandOptions extends Options {
   }
 
   setOptionCoerced(name, value) {
-    // commander.js give value = null if no argument follows --option-name
+    // commander.js give value = null if no argument follows --option-name.
     if (typeof value !== 'undefined' && value !== null)
       value = coerceOptionValue(value);
     else
@@ -487,7 +487,7 @@ export function toDashCase(s) {
  * TODO(jjb): move to src/node
  * This is called by build.js to add options to the commander command line
  * library.
- * @param {Commander} flags The commander object.
+ * @param {Commander} flags the commander object.
  */
 export function addOptions(flags, commandOptions) {
   // Start with the non-boolean options.
@@ -554,7 +554,7 @@ export function addOptions(flags, commandOptions) {
   Object.keys(commandOptions).forEach(function(name) {
     let dashedName = toDashCase(name);
     if (flags.optionFor('--' + name) || flags.optionFor('--' + dashedName)) {
-      return;   // non-boolean already in flags.
+      return;   // Non-boolean already in flags.
     } else if (name in featureOptions) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
