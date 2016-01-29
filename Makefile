@@ -302,53 +302,6 @@ updateSemver: # unless the package.json has been manually edited.
 dist/commonjs:
 	./traceur --dir src/ dist/commonjs/ --modules=commonjs
 
-# --- Targets that push upstream.
-
-# We start with a clean repo and an 'upstream' remote like github sets up.
-
-git-upstream-checkout: # make sure we are on up-to-date upstream repo
-	git fetch upstream
-	-git branch -D upstream_master
-	git checkout -b upstream_master upstream/master
-
-# Now we are on version N with N-1 in npm, update
-
-npm-publish: git-upstream-checkout
-	$(MAKE) clean # sync to the npm version N-1
-	$(MAKE) test  # build version N
-	$(MAKE) dist/commonjs
-	npm publish   # Publish built version N
-
-update-version-number: npm-publish updateSemver
-	$(MAKE) clean # sync to the npm version N after update
-	$(MAKE) test  # build version N+1
-
-git-update-version: update-version-number
-	cat build/npm-version-number | xargs -I VERSION git commit -a -m "VERSION"
-	cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m "Tagged version VERSION "
-	git push --tags upstream upstream_master:master
-	git push upstream upstream_master:master  # Push source for version N+1
-
-# master was updated with version N+1, npm to version N
-
-git-gh-rebase: git-update-version
-	-git branch -D upstream_gh_pages
-	git checkout -b upstream_gh_pages upstream/master
-	cp gh-pages.gitignore .gitignore # tell git to commit built files.
-	$(MAKE) clean # trees.json may have changed.
-	$(MAKE) test # build binaries for VERSION
-	git add src/
-	git add bin/
-	./traceur -v | xargs -I VERSION git commit -a -m "Commit binaries for VERSION"
-	git push -f upstream upstream_gh_pages:gh-pages
-
-git-update-publish: git-gh-rebase
-	git checkout master
-	-git branch -D upstream_master  # clean up
-	-git branch -D upstream_gh_pages
-
-# ---
-
 prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
