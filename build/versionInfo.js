@@ -68,7 +68,10 @@ if (process.argv[2] == '-v') {
 	printSemver();
 } else if (process.argv[2] == '-m') {
 	printVersionModule();
+} else if (process.argv[2] == '-n') {
+	incrementSemver();
 } else {
 	console.log('Usage: ' + process.argv[1] + ' -v // print semver');
 	console.log('Usage: ' + process.argv[1] + ' -m // print version module');
+	console.log('Usage: ' + process.argv[1] + ' -n // increment semver');
 }
