@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.96",
+  "version": "0.0.101",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -40,7 +40,7 @@
     "postjust-publish": "npm run push-published && npm run push-gh-pages",
     "/** Update Version Number **/": "After publishing version N, update the version number and commit the result",
     "store-semver": "node build/versionInfo.js -v > build/npm-version-number",
-    "update-semver": "npm run store-semver && git diff --quiet -- package.json && node build/incrementSemver.js",
+    "update-semver": "npm run store-semver && git diff --quiet -- package.json && node build/versionInfo.js -n",
     "precommit-published": "npm run update-semver && npm run rebuild",
     "commit-published": "cat build/npm-version-number | xargs -I VERSION git commit -a -m \"VERSION\"",
     "tag-published": "cat build/npm-version-number | xargs -I VERSION git tag -a VERSION -m \"Tagged version VERSION \"",
@@ -81,7 +81,7 @@
     "regjsgen": "0.2.0",
     "regjsparser": "0.1.5",
     "requirejs": "2.x",
-    "traceur": "0.0.95",
+    "traceur": "0.0.100",
     "promises-aplus-tests": "2.x",
     "webcomponents.js": "^0.5.4-1"
   },
