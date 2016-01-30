@@ -299,7 +299,7 @@ updateSemver: # unless the package.json has been manually edited.
 	node build/versionInfo.js -v > build/npm-version-number
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
-dist/commonjs:
+dist/commonjs: bin/traceur.js
 	./traceur --dir src/ dist/commonjs/ --modules=commonjs
 
 prepublish: bin/traceur.js bin/traceur-runtime.js
