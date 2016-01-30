@@ -34,7 +34,7 @@
     "start": "make && node ./demo/expressServer.js",
     "precheckout-upstream": "git fetch upstream && git branch -D upstream_master || true",
     "checkout-upstream": "git checkout -b upstream_master upstream/master",
-    "rebuild": "make clean && make test",
+    "rebuild": "make clean && make dist/commonjs && make test",
     "prejust-publish": "npm run checkout-upstream && npm run rebuild",
     "just-publish": "npm publish # workaround https://github.com/npm/npm/issues/10074 ",
     "postjust-publish": "npm run push-published && npm run push-gh-pages",
