@@ -12,10 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import asyncWrap from './modules/asyncWrap.js';
-import initGeneratorFunction from './modules/initGeneratorFunction.js';
-import createGeneratorInstance from './modules/createGeneratorInstance.js';
+const {create} = Object;
+const {floor, random} = Math;
 
-$traceurRuntime.asyncWrap = asyncWrap;
-$traceurRuntime.initGeneratorFunction = initGeneratorFunction;
-$traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+// Private names are a bit simpler than Symbol since it is not supposed to be
+// exposed to user code.
+const privateNames = create(null);
+
+let counter = 0;
+
+/**
+ * Generates a new unique string.
+ * @return {string}
+ */
+function newUniqueString() {
+  return '__$' + floor(random() * 1e9) + '$' + ++counter + '$__';
+}
+
+export function createPrivateName() {
+  let s = newUniqueString();
+  privateNames[s] = true;
+  return s;
+}
+
+function isPrivateName(s) {
+  return privateNames[s];
+}

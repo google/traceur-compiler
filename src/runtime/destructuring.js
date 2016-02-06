@@ -12,14 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function iteratorToArray(iter) {
-  var rv = [];
-  var i = 0;
-  var tmp;
-  while (!(tmp = iter.next()).done) {
-    rv[i++] = tmp.value;
-  }
-  return rv;
-}
-
+import iteratorToArray from './modules/iteratorToArray.js';
 $traceurRuntime.iteratorToArray = iteratorToArray;

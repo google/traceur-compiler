@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import asyncWrap from './modules/asyncWrap.js';
-import initGeneratorFunction from './modules/initGeneratorFunction.js';
-import createGeneratorInstance from './modules/createGeneratorInstance.js';
+import superDescriptor from './superDescriptor.js';
 
-$traceurRuntime.asyncWrap = asyncWrap;
-$traceurRuntime.initGeneratorFunction = initGeneratorFunction;
-$traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+var $TypeError = TypeError;
+
+export default function superSet(self, homeObject, name, value) {
+  var descriptor = superDescriptor(homeObject, name);
+  if (descriptor && descriptor.set) {
+    descriptor.set.call(self, value);
+    return value;
+  }
+  throw $TypeError(`super has no setter '${name}'.`);
+}

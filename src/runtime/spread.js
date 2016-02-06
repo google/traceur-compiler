@@ -12,26 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import checkObjectCoercible from './checkObjectCoercible.js';
-
-function spread() {
-  var rv = [], j = 0, iterResult;
-
-  for (var i = 0; i < arguments.length; i++) {
-    var valueToSpread = checkObjectCoercible(arguments[i]);
-
-    if (typeof valueToSpread[Symbol.iterator] !== 'function') {
-      throw new TypeError('Cannot spread non-iterable object.');
-    }
-
-    var iter = valueToSpread[Symbol.iterator]();
-
-    while (!(iterResult = iter.next()).done) {
-      rv[j++] = iterResult.value;
-    }
-  }
-
-  return rv;
-}
-
+import spread from './modules/spread.js';
 $traceurRuntime.spread = spread;

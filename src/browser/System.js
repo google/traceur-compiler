@@ -18,9 +18,9 @@ let traceurLoader = new BrowserTraceurLoader();
 
 Reflect.global.System = traceurLoader;
 
-export { traceurLoader as System }
+export {traceurLoader as System}
 
 traceurLoader.map = traceurLoader.semverMap('traceur@' + traceurLoader.version);
 
 $traceurRuntime.normalizeModuleName =
-		traceurLoader.normalize.bind(traceurLoader);
+    traceurLoader.normalize.bind(traceurLoader);

@@ -12,109 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {getPrivate, setPrivate, createPrivateSymbol} from './private.js';
-
-var $apply = Function.prototype.call.bind(Function.prototype.apply)
-
-var CONTINUATION_TYPE = Object.create(null);
-
-var isTailRecursiveName = null;
-
-function createContinuation(operand, thisArg, argsArray) {
-  return [CONTINUATION_TYPE, operand, thisArg, argsArray];
-}
-
-function isContinuation(object) {
-  return object && object[0] === CONTINUATION_TYPE;
-}
-
-function $bind(operand, thisArg, args) {
-  // args may be an arguments-like object
-  var argArray = [thisArg];
-  for (var i = 0; i < args.length; i++) {
-    argArray[i + 1] = args[i];
-  }
-  var func = $apply(Function.prototype.bind, operand, argArray);
-  return func; // prevent tail call
-}
-
-function $construct(func, argArray) {
-  var object = new ($bind(func, null, argArray));
-  return object; // prevent tail call
-}
-
-function isTailRecursive(func) {
-  return !!getPrivate(func, isTailRecursiveName);
-}
-
-function tailCall(func, thisArg, argArray) {
-  var continuation = argArray[0];
-  if (isContinuation(continuation)) {
-    continuation = $apply(func, thisArg, continuation[3]);
-    return continuation; // prevent tail call
-  }
-  continuation = createContinuation(func, thisArg, argArray);
-  while (true) {
-    if (isTailRecursive(func)) {
-      continuation = $apply(func, continuation[2], [continuation]);
-    } else {
-      continuation = $apply(func, continuation[2], continuation[3]);
-    }
-    if (!isContinuation(continuation)) {
-      return continuation;
-    }
-    func = continuation[1];
-  }
-}
-
-function construct() {
-  var object;
-  if (isTailRecursive(this)) {
-    object = $construct(this, [createContinuation(null, null, arguments)]);
-  } else  {
-    object = $construct(this, arguments);
-  }
-  return object; // prevent tail call
-}
-
-function setupProperTailCalls() {
-  isTailRecursiveName = createPrivateSymbol();
-
-  // By 19.2.3.1 and 19.2.3.3, Function.prototype.call and
-  // Function.prototype.apply do proper tail calls.
-
-  Function.prototype.call = initTailRecursiveFunction(
-      function call(thisArg) {
-        var result = tailCall(function (thisArg) {
-          var argArray = [];
-          for (var i = 1; i < arguments.length; ++i) {
-            argArray[i - 1] = arguments[i];
-          }
-          var continuation = createContinuation(this, thisArg, argArray);
-          return continuation; // prevent tail call
-        }, this, arguments);
-        return result; // prevent tail call
-      });
-
-  Function.prototype.apply = initTailRecursiveFunction(
-      function apply(thisArg, argArray) {
-        var result = tailCall(function (thisArg, argArray) {
-          var continuation = createContinuation(this, thisArg, argArray);
-          return continuation; // prevent tail call
-        }, this, arguments);
-        return result; // prevent tail call
-      });
-}
-
-function initTailRecursiveFunction(func) {
-  if (isTailRecursiveName === null) {
-    setupProperTailCalls();
-  }
-  setPrivate(func, isTailRecursiveName, true);
-  return func;
-}
+import {
+  initTailRecursiveFunction,
+  call,
+  continuation,
+  construct,
+} from './modules/properTailCalls.js';
 
 $traceurRuntime.initTailRecursiveFunction = initTailRecursiveFunction;
-$traceurRuntime.call = tailCall;
-$traceurRuntime.continuation = createContinuation;
+$traceurRuntime.call = call;
+$traceurRuntime.continuation = continuation;
 $traceurRuntime.construct = construct;

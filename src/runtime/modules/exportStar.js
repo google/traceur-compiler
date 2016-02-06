@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import asyncWrap from './modules/asyncWrap.js';
-import initGeneratorFunction from './modules/initGeneratorFunction.js';
-import createGeneratorInstance from './modules/createGeneratorInstance.js';
+const {defineProperty, getOwnPropertyNames} = Object;
 
-$traceurRuntime.asyncWrap = asyncWrap;
-$traceurRuntime.initGeneratorFunction = initGeneratorFunction;
-$traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+export default function exportStar(object) {
+  for (let i = 1; i < arguments.length; i++) {
+    let mod = arguments[i];
+    let names = getOwnPropertyNames(mod);
+    for (let j = 0; j < names.length; j++) {
+      let name = names[j];
+      if (name === '__esModule' || name === 'default') {
+        continue;
+      }
+      defineProperty(object, name, {
+        get: () => mod[name],
+        enumerable: true
+      });
+    }
+  }
+  return object;
+}

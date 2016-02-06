@@ -1,4 +1,4 @@
-// Copyright 2014 Traceur Authors.
+// Copyright 2015 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import asyncWrap from './modules/asyncWrap.js';
-import initGeneratorFunction from './modules/initGeneratorFunction.js';
-import createGeneratorInstance from './modules/createGeneratorInstance.js';
+let {defineProperty, freeze} = Object;
+let {slice} = Array.prototype;
+let map = Object.create(null);
 
-$traceurRuntime.asyncWrap = asyncWrap;
-$traceurRuntime.initGeneratorFunction = initGeneratorFunction;
-$traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+export default function getTemplateObject(raw, cooked = undefined) {
+  var key = raw.join('${}');
+  var templateObject = map[key];
+  if (templateObject) return templateObject;
+  if (!cooked) {
+    cooked = slice.call(raw);
+  }
+  return map[key] = freeze(defineProperty(cooked, 'raw', {value: freeze(raw)}));
+}

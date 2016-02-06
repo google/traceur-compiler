@@ -12,18 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let {defineProperty, freeze} = Object;
-let {slice} = Array.prototype;
-let map = Object.create(null);
-
-function getTemplateObject(raw, cooked = undefined) {
-  var key = raw.join('${}');
-  var templateObject = map[key];
-  if (templateObject) return templateObject;
-  if (!cooked) {
-    cooked = slice.call(raw);
-  }
-  return map[key] = freeze(defineProperty(cooked, 'raw', {value: freeze(raw)}));
-}
-
+import getTemplateObject from './modules/getTemplateObject.js';
 $traceurRuntime.getTemplateObject = getTemplateObject;

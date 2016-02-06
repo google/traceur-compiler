@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import asyncWrap from './modules/asyncWrap.js';
-import initGeneratorFunction from './modules/initGeneratorFunction.js';
-import createGeneratorInstance from './modules/createGeneratorInstance.js';
+import superDescriptor from './superDescriptor.js';
 
-$traceurRuntime.asyncWrap = asyncWrap;
-$traceurRuntime.initGeneratorFunction = initGeneratorFunction;
-$traceurRuntime.createGeneratorInstance = createGeneratorInstance;
+export default function superGet(self, homeObject, name) {
+  var descriptor = superDescriptor(homeObject, name);
+  if (descriptor) {
+    let value = descriptor.value;
+    if (value) return value;
+    if (!descriptor.get) return value;
+    return descriptor.get.call(self);
+  }
+  return undefined;
+}
