@@ -34,6 +34,7 @@ import {
   createPropertyNameAssignment,
   createStringLiteral,
   createStringLiteralToken,
+  createTrueLiteral,
 } from './ParseTreeFactory.js';
 import {parseExpression} from './PlaceholderParser.js';
 
@@ -115,7 +116,12 @@ export class JsxTransformer extends ParseTreeTransformer {
     let name =
         new LiteralPropertyName(tree.name.location,
                                 jsxIdentifierToToken(tree.name));
-    let value = this.transformAny(tree.value);
+    let value;
+    if (tree.value === null) {
+      value = createTrueLiteral();
+    } else {
+      value = this.transformAny(tree.value);
+    }
     return createPropertyNameAssignment(name, value);
   }
 

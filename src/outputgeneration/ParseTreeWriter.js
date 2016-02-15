@@ -960,8 +960,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitJsxAttribute(tree) {
     this.writeToken_(tree.name);
-    this.write_(EQUAL);
-    this.visitAny(tree.value);
+    if (tree.value !== null) {
+      this.write_(EQUAL);
+      this.visitAny(tree.value);
+    }
   }
 
   visitJsxElement(tree) {

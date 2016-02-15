@@ -4475,8 +4475,11 @@ export class Parser {
   parseJsxAttribute_() {
     let name = this.eatJsx_(JSX_IDENTIFIER);
     let start = name.location.start;
-    this.eatJsx_(EQUAL);
-    let value = this.parseJsxAttributeValue_();
+    let value = null;
+    if (peekJsxToken().type === EQUAL) {
+      this.eatJsx_(EQUAL);
+      value = this.parseJsxAttributeValue_();
+    }
     return new JsxAttribute(this.getTreeLocation_(start), name, value);
   }
 
