@@ -32,3 +32,13 @@ log = [];
 <b-b.toString/>;
 
 assert.deepEqual(['a-a', String.prototype.toString], log);
+
+const A = {a: 1};
+const Bb = {b: 2};
+
+log = [];
+
+<A/>;
+<Bb/>;
+
+assert.deepEqual([A, Bb], log);

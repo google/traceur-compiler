@@ -26,6 +26,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {STRING} from '../syntax/TokenType.js';
 import {
   createArgumentList,
+  createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
   createNullLiteral,
@@ -94,7 +95,11 @@ export class JsxTransformer extends ParseTreeTransformer {
 
   transformJsxElementName(tree) {
     if (tree.names.length === 1) {
-      return createStringLiteral(tree.names[0].value);
+      let {value} = tree.names[0];
+      if (value[0] === value[0].toUpperCase()) {
+        return createIdentifierExpression(value);;
+      }
+      return createStringLiteral(value);
     }
 
     let names = tree.names.map(jsxIdentifierToToken);
