@@ -970,9 +970,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_ANGLE);
     this.visitAny(tree.name);
     for (let i = 0; i < tree.attributes.length; i++) {
-      if (i > 0) {
-        this.writeRequiredSpace_();
-      }
+      this.writeSpace_();
       this.visitAny(tree.attributes[i]);
     }
     if (tree.children.length === 0) {
@@ -1005,6 +1003,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (tree.expression !== null) {
       this.visitAny(tree.expression);
     }
+    this.write_(CLOSE_CURLY)
+  }
+
+  visitJsxSpreadAttribute(tree) {
+    this.write_(OPEN_CURLY)
+    this.write_(DOT_DOT_DOT);
+    this.visitAny(tree.expression);
     this.write_(CLOSE_CURLY)
   }
 

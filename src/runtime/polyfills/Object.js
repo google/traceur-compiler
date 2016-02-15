@@ -16,12 +16,13 @@ import {
   maybeAddFunctions,
   registerPolyfill
 } from './utils.js';
+import assign from './assign.js';
+export {assign};
 
 var {
   defineProperty,
   getOwnPropertyDescriptor,
   getOwnPropertyNames,
-  keys
 } = Object;
 
 // Object.is
@@ -31,20 +32,6 @@ export function is(left, right) {
   if (left === right)
     return left !== 0 || 1 / left === 1 / right;
   return left !== left && right !== right;
-}
-
-// Object.assign (19.1.3.1)
-export function assign(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-    var props = source == null ? [] : keys(source);
-    var p, length = props.length;
-    for (p = 0; p < length; p++) {
-      var name = props[p];
-      target[name] = source[name];
-    }
-  }
-  return target;
 }
 
 // Object.mixin (19.1.3.15)

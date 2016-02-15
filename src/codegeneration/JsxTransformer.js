@@ -15,7 +15,9 @@
 import {
   JSX_ELEMENT,
   JSX_PLACEHOLDER,
+  JSX_SPREAD_ATTRIBUTE,
   JSX_TEXT,
+  PROPERTY_NAME_ASSIGNMENT,
 } from '../syntax/trees/ParseTreeType.js';
 import {
   JsxText,
@@ -82,16 +84,52 @@ export class JsxTransformer extends ParseTreeTransformer {
 
   transformJsxElement(tree) {
     let name = this.transformAny(tree.name);
-    let attrs = this.transformList(tree.attributes);
+    let props = this.transformJsxAttributes_(tree);
     let children = this.transformJsxChildren_(tree.children);
-    let props;
-    if (attrs.length > 0) {
-      props = createObjectLiteral(attrs);
-    } else {
-      props = createNullLiteral();
-    }
     let args = createArgumentList([name, props, ...children]);
     return parseExpression `${this.getJsxFunction_()}(${args})`;
+  }
+
+  transformJsxAttributes_(tree) {
+    let attrs = this.transformList(tree.attributes);
+    if (attrs.length === 0) {
+      return createNullLiteral();
+    }
+    if (tree.attributes.some(a => a.type === JSX_SPREAD_ATTRIBUTE)) {
+      return this.createSpreadAttributeExpression_(attrs);
+    }
+    return createObjectLiteral(attrs);
+  }
+
+  createSpreadAttributeExpression_(attrs) {
+    // <a b='b' c='c' {...d} {...g} />
+    // =>
+    // React.createElement('a',
+    //     $traceurRuntime.jsxSpreadAttributes({b: 'b', c: 'c'}, d, g))
+
+    // Accummulate consecutive jsx attributes into a single js property.
+    let args = [];
+    let accummulatedProps = null;
+    for (let i = 0; i < attrs.length; i++) {
+      let attr = attrs[i];
+      if (attr.type === PROPERTY_NAME_ASSIGNMENT) {
+        if (!accummulatedProps) {
+          accummulatedProps = [];
+        }
+        accummulatedProps.push(attr);
+      } else {  // JSX spread attribute transformed into an expression.
+        if (accummulatedProps) {
+          args.push(createObjectLiteral(accummulatedProps));
+          accummulatedProps = null;
+        }
+        args.push(attr);
+      }
+    }
+    if (accummulatedProps) {
+      args.push(createObjectLiteral(accummulatedProps));
+    }
+    return parseExpression `$traceurRuntime.jsxSpreadAttributes(${
+        createArgumentList(args)})`;
   }
 
   transformJsxElementName(tree) {
@@ -126,8 +164,13 @@ export class JsxTransformer extends ParseTreeTransformer {
   }
 
   transformJsxPlaceholder(tree) {
-    return tree.expression;
+    return this.transformAny(tree.expression);
   }
+
+  transformJsxSpreadAttribute(tree) {
+    return this.transformAny(tree.expression);
+  }
+
 
   transformJsxText(tree) {
     return createStringLiteral(tree.value.value);

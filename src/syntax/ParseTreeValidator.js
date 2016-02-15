@@ -89,6 +89,7 @@ import {
   JSX_ELEMENT_NAME,
   JSX_ELEMENT,
   JSX_PLACEHOLDER,
+  JSX_SPREAD_ATTRIBUTE,
   JSX_TEXT,
   LITERAL_PROPERTY_NAME,
   METHOD,
@@ -736,7 +737,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkType_(JSX_ELEMENT_NAME, tree.name, 'JSX Element Name expected');
     for (let i = 0; i < tree.attributes.length; i++) {
       let attr = tree.attributes[i];
-      this.checkVisit_(attr.type === JSX_ATTRIBUTE, attr,
+      this.checkVisit_(attr.type === JSX_ATTRIBUTE ||
+                       attr.type === JSX_SPREAD_ATTRIBUTE,
+                       attr,
                        'JSX Attribute expected');
     }
     for (let i = 0; i < tree.children.length; i++) {

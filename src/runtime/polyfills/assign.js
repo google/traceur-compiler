@@ -1,4 +1,4 @@
-// Copyright 2015 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @fileoverview import all runtime modules, eg for Traceur self-build.
- */
+const {keys} = Object;
 
-import './symbols.js';
-import './classes.js';
-import './exportStar.js';
-import './properTailCalls.js';
-import './relativeRequire.js';
-import './spread.js';
-import './destructuring.js';
-import './async.js';
-import './generators.js';
-import './template.js';
-import './jsx.js';
+// Object.assign (19.1.3.1)
+export default function assign(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+    var props = source == null ? [] : keys(source);
+    var p, length = props.length;
+    for (p = 0; p < length; p++) {
+      var name = props[p];
+      target[name] = source[name];
+    }
+  }
+  return target;
+}

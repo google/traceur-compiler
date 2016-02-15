@@ -775,6 +775,14 @@
       "ParseTree"
     ]
   },
+  "JsxSpreadAttribute": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
   "JsxText": {
     "location": [
       "SourceRange"

@@ -240,6 +240,7 @@ import {
   JsxElement,
   JsxElementName,
   JsxPlaceholder,
+  JsxSpreadAttribute,
   JsxText,
   LabelledStatement,
   LiteralExpression,
@@ -4466,8 +4467,17 @@ export class Parser {
 
   parseJsxAttributes_() {
     let attributes = [];
-    while (peekJsxToken().type === JSX_IDENTIFIER) {
-      attributes.push(this.parseJsxAttribute_());
+    loop: while (true) {
+      switch (peekJsxToken().type) {
+        case JSX_IDENTIFIER:
+          attributes.push(this.parseJsxAttribute_());
+          break;
+        case OPEN_CURLY:
+          attributes.push(this.parseJsxSpreadAttribute_());
+          break;
+        default:
+          break loop;
+      }
     }
     return attributes;
   }
@@ -4488,10 +4498,10 @@ export class Parser {
     let start = token.location.start;
     switch (token.type) {
       case STRING:
-        nextJsxToken()
+        nextJsxToken();
         return new LiteralExpression(this.getTreeLocation_(start), token);
       case OPEN_CURLY: {
-        nextJsxToken()
+        nextJsxToken();
         let expr = this.parseAssignmentExpression_(ALLOW_IN);
         this.eatJsx_(CLOSE_CURLY);
         return new JsxPlaceholder(this.getTreeLocation_(start), expr);
@@ -4500,6 +4510,16 @@ export class Parser {
         return this.parseJsxElement_();
     }
     return this.parseSyntaxError_('Unexpected token');
+  }
+
+  parseJsxSpreadAttribute_() {
+    let token = peekJsxToken();
+    let start = token.location.start;
+    nextJsxToken();
+    this.eatJsx_(DOT_DOT_DOT);
+    let expr = this.parseAssignmentExpression_(ALLOW_IN);
+    this.eatJsx_(CLOSE_CURLY);
+    return new JsxSpreadAttribute(this.getTreeLocation_(start), expr);
   }
 
   /**

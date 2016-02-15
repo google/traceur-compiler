@@ -29,6 +29,7 @@ INDIVIDUAL_RUNTIME_MODULES = \
   src/runtime/generators.js \
   src/runtime/async.js \
   src/runtime/template.js \
+  src/runtime/jsx.js \
   #end runtime modules
 SRC = \
   $(RUNTIME_MODULES) \
