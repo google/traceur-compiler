@@ -105,7 +105,7 @@ export class JsxTransformer extends ParseTreeTransformer {
     // <a b='b' c='c' {...d} {...g} />
     // =>
     // React.createElement('a',
-    //     $traceurRuntime.jsxSpreadAttributes({b: 'b', c: 'c'}, d, g))
+    //     $traceurRuntime.objectAssign({b: 'b', c: 'c'}, d, g))
 
     // Accummulate consecutive jsx attributes into a single js property.
     let args = [];
@@ -128,7 +128,7 @@ export class JsxTransformer extends ParseTreeTransformer {
     if (accummulatedProps) {
       args.push(createObjectLiteral(accummulatedProps));
     }
-    return parseExpression `$traceurRuntime.jsxSpreadAttributes(${
+    return parseExpression `$traceurRuntime.objectAssign(${
         createArgumentList(args)})`;
   }
 

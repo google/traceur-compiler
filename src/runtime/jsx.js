@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import jsxSpreadAttributes from './modules/jsxSpreadAttributes.js';
-$traceurRuntime.jsxSpreadAttributes = jsxSpreadAttributes;
+import objectAssign from './modules/objectAssign.js';
+$traceurRuntime.objectAssign = objectAssign;
