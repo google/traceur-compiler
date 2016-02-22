@@ -2409,6 +2409,7 @@ export class Parser {
     this.popFunctionState_(fs);
     return result;
   }
+
   parsePropertyDefinition_() {
     let start = this.getTreeStartLocation_();
 
@@ -2422,6 +2423,10 @@ export class Parser {
       let m = this.parseGeneratorMethod_(start, isStatic, []);
       this.popFunctionState_(fs);
       return m;
+    }
+
+    if (this.options_.spreadProperties && peek(DOT_DOT_DOT)) {
+      return this.parseSpreadExpression_();
     }
 
     let token = peekToken();
@@ -2667,7 +2672,8 @@ export class Parser {
    */
   peekPropertyDefinition_(type) {
     return this.peekPropertyName_(type) ||
-        type === STAR && this.options_.propertyMethods && this.options_.generators;
+        type === STAR && this.options_.propertyMethods && this.options_.generators ||
+        type === DOT_DOT_DOT && this.options_.spreadProperties;
   }
 
   /**

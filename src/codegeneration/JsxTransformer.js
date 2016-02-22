@@ -17,12 +17,12 @@ import {
   JSX_PLACEHOLDER,
   JSX_SPREAD_ATTRIBUTE,
   JSX_TEXT,
-  PROPERTY_NAME_ASSIGNMENT,
 } from '../syntax/trees/ParseTreeType.js';
 import {
   JsxText,
   LiteralExpression,
   LiteralPropertyName,
+  SpreadExpression,
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {STRING} from '../syntax/TokenType.js';
@@ -39,6 +39,7 @@ import {
   createTrueLiteral,
 } from './ParseTreeFactory.js';
 import {parseExpression} from './PlaceholderParser.js';
+import {spreadProperties} from './SpreadPropertiesTransformer.js';
 
 /**
  * Desugars JSX expressions.
@@ -105,31 +106,8 @@ export class JsxTransformer extends ParseTreeTransformer {
     // <a b='b' c='c' {...d} {...g} />
     // =>
     // React.createElement('a',
-    //     $traceurRuntime.objectAssign({b: 'b', c: 'c'}, d, g))
-
-    // Accummulate consecutive jsx attributes into a single js property.
-    let args = [];
-    let accummulatedProps = null;
-    for (let i = 0; i < attrs.length; i++) {
-      let attr = attrs[i];
-      if (attr.type === PROPERTY_NAME_ASSIGNMENT) {
-        if (!accummulatedProps) {
-          accummulatedProps = [];
-        }
-        accummulatedProps.push(attr);
-      } else {  // JSX spread attribute transformed into an expression.
-        if (accummulatedProps) {
-          args.push(createObjectLiteral(accummulatedProps));
-          accummulatedProps = null;
-        }
-        args.push(attr);
-      }
-    }
-    if (accummulatedProps) {
-      args.push(createObjectLiteral(accummulatedProps));
-    }
-    return parseExpression `$traceurRuntime.objectAssign(${
-        createArgumentList(args)})`;
+    //     $traceurRuntime.spreadProperties({b: 'b', c: 'c'}, d, g))
+    return spreadProperties(attrs);
   }
 
   transformJsxElementName(tree) {
@@ -168,7 +146,8 @@ export class JsxTransformer extends ParseTreeTransformer {
   }
 
   transformJsxSpreadAttribute(tree) {
-    return this.transformAny(tree.expression);
+    return new SpreadExpression(tree.location,
+                                this.transformAny(tree.expression));
   }
 
 

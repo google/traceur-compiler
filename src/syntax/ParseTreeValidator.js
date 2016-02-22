@@ -104,6 +104,7 @@ import {
   PROPERTY_VARIABLE_DECLARATION,
   REST_PARAMETER,
   SET_ACCESSOR,
+  SPREAD_EXPRESSION,
   TEMPLATE_LITERAL_PORTION,
   TEMPLATE_SUBSTITUTION,
   TYPE_ALIAS_DECLARATION,
@@ -827,6 +828,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
           break;
         case PROPERTY_NAME_ASSIGNMENT:
         case PROPERTY_NAME_SHORTHAND:
+        case SPREAD_EXPRESSION:
           break;
         default:
           this.fail_(propertyNameAndValue, 'accessor, property name ' +

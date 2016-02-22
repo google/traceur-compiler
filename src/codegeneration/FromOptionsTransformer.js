@@ -40,6 +40,7 @@ import {ProperTailCallTransformer} from './ProperTailCallTransformer.js';
 import {PropertyNameShorthandTransformer} from './PropertyNameShorthandTransformer.js';
 import {RegularExpressionTransformer} from './RegularExpressionTransformer.js';
 import {RestParameterTransformer} from './RestParameterTransformer.js';
+import {SpreadPropertiesTransformer} from './SpreadPropertiesTransformer.js';
 import {SpreadTransformer} from './SpreadTransformer.js';
 import {SuperTransformer} from './SuperTransformer.js';
 import {SymbolTransformer} from './SymbolTransformer.js';
@@ -166,6 +167,10 @@ export class FromOptionsTransformer extends MultiTransformer {
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes) {
       append(ClassTransformer);
+    }
+
+    if (transformOptions.spreadProperties) {
+      append(SpreadPropertiesTransformer);
     }
 
     if (transformOptions.propertyMethods ||

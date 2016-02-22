@@ -17,6 +17,7 @@ import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
 import {JsxTransformer} from './JsxTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
 import {MultiTransformer} from './MultiTransformer.js';
+import {SpreadPropertiesTransformer} from './SpreadPropertiesTransformer.js';
 import {TypeTransformer} from './TypeTransformer.js';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator.js';
 import {validate as validateFreeVariables} from
@@ -56,6 +57,10 @@ export class PureES6Transformer extends MultiTransformer {
 
     if (options.jsx) {
       append(JsxTransformer);
+    }
+
+    if (options.spreadProperties) {
+      append(SpreadPropertiesTransformer);
     }
 
     if (options.memberVariables) {

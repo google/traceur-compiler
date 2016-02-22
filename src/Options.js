@@ -61,6 +61,7 @@ export const optionsV01 = enumerableOnlyObject({
   sourceMaps: false,
   sourceRoot: false,
   spread: true,
+  spreadProperties: false,
   symbols: true,
   templateLiterals: true,
   types: false,
@@ -153,6 +154,7 @@ addFeatureOption('generatorComprehension', EXPERIMENTAL);
 addFeatureOption('jsx', EXPERIMENTAL);
 addFeatureOption('memberVariables', EXPERIMENTAL);
 addFeatureOption('require', EXPERIMENTAL);
+addFeatureOption('spreadProperties', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 let transformOptionsPrototype = {};
