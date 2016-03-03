@@ -63,8 +63,8 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": "2.6",
-    "glob": "4.3",
+    "commander": "2.9.x",
+    "glob": "5.0.x",
     "rsvp": "^3.0.13",
     "semver": "4.3.2",
     "source-map-support": "~0.2.8"
