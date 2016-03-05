@@ -14,7 +14,8 @@
 
 import {
   BLOCK,
-  CATCH
+  CATCH,
+  FUNCTION_EXPRESSION,
 } from '../syntax/trees/ParseTreeType.js';
 import {StringMap} from '../util/StringMap.js';
 import {VAR} from '../syntax/TokenType.js';
@@ -56,12 +57,12 @@ export class Scope {
   addVar(tree, reporter) {
     // We add VAR bindings to blocks so that we can check for duplicates.
     let name = tree.getStringValue();
-    if (this.lexicalDeclarations_.has(name)) {
+    if (this.lexicalDeclarations_.has(name) &&
+        !this.isFunctionExpressionName(name)) {
       reportDuplicateVar(reporter, tree, name);
       return;
     }
-    this.variableDeclarations_.set(name, {type: VAR, tree});
-    // This may be used starting at a block scope.
+    this.variableDeclarations_.set(name, {type: VAR, tree, scope: this});
     if (!this.isVarScope && this.parent) {
       this.parent.addVar(tree, reporter);
     }
@@ -69,12 +70,13 @@ export class Scope {
 
   addDeclaration(tree, type, reporter) {
     let name = tree.getStringValue();
-    if (this.lexicalDeclarations_.has(name) ||
-        this.variableDeclarations_.has(name)) {
+    if ((this.lexicalDeclarations_.has(name) ||
+         this.variableDeclarations_.has(name)) &&
+         !this.isFunctionExpressionName(name)) {
       reportDuplicateVar(reporter, tree, name);
       return;
     }
-    this.lexicalDeclarations_.set(name, {type, tree});
+    this.lexicalDeclarations_.set(name, {type, tree, scope: this});
   }
 
   // we deduce the oldType
@@ -113,19 +115,27 @@ export class Scope {
     return null;
   }
 
+  /**
+   * Whether name is name of the current function expression.
+   */
+  isFunctionExpressionName(name) {
+    let b = this.getBindingByName(name);
+    return b && b.scope.tree.type === FUNCTION_EXPRESSION &&
+        b.scope.tree.name === b.tree;
+  }
+
   getBinding(tree) {
     let name = tree.getStringValue();
     return this.getBindingByName(name);
   }
 
   getBindingByName(name) {
-    let b = this.lexicalDeclarations_.get(name);
-    if (b) {
+    let b = this.variableDeclarations_.get(name);
+    if (b && this.isVarScope) {
       return b;
     }
-
-    b = this.variableDeclarations_.get(name);
-    if (b && this.isVarScope) {
+    b = this.lexicalDeclarations_.get(name);
+    if (b) {
       return b;
     }
     if (this.parent) {
