@@ -44,7 +44,6 @@ export class LoaderCompiler {
 
   getModuleSpecifiers(codeUnit) {
     this.parse(codeUnit);
-    codeUnit.state = PARSED;
 
     // Analyze to find dependencies
     var moduleSpecifierVisitor =
