@@ -31,15 +31,3 @@ export let suite = context.suite;
 export let test = context.test;
 export let setup = context.setup;
 export let teardown = context.teardown;
-
-unitTestRunner.applyOptions([
-  'test/unit/util/*.js',
-  'test/unit/syntax/*.js',
-  'test/unit/codegeneration/*.js',
-  'test/unit/semantics/*.js',
-  'test/unit/tools/*.js',
-  'test/unit/runtime/*.js',
-  'test/unit/system/*.js',
-  'test/unit/node/*.js',
-  'test/unit/*.js'
-]);

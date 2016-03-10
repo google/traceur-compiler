@@ -337,11 +337,6 @@ if (typeof window !== 'undefined') {
   featureTestRunner = new NodeTraceurFeatureTestRunner();
 }
 
-featureTestRunner.applyOptions([
-  './test/feature/*/*.js',
-  './test/feature/*.js'
-]);
-
 let context = featureTestRunner.getContext();
 
 export let suite = context.suite;
