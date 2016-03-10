@@ -13,7 +13,7 @@
 // limitations under the License.
 
 let chai;
-if (typeof window !== 'undefined') {
+if (typeof require === 'undefined') {
   // In the browwser we have no synchronous way of importing chai,
   // we have to rely on manual user include of <script>
   if (!window.chai) {

@@ -18,7 +18,7 @@
   export let Runner;
   export let reporters;
 
-  if (typeof window === 'undefined') {
+  if (typeof require !== 'undefined') {
     Mocha = require('mocha');
     Runner = require('mocha/lib/runner');
     reporters = require('mocha/lib/reporters');

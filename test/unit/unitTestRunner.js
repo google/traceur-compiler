@@ -18,7 +18,7 @@ import {BrowserTraceurTestRunner} from '../modular/BrowserTraceurTestRunner.js';
 export * from '../asserts.js';
 
 export let unitTestRunner;
-if (typeof window !== 'undefined') {
+if (typeof require === 'undefined') {
   unitTestRunner = new BrowserTraceurTestRunner();
 } else {
   unitTestRunner = new NodeTraceurTestRunner();
