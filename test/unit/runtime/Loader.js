@@ -1,4 +1,4 @@
-// Copyright 2011 Traceur Authors.
+// Copyright 2016 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,313 +16,182 @@ import {
   suite,
   test,
   assert,
+  assertArrayEquals,
   setup,
   teardown
 } from '../../unit/unitTestRunner.js';
 
-import {ErrorReporter} from '../../../src/util/ErrorReporter.js';
-import {MutedErrorReporter} from '../../../src/util/MutedErrorReporter.js';
-import {Options} from '../../../src/Options.js';
-import {ModuleStore} from '../../../src/loader/ModuleStore.js';
+import {InternalLoader} from '../../../src/loader/InternalLoader.js';
 
-function getTestLoader() {
-  return new System.constructor();
+function createLoaderAgainstMocks(depsByName) {
+  let calls = [];
+  let mockLoader = {
+    normalize: function(name) {
+      calls.push('normalize ' + name);
+      return name;
+    },
+    get: function(name) {
+      calls.push('get ' + name);
+      return undefined;
+    },
+    locate: function(codeUnit) {
+      calls.push('locate ' + codeUnit.normalizedName);
+      return codeUnit.normalizedName;  // The fetch will be faked.
+    },
+    fetch: function(codeUnit) {
+      calls.push('fetch ' + codeUnit.normalizedName);
+      return Promise.resolve('text');
+    },
+    nameTrace: function() {
+      throw new Error('test should not call');
+    },
+    translate: function(codeUnit) {
+      calls.push('translate ' + codeUnit.normalizedName);
+      return codeUnit.source;
+    },
+    instantiate: function(codeUnit) {
+      calls.push('instantiate ' + codeUnit.normalizedName);
+    }
+  };
+
+  let mockLoaderCompiler = {
+    getModuleSpecifiers: function(codeUnit) {
+      calls.push('getModuleSpecifiers ' + codeUnit.normalizedName);
+      let name = codeUnit.normalizedName;
+      let deps = depsByName[name];
+      if (!deps) {
+        throw new Error('unexpected codeUnit ' + codeUnit);
+      }
+      return deps;
+    },
+    analyzeDependencies: function(units) {
+      calls.push('analyzeDependencies ' + units.length);
+    },
+    transform: function(codeUnit) {
+      calls.push('transform ' + codeUnit.normalizedName);
+    },
+    write: function(codeUnit) {
+      calls.push('write ' + codeUnit.normalizedName);
+      codeUnit.metadata.compiler = {};
+    },
+    evaluateCodeUnit: function(codeUnit) {
+      calls.push('evaluateCodeUnit ' + codeUnit.normalizedName);
+    }
+  };
+  let loader = new InternalLoader(mockLoader, mockLoaderCompiler);
+  return {calls, loader};
 }
 
-suite('Loader.js', function() {
+function loadAndCheck(depsByName, expectedCalls, done) {
+  let {calls, loader} = createLoaderAgainstMocks(depsByName);
 
-  var reporter, baseURL;
-  var saveMap;
+  loader.load('foo').then((codeUnit) => {
+    assert(codeUnit.normalizedName === 'foo');
+    // This kind of log is very handy:
+    // console.log('calls ', '[\n\'' + calls.join('\',\n\'') + '\'\n]');
+    assertArrayEquals(calls, expectedCalls);
+    done();
+  }).catch(done);
+}
 
-  setup(function() {
-    reporter = new ErrorReporter();
-    baseURL = System.baseURL;
-    saveMap = System.map;
-  });
+suite('InternalLoader.js', function() {
 
-  teardown(function() {
-    assert.isFalse(reporter.hadError());
-    System.baseURL = baseURL;
-    System.map = saveMap;
-  });
-
-  test('locate', function() {
-    var loader = getTestLoader();
-    var load = {
-      metadata: {
-        baseURL: 'http://example.org/a/'
-      },
-      data: {}
-    }
-    load.normalizedName = '@abc/def';
-    assert.equal(loader.locate(load), 'http://example.org/a/@abc/def');
-    load.normalizedName = 'abc/def';
-    assert.equal(loader.locate(load), 'http://example.org/a/abc/def');
-    load.normalizedName = 'abc/def.js';
-    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
-    load.normalizedName = './abc/def.js';
-    assert.equal(loader.locate(load), 'http://example.org/a/abc/def.js');
-  });
-
-  test('Loader.PreCompiledModule', function(done) {
-    var traceur = ModuleStore.get('traceur@');
-    System.import('traceur@', {}).then(function(module) {
-      assert.equal(traceur.util.Options, module.util.Options);
-      done();
-    }).catch(done);
-  });
-
-  test('Loader.Script', function(done) {
-    getTestLoader().script('(function(x = 42) { return x; })()', {}).then(
-      function(result) {
-        assert.equal(42, result);
-        done();
-      }).catch(done);
-  });
-
-  test('Loader.Script.Named', function(done) {
-    var loader = getTestLoader();
-    var src = '(function(x = 43) { return x; })()';
-    var name = '43';
-    var metadata = {traceurOptions: {sourceMaps: true}};
-    loader.script(src, {name: name, metadata: metadata}).then(
-      function(result) {
-        $traceurRuntime.options.sourceMaps = false;
-        var normalizedName = ModuleStore.normalize(name);
-        var sourceMap = loader.getSourceMap(normalizedName);
-        assert(sourceMap, 'the sourceMap is defined');
-        assert.equal(43, result);
-        done();
-      }).catch(done);
-  });
-
-  test('Loader.Script.Fail', function(done) {
-    var reporter = new MutedErrorReporter();
-    getTestLoader(reporter).script('export var x = 5;', {}).then(
-      function(result) {
-        fail('should not have succeeded');
-        done();
-      }, function(ex) {
-        assert(ex);
-        done();
-      }).catch(done);
-  });
-
-  test('LoaderModule', function(done) {
-    var code =
-        'import * as a from "./test/unit/runtime/resources/test_a.js";\n' +
-        'import * as b from "./test/unit/runtime/resources/test_b.js";\n' +
-        'import * as c from "./test/unit/runtime/resources/test_c.js";\n' +
-        '\n' +
-        'export var arr = [\'test\', a.name, b.name, c.name];\n';
-
-    var result = getTestLoader().module(code, {}).then(
-      function(module) {
-        assert.equal('test', module.arr[0]);
-        assert.equal('A', module.arr[1]);
-        assert.equal('B', module.arr[2]);
-        assert.equal('C', module.arr[3]);
-        assert.isNull(Object.getPrototypeOf(module));
-        done();
-      }).catch(done);
-  });
-
-  test('LoaderModuleWithSubdir', function(done) {
-    var code =
-        'import * as d from "./test/unit/runtime/subdir/test_d.js";\n' +
-        '\n' +
-        'export var arr = [d.name, d.e.name];\n';
-
-    var result = getTestLoader().module(code, {}).then(
-      function(module) {
-        assert.equal('D', module.arr[0]);
-        assert.equal('E', module.arr[1]);
-        done();
-      }).catch(done);
-  });
-
-  test('LoaderModuleFail', function(done) {
-    var code = 'DeliboratelyUndefined; \n';
-    var result = getTestLoader().module(code, {}).then(
-      function(value) {
-        fail('Should not have succeeded');
-        done();
-      }, function(ex) {
-        assert((ex + '').indexOf('DeliboratelyUndefined') !== -1);
-        done();
-      }).catch(done);
-  });
-
-  test('LoaderLoad', function(done) {
-    getTestLoader().loadAsScript('./test/unit/runtime/resources/test_script.js', {}).then(function(result) {
-      assert.equal('A', result[0]);
-      assert.equal('B', result[1]);
-      assert.equal('C', result[2]);
-      done();
-    }).catch(done);
-  });
-
-  test('LoaderLoad.Fail', function(done) {
-    var reporter = new MutedErrorReporter();
-    getTestLoader(reporter).loadAsScript('./test/unit/runtime/resources/non_existing.js', {}).then(function(result) {
-      fail('should not have succeeded');
-      done();
-    }, function(error) {
-      assert(error);
-      done();
-    }).catch(done);
-  });
-
-  test('Loader.LoadAsScriptAll', function(done) {
-    var names = ['./test/unit/runtime/resources/test_script.js'];
-    getTestLoader().loadAsScriptAll(names, {}).then(function(results) {
-      var result = results[0];
-      assert.equal('A', result[0]);
-      assert.equal('B', result[1]);
-      assert.equal('C', result[2]);
-      done();
-    }).catch(done);
-  });
-
-  test('LoaderImport', function(done) {
-    getTestLoader().import('./test/unit/runtime/resources/test_module.js', {}).then(function(mod) {
-      assert.equal('test', mod.name);
-      assert.equal('A', mod.a);
-      assert.equal('B', mod.b);
-      assert.equal('C', mod.c);
-      done();
-    }).catch(done);
-  });
-
-  test('LoaderImportAll', function(done) {
-    var names = ['./test/unit/runtime/resources/test_module.js'];
-    getTestLoader().importAll(names, {}).then(function(mods) {
-      var mod = mods[0];
-      assert.equal('test', mod.name);
-      assert.equal('A', mod.a);
-      assert.equal('B', mod.b);
-      assert.equal('C', mod.c);
-      done();
-    }).catch(done);
-  });
-
-  // TODO: Update Traceur loader implementation to support new instantiate output
-  /* test('LoaderDefine.Instantiate', function(done) {
-    var loader = getTestLoader();
-    $traceurRuntime.options.modules = 'instantiate';
-    var name = './test_instantiate.js';
-    var src = 'export {name as a} from \'./test_a.js\';\n' +
-    'export var dd = 8;\n';
-    loader.define(name, src).then(function() {
-      return loader.import(name);
-    }).then(function(mod) {
-        assert.equal(8, mod.dd);
-        done();
-    }).catch(done);
-  }); */
-
-  test('LoaderImport.Fail', function(done) {
-    var reporter = new MutedErrorReporter();
-    getTestLoader(reporter).import('./test/unit/runtime/resources/non_existing.js', {}).then(function(mod) {
-      fail('should not have succeeded')
-      done();
-    }, function(error) {
-      assert(error);
-      done();
-    }).catch(done);
-  });
-
-  test('LoaderImport.Fail.deperror', function(done) {
-    // This tests in-memory source maps which cause V8 to take an
-    // extraordinaril long time to produce e.stack values.  We have to
-    // give mocha more time on the Travis machines.
-    this.timeout(4000);
-    var reporter = new MutedErrorReporter();
-    var metadata = {traceurOptions: {sourceMaps: 'memory'}};
-    getTestLoader(reporter).import('test/unit/runtime/loads/main.js', {metadata: metadata}).then(
-      function(mod) {
-        fail('should not have succeeded')
-        done();
-      }, function(error) {
-        assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
-        assert((error.stack + '').indexOf('eval at <anonymous>') === -1,
-            '<eval> stacks are converted.');
-        done();
-      }).catch(done);
-  });
-
-  test('Loader.define', function(done) {
-    var name = ModuleStore.normalize('./test_define.js');
-    getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
-      assert.equal(6, mod.currentSideEffect());  // starting value.
-      var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\n' +
-        'export var d = 4;\n' + 'this.sideEffect++;';
-      return getTestLoader().define(name, src, {}).then(function() {
-        return mod;
-      });
-    }).then(function(mod) {
-      assert.equal(6, mod.currentSideEffect());  // no change
-      var definedModule = ModuleStore.get(name);
-      assert.equal(7, mod.currentSideEffect());  // module body evaluated
-      assert.equal(4, definedModule.d);  // define does exports
-      assert.equal('A', definedModule.a);  // define does imports
-      done();
-    }).catch(done);
-  });
-
-  test('Loader.define.Fail', function(done) {
-    var name = ModuleStore.normalize('./test_define.js');
-    getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
-      var src = 'syntax error';
-      getTestLoader().define(name, src, {}).then(function() {
-          fail('should not have succeeded');
-          done();
-        }, function(error) {
-          assert(error);
-          done();
-        });
-    }).catch(done);
-  });
-
-  test('Loader.defineWithSourceMap', function(done) {
-    var normalizedName = ModuleStore.normalize('./test_define_with_source_map.js');
-    var loader = getTestLoader();
-    var metadata = {traceurOptions: {sourceMaps: true}};
-    var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\nexport var d = 4;\n';
-    loader.define(normalizedName, src, {metadata: metadata}).then(function() {
-      var sourceMap = loader.getSourceMap(normalizedName);
-      assert(sourceMap, normalizedName + ' has a sourceMap');
-      var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-      var consumer = new SourceMapConsumer(sourceMap);
-      var sourceContent = consumer.sourceContentFor(normalizedName);
-      assert.equal(sourceContent, src, 'the sourceContent is correct');
-      done();
-    }).catch(done);
-  });
-
-  test('import with metadata having junk', function(done) {
-    var loader = getTestLoader();
-    let consoleWarn = console.warn;
-    var actualWarning = '';
-    console.warn = function(msg) {
-      actualWarning = msg;
+  test('load no deps', function(done) {
+    let depsByName = {
+      foo: []
     };
-    var metadata = {traceurOptions: {junk: true}};
-    getTestLoader().import('./test/unit/runtime/resources/test_module.js', {metadata: metadata}).
-        then(function(mod) {
-          assert.equal(actualWarning,
-            'Unknown metadata.traceurOptions ignored: junk');
-          console.warn = consoleWarn;
-          done();
-      }).catch(done);
+    let expectedCalls = [
+      'normalize foo',
+      'get foo',
+      'locate foo',
+      'fetch foo',
+      'translate foo',
+      'getModuleSpecifiers foo',
+      'analyzeDependencies 1',
+      'transform foo',
+      'write foo',
+      'instantiate foo',
+      'evaluateCodeUnit foo'
+    ];
+
+    loadAndCheck(depsByName, expectedCalls, done);
   });
 
-  test('System.constructor', function() {
-    let secondaryLoader = new System.constructor();
-    var path = './test/unit/runtime/resources/test_module.js';
-    secondaryLoader.import(path).then((module) => {
-      assert(module.a);
-    });
+  test('load with deps', function(done) {
+    let depsByName  = {
+      foo: ['bar'],
+      bar: []
+    };
+
+    let expectedCalls = [
+      'normalize foo',
+      'get foo',
+      'locate foo',
+      'fetch foo',
+      'translate foo',
+      'getModuleSpecifiers foo',
+      'normalize bar',
+      'get bar',
+      'locate bar',
+      'fetch bar',
+      'translate bar',
+      'getModuleSpecifiers bar',
+      'analyzeDependencies 2',
+      'transform bar',
+      'write bar',
+      'instantiate bar',
+      'transform foo',
+      'write foo',
+      'instantiate foo',
+      'evaluateCodeUnit bar',
+      'evaluateCodeUnit foo'
+    ];
+
+    loadAndCheck(depsByName, expectedCalls, done);
   });
 
+test('load with unordered deps', function(done) {
+    let depsByName  = {
+      foo: ['bar', 'baz'],
+      baz: ['bar'],
+      bar: []
+    };
+
+    let expectedCalls = [
+      'normalize foo',
+      'get foo',
+      'locate foo',
+      'fetch foo',
+      'translate foo',
+      'getModuleSpecifiers foo',
+      'normalize bar',
+      'get bar',
+      'normalize baz',
+      'get baz',
+      'locate bar',
+      'fetch bar',
+      'locate baz',
+      'fetch baz',
+      'translate bar',
+      'translate baz',
+      'getModuleSpecifiers bar',
+      'getModuleSpecifiers baz',
+      'normalize bar',
+      'analyzeDependencies 3',
+      'transform bar',
+      'write bar',
+      'instantiate bar',
+      'transform baz',
+      'write baz',
+      'instantiate baz',
+      'transform foo',
+      'write foo',
+      'instantiate foo',
+      'evaluateCodeUnit bar',
+      'evaluateCodeUnit baz',
+      'evaluateCodeUnit foo'
+    ];
+
+    loadAndCheck(depsByName, expectedCalls, done);
+  });
 });

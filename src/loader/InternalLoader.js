@@ -421,6 +421,8 @@ export class InternalLoader {
     var referrerName = codeUnit.normalizedName;
     try {
       var moduleSpecifiers = codeUnit.getModuleSpecifiers();
+      codeUnit.state = PARSED;
+
       if (!moduleSpecifiers) {
         this.abortAll(`No module specifiers in ${referrerName}`);
         return;
@@ -542,7 +544,9 @@ export class InternalLoader {
       codeUnit.dependencies.forEach(orderCodeUnits);
       ordered.push(codeUnit);
     }
+
     this.cache.forEach(orderCodeUnits);
+
     return ordered;
   }
 
