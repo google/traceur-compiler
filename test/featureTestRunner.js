@@ -331,7 +331,7 @@ class BrowserTraceurFeatureTestRunner extends BrowserTraceurTestRunner {
 }
 
 export let featureTestRunner;
-if (typeof window !== 'undefined') {
+if (typeof require === 'undefined') {
   featureTestRunner = new BrowserTraceurFeatureTestRunner();
 } else {
   featureTestRunner = new NodeTraceurFeatureTestRunner();
