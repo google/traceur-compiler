@@ -16,6 +16,18 @@
 
 import {featureTestRunner} from './featureTestRunner.js';
 
+let globs = [
+	'./test/feature/*/*.js',
+	'./test/feature/*.js'
+];
+
+let inputGlob = process.argv[2];
+
+if (inputGlob) {
+	globs = [inputGlob];
+}
+featureTestRunner.applyOptions(globs);
+
 featureTestRunner.run().catch((ex) => {
 	console.error('featureTestRunner FAILED ', ex.stack || ex);
 });
