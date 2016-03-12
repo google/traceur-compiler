@@ -37,7 +37,7 @@ if (inputGlob) {
 unitTestRunner.applyOptions(globs);
 
 unitTestRunner.run().then((failures) => {
-    process.exit(failures || 0);
+    process.exit(failures);
   },(ex) => {
     console.log('unitTestRunner FAILED', ex.stack || ex);
     process.exit(-1);
