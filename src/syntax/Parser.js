@@ -4409,7 +4409,7 @@ export class Parser {
             case OPEN_CURLY: {
               let start = token.location.start;
               let expression = null;
-              if (peekJsxToken().type !== CLOSE_CURLY) {
+              if (!peek(CLOSE_CURLY)) {
                 expression = this.parseAssignmentExpression_(ALLOW_IN);
               }
               this.eatJsx_(CLOSE_CURLY);
