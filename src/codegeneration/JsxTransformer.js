@@ -17,6 +17,7 @@ import {
   JSX_PLACEHOLDER,
   JSX_SPREAD_ATTRIBUTE,
   JSX_TEXT,
+  LITERAL_EXPRESSION,
 } from '../syntax/trees/ParseTreeType.js';
 import {
   JsxText,
@@ -24,6 +25,7 @@ import {
   LiteralPropertyName,
   SpreadExpression,
 } from '../syntax/trees/ParseTrees.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {STRING} from '../syntax/TokenType.js';
 import {
@@ -135,6 +137,13 @@ export class JsxTransformer extends ParseTreeTransformer {
     let value;
     if (tree.value === null) {
       value = createTrueLiteral();
+    } else if (tree.value.type === LITERAL_EXPRESSION) {
+      const {literalToken} = tree.value;
+      const v = literalToken.value;
+      const {location} = literalToken;
+      const lit =
+          new LiteralToken(STRING, normalizeAttributeValue(v), location);
+      value = new LiteralExpression(location, lit);
     } else {
       value = this.transformAny(tree.value);
     }
@@ -201,4 +210,10 @@ function jsxIdentifierToToken(token) {
     return createStringLiteralToken(value);
   }
   return createIdentifierToken(value);
+}
+
+function normalizeAttributeValue(s) {
+  return JSON.stringify(
+      s.slice(1, -1).  // remove the quotes
+      replace(/\n\s+/g, ' '));
 }
