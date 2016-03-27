@@ -19,15 +19,19 @@ import {
   AnonBlock,
   ClassExpression,
   ExportDeclaration,
+  ExportSpecifier,
+  ExportSpecifierSet,
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
   Method,
+  NamedExport,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
-import {createBindingIdentifier} from '../codegeneration/ParseTreeFactory.js';
 import {
+  CLASS_DECLARATION,
   COMPUTED_PROPERTY_NAME,
+  EXPORT_DEFAULT,
   GET_ACCESSOR,
   LITERAL_PROPERTY_NAME,
   METHOD,
@@ -43,14 +47,17 @@ import {
 import {MakeStrictTransformer} from './MakeStrictTransformer.js';
 import {ParenTrait} from './ParenTrait.js';
 import {
+  createBindingIdentifier,
   createIdentifierExpression as id,
+  createIdentifierToken,
   createObjectLiteral,
-  createVariableStatement
+  createVariableStatement,
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
 import {
   parseExpression,
   parsePropertyDefinition,
+  parseStatement,
 } from './PlaceholderParser.js';
 
 // Maximally minimal classes
@@ -162,23 +169,6 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     this.state_ = null;
   }
 
-  // Override to handle AnonBlock
-  transformExportDeclaration(tree) {
-    let transformed = super.transformExportDeclaration(tree);
-    if (transformed === tree)
-      return tree;
-
-    let declaration = transformed.declaration;
-    if (declaration instanceof AnonBlock) {
-      let statements = [
-        new ExportDeclaration(null, declaration.statements[0], []),
-        ...declaration.statements.slice(1)
-      ];
-      return new AnonBlock(null, statements);
-    }
-    return transformed;
-  }
-
   transformModule(tree) {
     this.strictCount_ = 1;
     return super.transformModule(tree);
@@ -274,6 +264,29 @@ export class ClassTransformer extends ParenTrait(TempVarTransformer) {
     }
 
     return this.makeStrict_(expression);
+  }
+
+  transformExportDeclaration(tree) {
+    if (tree.declaration.type === EXPORT_DEFAULT &&
+        tree.declaration.expression.type === CLASS_DECLARATION) {
+      // export default class name {}
+      // ->
+      // class name {}
+      // export {name as default}
+      return this.transformExportDefaultClass_(tree.declaration);
+    }
+    return super.transformExportDeclaration(tree);
+  }
+
+  transformExportDefaultClass_(tree) {
+    const name = tree.expression.name.identifierToken;
+    const specifier = new ExportSpecifier(
+        name.location, name, createIdentifierToken('default'));
+    const exportTree = new ExportSpecifierSet(name.location, [specifier]);
+    const named = new NamedExport(name.location, exportTree, null);
+    const exp = new ExportDeclaration(name.location, named, []);
+    const classTree = this.transformAny(tree.expression);
+    return new AnonBlock(null, [classTree, exp]);
   }
 
   getDefaultConstructor_(tree) {

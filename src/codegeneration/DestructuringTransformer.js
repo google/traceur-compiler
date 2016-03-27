@@ -26,18 +26,23 @@ import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   OBJECT_LITERAL,
-  OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
+  OBJECT_PATTERN,
   PAREN_EXPRESSION,
-  VARIABLE_DECLARATION_LIST
+  VARIABLE_DECLARATION_LIST,
+  VARIABLE_STATEMENT,
 } from '../syntax/trees/ParseTreeType.js';
 import {
+  AnonBlock,
   AssignmentElement,
   BindingElement,
   Catch,
+  ExportDeclaration,
   ForInStatement,
   ForOfStatement,
-  ForOnStatement
+  ForOnStatement,
+  VariableDeclarationList,
+  VariableStatement,
 } from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
@@ -45,6 +50,7 @@ import {
   LET,
   VAR
 } from '../syntax/TokenType.js';
+import bindingsInPattern from '../semantics/bindingsInPattern.js';
 import {
   createAssignmentExpression,
   createBindingIdentifier,
@@ -243,7 +249,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformVariableDeclarationList(tree) {
-    if (!this.destructuringInDeclaration_(tree)) {
+    if (!hasDestructuring(tree)) {
       // No lvalues to desugar.
       return super.transformVariableDeclarationList(tree);
     }
@@ -299,7 +305,7 @@ export class DestructuringTransformer extends TempVarTransformer {
   transformForInOrOfOrOn_(tree, superMethod, constr) {
     if (!tree.initializer.isPattern() &&
         (tree.initializer.type !== VARIABLE_DECLARATION_LIST ||
-         !this.destructuringInDeclaration_(tree.initializer))) {
+         !hasDestructuring(tree.initializer))) {
       return superMethod.call(this, tree);
     }
 
@@ -421,6 +427,29 @@ export class DestructuringTransformer extends TempVarTransformer {
     return new Catch(tree.location, binding, createBlock(statements));
   }
 
+  transformExportDeclaration(tree) {
+    if (tree.declaration.type === VARIABLE_STATEMENT &&
+        hasDestructuring(tree.declaration.declarations)) {
+      // Make sure we do not export the temp variable bindings.
+      const names = bindingsInPattern(tree.declaration.declarations);
+      const declaration = this.transformAny(tree.declaration);
+      const statements = [];
+      const {declarations, declarationType} = declaration.declarations;
+      for (let i = 0; i < declarations.length; i++) {
+        const declaration = declarations[i];
+        let statement = new VariableStatement(declaration.location,
+            new VariableDeclarationList(declaration.location, declarationType, [declaration]));
+
+        if (names.has(declarations[i].lvalue.getStringValue())) {
+          statement = new ExportDeclaration(statement.location, statement, []);
+        }
+        statements.push(statement);
+      }
+      return new AnonBlock(null, statements);
+    }
+    return super.transformExportDeclaration(tree);
+  }
+
   /**
    * Helper for transformations that transforms a binding to a temp binding
    * as well as a statement added into a block. For example, this is used by
@@ -459,15 +488,6 @@ export class DestructuringTransformer extends TempVarTransformer {
     }
 
     return binding;
-  }
-
-  /**
-   * @param {VariableDeclarationList} tree
-   * @return {boolean}
-   */
-  destructuringInDeclaration_(tree) {
-    return tree.declarations.some(
-        (declaration) => declaration.lvalue.isPattern());
   }
 
   /**
@@ -669,4 +689,13 @@ export class DestructuringTransformer extends TempVarTransformer {
     return parseExpression `(${tempIdent} = ${expr}) === void 0 ?
         ${initializer} : ${tempIdent}`;
   }
+}
+
+/**
+ * @param {VariableDeclarationList} tree
+ * @return {boolean}
+ */
+function hasDestructuring(tree) {
+  return tree.declarations.some(
+      (declaration) => declaration.lvalue.isPattern());
 }
