@@ -16,15 +16,15 @@ import {suite, test, assert} from '../../unit/unitTestRunner.js';
 
 import {Parser} from '../../../src/syntax/Parser.js';
 import {SourceFile} from '../../../src/syntax/SourceFile.js';
-import bindingsInPattern from '../../../src/semantics/bindingsInPattern.js';
+import bindingsInDestructuringPattern from '../../../src/semantics/bindingsInDestructuringPattern.js';
 
-suite('bindingsInPattern.js', function() {
+suite('bindingsInDestructuringPattern.js', function() {
   function makeTest(code, names) {
     test(code, function() {
       const parser = new Parser(new SourceFile('CODE', code));
       const tree = parser.parseScript();
       assert.equal(tree.scriptItemList.length, 1);
-      const set = bindingsInPattern(tree.scriptItemList[0]);
+      const set = bindingsInDestructuringPattern(tree.scriptItemList[0]);
       assert.deepEqual(set.valuesAsArray(), names);
     });
   }

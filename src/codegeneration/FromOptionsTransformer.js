@@ -211,6 +211,8 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(ProperTailCallTransformer);
     }
 
+    // The module transformer comes last so that other transformers
+    // can output import statements.
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
         case 'commonjs':

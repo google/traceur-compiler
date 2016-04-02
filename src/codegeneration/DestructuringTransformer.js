@@ -50,7 +50,7 @@ import {
   LET,
   VAR
 } from '../syntax/TokenType.js';
-import bindingsInPattern from '../semantics/bindingsInPattern.js';
+import bindingsInDestructuringPattern from '../semantics/bindingsInDestructuringPattern.js';
 import {
   createAssignmentExpression,
   createBindingIdentifier,
@@ -431,7 +431,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (tree.declaration.type === VARIABLE_STATEMENT &&
         hasDestructuring(tree.declaration.declarations)) {
       // Make sure we do not export the temp variable bindings.
-      const names = bindingsInPattern(tree.declaration.declarations);
+      const names = bindingsInDestructuringPattern(tree.declaration.declarations);
       const declaration = this.transformAny(tree.declaration);
       const statements = [];
       const {declarations, declarationType} = declaration.declarations;

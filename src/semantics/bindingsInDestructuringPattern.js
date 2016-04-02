@@ -15,7 +15,10 @@
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {StringSet} from '../util/StringSet.js';
 
-class BindingsInPattern extends ParseTreeVisitor {
+/**
+ * Finds BindingIdentifiers in the a destructuring pattern.
+ */
+class BindingsInDestructuringPatternVisitor extends ParseTreeVisitor {
   constructor() {
     super();
     this.bindings = new StringSet();
@@ -34,8 +37,8 @@ class BindingsInPattern extends ParseTreeVisitor {
   }
 }
 
-export default function bindingsInPattern(tree) {
-  const v = new BindingsInPattern();
+export default function bindingsInDestructuringPattern(tree) {
+  const v = new BindingsInDestructuringPatternVisitor();
   v.visitAny(tree);
   return v.bindings;
 }
