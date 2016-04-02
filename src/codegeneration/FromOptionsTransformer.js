@@ -122,34 +122,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
 
-    if (transformOptions.modules) {
-      switch (transformOptions.modules) {
-        case 'commonjs':
-          append(CommonJsModuleTransformer);
-          break;
-        case 'amd':
-          append(AmdTransformer);
-          break;
-        case 'closure':
-          append(ClosureModuleTransformer);
-          break;
-        case 'inline':
-          append(InlineModuleTransformer);
-          break;
-        case 'instantiate':
-          append(InstantiateModuleTransformer);
-          break;
-        case 'bootstrap':
-          append(ModuleTransformer);
-          break;
-        case 'parse':
-          break;
-        default:
-          // The options processing should prevent us from getting here.
-          throw new Error('Invalid modules transform option');
-      }
-    }
-
     // MemberVariableTransformer needs to be done before SuperTransformer.
     if (transformOptions.memberVariables) {
       append(MemberVariableTransformer);
@@ -237,6 +209,36 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.properTailCalls) {
       append(ProperTailCallTransformer);
+    }
+
+    // The module transformer comes last so that other transformers
+    // can output import statements.
+    if (transformOptions.modules) {
+      switch (transformOptions.modules) {
+        case 'commonjs':
+          append(CommonJsModuleTransformer);
+          break;
+        case 'amd':
+          append(AmdTransformer);
+          break;
+        case 'closure':
+          append(ClosureModuleTransformer);
+          break;
+        case 'inline':
+          append(InlineModuleTransformer);
+          break;
+        case 'instantiate':
+          append(InstantiateModuleTransformer);
+          break;
+        case 'bootstrap':
+          append(ModuleTransformer);
+          break;
+        case 'parse':
+          break;
+        default:
+          // The options processing should prevent us from getting here.
+          throw new Error('Invalid modules transform option');
+      }
     }
   }
 }
