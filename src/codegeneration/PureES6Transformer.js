@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnnotationsTransformer} from './AnnotationsTransformer.js';
+import {AsyncToGeneratorTransformer} from './AsyncToGeneratorTransformer.js';
 import {InlineES6ModuleTransformer} from './InlineES6ModuleTransformer.js';
 import {JsxTransformer} from './JsxTransformer.js';
 import {MemberVariableTransformer} from './MemberVariableTransformer.js';
@@ -27,6 +28,7 @@ import {validate as validateFreeVariables} from
  * MultiTransformer that only transforms non ES6 features, such as:
  * - annotations
  * - types
+ * - async functions
  *
  * This is used to transform ES6+ code into pure ES6.
  */
@@ -68,6 +70,7 @@ export class PureES6Transformer extends MultiTransformer {
     }
     append(AnnotationsTransformer);
     append(TypeTransformer);
+    append(AsyncToGeneratorTransformer);
 
     if (options.modules === 'inline') {
       append(InlineES6ModuleTransformer);

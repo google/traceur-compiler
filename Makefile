@@ -28,6 +28,7 @@ INDIVIDUAL_RUNTIME_MODULES = \
   src/runtime/classes.js \
   src/runtime/generators.js \
   src/runtime/async.js \
+  src/runtime/spawn.js \
   src/runtime/template.js \
   src/runtime/jsx.js \
   #end runtime modules
