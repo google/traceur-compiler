@@ -24,22 +24,13 @@ body {
   line-height: 22px;
   letter-spacing: -2px;
 }
-
 </style>
-<script src="../bin/traceur.js"></script>
-</head>
-<body>
-
-<div id="box">Traceur<br>Rocks!</div>
-
+<script src="../bin/BrowserSystem.js"></script>
 <script>
-new traceur.WebPageTranscoder(document.location.href, {
-  asyncFunctions: true,
-  asyncGenerators: true,
-  forOn: true
-}).run();
+System.loadScriptTypeModule();
 </script>
-<script type="module">
+
+<script type="module" traceurOptions="--async-functions --async-generators --for-on">
 
 import Observable from './resources/Observable.js';
 
@@ -60,5 +51,8 @@ async function followMouse() {
 followMouse();
 
 </script>
+</head>
+<body>
+  <div id="box">Traceur<br>Rocks!</div>
 </body>
 </html>

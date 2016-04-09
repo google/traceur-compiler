@@ -15,9 +15,11 @@
 import {isAbsolute, resolveUrl} from '../util/url.js';
 import {Loader} from './Loader.js';
 import {LoaderCompiler} from './LoaderCompiler.js';
+import {Options} from '../Options.js';
 import {systemjs} from './system-map.js';
 import {webLoader} from './webLoader.js';
 import {version} from './version.js';
+import {WebPageTranscoder} from '../WebPageTranscoder.js';
 
 var uniqueNameCount = 0;
 
@@ -311,5 +313,8 @@ export class TraceurLoader extends Loader {
 export class BrowserTraceurLoader extends TraceurLoader {
   constructor() {
     super(webLoader, window.location.href, new LoaderCompiler());
+  }
+  loadScriptTypeModule(traceurOptions = new Options()) {
+    new traceur.WebPageTranscoder(document.location.href, traceurOptions).run();
   }
 }

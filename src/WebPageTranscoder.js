@@ -14,10 +14,8 @@
 
 // Applies Traceur to all scripts in a Web page.
 
-import {Loader} from './loader/Loader.js';
-import {BrowserTraceurLoader} from './loader/TraceurLoader.js';
 import {ErrorReporter} from './util/ErrorReporter.js';
-import {Options} from './Options.js';
+import {CommandOptions} from './Options.js';
 import {webLoader} from './loader/webLoader.js';
 
 export const scriptSelector = 'script[type="module"],script[type="text/traceur"]';
@@ -48,17 +46,22 @@ export class WebPageTranscoder {
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
+    let options = this.traceurOptions_;
+    let elementOptionString = scriptElement.getAttribute('traceurOptions');
+    if (elementOptionString) {
+      options = CommandOptions.fromString(elementOptionString);
+    }
     let nameInfo = {
       address: name,
       referrerName: window.location.href,
       name: name,
-      metadata: {traceurOptions: this.traceurOptions_}
+      metadata: {traceurOptions: options}
     };
     let loadingResult;
     if (scriptElement.type === 'module')
-      loadingResult = this.loader.module(content, nameInfo);
+      loadingResult = System.module(content, nameInfo);
     else
-      loadingResult = this.loader.script(content, nameInfo);
+      loadingResult = System.script(content, nameInfo);
     loadingResult.catch(function(error) {
       console.error(error.stack || error);
     });
@@ -105,13 +108,6 @@ export class WebPageTranscoder {
       this.reporter_ =  new ErrorReporter();
     }
     return this.reporter_;
-  }
-
-  get loader() {
-    if (!this.loader_) {
-      this.loader_ = new BrowserTraceurLoader();
-    }
-    return this.loader_;
   }
 
   putFile(file) {

@@ -19,18 +19,11 @@
 }
 
 </style>
-<script src="../bin/traceur.js"></script>
-</head>
-<body>
-
-<div id="box">Traceur<br>Rocks!</div>
-
+<script src="../bin/BrowserSystem.js"></script>
 <script>
-new traceur.WebPageTranscoder(document.location.href,{
-  asyncFunctions: true
-}).run();
+System.loadScriptTypeModule();
 </script>
-<script type="module">
+<script type="module" traceurOptions="--async-functions">
 
 function awaitTimeout(ms) {
   return new Promise((resolve) => {
@@ -72,5 +65,8 @@ animateAsync();
 animateAsyncVertical();
 
 </script>
+</head>
+<body>
+  <div id="box">Traceur<br>Rocks!</div>
 </body>
 </html>
