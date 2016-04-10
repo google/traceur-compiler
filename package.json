@@ -24,7 +24,9 @@
   },
   "files": [
     "bin/traceur.js",
+    "bin/traceur.js.map",
     "bin/traceur-runtime.js",
+    "bin/BrowserSystem.js",
     "src/",
     "dist/",
     "traceur"

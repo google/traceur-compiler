@@ -222,8 +222,10 @@ build/compiled-by-previous-traceur.js: src/loader/version.js \
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
-bin/BrowserSystem.js: src/browser/System.js
-	./traceur --out $@ $(TFLAGS) $^
+# Stand-alone browser support, incl. runtime, polyfills, compiler, and System
+bin/BrowserSystem.js: src/browser/System.js src/WebPageTranscoder.js $(SRC_ALL)
+	node_modules/traceur/traceur  --source-maps=file --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
+	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC) src/browser/System.js
 
 #
 # Rules to test traceur.js compiled through path that first compiles out modules then es6.
