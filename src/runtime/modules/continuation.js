@@ -1,4 +1,4 @@
-// Copyright 2015 Traceur Authors.
+// Copyright 2016 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import initTailRecursiveFunction from './modules/initTailRecursiveFunction.js';
-import call from './modules/call.js';
-import continuation from './modules/continuation.js';
-import construct from './modules/construct.js';
-
-$traceurRuntime.initTailRecursiveFunction = initTailRecursiveFunction;
-$traceurRuntime.call = call;
-$traceurRuntime.continuation = continuation;
-$traceurRuntime.construct = construct;
+export {createContinuation as default} from './properTailCalls.js';

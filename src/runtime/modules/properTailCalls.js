@@ -20,7 +20,7 @@ var CONTINUATION_TYPE = Object.create(null);
 
 var isTailRecursiveName = null;
 
-function createContinuation(operand, thisArg, argsArray) {
+export function createContinuation(operand, thisArg, argsArray) {
   return [CONTINUATION_TYPE, operand, thisArg, argsArray];
 }
 
@@ -47,7 +47,7 @@ function isTailRecursive(func) {
   return !!getPrivate(func, isTailRecursiveName);
 }
 
-function tailCall(func, thisArg, argArray) {
+export function tailCall(func, thisArg, argArray) {
   var continuation = argArray[0];
   if (isContinuation(continuation)) {
     continuation = $apply(func, thisArg, continuation[3]);
@@ -113,6 +113,3 @@ export function initTailRecursiveFunction(func) {
   setPrivate(func, isTailRecursiveName, true);
   return func;
 }
-
-export {tailCall as call};
-export {createContinuation as continuation};
