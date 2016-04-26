@@ -13,36 +13,30 @@
 // limitations under the License.
 
 import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter.js';
-import {
-  GeneratedSourceMapMapping,
-  OriginalSourceMapMapping
-} from './SourceMapMapping.js';
-import {SourceMapConsumer}
-    from 'traceur@0.0/src/outputgeneration/SourceMapIntegration.js';
+import {SourceMapVisualizer} from './SourceMapVisualizer.js';
 import {transcode, renderSourceMap} from './transcode.js';
 import {Options} from 'traceur@0.0/src/Options.js';
 import {setOptionsFromSource} from './replOptions.js';
 
-var hasError = false;
-var debouncedCompile = debounced(compile, 200, 2000);
-var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
+let hasError = false;
+let debouncedCompile = debounced(compile, 200, 2000);
+let input = CodeMirror.fromTextArea(document.querySelector('.input'), {
   lineNumbers: true,
   keyMap: 'sublime'
 });
 input.on('change', debouncedCompile);
 input.on('cursorActivity', onInputCursorActivity);
 
-var outputCheckbox = document.querySelector('input.output');
-var output = CodeMirror.fromTextArea(
+let outputCheckbox = document.querySelector('input.output');
+let output = CodeMirror.fromTextArea(
     document.querySelector('textarea.output'), {
       lineNumbers: true,
       keyMap: 'sublime',
       readOnly: true
     });
 output.getWrapperElement().classList.add('output-wrapper');
-var evalCheckbox = document.querySelector('input.eval');
-var errorElement = document.querySelector('pre.error');
-var sourceMapElement = document.querySelector('pre.source-map');
+let evalCheckbox = document.querySelector('input.eval');
+let errorElement = document.querySelector('pre.error');
 
 outputCheckbox.addEventListener('click', (e) => {
   document.documentElement.classList[
@@ -60,10 +54,10 @@ outputCheckbox.addEventListener('click', (e) => {
  *     current debounce time. If there are none pending, it is a no-op.
  */
 function debounced(func, tmin, tmax) {
-  var id = 0;
-  var t = tmin;
+  let id = 0;
+  let t = tmin;
   function wrappedFunc() {
-    var start = Date.now();
+    let start = Date.now();
     id = 0;
     func();
     t = tmin + Date.now() - start; // tmin + [func's execution time]
@@ -80,69 +74,8 @@ function debounced(func, tmin, tmax) {
 
 function onInputCursorActivity() {
   debouncedCompile.delay();
-  updateSourceMapVisualization();
+  sourceMapVisualizer.updateUI();
 }
-
-var markingOptions = {
-  className: 'sourceMapRange',
-  startStyle: 'sourceMapRangeLeft',
-  endStyle: 'sourceMapRangeRight',
-};
-
-var currentSource;
-var options = new Options();
-var generatedMarker;
-var sourceMapOutput = document.querySelector('.source-map');
-
-function updateSourceMapVisualization(url) {
-  if (!options.sourceMaps)
-    return;
-  if (url)
-    currentSource = url;
-  if (!currentSource)
-    return;
-
-  // update on compile.
-  var consumer = compilationResults.sourceMapConsumer;
-  var url = compilationResults.sourceMapURL;
-  var originalMap = new OriginalSourceMapMapping(consumer, url);
-  var generatedMap = new GeneratedSourceMapMapping(consumer, url);
-
-  var codeMirrorPosition = input.getCursor();
-  var originalPosition = {
-    line: codeMirrorPosition.line + 1,
-    column: codeMirrorPosition.ch,
-    source: currentSource
-  }
-
-  var originalRange = originalMap.rangeFrom(originalPosition);
-  var generatedRange =
-      generatedMap.rangeFrom(originalMap.mapPositionFor(originalPosition));
-
-  var generatedBeginCM = {
-    line: generatedRange[0].line - 1,
-    ch: generatedRange[0].column
-  };
-  var generatedEndCM = {
-    line: generatedRange[1].line - 1,
-    ch: generatedRange[1].column
-  }
-  if (generatedMarker)
-    generatedMarker.clear();
-
-  generatedMarker =
-      output.markText(generatedBeginCM, generatedEndCM, markingOptions);
-}
-
-function showPosition(position) {
-  return position.line + '.' + position.column;
-}
-
-function showRange(range) {
-   return showPosition(range[0]) + ' - ' + showPosition(range[1]);
-}
-
-var compilationResults = {};
 
 function updateLocation(contents) {
   if (history.replaceState) {
@@ -151,12 +84,14 @@ function updateLocation(contents) {
   }
 }
 
+let options = new Options();
+
 function compile() {
   hasError = false;
   output.setValue('');
 
-  var name = 'repl';
-  var contents = input.getValue();
+  let name = 'repl';
+  let contents = input.getValue();
   updateLocation(contents);
   try {
     options.setFromObject(
@@ -166,6 +101,8 @@ function compile() {
     onFailure(ex);
   }
 }
+
+let sourceMapVisualizer = new SourceMapVisualizer(input, output);
 
 // When options are changed we write // Options back into the source
 // and recompile with these options.
@@ -201,11 +138,10 @@ function compileContents(contents) {
   function onTranscoded(metadata) {
     output.setValue(metadata.transcoded);
     if (metadata.compiler.sourceMapInfo) {
-      var info = metadata.compiler.sourceMapInfo;
-      compilationResults.sourceMapConsumer =
-          new SourceMapConsumer(info.map);
-      compilationResults.sourceMapURL = info.url;
-      updateSourceMapVisualization(info.url);
+      let info = metadata.compiler.sourceMapInfo;
+      sourceMapVisualizer.updateMap(info);
+    } else {
+      sourceMapVisualizer.updateMap({sourceMapURL: null});
     }
   }
 
