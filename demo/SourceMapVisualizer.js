@@ -44,41 +44,63 @@ export class SourceMapVisualizer {
     this.originalMap = new OriginalSourceMapMapping(consumer, this.sourceMapUrl);
     this.generatedMap = new GeneratedSourceMapMapping(consumer, this.sourceMapUrl);
 
-    this.updateUI();
+    this.updateGenerated();
   }
 
-  updateUI() {
+  updateGenerated() {
+    this.updateUI(this.input, this.originalMap, this.output, this.generatedMap);
+  }
+
+  updateSource() {
+    this.updateUI(this.output, this.generatedMap, this.input, this.originalMap);
+  }
+
+  /**
+    * Given a codeMirror with a cursor and a sourcemap, mark the other
+    * codeMirror across the matching range given by the otherMap.
+    */
+  updateUI(thisCodeMirror, thisMap, otherCodeMirror, otherMap) {
     if (!this.sourceMapUrl) {
       return;
     }
 
-    let codeMirrorPosition = this.input.getCursor();
-    let originalPosition = {
+    let codeMirrorPosition = thisCodeMirror.getCursor();
+    let thisPosition = {
       line: codeMirrorPosition.line + 1,
       column: codeMirrorPosition.ch,
       source: this.sourceMapUrl
     }
+    let otherPosition = thisMap.mapPositionFor(thisPosition);
 
-    let originalRange = this.originalMap.rangeFrom(originalPosition);
-    let generatedRange =
-        this.generatedMap.rangeFrom(this.originalMap.mapPositionFor(originalPosition));
+    let thisRange = thisMap.rangeFrom(thisPosition);
+    let otherRange = otherMap.rangeFrom(otherPosition);
 
-    let generatedBeginCM = {
-      line: generatedRange[0].line - 1,
-      ch: generatedRange[0].column
+    console.log('map: ' + this.rangeToString(thisRange)
+        + ' -> ' + this.rangeToString(otherRange));
+
+    let beginCM = {
+      line: otherRange[0].line - 1,
+      ch: otherRange[0].column
     };
 
-    let generatedEndCM = {
-      line: generatedRange[1].line - 1,
-      ch: generatedRange[1].column
+    let endCM = {
+      line: otherRange[1].line - 1,
+      ch: otherRange[1].column
     }
 
     if (this.generatedMarker)
       this.generatedMarker.clear();
 
     this.generatedMarker =
-        this.output.markText(generatedBeginCM, generatedEndCM, markingOptions);
+        otherCodeMirror.markText(beginCM, endCM, markingOptions);
+  }
+
+  rangeToString(range) {
+    return this.positionToString(range[0]) + '-' + this.positionToString(range[1]);
+  }
+
+  positionToString(position) {
+    return position.line + ':' + position.column;
   }
 }
-
 
