@@ -19,7 +19,7 @@ import {BrowserTraceurTestRunner} from './modular/BrowserTraceurTestRunner.js';
 import {Options} from '../src/Options.js';
 import {ModuleStore} from '../src/loader/ModuleStore.js';
 
-import {assert, assertArrayEquals} from './asserts.js';
+import {assert} from './asserts.js';
 export * from './asserts.js';
 
 function forEachPrologLine(s, f) {
@@ -80,37 +80,6 @@ assert.type = function (actual, type) {
   assert.typeOf(actual, type.name);
   return actual;
 };
-
-function assertNoOwnProperties(o) {
-  let m = Object.getOwnPropertyNames(o);
-  if (m.length) {
-    fail('Unexpected members found:' + m.join(', '));
-  }
-}
-
-function assertHasOwnProperty(o) {
-  let args = Array.prototype.slice.call(arguments, 1);
-  for (let i = 0; i < args.length; i ++) {
-    let m = args[i];
-    if (!o.hasOwnProperty(m)) {
-      fail('Expected member ' + m + ' not found.');
-    }
-  }
-}
-
-function assertLacksOwnProperty(o) {
-  let args = Array.prototype.slice.call(arguments, 1);
-  for (let i = 0; i < args.length; i ++) {
-    let m = args[i];
-    if (o.hasOwnProperty(m)) {
-      fail('Unxpected member ' + m + ' found.');
-    }
-  }
-}
-
-function fail(message) {
-  throw new AssertionError(message);
-}
 
 let pathRe = /([^\s']+?)(?=test(?:[\/\\])feature(?:[\/\\]))/g;
 
@@ -243,7 +212,7 @@ function cloneTest(name, url) {
     let tree = parse(source);
 
     if (reporter.hadError()) {
-      fail('cloneTest Error compiling ' + name + '.\n' +
+      assert.fail('cloneTest Error compiling ' + name + '.\n' +
            reporter.errorsAsString());
       return;
     }
@@ -257,8 +226,8 @@ function cloneTest(name, url) {
     // Parse again to ensure that writer generates valid code.
     clone = parse(cloneCode);
     if (reporter.hadError()) {
-      fail('Error compiling generated code for ' + name + '.\n' +
-           reporter.errors.join('\n'));
+      assert.fail('Error compiling generated code for ' + name + '.\n' +
+                  reporter.errors.join('\n'));
       return;
     }
 
@@ -279,18 +248,13 @@ function cloneTest(name, url) {
       doTest(data);
       done();
     }, (ex) => {
-      fail('Load error for ' + url + ': ' + ex);
+      assert.fail('Load error for ' + url + ': ' + ex);
       done();
     });
   });
 }
 
 Reflect.global.assert = assert;
-Reflect.global.assertArrayEquals = assertArrayEquals;
-Reflect.global.assertHasOwnProperty = assertHasOwnProperty;
-Reflect.global.assertLacksOwnProperty = assertLacksOwnProperty;
-Reflect.global.assertNoOwnProperties = assertNoOwnProperties;
-Reflect.global.fail = fail;
 
 function importFeatureFiles(files) {
   return new Promise((resolve) => {

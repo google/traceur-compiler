@@ -35,12 +35,12 @@ class NoExtends {
 }
 
 var call = Function.prototype.call;
-assertArrayEquals([NoExtends, 42, call], NoExtends.method());
+assert.deepEqual([NoExtends, 42, call], NoExtends.method());
 
-assertArrayEquals([NoExtends, 42, call], NoExtends.getter);
+assert.deepEqual([NoExtends, 42, call], NoExtends.getter);
 
 NoExtends.setter = 1;
-assertArrayEquals([NoExtends, 1, call], x);
+assert.deepEqual([NoExtends, 1, call], x);
 
 delete Function.prototype.testFunction;
 delete Function.prototype.testGetter;

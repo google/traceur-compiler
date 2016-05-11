@@ -7,7 +7,7 @@ import {
   exportedUnannotated
 } from './resources/exported-functions.js';
 
-assertArrayEquals([new Anno], exportedAnnotated.annotations);
-assertArrayEquals([[new Anno]], exportedAnnotated.parameters);
+assert.deepEqual([new Anno], exportedAnnotated.annotations);
+assert.deepEqual([[new Anno]], exportedAnnotated.parameters);
 assert.isUndefined(exportedUnannotated.annotations);
-assertArrayEquals([[new Anno]], exportedUnannotated.parameters);
+assert.deepEqual([[new Anno]], exportedUnannotated.parameters);

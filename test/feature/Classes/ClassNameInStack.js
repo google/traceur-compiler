@@ -6,7 +6,7 @@ class MyClassName {
 
 try {
   new MyClassName().m();
-  fail('Should have thrown');
+  assert.fail('Should have thrown');
 } catch (ex) {
   if (ex.stack)
     assert.isTrue(String(ex.stack).indexOf('MyClassName') >= 0);
@@ -22,7 +22,7 @@ class MySecondClass extends MyClassName{
 
 try {
   new MySecondClass().m();
-  fail('Should have thrown');
+  assert.fail('Should have thrown');
 } catch (ex) {
   if (ex.stack)
     assert.isTrue(String(ex.stack).indexOf('MySecondClass') >= 0);

@@ -10,7 +10,7 @@
   [, x, , x2, , ...xs] = f();
   assert.equal(1, x);
   assert.equal(3, x2);
-  assertArrayEquals([5, 6, 7], xs);
+  assert.deepEqual([5, 6, 7], xs);
 
   [] = f();
   assert.equal(8, i);  // Since we never call next().
@@ -34,7 +34,7 @@
   var [, x, , x2, , ...xs] = f();
   assert.equal(1, x);
   assert.equal(3, x2);
-  assertArrayEquals([5, 6, 7], xs);
+  assert.deepEqual([5, 6, 7], xs);
 
   var [] = f();
   assert.equal(8, i);  // Since we never call next().

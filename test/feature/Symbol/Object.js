@@ -4,7 +4,7 @@ object[s] = 42;
 assert.equal(42, object[s]);
 // Native Symbol throws for ToString.
 // assert.isUndefined(object[s + '']);
-assertArrayEquals([], Object.getOwnPropertyNames(object));
+assert.deepEqual([], Object.getOwnPropertyNames(object));
 assert.isTrue(object.hasOwnProperty(s));
 
 assert.equal(32, object[s] -= 10);

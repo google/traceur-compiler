@@ -82,7 +82,7 @@ t.forEach(function(val, val2, obj) {
 }, context);
 
 assert.equal(cnt, 9);
-assertArrayEquals(arr, expected);
+assert.deepEqual(arr, expected);
 
 // iterator
 arr = [];
@@ -93,7 +93,7 @@ for (var setIterVal of t) {
   cnt++;
 }
 assert.equal(cnt, 9);
-assertArrayEquals(arr, expected);
+assert.deepEqual(arr, expected);
 
 // .values()
 arr = [];
@@ -104,7 +104,7 @@ for (var setIterVal of t.values()) {
   cnt++;
 }
 assert.equal(cnt, 9);
-assertArrayEquals(arr, expected);
+assert.deepEqual(arr, expected);
 
 var t3 = new Set([[], {}, NaN]);
 assert.equal(t3.size, 3);

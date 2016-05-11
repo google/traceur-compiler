@@ -15,4 +15,4 @@ var result = {
 // ----------------------------------------------------------------------------
 
 assert.equal(result.obj, result.result.self);
-assertArrayEquals([0, 1, 2, 3], result.result.args);
+assert.deepEqual([0, 1, 2, 3], result.result.args);

@@ -10,5 +10,5 @@ class Test {
   }
 }
 
-assertArrayEquals([new Anno('Test')], Test.annotations);
-assertArrayEquals([new Anno('x')], new Test().annotatedFn.annotations);
+assert.deepEqual([new Anno('Test')], Test.annotations);
+assert.deepEqual([new Anno('x')], new Test().annotatedFn.annotations);

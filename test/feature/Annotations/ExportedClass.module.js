@@ -7,9 +7,9 @@ import {
 } from './resources/exported-classes.js';
 
 
-assertArrayEquals([new Anno], ExportedAnnotatedClass.annotations);
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno], ExportedAnnotatedClass.annotations);
+assert.deepEqual([new Anno],
     ExportedAnnotatedClass.prototype.annotatedMethod.annotations);
 
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno],
     ExportedUnannotatedClass.prototype.annotatedMethod.annotations);

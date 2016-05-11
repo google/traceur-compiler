@@ -1,12 +1,8 @@
 // Options: --spread-properties
 
-function fail() {
-  assert.isTrue(false, 'unreachable');
-}
-
 var o;
-assert.deepEqual({set a(x) {fail()}, ...{a: 'a'}}, {a: 'a'});
-assert.deepEqual(o = {a: 'a', ...{set a(x) {fail()}}}, {a: undefined});
+assert.deepEqual({set a(x) {assert.fail()}, ...{a: 'a'}}, {a: 'a'});
+assert.deepEqual(o = {a: 'a', ...{set a(x) {assert.fail()}}}, {a: undefined});
 o.a = 'b';
 assert.equal(o.a, 'b');
 

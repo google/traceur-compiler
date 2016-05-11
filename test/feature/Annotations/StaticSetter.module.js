@@ -6,7 +6,7 @@ class StaticSetter {
   static set prop(@Anno x) {}
 }
 
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno],
     Object.getOwnPropertyDescriptor(StaticSetter, 'prop').set.annotations);
-assertArrayEquals([[new Anno]],
+assert.deepEqual([[new Anno]],
     Object.getOwnPropertyDescriptor(StaticSetter, 'prop').set.parameters);

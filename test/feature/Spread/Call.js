@@ -8,10 +8,10 @@ function f(...args) {
 }
 
 var result = f(0, ...[1, 2], 3, ...G());
-assertArrayEquals([0, 1, 2, 3, 'hi', 'there'], result);
+assert.deepEqual([0, 1, 2, 3, 'hi', 'there'], result);
 
 result = f(...G());
-assertArrayEquals(['hi', 'there'], result);
+assert.deepEqual(['hi', 'there'], result);
 
 function g() {
   'use strict';

@@ -8,7 +8,7 @@ class C {
   get xyz() { return 1; }
 }
 
-assertArrayEquals([new Anno('x y z')],
+assert.deepEqual([new Anno('x y z')],
     Object.getOwnPropertyDescriptor(C.prototype, 'x y z').get.annotations);
-assertArrayEquals([new Anno('xyz')],
+assert.deepEqual([new Anno('xyz')],
     Object.getOwnPropertyDescriptor(C.prototype, 'xyz').get.annotations);

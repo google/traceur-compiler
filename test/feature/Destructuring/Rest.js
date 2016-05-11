@@ -7,10 +7,10 @@ function destructRest() {
 }
 
 var result = destructRest();
-assertArrayEquals([1, 2, 3], result.a);
+assert.deepEqual([1, 2, 3], result.a);
 assert.equal(1, result.b);
-assertArrayEquals([2, 3], result.c);
-assertArrayEquals([], result.d);
+assert.deepEqual([2, 3], result.c);
+assert.deepEqual([], result.d);
 
 assert.throw(function() {
   var e;

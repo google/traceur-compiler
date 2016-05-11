@@ -6,4 +6,4 @@ function destructEvaluatesToRvalue() {
 // ----------------------------------------------------------------------------
 
 var result = destructEvaluatesToRvalue();
-assertArrayEquals([1, 2, 3], result);
+assert.deepEqual([1, 2, 3], result);

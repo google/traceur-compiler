@@ -26,8 +26,3 @@ if (typeof require === 'undefined') {
 
 export let assert = chai.assert;
 export let AssertionError = chai.AssertionError;
-
-export function assertArrayEquals(expected, actual) {
-  assert.equal(JSON.stringify(actual, null, 2),
-               JSON.stringify(expected, null, 2));
-}

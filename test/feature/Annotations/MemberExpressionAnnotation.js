@@ -23,10 +23,10 @@ class NestedWithArgs {
   annotatedMethod() {}
 }
 
-assertArrayEquals([new x.Simple], SimpleAnnotation.annotations);
-assertArrayEquals([new x.Simple],
+assert.deepEqual([new x.Simple], SimpleAnnotation.annotations);
+assert.deepEqual([new x.Simple],
     SimpleAnnotation.prototype.annotatedMethod.annotations);
 
-assertArrayEquals([new x.nested.Args('class')], NestedWithArgs.annotations);
-assertArrayEquals([new x.nested.Args('method')],
+assert.deepEqual([new x.nested.Args('class')], NestedWithArgs.annotations);
+assert.deepEqual([new x.nested.Args('method')],
     NestedWithArgs.prototype.annotatedMethod.annotations);

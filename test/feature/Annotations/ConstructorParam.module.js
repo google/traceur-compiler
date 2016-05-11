@@ -5,5 +5,5 @@ class CtorParam {
   constructor(@Anno x) {}
 }
 
-assertArrayEquals([[new Anno]], CtorParam.parameters);
+assert.deepEqual([[new Anno]], CtorParam.parameters);
 

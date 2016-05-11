@@ -16,8 +16,8 @@ class UnannotatedClass {
   }
 }
 
-assertArrayEquals([[X], []], UnannotatedClass.parameters);
-assertArrayEquals([[X]], UnannotatedClass.prototype.bar.parameters);
-assertArrayEquals([[X]],
+assert.deepEqual([[X], []], UnannotatedClass.parameters);
+assert.deepEqual([[X]], UnannotatedClass.prototype.bar.parameters);
+assert.deepEqual([[X]],
     Object.getOwnPropertyDescriptor(UnannotatedClass.prototype, 'setter').
         set.parameters);

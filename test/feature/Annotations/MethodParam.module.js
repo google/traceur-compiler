@@ -5,5 +5,5 @@ class MethodParam {
   method(@Anno x) {}
 }
 
-assertArrayEquals([[new Anno]], MethodParam.prototype.method.parameters);
+assert.deepEqual([[new Anno]], MethodParam.prototype.method.parameters);
 

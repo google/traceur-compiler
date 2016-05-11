@@ -10,7 +10,7 @@ var expectedTails = [['b', 'c'], ['e','f']];
 var i = 0;
 for (var [head, ...tail] of gen()) {
   assert.equal(expectedHeads[i], head);
-  assertArrayEquals(expectedTails[i], tail);
+  assert.deepEqual(expectedTails[i], tail);
   i++;
 }
 assert.equal(2, i);

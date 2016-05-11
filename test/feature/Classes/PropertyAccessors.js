@@ -24,12 +24,12 @@ assert.equal(20, immutable.y_);
 
 try {
   immutable.x = 11;
-  fail('should not be able to set a get only property');
+  assert.fail('should not be able to set a get only property');
 } catch (except) {
 }
 try {
   immutable.y = 11;
-  fail('should not be able to set a get only property');
+  assert.fail('should not be able to set a get only property');
 } catch (except) {
 }
 assert.equal(10, immutable.x);
@@ -48,12 +48,12 @@ assert.equal(20, mutable.y_);
 try {
   mutable.x = 11;
 } catch (except) {
-  fail('should be able to set a read/write property');
+  assert.fail('should be able to set a read/write property');
 }
 try {
   mutable.y = 12;
 } catch (except) {
-  fail('should be able to set a read/write property');
+  assert.fail('should be able to set a read/write property');
 }
 assert.equal(11, mutable.x);
 assert.equal(12, mutable.y);

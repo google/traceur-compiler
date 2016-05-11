@@ -10,4 +10,4 @@ class AnnotatedClassCtor {
   constructor() {}
 }
 
-assertArrayEquals([new Anno, new Anno2], AnnotatedClassCtor.annotations);
+assert.deepEqual([new Anno, new Anno2], AnnotatedClassCtor.annotations);

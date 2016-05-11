@@ -6,5 +6,5 @@ class StaticGetter {
   static get prop() { return 'getter'; }
 }
 
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno],
     Object.getOwnPropertyDescriptor(StaticGetter, 'prop').get.annotations);

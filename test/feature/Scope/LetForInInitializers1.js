@@ -17,6 +17,6 @@ var result;
 
 // ----------------------------------------------------------------------------
 
-assertArrayEquals(['0', 'one'], result[0]());
-assertArrayEquals(['1', 'two'], result[1]());
-assertArrayEquals(['2', 'three'], result[2]());
+assert.deepEqual(['0', 'one'], result[0]());
+assert.deepEqual(['1', 'two'], result[1]());
+assert.deepEqual(['2', 'three'], result[2]());

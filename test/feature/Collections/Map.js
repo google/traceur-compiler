@@ -95,7 +95,7 @@ t.forEach(function (value, key, map) {
 assert.equal(cnt, 10);
 t.delete('foo');
 
-assertArrayEquals(arrKeys, [
+assert.deepEqual(arrKeys, [
   undefinedKey,
   nullKey,
   stringKey,
@@ -107,7 +107,7 @@ assertArrayEquals(arrKeys, [
   frozenKey,
   'foo'
 ]);
-assertArrayEquals(arr, [
+assert.deepEqual(arr, [
   'value8',
   'value9',
   'value5',
@@ -138,10 +138,10 @@ for (var mapIterItem of t) {
 assert.equal(cnt, 10);
 t.delete('foo');
 
-assertArrayEquals(arrKeys, [ undefinedKey, nullKey, stringKey,
+assert.deepEqual(arrKeys, [ undefinedKey, nullKey, stringKey,
     numberKey, booleanKey, objectKey,
     nanKey, zeroKey, frozenKey, 'foo' ]);
-assertArrayEquals(arr, [
+assert.deepEqual(arr, [
   'value8',
   'value9',
   'value5',
@@ -168,7 +168,7 @@ for (var mapIterItem of t.entries()) {
 }
 assert.equal(cnt, 9);
 
-assertArrayEquals(arrKeys, [
+assert.deepEqual(arrKeys, [
   undefinedKey,
   nullKey,
   stringKey,
@@ -179,7 +179,7 @@ assertArrayEquals(arrKeys, [
   zeroKey,
   frozenKey
 ]);
-assertArrayEquals(arr, [
+assert.deepEqual(arr, [
   'value8',
   'value9',
   'value5',
@@ -202,7 +202,7 @@ for (var mapIterKey of t.keys()) {
 }
 assert.equal(cnt, 9);
 
-assertArrayEquals(arrKeys, [
+assert.deepEqual(arrKeys, [
   undefinedKey,
   nullKey,
   stringKey,
@@ -225,7 +225,7 @@ for (var mapIterVal of t.values()) {
 }
 assert.equal(cnt, 9);
 
-assertArrayEquals(arr, [
+assert.deepEqual(arr, [
   'value8',
   'value9',
   'value5',

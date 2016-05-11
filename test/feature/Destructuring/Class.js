@@ -6,19 +6,19 @@ function MyError(s) {
 class C {
   constructor({message: [head, ...tail], name}) {
     assert.equal('a', head);
-    assertArrayEquals(['b', 'c'], tail);
+    assert.deepEqual(['b', 'c'], tail);
     assert.equal('Error', name);
   }
 
   method({message: [head, ...tail], name}) {
     assert.equal('a', head);
-    assertArrayEquals(['b', 'c'], tail);
+    assert.deepEqual(['b', 'c'], tail);
     assert.equal('Error', name);
   }
 
   set x({message: [head, ...tail], name}) {
     assert.equal('a', head);
-    assertArrayEquals(['b', 'c'], tail);
+    assert.deepEqual(['b', 'c'], tail);
     assert.equal('Error', name);
   }
 }

@@ -12,7 +12,7 @@ class AnnotatedClass {
   static *staticGenerate() {}
 }
 
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno],
     AnnotatedClass.prototype.generate.annotations);
-assertArrayEquals([new Anno2],
+assert.deepEqual([new Anno2],
     AnnotatedClass.staticGenerate.annotations);

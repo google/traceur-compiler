@@ -7,8 +7,8 @@ var f = [0, ...[[1, 2], [3, 4]], 5];
 
 // ----------------------------------------------------------------------------
 
-assertArrayEquals([0], b);
-assertArrayEquals([0, 0], c);
-assertArrayEquals([1, 2], d);
-assertArrayEquals([0, 1, 2, 3], e);
-assertArrayEquals([0, [1, 2], [3, 4], 5], f);
+assert.deepEqual([0], b);
+assert.deepEqual([0, 0], c);
+assert.deepEqual([1, 2], d);
+assert.deepEqual([0, 1, 2, 3], e);
+assert.deepEqual([0, [1, 2], [3, 4], 5], f);
