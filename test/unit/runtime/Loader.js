@@ -16,7 +16,6 @@ import {
   suite,
   test,
   assert,
-  assertArrayEquals,
   setup,
   teardown
 } from '../../unit/unitTestRunner.js';
@@ -89,7 +88,7 @@ function loadAndCheck(depsByName, expectedCalls, done) {
     assert(codeUnit.normalizedName === 'foo');
     // This kind of log is very handy:
     // console.log('calls ', '[\n\'' + calls.join('\',\n\'') + '\'\n]');
-    assertArrayEquals(calls, expectedCalls);
+    assert.deepEqual(calls, expectedCalls);
     done();
   }).catch(done);
 }

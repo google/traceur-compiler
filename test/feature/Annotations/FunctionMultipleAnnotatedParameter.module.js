@@ -6,5 +6,5 @@ import {
 
 function MultipleAnnotations(@Anno('x') @Anno2('x') x) {}
 
-assertArrayEquals([[new Anno('x'), new Anno2('x')]],
+assert.deepEqual([[new Anno('x'), new Anno2('x')]],
     MultipleAnnotations.parameters);

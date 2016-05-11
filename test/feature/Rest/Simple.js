@@ -6,11 +6,11 @@ function g(a, ...p) {
   return p;
 }
 
-assertArrayEquals([], f());
-assertArrayEquals([0], f(0));
-assertArrayEquals([0, 1], f(0, 1));
+assert.deepEqual([], f());
+assert.deepEqual([0], f(0));
+assert.deepEqual([0, 1], f(0, 1));
 
-assertArrayEquals([], g());
-assertArrayEquals([], g(0));
-assertArrayEquals([1], g(0, 1));
-assertArrayEquals([1, 2], g(0, 1, 2));
+assert.deepEqual([], g());
+assert.deepEqual([], g(0));
+assert.deepEqual([1], g(0, 1));
+assert.deepEqual([1, 2], g(0, 1, 2));

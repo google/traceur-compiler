@@ -100,7 +100,7 @@ suite('Loader.js', function() {
     var reporter = new MutedErrorReporter();
     getTestLoader(reporter).script('export var x = 5;', {}).then(
       function(result) {
-        fail('should not have succeeded');
+        assert.fail('should not have succeeded');
         done();
       }, function(ex) {
         assert(ex);
@@ -145,7 +145,7 @@ suite('Loader.js', function() {
     var code = 'DeliboratelyUndefined; \n';
     var result = getTestLoader().module(code, {}).then(
       function(value) {
-        fail('Should not have succeeded');
+        assert.fail('Should not have succeeded');
         done();
       }, function(ex) {
         assert((ex + '').indexOf('DeliboratelyUndefined') !== -1);
@@ -165,7 +165,7 @@ suite('Loader.js', function() {
   test('LoaderLoad.Fail', function(done) {
     var reporter = new MutedErrorReporter();
     getTestLoader(reporter).loadAsScript('./test/unit/runtime/resources/non_existing.js', {}).then(function(result) {
-      fail('should not have succeeded');
+      assert.fail('should not have succeeded');
       done();
     }, function(error) {
       assert(error);
@@ -224,7 +224,7 @@ suite('Loader.js', function() {
   test('LoaderImport.Fail', function(done) {
     var reporter = new MutedErrorReporter();
     getTestLoader(reporter).import('./test/unit/runtime/resources/non_existing.js', {}).then(function(mod) {
-      fail('should not have succeeded')
+      assert.fail('should not have succeeded')
       done();
     }, function(error) {
       assert(error);
@@ -241,7 +241,7 @@ suite('Loader.js', function() {
     var metadata = {traceurOptions: {sourceMaps: 'memory'}};
     getTestLoader(reporter).import('test/unit/runtime/loads/main.js', {metadata: metadata}).then(
       function(mod) {
-        fail('should not have succeeded')
+        assert.fail('should not have succeeded')
         done();
       }, function(error) {
         assert((error + '').indexOf('ModuleEvaluationError: dep error in') !== -1);
@@ -275,7 +275,7 @@ suite('Loader.js', function() {
     getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       var src = 'syntax error';
       getTestLoader().define(name, src, {}).then(function() {
-          fail('should not have succeeded');
+          assert.fail('should not have succeeded');
           done();
         }, function(error) {
           assert(error);

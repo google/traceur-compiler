@@ -1,7 +1,7 @@
 function f([a, b, ...c], d) {
   return [a, b, c, d];
 }
-assertArrayEquals([1, 2, [3, 4], 5], f([1, 2, 3, 4], 5));
+assert.deepEqual([1, 2, [3, 4], 5], f([1, 2, 3, 4], 5));
 
 function g([, a]) {
   return a;

@@ -7,7 +7,7 @@ var f = [... new String('abc')];
 
 // ----------------------------------------------------------------------------
 
-assertArrayEquals(['b'], b);
-assertArrayEquals(['b', 'b'], c);
-assertArrayEquals([0, '1', '2', 3], e);
-assertArrayEquals(['a', 'b', 'c'], f);
+assert.deepEqual(['b'], b);
+assert.deepEqual(['b', 'b'], c);
+assert.deepEqual([0, '1', '2', 3], e);
+assert.deepEqual(['a', 'b', 'c'], f);

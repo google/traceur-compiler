@@ -25,7 +25,10 @@ var a = new MemberExprBase('w value');
 var pa = Object.getPrototypeOf(a);
 var ppa = Object.getPrototypeOf(pa);
 
-assertHasOwnProperty(a, 'yyy', 'w', 'z');
-assertLacksOwnProperty(a, 'x');
-assertHasOwnProperty(pa, 'constructor');
-assertHasOwnProperty(ppa, 'x', 'constructor');
+assert.isTrue(a.hasOwnProperty('yyy'));
+assert.isTrue(a.hasOwnProperty('w'));
+assert.isTrue(a.hasOwnProperty('z'));
+assert.isFalse(a.hasOwnProperty('x'));
+assert.isTrue(pa.hasOwnProperty('constructor'));
+assert.isTrue(ppa.hasOwnProperty('x'));
+assert.isTrue(ppa.hasOwnProperty('constructor'));

@@ -11,6 +11,6 @@ var object = {
   }
 };
 
-assertArrayEquals([new Anno],
+assert.deepEqual([new Anno],
     Object.getOwnPropertyDescriptor(object.foo.prototype, 'b').get.annotations);
 

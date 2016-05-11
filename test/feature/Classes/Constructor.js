@@ -22,7 +22,7 @@ assert.equal(1, p.x);
 assert.equal(2, p.y);
 
 for (var element in Point) {
-  fail('Point contains static member : ' + element);
+  assert.fail('Point contains static member : ' + element);
 }
 
 // Tests to ensure that we're not binding function identifier per class

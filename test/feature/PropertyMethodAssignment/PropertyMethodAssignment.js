@@ -20,7 +20,7 @@ var object = {
 
 // ----------------------------------------------------------------------------
 
-assertArrayEquals([
+assert.deepEqual([
   '42',
   'x',
   'f',
@@ -58,7 +58,7 @@ assertMethod(object, 'class');
 assert.equal(object.f, object.f());
 
 // Test the nested object.
-assertArrayEquals(['j'], Object.keys(object.x));
+assert.deepEqual(['j'], Object.keys(object.x));
 assertMethod(object.x, 'j');
 
 // Test name binding.

@@ -16,7 +16,6 @@ import {
   suite,
   test,
   assert,
-  assertArrayEquals
 } from '../../unit/unitTestRunner.js';
 
 import {Compiler} from '../../../src/Compiler.js';
@@ -214,7 +213,7 @@ suite('SourceMap.js', function() {
 
     var map = JSON.parse(scriptCompiler.getSourceMap(outFilename));
     assert.equal(outFilename, map.file);
-    assertArrayEquals(['a.js', 'b.js', 'c.js'], map.sources);
+    assert.deepEqual(['a.js', 'b.js', 'c.js'], map.sources);
   });
 
   test('ImportSpecifierSetSourceMap', function() {

@@ -13,7 +13,7 @@ for (var element in e) {
 }
 
 for (var element in Empty) {
-  fail('Empty contains static member : ' + element);
+  assert.fail('Empty contains static member : ' + element);
 }
 
 // Instances should be different.

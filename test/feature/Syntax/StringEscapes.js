@@ -8,6 +8,6 @@ var o2 = {
   '\0\b\f\n\r\t\v\x42\u1234': 1234
 };
 
-assertArrayEquals(Object.keys(o1), Object.keys(o2));
+assert.deepEqual(Object.keys(o1), Object.keys(o2));
 assert.equal(42, o1['\\\'']);
 assert.equal(42, o2['\\\'']);

@@ -65,6 +65,6 @@ class AccessorNamedStatic {
 
 x = 2;
 c = new AccessorNamedStatic();
-assertArrayEquals([c, 2], c.static);
+assert.deepEqual([c, 2], c.static);
 c.static = 3;
-assertArrayEquals([c, 3], x);
+assert.deepEqual([c, 3], x);

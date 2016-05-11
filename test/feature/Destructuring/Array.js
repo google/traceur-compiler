@@ -14,7 +14,7 @@ function destructArray() {
 var result = destructArray();
 assert.equal('hello', result.a);
 assert.equal(',', result.b);
-assertArrayEquals(['world'], result.c);
+assert.deepEqual(['world'], result.c);
 assert.isUndefined(result.d);
 
 function testNested() {

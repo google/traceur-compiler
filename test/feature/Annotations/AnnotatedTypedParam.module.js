@@ -6,4 +6,4 @@ import {
 
 function AnnotatedTypedParam(@Anno x:X) {}
 
-assertArrayEquals([[X, new Anno]], AnnotatedTypedParam.parameters);
+assert.deepEqual([[X, new Anno]], AnnotatedTypedParam.parameters);

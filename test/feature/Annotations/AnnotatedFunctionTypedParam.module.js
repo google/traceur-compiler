@@ -7,4 +7,4 @@ import {
 @Anno
 function AnnotatedFnMultiParam(x:X, y) {}
 
-assertArrayEquals([[X], []], AnnotatedFnMultiParam.parameters);
+assert.deepEqual([[X], []], AnnotatedFnMultiParam.parameters);

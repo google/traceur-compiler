@@ -20,13 +20,16 @@ var pa = Object.getPrototypeOf(a);
 var pb = Object.getPrototypeOf(b);
 var pc = Object.getPrototypeOf(c);
 
-assertNoOwnProperties(a);
-assertNoOwnProperties(b);
-assertNoOwnProperties(c);
+assert.equal(Object.getOwnPropertyNames(a).length, 0);
+assert.equal(Object.getOwnPropertyNames(b).length, 0);
+assert.equal(Object.getOwnPropertyNames(c).length, 0);
 
-assertHasOwnProperty(pa, 'ma');
-assertLacksOwnProperty(pa, 'mb', 'mc');
-assertHasOwnProperty(pb, 'mb');
-assertLacksOwnProperty(pb, 'ma', 'mc');
-assertHasOwnProperty(pc, 'mc');
-assertLacksOwnProperty(pc, 'ma', 'mb');
+assert.isTrue(pa.hasOwnProperty('ma'));
+assert.isFalse(pa.hasOwnProperty('mb'));
+assert.isFalse(pa.hasOwnProperty('mc'));
+assert.isTrue(pb.hasOwnProperty('mb'));
+assert.isFalse(pb.hasOwnProperty('ma'));
+assert.isFalse(pb.hasOwnProperty('mc'));
+assert.isTrue(pc.hasOwnProperty('mc'));
+assert.isFalse(pc.hasOwnProperty('ma'));
+assert.isFalse(pc.hasOwnProperty('mb'));

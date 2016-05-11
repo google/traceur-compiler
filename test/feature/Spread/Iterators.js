@@ -11,7 +11,7 @@ var d = [4, ...G(), 5];
 
 // ----------------------------------------------------------------------------
 
-assertArrayEquals([1, 2, 3], a);
-assertArrayEquals([4, 1, 2, 3], b);
-assertArrayEquals([1, 2, 3, 4], c);
-assertArrayEquals([4, 1, 2, 3, 5], d);
+assert.deepEqual([1, 2, 3], a);
+assert.deepEqual([4, 1, 2, 3], b);
+assert.deepEqual([1, 2, 3, 4], c);
+assert.deepEqual([4, 1, 2, 3, 5], d);

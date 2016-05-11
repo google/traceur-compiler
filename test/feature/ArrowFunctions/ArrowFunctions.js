@@ -38,11 +38,11 @@ assert.equal(42, f());
 
 {
   let g = (...xs) => xs;
-  assertArrayEquals([0, 1, true], g(0, 1, true));
+  assert.deepEqual([0, 1, true], g(0, 1, true));
 }
 
 var h = (x, ...xs) => xs;
-assertArrayEquals([0, 1, true], h(-1, 0, 1, true));
+assert.deepEqual([0, 1, true], h(-1, 0, 1, true));
 
 assert.equal(typeof (() => {}), 'function');
 assert.equal(Object.getPrototypeOf(() => {}), Function.prototype);

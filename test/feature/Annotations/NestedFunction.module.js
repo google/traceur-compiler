@@ -13,5 +13,5 @@ function f(a = function() {
 }
 
 var nested = f();
-assertArrayEquals([[X, new Anno]], nested.parameters);
+assert.deepEqual([[X, new Anno]], nested.parameters);
 
