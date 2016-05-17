@@ -105,6 +105,7 @@ test: bin/traceur.js \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version \
 	  test/features \
+	  test/mocha \
 	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
@@ -117,6 +118,10 @@ test/features: bin/traceur.js bin/traceur-runtime.js $(FEATURE_TESTS)
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
+
+test/mocha: bin/traceur.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) \
+		--compilers js:test/cjs-mocha-compiler.js --reporter dot test/feature/**/
 
 test/commonjs: test/commonjs-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
