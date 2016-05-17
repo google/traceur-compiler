@@ -177,11 +177,12 @@ function featureTest(name, url) {
       }
     }
 
-    if (/\.module\.js$/.test(url)) {
-      moduleLoader.import(url, {}).then(handleSuccess,
+    const isScript = /\.script\.js$/.test(url);
+    if (isScript) {
+      moduleLoader.loadAsScript(url, {}).then(handleSuccess,
           handleFailure).catch(done);
     } else {
-      moduleLoader.loadAsScript(url, {}).then(handleSuccess,
+      moduleLoader.import(url, {}).then(handleSuccess,
           handleFailure).catch(done);
     }
   });
@@ -202,11 +203,11 @@ function cloneTest(name, url) {
     function parse(source) {
       let file = new traceur.syntax.SourceFile(name, source);
       let parser = new traceur.syntax.Parser(file, reporter, options);
-      let isModule = /\.module\.js$/.test(url);
-      if (isModule)
-        return parser.parseModule();
-      else
+      let isScript = /\.script\.js$/.test(url);
+      if (isScript) {
         return parser.parseScript();
+      }
+      return parser.parseModule();
     }
 
     let tree = parse(source);

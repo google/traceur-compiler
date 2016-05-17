@@ -1,4 +1,4 @@
-import {counterclockwise} from '../ImportCircular.module.js';
+import {counterclockwise} from '../ImportCircular.js';
 export function clockwise() {
   return 'The circle is complete';
 }
