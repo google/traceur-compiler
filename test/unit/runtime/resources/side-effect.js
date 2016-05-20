@@ -1,2 +1,2 @@
-this.sideEffect = 6;
-export var currentSideEffect = () => this.sideEffect;
+testGlobal.sideEffect = 6;
+export var currentSideEffect = () => testGlobal.sideEffect;

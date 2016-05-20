@@ -52,6 +52,7 @@ import {
   createObjectLiteral,
   createUseStrictDirective,
   createVariableStatement,
+  createVoid0,
 } from './ParseTreeFactory.js';
 import {
   parseExpression,
@@ -59,6 +60,8 @@ import {
   parseStatement,
   parseStatements
 } from './PlaceholderParser.js';
+import SkipFunctionsTransformerTrait from './SkipFunctionsTransformerTrait.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 function removeUseStrictDirectives(tree) {
   let result = tree.scriptItemList.filter(tree => !tree.isUseStrictDirective());
@@ -110,6 +113,8 @@ export class ModuleTransformer extends TempVarTransformer {
   transformModule(tree) {
     tree = removeUseStrictDirectives(tree);
     tree = this.importSimplifier_.transformModule(tree);
+    const replaceThis = new ReplaceThis();
+    tree = replaceThis.transformAny(tree);
 
     this.moduleName = this.getModuleName(tree);
 
@@ -352,5 +357,12 @@ export class ModuleTransformer extends TempVarTransformer {
       return new ObjectPatternField(tree.location, name, bindingElement);
     }
     return bindingElement;
+  }
+}
+
+// Replaces top level `this` with `void 0`.
+class ReplaceThis extends SkipFunctionsTransformerTrait(ParseTreeTransformer) {
+  transformThisExpression(tree) {
+    return createVoid0();
   }
 }

@@ -1,3 +1,1 @@
-this.sideEffect++;
-
-
+testGlobal.sideEffect++;

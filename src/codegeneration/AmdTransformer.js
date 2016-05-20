@@ -30,7 +30,6 @@ import {
   FunctionBody,
   FunctionExpression,
 } from '../syntax/trees/ParseTrees.js'
-import scopeContainsThis from './scopeContainsThis.js';
 
 export class AmdTransformer extends ModuleTransformer {
   constructor(identifierGenerator, reporter, options = undefined) {
@@ -70,15 +69,10 @@ export class AmdTransformer extends ModuleTransformer {
     let formals =
         this.dependencies.map((dep) => createFormalParameter(dep.local));
 
-    let hasTopLevelThis = statements.some(scopeContainsThis);
-
     let parameterList = new FormalParameterList(null, formals);
     let body = new FunctionBody(null, statements);
     let func = new FunctionExpression(null, null, null,
                                       parameterList, null, [], body);
-
-    if (hasTopLevelThis)
-      func = parseExpression `${func}.bind(${globalThis()})`;
 
     if (this.moduleName) {
       return parseStatements `define(${this.moduleName}, ${depPaths}, ${func});`;

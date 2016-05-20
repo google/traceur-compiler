@@ -57,7 +57,7 @@ suite('InlineModuleTransformer.js', function() {
     test('with this', function() {
       transformer.moduleName = "test/module";
       assertEqualIgnoringWhiteSpaces(
-          "var $__test_47_module__ = (function(){ this }).call(Reflect.global);",
+          "var$__test_47_module__=(function(){this})();",
           writeArray(transformer.wrapModule([ParseTreeFactory.createThisExpression()])));
     });
   });

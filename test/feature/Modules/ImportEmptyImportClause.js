@@ -1,4 +1,4 @@
-this.sideEffect = 1;
+testGlobal.sideEffect = 1;
 import {} from './resources/side-effect2.js';
-assert.equal(2, this.sideEffect);
-this.sideEffect = 1;
+assert.equal(2, testGlobal.sideEffect);
+testGlobal.sideEffect = 1;

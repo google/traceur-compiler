@@ -1,4 +1,5 @@
-var global = this;
+var topLevelThis = this;
 
 import * as m from './resources/f.js';
-assert.equal(global, m.f());
+assert.equal(topLevelThis, m.f());
+assert.equal(undefined, topLevelThis);

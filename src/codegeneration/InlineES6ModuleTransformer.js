@@ -28,14 +28,11 @@ import {
   createMemberLookupExpression,
   createMemberExpression,
   createObjectLiteral,
-  createScopedExpression,
   createReturnStatement,
   createUseStrictDirective,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import globalThis from './globalThis.js';
-import scopeContainsThis from './scopeContainsThis.js';
 import {IMPORT_SPECIFIER_SET} from '../syntax/trees/ParseTreeType.js';
 import {AnonBlock} from '../syntax/trees/ParseTrees.js';
 import {parseStatement} from './PlaceholderParser.js';
@@ -107,13 +104,7 @@ export class InlineES6ModuleTransformer extends ModuleTransformer {
     }
 
     let body = createFunctionBody(statements);
-    let moduleExpression;
-    if (statements.some(scopeContainsThis)) {
-      moduleExpression = createScopedExpression(body, globalThis());
-    } else {
-      moduleExpression = createImmediatelyInvokedFunctionExpression(body);
-    }
-
+    let moduleExpression = createImmediatelyInvokedFunctionExpression(body);
     return [createVariableStatement(CONST, idName, moduleExpression)];
   }
 
