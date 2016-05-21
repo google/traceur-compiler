@@ -19,11 +19,8 @@ import {
   createEmptyStatement,
   createFunctionBody,
   createImmediatelyInvokedFunctionExpression,
-  createScopedExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import globalThis from './globalThis.js';
-import scopeContainsThis from './scopeContainsThis.js';
 
 let anonInlineModules = 0;
 
@@ -39,13 +36,7 @@ export class InlineModuleTransformer extends ModuleTransformer {
     let idName = this.getTempVarNameForModuleName(seed);
 
     let body = createFunctionBody(statements);
-    let moduleExpression;
-    if (statements.some(scopeContainsThis)) {
-      moduleExpression = createScopedExpression(body, globalThis());
-    } else {
-      moduleExpression = createImmediatelyInvokedFunctionExpression(body);
-    }
-
+    let moduleExpression = createImmediatelyInvokedFunctionExpression(body);
     return [createVariableStatement(VAR, idName, moduleExpression)];
   }
 

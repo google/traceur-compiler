@@ -282,7 +282,7 @@
     },
 
     getAnonymousModule(func) {
-      return new Module(func.call(global), liveModuleSentinel);
+      return new Module(func(), liveModuleSentinel);
     },
   };
 

@@ -253,10 +253,11 @@ suite('Loader.js', function() {
 
   test('Loader.define', function(done) {
     var name = ModuleStore.normalize('./test_define.js');
+    global.testGlobal = {};
     getTestLoader().import('./test/unit/runtime/resources/side-effect.js', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
       var src = 'export {name as a} from \'./test/unit/runtime/resources/test_a.js\';\n' +
-        'export var d = 4;\n' + 'this.sideEffect++;';
+        'export var d = 4;\n' + 'testGlobal.sideEffect++;';
       return getTestLoader().define(name, src, {}).then(function() {
         return mod;
       });
@@ -266,6 +267,7 @@ suite('Loader.js', function() {
       assert.equal(7, mod.currentSideEffect());  // module body evaluated
       assert.equal(4, definedModule.d);  // define does exports
       assert.equal('A', definedModule.a);  // define does imports
+      delete global.testGlobal;
       done();
     }).catch(done);
   });

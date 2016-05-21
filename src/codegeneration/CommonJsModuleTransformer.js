@@ -32,7 +32,6 @@ import {
   parsePropertyDefinition,
   parseStatements
 } from './PlaceholderParser.js';
-import scopeContainsThis from './scopeContainsThis.js';
 import {
   createEmptyParameterList,
   createFunctionExpression,
@@ -75,16 +74,6 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
   }
 
   wrapModule(statements) {
-
-    let needsIife = statements.some(scopeContainsThis);
-
-    if (needsIife) {
-      return parseStatements
-          `module.exports = function() {
-            ${statements}
-          }.call(${globalThis()});`;
-    }
-
     let last = statements[statements.length - 1];
     statements = statements.slice(0, -1);
     assert(last.type === RETURN_STATEMENT);

@@ -54,6 +54,7 @@ suite('context test', function() {
       var runtimePath = resolve('bin/traceur-runtime.js');
       var runtime = fs.readFileSync(runtimePath, 'utf-8');
       var context = vm.createContext();
+      context.global = context;
       context.console = console;
       // The context does not have the builtins. Add the ones the tests need.
       context.Float32Array = Float32Array;
@@ -396,7 +397,7 @@ suite('context test', function() {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var inputFilename = './test/unit/node/resources/scriptUsesModuleGlobal.js';
-    var inputModuleName = './test/unit/node/resources/moduleSetsGlobal.js';
+    var inputModuleName = './test/unit/node/resources/module-global.js';
     exec(executable + ' --out ' + tempFileName + ' --module ' + inputModuleName +
         ' --script ' + inputFilename,
         function(error, stdout, stderr) {
@@ -404,7 +405,7 @@ suite('context test', function() {
           var source = fs.readFileSync(tempFileName, 'utf-8');
           try {
             ('global', eval)(source);
-            assert.equal(global.sandwich, 'iAmGlobal pastrami');
+            assert.equal(global.sandwich, 'undefined pastrami');
             done();
           } catch(ex) {
             done(ex);
@@ -416,7 +417,7 @@ suite('context test', function() {
     tempFileName = resolve(uuid.v4() + '.js');
     var executable = 'node ' + resolve('src/node/command.js');
     var scriptFileName = './test/unit/node/resources/scriptUsesModuleGlobal.js';
-    var inlineFileName = './test/unit/node/resources/moduleSetsGlobal.js';
+    var inlineFileName = './test/unit/node/resources/module-global.js';
     var command = executable + ' --out ' + tempFileName +
       ' --modules=inline ' + inlineFileName + ' --script ' + scriptFileName;
     exec(command,
@@ -425,9 +426,9 @@ suite('context test', function() {
           assert.isNull(error);
           var source = fs.readFileSync(tempFileName, 'utf-8');
           executeFileWithRuntime(tempFileName).then(function() {
-            assert.equal(global.aGlobal, 'iAmGlobal');
+            assert.equal(global.aGlobal, undefined);
             ('global', eval)(source);
-            assert.equal(global.sandwich, 'iAmGlobal pastrami');
+            assert.equal(global.sandwich, 'undefined pastrami');
             done();
           }, true).catch(done);
         });
