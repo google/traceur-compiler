@@ -1,3 +1,2 @@
-const g = typeof global !== 'undefined' ? global :
-    typeof window !== 'undefined' ? window : undefined;
-g.sideEffect++;
+import object from './object-for-side-effects.js';
+object.sideEffect++;

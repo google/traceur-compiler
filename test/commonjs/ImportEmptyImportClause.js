@@ -1,6 +1,5 @@
-const g = typeof global !== 'undefined' ? global :
-    typeof window !== 'undefined' ? window : undefined;
-g.sideEffect = 1;
+import object from './deps/object-for-side-effects.js';
+object.sideEffect = 1;
 import {} from './deps/side-effect2.js';
-assert.equal(2, g.sideEffect);
-g.sideEffect = 1;
+assert.equal(2, object.sideEffect);
+object.sideEffect = 1;

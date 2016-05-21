@@ -127,7 +127,6 @@ function featureTest(name, url) {
           done(ex);
         };
       }
-      global.testGlobal = {};
       setOptions(load, prologOptions);
       return source;
     }
