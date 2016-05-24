@@ -11,7 +11,8 @@ require.extensions['.js'] = function(module, path) {
       return;
     }
 
-    // TODO(arv): Reuse parseProlog.
+    // TODO(arv): Use parseProlog from src/util/parseProlog.js so that we can
+    // compile when we have non default options too.
     var compiled = traceurAPI.compile(content, {
       modules: 'commonjs',
       importRuntime: true,
