@@ -1,50 +1,50 @@
 RUNTIME_SRC = \
-  src/runtime/runtime.js \
-  src/runtime/url.js \
-  src/loader/ModuleStoreImpl.js \
-  # end files that must be script.
+	src/runtime/runtime.js \
+	src/runtime/url.js \
+	src/loader/ModuleStoreImpl.js \
+	# end files that must be script.
 
 POLYFILL_SRC = \
-  src/runtime/polyfills/Map.js \
-  src/runtime/polyfills/Set.js \
-  src/runtime/polyfills/Promise.js \
-  src/runtime/polyfills/String.js \
-  src/runtime/polyfills/Array.js \
-  src/runtime/polyfills/Object.js \
-  src/runtime/polyfills/Number.js \
-  src/runtime/polyfills/Math.js \
-  src/runtime/polyfills/WeakMap.js \
-  src/runtime/polyfills/WeakSet.js \
-  src/runtime/polyfills/polyfills.js
+	src/runtime/polyfills/Map.js \
+	src/runtime/polyfills/Set.js \
+	src/runtime/polyfills/Promise.js \
+	src/runtime/polyfills/String.js \
+	src/runtime/polyfills/Array.js \
+	src/runtime/polyfills/Object.js \
+	src/runtime/polyfills/Number.js \
+	src/runtime/polyfills/Math.js \
+	src/runtime/polyfills/WeakMap.js \
+	src/runtime/polyfills/WeakSet.js \
+	src/runtime/polyfills/polyfills.js
 
 RUNTIME_MODULES = src/runtime/runtime-modules.js
 
 INDIVIDUAL_RUNTIME_MODULES = \
-  src/runtime/exportStar.js \
-  src/runtime/properTailCalls.js \
-  src/runtime/relativeRequire.js \
-  src/runtime/spread.js \
-  src/runtime/destructuring.js \
-  src/runtime/classes.js \
-  src/runtime/generators.js \
-  src/runtime/async.js \
-  src/runtime/spawn.js \
-  src/runtime/template.js \
-  src/runtime/jsx.js \
-  #end runtime modules
+	src/runtime/exportStar.js \
+	src/runtime/properTailCalls.js \
+	src/runtime/relativeRequire.js \
+	src/runtime/spread.js \
+	src/runtime/destructuring.js \
+	src/runtime/classes.js \
+	src/runtime/generators.js \
+	src/runtime/async.js \
+	src/runtime/spawn.js \
+	src/runtime/template.js \
+	src/runtime/jsx.js \
+	#end runtime modules
 SRC = \
-  $(RUNTIME_MODULES) \
-  $(POLYFILL_SRC) \
-  src/traceur-import.js
+	$(RUNTIME_MODULES) \
+	$(POLYFILL_SRC) \
+	src/traceur-import.js
 TPL_GENSRC = \
-  src/outputgeneration/regexpuRewritePattern.js \
-  src/outputgeneration/SourceMapIntegration.js
+	src/outputgeneration/regexpuRewritePattern.js \
+	src/outputgeneration/SourceMapIntegration.js
 GENSRC = \
-  $(TPL_GENSRC) \
-  src/codegeneration/ParseTreeTransformer.js \
-  src/syntax/trees/ParseTreeType.js \
-  src/syntax/trees/ParseTrees.js \
-  src/syntax/ParseTreeVisitor.js
+	$(TPL_GENSRC) \
+	src/codegeneration/ParseTreeTransformer.js \
+	src/syntax/trees/ParseTreeType.js \
+	src/syntax/trees/ParseTrees.js \
+	src/syntax/ParseTreeVisitor.js
 
 PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
@@ -91,22 +91,26 @@ build: bin/traceur.js wiki
 min: bin/traceur.min.js
 
 # Uses uglifyjs to compress. Make sure you have it installed
-#   npm install uglify-js -g
+#	 npm install uglify-js -g
 ugly: bin/traceur.ugly.js
 
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: bin/traceur.js \
-	  bin/BrowserSystem.js \
+		bin/BrowserSystem.js \
 		test/unit \
-	  test/unit/runtime/traceur-runtime \
-	  wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	  test-interpret-absolute test-inline-module-error \
-	  test-version \
-	  test/features \
-	  test/mocha \
-	  test-experimental
+		test/unit/runtime/traceur-runtime \
+		wiki \
+		test/amd-compiled \
+		test/commonjs-compiled \
+		test-interpret \
+		test-interpret-absolute \
+		test-inline-module-error \
+		test-version \
+		test/features \
+		test/module-compiled \
+		test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
 
@@ -119,9 +123,9 @@ test/features: bin/traceur.js bin/traceur-runtime.js $(FEATURE_TESTS)
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
 
-test/mocha: bin/traceur.js
+test/module-compiled: bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) \
-		--compilers js:test/cjs-mocha-compiler.js --reporter dot test/feature/**/
+		--compilers js:test/register-cjs-test-wrapper.js --reporter dot test/feature/**/
 
 test/commonjs: test/commonjs-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
@@ -143,7 +147,7 @@ test-interpret-absolute: $(CURDIR)/test/unit/node/traceur-interpreter.js
 
 test-inline-module-error:
 	./traceur --out not-written.js \
-		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d' > /dev/null
+		test/feature/Modules/Error_ImportDefault.js 2>&1 | sed '1d' > /dev/null
 
 test/commonjs-compiled: force
 	rm -f -r test.commonjs-compiled/*
@@ -202,7 +206,7 @@ bin/%.min.js: bin/%.js
 # https://github.com/google/traceur-compiler/issues/828
 bin/traceur-runtime.js: $(RUNTIME_SRC) $(RUNTIME_MODULES) $(POLYFILL_SRC) bin/traceur.js
 	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/bin/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(RUNTIME_MODULES) $(POLYFILL_SRC)
+		$(RUNTIME_SCRIPTS) $(TFLAGS) $(RUNTIME_MODULES) $(POLYFILL_SRC)
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -213,24 +217,24 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --source-maps=file --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+		$(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: src/loader/version.js \
 		$(PREV_NODE) \
 		$(SRC) \
-	  node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
+		node_modules/traceur/bin/traceur.js $(SRC_ALL) $(GENSRC) node_modules
 	@mkdir -p bin/
 	node_modules/traceur/traceur --out $@ --referrer='traceur@0.0.0/build/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
+		$(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC)
 
 # Stand-alone browser support, incl. runtime, polyfills, compiler, and System
 bin/BrowserSystem.js: src/browser/System.js src/WebPageTranscoder.js $(SRC_ALL)
-	node_modules/traceur/traceur  --source-maps=file --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
-	  $(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC) src/browser/System.js
+	node_modules/traceur/traceur --source-maps=file --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' \
+	$(RUNTIME_SCRIPTS) $(TFLAGS) $(SRC) src/browser/System.js
 
 #
 # Rules to test traceur.js compiled through path that first compiles out modules then es6.
@@ -238,8 +242,8 @@ bin/BrowserSystem.js: src/browser/System.js src/WebPageTranscoder.js $(SRC_ALL)
 #
 
 build/es6-no-modules/compiler.js: $(SRC_NODE) src/traceur-import.js
-	node_modules/traceur/traceur --out $@ --modules=inline  --referrer='traceur@0.0.0/build/es6-no-modules/' \
-	  --outputLanguage=es6 $(TFLAGS) src/traceur-import.js
+	node_modules/traceur/traceur --out $@ --modules=inline	--referrer='traceur@0.0.0/build/es6-no-modules/' \
+		--outputLanguage=es6 $(TFLAGS) src/traceur-import.js
 
 build/es6-no-modules/global-imports.js: $(RUNTIME_MODULES) $(POLYFILL_SRC) src/runtime/runtime-modules.js src/runtime/polyfills-imports.js
 	./traceur --out build/es6-no-modules/global-imports.js --modules=inline --outputLanguage=es6 -- src/runtime/global-imports.js
@@ -256,10 +260,10 @@ bin/traceur-from-no-modules.js: bin/traceur-es6-no-modules.js
 	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/bin/' --script bin/traceur-es6-no-modules.js $(TFLAGS)
 
 test-no-modules: bin/traceur-from-no-modules.js bin/traceur-runtime.js bin/traceur.js
-	cp bin/traceur.js bin/gold-traceur.js  # bin/traceur.js is called by test rules, so temp override it.
+	cp bin/traceur.js bin/gold-traceur.js	# bin/traceur.js is called by test rules, so temp override it.
 	cp bin/traceur-from-no-modules.js bin/traceur.js
 	touch bin/traceur-runtime.js # our temp bin/traceur.js has a new timestamp, don't trigger rebuild.
-	-$(MAKE)  -r test
+	-$(MAKE) -r test
 	cp -p bin/gold-traceur.js bin/traceur.js # preserve timestamp to avoid make triggers.
 	rm bin/gold-traceur.js
 
@@ -267,19 +271,19 @@ test-no-modules: bin/traceur-from-no-modules.js bin/traceur-runtime.js bin/trace
 #
 
 src/syntax/trees/ParseTrees.js: \
-  build/build-parse-trees.js src/syntax/trees/trees.json
+	build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
 
 src/syntax/trees/ParseTreeType.js: \
-  build/build-parse-tree-type.js src/syntax/trees/trees.json
+	build/build-parse-tree-type.js src/syntax/trees/trees.json
 	node $^ > $@
 
 src/syntax/ParseTreeVisitor.js: \
-  build/build-parse-tree-visitor.js src/syntax/trees/trees.json
+	build/build-parse-tree-visitor.js src/syntax/trees/trees.json
 	node $^ > $@
 
 src/codegeneration/ParseTreeTransformer.js: \
-  build/build-parse-tree-transformer.js src/syntax/trees/trees.json
+	build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
 
 src/loader/version.js: package.json build/versionInfo.js
@@ -314,7 +318,7 @@ dist/commonjs: bin/traceur.js
 prepublish: bin/traceur.js bin/traceur-runtime.js dist/commonjs/
 
 WIKI_OUT = \
-  test/wiki/CompilingOffline/out/greeter.js
+	test/wiki/CompilingOffline/out/greeter.js
 
 wiki: $(WIKI_OUT)
 
