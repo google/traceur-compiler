@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.110",
+  "version": "0.0.111",
   "description": "ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -83,7 +83,7 @@
     "regjsgen": "0.2.0",
     "regjsparser": "0.1.5",
     "requirejs": "2.x",
-    "traceur": "0.0.109",
+    "traceur": "0.0.110",
     "promises-aplus-tests": "2.x",
     "webcomponents.js": "^0.5.4-1"
   },
