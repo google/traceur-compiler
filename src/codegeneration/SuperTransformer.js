@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   ArgumentList,
@@ -138,7 +139,7 @@ class PrototypeState extends State {
  *     }
  *   }
  */
-export class SuperTransformer extends TempVarTransformer {
+export class SuperTransformer extends ImportRuntimeTrait(TempVarTransformer) {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     // Pushing onto this stack is done in pairs. For classes we push one state
@@ -308,7 +309,8 @@ export class SuperTransformer extends TempVarTransformer {
 
   transformMemberShared_(name) {
     let {home} = this.peekState();
-    return parseExpression `$traceurRuntime.superGet(this, ${home}, ${name})`;
+    let superGet = this.getRuntimeExpression('superGet');
+    return parseExpression `${superGet}(this, ${home}, ${name})`;
   }
 
   /**
@@ -337,7 +339,8 @@ export class SuperTransformer extends TempVarTransformer {
         createThisExpression(), ...args.args
       ]);
       let {home} = this.stateStack_[this.stateStack_.length - 2];
-      operand = parseExpression `$traceurRuntime.superConstructor(${home})`;
+      let superConstructor = this.getRuntimeExpression('superConstructor');
+      operand = parseExpression `${superConstructor}(${home})`;
     } else if (hasSuperMemberExpression(tree.operand)) {
       // super.x(args)
       operand = this.transformAny(tree.operand);
@@ -367,8 +370,9 @@ export class SuperTransformer extends TempVarTransformer {
 
       let right = this.transformAny(tree.right);
       let {home} = this.peekState();
+      let superSet = this.getRuntimeExpression('superSet');
       return parseExpression
-          `$traceurRuntime.superSet(this, ${home}, ${name}, ${right})`;
+          `${superSet}(this, ${home}, ${name}, ${right})`;
     }
 
     return super.transformBinaryExpression(tree);

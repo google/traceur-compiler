@@ -53,7 +53,7 @@ export class InnerForOnTransformer extends
   // FnExtractAbruptCompletions. The common code should really be refactored
   // into an abstract base class.
 
-  constructor(tempIdGenerator, labelSet) {
+  constructor(tempIdGenerator, labelSet, options) {
     super();
     this.idGenerator_ = tempIdGenerator;
     this.inLoop_ = 0;
@@ -68,6 +68,7 @@ export class InnerForOnTransformer extends
     this.labelSet_.forEach((tree) => {
       this.parentLabels_.add(tree.name.value);
     });
+    this.options = options;
   }
 
   transform(tree) {
@@ -107,11 +108,12 @@ export class InnerForOnTransformer extends
         return ${this.result_}.v;`));
 
     let switchStatement = createSwitchStatement(this.result_, caseClauses);
+    let observeForEach = this.idGenerator_.getRuntimeExpression('observeForEach');
     let statement = parseStatement `
         do {
           ${createVariableStatement(
             createVariableDeclarationList(VAR, this.variableDeclarations_))}
-            await $traceurRuntime.observeForEach(
+            await ${observeForEach}(
               ${tree.observable}[Symbol.observer].bind(${tree.observable}),
               async function (${value}) {
                 var ${this.observer_} = this;

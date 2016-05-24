@@ -105,6 +105,7 @@ test: bin/traceur.js \
 	  test-interpret-absolute test-inline-module-error \
 	  test-version \
 	  test/features \
+	  test/mocha \
 	  test-experimental
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 	$(MAKE) test-interpret-throw
@@ -117,6 +118,10 @@ test/features: bin/traceur.js bin/traceur-runtime.js $(FEATURE_TESTS)
 
 test/%-run: test/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
+
+test/mocha: bin/traceur.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) \
+		--compilers js:test/cjs-mocha-compiler.js --reporter dot test/feature/**/
 
 test/commonjs: test/commonjs-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
@@ -304,9 +309,9 @@ updateSemver: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
 dist/commonjs: bin/traceur.js
-	./traceur --dir src/ dist/commonjs/ --modules=commonjs
+	./traceur --dir src/ dist/commonjs/ --modules=commonjs --import-runtime
 
-prepublish: bin/traceur.js bin/traceur-runtime.js
+prepublish: bin/traceur.js bin/traceur-runtime.js dist/commonjs/
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js

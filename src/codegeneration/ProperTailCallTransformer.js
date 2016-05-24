@@ -29,6 +29,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
 } from '../syntax/trees/ParseTrees.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 
 //
 // Example:
@@ -49,13 +50,15 @@ import {
 //   }, this, arguments);
 // })
 
-export class ProperTailCallTransformer extends TempVarTransformer {
+export class ProperTailCallTransformer extends
+    ImportRuntimeTrait(TempVarTransformer) {
   // TODO(mnieper): This transformer currently expects that classes and template
   // literals have already been desugared. Otherwise they are not guaranteed
   // to have proper tail calls.
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.inBlock_ = false;
+    this.options = options;
   }
 
   transformFunctionDeclaration(tree) {
@@ -67,8 +70,11 @@ export class ProperTailCallTransformer extends TempVarTransformer {
 
     let nameIdExpression = id(tree.name.identifierToken);
 
+    const initTailRecursiveFunction =
+        this.getRuntimeExpression('initTailRecursiveFunction');
+
     let setupFlagExpression = parseExpression
-        `$traceurRuntime.initTailRecursiveFunction(${nameIdExpression})`;
+        `${initTailRecursiveFunction}(${nameIdExpression})`;
 
     let funcDecl = this.transformFunction_(tree, FunctionDeclaration);
     if (funcDecl === tree) {
@@ -105,8 +111,10 @@ export class ProperTailCallTransformer extends TempVarTransformer {
       return tree;
     }
 
-    return parseExpression `
-        $traceurRuntime.initTailRecursiveFunction(${functionExpression})`;
+    const initTailRecursiveFunction =
+        this.getRuntimeExpression('initTailRecursiveFunction');
+    return parseExpression `${
+        initTailRecursiveFunction}(${functionExpression})`;
   }
 
   transformFunction_(tree, constructor) {
@@ -116,8 +124,9 @@ export class ProperTailCallTransformer extends TempVarTransformer {
     }
     let func = id(this.getTempIdentifier());
     let innerFunction = createFunctionExpression(tree.parameterList, body);
+    const call = this.getRuntimeExpression('call');
     let outerBody = createFunctionBody(parseStatements `
-        return $traceurRuntime.call(${innerFunction}, this, arguments);`);
+        return ${call}(${innerFunction}, this, arguments);`);
     return new constructor(tree.location, tree.name, tree.functionKind,
         tree.parameterList, tree.typeAnnotation, tree.annotations, outerBody);
   }

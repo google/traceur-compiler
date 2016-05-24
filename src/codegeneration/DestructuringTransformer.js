@@ -44,6 +44,7 @@ import {
   VariableDeclarationList,
   VariableStatement,
 } from '../syntax/trees/ParseTrees.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   EQUAL,
@@ -164,7 +165,8 @@ class VariableDeclarationDesugaring extends Desugaring {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
  */
-export class DestructuringTransformer extends TempVarTransformer {
+export class DestructuringTransformer extends
+    ImportRuntimeTrait(TempVarTransformer) {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
@@ -563,9 +565,10 @@ export class DestructuringTransformer extends TempVarTransformer {
             continue;
           } else if (lvalue.isSpreadPatternElement()) {
             // Rest of the array, for example [x, ...y] = [1, 2, 3]
+            let iteratorToArray = this.getRuntimeExpression('iteratorToArray');
             desugaring.assign(
                 lvalue.lvalue,
-                parseExpression `$traceurRuntime.iteratorToArray(${iterId})`);
+                parseExpression `${iteratorToArray}(${iterId})`);
           } else {
             if (lvalue.initializer) {
               initializerFound = true;

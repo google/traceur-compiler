@@ -26,6 +26,7 @@ import {
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {ParenTrait} from './ParenTrait.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {
   PERCENT,
   PLUS,
@@ -63,7 +64,7 @@ function createStringLiteralExpression(loc, str) {
  * @param {Array<ParseTree>} elements
  * @return {ParseTree}
  */
-function createGetTemplateObject(elements) {
+function createGetTemplateObject(elements, getTemplateObject) {
   let cooked = [];
   let raw = [];
   let same = true;
@@ -93,7 +94,7 @@ function createGetTemplateObject(elements) {
   }
 
   return createCallExpression(
-      createMemberExpression('$traceurRuntime', 'getTemplateObject'),
+      getTemplateObject,
       createArgumentList(args));
 }
 
@@ -203,7 +204,13 @@ function toCookedString(s) {
 }
 
 export class TemplateLiteralTransformer extends
-    ParenTrait(ParseTreeTransformer) {
+    ImportRuntimeTrait(ParenTrait(ParseTreeTransformer)) {
+
+  constructor(identifierGenerator, reporter, options) {
+    super();
+    this.options = options;
+  }
+
   transformTemplateLiteralExpression(tree) {
     if (!tree.operand) {
       return this.createDefaultTemplateLiteral(tree);
@@ -211,8 +218,8 @@ export class TemplateLiteralTransformer extends
 
     let operand = this.transformAny(tree.operand);
     let elements = tree.elements;
-
-    let args = [createGetTemplateObject(tree.elements)];
+    let getTemplateObject = this.getRuntimeExpression('getTemplateObject');
+    let args = [createGetTemplateObject(tree.elements, getTemplateObject)];
     for (let i = 1; i < elements.length; i += 2) {
       args.push(this.transformAny(elements[i]));
     }

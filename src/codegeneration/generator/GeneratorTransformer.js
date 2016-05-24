@@ -23,6 +23,7 @@ import {
 } from '../../syntax/trees/ParseTrees.js'
 import {FindInFunctionScope} from '../FindInFunctionScope.js'
 import {ReturnState} from './ReturnState.js';
+import ImportRuntimeTrait from '../ImportRuntimeTrait.js';
 import {YieldState} from './YieldState.js';
 import {
   createIdentifierExpression as id,
@@ -69,7 +70,7 @@ function scopeContainsYield(tree) {
  *   return $traceurRuntime.createGeneratorInstance(machineFunction);
  * }
  */
-export class GeneratorTransformer extends CPSTransformer {
+export class GeneratorTransformer extends ImportRuntimeTrait(CPSTransformer) {
 
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
@@ -295,9 +296,9 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {FunctionBody}
    */
   transformGeneratorBody(tree, name) {
-    let runtimeFunction =
-        parseExpression `$traceurRuntime.createGeneratorInstance`;
-    return this.transformCpsFunctionBody(tree, runtimeFunction, name);
+    let createGeneratorInstance =
+        this.getRuntimeExpression('createGeneratorInstance');
+    return this.transformCpsFunctionBody(tree, createGeneratorInstance, name);
   }
 
   /**

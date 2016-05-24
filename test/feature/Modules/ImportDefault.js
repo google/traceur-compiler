@@ -1,3 +1,5 @@
+import {assert} from '../../asserts.js';
+
 import x from './resources/default.js';
 assert.equal(x, 42);
 

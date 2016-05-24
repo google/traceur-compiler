@@ -19,6 +19,7 @@ import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {
   createBindingIdentifier,
   createIdentifierExpression as id,
@@ -29,7 +30,8 @@ import {
   parseStatement
 } from './PlaceholderParser.js';
 
-export class AsyncGeneratorTransformPass extends TempVarTransformer {
+export class AsyncGeneratorTransformPass extends
+    ImportRuntimeTrait(TempVarTransformer) {
   // TODO: This class is modelled after GeneratorTransformPass. When the spec
   // for async generators will have stabilized, it may be an option to merge
   // this class into GeneratorTransformPass. However, note: This transformer
@@ -50,9 +52,10 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
       return super.transformFunctionDeclaration(tree);
 
     let nameIdExpression = id(tree.name.identifierToken);
-
+    let initAsyncGeneratorFunction =
+        this.getRuntimeExpression('initAsyncGeneratorFunction');
     let setupPrototypeExpression = parseExpression
-        `$traceurRuntime.initAsyncGeneratorFunction(${nameIdExpression})`;
+        `${initAsyncGeneratorFunction}(${nameIdExpression})`;
 
     // Function declarations in blocks do not hoist. In that case we add the
     // variable declaration after the function declaration.
@@ -89,8 +92,10 @@ export class AsyncGeneratorTransformPass extends TempVarTransformer {
 
     let functionExpression =
         this.transformFunction_(tree, FunctionExpression, id(name));
+    let initAsyncGeneratorFunction =
+        this.getRuntimeExpression('initAsyncGeneratorFunction');
     return parseExpression
-        `$traceurRuntime.initAsyncGeneratorFunction(${functionExpression })`;
+        `${initAsyncGeneratorFunction}(${functionExpression })`;
   }
 
   transformFunction_(tree, constructor, nameExpression) {

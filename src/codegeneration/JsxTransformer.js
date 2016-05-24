@@ -42,6 +42,7 @@ import {
 } from './ParseTreeFactory.js';
 import {parseExpression} from './PlaceholderParser.js';
 import {spreadProperties} from './SpreadPropertiesTransformer.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 
 /**
  * Desugars JSX expressions.
@@ -63,10 +64,10 @@ import {spreadProperties} from './SpreadPropertiesTransformer.js';
  *
  *   myFunc('p', null)
  */
-export class JsxTransformer extends ParseTreeTransformer {
+export class JsxTransformer extends ImportRuntimeTrait(ParseTreeTransformer) {
   constructor(idGen, reporter, options) {
     super();
-    this.options_ = options;
+    this.options = options;
     this.jsxFunction_ = null;
   }
 
@@ -75,7 +76,7 @@ export class JsxTransformer extends ParseTreeTransformer {
     // --jsx  -> React.createElement(tagName, opts, ...children)
     // --jsx=a.b.c -> a.b.c(tagName, opts, ...children)
     if (!this.jsxFunction_) {
-      let jsx = this.options_.jsx;
+      let jsx = this.options.jsx;
       if (typeof jsx === 'string') {
         this.jsxFunction_ = parseExpression([jsx]);
       } else {
@@ -99,17 +100,13 @@ export class JsxTransformer extends ParseTreeTransformer {
       return createNullLiteral();
     }
     if (tree.attributes.some(a => a.type === JSX_SPREAD_ATTRIBUTE)) {
-      return this.createSpreadAttributeExpression_(attrs);
+      // <a b='b' c='c' {...d} {...g} />
+      // =>
+      // React.createElement('a',
+      //     $traceurRuntime.spreadProperties({b: 'b', c: 'c'}, d, g))
+      return spreadProperties(attrs, this);
     }
     return createObjectLiteral(attrs);
-  }
-
-  createSpreadAttributeExpression_(attrs) {
-    // <a b='b' c='c' {...d} {...g} />
-    // =>
-    // React.createElement('a',
-    //     $traceurRuntime.spreadProperties({b: 'b', c: 'c'}, d, g))
-    return spreadProperties(attrs);
   }
 
   transformJsxElementName(tree) {

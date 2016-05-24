@@ -21,6 +21,7 @@ import {
   parseStatement
 } from './PlaceholderParser.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {FindInFunctionScope} from './FindInFunctionScope.js';
 import {
   AnonBlock,
@@ -48,7 +49,8 @@ function needsTransform(tree, transformOptions) {
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
  */
-export class GeneratorTransformPass extends TempVarTransformer {
+export class GeneratorTransformPass extends
+    ImportRuntimeTrait(TempVarTransformer) {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
@@ -75,9 +77,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
   transformGeneratorDeclaration_(tree) {
     let nameIdExpression = id(tree.name.identifierToken);
-
+    let initGeneratorFunction = this.getRuntimeExpression('initGeneratorFunction');
     let setupPrototypeExpression = parseExpression
-        `$traceurRuntime.initGeneratorFunction(${nameIdExpression})`;
+        `${initGeneratorFunction}(${nameIdExpression})`;
 
     // Function declarations in blocks do not hoist. In that case we add the
     // variable declaration after the function declaration.
@@ -124,8 +126,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     let functionExpression =
         this.transformFunction_(tree, FunctionExpression, id(name));
-    return parseExpression
-        `$traceurRuntime.initGeneratorFunction(${functionExpression })`;
+    let initGeneratorFunction =
+        this.getRuntimeExpression('initGeneratorFunction');
+    return parseExpression `${initGeneratorFunction}(${functionExpression })`;
   }
 
   transformFunction_(tree, constructor, nameExpression) {
@@ -141,13 +144,20 @@ export class GeneratorTransformPass extends TempVarTransformer {
     }
 
     if (this.tranformOptions_.generators && tree.isGenerator()) {
-      body = GeneratorTransformer.transformGeneratorBody(
-          this.identifierGenerator, this.reporter, this.options, body,
-          nameExpression);
+      let transformer = new GeneratorTransformer(this.identifierGenerator,
+                                                 this.reporter, this.options);
+      body = transformer.transformGeneratorBody(body, nameExpression);
+      transformer.requiredNames.forEach((n) => {
+        this.addImportedName(n);
+      });
 
     } else if (this.tranformOptions_.asyncFunctions && tree.isAsyncFunction()) {
-      body = AsyncTransformer.transformAsyncBody(
-          this.identifierGenerator, this.reporter, this.options, body);
+      let transformer = new AsyncTransformer(this.identifierGenerator,
+                                             this.reporter, this.options);
+      body = transformer.transformAsyncBody(body, nameExpression);
+      transformer.requiredNames.forEach((n) => {
+        this.addImportedName(n);
+      });
     }
 
     // The generator has been transformed away.

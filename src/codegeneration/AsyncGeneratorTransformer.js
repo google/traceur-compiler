@@ -25,6 +25,7 @@ import {
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {parseStatement} from './PlaceholderParser.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   AwaitExpression,
@@ -37,7 +38,7 @@ import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {VAR} from '../syntax/TokenType.js';
 
 export class AsyncGeneratorTransformer extends
-    SkipFunctionsTransformerTrait(TempVarTransformer) {
+    SkipFunctionsTransformerTrait(ImportRuntimeTrait(TempVarTransformer)) {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.variableDeclarations_ = [];
@@ -78,8 +79,10 @@ export class AsyncGeneratorTransformer extends
           createVariableDeclarationList(VAR, this.variableDeclarations_)));
     }
     let body = createBlock(tree.statements);
+    let createAsyncGeneratorInstance =
+        this.getRuntimeExpression('createAsyncGeneratorInstance');
     statements.push(parseStatement `
-        return $traceurRuntime.createAsyncGeneratorInstance(
+        return ${createAsyncGeneratorInstance}(
             async function (${this.ctx_}) {
                 ${body}
             }, ${name});`);

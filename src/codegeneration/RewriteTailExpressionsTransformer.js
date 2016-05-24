@@ -43,7 +43,7 @@ import {
   OR
 } from '../syntax/TokenType.js';
 
-function createCall(tree, operand, thisArg) {
+function createCall(tree, operand, thisArg, importRuntimeTransformer) {
   let argList = tree.args; // can be null
   let argArray = argList ? argList.args : [];
   argArray = argArray.map(arg => {
@@ -52,8 +52,10 @@ function createCall(tree, operand, thisArg) {
     }
     return arg;
   });
+  const continuation =
+      importRuntimeTransformer.getRuntimeExpression('continuation');
   return new CallExpression(tree.location,
-      createMemberExpression('$traceurRuntime', 'continuation'),
+      continuation,
       new ArgumentList(argList ? argList.location : null, [operand, thisArg,
           createArrayLiteral(argArray)]));
 }
@@ -86,7 +88,8 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
     }
     switch (operand.type) {
       case IDENTIFIER_EXPRESSION:
-        return createCall(tree, operand, createNullLiteral());
+        return createCall(tree, operand, createNullLiteral(),
+            this.bodyTransformer_);
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
         return this.transformMemberExpressionCall_(tree, operand)
@@ -115,9 +118,9 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
     }
     if (assignment) {
       return createParenExpression(createCommaExpression([assignment,
-          createCall(tree, operand, thisArg)]));
+          createCall(tree, operand, thisArg, this.bodyTransformer_)]));
     } else {
-      return createCall(tree, operand, thisArg);
+      return createCall(tree, operand, thisArg, this.bodyTransformer_);
     }
   }
 
@@ -144,8 +147,8 @@ export class RewriteTailExpressionsTransformer extends ParseTreeTransformer {
   }
 
   transformNewExpression(tree) {
-    return createCall(tree, createMemberExpression('$traceurRuntime', 'construct'),
-        tree.operand);
+    const construct = this.bodyTransformer_.getRuntimeExpression('construct');
+    return createCall(tree, construct, tree.operand, this.bodyTransformer_);
   }
 
   transformArrayLiteral(tree) {return tree;}

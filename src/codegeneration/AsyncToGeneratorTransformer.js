@@ -21,6 +21,7 @@ import {
   Method,
   YieldExpression
 } from '../syntax/trees/ParseTrees.js';
+import ImportRuntimeTrait from './ImportRuntimeTrait.js';
 import {ParenTrait} from './ParenTrait.js';
 import {parseStatement} from './PlaceholderParser.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
@@ -30,7 +31,7 @@ import {
 } from './ParseTreeFactory.js';
 
 export class AsyncToGeneratorTransformer extends
-    ParenTrait(TempVarTransformer) {
+    ImportRuntimeTrait(ParenTrait(TempVarTransformer)) {
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
     this.inAsyncFunction_ = false;
@@ -63,7 +64,8 @@ export class AsyncToGeneratorTransformer extends
     const inAsyncFunction = this.inAsyncFunction_;
     this.inAsyncFunction_ = true;
     body = this.transformFunctionBody(body);
-    body = wrapBodyInSpawn(body);
+    const spawn = this.getRuntimeExpression('spawn');
+    body = wrapBodyInSpawn(body, spawn);
     this.inAsyncFunction_ = inAsyncFunction;
     return body;
   }
@@ -91,13 +93,13 @@ export class AsyncToGeneratorTransformer extends
   }
 }
 
-function wrapBodyInSpawn(body) {
+function wrapBodyInSpawn(body, spawn) {
   const visitor = new FindArguments();
   visitor.visitAny(body);
   const argExpr = visitor.found ?
       createIdentifierExpression(ARGUMENTS) :
       createNullLiteral();
   const statement = parseStatement
-      `return $traceurRuntime.spawn(this, ${argExpr}, function*() { ${body} });`
+      `return ${spawn}(this, ${argExpr}, function*() { ${body} });`
   return new FunctionBody(body.location, [statement])
 }
