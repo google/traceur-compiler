@@ -44,15 +44,11 @@ class StringParser {
     this.index = 0;  // value is wrapped in " or '
   }
 
-  [Symbol.iterator]() {
-    return this;
-  }
-
   next() {
     if (++this.index >= this.value.length - 1)
-      return {value: undefined, done: true};
+      return '';
 
-    return {value: this.value[this.index], done: false};
+    return this.value[this.index];
   }
 
   parse() {
@@ -63,7 +59,7 @@ class StringParser {
 
     let result = '';
 
-    for (let ch of this) {
+    for (let ch = this.next(); ch !== ''; ch = this.next()) {
       result += ch === '\\' ? this.parseEscapeSequence() : ch;
     }
 
@@ -71,7 +67,7 @@ class StringParser {
   }
 
   parseEscapeSequence() {
-    let ch = this.next().value;
+    let ch = this.next();
     switch (ch) {
       case '\n':  // <LF>
       case '\r':  // <CR>
@@ -94,12 +90,12 @@ class StringParser {
         return '\v';
       case 'x':
         // 2 hex digits
-        return String.fromCharCode(parseInt(this.next().value + this.next().value, 16));
+        return String.fromCharCode(parseInt(this.next() + this.next(), 16));
       case 'u': {
-        let nextValue = this.next().value;
+        let nextValue = this.next();
         if (nextValue === '{') {
           let hexDigits = '';
-          while ((nextValue = this.next().value) !== '}') {
+          while ((nextValue = this.next()) !== '}') {
             hexDigits += nextValue;
           }
           let codePoint = parseInt(hexDigits, 16);
@@ -111,8 +107,8 @@ class StringParser {
           return String.fromCharCode(high, low);
         }
         // 4 hex digits
-        return String.fromCharCode(parseInt(nextValue + this.next().value +
-                                            this.next().value + this.next().value, 16));
+        return String.fromCharCode(parseInt(nextValue + this.next() +
+                                            this.next() + this.next(), 16));
       }
       default:
         if (Number(ch) < 8)
