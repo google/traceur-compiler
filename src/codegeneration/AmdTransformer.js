@@ -48,7 +48,7 @@ export class AmdTransformer extends ModuleTransformer {
   getExportProperties() {
     let properties = super.getExportProperties();
 
-    if (this.exportVisitor_.hasExports())
+    if (this.exportVisitor.hasExports())
       properties.push(parsePropertyDefinition `__esModule: true`);
     return properties;
   }

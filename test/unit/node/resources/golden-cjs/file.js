@@ -1,13 +1,12 @@
 "use strict";
-var $__dep_46_js__;
-var q = ($__dep_46_js__ = require("./dep.js"), $__dep_46_js__ && $__dep_46_js__.__esModule && $__dep_46_js__ || {default: $__dep_46_js__}).q;
-var p = 'module';
 Object.defineProperties(module.exports, {
+  __esModule: {value: true},
   p: {
+    enumerable: true,
     get: function() {
       return p;
-    },
-    enumerable: true
-  },
-  __esModule: {value: true}
+    }
+  }
 });
+var q = require("./dep.js").q;
+var p = 'module';
