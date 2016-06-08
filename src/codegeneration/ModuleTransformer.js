@@ -172,7 +172,17 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
     let returnExpression;
     switch (tree.type) {
       case EXPORT_DEFAULT:
-        returnExpression = createIdentifierExpression('$__default');
+        switch (tree.expression.type) {
+          case CLASS_DECLARATION:
+          case FUNCTION_DECLARATION: {
+            const nameBinding = tree.expression.name;
+            returnExpression =
+                createIdentifierExpression(nameBinding.identifierToken);
+            break;
+          }
+          default:
+            returnExpression = createIdentifierExpression('$__default');
+        }
         break;
 
       case EXPORT_SPECIFIER:
@@ -266,14 +276,8 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
   transformExportDefault(tree) {
     switch (tree.expression.type) {
       case CLASS_DECLARATION:
-      case FUNCTION_DECLARATION: {
-        let nameBinding = tree.expression.name;
-        let name = createIdentifierExpression(nameBinding.identifierToken);
-        return new AnonBlock(null, [
-          tree.expression,
-          parseStatement `var $__default = ${name}`
-        ]);
-      }
+      case FUNCTION_DECLARATION:
+        return tree.expression;
     }
     return parseStatement `var $__default = ${tree.expression}`;
   }
