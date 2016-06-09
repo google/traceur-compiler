@@ -117,7 +117,7 @@ export class InlineES6ModuleTransformer extends ModuleTransformer {
     if (this.isRootModule)
       return tree;
 
-    this.exportVisitor_.visitAny(tree);
+    this.exportVisitor.visitAny(tree);
     return this.transformAny(tree.declaration);
   }
 
@@ -154,11 +154,11 @@ export class InlineES6ModuleTransformer extends ModuleTransformer {
    *
    * @returns {Array} statements
    */
-  appendExportStatement(statements) {
+  addExportStatement(statements) {
     let exportProperties = this.getExportProperties();
     let exportObject = createObjectLiteral(exportProperties);
-    if (this.exportVisitor_.starExports.length) {
-      let starExports = this.exportVisitor_.starExports;
+    if (this.exportVisitor.starExports.length) {
+      let starExports = this.exportVisitor.starExports;
       let starIdents = starExports.map((moduleSpecifier) => {
         return createIdentifierExpression(
           this.getTempVarNameForModuleSpecifier(moduleSpecifier));

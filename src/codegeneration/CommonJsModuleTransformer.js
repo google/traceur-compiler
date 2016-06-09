@@ -13,44 +13,30 @@
 // limitations under the License.
 
 import {ModuleTransformer} from './ModuleTransformer.js';
-import {
-  CALL_EXPRESSION,
-  GET_ACCESSOR,
-  OBJECT_LITERAL,
-  PROPERTY_NAME_ASSIGNMENT,
-  RETURN_STATEMENT
-} from '../syntax/trees/ParseTreeType.js';
-import {
-  ArgumentList,
-  CallExpression,
-  ExpressionStatement
-} from '../syntax/trees/ParseTrees.js';
-import {assert} from '../util/assert.js';
-import globalThis from './globalThis.js';
+import {NAMED_EXPORT} from '../syntax/trees/ParseTreeType.js';
+import {AnonBlock} from '../syntax/trees/ParseTrees.js';
 import {
   parseExpression,
   parsePropertyDefinition,
-  parseStatements
+  parseStatement,
 } from './PlaceholderParser.js';
 import {
-  createEmptyParameterList,
-  createFunctionExpression,
-  createIdentifierExpression,
+  createExpressionStatement,
   createObjectLiteral,
+  createObjectLiteralForDescriptor,
   createPropertyNameAssignment,
-  createVariableStatement,
-  createVariableDeclaration,
-  createVariableDeclarationList
 } from './ParseTreeFactory.js';
-import {VAR} from '../syntax/TokenType.js';
+import {prependStatements} from './PrependStatements.js';
+import {FindVisitor} from './FindVisitor.js';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
-
   constructor(identifierGenerator, reporter, options = undefined) {
     super(identifierGenerator, reporter, options);
-    this.moduleVars_ = [];
     this.anonymousModule =
         options && !options.bundle && options.moduleName !== true;
+    this.namedExportsWithModuleSpecifiers_ = [];
+    this.isImportingDefault_ = false;
+    this.needsInteropRequire_ = false;
   }
 
   getModuleName(tree) {
@@ -59,106 +45,105 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     return tree.moduleName;
   }
 
-  moduleProlog() {
-    let statements = super.moduleProlog();
-
-    // declare temp vars in prolog
-    if (this.moduleVars_.length) {
-      let tmpVarDeclarations = createVariableStatement(createVariableDeclarationList(VAR,
-          this.moduleVars_.map((varName) => createVariableDeclaration(varName, null))));
-
-      statements.push(tmpVarDeclarations);
-    }
-
-    return statements;
-  }
-
   wrapModule(statements) {
-    let last = statements[statements.length - 1];
-    statements = statements.slice(0, -1);
-    assert(last.type === RETURN_STATEMENT);
-    let exportExpression = last.expression;
-
-    // If the module doesn't use any export statements, nor global "this", it
-    // might be because it wants to make its own changes to "exports" or
-    // "module.exports", so we don't append "module.exports = {}" to the output.
-    if (this.hasExports()) {
-      let exportStatement =
-          this.transformExportExpressionToModuleExport(exportExpression);
-      statements = statements.concat(exportStatement);
+    if (this.needsInteropRequire_) {
+      const req = parseStatement `function $__interopRequire(id) {
+        id = require(id);
+        return id && id.__esModule && id || {default: id};
+      }`;
+      return prependStatements(statements, req);
     }
     return statements;
   }
 
-  transformExportExpressionToModuleExport(tree) {
-    let expression;
-
-    // $traceurRuntime.exportStar({}, ...)
-    if (tree.type === CALL_EXPRESSION) {
-      let descriptors =
-          this.transformObjectLiteralToDescriptors(tree.args.args[0]);
-      let object = parseExpression
-          `Object.defineProperties(module.exports, ${descriptors})`;
-      let newArgs = new ArgumentList(tree.args.location,
-                                     [object, ...tree.args.args.slice(1)])
-      expression = new CallExpression(tree.location, tree.operand, newArgs);
-    } else {
-      let descriptors = this.transformObjectLiteralToDescriptors(tree);
-      expression = parseExpression
-          `Object.defineProperties(module.exports, ${descriptors})`;
+  addExportStatement(statements) {
+    if (!this.hasExports()) {
+      return statements;
     }
 
-    return new ExpressionStatement(expression.location, expression);
+    const descr = this.getExportDescriptors();
+    let exportObject = parseExpression
+        `Object.defineProperties(module.exports, ${descr})`;
+    if (this.hasStarExports()) {
+      exportObject = this.getExportStar(exportObject);
+    }
+
+    // Mutate module.exports immediately after all the export star are
+    // imported, before any module code is executed, to allow some cyclic
+    // dependencies to work.
+    return prependStatements(statements,
+        ...this.namedExportsWithModuleSpecifiers_,
+        createExpressionStatement(exportObject));
   }
 
-  transformObjectLiteralToDescriptors(literalTree) {
-    assert(literalTree.type === OBJECT_LITERAL);
+  getExportDescriptors() {
+    // {
+    //   x: {
+    //     enumerable: true,
+    //     get: function() { ... },
+    //   },
+    //   ...
+    // }
 
-    let props = literalTree.propertyNameAndValues.map((exp) => {
-      let descriptor;
-
-      switch (exp.type) {
-        case GET_ACCESSOR: {
-          let getterFunction =
-              createFunctionExpression(createEmptyParameterList(), exp.body);
-          descriptor =
-              parseExpression `{get: ${getterFunction}, enumerable: true}`;
-          break;
-        }
-
-        case PROPERTY_NAME_ASSIGNMENT:
-          descriptor = parseExpression `{value: ${exp.value}}`;
-          break;
-
-        default:
-          throw new Error(`Unexpected property type ${exp.type}`);
-      }
-
-      return createPropertyNameAssignment(exp.name, descriptor);
+    const properties = this.exportVisitor.getNonTypeNamedExports().map(exp => {
+      const f = parseExpression `function() { return ${
+        this.getGetterExportReturnExpression(exp)
+      }; }`;
+      return createPropertyNameAssignment(exp.name,
+          createObjectLiteralForDescriptor({enumerable: true, get: f}));
     });
+    properties.unshift(parsePropertyDefinition `__esModule: {value: true}`);
+    return createObjectLiteral(properties);
+  }
 
-    return createObjectLiteral(props);
+  transformExportDeclaration(tree) {
+    this.checkForDefaultImport_(tree);
+    this.exportVisitor.visitAny(tree);
+    const transformed = this.transformAny(tree.declaration);
+
+    // Need to output the require for export ? from moduleSpecifier before
+    // the call to exportStar.
+    if (tree.declaration.type == NAMED_EXPORT &&
+        tree.declaration.moduleSpecifier !== null) {
+      this.namedExportsWithModuleSpecifiers_.push(transformed);
+      return new AnonBlock(null, []);
+    }
+
+    return transformed;
+  }
+
+  transformImportDeclaration(tree) {
+    this.checkForDefaultImport_(tree);
+    return super.transformImportDeclaration(tree);
+  }
+
+  checkForDefaultImport_(tree) {
+    const finder = new FindDefault();
+    finder.visitAny(tree);
+    this.isImportingDefault_ = finder.found;
   }
 
   transformModuleSpecifier(tree) {
     let moduleName = tree.token.processedValue;
-    let tmpVar = this.getTempVarNameForModuleSpecifier(tree);
-    this.moduleVars_.push(tmpVar);
-    let tvId = createIdentifierExpression(tmpVar);
-
-    // require the module, if it is not marked as an ES6 module, treat it as { default: module }
-    // this allows for an unlinked CommonJS / ES6 interop
-    // note that future implementations should also check for native Module with
-    //   Reflect.isModule or similar
-    return parseExpression `(${tvId} = require(${moduleName}),
-        ${tvId} && ${tvId}.__esModule && ${tvId} || {default: ${tvId}})`;
+    if (this.isImportingDefault_) {
+      this.needsInteropRequire_ = true;
+      return parseExpression `$__interopRequire(${moduleName})`;
+    }
+    return parseExpression `require(${moduleName})`;
   }
+}
 
-  getExportProperties() {
-    let properties = super.getExportProperties();
-
-    if (this.exportVisitor_.hasExports())
-      properties.push(parsePropertyDefinition `__esModule: true`);
-    return properties;
+class FindDefault extends FindVisitor {
+  visitImportSpecifier(tree) {
+    this.found = tree.name !== null && tree.name.value === 'default';
+  }
+  visitNameSpaceImport(tree) {
+    this.found = true;
+  }
+  visitNameSpaceExport(tree) {
+    this.found = true;
+  }
+  visitExportSpecifier(tree) {
+    this.found = tree.lhs !== null && tree.lhs.value === 'default';
   }
 }

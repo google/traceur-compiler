@@ -36,7 +36,6 @@ import {
   IMPORT_SPECIFIER_SET,
   IMPORT_TYPE_CLAUSE,
   NAME_SPACE_EXPORT,
-  TYPE_ALIAS_DECLARATION
 } from '../syntax/trees/ParseTreeType.js';
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
@@ -82,7 +81,7 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
    */
   constructor(identifierGenerator, reporter, options) {
     super(identifierGenerator, reporter, options);
-    this.exportVisitor_ = new DirectExportVisitor();
+    this.exportVisitor = new DirectExportVisitor();
     this.importSimplifier_ = new ImportSimplifyingTransformer();
     this.moduleName = null;
   }
@@ -123,7 +122,7 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
     this.pushTempScope();
 
     let statements = this.transformList(tree.scriptItemList);
-    statements = this.appendExportStatement(statements);
+    statements = this.addExportStatement(statements);
     const runtimeImports = this.transformList(this.getRuntimeImports());
     statements = prependStatements(statements, ...runtimeImports);
 
@@ -168,62 +167,54 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
    * @param {{string, ParseTree, ModuleSpecifier}} symbol
    * @return {ParseTree}
    */
-  getGetterExport({name, tree, moduleSpecifier}) {
+  getGetterExport(exp) {
+    const returnExpression = this.getGetterExportReturnExpression(exp);
+    return parsePropertyDefinition
+        `get ${exp.name}() { return ${returnExpression}; }`;
+  }
+
+  getGetterExportReturnExpression({name, tree, moduleSpecifier}) {
     let returnExpression;
     switch (tree.type) {
       case EXPORT_DEFAULT:
         switch (tree.expression.type) {
           case CLASS_DECLARATION:
-          case FUNCTION_DECLARATION: {
-            const nameBinding = tree.expression.name;
-            returnExpression =
-                createIdentifierExpression(nameBinding.identifierToken);
-            break;
-          }
+          case FUNCTION_DECLARATION:
+            return createIdentifierExpression(tree.expression.name);
           default:
-            returnExpression = createIdentifierExpression('$__default');
+            return createIdentifierExpression('$__default');
         }
         break;
 
       case EXPORT_SPECIFIER:
         if (moduleSpecifier) {
           let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
-          returnExpression = createMemberExpression(idName, tree.lhs);
-        } else {
-          returnExpression = createIdentifierExpression(tree.lhs)
+          return createMemberExpression(idName, tree.lhs);
         }
-        break;
+        return createIdentifierExpression(tree.lhs)
 
       case NAME_SPACE_EXPORT: {
         let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
-        returnExpression = createIdentifierExpression(idName);
-        break;
+        return createIdentifierExpression(idName);
       }
 
       case FORWARD_DEFAULT_EXPORT: {
         let idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
-        returnExpression = createMemberExpression(idName, 'default');
-        break;
+        return createMemberExpression(idName, 'default');
       }
 
       default:
-        returnExpression = createIdentifierExpression(name);
-        break;
+        return createIdentifierExpression(name);
     }
-
-    return parsePropertyDefinition
-        `get ${name}() { return ${returnExpression}; }`;
   }
 
   getExportProperties() {
-    return this.exportVisitor_.namedExports.filter((exp) => {
-      return exp.tree.type !== TYPE_ALIAS_DECLARATION;
-    }).map((exp) => {
+    return this.exportVisitor.getNonTypeNamedExports().map((exp) => {
       // export_name: {get: function() { return export_name },
       return this.getGetterExport(exp);
-    }).concat(this.exportVisitor_.namedExports.map((exp) => {
+    }).concat(this.exportVisitor.namedExports.map((exp) => {
       return this.getSetterExport(exp);
-    })).filter((e) => e);
+    })).filter(e => e);
   }
 
   // By default, the module transformer doesn't create setters,
@@ -233,22 +224,25 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
   }
 
   getExportObject() {
-    let exportObject =
-        createObjectLiteral(this.getExportProperties());
-    if (this.exportVisitor_.starExports.length) {
-      let starExports = this.exportVisitor_.starExports;
-      let starIdents = starExports.map((moduleSpecifier) => {
-        return createIdentifierExpression(
-            this.getTempVarNameForModuleSpecifier(moduleSpecifier));
-      });
-      let args = createArgumentList([exportObject, ...starIdents]);
-      const runtime = this.getRuntimeExpression('exportStar');
-      return parseExpression `${runtime}(${args})`;
+    let exportObject = createObjectLiteral(this.getExportProperties());
+    if (this.hasStarExports()) {
+      return this.getExportStar(exportObject);
     }
     return exportObject;
   }
 
-  appendExportStatement(statements) {
+  getExportStar(exportObject) {
+    let starExports = this.exportVisitor.starExports;
+    let starIdents = starExports.map((moduleSpecifier) => {
+      return createIdentifierExpression(
+          this.getTempVarNameForModuleSpecifier(moduleSpecifier));
+    });
+    let args = createArgumentList([exportObject, ...starIdents]);
+    const runtime = this.getRuntimeExpression('exportStar');
+    return parseExpression `${runtime}(${args})`;
+  }
+
+  addExportStatement(statements) {
     let exportObject = this.getExportObject();
     statements.push(parseStatement `return ${exportObject}`);
     return statements;
@@ -258,18 +252,18 @@ export class ModuleTransformer extends ImportRuntimeTrait(TempVarTransformer) {
    * @return {boolean}
    */
   hasExports() {
-    return this.exportVisitor_.hasExports();
+    return this.exportVisitor.hasExports();
   }
 
   /**
    * @return {boolean}
    */
   hasStarExports() {
-    return this.exportVisitor_.starExports.length > 0;
+    return this.exportVisitor.starExports.length > 0;
   }
 
   transformExportDeclaration(tree) {
-    this.exportVisitor_.visitAny(tree);
+    this.exportVisitor.visitAny(tree);
     return this.transformAny(tree.declaration);
   }
 

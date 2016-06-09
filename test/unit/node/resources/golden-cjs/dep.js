@@ -1,11 +1,11 @@
 "use strict";
-var q = 'q';
 Object.defineProperties(module.exports, {
+  __esModule: {value: true},
   q: {
+    enumerable: true,
     get: function() {
       return q;
-    },
-    enumerable: true
-  },
-  __esModule: {value: true}
+    }
+  }
 });
+var q = 'q';

@@ -362,7 +362,7 @@ export class InstantiateModuleTransformer extends ModuleTransformer {
    * });
    *
    */
-  appendExportStatement(statements) {
+  addExportStatement(statements) {
     let declarationExtractionTransformer = new DeclarationExtractionTransformer();
 
     // convert __moduleName identifiers into $__moduleContext.id

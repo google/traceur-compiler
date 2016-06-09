@@ -63,7 +63,7 @@ suite('InlineES6ModuleTransformer.js', function() {
 
     let transformer = new InlineES6ModuleTransformer(
       new UniqueIdentifierGenerator(), reporter, options, metadata);
-    transformer.exportVisitor_.visitAny(exportStarTree);
+    transformer.exportVisitor.visitAny(exportStarTree);
     let transformed = transformer.transformAny(tree);
     assert.equal(write(transformed), expected);
   });

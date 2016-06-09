@@ -53,7 +53,7 @@ export class ClosureModuleTransformer extends ModuleTransformer {
     return statements;
   }
 
-  appendExportStatement(statements) {
+  addExportStatement(statements) {
     if (!this.hasExports()) return statements;
     let exportObject = this.getExportObject();
     statements.push(parseStatement `exports = ${exportObject}`);
