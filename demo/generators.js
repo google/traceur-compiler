@@ -5,11 +5,10 @@ function iterateElements(array) {
   var index = 0;
   var rv = {};
   rv[Symbol.iterator] = {
-      next() {
-        if (index < array.length)
-          return {value: array[index++], done: false};
-        return {done: true};
-      }
+    next() {
+      if (index < array.length)
+        return {value: array[index++], done: false};
+      return {done: true};
     }
   };
   return rv;
