@@ -37,6 +37,4 @@
     setupGlobals: setupGlobals,
     typeof: typeOf,
   };
-})(typeof window !== 'undefined' ? window :
-    typeof global !== 'undefined' ? global :
-    typeof self !== 'undefined' ? self : this);
+})(new Function('return this;')());

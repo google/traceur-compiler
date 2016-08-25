@@ -301,4 +301,4 @@
   $traceurRuntime.setModule = ModuleStore.set;
   $traceurRuntime.normalizeModuleName = ModuleStore.normalize;
 
-})(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);
+})(new Function('return this;')());
