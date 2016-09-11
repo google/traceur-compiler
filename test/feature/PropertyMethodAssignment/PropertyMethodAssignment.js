@@ -41,7 +41,9 @@ function assertMethod(object, name) {
   assert.isTrue(descriptor.enumerable);
   assert.equal('function', typeof object[name]);
   // IE does not have a name property on functions.
-  assert.isTrue(object[name].name === '' || object[name].name === undefined);
+  // ES6 compliant engines will set the name of {x: function() {}} to x
+  var fn = object[name].name;
+  assert.include(['', undefined, name], fn);
 }
 
 assertMethod(object, 'f');
