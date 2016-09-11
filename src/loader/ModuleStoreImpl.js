@@ -122,7 +122,7 @@
       return this.value_;
     try {
       var relativeRequire;
-      if (typeof $traceurRuntime !== undefined && $traceurRuntime.require) {
+      if (typeof $traceurRuntime !== 'undefined' && $traceurRuntime.require) {
         relativeRequire = $traceurRuntime.require.bind(null, this.url);
       }
       return this.value_ = this.func.call(global, relativeRequire);
