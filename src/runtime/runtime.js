@@ -37,4 +37,17 @@
     setupGlobals: setupGlobals,
     typeof: typeOf,
   };
-})(new Function('return this;')());
+})((function() {
+  try {
+    return new Function('return this;')();
+  } catch(e) {
+    if (typeof window !== 'undefined')
+      return window;
+    if (typeof global !== 'undefined')
+      return global;
+    if (typeof self !== 'undefined')
+      return self;
+
+    return this;
+  }
+})());
