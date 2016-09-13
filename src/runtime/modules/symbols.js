@@ -169,7 +169,22 @@ function polyfillSymbol(global) {
   }
 }
 
-polyfillSymbol(new Function('return this;')());
+function findGlobal() {
+  try {
+    return new Function('return this;')();
+  } catch(e) {
+    if (typeof window !== 'undefined')
+      return window;
+    if (typeof global !== 'undefined')
+      return global;
+    if (typeof self !== 'undefined')
+      return self;
+
+    return this;
+  }
+}
+
+polyfillSymbol(findGlobal());
 
 let typeOf = hasNativeSymbol() ?
     x => typeof x :
