@@ -301,4 +301,17 @@
   $traceurRuntime.setModule = ModuleStore.set;
   $traceurRuntime.normalizeModuleName = ModuleStore.normalize;
 
-})(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);
+})((function() {
+  try {
+    return new Function('return this;')();
+  } catch(e) {
+    if (typeof window !== 'undefined')
+      return window;
+    if (typeof global !== 'undefined')
+      return global;
+    if (typeof self !== 'undefined')
+      return self;
+
+    return this;
+  }
+})());
