@@ -19,13 +19,11 @@ import {Options} from 'traceur@0.0/src/Options.js';
 import {setOptionsFromSource} from './replOptions.js';
 
 let hasError = false;
-let debouncedCompile = debounced(compile, 200, 2000);
 let input = CodeMirror.fromTextArea(document.querySelector('.input'), {
   lineNumbers: true,
   keyMap: 'sublime'
 });
-input.on('change', debouncedCompile);
-input.on('cursorActivity', onInputCursorActivity);
+
 
 let outputCheckbox = document.querySelector('input.output');
 let output = CodeMirror.fromTextArea(
@@ -35,6 +33,19 @@ let output = CodeMirror.fromTextArea(
       readOnly: true
     });
 output.getWrapperElement().classList.add('output-wrapper');
+
+let sourceMapVisualizer = new SourceMapVisualizer(input, output);
+let debouncedCompile = debounced(compile, 200, 2000);
+input.on('change', debouncedCompile);
+input.on('cursorActivity', () => {
+  debouncedCompile.delay();
+  sourceMapVisualizer.updateGenerated();
+});
+
+output.on('cursorActivity', () => {
+  sourceMapVisualizer.updateSource();
+});
+
 let evalCheckbox = document.querySelector('input.eval');
 let errorElement = document.querySelector('pre.error');
 
@@ -72,11 +83,6 @@ function debounced(func, tmin, tmax) {
   return debouncedFunc;
 }
 
-function onInputCursorActivity() {
-  debouncedCompile.delay();
-  sourceMapVisualizer.updateUI();
-}
-
 function updateLocation(contents) {
   if (history.replaceState) {
     history.replaceState(null, document.title,
@@ -102,7 +108,7 @@ function compile() {
   }
 }
 
-let sourceMapVisualizer = new SourceMapVisualizer(input, output);
+
 
 // When options are changed we write // Options back into the source
 // and recompile with these options.
