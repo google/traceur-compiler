@@ -21,15 +21,32 @@ var NodeCompiler = require('./NodeCompiler.js').NodeCompiler;
 function compileAllJsFilesInDir(inputDir, outputDir, options) {
   inputDir = path.normalize(inputDir).replace(/\\/g, '/');
   outputDir = path.normalize(outputDir).replace(/\\/g, '/');
-  glob(inputDir + '/**/*.js', {}, function (er, files) {
-    if (er)
-      throw new Error('While scanning ' + inputDir + ': ' + er);
+  return new Promise(function(resolve, reject) {
+    glob(inputDir + '/**/*.js', {}, function(err, files) {
+      if (err) {
+        reject(new Error('While scanning ' + inputDir + ': ' + err));
+        return;
+      }
 
-    files.forEach(function(inputFilePath) {
-      var outputFilePath = inputFilePath.replace(inputDir, outputDir);
-      var compiler = new NodeCompiler(options);
-      compiler.compileSingleFile(inputFilePath, outputFilePath, function(err) {
-        throw new Error('While reading ' + inputFilePath + ': ' + err);
+      var total = files.length,
+          current = 1;
+
+
+      files.forEach(function(inputFilePath) {
+        var outputFilePath = inputFilePath.replace(inputDir, outputDir);
+        var compiler = new NodeCompiler(options);
+        compiler.compileSingleFile(inputFilePath, outputFilePath, function(err) {
+          if (err) {
+            reject(new Error('While scanning ' + inputDir + ': ' + err));
+            return;
+          }
+        });
+
+        if (current == total) {
+          resolve();
+        } else {
+          current++;
+        }
       });
     });
   });
