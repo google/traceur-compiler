@@ -35,8 +35,10 @@ http.get(url, function(res) {
 
 var unicodeIdStart = [];
 var unicodeIdContinue = [];
+var es6UnicodeIds = [];
 
 var idStartRanges = {};
+var es6UnicodeIdRanges = {};
 
 function printArray(name, array) {
   print('export const ' + name + ' = [');
@@ -48,44 +50,41 @@ function printArray(name, array) {
 
 function processData() {
   data.split(/\n/).forEach(function(line) {
-    var m;
-    if ((m = line.match(/(.+)\.\.(.+)\s+;\s+ID_Start/))) {
-      var c1 = parseInt(m[1], 16);
-      var c2 = parseInt(m[2], 16);
-      if (c2 < 128)
-        return;
-      unicodeIdStart.push(c1, c2);
-      idStartRanges[c1 + '..' + c2] = true;
-    } else if ((m = line.match(/(.+)\s+;\s+ID_Start/))) {
-      var c1 = parseInt(m[1], 16);
-      if (c1 < 128)
-        return;
-      unicodeIdStart.push(c1, c1);
-      idStartRanges[c1 + '..' + c1] = true;
+    var m = line.match(/([0-9a-fA-F]+)(?:\.\.(.+))?\s+;\s+ID_Start\s+(?:#\s+(.*?)\s+)?/);
+    if (!m) return;
+    var first = parseInt(m[1], 16);
+    var last = parseInt(m[2] || m[1], 16);
+    var category = m[3] || "";
+    if (last < 128) return;
+    if (!es6UnicodeIdRanges[first + '..' + last] &&
+        !/^(L&)|(Lu)|(Ll)|(Lt)|(Lm)|(Lo)|(Nl)$/.test(category)) {
+      es6UnicodeIdRanges[first + '..' + last] = true;
+      es6UnicodeIds.push(first, last);
     }
+    unicodeIdStart.push(first, last);
+    idStartRanges[first + '..' + last] = true;
   });
 
   data.split(/\n/).forEach(function(line) {
-    var m;
-    if ((m = line.match(/(.+)\.\.(.+)\s+;\s+ID_Continue/))) {
-      var c1 = parseInt(m[1], 16);
-      var c2 = parseInt(m[2], 16);
-      if (c2 < 128)
-        return;
-      if (idStartRanges[c1 + '..' + c2])
-        return;
-      unicodeIdContinue.push(c1, c2);
-    } else if ((m = line.match(/(.+)\s+;\s+ID_Continue/))) {
-      var c1 = parseInt(m[1], 16);
-      if (c1 < 128)
-        return;
-      if (idStartRanges[c1 + '..' + c1])
-        return;
-      unicodeIdContinue.push(c1, c1);
+    var m = line.match(/([0-9a-fA-F]+)(?:\.\.(.+))?\s+;\s+ID_Continue\s+(?:#\s+(.*?)\s+)?/);
+    if (!m) return;
+    var first = parseInt(m[1], 16);
+    var last = parseInt(m[2] || m[1], 16);
+    var category = m[3] || "";
+    if (last < 128) return;
+    if (!es6UnicodeIdRanges[first + '..' + last] &&
+        !/^(L&)|(Lu)|(Ll)|(Lt)|(Lm)|(Lo)|(Nl)|(Mn)|(Mc)|(Nd)|(Pc)$/.test(category)) {
+      es6UnicodeIdRanges[first + '..' + last] = true;
+      es6UnicodeIds.push(first, last);
     }
+    if (idStartRanges[first + '..' + last])
+      return;
+    unicodeIdContinue.push(first, last);
   });
 
   printArray('idStartTable', unicodeIdStart);
   print('');
   printArray('idContinueTable', unicodeIdContinue);
+  print('');
+  printArray('idES6OnlyTable', es6UnicodeIds);
 }
