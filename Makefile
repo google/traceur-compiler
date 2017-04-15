@@ -270,6 +270,8 @@ test-no-modules: bin/traceur-from-no-modules.js bin/traceur-runtime.js bin/trace
 #
 #
 
+$(TPL_GENSRC_DEPS): | node_modules
+
 src/syntax/trees/ParseTrees.js: \
 	build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
