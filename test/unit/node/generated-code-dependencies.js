@@ -82,6 +82,10 @@ suite('context test', function() {
     }
   }
 
+  test('Tests are running!', function(done) {
+    assert.isNull({});
+  });
+
   test('class', function(done) {
     var fileName = path.resolve(theDirName, 'resources/class.js');
     executeFileWithRuntime(fileName).then(function(value) {
