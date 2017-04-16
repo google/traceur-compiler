@@ -3,6 +3,7 @@
 
 <img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px">
 
+<img src="logo/tc.png" alt="Traceur logo" width="200px">
 ## What is Traceur?
 
 Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to
