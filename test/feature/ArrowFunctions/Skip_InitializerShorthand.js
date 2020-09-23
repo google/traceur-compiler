@@ -1,8 +1,8 @@
 // Skip. Not implemented.
 
-// TODO: needs the intializer shorthand implemented for arrow functions
+// TODO: needs the initializer shorthand implemented for arrow functions
 
-// Object intializer shorthand: "method" = function-valued property with dynamic ''this''
+// Object initializer shorthand: "method" = function-valued property with dynamic ''this''
 const obj = {
   method() -> {
     return => this;
