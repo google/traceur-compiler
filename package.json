@@ -68,7 +68,7 @@
     "commander": "2.9.x",
     "glob": "5.0.x",
     "rsvp": "^3.0.13",
-    "semver": "^4.3.3",
+    "semver": "^7.6.3",
     "source-map-support": "~0.2.8"
   },
   "devDependencies": {
