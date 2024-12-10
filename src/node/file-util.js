@@ -53,14 +53,18 @@ function removeCommonPrefix(basedir, filedir) {
 function writeFile(filename, contents) {
   // Compute the output path
   var outputdir = fs.realpathSync(process.cwd());
-  mkdirRecursive(path.dirname(filename));
-  var filedir = fs.realpathSync(path.dirname(filename));
-  filedir = removeCommonPrefix(outputdir, filedir);
-  outputdir = path.join(outputdir, filedir);
+  
+  // Resolve the full path of the target file
+  var resolvedFilePath = path.resolve(outputdir, filename);
 
-  mkdirRecursive(outputdir);
-  var outputfile = path.join(outputdir, path.basename(filename));
-  fs.writeFileSync(outputfile, contents, 'utf8');
+  // Ensure the parent directory of the target file exists
+  var parentDir = path.dirname(resolvedFilePath);
+
+  // Only create the necessary parent directory structure
+  mkdirRecursive(parentDir);
+
+  // Write the file
+  fs.writeFileSync(resolvedFilePath, contents, 'utf8');
 }
 
 function normalizePath(s) {
